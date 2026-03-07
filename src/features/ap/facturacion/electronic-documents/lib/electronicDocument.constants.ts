@@ -98,6 +98,9 @@ export const UNIT_MEASURES = [
 ];
 
 export const DEFAULT_IGV_PERCENTAGE = 18;
+
+// Monto mínimo de retención en Soles (S/ 700)
+export const MIN_RETENTION = 700;
 export const DEFAULT_SERIE_LENGTH = 4;
 
 // Account Plan IDs para items de cotización
@@ -114,13 +117,13 @@ export const NUBEFACT_CODES = {
 };
 
 export const PAYMENT_CONDITIONS = [
-  { label: "CONTADO", value: "CONTADO" },
-  { label: "CREDITO", value: "CREDITO" },
+  { label: "CONTADO", value: "contado" },
+  { label: "CREDITO", value: "credito" },
 ] as const;
 
 export type PaymentConditionValue = (typeof PAYMENT_CONDITIONS)[number]["value"];
 
-export const PAYMENT_CONDITION_CREDIT: PaymentConditionValue = "CREDITO";
+export const PAYMENT_CONDITION_CREDIT: PaymentConditionValue = "credito";
 
 export const CREDIT_DAYS_OPTIONS = [
   { label: "15 días", value: "15" },

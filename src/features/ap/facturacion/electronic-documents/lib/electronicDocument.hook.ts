@@ -3,6 +3,7 @@ import {
   ElectronicDocumentResource,
   ElectronicDocumentResponse,
   AdvancePaymentsByQuotationResponse,
+  ExchangeRateResource,
 } from "./electronicDocument.interface";
 import {
   findElectronicDocumentById,
@@ -11,6 +12,7 @@ import {
   getNextCorrelativeElectronicDocument,
   getAdvancePaymentsByVehicle,
   getAdvancePaymentsByQuotation,
+  getExchangeRateByDateAndCurrency,
 } from "./electronicDocument.actions";
 import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
 
@@ -65,5 +67,16 @@ export const useAdvancePaymentsByQuotation = (quotationId: number | null) => {
     queryKey: [QUERY_KEY, "advances", "quotation", quotationId],
     queryFn: () => getAdvancePaymentsByQuotation(quotationId!),
     enabled: !!quotationId && quotationId > 0,
+  });
+};
+
+export const useExchangeRateByDateAndCurrency = (
+  to_currency_id: number | null,
+  date: string,
+) => {
+  return useQuery<ExchangeRateResource>({
+    queryKey: ["exchange-rate", to_currency_id, date],
+    queryFn: () => getExchangeRateByDateAndCurrency(to_currency_id!, date),
+    enabled: !!to_currency_id && !!date,
   });
 };

@@ -126,8 +126,8 @@ export const ElectronicDocumentSchema = z
 
     // ===== CAMPOS OPCIONALES =====
     observaciones: z.string().max(1000, "Máximo 1000 caracteres").optional(),
-    condiciones_de_pago: z.string().min(1, "Condiciones de pago requeridas"),
-    medio_de_pago: z.string().optional(),
+    medio_de_pago: z.string().min(1, "Condiciones de pago requeridas"),
+    condiciones_de_pago: z.string().optional(),
     bank_id: optionalStringId("Chequera es inválida"),
     operation_number: z
       .string()
@@ -217,15 +217,15 @@ export const ElectronicDocumentSchema = z
   )
   .refine(
     (data) => {
-      // Medio de pago requerido cuando es CONTADO
-      if (data.condiciones_de_pago !== PAYMENT_CONDITION_CREDIT) {
-        return !!data.medio_de_pago;
+      // Condiciones de pago requeridas cuando es CONTADO
+      if (data.medio_de_pago !== PAYMENT_CONDITION_CREDIT) {
+        return !!data.condiciones_de_pago;
       }
       return true;
     },
     {
       message: "Medio de pago requerido",
-      path: ["medio_de_pago"],
+      path: ["condiciones_de_pago"],
     },
   )
   .refine(

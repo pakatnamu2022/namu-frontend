@@ -31,7 +31,7 @@ export function AdditionalConfigSection({
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
-  const isCredito = condicionesDePago === PAYMENT_CONDITION_CREDIT;
+  const isCredito = medioDePago === PAYMENT_CONDITION_CREDIT;
 
   // Form auxiliar solo para UI - los días de crédito no se envían al backend
   const creditDaysSchema = z.object({
@@ -48,12 +48,14 @@ export function AdditionalConfigSection({
     mode: "onChange",
   });
 
-  // Limpiar al cambiar a CONTADO
+  // Limpiar al cambiar a CONTADO; poner 30 días por defecto al cambiar a CREDITO
   useEffect(() => {
     if (!isCredito) {
       creditDaysForm.reset();
       form.setValue("venta_al_credito", []);
       form.setValue("fecha_de_vencimiento", undefined);
+    } else {
+      creditDaysForm.setValue("credit_days", "30");
     }
   }, [isCredito, form, creditDaysForm]);
 
@@ -86,13 +88,13 @@ export function AdditionalConfigSection({
     ]);
   }
 
-  // Filtrar chequeras: si medio de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
+  // Filtrar chequeras: si condiciones de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
   const filteredCheckbooks =
-    medioDePago === "EFECTIVO"
+    condicionesDePago === "EFECTIVO"
       ? checkbooks.filter((checkbook) =>
           checkbook.code.toUpperCase().includes("CAJ01"),
         )
-      : medioDePago !== "EFECTIVO"
+      : condicionesDePago !== "EFECTIVO"
         ? checkbooks.filter(
             (checkbook) => !checkbook.code.toUpperCase().includes("CAJ"),
           )
@@ -130,7 +132,7 @@ export function AdditionalConfigSection({
   ];
 
   const filteredFinancingTypeOptions = financingTypeOptions.filter((option) => {
-    return option.label.includes(form.watch("condiciones_de_pago") || "");
+    return option.label.includes(form.watch("medio_de_pago")?.toUpperCase() || "");
   });
 
   return (
@@ -143,7 +145,7 @@ export function AdditionalConfigSection({
       <FormSelect
         control={form.control}
         label="Condiciones de Pago *"
-        name="condiciones_de_pago"
+        name="medio_de_pago"
         options={PAYMENT_CONDITIONS.map((o) => ({
           label: o.label,
           value: o.value,
@@ -183,7 +185,7 @@ export function AdditionalConfigSection({
           <FormSelect
             control={form.control}
             label="Medio de Pago *"
-            name="medio_de_pago"
+            name="condiciones_de_pago"
             options={paymentMethodOptions}
             placeholder="Seleccione una opción"
             description="Medio de pago utilizado en el documento."
@@ -202,7 +204,7 @@ export function AdditionalConfigSection({
             description="Chequera asociada al medio de pago."
           />
 
-          {medioDePago !== "EFECTIVO" && (
+          {condicionesDePago !== "EFECTIVO" && (
             <FormInput
               control={form.control}
               name="operation_number"

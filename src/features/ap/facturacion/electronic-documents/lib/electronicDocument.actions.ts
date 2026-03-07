@@ -6,7 +6,10 @@ import {
   CreditNoteSchema,
   DebitNoteSchema,
 } from "./electronicDocument.schema";
-import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
+import {
+  ELECTRONIC_DOCUMENT,
+  PAYMENT_CONDITION_CREDIT,
+} from "./electronicDocument.constants";
 import {
   ElectronicDocumentResource,
   ElectronicDocumentResponse,
@@ -14,10 +17,22 @@ import {
   ElectronicDocumentMigrationLogsResponse,
   ElectronicDocumentMigrationHistoryResponse,
   MigrationAllResponse,
+  ExchangeRateResource,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
 const { ENDPOINT } = ELECTRONIC_DOCUMENT;
+
+function sanitizeElectronicDocumentPayload(data: ElectronicDocumentSchema): ElectronicDocumentSchema {
+  if (data.medio_de_pago === PAYMENT_CONDITION_CREDIT) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { condiciones_de_pago, operation_number, bank_id, ...rest } = data;
+    return rest;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { venta_al_credito, ...rest } = data;
+  return rest;
+}
 
 export async function getElectronicDocuments(
   params?: ParamsProps,
@@ -87,7 +102,7 @@ export async function getElectronicDocumentsByEntity(
 export async function storeElectronicDocument(
   data: ElectronicDocumentSchema,
 ): Promise<ElectronicDocumentResource> {
-  const response = await api.post<ElectronicDocumentResource>(ENDPOINT, data);
+  const response = await api.post<ElectronicDocumentResource>(ENDPOINT, sanitizeElectronicDocumentPayload(data));
   return response.data;
 }
 
@@ -97,7 +112,7 @@ export async function updateElectronicDocument(
 ): Promise<ElectronicDocumentResource> {
   const response = await api.put<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}`,
-    data,
+    sanitizeElectronicDocumentPayload(data),
   );
   return response.data;
 }
@@ -290,4 +305,17 @@ export async function dispatchElectronicDocumentMigration(
 
 export async function syncAccountingStatus(): Promise<void> {
   await api.post(`${ENDPOINT}/sync-accounting-status`);
+}
+
+export async function getExchangeRateByDateAndCurrency(
+  to_currency_id: number,
+  date: string,
+): Promise<ExchangeRateResource> {
+  const { data } = await api.get<{ data: ExchangeRateResource }>(
+    "gp/mg/exchange-rate/by-date-and-currency",
+    {
+      params: { to_currency_id, date, type: "VENDER" },
+    },
+  );
+  return data.data;
 }

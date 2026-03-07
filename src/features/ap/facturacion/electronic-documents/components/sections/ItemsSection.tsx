@@ -31,6 +31,7 @@ interface ItemsSectionProps {
   showActions?: boolean;
   useQuotation?: boolean;
   isDetraction?: boolean;
+  minRetentionPrice?: number;
 }
 
 export function ItemsSection({
@@ -44,10 +45,11 @@ export function ItemsSection({
   showActions = true,
   useQuotation = false,
   isDetraction = false,
+  minRetentionPrice,
 }: ItemsSectionProps) {
-  const { data: accountPlans } = useAllAccountingAccountPlan(
-    isDetraction ? { is_detraction: 1 } : undefined,
-  );
+  const { data: accountPlans } = useAllAccountingAccountPlan({
+    is_detraction: isDetraction ? 1 : 0,
+  });
 
   const [newItem, setNewItem] = useState({
     unidad_de_medida: "NIU",
@@ -129,6 +131,14 @@ export function ItemsSection({
       return;
     }
 
+    // Validar precio mínimo por retención
+    if (minRetentionPrice && newItem.precio_unitario < minRetentionPrice) {
+      errorToast(
+        `El precio unitario no puede ser menor a ${currencySymbol} ${minRetentionPrice.toFixed(2)} (mínimo de retención S/ 700)`,
+      );
+      return;
+    }
+
     const item: ElectronicDocumentItemSchema = {
       unidad_de_medida: newItem.unidad_de_medida,
       descripcion: newItem.descripcion,
@@ -204,6 +214,14 @@ export function ItemsSection({
         `El monto del anticipo no puede exceder ${currencySymbol} ${maxAdvanceAmount.toFixed(
           2,
         )}`,
+      );
+      return;
+    }
+
+    // Validar precio mínimo por retención
+    if (minRetentionPrice && newItem.precio_unitario < minRetentionPrice) {
+      errorToast(
+        `El precio unitario no puede ser menor a ${currencySymbol} ${minRetentionPrice.toFixed(2)} (mínimo de retención S/ 700)`,
       );
       return;
     }
@@ -410,6 +428,15 @@ export function ItemsSection({
                 }
                 disabled={isFromQuotation && !isAdvancePayment}
               />
+              {minRetentionPrice && (
+                <p className="text-xs text-muted-foreground">
+                  Mínimo por retención:{" "}
+                  <span className="font-medium">
+                    {currencySymbol} {minRetentionPrice.toFixed(2)}
+                  </span>{" "}
+                  (S/ 700)
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">

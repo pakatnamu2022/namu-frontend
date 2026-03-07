@@ -295,6 +295,7 @@ export default function UpdateElectronicDocumentPage() {
         title={currentView.descripcion}
         mode="edit"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <ElectronicDocumentForm
         form={form}
