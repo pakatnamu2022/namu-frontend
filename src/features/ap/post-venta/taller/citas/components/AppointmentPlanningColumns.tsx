@@ -6,7 +6,7 @@ import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interfac
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { downloadAppointmentPlanningPdf } from "../lib/appointmentPlanning.actions";
-import { errorToast } from "@/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
@@ -154,6 +154,7 @@ export const appointmentPlanningColumns = ({
       const handleDownloadPdf = async () => {
         try {
           await downloadAppointmentPlanningPdf(id);
+          successToast("PDF descargado exitosamente");
         } catch {
           errorToast("Error al descargar el PDF");
         }
