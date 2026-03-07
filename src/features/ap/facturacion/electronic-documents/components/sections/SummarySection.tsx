@@ -62,6 +62,10 @@ export function SummarySection({
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
   const selectedClientId = form.watch("client_id");
+  const hasDetraccion = form.watch("detraccion") || false;
+  const DETRACCION_RATE = 0.12;
+  const detraccionAmount = hasDetraccion ? totales.total * DETRACCION_RATE : 0;
+  const totalConDetraccion = hasDetraccion ? totales.total * (1 - DETRACCION_RATE) : totales.total;
   // Buscar el cliente seleccionado
   const selectedCustomer =
     useCustomersById(Number(selectedClientId), !!selectedClientId).data ||
@@ -304,19 +308,63 @@ export function SummarySection({
 
             <div className="border border-dashed border-primary/20 m-0" />
 
-            <div className="flex justify-between items-center p-3 bg-muted">
+            <div className="flex justify-between items-center p-3 bg-muted rounded-b-lg">
               <span className="text-base font-semibold font-mono uppercase text-blue-600 dark:text-blue-400">
                 Total
               </span>
               <span className="text-2xl font-medium text-blue-600 dark:text-blue-400">
                 {currencySymbol}
-                {/* Calcular el total real a cobrar (resta anticipos automáticamente) */}
                 {totales.total.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
                 })}
               </span>
             </div>
           </div>
+
+          {/* Detracción */}
+          {hasDetraccion && (
+            <div className="space-y-2 border border-dashed border-muted-foreground/20 pt-2 rounded-lg">
+              <p className="text-xs font-mono uppercase text-muted-foreground px-3">
+                Forma de pago con detracción
+              </p>
+
+              <div className="flex justify-between items-center text-xs px-3">
+                <span className="text-muted-foreground/80 font-mono uppercase">
+                  Detracción (12%)
+                </span>
+                <span className="text-muted-foreground">
+                  {currencySymbol}
+                  {detraccionAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs px-3">
+                <span className="text-muted-foreground/80 font-mono uppercase">
+                  Cliente paga
+                </span>
+                <span className="text-muted-foreground">
+                  {currencySymbol}
+                  {totalConDetraccion.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs px-3 pb-2">
+                <span className="text-muted-foreground/80 font-mono uppercase">
+                  Depósito BN
+                </span>
+                <span className="text-muted-foreground">
+                  {currencySymbol}
+                  {detraccionAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            </div>
+          )}
           {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Action Buttons */}

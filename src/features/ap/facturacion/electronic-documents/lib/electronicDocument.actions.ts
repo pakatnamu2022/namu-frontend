@@ -23,15 +23,20 @@ import { ParamsProps } from "@/core/core.interface";
 
 const { ENDPOINT } = ELECTRONIC_DOCUMENT;
 
-function sanitizeElectronicDocumentPayload(data: ElectronicDocumentSchema): ElectronicDocumentSchema {
+function sanitizeElectronicDocumentPayload(data: ElectronicDocumentSchema) {
+  const renameDetraccion = (payload: Omit<ElectronicDocumentSchema, "detraccion">) => ({
+    ...payload,
+    detraction: data.detraccion,
+  });
+
   if (data.medio_de_pago === PAYMENT_CONDITION_CREDIT) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { condiciones_de_pago, operation_number, bank_id, ...rest } = data;
-    return rest;
+    const { condiciones_de_pago, operation_number, bank_id, detraccion, ...rest } = data;
+    return renameDetraccion(rest);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { venta_al_credito, ...rest } = data;
-  return rest;
+  const { venta_al_credito, detraccion, ...rest } = data;
+  return renameDetraccion(rest);
 }
 
 export async function getElectronicDocuments(

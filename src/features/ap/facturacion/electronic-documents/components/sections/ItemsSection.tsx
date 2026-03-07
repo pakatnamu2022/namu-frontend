@@ -51,6 +51,37 @@ export function ItemsSection({
     is_detraction: isDetraction ? 1 : 0,
   });
 
+  // Validate existing items when detraction mode changes
+  const lastValidatedForDetraction = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!accountPlans || lastValidatedForDetraction.current === isDetraction) return;
+
+    if (lastValidatedForDetraction.current === null) {
+      lastValidatedForDetraction.current = isDetraction;
+      return;
+    }
+
+    lastValidatedForDetraction.current = isDetraction;
+
+    const currentItems = form.getValues("items") || [];
+    if (currentItems.length === 0) return;
+
+    const validPlanIds = new Set(accountPlans.map((p) => p.id.toString()));
+    const hasInvalidItems = currentItems.some(
+      (item) => !validPlanIds.has(item.account_plan_id?.toString()),
+    );
+
+    if (hasInvalidItems) {
+      const validItems = currentItems.filter((item) =>
+        validPlanIds.has(item.account_plan_id?.toString()),
+      );
+      form.setValue("items", validItems, { shouldValidate: true });
+      errorToast(
+        "Se eliminaron items con un plan contable no válido para el tipo de operación seleccionado.",
+      );
+    }
+  }, [isDetraction, accountPlans]);
+
   const [newItem, setNewItem] = useState({
     unidad_de_medida: "NIU",
     descripcion: "",
@@ -155,7 +186,7 @@ export function ItemsSection({
       anticipo_regularizacion: isAdvancePayment ? false : undefined,
     };
 
-    form.setValue("items", [...items, item]);
+    form.setValue("items", [...items, item], { shouldValidate: true });
     setIsSheetOpen(false);
     setNewItem({
       unidad_de_medida: "NIU",
@@ -169,7 +200,7 @@ export function ItemsSection({
 
   const removeItem = (index: number) => {
     const updatedItems = items.filter((_, i) => i !== index);
-    form.setValue("items", updatedItems);
+    form.setValue("items", updatedItems, { shouldValidate: true });
     setEditingIndex(null);
   };
 
@@ -242,7 +273,7 @@ export function ItemsSection({
 
     const updatedItems = [...items];
     updatedItems[editingIndex] = updatedItem;
-    form.setValue("items", updatedItems);
+    form.setValue("items", updatedItems, { shouldValidate: true });
 
     setIsSheetOpen(false);
     setNewItem({
