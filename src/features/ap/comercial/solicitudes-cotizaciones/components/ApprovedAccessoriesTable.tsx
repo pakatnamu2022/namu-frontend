@@ -22,6 +22,7 @@ export interface ApprovedAccessoryRow {
   accessory_id: number;
   quantity: number;
   type: "ACCESORIO_ADICIONAL" | "OBSEQUIO";
+  additional_price?: number;
 }
 
 interface ApprovedAccessoriesTableProps {
@@ -40,6 +41,7 @@ export const ApprovedAccessoriesTable = ({
     accessory_id: 0,
     quantity: 1,
     type: "ACCESORIO_ADICIONAL",
+    additional_price: 0,
   });
   const [errors, setErrors] = useState({
     accessory_id: false,
@@ -54,6 +56,7 @@ export const ApprovedAccessoriesTable = ({
     accessory_id: 0,
     quantity: 1,
     type: "ACCESORIO_ADICIONAL" as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
+    additional_price: 0,
   });
   const [editErrors, setEditErrors] = useState({
     accessory_id: false,
@@ -113,6 +116,7 @@ export const ApprovedAccessoriesTable = ({
       accessory_id: 0,
       quantity: 1,
       type: "ACCESORIO_ADICIONAL",
+      additional_price: 0,
     });
     setErrors({
       accessory_id: false,
@@ -141,6 +145,7 @@ export const ApprovedAccessoriesTable = ({
       accessory_id: row.accessory_id,
       quantity: row.quantity,
       type: row.type,
+      additional_price: row.additional_price ?? 0,
     });
     setEditErrors({
       accessory_id: false,
@@ -184,6 +189,7 @@ export const ApprovedAccessoriesTable = ({
             accessory_id: editForm.accessory_id,
             quantity: editForm.quantity,
             type: editForm.type,
+            additional_price: editForm.additional_price,
           }
         : row
     );
@@ -207,6 +213,7 @@ export const ApprovedAccessoriesTable = ({
       accessory_id: 0,
       quantity: 1,
       type: "ACCESORIO_ADICIONAL",
+      additional_price: 0,
     });
     setEditErrors({
       accessory_id: false,
@@ -214,11 +221,11 @@ export const ApprovedAccessoriesTable = ({
     });
   };
 
-  // Calcular el subtotal de un accesorio
-  const calculateSubtotal = (accessory_id: number, quantity: number) => {
+  // Calcular el subtotal de un accesorio: quantity * (price + additional_price)
+  const calculateSubtotal = (accessory_id: number, quantity: number, additional_price: number = 0) => {
     const accessory = accessories.find((acc) => acc.id === accessory_id);
     if (!accessory) return 0;
-    return Number(accessory.price) * quantity;
+    return (Number(accessory.price) + additional_price) * quantity;
   };
 
   // Calcular el total general (excluyendo obsequios)
@@ -228,7 +235,7 @@ export const ApprovedAccessoriesTable = ({
       if (row.type === "OBSEQUIO") {
         return total;
       }
-      return total + calculateSubtotal(row.accessory_id, row.quantity);
+      return total + calculateSubtotal(row.accessory_id, row.quantity, row.additional_price);
     }, 0);
   };
 
@@ -275,6 +282,15 @@ export const ApprovedAccessoriesTable = ({
                   <NumberFormat value={Number(accessory.price).toFixed(2)} />
                 </span>
               </span>
+              {(row.original.additional_price ?? 0) > 0 && (
+                <span>
+                  Precio Adicional:{" "}
+                  <span className="font-medium text-gray-800">
+                    {accessory.currency_symbol}{" "}
+                    <NumberFormat value={Number(row.original.additional_price).toFixed(2)} />
+                  </span>
+                </span>
+              )}
             </div>
           </div>
         ) : null;
@@ -296,7 +312,8 @@ export const ApprovedAccessoriesTable = ({
         );
         const subtotal = calculateSubtotal(
           row.original.accessory_id,
-          row.original.quantity
+          row.original.quantity,
+          row.original.additional_price,
         );
 
         return (
@@ -407,6 +424,7 @@ export const ApprovedAccessoriesTable = ({
               accessory_id: 0,
               quantity: 1,
               type: "ACCESORIO_ADICIONAL",
+              additional_price: 0,
             });
             setErrors({
               accessory_id: false,
@@ -503,6 +521,27 @@ export const ApprovedAccessoriesTable = ({
               )}
             </div>
 
+            <div>
+              <label className="text-sm font-medium mb-1 block">
+                Precio Adicional{" "}
+                <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={newRow.additional_price ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setNewRow({
+                    ...newRow,
+                    additional_price: isNaN(val) || val < 0 ? 0 : val,
+                  });
+                }}
+                placeholder="0.00"
+              />
+            </div>
+
             {/* Información del accesorio seleccionado */}
             {newRow.accessory_id > 0 && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -533,6 +572,17 @@ export const ApprovedAccessoriesTable = ({
                             />
                           </p>
                         </div>
+                        {(newRow.additional_price ?? 0) > 0 && (
+                          <div className="col-span-2">
+                            <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                            <p className="font-medium text-primary">
+                              {selectedAccessory.currency_symbol}{" "}
+                              <NumberFormat
+                                value={(Number(selectedAccessory.price) + (newRow.additional_price ?? 0)).toFixed(2)}
+                              />
+                            </p>
+                          </div>
+                        )}
                         <div className="col-span-2">
                           <span className="text-gray-600">Descripción:</span>
                           <p className="font-medium">
@@ -565,6 +615,7 @@ export const ApprovedAccessoriesTable = ({
                     accessory_id: 0,
                     quantity: 1,
                     type: "ACCESORIO_ADICIONAL",
+                    additional_price: 0,
                   });
                   setErrors({
                     accessory_id: false,
@@ -676,6 +727,27 @@ export const ApprovedAccessoriesTable = ({
               )}
             </div>
 
+            <div>
+              <label className="text-sm font-medium mb-1 block">
+                Precio Adicional{" "}
+                <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editForm.additional_price ?? ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setEditForm({
+                    ...editForm,
+                    additional_price: isNaN(val) || val < 0 ? 0 : val,
+                  });
+                }}
+                placeholder="0.00"
+              />
+            </div>
+
             {/* Información del accesorio seleccionado */}
             {editForm.accessory_id > 0 && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -706,6 +778,17 @@ export const ApprovedAccessoriesTable = ({
                             />
                           </p>
                         </div>
+                        {(editForm.additional_price ?? 0) > 0 && (
+                          <div className="col-span-2">
+                            <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                            <p className="font-medium text-primary">
+                              {selectedAccessory.currency_symbol}{" "}
+                              <NumberFormat
+                                value={(Number(selectedAccessory.price) + (editForm.additional_price ?? 0)).toFixed(2)}
+                              />
+                            </p>
+                          </div>
+                        )}
                         <div className="col-span-2">
                           <span className="text-gray-600">Descripción:</span>
                           <p className="font-medium">
