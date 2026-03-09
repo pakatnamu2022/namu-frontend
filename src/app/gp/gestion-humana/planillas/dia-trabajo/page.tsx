@@ -152,7 +152,7 @@ export default function WorkSchedulesPage() {
     return periods.map((p) => ({
       value: String(p.id),
       label: p.name,
-      description: p.code,
+      description: p.company?.name || "-",
     }));
   }, [periods]);
 
