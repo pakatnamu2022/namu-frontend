@@ -17,6 +17,8 @@ export type ActiveView = "attendances" | "totals" | "report";
 interface Props {
   periodId: number;
   periodStatus: PayrollPeriodStatus;
+  activeView?: ActiveView;
+  onChangeView?: (view: ActiveView) => void;
   onSuccess: () => void;
 }
 
