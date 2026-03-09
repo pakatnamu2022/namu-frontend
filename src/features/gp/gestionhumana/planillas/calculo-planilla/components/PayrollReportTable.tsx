@@ -28,7 +28,12 @@ const COLS = [
   { key: "overtime_25", label: "HH.EE 25%", align: "right", money: true },
   { key: "overtime_35", label: "HH.EE 35%", align: "right", money: true },
   { key: "holiday_pay", label: "Feriados", align: "right", money: true },
-  { key: "compensatory_pay", label: "Compens.", align: "right", money: true },
+  {
+    key: "compensatory_pay",
+    label: "Descansos",
+    align: "right",
+    money: true,
+  },
   { key: "net_salary", label: "Neto", align: "right", money: true },
 ] as const;
 
@@ -83,24 +88,46 @@ export default function PayrollReportTable({ data }: Props) {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={COLS.length} className="py-8 text-center text-sm text-muted-foreground">
+                <td
+                  colSpan={COLS.length}
+                  className="py-8 text-center text-sm text-muted-foreground"
+                >
                   Sin resultados para &quot;{search}&quot;
                 </td>
               </tr>
             ) : (
               filtered.map((row, i) => (
-                <tr key={i} className="border-b hover:bg-muted/30 transition-colors">
+                <tr
+                  key={i}
+                  className="border-b hover:bg-muted/30 transition-colors"
+                >
                   <td className="px-3 py-2 whitespace-nowrap">{row.empresa}</td>
-                  <td className="px-3 py-2 whitespace-nowrap font-medium">{row.nombre}</td>
+                  <td className="px-3 py-2 whitespace-nowrap font-medium">
+                    {row.nombre}
+                  </td>
                   <td className="px-3 py-2 text-muted-foreground">{row.dni}</td>
                   <td className="px-3 py-2 text-right">{row.days_worked}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.basic_salary)}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.night_bonus)}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.gross_salary)}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.overtime_25)}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.overtime_35)}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.holiday_pay)}</td>
-                  <td className="px-3 py-2 text-right">{fmt(row.compensatory_pay)}</td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.basic_salary)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.night_bonus)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.gross_salary)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.overtime_25)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.overtime_35)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.holiday_pay)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {fmt(row.compensatory_pay)}
+                  </td>
                   <td className="px-3 py-2 text-right font-semibold text-green-700 dark:text-green-400">
                     {fmt(row.net_salary)}
                   </td>
@@ -111,16 +138,33 @@ export default function PayrollReportTable({ data }: Props) {
           <tfoot>
             <tr className="border-t bg-muted/50 font-semibold">
               <td colSpan={3} className="px-3 py-2">
-                Totales ({data.rows.length} trabajador{data.rows.length !== 1 ? "es" : ""})
+                Totales ({data.rows.length} trabajador
+                {data.rows.length !== 1 ? "es" : ""})
               </td>
-              <td className="px-3 py-2 text-right">{data.totals.days_worked}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.basic_salary)}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.night_bonus)}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.gross_salary)}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.overtime_25)}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.overtime_35)}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.holiday_pay)}</td>
-              <td className="px-3 py-2 text-right">{fmt(data.totals.compensatory_pay)}</td>
+              <td className="px-3 py-2 text-right">
+                {data.totals.days_worked}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.basic_salary)}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.night_bonus)}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.gross_salary)}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.overtime_25)}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.overtime_35)}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.holiday_pay)}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {fmt(data.totals.compensatory_pay)}
+              </td>
               <td className="px-3 py-2 text-right font-bold text-green-700 dark:text-green-400">
                 {fmt(data.totals.net_salary)}
               </td>

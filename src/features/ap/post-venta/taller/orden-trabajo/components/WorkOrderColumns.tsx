@@ -1,12 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings, ClipboardCheck, Pencil } from "lucide-react";
+import { Settings, ClipboardCheck, Pencil, Download } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { errorToast, successToast } from "@/core/core.function";
+import { downloadDeliveryPdf } from "../lib/workOrder.actions";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -164,6 +166,15 @@ export const workOrderColumns = ({
       const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
       const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
 
+      const handleDownloadPdf = async () => {
+        try {
+          await downloadDeliveryPdf(id);
+          successToast("PDF descargado exitosamente");
+        } catch {
+          errorToast("Error al descargar el PDF");
+        }
+      };
+
       return (
         <div className="flex items-center gap-2">
           {permissions.canReceive && !is_inspection_completed && !isClosed && (
@@ -204,6 +215,18 @@ export const workOrderColumns = ({
 
           {permissions.canDelete && isOpen && (
             <DeleteButton onClick={() => onDelete(id)} />
+          )}
+
+          {isClosed && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={handleDownloadPdf}
+              tooltip="PDF"
+            >
+              <Download className="size-5" />
+            </Button>
           )}
         </div>
       );

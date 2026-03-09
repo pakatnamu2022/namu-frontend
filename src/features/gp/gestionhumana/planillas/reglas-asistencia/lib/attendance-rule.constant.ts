@@ -17,15 +17,4 @@ export const ATTENDANCE_RULE: ModelComplete<AttendanceRuleResource> = {
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
-  EMPTY: {
-    id: 0,
-    code: "",
-    hour_type: "DIURNO",
-    hours: null,
-    multiplier: 1,
-    pay: false,
-    use_shift: false,
-    created_at: "",
-    updated_at: "",
-  },
 };
