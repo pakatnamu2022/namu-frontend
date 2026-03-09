@@ -118,9 +118,14 @@ export async function importManageLeadsSocialNetworks(
   return data;
 }
 
-export async function assignWorkersToLeads(): Promise<AssignWorkersResponse> {
+export async function assignWorkersToLeads(params?: {
+  date_from: string;
+  date_to: string;
+  all?: boolean;
+}): Promise<AssignWorkersResponse> {
   const { data } = await api.post<AssignWorkersResponse>(
     `${ENDPOINT}/assign-workers`,
+    params,
   );
   return data;
 }
