@@ -86,20 +86,29 @@ export function WorkScheduleCalendar({
 
     if (schedule) {
       const statusOption = getStatusOption(schedule.status);
+      const isAbsent = schedule.code === "F" || schedule.hours_worked === 0;
       return (
         <Tooltip>
           <TooltipTrigger asChild>
             <div
               className={cn(
                 "w-full h-full min-h-16 p-1 rounded-md cursor-pointer transition-all",
-                statusOption?.color || "bg-gray-100",
+                isAbsent ? "bg-red-200 text-red-900" : (statusOption?.color || "bg-gray-100"),
                 "hover:ring-2 hover:ring-primary",
+                isAbsent && "ring-2 ring-red-500",
               )}
               onClick={() => canModify && onEditSchedule(schedule)}
               onMouseEnter={() => setHoveredDay(dateKey)}
               onMouseLeave={() => setHoveredDay(null)}
             >
-              <div className="text-xs font-medium">{format(day, "d")}</div>
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-medium">{format(day, "d")}</div>
+                {isAbsent && (
+                  <span className="text-[8px] font-bold text-white bg-red-500 rounded px-1 leading-tight">
+                    FALTÓ
+                  </span>
+                )}
+              </div>
               <div className="text-[10px] font-bold truncate">
                 {schedule.code}
               </div>
