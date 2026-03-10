@@ -35,6 +35,8 @@ import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { WORKER_ORDER_RECEPCION } from "../../lib/workOrder.constants";
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -47,6 +49,8 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
+  const { ROUTE } = WORKER_ORDER_RECEPCION;
+  const permissions = useModulePermissions(ROUTE);
 
   const queryClient = useQueryClient();
   const router = useNavigate();
@@ -288,7 +292,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
               </span>
             </Button>
 
-            {!cancellationRequested && (
+            {!cancellationRequested && permissions.canRequestCancellation && (
               <Button
                 variant="outline"
                 className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 text-xs sm:text-sm flex-1 sm:flex-none"

@@ -13,11 +13,9 @@ import {
   Receipt,
   UserCog,
   Package,
-  FileText,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
-  downloadPreLiquidationPdf,
   findWorkOrderById,
   updateWorkOrder,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
@@ -40,7 +38,6 @@ export default function ManageWorkOrderPage() {
   const queryClient = useQueryClient();
   const id = Number(params.id);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER_RECEPCION;
   const permissions = useModulePermissions(ROUTE);
@@ -78,21 +75,6 @@ export default function ManageWorkOrderPage() {
       errorToast(msg || "Error al adjuntar la cotización");
     },
   });
-
-  const handleDownloadPdf = async () => {
-    if (!workOrder?.id) return;
-
-    try {
-      setIsDownloading(true);
-      await downloadPreLiquidationPdf(workOrder.id);
-      successToast("PDF descargado exitosamente");
-    } catch (error) {
-      console.error("Error al descargar PDF:", error);
-      errorToast("Error al descargar el PDF de la preliquidación");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const handleSelectQuotation = (quotationId: number) => {
     attachQuotationMutation.mutate(quotationId);
@@ -144,38 +126,6 @@ export default function ManageWorkOrderPage() {
                 </span>
               </div>
             </div>
-
-            {/* Segunda fila: Botones de acción */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <Button
-                onClick={handleDownloadPdf}
-                disabled={isDownloading}
-                size="sm"
-                className="gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {isDownloading ? "Generando..." : "Preliquidación"}
-                </span>
-                <span className="sm:hidden">
-                  {isDownloading ? "..." : "Preliq."}
-                </span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  router(
-                    `/ap/post-venta/taller/orden-trabajo/gestionar/${id}/informacion-general`,
-                  )
-                }
-                className="gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Información General</span>
-                <span className="sm:hidden">Info. Gen.</span>
-              </Button>
-            </div>
           </div>
         </Card>
 
@@ -188,15 +138,17 @@ export default function ManageWorkOrderPage() {
           >
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
               <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-6 gap-1">
+                {permissions.canSeeReception && (
+                  <TabsTrigger
+                    value="reception"
+                    className="flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <ClipboardCheck className="h-4 w-4 shrink-0" />
+                    <span>Recepción</span>
+                  </TabsTrigger>
+                )}
                 {permissions.canOtOptions && (
                   <>
-                    <TabsTrigger
-                      value="reception"
-                      className="flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <ClipboardCheck className="h-4 w-4 shrink-0" />
-                      <span>Recepción</span>
-                    </TabsTrigger>
                     <TabsTrigger
                       value="opening"
                       className="flex items-center gap-2 whitespace-nowrap"
