@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
@@ -41,6 +47,7 @@ interface PurchaseRequestQuoteSummaryProps {
   invoiceCurrencyId: string;
   selectedInvoiceCurrency: CurrencyTypesResource | undefined;
   getExchangeRate: (currencyId: number) => number;
+  currencyTypes: CurrencyTypesResource[];
   onCancel: () => void;
   onSubmit: (data: any) => void;
 }
@@ -61,9 +68,9 @@ export function PurchaseRequestQuoteSummary({
   vehicleCurrency,
   totals,
   finalTotal,
-  invoiceCurrencyId,
   selectedInvoiceCurrency,
   getExchangeRate,
+  currencyTypes,
   onCancel,
   onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
@@ -106,9 +113,9 @@ export function PurchaseRequestQuoteSummary({
                 ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))
                     ?.vin || "Sin seleccionar"
                 : modelVnWatch
-                ? modelsVn.find((m) => m.id === Number(modelVnWatch))
-                    ?.version || "Sin seleccionar"
-                : "Sin seleccionar"}
+                  ? modelsVn.find((m) => m.id === Number(modelVnWatch))
+                      ?.version || "Sin seleccionar"
+                  : "Sin seleccionar"}
             </p>
             {selectedModel && !withVinWatch && (
               <p className="text-xs text-muted-foreground">
@@ -129,9 +136,7 @@ export function PurchaseRequestQuoteSummary({
 
           {/* Cliente/Titular */}
           <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-            <p className="text-xs font-medium text-muted-foreground">
-              Titular
-            </p>
+            <p className="text-xs font-medium text-muted-foreground">Titular</p>
             <p className="text-sm font-semibold">
               {selectedHolder?.full_name || "Sin seleccionar"}
             </p>
@@ -146,9 +151,7 @@ export function PurchaseRequestQuoteSummary({
             </p>
             <div className="space-y-2 p-3 rounded-lg bg-background/50 border border-muted-foreground/10">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">
-                  Precio de Venta
-                </span>
+                <span className="text-muted-foreground">Precio de Venta</span>
                 <span className="font-medium">
                   {vehicleCurrency.symbol}{" "}
                   {totals.salePrice.toLocaleString("es-PE", {
@@ -210,6 +213,31 @@ export function PurchaseRequestQuoteSummary({
             </span>
           </div>
 
+          {/* Tipos de Cambio */}
+          {currencyTypes.filter((c) => c.id !== vehicleCurrency.currencyId)
+            .length > 0 && (
+            <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
+              <p className="text-xs font-medium text-muted-foreground mb-2">
+                Tipos de Cambio
+              </p>
+              {currencyTypes
+                .filter((c) => c.id !== vehicleCurrency.currencyId)
+                .map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex justify-between items-center text-xs"
+                  >
+                    <span className="text-muted-foreground">
+                      {vehicleCurrency.symbol} → {c.symbol}
+                    </span>
+                    <span className="font-medium tabular-nums">
+                      {Number(getExchangeRate(c.id)).toFixed(3)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+
           <Separator className="bg-muted-foreground/20" />
 
           {/* Total a Facturar */}
@@ -219,23 +247,12 @@ export function PurchaseRequestQuoteSummary({
                 Total a Facturar
               </span>
               <span className="text-xl font-bold text-primary">
-                {selectedInvoiceCurrency?.symbol ||
-                  vehicleCurrency.symbol}{" "}
+                {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}
                 {finalTotal.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
                 })}
               </span>
             </div>
-            {invoiceCurrencyId &&
-              Number(invoiceCurrencyId) !==
-                vehicleCurrency.currencyId && (
-                <p className="text-xs text-primary mt-1">
-                  T.C.:{" "}
-                  {Number(
-                    getExchangeRate(Number(invoiceCurrencyId))
-                  ).toFixed(3)}
-                </p>
-              )}
           </div>
 
           <Separator className="bg-muted-foreground/20" />
@@ -273,8 +290,8 @@ export function PurchaseRequestQuoteSummary({
                   {isSubmitting
                     ? "Guardando..."
                     : mode === "update"
-                    ? "Actualizar"
-                    : "Guardar"}
+                      ? "Actualizar"
+                      : "Guardar"}
                 </Button>
               }
               title={
@@ -283,8 +300,8 @@ export function PurchaseRequestQuoteSummary({
                     ? "¿Actualizar cotización?"
                     : "¿Actualizar solicitud de compra?"
                   : form.watch("type_document") === "COTIZACION"
-                  ? "¿Guardar cotización?"
-                  : "¿Guardar solicitud de compra?"
+                    ? "¿Guardar cotización?"
+                    : "¿Guardar solicitud de compra?"
               }
               description={
                 mode === "update"
@@ -300,11 +317,7 @@ export function PurchaseRequestQuoteSummary({
             />
             <ConfirmationDialog
               trigger={
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                >
+                <Button type="button" variant="outline" className="w-full">
                   Cancelar
                 </Button>
               }

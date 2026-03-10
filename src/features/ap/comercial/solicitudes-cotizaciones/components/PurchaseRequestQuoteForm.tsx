@@ -608,7 +608,7 @@ export const PurchaseRequestQuoteForm = ({
         (acc) => acc.id === row.accessory_id,
       );
       if (accessory) {
-        const unitPrice = accessory.price + (row.additional_price ?? 0);
+        const unitPrice = Number(accessory.price) + (row.additional_price ?? 0);
         const accessoryPrice = unitPrice * row.quantity;
         const accessoryCurrencyId =
           accessory.type_operation_id === 794 ? usdId : solesId;
@@ -1080,6 +1080,7 @@ export const PurchaseRequestQuoteForm = ({
               accessories={approvedAccesories}
               onAccessoriesChange={setAccessoriesRows}
               initialData={initialAccessories}
+              canCreateApprovedAccessory={canAssign}
             />
           </div>
 
@@ -1103,6 +1104,7 @@ export const PurchaseRequestQuoteForm = ({
             invoiceCurrencyId={invoiceCurrencyId}
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
+            currencyTypes={currencyTypes}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />

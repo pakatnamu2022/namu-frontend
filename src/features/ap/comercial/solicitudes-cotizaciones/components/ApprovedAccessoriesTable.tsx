@@ -1,14 +1,8 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Trash2, Edit2, PackagePlus } from "lucide-react";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { Plus, Trash2, Edit2, PackagePlus, Loader } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import GeneralSheet from "@/shared/components/GeneralSheet";
@@ -16,6 +10,20 @@ import { DataTable } from "@/shared/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormSelect } from "@/shared/components/FormSelect";
+import {
+  approvedAccesoriesSchemaCreate,
+  ApprovedAccesoriesSchema,
+} from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.schema";
+import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook";
+import { storeApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.actions";
+import { APPROVED_ACCESSORIES } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.constants";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export interface ApprovedAccessoryRow {
   id: string;
@@ -25,18 +33,45 @@ export interface ApprovedAccessoryRow {
   additional_price?: number;
 }
 
+
 interface ApprovedAccessoriesTableProps {
   accessories: ApprovedAccesoriesResource[];
   onAccessoriesChange?: (accessories: ApprovedAccessoryRow[]) => void;
   initialData?: ApprovedAccessoryRow[];
+  canCreateApprovedAccessory?: boolean;
 }
 
 export const ApprovedAccessoriesTable = ({
   accessories,
   onAccessoriesChange,
   initialData = [],
+  canCreateApprovedAccessory = false,
 }: ApprovedAccessoriesTableProps) => {
+  const queryClient = useQueryClient();
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
+
+  // Modal para crear nuevo accesorio homologado (solo comercial)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { data: typesBody = [] } = useAllBodyType();
+  const createForm = useForm<ApprovedAccesoriesSchema>({
+    resolver: zodResolver(approvedAccesoriesSchemaCreate) as any,
+    defaultValues: { code: "", description: "", price: 0, type_operation_id: 794 },
+    mode: "onChange",
+  });
+  const { mutate: createAccessory, isPending: isCreatingAccessory } = useMutation({
+    mutationFn: storeApprovedAccesories,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [APPROVED_ACCESSORIES.QUERY_KEY] });
+      toast.success("Accesorio homologado creado correctamente");
+      setIsCreateModalOpen(false);
+      createForm.reset();
+      setNewRow((prev) => ({ ...prev, accessory_id: data.id }));
+      setIsAddSheetOpen(true);
+    },
+    onError: () => {
+      toast.error("Error al crear el accesorio homologado");
+    },
+  });
   const [newRow, setNewRow] = useState<Omit<ApprovedAccessoryRow, "id">>({
     accessory_id: 0,
     quantity: 1,
@@ -424,6 +459,82 @@ export const ApprovedAccessoriesTable = ({
           />
         )}
 
+        {/* Sheet para crear nuevo accesorio homologado (solo comercial) */}
+        <GeneralSheet
+          open={isCreateModalOpen}
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            createForm.reset();
+          }}
+          title="Nuevo Accesorio Homologado"
+          subtitle="Solo disponible para Comercial"
+          icon="PackagePlus"
+          size="lg"
+        >
+          <Form {...createForm}>
+            <div className="space-y-4 px-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  name="code"
+                  label="Código"
+                  control={createForm.control}
+                  placeholder="Ej: LS"
+                  uppercase
+                />
+                <FormInput
+                  name="description"
+                  label="Descripción"
+                  control={createForm.control}
+                  placeholder="Ej: Láminas de Seguridad"
+                  uppercase
+                />
+                <FormInput
+                  name="price"
+                  label="Precio"
+                  control={createForm.control}
+                  placeholder="Ej: 390"
+                  type="number"
+                />
+                <FormSelect
+                  name="body_type_id"
+                  label="Carrocería"
+                  placeholder="Selecciona una carrocería"
+                  options={typesBody.map((item) => ({
+                    label: item.code + " - " + item.description,
+                    value: item.id.toString(),
+                  }))}
+                  control={createForm.control}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsCreateModalOpen(false);
+                    createForm.reset();
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  disabled={isCreatingAccessory}
+                  onClick={createForm.handleSubmit((data) => createAccessory(data))}
+                  className="flex-1"
+                >
+                  {isCreatingAccessory && (
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {isCreatingAccessory ? "Guardando..." : "Guardar Accesorio"}
+                </Button>
+              </div>
+            </div>
+          </Form>
+        </GeneralSheet>
+
         {/* Sheet para actualizar accesorio/obsequio */}
         <GeneralSheet
           open={isAddSheetOpen}
@@ -448,58 +559,59 @@ export const ApprovedAccessoriesTable = ({
           <div className="space-y-4 px-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <Select
+              <SearchableSelect
                 value={newRow.type}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setNewRow({
                     ...newRow,
                     type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACCESORIO_ADICIONAL">
-                    Accesorio Adicional
-                  </SelectItem>
-                  <SelectItem value="OBSEQUIO">Obsequio</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
+                  { label: "Obsequio", value: "OBSEQUIO" },
+                ]}
+                placeholder="Selecciona tipo"
+                showSearch={false}
+                allowClear={false}
+              />
             </div>
 
             <div>
               <label className="text-sm font-medium mb-1 block">
                 Accesorio
               </label>
-              <Select
-                value={
-                  newRow.accessory_id === 0
-                    ? ""
-                    : newRow.accessory_id.toString()
-                }
-                onValueChange={(value) => {
-                  setNewRow({ ...newRow, accessory_id: parseInt(value) });
-                  setErrors({ ...errors, accessory_id: false });
-                }}
-              >
-                <SelectTrigger
+              <div className="flex gap-2">
+                <SearchableSelect
+                  value={newRow.accessory_id === 0 ? "" : newRow.accessory_id.toString()}
+                  onChange={(value) => {
+                    setNewRow({ ...newRow, accessory_id: parseInt(value) });
+                    setErrors({ ...errors, accessory_id: false });
+                  }}
+                  options={accessories.map((accessory) => ({
+                    label: `${accessory.code} - ${accessory.description}`,
+                    value: accessory.id.toString(),
+                  }))}
+                  placeholder="Selecciona un accesorio"
                   className={errors.accessory_id ? "border-red-500" : ""}
-                >
-                  <SelectValue placeholder="Selecciona un accesorio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accessories.map((accessory) => (
-                    <SelectItem
-                      key={accessory.id}
-                      value={accessory.id.toString()}
-                    >
-                      {accessory.code} - {accessory.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  classNameDiv="flex-1"
+                />
+                {canCreateApprovedAccessory && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    title="Crear nuevo accesorio homologado (Solo Comercial)"
+                    onClick={() => {
+                      setIsAddSheetOpen(false);
+                      setIsCreateModalOpen(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
               {errors.accessory_id && (
                 <p className="text-xs text-red-500 mt-1">
                   Seleccione un accesorio válido
@@ -659,58 +771,41 @@ export const ApprovedAccessoriesTable = ({
           <div className="space-y-4 px-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <Select
+              <SearchableSelect
                 value={editForm.type}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setEditForm({
                     ...editForm,
                     type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACCESORIO_ADICIONAL">
-                    Accesorio Adicional
-                  </SelectItem>
-                  <SelectItem value="OBSEQUIO">Obsequio</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
+                  { label: "Obsequio", value: "OBSEQUIO" },
+                ]}
+                placeholder="Selecciona tipo"
+                showSearch={false}
+                allowClear={false}
+              />
             </div>
 
             <div>
               <label className="text-sm font-medium mb-1 block">
                 Accesorio
               </label>
-              <Select
-                value={
-                  editForm.accessory_id === 0
-                    ? ""
-                    : editForm.accessory_id.toString()
-                }
-                onValueChange={(value) => {
+              <SearchableSelect
+                value={editForm.accessory_id === 0 ? "" : editForm.accessory_id.toString()}
+                onChange={(value) => {
                   setEditForm({ ...editForm, accessory_id: parseInt(value) });
                   setEditErrors({ ...editErrors, accessory_id: false });
                 }}
-              >
-                <SelectTrigger
-                  className={editErrors.accessory_id ? "border-red-500" : ""}
-                >
-                  <SelectValue placeholder="Selecciona un accesorio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accessories.map((accessory) => (
-                    <SelectItem
-                      key={accessory.id}
-                      value={accessory.id.toString()}
-                    >
-                      {accessory.code} - {accessory.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={accessories.map((accessory) => ({
+                  label: `${accessory.code} - ${accessory.description}`,
+                  value: accessory.id.toString(),
+                }))}
+                placeholder="Selecciona un accesorio"
+                className={editErrors.accessory_id ? "border-red-500" : ""}
+              />
               {editErrors.accessory_id && (
                 <p className="text-xs text-red-500 mt-1">
                   Seleccione un accesorio válido
