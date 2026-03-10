@@ -167,6 +167,7 @@ export default function AddGeneralElectronicDocumentPage() {
         title={currentView.descripcion}
         mode="create"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <ElectronicDocumentForm
         form={form}

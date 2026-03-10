@@ -7,6 +7,14 @@ import {
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { AreaType } from "@/features/ap/ap-master/lib/apMaster.constants";
 
+export interface ExchangeRateResource {
+  id: number;
+  date: string;
+  to_currency_id: number;
+  type: string;
+  rate: number;
+}
+
 export interface ElectronicDocumentResponse {
   data: ElectronicDocumentResource[];
   links: Links;

@@ -10,6 +10,7 @@ import {
 } from "../lib/electronicDocument.schema";
 import {
   DEFAULT_IGV_PERCENTAGE,
+  MIN_RETENTION,
   NUBEFACT_CODES,
   QUOTATION_ACCOUNT_PLAN_IDS,
 } from "../lib/electronicDocument.constants";
@@ -18,6 +19,7 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import {
   useNextCorrelativeElectronicDocument,
   useAdvancePaymentsByQuotation,
+  useExchangeRateByDateAndCurrency,
 } from "../lib/electronicDocument.hook";
 import { usePurchaseRequestQuoteById } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import { DocumentInfoSection } from "./sections/DocumentInfoSection";
@@ -100,6 +102,7 @@ export function ElectronicDocumentForm({
   const purchaseRequestQuoteId = form.watch("purchase_request_quote_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
   const isDetraction = form.watch("detraccion") || false;
+  const fechaDeEmision = form.watch("fecha_de_emision");
 
   // Consultar series autorizadas
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
@@ -606,6 +609,30 @@ MODELO: ${vehicle?.model?.version || ``}
     sede_id: selectedSeries?.sede_id,
   });
 
+  // Tipo de cambio: siempre consultar para la moneda seleccionada y la fecha de emisión
+  const fechaDeEmisionStr = fechaDeEmision
+    ? fechaDeEmision instanceof Date
+      ? fechaDeEmision.toISOString().split("T")[0]
+      : String(fechaDeEmision).split("T")[0]
+    : "";
+  const { data: exchangeRate } = useExchangeRateByDateAndCurrency(
+    selectedCurrency?.currency_type ?? null,
+    fechaDeEmisionStr,
+  );
+
+  // Precio mínimo por detracción (MIN_RETENTION = S/ 700)
+  // Solo aplica cuando no es useQuotation y tiene detracción activa
+  const isUSD = selectedCurrency?.iso_code === "USD";
+  const exchangeRateMissing = isUSD && !exchangeRate?.rate;
+  const minRetentionPrice =
+    !useQuotation && isDetraction
+      ? isUSD
+        ? exchangeRate?.rate
+          ? MIN_RETENTION / exchangeRate.rate
+          : undefined // USD sin tasa aún: no aplicar mínimo
+        : MIN_RETENTION
+      : undefined;
+
   useEffect(() => {
     if (isEdit) {
       form.setValue("numero", form.getValues("numero"));
@@ -680,6 +707,7 @@ MODELO: ${vehicle?.model?.version || ``}
               isFromQuotation={!!selectedQuotationId}
               useQuotation={useQuotation}
               isDetraction={isDetraction}
+              minRetentionPrice={minRetentionPrice}
             />
 
             {/* Configuración Adicional */}
@@ -706,6 +734,8 @@ MODELO: ${vehicle?.model?.version || ``}
             advancePayments={advancePayments}
             selectedCustomer={selectedCustomer}
             onSubmit={form.handleSubmit(onSubmit)}
+            exchangeRate={exchangeRate?.rate}
+            exchangeRateMissing={exchangeRateMissing}
           />
         </div>
 

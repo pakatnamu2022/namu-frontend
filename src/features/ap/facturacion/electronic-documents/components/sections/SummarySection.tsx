@@ -37,6 +37,8 @@ interface SummarySectionProps {
   advancePayments?: ElectronicDocumentResource[];
   selectedCustomer?: CustomersResource;
   onSubmit: () => void;
+  exchangeRate?: number;
+  exchangeRateMissing?: boolean;
 }
 
 export function SummarySection({
@@ -53,11 +55,17 @@ export function SummarySection({
   advancePayments = [],
   selectedCustomer: selectedCustomerProp,
   onSubmit,
+  exchangeRate,
+  exchangeRateMissing,
 }: SummarySectionProps) {
   const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
   const selectedClientId = form.watch("client_id");
+  const hasDetraccion = form.watch("detraccion") || false;
+  const DETRACCION_RATE = 0.12;
+  const detraccionAmount = hasDetraccion ? totales.total * DETRACCION_RATE : 0;
+  const totalConDetraccion = hasDetraccion ? totales.total * (1 - DETRACCION_RATE) : totales.total;
   // Buscar el cliente seleccionado
   const selectedCustomer =
     useCustomersById(Number(selectedClientId), !!selectedClientId).data ||
@@ -65,7 +73,7 @@ export function SummarySection({
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3">
-      <Card className="h-fit sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
+      <Card className="h-fit sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -157,6 +165,23 @@ export function SummarySection({
               El porcentaje de IGV se calcula automáticamente según la
               clasificación tributaria del cliente seleccionado
             </p>
+            {exchangeRate && (
+              <p className="text-xs text-muted-foreground">
+                T.C. venta:{" "}
+                <span className="font-medium">
+                  S/{" "}
+                  {exchangeRate.toLocaleString("es-PE", {
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                  })}
+                </span>
+              </p>
+            )}
+            {exchangeRateMissing && (
+              <p className="text-xs text-destructive font-medium">
+                Sin tipo de cambio para la fecha seleccionada
+              </p>
+            )}
           </div>
 
           <Separator className="bg-muted-foreground/20 hidden" />
@@ -226,13 +251,15 @@ export function SummarySection({
             </div>
           </div>
 
-          <Separator className="bg-muted-foreground/20" />
+          {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Totales */}
-          <div className="space-y-3">
+          <div className="space-y-3 border pt-2 rounded-lg">
             {totales.total_gravada > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Op. Gravada</span>
+              <div className="flex justify-between items-center text-sm px-2">
+                <span className="text-muted-foreground font-mono uppercase">
+                  Op. Gravada
+                </span>
                 <span className="font-medium">
                   {currencySymbol}{" "}
                   {totales.total_gravada.toLocaleString("es-PE", {
@@ -242,8 +269,10 @@ export function SummarySection({
               </div>
             )}
             {totales.total_exonerada > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Op. Exonerada</span>
+              <div className="flex justify-between items-center text-sm px-2">
+                <span className="text-muted-foreground font-mono uppercase">
+                  Op. Exonerada
+                </span>
                 <span className="font-medium">
                   {currencySymbol}{" "}
                   {totales.total_exonerada.toLocaleString("es-PE", {
@@ -253,8 +282,10 @@ export function SummarySection({
               </div>
             )}
             {totales.total_inafecta > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Op. Inafecta</span>
+              <div className="flex justify-between items-center text-sm px-2">
+                <span className="text-muted-foreground font-mono uppercase">
+                  Op. Inafecta
+                </span>
                 <span className="font-medium">
                   {currencySymbol}{" "}
                   {totales.total_inafecta.toLocaleString("es-PE", {
@@ -263,8 +294,8 @@ export function SummarySection({
                 </span>
               </div>
             )}
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">
+            <div className="flex justify-between items-center text-sm px-2">
+              <span className="text-muted-foreground font-mono uppercase">
                 IGV ({porcentaje_de_igv}%)
               </span>
               <span className="font-medium">
@@ -275,42 +306,88 @@ export function SummarySection({
               </span>
             </div>
 
-            <Separator className="bg-primary/20" />
+            <div className="border border-dashed border-primary/20 m-0" />
 
-            <div className="flex justify-between items-center p-3 rounded-lg bg-primary/10 border border-primary/30">
-              <span className="text-base font-semibold text-blue-600 dark:text-blue-400">
+            <div className="flex justify-between items-center p-3 bg-muted rounded-b-lg">
+              <span className="text-base font-semibold font-mono uppercase text-blue-600 dark:text-blue-400">
                 Total
               </span>
               <span className="text-2xl font-medium text-blue-600 dark:text-blue-400">
                 {currencySymbol}
-                {/* Calcular el total real a cobrar (resta anticipos automáticamente) */}
                 {totales.total.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
                 })}
               </span>
             </div>
           </div>
-          <Separator className="bg-muted-foreground/20" />
-          {/* <div className="flex flex-col gap-2">
-            <FormSwitch
-              control={form.control}
-              name="enviar_automaticamente_a_la_sunat"
-              text="Enviar automáticamente a SUNAT"
-              textDescription="El documento se enviará a SUNAT al guardar"
-              className="!bg-transparent !h-auto"
-            />
 
-            <FormSwitch
-              control={form.control}
-              name="enviar_automaticamente_al_cliente"
-              text="Enviar automáticamente al cliente"
-              textDescription="Se enviará por email al cliente"
-              className="!bg-transparent !h-auto"
-            />
-          </div> */}
+          {/* Detracción */}
+          {hasDetraccion && (
+            <div className="space-y-2 border border-dashed border-muted-foreground/20 pt-2 rounded-lg">
+              <p className="text-xs font-mono uppercase text-muted-foreground px-3">
+                Forma de pago con detracción
+              </p>
+
+              <div className="flex justify-between items-center text-xs px-3">
+                <span className="text-muted-foreground/80 font-mono uppercase">
+                  Detracción (12%)
+                </span>
+                <span className="text-muted-foreground">
+                  {currencySymbol}
+                  {detraccionAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs px-3">
+                <span className="text-muted-foreground/80 font-mono uppercase">
+                  Cliente paga
+                </span>
+                <span className="text-muted-foreground">
+                  {currencySymbol}
+                  {totalConDetraccion.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs px-3 pb-2">
+                <span className="text-muted-foreground/80 font-mono uppercase">
+                  Depósito BN
+                </span>
+                <span className="text-muted-foreground">
+                  {currencySymbol}
+                  {detraccionAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            </div>
+          )}
+          {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4">
+          <div className="space-y-2 pt-4 flex gap-4">
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
+                  Cancelar
+                </Button>
+              }
+              title="¿Cancelar?"
+              description="Se perderán todos los datos ingresados. ¿Estás seguro de que deseas cancelar?"
+              confirmText="Sí, cancelar"
+              cancelText="No, continuar"
+              icon="warning"
+              onConfirm={() => window.history.back()}
+            />
+
             <ConfirmationDialog
               trigger={
                 <Button
@@ -343,19 +420,6 @@ export function SummarySection({
               cancelText="No, revisar"
               icon="info"
               onConfirm={onSubmit}
-            />
-            <ConfirmationDialog
-              trigger={
-                <Button type="button" variant="outline" className="w-full">
-                  Cancelar
-                </Button>
-              }
-              title="¿Cancelar?"
-              description="Se perderán todos los datos ingresados. ¿Estás seguro de que deseas cancelar?"
-              confirmText="Sí, cancelar"
-              cancelText="No, continuar"
-              icon="warning"
-              onConfirm={() => window.history.back()}
             />
           </div>
 

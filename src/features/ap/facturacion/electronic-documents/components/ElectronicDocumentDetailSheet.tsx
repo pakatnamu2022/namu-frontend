@@ -204,7 +204,9 @@ export function ElectronicDocumentDetailSheet({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold">Información del Cliente</h3>
+            <h3 className="font-semibold text-primary">
+              Información del Cliente
+            </h3>
           </div>
           <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
             <div className="grid grid-cols-2 gap-4">
@@ -244,9 +246,9 @@ export function ElectronicDocumentDetailSheet({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold">Fechas y Operación</h3>
+            <h3 className="font-semibold text-primary">Fechas y Operación</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div>
               <p className="text-xs text-muted-foreground">Fecha de Emisión</p>
               <p className="text-sm font-medium">
@@ -266,13 +268,14 @@ export function ElectronicDocumentDetailSheet({
                   Fecha de Vencimiento
                 </p>
                 <p className="text-sm font-medium">
-                  {new Date(
-                    document.fecha_de_vencimiento + "T00:00:00",
-                  ).toLocaleDateString("es-PE", {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {new Date(document.fecha_de_vencimiento).toLocaleDateString(
+                    "es-PE",
+                    {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    },
+                  )}
                 </p>
               </div>
             )}
@@ -324,7 +327,7 @@ export function ElectronicDocumentDetailSheet({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold">Moneda y Totales</h3>
+            <h3 className="font-semibold text-primary">Moneda y Totales</h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -405,7 +408,7 @@ export function ElectronicDocumentDetailSheet({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold">
+                <h3 className="font-semibold text-primary">
                   Items del Documento ({document.items.length})
                 </h3>
               </div>
@@ -461,14 +464,16 @@ export function ElectronicDocumentDetailSheet({
           <h3 className="font-semibold">Estado SUNAT</h3>
           <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
             <div className="flex items-center gap-2">
-              {document.aceptada_por_sunat === true ? (
+              {document.aceptada_por_sunat === true &&
+              document.status !== "draft" ? (
                 <>
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <span className="text-sm font-medium text-green-600">
                     Aceptado por SUNAT
                   </span>
                 </>
-              ) : document.aceptada_por_sunat === false ? (
+              ) : document.aceptada_por_sunat === false &&
+                document.status !== "draft" ? (
                 <>
                   <XCircle className="h-4 w-4 text-red-600" />
                   <span className="text-sm font-medium text-red-600">

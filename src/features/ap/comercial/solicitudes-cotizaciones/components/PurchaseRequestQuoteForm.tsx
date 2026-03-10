@@ -252,6 +252,7 @@ export const PurchaseRequestQuoteForm = ({
             accessory_id: Number(acc.approved_accessory_id),
             quantity: Number(acc.quantity),
             type: acc.type || "ACCESORIO_ADICIONAL",
+            additional_price: Number(acc.additional_price ?? 0),
           }),
         );
         setInitialAccessories(transformedAccessories);
@@ -592,7 +593,8 @@ export const PurchaseRequestQuoteForm = ({
         (acc) => acc.id === row.accessory_id,
       );
       if (accessory) {
-        const accessoryPrice = accessory.price * row.quantity;
+        const unitPrice = accessory.price + (row.additional_price ?? 0);
+        const accessoryPrice = unitPrice * row.quantity;
 
         // Convertir de soles a la moneda del vehículo
         return (
@@ -664,6 +666,9 @@ export const PurchaseRequestQuoteForm = ({
       accessory_id: row.accessory_id,
       quantity: row.quantity,
       type: row.type,
+      ...(row.additional_price && row.additional_price > 0
+        ? { additional_price: row.additional_price }
+        : {}),
     }));
   };
 
