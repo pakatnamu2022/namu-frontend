@@ -143,7 +143,7 @@ export default function PurchaseRequestQuoteDetailModal({
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Precio de Venta</p>
+              <p className="text-xs text-muted-foreground">Precio de Venta Total</p>
               <p className="font-medium text-green-600 text-2xl">
                 <NumberFormat
                   value={Number(quote.sale_price)}
@@ -528,10 +528,12 @@ export default function PurchaseRequestQuoteDetailModal({
                   <TableBody>
                     {quote.accessories.map((accessory, index) => {
                       const effectivePrice =
-                        Number(accessory.price) + (accessory.additional_price ?? 0);
+                        Number(accessory.price) +
+                        Number(accessory.additional_price ?? 0);
                       const localTotal = effectivePrice * accessory.quantity;
                       const sameCurrency =
-                        accessory.type_currency_code === quote.doc_type_currency;
+                        accessory.type_currency_code ===
+                        quote.doc_type_currency;
                       const convertedTotal = sameCurrency
                         ? localTotal
                         : localTotal / quote.exchange_rate;
@@ -539,7 +541,9 @@ export default function PurchaseRequestQuoteDetailModal({
                       return (
                         <TableRow key={index}>
                           <TableCell>
-                            <p className="font-medium">{accessory.description}</p>
+                            <p className="font-medium">
+                              {accessory.description}
+                            </p>
                             <p className="text-xs text-muted-foreground font-mono">
                               #{accessory.approved_accessory_id}
                             </p>
@@ -567,10 +571,12 @@ export default function PurchaseRequestQuoteDetailModal({
                             </div>
                             {(accessory.additional_price ?? 0) > 0 && (
                               <div className="text-xs text-muted-foreground">
-                                base{" "}
+                                Base{" "}
                                 <NumberFormat value={Number(accessory.price)} />
                                 {" + "}
-                                <NumberFormat value={accessory.additional_price} />
+                                <NumberFormat
+                                  value={accessory.additional_price}
+                                />
                               </div>
                             )}
                           </TableCell>
@@ -578,13 +584,17 @@ export default function PurchaseRequestQuoteDetailModal({
                             {sameCurrency ? (
                               <>
                                 {quote.doc_type_currency_symbol}{" "}
-                                <NumberFormat value={Number(localTotal.toFixed(2))} />
+                                <NumberFormat
+                                  value={Number(localTotal.toFixed(2))}
+                                />
                               </>
                             ) : (
                               <div className="space-y-0.5">
                                 <div>
                                   {accessory.type_currency_symbol}{" "}
-                                  <NumberFormat value={Number(localTotal.toFixed(2))} />
+                                  <NumberFormat
+                                    value={Number(localTotal.toFixed(2))}
+                                  />
                                 </div>
                                 <div className="text-xs text-muted-foreground font-normal">
                                   ≈ {quote.doc_type_currency_symbol}{" "}

@@ -444,7 +444,14 @@ export const ApprovedAccessoriesTable = ({
                     Total Accesorios:
                   </span>
                   <span className="ml-2 text-lg font-bold text-primary">
-                    S/ <NumberFormat value={calculateTotal().toFixed(2)} />
+                    {(() => {
+                      const firstAcc = rows
+                        .filter((r) => r.type !== "OBSEQUIO")
+                        .map((r) => accessories.find((a) => a.id === r.accessory_id))
+                        .find(Boolean);
+                      return firstAcc?.currency_symbol ?? "S/";
+                    })()}{" "}
+                    <NumberFormat value={calculateTotal().toFixed(2)} />
                   </span>
                 </div>
               </div>
