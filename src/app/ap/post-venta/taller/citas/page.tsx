@@ -82,7 +82,7 @@ export default function AppointmentPlanningPage() {
     page,
     search,
     per_page,
-    date_appointment:
+    created_at:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,

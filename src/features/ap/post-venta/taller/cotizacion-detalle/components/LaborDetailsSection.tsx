@@ -199,6 +199,36 @@ export default function LaborDetailsSection({
     }
   };
 
+  const handleQuantityUpdate = async (
+    detail: OrderQuotationDetailsResource,
+    newQty: number,
+  ) => {
+    try {
+      const subtotal = newQty * detail.unit_price;
+      const total_amount =
+        subtotal - (subtotal * Number(detail.discount_percentage || 0)) / 100;
+      await updateOrderQuotationDetails(detail.id, {
+        order_quotation_id: detail.order_quotation_id,
+        item_type: detail.item_type,
+        description: detail.description,
+        quantity: newQty,
+        unit_measure: detail.unit_measure,
+        retail_price_external: detail.retail_price_external,
+        freight_commission: detail.freight_commission,
+        exchange_rate: detail.exchange_rate,
+        unit_price: detail.unit_price,
+        discount_percentage: Number(detail.discount_percentage || 0),
+        total_amount,
+        observations: detail.observations ?? undefined,
+      });
+      successToast("Horas actualizadas correctamente");
+      await onRefresh();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar las horas");
+    }
+  };
+
   const onSubmit = async (data: LaborDetailSchema) => {
     try {
       setIsSaving(true);
@@ -414,54 +444,60 @@ export default function LaborDetailsSection({
                   </Badge>
                   {globalRequest.status === STATUS_PENDING && (
                     <>
-                      <ConfirmationDialog
-                        trigger={
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                            tooltip="Aprobar solicitud global"
-                            disabled={isApproving}
-                          >
-                            <CheckCircle className="size-4" />
-                          </Button>
-                        }
-                        title="¿Aprobar solicitud?"
-                        description="Se aprobará el descuento global solicitado. ¿Deseas continuar?"
-                        confirmText="Sí, aprobar"
-                        cancelText="Cancelar"
-                        icon="info"
-                        onConfirm={() => doApprove(globalRequest.id)}
-                      />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="size-7"
-                        tooltip="Editar solicitud global"
-                        onClick={() => handleOpenEdit(globalRequest)}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                      <ConfirmationDialog
-                        trigger={
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            tooltip="Rechazar solicitud global"
-                            disabled={isRejecting}
-                          >
-                            <XCircle className="size-4" />
-                          </Button>
-                        }
-                        title="¿Rechazar solicitud?"
-                        description="Se rechazará el descuento global solicitado. ¿Deseas continuar?"
-                        confirmText="Sí, rechazar"
-                        cancelText="Cancelar"
-                        variant="destructive"
-                        icon="danger"
-                        onConfirm={() => doReject(globalRequest.id)}
-                      />
+                      {permissions.canApprove && (
+                        <ConfirmationDialog
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                              tooltip="Aprobar solicitud global"
+                              disabled={isApproving}
+                            >
+                              <CheckCircle className="size-4" />
+                            </Button>
+                          }
+                          title="¿Aprobar solicitud?"
+                          description="Se aprobará el descuento global solicitado. ¿Deseas continuar?"
+                          confirmText="Sí, aprobar"
+                          cancelText="Cancelar"
+                          icon="info"
+                          onConfirm={() => doApprove(globalRequest.id)}
+                        />
+                      )}
+                      {permissions.canEditDiscount && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="size-7"
+                          tooltip="Editar solicitud global"
+                          onClick={() => handleOpenEdit(globalRequest)}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                      )}
+                      {permissions.canReject && (
+                        <ConfirmationDialog
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              tooltip="Rechazar solicitud global"
+                              disabled={isRejecting}
+                            >
+                              <XCircle className="size-4" />
+                            </Button>
+                          }
+                          title="¿Rechazar solicitud?"
+                          description="Se rechazará el descuento global solicitado. ¿Deseas continuar?"
+                          confirmText="Sí, rechazar"
+                          cancelText="Cancelar"
+                          variant="destructive"
+                          icon="danger"
+                          onConfirm={() => doReject(globalRequest.id)}
+                        />
+                      )}
                     </>
                   )}
                 </div>
@@ -534,12 +570,15 @@ export default function LaborDetailsSection({
                       </div>
 
                       <div className="col-span-1 text-center">
-                        <span className="text-sm font-medium">
-                          {detail.quantity}{" "}
-                          <span className="text-xs text-gray-500">
-                            {detail.unit_measure}
-                          </span>
-                        </span>
+                        <EditableCell
+                          id={detail.id}
+                          value={detail.quantity}
+                          min={0.01}
+                          widthClass="w-16"
+                          onUpdate={(_id, val) =>
+                            handleQuantityUpdate(detail, Number(val))
+                          }
+                        />
                       </div>
 
                       <div className="col-span-2 text-center">
@@ -705,11 +744,17 @@ export default function LaborDetailsSection({
                         </Button>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
+                        <div className="flex items-center gap-1">
                           <span className="text-gray-500">Horas:</span>
-                          <span className="font-medium ml-1">
-                            {detail.quantity} {detail.unit_measure}
-                          </span>
+                          <EditableCell
+                            id={detail.id}
+                            value={detail.quantity}
+                            min={0.01}
+                            widthClass="w-16"
+                            onUpdate={(_id, val) =>
+                              handleQuantityUpdate(detail, Number(val))
+                            }
+                          />
                         </div>
                         <div>
                           <span className="text-gray-500">Precio/H:</span>
