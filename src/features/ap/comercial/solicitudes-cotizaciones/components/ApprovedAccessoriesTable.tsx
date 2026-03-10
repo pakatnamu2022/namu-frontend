@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Plus, Trash2, Edit2, PackagePlus, Loader } from "lucide-react";
@@ -619,49 +618,39 @@ export const ApprovedAccessoriesTable = ({
               )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">Cantidad</label>
-              <Input
-                type="number"
-                min="1"
-                value={newRow.quantity || ""}
-                onChange={(e) => {
-                  setNewRow({
-                    ...newRow,
-                    quantity: parseInt(e.target.value) || 0,
-                  });
-                  setErrors({ ...errors, quantity: false });
-                }}
-                placeholder="0"
-                className={errors.quantity ? "border-red-500" : ""}
-              />
-              {errors.quantity && (
-                <p className="text-xs text-red-500 mt-1">
-                  Ingrese una cantidad mayor a 0
-                </p>
-              )}
-            </div>
+            <FormInput
+              name="quantity"
+              label="Cantidad"
+              type="number"
+              min="1"
+              value={newRow.quantity || ""}
+              onChange={(e) => {
+                setNewRow({
+                  ...newRow,
+                  quantity: Number(e.target.value) || 0,
+                });
+                setErrors({ ...errors, quantity: false });
+              }}
+              placeholder="0"
+              error={errors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+            />
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                Precio Adicional{" "}
-                <span className="text-gray-400 font-normal">(opcional)</span>
-              </label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={newRow.additional_price ?? ""}
-                onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setNewRow({
-                    ...newRow,
-                    additional_price: isNaN(val) || val < 0 ? 0 : val,
-                  });
-                }}
-                placeholder="0.00"
-              />
-            </div>
+            <FormInput
+              name="additional_price"
+              label={<>Precio Adicional <span className="text-gray-400 font-normal">(opcional)</span></>}
+              type="number"
+              min="0"
+              step="0.01"
+              value={newRow.additional_price ?? ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setNewRow({
+                  ...newRow,
+                  additional_price: isNaN(val) || val < 0 ? 0 : val,
+                });
+              }}
+              placeholder="0.00"
+            />
 
             {/* Información del accesorio seleccionado */}
             {newRow.accessory_id > 0 && (
@@ -813,49 +802,39 @@ export const ApprovedAccessoriesTable = ({
               )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">Cantidad</label>
-              <Input
-                type="number"
-                min="1"
-                value={editForm.quantity || ""}
-                onChange={(e) => {
-                  setEditForm({
-                    ...editForm,
-                    quantity: parseInt(e.target.value) || 0,
-                  });
-                  setEditErrors({ ...editErrors, quantity: false });
-                }}
-                placeholder="0"
-                className={editErrors.quantity ? "border-red-500" : ""}
-              />
-              {editErrors.quantity && (
-                <p className="text-xs text-red-500 mt-1">
-                  Ingrese una cantidad mayor a 0
-                </p>
-              )}
-            </div>
+            <FormInput
+              name="quantity"
+              label="Cantidad"
+              type="number"
+              min="1"
+              value={editForm.quantity || ""}
+              onChange={(e) => {
+                setEditForm({
+                  ...editForm,
+                  quantity: Number(e.target.value) || 0,
+                });
+                setEditErrors({ ...editErrors, quantity: false });
+              }}
+              placeholder="0"
+              error={editErrors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+            />
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                Precio Adicional{" "}
-                <span className="text-gray-400 font-normal">(opcional)</span>
-              </label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={editForm.additional_price ?? ""}
-                onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setEditForm({
-                    ...editForm,
-                    additional_price: isNaN(val) || val < 0 ? 0 : val,
-                  });
-                }}
-                placeholder="0.00"
-              />
-            </div>
+            <FormInput
+              name="additional_price"
+              label={<>Precio Adicional <span className="text-gray-400 font-normal">(opcional)</span></>}
+              type="number"
+              min="0"
+              step="0.01"
+              value={editForm.additional_price ?? ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setEditForm({
+                  ...editForm,
+                  additional_price: isNaN(val) || val < 0 ? 0 : val,
+                });
+              }}
+              placeholder="0.00"
+            />
 
             {/* Información del accesorio seleccionado */}
             {editForm.accessory_id > 0 && (
