@@ -14,6 +14,10 @@ import {
   RotateCcw,
   RefreshCw,
   Droplets,
+  Wrench,
+  ClipboardList,
+  Gift,
+  MessageSquare,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -72,7 +76,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);
-      errorToast("Error al descargar el PDF de la inspección");
+      errorToast("Error al descargar el PDF de la recepción");
     } finally {
       setIsDownloading(false);
     }
@@ -130,7 +134,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       <Card className="p-12">
         <div className="flex flex-col items-center justify-center text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
-          <p className="text-gray-500">Cargando inspección de recepción...</p>
+          <p className="text-gray-500">Cargando recepción de recepción...</p>
         </div>
       </Card>
     );
@@ -144,10 +148,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         <div className="flex flex-col items-center justify-center text-center">
           <AlertCircle className="h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            No hay inspección de recepción
+            No hay recepción de recepción
           </h3>
           <p className="text-gray-500 mb-4">
-            Esta orden de trabajo no tiene una inspección de vehículo registrada
+            Esta orden de trabajo no tiene una recepción de vehículo registrada
           </p>
         </div>
       </Card>
@@ -164,10 +168,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-red-800">
-                Inspección Anulada
+                Recepción Anulada
               </h3>
               <p className="text-sm text-red-600 mt-0.5">
-                Esta inspección de recepción ha sido anulada
+                Esta recepción de recepción ha sido anulada
               </p>
             </div>
           </div>
@@ -254,7 +258,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       {/* Inspection Header */}
       <Card className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <h3 className="text-lg font-semibold">Inspección de Recepción</h3>
+          <h3 className="text-lg font-semibold">Recepción de Recepción</h3>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
@@ -317,7 +321,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
             <Calendar className="h-5 w-5 text-gray-500 mt-0.5 shrink-0" />
             <div className="min-w-0">
               <p className="text-xs sm:text-sm text-gray-600">
-                Fecha de Inspección
+                Fecha de Recepción
               </p>
               <p className="font-semibold text-sm sm:text-base truncate">
                 {new Date(inspection.inspection_date).toLocaleString("es-PE")}
@@ -836,18 +840,165 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 Vehículo en perfecto estado
               </h3>
               <p className="text-gray-600 max-w-md">
-                La inspección de recepción se ha completado exitosamente. No se
+                La recepción de recepción se ha completado exitosamente. No se
                 identificaron daños, rayones o desperfectos en el vehículo.
               </p>
             </div>
             <div className="mt-2 px-4 py-2 bg-white rounded-lg border border-gray-200">
               <p className="text-sm text-gray-500">
-                ✓ Inspección completada sin observaciones
+                ✓ Recepción completada sin observaciones
               </p>
             </div>
           </div>
         </Card>
       )}
+
+      {/* Detalles de Trabajo */}
+      <Card className="p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+          <Wrench className="h-5 w-5 text-gray-600" />
+          Detalles de Trabajo
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {[
+            { key: "oil_change", label: "Cambio de aceite y filtro" },
+            { key: "check_level_lights", label: "Revisión de niveles y luces" },
+            { key: "general_lubrication", label: "Engrase general" },
+            {
+              key: "rotation_inspection_cleaning",
+              label: "Rotación de llantas, revisión y limpieza de frenos",
+            },
+            {
+              key: "insp_filter_basic_checks",
+              label:
+                "Inspección de filtro de aire, batería, neumáticos, suspensión y freno de mano",
+            },
+            {
+              key: "tire_pressure_inflation_check",
+              label: "Revisión de presión e inflado de llantas",
+            },
+            { key: "alignment_balancing", label: "Alineación y balanceo" },
+            {
+              key: "pad_replace_disc_resurface",
+              label: "Cambio de pastillas de freno y rectificado de discos",
+            },
+          ].map(({ key, label }) => {
+            const value = inspection[key as keyof typeof inspection];
+            const isChecked = typeof value === "boolean" ? value : false;
+            return (
+              <div
+                key={key}
+                className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg gap-2"
+              >
+                <p className="text-xs sm:text-sm flex-1">{label}</p>
+                {isChecked ? (
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 shrink-0" />
+                ) : (
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {inspection.other_work_details && (
+          <div className="mt-3">
+            <p className="text-xs font-medium text-gray-500 mb-1">
+              Otros trabajos
+            </p>
+            <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+              {inspection.other_work_details}
+            </p>
+          </div>
+        )}
+      </Card>
+
+      {/* Requerimiento del Cliente */}
+      {inspection.customer_requirement && (
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-gray-600" />
+            Requerimiento del Cliente
+          </h3>
+          <p className="text-sm sm:text-base text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 sm:p-4 rounded-lg">
+            {inspection.customer_requirement}
+          </p>
+        </Card>
+      )}
+
+      {/* Explicación de Resultados */}
+      <Card className="p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+          <ClipboardList className="h-5 w-5 text-gray-600" />
+          Explicación de Resultados
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {[
+            {
+              key: "explanation_work_performed",
+              label: "Explicación de trabajos realizados",
+            },
+            { key: "price_explanation", label: "Explicación de precios" },
+            {
+              key: "confirm_additional_work",
+              label: "Confirmación de realización de trabajos adicionales",
+            },
+            {
+              key: "clarification_customer_concerns",
+              label: "Aclaración de inquietudes del cliente",
+            },
+            { key: "exterior_cleaning", label: "Limpieza exterior" },
+            { key: "interior_cleaning", label: "Limpieza interior" },
+            { key: "keeps_spare_parts", label: "Se queda con repuestos" },
+            { key: "valuable_objects", label: "Objetos de valor" },
+          ].map(({ key, label }) => {
+            const value = inspection[key as keyof typeof inspection];
+            const isChecked = typeof value === "boolean" ? value : false;
+            return (
+              <div
+                key={key}
+                className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg gap-2"
+              >
+                <p className="text-xs sm:text-sm flex-1">{label}</p>
+                {isChecked ? (
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 shrink-0" />
+                ) : (
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* Items de Cortesía */}
+      <Card className="p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+          <Gift className="h-5 w-5 text-gray-600" />
+          Items de Cortesía
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {[
+            { key: "courtesy_seat_cover", label: "Cobertor de asiento" },
+            { key: "paper_floor", label: "Piso de papel" },
+          ].map(({ key, label }) => {
+            const value = inspection[key as keyof typeof inspection];
+            const isChecked = typeof value === "boolean" ? value : false;
+            return (
+              <div
+                key={key}
+                className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg gap-2"
+              >
+                <p className="text-xs sm:text-sm flex-1">{label}</p>
+                {isChecked ? (
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 shrink-0" />
+                ) : (
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       {/* General Observations */}
       {inspection.general_observations && (
@@ -870,7 +1021,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
           </h3>
           <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
             <p className="text-sm text-gray-600 mb-4 text-center">
-              El cliente confirma que la información registrada en la inspección
+              El cliente confirma que la información registrada en la recepción
               de recepción es correcta
             </p>
             <div className="flex justify-center">
@@ -918,8 +1069,8 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         trigger={<span />}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="Solicitar anulación de inspección"
-        description="Ingresa el motivo por el cual se anula esta inspección de recepción."
+        title="Solicitar anulación de recepción"
+        description="Ingresa el motivo por el cual se anula esta recepción de recepción."
         confirmText="Confirmar solicitud"
         cancelText="Cancelar"
         variant="destructive"
@@ -930,7 +1081,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         <textarea
           className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
           rows={3}
-          placeholder="Ej: Equivocación de 10 000 a 100 000 km, daño no visible en la inspección, etc."
+          placeholder="Ej: Equivocación de 10 000 a 100 000 km, daño no visible en la recepción, etc."
           value={cancellationReason}
           onChange={(e) => setCancellationReason(e.target.value)}
         />
@@ -942,7 +1093,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
         title="Confirmar anulación"
-        description="Esta acción anulará definitivamente la inspección de recepción. Una vez anulada, se deberá realizar una nueva recepción."
+        description="Esta acción anulará definitivamente la recepción de recepción. Una vez anulada, se deberá realizar una nueva recepción."
         confirmText="Confirmar anulación"
         cancelText="Cancelar"
         variant="destructive"

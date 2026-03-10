@@ -67,7 +67,7 @@ export const workOrderSchemaCreate = workOrderSchemaBase
   })
   .refine(inspectionRefine, {
     message:
-      "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
+      "Recepción de vehículo es requerida cuando 'Tiene recepción' está activo",
     path: ["vehicle_inspection_id"],
   });
 
@@ -83,7 +83,7 @@ export const workOrderSchemaUpdate = workOrderSchemaBase
   })
   .refine(inspectionRefine, {
     message:
-      "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
+      "Recepción de vehículo es requerida cuando 'Tiene recepción' está activo",
     path: ["vehicle_inspection_id"],
   });
 

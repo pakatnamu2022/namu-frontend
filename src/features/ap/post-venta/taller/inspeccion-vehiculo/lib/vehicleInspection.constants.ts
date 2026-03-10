@@ -6,7 +6,7 @@ const ABSOLUTE_ROUTE = `/ap/post-venta/taller/orden-trabajo`;
 
 export const VEHICLE_INSPECTION: ModelComplete<VehicleInspectionResource> = {
   MODEL: {
-    name: "Inspección de Vehículo",
+    name: "Recepción de Vehículo",
     plural: "Inspecciones de Vehículos",
     gender: true,
   },
@@ -26,7 +26,11 @@ export const CHECKLIST_ITEMS = [
   { key: "soat", label: "SOAT", category: "documentos" },
   { key: "moon_permits", label: "Permisos de lunas", category: "documentos" },
   { key: "service_card", label: "Carnet de servicio", category: "documentos" },
-  { key: "owner_manual", label: "Manual del propietario", category: "accesorios" },
+  {
+    key: "owner_manual",
+    label: "Manual del propietario",
+    category: "accesorios",
+  },
   { key: "key_ring", label: "Llavero", category: "accesorios" },
   { key: "wheel_lock", label: "Seguro de ruedas", category: "accesorios" },
   { key: "safe_glasses", label: "Seguro de vasos", category: "accesorios" },

@@ -33,6 +33,30 @@ export interface VehicleInspectionResource {
   fluid_caps: boolean;
   tool_kit: boolean;
   jack_and_lever: boolean;
+  // Detalles de trabajo
+  oil_change: boolean;
+  check_level_lights: boolean;
+  general_lubrication: boolean;
+  rotation_inspection_cleaning: boolean;
+  insp_filter_basic_checks: boolean;
+  tire_pressure_inflation_check: boolean;
+  alignment_balancing: boolean;
+  pad_replace_disc_resurface: boolean;
+  other_work_details: string | null;
+  // Requerimiento del cliente
+  customer_requirement: string | null;
+  // Explicación de resultados
+  explanation_work_performed: boolean;
+  price_explanation: boolean;
+  confirm_additional_work: boolean;
+  clarification_customer_concerns: boolean;
+  exterior_cleaning: boolean;
+  interior_cleaning: boolean;
+  keeps_spare_parts: boolean;
+  valuable_objects: boolean;
+  // Items de cortesía
+  courtesy_seat_cover: boolean;
+  paper_floor: boolean;
   general_observations: string | null;
   inspected_by: number;
   inspected_by_name: string;
