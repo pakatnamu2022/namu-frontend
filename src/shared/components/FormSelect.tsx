@@ -201,7 +201,6 @@ interface FormSelectProps {
   size?: "sm" | "default" | "lg";
   selectOnFocus?: boolean;
   withLenghOne?: boolean;
-  candSelect?: boolean;
   onValueChange?: (value: string) => void;
 }
 
@@ -231,7 +230,6 @@ export function FormSelect({
   selectOnFocus = true,
   onValueChange,
   withLenghOne = false,
-  candSelect = true,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -246,7 +244,13 @@ export function FormSelect({
         // Auto-select if only one option is available
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
-          if (selectOnFocus && withLenghOne && !field.value && !disabled && options.length < 0) {
+          if (
+            selectOnFocus &&
+            withLenghOne &&
+            !field.value &&
+            !disabled &&
+            options.length < 0
+          ) {
             field.onChange(options[0].value);
           }
         }, [options, field.value, disabled]);
@@ -280,7 +284,7 @@ export function FormSelect({
             size={size ? size : isMobile ? "sm" : "default"}
             variant="outline"
             role="combobox"
-            disabled={disabled || !candSelect}
+            disabled={disabled}
             className={cn(
               "w-full justify-between flex",
               !field.value && "text-muted-foreground",

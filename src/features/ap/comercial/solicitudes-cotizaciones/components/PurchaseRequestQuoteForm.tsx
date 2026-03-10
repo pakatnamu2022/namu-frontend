@@ -54,6 +54,7 @@ import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-v
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -252,6 +253,7 @@ export const PurchaseRequestQuoteForm = ({
             accessory_id: Number(acc.approved_accessory_id),
             quantity: Number(acc.quantity),
             type: acc.type || "ACCESORIO_ADICIONAL",
+            additional_price: Number(acc.additional_price ?? 0),
           }),
         );
         setInitialAccessories(transformedAccessories);
@@ -517,6 +519,14 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [currencyTypes, mode]);
 
+  // Tipo de cambio oficial (SBS) para USD
+  const today = new Date().toISOString().split("T")[0];
+  const usdCurrencyId = currencyTypes.find((c) => c.code === "USD")?.id ?? null;
+  const { data: usdExchangeRateData } = useExchangeRateByDateAndCurrency(
+    usdCurrencyId,
+    today,
+  );
+
   // Obtener la moneda del vehículo (modelo VN o vehículo VN)
   const getVehicleCurrency = () => {
     if (withVinWatch && vehicleVnWatch) {
@@ -545,7 +555,11 @@ export const PurchaseRequestQuoteForm = ({
   const vehicleCurrency = getVehicleCurrency();
 
   // Obtener tipo de cambio de una moneda
+  // Para USD usa el tipo de cambio oficial SBS del día; para otras monedas usa current_exchange_rate
   const getExchangeRate = (currencyId: number): number => {
+    if (usdCurrencyId && currencyId === usdCurrencyId) {
+      return usdExchangeRateData?.rate ?? currencyTypes.find((c) => c.id === currencyId)?.current_exchange_rate ?? 1;
+    }
     const currency = currencyTypes.find((c) => c.id === currencyId);
     return currency?.current_exchange_rate ?? 1;
   };
@@ -580,9 +594,11 @@ export const PurchaseRequestQuoteForm = ({
       return row.isNegative ? 0 : total + valor;
     }, 0);
 
-    // Calcular accesorios (siempre en soles, necesitan conversión)
+    // Calcular accesorios con la moneda correcta según type_operation_id
+    // 794 = Comercial → USD | 804 = Posventa → PEN
     // Excluir obsequios del cálculo
-    const solesId = currencyTypes.find((c) => c.code === "PEN")?.id || 1;
+    const solesId = currencyTypes.find((c) => c.code === "PEN")?.id || 3;
+    const usdId = currencyTypes.find((c) => c.code === "USD")?.id || 1;
     const accessoriesTotal = accessoriesRows.reduce((total, row) => {
       if (row.type === "OBSEQUIO") {
         return total;
@@ -592,11 +608,13 @@ export const PurchaseRequestQuoteForm = ({
         (acc) => acc.id === row.accessory_id,
       );
       if (accessory) {
-        const accessoryPrice = accessory.price * row.quantity;
+        const unitPrice = Number(accessory.price) + (row.additional_price ?? 0);
+        const accessoryPrice = unitPrice * row.quantity;
+        const accessoryCurrencyId =
+          accessory.type_operation_id === 794 ? usdId : solesId;
 
-        // Convertir de soles a la moneda del vehículo
         return (
-          total + convertAmount(accessoryPrice, solesId, vehicleCurrencyId)
+          total + convertAmount(accessoryPrice, accessoryCurrencyId, vehicleCurrencyId)
         );
       }
       return total;
@@ -664,6 +682,9 @@ export const PurchaseRequestQuoteForm = ({
       accessory_id: row.accessory_id,
       quantity: row.quantity,
       type: row.type,
+      ...(row.additional_price && row.additional_price > 0
+        ? { additional_price: row.additional_price }
+        : {}),
     }));
   };
 
@@ -1059,6 +1080,7 @@ export const PurchaseRequestQuoteForm = ({
               accessories={approvedAccesories}
               onAccessoriesChange={setAccessoriesRows}
               initialData={initialAccessories}
+              canCreateApprovedAccessory={canAssign}
             />
           </div>
 
@@ -1082,6 +1104,7 @@ export const PurchaseRequestQuoteForm = ({
             invoiceCurrencyId={invoiceCurrencyId}
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
+            currencyTypes={currencyTypes}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />

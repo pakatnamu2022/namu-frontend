@@ -143,7 +143,7 @@ export default function PurchaseRequestQuoteDetailModal({
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Precio de Venta</p>
+              <p className="text-xs text-muted-foreground">Precio de Venta Total</p>
               <p className="font-medium text-green-600 text-2xl">
                 <NumberFormat
                   value={Number(quote.sale_price)}
@@ -518,7 +518,7 @@ export default function PurchaseRequestQuoteDetailModal({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>ID Accesorio</TableHead>
+                      <TableHead>Descripción</TableHead>
                       <TableHead>Tipo</TableHead>
                       <TableHead className="text-right">Cantidad</TableHead>
                       <TableHead className="text-right">Precio Unit.</TableHead>
@@ -526,23 +526,88 @@ export default function PurchaseRequestQuoteDetailModal({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {quote.accessories.map((accessory, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-mono">
-                          #{accessory.approved_accessory_id}
-                        </TableCell>
-                        <TableCell>{accessory.type}</TableCell>
-                        <TableCell className="text-right">
-                          {accessory.quantity}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <NumberFormat value={Number(accessory.price)} />
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-primary">
-                          <NumberFormat value={Number(accessory.total)} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {quote.accessories.map((accessory, index) => {
+                      const effectivePrice =
+                        Number(accessory.price) +
+                        Number(accessory.additional_price ?? 0);
+                      const localTotal = effectivePrice * accessory.quantity;
+                      const sameCurrency =
+                        accessory.type_currency_code ===
+                        quote.doc_type_currency;
+                      const convertedTotal = sameCurrency
+                        ? localTotal
+                        : localTotal / quote.exchange_rate;
+
+                      return (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <p className="font-medium">
+                              {accessory.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground font-mono">
+                              #{accessory.approved_accessory_id}
+                            </p>
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                accessory.type === "OBSEQUIO"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-blue-100 text-primary"
+                              }`}
+                            >
+                              {accessory.type === "OBSEQUIO"
+                                ? "Obsequio"
+                                : "Adicional"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {accessory.quantity}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div>
+                              {accessory.type_currency_symbol}{" "}
+                              <NumberFormat value={effectivePrice} />
+                            </div>
+                            {(accessory.additional_price ?? 0) > 0 && (
+                              <div className="text-xs text-muted-foreground">
+                                Base{" "}
+                                <NumberFormat value={Number(accessory.price)} />
+                                {" + "}
+                                <NumberFormat
+                                  value={accessory.additional_price}
+                                />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-primary">
+                            {sameCurrency ? (
+                              <>
+                                {quote.doc_type_currency_symbol}{" "}
+                                <NumberFormat
+                                  value={Number(localTotal.toFixed(2))}
+                                />
+                              </>
+                            ) : (
+                              <div className="space-y-0.5">
+                                <div>
+                                  {accessory.type_currency_symbol}{" "}
+                                  <NumberFormat
+                                    value={Number(localTotal.toFixed(2))}
+                                  />
+                                </div>
+                                <div className="text-xs text-muted-foreground font-normal">
+                                  ≈ {quote.doc_type_currency_symbol}{" "}
+                                  <NumberFormat
+                                    value={Number(convertedTotal.toFixed(2))}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

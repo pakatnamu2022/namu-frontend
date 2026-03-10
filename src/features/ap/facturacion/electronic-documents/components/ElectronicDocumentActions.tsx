@@ -28,8 +28,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { MigrationAllResponse } from "../lib/electronicDocument.interface";
-import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useState } from "react";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface ElectronicDocumentActionsProps {
   onRefresh: () => void;
@@ -74,90 +74,90 @@ export default function ElectronicDocumentActions({
 
   return (
     <>
-    <GeneralModal
-      open={!!migrationResult}
-      onClose={() => setMigrationResult(null)}
-      title="Migración iniciada"
-      subtitle={`Se despacharon ${migrationResult?.total_dispatched ?? 0} documentos. Revisa el historial de migración para más detalles.`}
-      icon="Send"
-      size="2xl"
-    >
-      <ul className="divide-y">
-        {migrationResult?.dispatched.map((item) => (
-          <li key={item.number} className="flex justify-between py-2 text-sm">
-            <span className="font-medium">Documento ID {item.number}</span>
-            <span className="text-muted-foreground">
-              {item.reason?.description || "En proceso"}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </GeneralModal>
-    <ActionsWrapper>
-      <Button size="sm" variant="outline" onClick={onRefresh}>
-        <RefreshCw
-          className={cn("size-4 mr-2", { "animate-spin": isLoading })}
-        />
-        Actualizar
-      </Button>
-
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => syncAccountingMutation.mutate()}
-        disabled={syncAccountingMutation.isPending}
+      <GeneralSheet
+        open={!!migrationResult}
+        onClose={() => setMigrationResult(null)}
+        title="Migración iniciada"
+        subtitle={`Se despacharon ${migrationResult?.total_dispatched ?? 0} documentos. Revisa el historial de migración para más detalles.`}
+        icon="Send"
+        size="2xl"
       >
-        <BookCheck
-          className={cn("size-4 mr-2", {
-            "animate-pulse": syncAccountingMutation.isPending,
-          })}
-        />
-        Contabilizaciones
-      </Button>
+        <ul className="divide-y">
+          {migrationResult?.dispatched.map((item) => (
+            <li key={item.number} className="flex justify-between py-2 text-sm">
+              <span className="font-medium">Documento ID {item.number}</span>
+              <span className="text-muted-foreground">
+                {item.reason?.description || "En proceso"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </GeneralSheet>
+      <ActionsWrapper>
+        <Button size="sm" variant="outline" onClick={onRefresh}>
+          <RefreshCw
+            className={cn("size-4 mr-2", { "animate-spin": isLoading })}
+          />
+          Actualizar
+        </Button>
 
-      <ConfirmationDialog
-        trigger={
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={dispatchAllMutation.isPending}
-          >
-            <Send
-              className={cn("size-4 mr-2", {
-                "animate-pulse": dispatchAllMutation.isPending,
-              })}
-            />
-            Migrar Todo
-          </Button>
-        }
-        onConfirm={() => dispatchAllMutation.mutate()}
-        title="Confirmar Migración"
-        description="¿Estás seguro de que deseas iniciar la migración de todos los documentos electrónicos? Esta acción puede tardar varios minutos."
-        confirmText="Sí, iniciar migración"
-        cancelText="Cancelar"
-      />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => syncAccountingMutation.mutate()}
+          disabled={syncAccountingMutation.isPending}
+        >
+          <BookCheck
+            className={cn("size-4 mr-2", {
+              "animate-pulse": syncAccountingMutation.isPending,
+            })}
+          />
+          Contabilizaciones
+        </Button>
 
-      {permissions.canCreate && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm">
-              <Plus className="size-4 mr-2" />
-              Nuevo Comprobante
+        <ConfirmationDialog
+          trigger={
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={dispatchAllMutation.isPending}
+            >
+              <Send
+                className={cn("size-4 mr-2", {
+                  "animate-pulse": dispatchAllMutation.isPending,
+                })}
+              />
+              Migrar Todo
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
-            <DropdownMenuItem onClick={() => router(ROUTE_ADD)}>
-              <FilePlus className="size-4 mr-2" />
-              Venta Vehiculo
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router(`${ROUTE_ADD}-otros`)}>
-              <Files className="size-4 mr-2" />
-              Otras Ventas
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-    </ActionsWrapper>
+          }
+          onConfirm={() => dispatchAllMutation.mutate()}
+          title="Confirmar Migración"
+          description="¿Estás seguro de que deseas iniciar la migración de todos los documentos electrónicos? Esta acción puede tardar varios minutos."
+          confirmText="Sí, iniciar migración"
+          cancelText="Cancelar"
+        />
+
+        {permissions.canCreate && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm">
+                <Plus className="size-4 mr-2" />
+                Nuevo Comprobante
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuItem onClick={() => router(ROUTE_ADD)}>
+                <FilePlus className="size-4 mr-2" />
+                Venta Vehiculo
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router(`${ROUTE_ADD}-otros`)}>
+                <Files className="size-4 mr-2" />
+                Otras Ventas
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </ActionsWrapper>
     </>
   );
 }

@@ -31,6 +31,7 @@ interface ItemsSectionProps {
   showActions?: boolean;
   useQuotation?: boolean;
   isDetraction?: boolean;
+  minRetentionPrice?: number;
 }
 
 export function ItemsSection({
@@ -44,10 +45,42 @@ export function ItemsSection({
   showActions = true,
   useQuotation = false,
   isDetraction = false,
+  minRetentionPrice,
 }: ItemsSectionProps) {
-  const { data: accountPlans } = useAllAccountingAccountPlan(
-    isDetraction ? { is_detraction: 1 } : undefined,
-  );
+  const { data: accountPlans } = useAllAccountingAccountPlan({
+    is_detraction: isDetraction ? 1 : 0,
+  });
+
+  // Validate existing items when detraction mode changes
+  const lastValidatedForDetraction = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!accountPlans || lastValidatedForDetraction.current === isDetraction) return;
+
+    if (lastValidatedForDetraction.current === null) {
+      lastValidatedForDetraction.current = isDetraction;
+      return;
+    }
+
+    lastValidatedForDetraction.current = isDetraction;
+
+    const currentItems = form.getValues("items") || [];
+    if (currentItems.length === 0) return;
+
+    const validPlanIds = new Set(accountPlans.map((p) => p.id.toString()));
+    const hasInvalidItems = currentItems.some(
+      (item) => !validPlanIds.has(item.account_plan_id?.toString()),
+    );
+
+    if (hasInvalidItems) {
+      const validItems = currentItems.filter((item) =>
+        validPlanIds.has(item.account_plan_id?.toString()),
+      );
+      form.setValue("items", validItems, { shouldValidate: true });
+      errorToast(
+        "Se eliminaron items con un plan contable no válido para el tipo de operación seleccionado.",
+      );
+    }
+  }, [isDetraction, accountPlans]);
 
   const [newItem, setNewItem] = useState({
     unidad_de_medida: "NIU",
@@ -129,6 +162,14 @@ export function ItemsSection({
       return;
     }
 
+    // Validar precio mínimo por retención
+    if (minRetentionPrice && newItem.precio_unitario < minRetentionPrice) {
+      errorToast(
+        `El precio unitario no puede ser menor a ${currencySymbol} ${minRetentionPrice.toFixed(2)} (mínimo de retención S/ 700)`,
+      );
+      return;
+    }
+
     const item: ElectronicDocumentItemSchema = {
       unidad_de_medida: newItem.unidad_de_medida,
       descripcion: newItem.descripcion,
@@ -145,7 +186,7 @@ export function ItemsSection({
       anticipo_regularizacion: isAdvancePayment ? false : undefined,
     };
 
-    form.setValue("items", [...items, item]);
+    form.setValue("items", [...items, item], { shouldValidate: true });
     setIsSheetOpen(false);
     setNewItem({
       unidad_de_medida: "NIU",
@@ -159,7 +200,7 @@ export function ItemsSection({
 
   const removeItem = (index: number) => {
     const updatedItems = items.filter((_, i) => i !== index);
-    form.setValue("items", updatedItems);
+    form.setValue("items", updatedItems, { shouldValidate: true });
     setEditingIndex(null);
   };
 
@@ -208,6 +249,14 @@ export function ItemsSection({
       return;
     }
 
+    // Validar precio mínimo por retención
+    if (minRetentionPrice && newItem.precio_unitario < minRetentionPrice) {
+      errorToast(
+        `El precio unitario no puede ser menor a ${currencySymbol} ${minRetentionPrice.toFixed(2)} (mínimo de retención S/ 700)`,
+      );
+      return;
+    }
+
     const updatedItem: ElectronicDocumentItemSchema = {
       ...items[editingIndex],
       unidad_de_medida: newItem.unidad_de_medida,
@@ -224,7 +273,7 @@ export function ItemsSection({
 
     const updatedItems = [...items];
     updatedItems[editingIndex] = updatedItem;
-    form.setValue("items", updatedItems);
+    form.setValue("items", updatedItems, { shouldValidate: true });
 
     setIsSheetOpen(false);
     setNewItem({
@@ -410,6 +459,15 @@ export function ItemsSection({
                 }
                 disabled={isFromQuotation && !isAdvancePayment}
               />
+              {minRetentionPrice && (
+                <p className="text-xs text-muted-foreground">
+                  Mínimo por retención:{" "}
+                  <span className="font-medium">
+                    {currencySymbol} {minRetentionPrice.toFixed(2)}
+                  </span>{" "}
+                  (S/ 700)
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">

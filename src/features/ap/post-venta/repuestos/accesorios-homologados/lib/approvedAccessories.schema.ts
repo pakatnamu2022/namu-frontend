@@ -8,12 +8,9 @@ export const approvedAccesoriesSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Código es requerido",
     }),
-  type: z
-    .string()
-    .max(100)
-    .refine((value) => value.trim() !== "", {
-      message: "Tipo es requerido",
-    }),
+  type_operation_id: z.coerce
+    .number()
+    .min(1, { message: "Tipo de operación es requerido" }),
   description: z
     .string()
     .max(255)

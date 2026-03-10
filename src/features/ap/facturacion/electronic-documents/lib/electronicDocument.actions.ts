@@ -14,6 +14,7 @@ import {
   ElectronicDocumentMigrationLogsResponse,
   ElectronicDocumentMigrationHistoryResponse,
   MigrationAllResponse,
+  ExchangeRateResource,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
@@ -290,4 +291,17 @@ export async function dispatchElectronicDocumentMigration(
 
 export async function syncAccountingStatus(): Promise<void> {
   await api.post(`${ENDPOINT}/sync-accounting-status`);
+}
+
+export async function getExchangeRateByDateAndCurrency(
+  to_currency_id: number,
+  date: string,
+): Promise<ExchangeRateResource> {
+  const { data } = await api.get<{ data: ExchangeRateResource }>(
+    "gp/mg/exchange-rate/by-date-and-currency",
+    {
+      params: { to_currency_id, date, type: "VENDER" },
+    },
+  );
+  return data.data;
 }

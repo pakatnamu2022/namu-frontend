@@ -492,7 +492,6 @@ export const ModelsVnForm = ({
               control={form.control}
               selectOnFocus
               withLenghOne
-              candSelect={false}
             />
 
             <FormInput

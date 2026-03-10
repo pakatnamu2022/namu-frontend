@@ -114,7 +114,12 @@ export default function ModuleViewsDashboard({
   return (
     <PageWrapper>
       {/* Header */}
-      <TitleComponent title={displayTitle} subtitle={subtitle} icon={icon} />
+      <TitleComponent
+        title={displayTitle}
+        subtitle={subtitle}
+        icon={icon}
+        backRoute={isInSubmodule ? `/modules/${company}/${moduleSlug}` : `/modules/${company}`}
+      />
 
       {/* Content */}
       {!hasContent ? (
