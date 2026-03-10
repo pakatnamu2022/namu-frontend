@@ -1081,6 +1081,8 @@ export const PurchaseRequestQuoteForm = ({
               onAccessoriesChange={setAccessoriesRows}
               initialData={initialAccessories}
               canCreateApprovedAccessory={canAssign}
+              invoiceCurrencyId={invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined}
+              getExchangeRate={getExchangeRate}
             />
           </div>
 
