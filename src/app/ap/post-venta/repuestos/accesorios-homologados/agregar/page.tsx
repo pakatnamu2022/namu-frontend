@@ -50,7 +50,7 @@ export default function AddApprovedAccesoriesPage() {
       <ApprovedAccesoriesForm
         defaultValues={{
           code: "",
-          type: "794",
+          type_operation_id: 794,
           description: "",
           price: 0,
           body_type_id: "",
