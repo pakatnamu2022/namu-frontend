@@ -8,7 +8,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader, ClipboardCheck, PenLine, Camera } from "lucide-react";
+import {
+  Loader,
+  ClipboardCheck,
+  PenLine,
+  Camera,
+  ClipboardList,
+  Gift,
+} from "lucide-react";
 import { SignaturePad } from "./SignaturePad";
 import {
   VehicleInspectionSchema,
@@ -25,6 +32,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { FormSwitch } from "@/shared/components/FormSwitch";
+import { FormCheckbox } from "@/shared/components/FormCheckbox";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -79,6 +87,7 @@ export const VehicleInspectionForm = ({
 
   const checklistValues = CHECKLIST_ITEMS.reduce(
     (acc, item) => {
+      // eslint-disable-next-line react-hooks/incompatible-library
       acc[item.key] = form.watch(item.key as any) || false;
       return acc;
     },
@@ -90,7 +99,7 @@ export const VehicleInspectionForm = ({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* Información General */}
         <GroupFormSection
-          title="Información de Inspección"
+          title="Información de Recepción"
           icon={ClipboardCheck}
           color="primary"
           cols={{ sm: 2 }}
@@ -98,7 +107,7 @@ export const VehicleInspectionForm = ({
           <DatePickerFormField
             control={form.control}
             name="inspection_date"
-            label="Fecha de Inspección"
+            label="Fecha de Recepción"
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
@@ -143,6 +152,78 @@ export const VehicleInspectionForm = ({
           />
         </GroupFormSection>
 
+        {/* Detalles de Trabajo */}
+        <GroupFormSection
+          title="Detalles de Trabajo"
+          icon={ClipboardCheck}
+          color="primary"
+          cols={{ sm: 2 }}
+        >
+          <FormCheckbox
+            name="oil_change"
+            label="Cambio de aceite y filtro"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="check_level_lights"
+            label="Revisión de niveles y luces"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="general_lubrication"
+            label="Engrase general"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="rotation_inspection_cleaning"
+            label="Rotación de llantas, revisión y limpieza de frenos"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="insp_filter_basic_checks"
+            label="Inspección de filtro de aire, batería, neumáticos, suspensión y freno de mano"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="tire_pressure_inflation_check"
+            label="Revisión de presión e inflado de llantas"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="alignment_balancing"
+            label="Alineación y balanceo"
+            control={form.control}
+          />
+          <FormCheckbox
+            name="pad_replace_disc_resurface"
+            label="Cambio de pastillas de freno y rectificado de discos"
+            control={form.control}
+          />
+          <div className="col-span-full">
+            <FormInputText
+              name="other_work_details"
+              label="Otros Trabajos"
+              placeholder="Detalles de otros trabajos realizados..."
+              control={form.control}
+            />
+          </div>
+        </GroupFormSection>
+
+        {/* Requerimiento del Cliente */}
+        <GroupFormSection
+          title="Requerimiento del Cliente"
+          icon={ClipboardCheck}
+          color="gray"
+          cols={{ sm: 1 }}
+        >
+          <FormInputText
+            name="customer_requirement"
+            label="Requerimiento del Cliente"
+            placeholder="Ingrese el requerimiento del cliente..."
+            control={form.control}
+          />
+        </GroupFormSection>
+
         {/* Checklist de Verificación */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -155,6 +236,84 @@ export const VehicleInspectionForm = ({
             disabled={isSubmitting}
           />
         </div>
+
+        {/* Explicación de Resultados */}
+        <GroupFormSection
+          title="Explicación de Resultados"
+          icon={ClipboardList}
+          color="gray"
+          cols={{ sm: 2 }}
+        >
+          <FormCheckbox
+            name="explanation_work_performed"
+            label="Explicación de trabajos realizados"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="price_explanation"
+            label="Explicación de precios"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="confirm_additional_work"
+            label="Confirmación de realización de trabajos adicionales"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="clarification_customer_concerns"
+            label="Aclaración de inquietudes del cliente"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="exterior_cleaning"
+            label="Limpieza exterior"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="interior_cleaning"
+            label="Limpieza interior"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="keeps_spare_parts"
+            label="Se queda con repuestos"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="valuable_objects"
+            label="Objetos de valor"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+        </GroupFormSection>
+
+        {/* Items de Cortesía */}
+        <GroupFormSection
+          title="Items de Cortesía"
+          icon={Gift}
+          color="gray"
+          cols={{ sm: 2 }}
+        >
+          <FormCheckbox
+            name="courtesy_seat_cover"
+            label="Cobertor de asiento"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+          <FormCheckbox
+            name="paper_floor"
+            label="Piso de papel"
+            control={form.control}
+            disabled={isSubmitting}
+          />
+        </GroupFormSection>
 
         {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
         <GroupFormSection
@@ -256,7 +415,7 @@ export const VehicleInspectionForm = ({
           <FormInputText
             name="general_observations"
             label="Observaciones"
-            placeholder="Ingrese observaciones generales de la inspección..."
+            placeholder="Ingrese observaciones generales de la recepción..."
             control={form.control}
           />
         </GroupFormSection>
@@ -300,7 +459,7 @@ export const VehicleInspectionForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : "Guardar Inspección"}
+            {isSubmitting ? "Guardando" : "Guardar Recepción"}
           </Button>
         </div>
       </form>

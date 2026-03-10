@@ -157,7 +157,10 @@ export const WorkOrderForm = ({
       }
 
       // Setear fecha y hora estimada de entrega desde la cita
-      if (selectedAppointment.delivery_date && selectedAppointment.delivery_time) {
+      if (
+        selectedAppointment.delivery_date &&
+        selectedAppointment.delivery_time
+      ) {
         const time = selectedAppointment.delivery_time.slice(0, 5); // "15:30:00" -> "15:30"
         form.setValue(
           "estimated_delivery_time",
@@ -248,7 +251,7 @@ export const WorkOrderForm = ({
     form.setValue("vehicle_inspection_id", inspection.id.toString());
     setSelectedInspection(inspection);
 
-    // Setear el vehículo desde la inspección
+    // Setear el vehículo desde la recepción
     if (inspection.vehicle_id) {
       form.setValue("vehicle_id", inspection.vehicle_id.toString());
       // Setear el selectedVehicle para mostrar la info del vehículo
@@ -347,14 +350,14 @@ export const WorkOrderForm = ({
           )}
         </GroupFormSection>
 
-        {/* Inspección de Vehículo */}
+        {/* Recepción de Vehículo */}
         <GroupFormSection
-          title="Inspección de Vehículo"
+          title="Recepción de Vehículo"
           icon={ClipboardCheck}
           color="primary"
           cols={{ sm: 1 }}
         >
-          {/* Checkbox Tiene Inspección */}
+          {/* Checkbox Tiene Recepción */}
           <FormField
             control={form.control}
             name="has_inspection"
@@ -367,9 +370,9 @@ export const WorkOrderForm = ({
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>¿Tiene inspección registrada?</FormLabel>
+                  <FormLabel>¿Tiene recepción registrada?</FormLabel>
                   <p className="text-sm text-muted-foreground">
-                    Marque esta opción si ya existe una inspección de vehículo
+                    Marque esta opción si ya existe una recepción de vehículo
                     que desea asociar a esta orden de trabajo
                   </p>
                 </div>
@@ -377,14 +380,14 @@ export const WorkOrderForm = ({
             )}
           />
 
-          {/* Selector de Inspección - Solo visible si has_inspection es true */}
+          {/* Selector de Recepción - Solo visible si has_inspection es true */}
           {watchedHasInspection && (
             <FormField
               control={form.control}
               name="vehicle_inspection_id"
               render={() => (
                 <FormItem>
-                  <FormLabel>Inspección de Vehículo</FormLabel>
+                  <FormLabel>Recepción de Vehículo</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <Button
@@ -395,7 +398,7 @@ export const WorkOrderForm = ({
                       >
                         <Search className="h-4 w-4 mr-2" />
                         {getSelectedInspectionLabel() ||
-                          "Buscar y seleccionar inspección"}
+                          "Buscar y seleccionar recepción"}
                       </Button>
                     </div>
                   </FormControl>
@@ -405,13 +408,13 @@ export const WorkOrderForm = ({
             />
           )}
 
-          {/* Información de la Inspección Seleccionada */}
+          {/* Información de la Recepción Seleccionada */}
           {selectedInspection && watchedHasInspection && (
             <Card className="p-4 bg-green-50 border-green-200">
               <div className="flex items-center gap-2 mb-3">
                 <ClipboardCheck className="h-5 w-5 text-green-600" />
                 <h4 className="font-semibold text-gray-800">
-                  Información de la Inspección
+                  Información de la Recepción
                 </h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -428,7 +431,7 @@ export const WorkOrderForm = ({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Fecha Inspección</p>
+                  <p className="text-xs text-gray-500">Fecha Recepción</p>
                   <p className="font-semibold text-sm">
                     {typeof selectedInspection.inspection_date === "string"
                       ? selectedInspection.inspection_date
@@ -801,7 +804,7 @@ export const WorkOrderForm = ({
           onSelectAppointment={handleSelectAppointment}
         />
 
-        {/* Modal de Selección de Inspección */}
+        {/* Modal de Selección de Recepción */}
         <VehicleInspectionSelectionModal
           open={isInspectionModalOpen}
           sedeId={Number(form.getValues("sede_id"))}

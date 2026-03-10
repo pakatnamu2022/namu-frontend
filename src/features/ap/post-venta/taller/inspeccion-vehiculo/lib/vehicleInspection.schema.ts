@@ -34,6 +34,30 @@ export const vehicleInspectionSchemaCreate = z.object({
   fluid_caps: z.boolean().default(true),
   tool_kit: z.boolean().default(true),
   jack_and_lever: z.boolean().default(true),
+  // Detalles de trabajo
+  oil_change: z.boolean().default(false),
+  check_level_lights: z.boolean().default(false),
+  general_lubrication: z.boolean().default(false),
+  rotation_inspection_cleaning: z.boolean().default(false),
+  insp_filter_basic_checks: z.boolean().default(false),
+  tire_pressure_inflation_check: z.boolean().default(false),
+  alignment_balancing: z.boolean().default(false),
+  pad_replace_disc_resurface: z.boolean().default(false),
+  other_work_details: z.string().max(500).optional(),
+  // Requerimiento del cliente
+  customer_requirement: z.string().max(500).optional(),
+  // Explicación de resultados
+  explanation_work_performed: z.boolean().default(false),
+  price_explanation: z.boolean().default(false),
+  confirm_additional_work: z.boolean().default(false),
+  clarification_customer_concerns: z.boolean().default(false),
+  exterior_cleaning: z.boolean().default(false),
+  interior_cleaning: z.boolean().default(false),
+  keeps_spare_parts: z.boolean().default(false),
+  valuable_objects: z.boolean().default(false),
+  // Items de cortesía
+  courtesy_seat_cover: z.boolean().default(false),
+  paper_floor: z.boolean().default(false),
   general_observations: z.string().max(1000).optional(),
   inspection_date: z.coerce.date(),
   fuel_level: z

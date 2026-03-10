@@ -471,7 +471,7 @@ export default function GeneralInformationPage() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Wrench className="h-5 w-5" />
-              Inspección del Vehículo
+              Recepción del Vehículo
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex items-start gap-2">
@@ -504,7 +504,7 @@ export default function GeneralInformationPage() {
               <div className="flex items-start gap-2">
                 <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-600">Fecha de Inspección</p>
+                  <p className="text-sm text-gray-600">Fecha de Recepción</p>
                   <p className="font-semibold">
                     {new Date(
                       workOrder.vehicle_inspection.inspection_date,

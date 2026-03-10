@@ -568,14 +568,14 @@ export function SheetShipmentDetailsDialog({
             </>
           )}
 
-          {/* Inspección del Vehículo */}
+          {/* Recepción del Vehículo */}
           {inspection && (
             <>
               <Separator />
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Camera className="h-4 w-4 text-primary" />
-                  <h3 className="font-semibold">Inspección del Vehículo</h3>
+                  <h3 className="font-semibold">Recepción del Vehículo</h3>
                 </div>
 
                 <div className="bg-muted/30 p-3 rounded-lg flex items-center justify-between">
