@@ -389,12 +389,9 @@ export const electronicDocumentColumns = ({
           isInvoiceOrBoleta &&
           document.status === "accepted" &&
           document.aceptada_por_sunat &&
+          document.is_accounted &&
           !document.anulado &&
-          !!document.migrated_at &&
-          document.migration_status === "completed" &&
-          document.items?.some(
-            (item) => item.anticipo_regularizacion === true,
-          ) &&
+          !document.is_advance_payment &&
           permissions.canCreateDebitNote;
 
         const routeToEdit =

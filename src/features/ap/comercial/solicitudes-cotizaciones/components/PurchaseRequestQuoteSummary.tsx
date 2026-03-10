@@ -1,4 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { FileCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -70,10 +71,10 @@ export function PurchaseRequestQuoteSummary({
   finalTotal,
   selectedInvoiceCurrency,
   getExchangeRate,
-  currencyTypes,
   onCancel,
   onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
+  const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
   // Obtener el color seleccionado
   const selectedColor = vehicleColorWatch
     ? vehicleColors.find((c) => c.id.toString() === vehicleColorWatch)
@@ -156,6 +157,7 @@ export function PurchaseRequestQuoteSummary({
                   {vehicleCurrency.symbol}{" "}
                   {totals.salePrice.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   })}
                 </span>
               </div>
@@ -169,6 +171,7 @@ export function PurchaseRequestQuoteSummary({
                     {vehicleCurrency.symbol}{" "}
                     {totals.bonusDiscountTotal.toLocaleString("es-PE", {
                       minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
                     })}
                   </span>
                 </div>
@@ -181,6 +184,7 @@ export function PurchaseRequestQuoteSummary({
                     - {vehicleCurrency.symbol}{" "}
                     {totals.negativeDiscounts.toLocaleString("es-PE", {
                       minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
                     })}
                   </span>
                 </div>
@@ -193,6 +197,7 @@ export function PurchaseRequestQuoteSummary({
                     + {vehicleCurrency.symbol}{" "}
                     {totals.accessoriesTotal.toLocaleString("es-PE", {
                       minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
                     })}
                   </span>
                 </div>
@@ -209,32 +214,39 @@ export function PurchaseRequestQuoteSummary({
               {vehicleCurrency.symbol}{" "}
               {totals.subtotal.toLocaleString("es-PE", {
                 minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               })}
             </span>
           </div>
 
           {/* Tipos de Cambio */}
-          {currencyTypes.filter((c) => c.id !== vehicleCurrency.currencyId)
+          {allCurrencyTypes.filter((c) => c.id !== vehicleCurrency.currencyId)
             .length > 0 && (
             <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
               <p className="text-xs font-medium text-muted-foreground mb-2">
                 Tipos de Cambio
               </p>
-              {currencyTypes
+              {allCurrencyTypes
                 .filter((c) => c.id !== vehicleCurrency.currencyId)
-                .map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex justify-between items-center text-xs"
-                  >
-                    <span className="text-muted-foreground">
-                      {vehicleCurrency.symbol} → {c.symbol}
-                    </span>
-                    <span className="font-medium tabular-nums">
-                      {Number(getExchangeRate(c.id)).toFixed(3)}
-                    </span>
-                  </div>
-                ))}
+                .map((c) => {
+                  const vehicleRate = getExchangeRate(vehicleCurrency.currencyId);
+                  const otherRate = getExchangeRate(c.id);
+                  // TC: cuántas unidades de c por 1 unidad de moneda vehículo
+                  const tc = vehicleRate / otherRate;
+                  return (
+                    <div
+                      key={c.id}
+                      className="flex justify-between items-center text-xs"
+                    >
+                      <span className="text-muted-foreground">
+                        1 {vehicleCurrency.symbol} = {c.symbol}
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        {tc.toFixed(3)}
+                      </span>
+                    </div>
+                  );
+                })}
             </div>
           )}
 
@@ -250,6 +262,7 @@ export function PurchaseRequestQuoteSummary({
                 {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}
                 {finalTotal.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
                 })}
               </span>
             </div>

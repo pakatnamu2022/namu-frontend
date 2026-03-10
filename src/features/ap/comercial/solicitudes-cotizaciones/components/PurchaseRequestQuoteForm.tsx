@@ -635,12 +635,13 @@ export const PurchaseRequestQuoteForm = ({
 
     const subtotal = salePrice + accessoriesTotal - negativeDiscounts;
 
+    const round2 = (n: number) => Math.round(n * 100) / 100;
     return {
-      salePrice,
-      bonusDiscountTotal,
-      accessoriesTotal,
-      negativeDiscounts,
-      subtotal,
+      salePrice: round2(salePrice),
+      bonusDiscountTotal: round2(bonusDiscountTotal),
+      accessoriesTotal: round2(accessoriesTotal),
+      negativeDiscounts: round2(negativeDiscounts),
+      subtotal: round2(subtotal),
       vehicleCurrencyId,
     };
   };
@@ -676,6 +677,8 @@ export const PurchaseRequestQuoteForm = ({
     });
   };
 
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
   // Transformar datos de accesorios para el envío
   const transformAccessoriesData = () => {
     return accessoriesRows.map((row) => ({
@@ -683,7 +686,7 @@ export const PurchaseRequestQuoteForm = ({
       quantity: row.quantity,
       type: row.type,
       ...(row.additional_price && row.additional_price > 0
-        ? { additional_price: row.additional_price }
+        ? { additional_price: round2(row.additional_price) }
         : {}),
     }));
   };
@@ -698,9 +701,9 @@ export const PurchaseRequestQuoteForm = ({
       bonus_discounts: bonusDiscountData,
       accessories: accessoriesData,
       type_currency_id: vehicleCurrency.currencyId,
-      base_selling_price: totals.salePrice,
-      sale_price: totals.salePrice + totals.accessoriesTotal,
-      doc_sale_price: finalTotal,
+      base_selling_price: round2(totals.salePrice),
+      sale_price: round2(totals.salePrice + totals.accessoriesTotal),
+      doc_sale_price: round2(finalTotal),
     };
 
     onSubmit(finalData);

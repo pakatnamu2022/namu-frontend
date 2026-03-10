@@ -407,25 +407,19 @@ export const ApprovedAccessoriesTable = ({
       id: "conversion",
       header: "Conversión",
       cell: ({ row }) => {
-        console.log("[Conversion] getExchangeRate:", !!getExchangeRate, "invoiceCurrencyId:", invoiceCurrencyId, "allCurrencyTypes.length:", allCurrencyTypes.length);
         if (!getExchangeRate || !invoiceCurrencyId || !allCurrencyTypes.length) {
-          console.log("[Conversion] → — por falta de props");
           return <div className="text-center text-gray-400">—</div>;
         }
 
         const accessory = accessories.find(
           (acc) => acc.id === row.original.accessory_id,
         );
-        console.log("[Conversion] accessory.currency_symbol:", accessory?.currency_symbol);
         if (!accessory?.currency_symbol) {
-          console.log("[Conversion] → — sin currency_symbol");
           return <div className="text-center text-gray-400">—</div>;
         }
 
         const accessoryCurrency = findCurrencyBySymbol(accessory.currency_symbol);
-        console.log("[Conversion] accessoryCurrency encontrado:", accessoryCurrency, "invoiceCurrencyId:", invoiceCurrencyId);
         if (!accessoryCurrency || accessoryCurrency.id === invoiceCurrencyId) {
-          console.log("[Conversion] → — misma moneda o no encontrada");
           return <div className="text-center text-gray-400">—</div>;
         }
 
@@ -446,23 +440,16 @@ export const ApprovedAccessoriesTable = ({
         const convertedSubtotal = subtotal * tc;
 
         return (
-          <div className="text-right text-sm space-y-0.5">
-            <div className="text-xs text-gray-500">
-              TC:{" "}
-              <span className="font-medium text-gray-700">
-                1 {accessoryCurrency.symbol} = {tc.toFixed(4)}{" "}
-                {invoiceCurrency?.symbol ?? ""}
-              </span>
-            </div>
+          <div className="text-right text-sm">
             {row.original.type === "OBSEQUIO" ? (
-              <div className="font-medium text-green-600">
+              <span className="font-medium text-green-600">
                 {invoiceCurrency?.symbol ?? ""} 0.00
-              </div>
+              </span>
             ) : (
-              <div className="font-medium text-primary">
+              <span className="font-medium text-primary">
                 {invoiceCurrency?.symbol ?? ""}{" "}
                 <NumberFormat value={convertedSubtotal.toFixed(2)} />
-              </div>
+              </span>
             )}
           </div>
         );
