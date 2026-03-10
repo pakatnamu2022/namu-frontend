@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Trash2, Edit2, PackagePlus } from "lucide-react";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { Plus, Trash2, Edit2, PackagePlus, Loader } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import GeneralSheet from "@/shared/components/GeneralSheet";
@@ -16,6 +9,20 @@ import { DataTable } from "@/shared/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormSelect } from "@/shared/components/FormSelect";
+import {
+  approvedAccesoriesSchemaCreate,
+  ApprovedAccesoriesSchema,
+} from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.schema";
+import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook";
+import { storeApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.actions";
+import { APPROVED_ACCESSORIES } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.constants";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export interface ApprovedAccessoryRow {
   id: string;
@@ -25,18 +32,45 @@ export interface ApprovedAccessoryRow {
   additional_price?: number;
 }
 
+
 interface ApprovedAccessoriesTableProps {
   accessories: ApprovedAccesoriesResource[];
   onAccessoriesChange?: (accessories: ApprovedAccessoryRow[]) => void;
   initialData?: ApprovedAccessoryRow[];
+  canCreateApprovedAccessory?: boolean;
 }
 
 export const ApprovedAccessoriesTable = ({
   accessories,
   onAccessoriesChange,
   initialData = [],
+  canCreateApprovedAccessory = false,
 }: ApprovedAccessoriesTableProps) => {
+  const queryClient = useQueryClient();
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
+
+  // Modal para crear nuevo accesorio homologado (solo comercial)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { data: typesBody = [] } = useAllBodyType();
+  const createForm = useForm<ApprovedAccesoriesSchema>({
+    resolver: zodResolver(approvedAccesoriesSchemaCreate) as any,
+    defaultValues: { code: "", description: "", price: 0, type_operation_id: 794 },
+    mode: "onChange",
+  });
+  const { mutate: createAccessory, isPending: isCreatingAccessory } = useMutation({
+    mutationFn: storeApprovedAccesories,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [APPROVED_ACCESSORIES.QUERY_KEY] });
+      toast.success("Accesorio homologado creado correctamente");
+      setIsCreateModalOpen(false);
+      createForm.reset();
+      setNewRow((prev) => ({ ...prev, accessory_id: data.id }));
+      setIsAddSheetOpen(true);
+    },
+    onError: () => {
+      toast.error("Error al crear el accesorio homologado");
+    },
+  });
   const [newRow, setNewRow] = useState<Omit<ApprovedAccessoryRow, "id">>({
     accessory_id: 0,
     quantity: 1,
@@ -48,7 +82,7 @@ export const ApprovedAccessoriesTable = ({
     quantity: false,
   });
   const [editingRow, setEditingRow] = useState<ApprovedAccessoryRow | null>(
-    null
+    null,
   );
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
@@ -91,7 +125,7 @@ export const ApprovedAccessoriesTable = ({
 
     // Verificar si el accesorio ya fue agregado
     const yaExiste = rows.find(
-      (row) => row.accessory_id === newRow.accessory_id
+      (row) => row.accessory_id === newRow.accessory_id,
     );
     if (yaExiste) {
       setErrors({ ...errors, accessory_id: true });
@@ -174,7 +208,7 @@ export const ApprovedAccessoriesTable = ({
     // Verificar si el accesorio ya existe en otra fila
     const yaExiste = rows.find(
       (row) =>
-        row.accessory_id === editForm.accessory_id && row.id !== editingRow.id
+        row.accessory_id === editForm.accessory_id && row.id !== editingRow.id,
     );
     if (yaExiste) {
       setEditErrors({ ...editErrors, accessory_id: true });
@@ -191,7 +225,7 @@ export const ApprovedAccessoriesTable = ({
             type: editForm.type,
             additional_price: editForm.additional_price,
           }
-        : row
+        : row,
     );
 
     setRows(updatedRows);
@@ -222,7 +256,11 @@ export const ApprovedAccessoriesTable = ({
   };
 
   // Calcular el subtotal de un accesorio: quantity * (price + additional_price)
-  const calculateSubtotal = (accessory_id: number, quantity: number, additional_price: number = 0) => {
+  const calculateSubtotal = (
+    accessory_id: number,
+    quantity: number,
+    additional_price: number = 0,
+  ) => {
     const accessory = accessories.find((acc) => acc.id === accessory_id);
     if (!accessory) return 0;
     return (Number(accessory.price) + additional_price) * quantity;
@@ -235,7 +273,10 @@ export const ApprovedAccessoriesTable = ({
       if (row.type === "OBSEQUIO") {
         return total;
       }
-      return total + calculateSubtotal(row.accessory_id, row.quantity, row.additional_price);
+      return (
+        total +
+        calculateSubtotal(row.accessory_id, row.quantity, row.additional_price)
+      );
     }, 0);
   };
 
@@ -263,7 +304,7 @@ export const ApprovedAccessoriesTable = ({
       header: "Descripción",
       cell: ({ row }) => {
         const accessory = accessories.find(
-          (acc) => acc.id === row.original.accessory_id
+          (acc) => acc.id === row.original.accessory_id,
         );
         return accessory ? (
           <div className="space-y-1">
@@ -287,7 +328,9 @@ export const ApprovedAccessoriesTable = ({
                   Precio Adicional:{" "}
                   <span className="font-medium text-gray-800">
                     {accessory.currency_symbol}{" "}
-                    <NumberFormat value={Number(row.original.additional_price).toFixed(2)} />
+                    <NumberFormat
+                      value={Number(row.original.additional_price).toFixed(2)}
+                    />
                   </span>
                 </span>
               )}
@@ -308,7 +351,7 @@ export const ApprovedAccessoriesTable = ({
       header: "Subtotal",
       cell: ({ row }) => {
         const accessory = accessories.find(
-          (acc) => acc.id === row.original.accessory_id
+          (acc) => acc.id === row.original.accessory_id,
         );
         const subtotal = calculateSubtotal(
           row.original.accessory_id,
@@ -401,7 +444,14 @@ export const ApprovedAccessoriesTable = ({
                     Total Accesorios:
                   </span>
                   <span className="ml-2 text-lg font-bold text-primary">
-                    S/ <NumberFormat value={calculateTotal().toFixed(2)} />
+                    {(() => {
+                      const firstAcc = rows
+                        .filter((r) => r.type !== "OBSEQUIO")
+                        .map((r) => accessories.find((a) => a.id === r.accessory_id))
+                        .find(Boolean);
+                      return firstAcc?.currency_symbol ?? "S/";
+                    })()}{" "}
+                    <NumberFormat value={calculateTotal().toFixed(2)} />
                   </span>
                 </div>
               </div>
@@ -414,6 +464,82 @@ export const ApprovedAccessoriesTable = ({
             icon={PackagePlus}
           />
         )}
+
+        {/* Sheet para crear nuevo accesorio homologado (solo comercial) */}
+        <GeneralSheet
+          open={isCreateModalOpen}
+          onClose={() => {
+            setIsCreateModalOpen(false);
+            createForm.reset();
+          }}
+          title="Nuevo Accesorio Homologado"
+          subtitle="Solo disponible para Comercial"
+          icon="PackagePlus"
+          size="lg"
+        >
+          <Form {...createForm}>
+            <div className="space-y-4 px-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
+                  name="code"
+                  label="Código"
+                  control={createForm.control}
+                  placeholder="Ej: LS"
+                  uppercase
+                />
+                <FormInput
+                  name="description"
+                  label="Descripción"
+                  control={createForm.control}
+                  placeholder="Ej: Láminas de Seguridad"
+                  uppercase
+                />
+                <FormInput
+                  name="price"
+                  label="Precio"
+                  control={createForm.control}
+                  placeholder="Ej: 390"
+                  type="number"
+                />
+                <FormSelect
+                  name="body_type_id"
+                  label="Carrocería"
+                  placeholder="Selecciona una carrocería"
+                  options={typesBody.map((item) => ({
+                    label: item.code + " - " + item.description,
+                    value: item.id.toString(),
+                  }))}
+                  control={createForm.control}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsCreateModalOpen(false);
+                    createForm.reset();
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  disabled={isCreatingAccessory}
+                  onClick={createForm.handleSubmit((data) => createAccessory(data))}
+                  className="flex-1"
+                >
+                  {isCreatingAccessory && (
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {isCreatingAccessory ? "Guardando..." : "Guardar Accesorio"}
+                </Button>
+              </div>
+            </div>
+          </Form>
+        </GeneralSheet>
 
         {/* Sheet para actualizar accesorio/obsequio */}
         <GeneralSheet
@@ -439,58 +565,59 @@ export const ApprovedAccessoriesTable = ({
           <div className="space-y-4 px-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <Select
+              <SearchableSelect
                 value={newRow.type}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setNewRow({
                     ...newRow,
                     type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACCESORIO_ADICIONAL">
-                    Accesorio Adicional
-                  </SelectItem>
-                  <SelectItem value="OBSEQUIO">Obsequio</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
+                  { label: "Obsequio", value: "OBSEQUIO" },
+                ]}
+                placeholder="Selecciona tipo"
+                showSearch={false}
+                allowClear={false}
+              />
             </div>
 
             <div>
               <label className="text-sm font-medium mb-1 block">
                 Accesorio
               </label>
-              <Select
-                value={
-                  newRow.accessory_id === 0
-                    ? ""
-                    : newRow.accessory_id.toString()
-                }
-                onValueChange={(value) => {
-                  setNewRow({ ...newRow, accessory_id: parseInt(value) });
-                  setErrors({ ...errors, accessory_id: false });
-                }}
-              >
-                <SelectTrigger
+              <div className="flex gap-2">
+                <SearchableSelect
+                  value={newRow.accessory_id === 0 ? "" : newRow.accessory_id.toString()}
+                  onChange={(value) => {
+                    setNewRow({ ...newRow, accessory_id: parseInt(value) });
+                    setErrors({ ...errors, accessory_id: false });
+                  }}
+                  options={accessories.map((accessory) => ({
+                    label: `${accessory.code} - ${accessory.description}`,
+                    value: accessory.id.toString(),
+                  }))}
+                  placeholder="Selecciona un accesorio"
                   className={errors.accessory_id ? "border-red-500" : ""}
-                >
-                  <SelectValue placeholder="Selecciona un accesorio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accessories.map((accessory) => (
-                    <SelectItem
-                      key={accessory.id}
-                      value={accessory.id.toString()}
-                    >
-                      {accessory.code} - {accessory.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  classNameDiv="flex-1"
+                />
+                {canCreateApprovedAccessory && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    title="Crear nuevo accesorio homologado (Solo Comercial)"
+                    onClick={() => {
+                      setIsAddSheetOpen(false);
+                      setIsCreateModalOpen(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
               {errors.accessory_id && (
                 <p className="text-xs text-red-500 mt-1">
                   Seleccione un accesorio válido
@@ -498,56 +625,46 @@ export const ApprovedAccessoriesTable = ({
               )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">Cantidad</label>
-              <Input
-                type="number"
-                min="1"
-                value={newRow.quantity || ""}
-                onChange={(e) => {
-                  setNewRow({
-                    ...newRow,
-                    quantity: parseInt(e.target.value) || 0,
-                  });
-                  setErrors({ ...errors, quantity: false });
-                }}
-                placeholder="0"
-                className={errors.quantity ? "border-red-500" : ""}
-              />
-              {errors.quantity && (
-                <p className="text-xs text-red-500 mt-1">
-                  Ingrese una cantidad mayor a 0
-                </p>
-              )}
-            </div>
+            <FormInput
+              name="quantity"
+              label="Cantidad"
+              type="number"
+              min="1"
+              value={newRow.quantity || ""}
+              onChange={(e) => {
+                setNewRow({
+                  ...newRow,
+                  quantity: Number(e.target.value) || 0,
+                });
+                setErrors({ ...errors, quantity: false });
+              }}
+              placeholder="0"
+              error={errors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+            />
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                Precio Adicional{" "}
-                <span className="text-gray-400 font-normal">(opcional)</span>
-              </label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={newRow.additional_price ?? ""}
-                onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setNewRow({
-                    ...newRow,
-                    additional_price: isNaN(val) || val < 0 ? 0 : val,
-                  });
-                }}
-                placeholder="0.00"
-              />
-            </div>
+            <FormInput
+              name="additional_price"
+              label={<>Precio Adicional <span className="text-gray-400 font-normal">(opcional)</span></>}
+              type="number"
+              min="0"
+              step="0.01"
+              value={newRow.additional_price ?? ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setNewRow({
+                  ...newRow,
+                  additional_price: isNaN(val) || val < 0 ? 0 : val,
+                });
+              }}
+              placeholder="0.00"
+            />
 
             {/* Información del accesorio seleccionado */}
             {newRow.accessory_id > 0 && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 {(() => {
                   const selectedAccessory = accessories.find(
-                    (acc) => acc.id === newRow.accessory_id
+                    (acc) => acc.id === newRow.accessory_id,
                   );
                   if (!selectedAccessory) return null;
 
@@ -574,11 +691,16 @@ export const ApprovedAccessoriesTable = ({
                         </div>
                         {(newRow.additional_price ?? 0) > 0 && (
                           <div className="col-span-2">
-                            <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                            <span className="text-gray-600">
+                              Precio Efectivo Unit.:
+                            </span>
                             <p className="font-medium text-primary">
                               {selectedAccessory.currency_symbol}{" "}
                               <NumberFormat
-                                value={(Number(selectedAccessory.price) + (newRow.additional_price ?? 0)).toFixed(2)}
+                                value={(
+                                  Number(selectedAccessory.price) +
+                                  (newRow.additional_price ?? 0)
+                                ).toFixed(2)}
                               />
                             </p>
                           </div>
@@ -645,58 +767,41 @@ export const ApprovedAccessoriesTable = ({
           <div className="space-y-4 px-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <Select
+              <SearchableSelect
                 value={editForm.type}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setEditForm({
                     ...editForm,
                     type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACCESORIO_ADICIONAL">
-                    Accesorio Adicional
-                  </SelectItem>
-                  <SelectItem value="OBSEQUIO">Obsequio</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
+                  { label: "Obsequio", value: "OBSEQUIO" },
+                ]}
+                placeholder="Selecciona tipo"
+                showSearch={false}
+                allowClear={false}
+              />
             </div>
 
             <div>
               <label className="text-sm font-medium mb-1 block">
                 Accesorio
               </label>
-              <Select
-                value={
-                  editForm.accessory_id === 0
-                    ? ""
-                    : editForm.accessory_id.toString()
-                }
-                onValueChange={(value) => {
+              <SearchableSelect
+                value={editForm.accessory_id === 0 ? "" : editForm.accessory_id.toString()}
+                onChange={(value) => {
                   setEditForm({ ...editForm, accessory_id: parseInt(value) });
                   setEditErrors({ ...editErrors, accessory_id: false });
                 }}
-              >
-                <SelectTrigger
-                  className={editErrors.accessory_id ? "border-red-500" : ""}
-                >
-                  <SelectValue placeholder="Selecciona un accesorio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accessories.map((accessory) => (
-                    <SelectItem
-                      key={accessory.id}
-                      value={accessory.id.toString()}
-                    >
-                      {accessory.code} - {accessory.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={accessories.map((accessory) => ({
+                  label: `${accessory.code} - ${accessory.description}`,
+                  value: accessory.id.toString(),
+                }))}
+                placeholder="Selecciona un accesorio"
+                className={editErrors.accessory_id ? "border-red-500" : ""}
+              />
               {editErrors.accessory_id && (
                 <p className="text-xs text-red-500 mt-1">
                   Seleccione un accesorio válido
@@ -704,56 +809,46 @@ export const ApprovedAccessoriesTable = ({
               )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">Cantidad</label>
-              <Input
-                type="number"
-                min="1"
-                value={editForm.quantity || ""}
-                onChange={(e) => {
-                  setEditForm({
-                    ...editForm,
-                    quantity: parseInt(e.target.value) || 0,
-                  });
-                  setEditErrors({ ...editErrors, quantity: false });
-                }}
-                placeholder="0"
-                className={editErrors.quantity ? "border-red-500" : ""}
-              />
-              {editErrors.quantity && (
-                <p className="text-xs text-red-500 mt-1">
-                  Ingrese una cantidad mayor a 0
-                </p>
-              )}
-            </div>
+            <FormInput
+              name="quantity"
+              label="Cantidad"
+              type="number"
+              min="1"
+              value={editForm.quantity || ""}
+              onChange={(e) => {
+                setEditForm({
+                  ...editForm,
+                  quantity: Number(e.target.value) || 0,
+                });
+                setEditErrors({ ...editErrors, quantity: false });
+              }}
+              placeholder="0"
+              error={editErrors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+            />
 
-            <div>
-              <label className="text-sm font-medium mb-1 block">
-                Precio Adicional{" "}
-                <span className="text-gray-400 font-normal">(opcional)</span>
-              </label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={editForm.additional_price ?? ""}
-                onChange={(e) => {
-                  const val = parseFloat(e.target.value);
-                  setEditForm({
-                    ...editForm,
-                    additional_price: isNaN(val) || val < 0 ? 0 : val,
-                  });
-                }}
-                placeholder="0.00"
-              />
-            </div>
+            <FormInput
+              name="additional_price"
+              label={<>Precio Adicional <span className="text-gray-400 font-normal">(opcional)</span></>}
+              type="number"
+              min="0"
+              step="0.01"
+              value={editForm.additional_price ?? ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setEditForm({
+                  ...editForm,
+                  additional_price: isNaN(val) || val < 0 ? 0 : val,
+                });
+              }}
+              placeholder="0.00"
+            />
 
             {/* Información del accesorio seleccionado */}
             {editForm.accessory_id > 0 && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 {(() => {
                   const selectedAccessory = accessories.find(
-                    (acc) => acc.id === editForm.accessory_id
+                    (acc) => acc.id === editForm.accessory_id,
                   );
                   if (!selectedAccessory) return null;
 
@@ -780,11 +875,16 @@ export const ApprovedAccessoriesTable = ({
                         </div>
                         {(editForm.additional_price ?? 0) > 0 && (
                           <div className="col-span-2">
-                            <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                            <span className="text-gray-600">
+                              Precio Efectivo Unit.:
+                            </span>
                             <p className="font-medium text-primary">
                               {selectedAccessory.currency_symbol}{" "}
                               <NumberFormat
-                                value={(Number(selectedAccessory.price) + (editForm.additional_price ?? 0)).toFixed(2)}
+                                value={(
+                                  Number(selectedAccessory.price) +
+                                  (editForm.additional_price ?? 0)
+                                ).toFixed(2)}
                               />
                             </p>
                           </div>
