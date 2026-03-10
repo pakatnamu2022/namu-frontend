@@ -24,9 +24,14 @@ export interface AccessoryResource {
   id: number;
   type: "ACCESORIO_ADICIONAL" | "OBSEQUIO";
   approved_accessory_id: number;
+  description: string;
   quantity: number;
   price: string;
+  additional_price: number;
   total: string;
+  type_currency_id: number;
+  type_currency_code: string;
+  type_currency_symbol: string;
 }
 
 export interface PurchaseRequestQuoteResource {

@@ -48,7 +48,7 @@ export const ApprovedAccessoriesTable = ({
     quantity: false,
   });
   const [editingRow, setEditingRow] = useState<ApprovedAccessoryRow | null>(
-    null
+    null,
   );
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
@@ -91,7 +91,7 @@ export const ApprovedAccessoriesTable = ({
 
     // Verificar si el accesorio ya fue agregado
     const yaExiste = rows.find(
-      (row) => row.accessory_id === newRow.accessory_id
+      (row) => row.accessory_id === newRow.accessory_id,
     );
     if (yaExiste) {
       setErrors({ ...errors, accessory_id: true });
@@ -174,7 +174,7 @@ export const ApprovedAccessoriesTable = ({
     // Verificar si el accesorio ya existe en otra fila
     const yaExiste = rows.find(
       (row) =>
-        row.accessory_id === editForm.accessory_id && row.id !== editingRow.id
+        row.accessory_id === editForm.accessory_id && row.id !== editingRow.id,
     );
     if (yaExiste) {
       setEditErrors({ ...editErrors, accessory_id: true });
@@ -191,7 +191,7 @@ export const ApprovedAccessoriesTable = ({
             type: editForm.type,
             additional_price: editForm.additional_price,
           }
-        : row
+        : row,
     );
 
     setRows(updatedRows);
@@ -222,7 +222,11 @@ export const ApprovedAccessoriesTable = ({
   };
 
   // Calcular el subtotal de un accesorio: quantity * (price + additional_price)
-  const calculateSubtotal = (accessory_id: number, quantity: number, additional_price: number = 0) => {
+  const calculateSubtotal = (
+    accessory_id: number,
+    quantity: number,
+    additional_price: number = 0,
+  ) => {
     const accessory = accessories.find((acc) => acc.id === accessory_id);
     if (!accessory) return 0;
     return (Number(accessory.price) + additional_price) * quantity;
@@ -235,7 +239,10 @@ export const ApprovedAccessoriesTable = ({
       if (row.type === "OBSEQUIO") {
         return total;
       }
-      return total + calculateSubtotal(row.accessory_id, row.quantity, row.additional_price);
+      return (
+        total +
+        calculateSubtotal(row.accessory_id, row.quantity, row.additional_price)
+      );
     }, 0);
   };
 
@@ -263,7 +270,7 @@ export const ApprovedAccessoriesTable = ({
       header: "Descripción",
       cell: ({ row }) => {
         const accessory = accessories.find(
-          (acc) => acc.id === row.original.accessory_id
+          (acc) => acc.id === row.original.accessory_id,
         );
         return accessory ? (
           <div className="space-y-1">
@@ -287,7 +294,9 @@ export const ApprovedAccessoriesTable = ({
                   Precio Adicional:{" "}
                   <span className="font-medium text-gray-800">
                     {accessory.currency_symbol}{" "}
-                    <NumberFormat value={Number(row.original.additional_price).toFixed(2)} />
+                    <NumberFormat
+                      value={Number(row.original.additional_price).toFixed(2)}
+                    />
                   </span>
                 </span>
               )}
@@ -308,7 +317,7 @@ export const ApprovedAccessoriesTable = ({
       header: "Subtotal",
       cell: ({ row }) => {
         const accessory = accessories.find(
-          (acc) => acc.id === row.original.accessory_id
+          (acc) => acc.id === row.original.accessory_id,
         );
         const subtotal = calculateSubtotal(
           row.original.accessory_id,
@@ -547,7 +556,7 @@ export const ApprovedAccessoriesTable = ({
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 {(() => {
                   const selectedAccessory = accessories.find(
-                    (acc) => acc.id === newRow.accessory_id
+                    (acc) => acc.id === newRow.accessory_id,
                   );
                   if (!selectedAccessory) return null;
 
@@ -574,11 +583,16 @@ export const ApprovedAccessoriesTable = ({
                         </div>
                         {(newRow.additional_price ?? 0) > 0 && (
                           <div className="col-span-2">
-                            <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                            <span className="text-gray-600">
+                              Precio Efectivo Unit.:
+                            </span>
                             <p className="font-medium text-primary">
                               {selectedAccessory.currency_symbol}{" "}
                               <NumberFormat
-                                value={(Number(selectedAccessory.price) + (newRow.additional_price ?? 0)).toFixed(2)}
+                                value={(
+                                  Number(selectedAccessory.price) +
+                                  (newRow.additional_price ?? 0)
+                                ).toFixed(2)}
                               />
                             </p>
                           </div>
@@ -753,7 +767,7 @@ export const ApprovedAccessoriesTable = ({
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 {(() => {
                   const selectedAccessory = accessories.find(
-                    (acc) => acc.id === editForm.accessory_id
+                    (acc) => acc.id === editForm.accessory_id,
                   );
                   if (!selectedAccessory) return null;
 
@@ -780,11 +794,16 @@ export const ApprovedAccessoriesTable = ({
                         </div>
                         {(editForm.additional_price ?? 0) > 0 && (
                           <div className="col-span-2">
-                            <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                            <span className="text-gray-600">
+                              Precio Efectivo Unit.:
+                            </span>
                             <p className="font-medium text-primary">
                               {selectedAccessory.currency_symbol}{" "}
                               <NumberFormat
-                                value={(Number(selectedAccessory.price) + (editForm.additional_price ?? 0)).toFixed(2)}
+                                value={(
+                                  Number(selectedAccessory.price) +
+                                  (editForm.additional_price ?? 0)
+                                ).toFixed(2)}
                               />
                             </p>
                           </div>

@@ -1,14 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form.tsx";
-import { Input } from "@/components/ui/input.tsx";
+import { Form } from "@/components/ui/form.tsx";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
 import { Loader } from "lucide-react";
@@ -21,6 +13,7 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook.ts";
 import { APPROVED_ACCESSORIES } from "../lib/approvedAccessories.constants.ts";
+import { FormInput } from "@/shared/components/FormInput.tsx";
 
 interface ApprovedAccesoriesFormProps {
   defaultValues: Partial<ApprovedAccesoriesSchema>;
@@ -29,14 +22,14 @@ interface ApprovedAccesoriesFormProps {
   mode?: "create" | "update";
 }
 
-const typeOptions = [
+const typeOperationOptions = [
   {
-    label: "Servicio",
-    value: "SERVICIO",
+    label: "Comercial",
+    value: "794",
   },
   {
-    label: "Repuesto",
-    value: "REPUESTO",
+    label: "Posventa",
+    value: "804",
   },
 ];
 
@@ -50,7 +43,7 @@ export const ApprovedAccesoriesForm = ({
     resolver: zodResolver(
       mode === "create"
         ? approvedAccesoriesSchemaCreate
-        : approvedAccesoriesSchemaUpdate
+        : approvedAccesoriesSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -68,50 +61,32 @@ export const ApprovedAccesoriesForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod.</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: LS" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Código"
             control={form.control}
+            placeholder="Ej: LS"
+            uppercase
+          />
+
+          <FormInput
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Láminas de Seguridad" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Descripción"
             control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="Ej: 390" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            placeholder="Ej: Láminas de Seguridad"
+            uppercase
           />
+
+          <FormInput
+            name="price"
+            label="Precio"
+            control={form.control}
+            placeholder="Ej: 390"
+            type="number"
+          />
+
           <FormSelect
             name="body_type_id"
             label="Carrocería"
@@ -124,11 +99,12 @@ export const ApprovedAccesoriesForm = ({
             }
             control={form.control}
           />
+
           <FormSelect
-            name="type"
-            label="Tipo"
-            placeholder="Selecciona un tipo"
-            options={typeOptions}
+            name="type_operation_id"
+            label="Tipo de Operación"
+            placeholder="Selecciona un tipo de operación"
+            options={typeOperationOptions}
             control={form.control}
           />
         </div>
