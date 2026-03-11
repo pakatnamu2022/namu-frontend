@@ -152,6 +152,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Edit3",
     description: "Permite editar descuentos en cotizaciones",
   },
+  {
+    value: "seeReception",
+    label: "Ver Recepción",
+    icon: "Eye",
+    description: "Permite ver detalles de la recepción del vehículo",
+  },
+  {
+    value: "requestCancellation",
+    label: "Solicitar Anulación",
+    icon: "XCircle",
+    description: "Permite solicitar la anular un registro",
+  },
 ];
 
 /**
@@ -207,5 +219,7 @@ export function useModulePermissions(moduleCode: string) {
     canMaintenance: hasModulePermission("maintenance"),
     canRequest: hasModulePermission("request"),
     canEditDiscount: hasModulePermission("editDiscount"),
+    canSeeReception: hasModulePermission("seeReception"),
+    canRequestCancellation: hasModulePermission("requestCancellation"),
   };
 }

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { ReactNode } from "react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const colorMap = {
   default:   { icon: "text-primary dark:text-primary-foreground",           bg: "bg-muted" },
   primary:   { icon: "text-primary dark:text-primary-foreground",           bg: "bg-primary/5 dark:bg-primary/10" },

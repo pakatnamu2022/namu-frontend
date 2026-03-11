@@ -3,6 +3,7 @@ import { FileUp, RefreshCw, Download, Sheet, FileText } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useState } from "react";
 import ManageLeadsModal from "./ManageLeadsModal";
+import ManageLeadsRefreshSheet from "./ManageLeadsRefreshSheet";
 import { ImportedLeadResource } from "../lib/manageLeads.interface";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { errorToast, successToast } from "@/core/core.function";
@@ -12,7 +13,11 @@ interface Props {
   dateFrom?: Date;
   dateTo?: Date;
   onImportSuccess: (data: ImportedLeadResource[]) => void;
-  onRefresh: () => void;
+  onRefresh: (params: {
+    date_from: string;
+    date_to: string;
+    all?: boolean;
+  }) => void;
   permissions: {
     canImport: boolean;
     canUpdate: boolean;
@@ -28,6 +33,7 @@ export default function ManageLeadsActions({
   permissions,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [openRefresh, setOpenRefresh] = useState(false);
 
   const handleDownloadTemplate = () => {
     const link = document.createElement("a");
@@ -56,7 +62,7 @@ export default function ManageLeadsActions({
     } catch (error: any) {
       errorToast(
         "Error al descargar el Excel. Por favor, intente nuevamente.",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     }
   };
@@ -75,7 +81,7 @@ export default function ManageLeadsActions({
     } catch (error: any) {
       errorToast(
         "Error al descargar el PDF. Por favor, intente nuevamente.",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     }
   };
@@ -91,10 +97,10 @@ export default function ManageLeadsActions({
                   size="sm"
                   variant="ghost"
                   tooltip="Excel"
-                  className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-700 transition-colors"
+                  className="p-0 hover:bg-green-700/5 hover:text-green-700 transition-colors"
                   onClick={handleExcelDownload}
                 >
-                  <Sheet className="size-4" />
+                  <Sheet className="size-4" /> Excel
                 </Button>
               </TooltipTrigger>
             </Tooltip>
@@ -105,10 +111,10 @@ export default function ManageLeadsActions({
                   size="sm"
                   variant="ghost"
                   tooltip="PDF"
-                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 transition-colors"
+                  className="p-0 hover:bg-red-700/5 hover:text-red-700 transition-colors"
                   onClick={handlePDFDownload}
                 >
-                  <FileText className="size-4" />
+                  <FileText className="size-4" /> PDF
                 </Button>
               </TooltipTrigger>
             </Tooltip>
@@ -120,8 +126,12 @@ export default function ManageLeadsActions({
       </Button>
 
       {permissions.canUpdate && (
-        <Button size="sm" variant="outline" onClick={onRefresh}>
-          <RefreshCw className="size-4 mr-2" /> Actualizar
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setOpenRefresh(true)}
+        >
+          <RefreshCw className="size-4 mr-2" /> Reasignar Leads
         </Button>
       )}
 
@@ -136,6 +146,12 @@ export default function ManageLeadsActions({
         open={open}
         onClose={() => setOpen(false)}
         onImportSuccess={onImportSuccess}
+      />
+
+      <ManageLeadsRefreshSheet
+        open={openRefresh}
+        onClose={() => setOpenRefresh(false)}
+        onSubmit={onRefresh}
       />
     </ActionsWrapper>
   );

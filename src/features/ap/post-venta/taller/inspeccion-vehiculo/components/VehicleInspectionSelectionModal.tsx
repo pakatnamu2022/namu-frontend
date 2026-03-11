@@ -108,7 +108,7 @@ export const VehicleInspectionSelectionModal = ({
     },
     {
       id: "inspection_datetime",
-      header: "Fecha Inspección",
+      header: "Fecha Recepción",
       cell: ({ row }) => {
         const date = row.original.inspection_date;
 
@@ -155,7 +155,7 @@ export const VehicleInspectionSelectionModal = ({
     <GeneralModal
       open={open}
       onClose={() => onOpenChange(false)}
-      title="Seleccionar Inspección de Vehículo"
+      title="Seleccionar Recepción de Vehículo"
       size="7xl"
     >
       <div className="space-y-4">

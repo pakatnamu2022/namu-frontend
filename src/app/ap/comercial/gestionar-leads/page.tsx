@@ -79,9 +79,9 @@ export default function ManageLeadsPage() {
     refetch(); // Refresca la tabla para mostrar los nuevos datos
   };
 
-  const handleRefresh = async () => {
+  const handleRefresh = async (params: { date_from: string; date_to: string; all?: boolean }) => {
     try {
-      const response = await assignWorkersToLeads();
+      const response = await assignWorkersToLeads(params);
       if (response.success) {
         successToast(response.message);
         await refetch(); // Actualiza los datos de la tabla después de asignar

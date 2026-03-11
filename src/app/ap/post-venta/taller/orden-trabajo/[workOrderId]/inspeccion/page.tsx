@@ -74,6 +74,60 @@ export default function VehicleInspectionPage() {
     formData.append("fluid_caps", data.fluid_caps ? "1" : "0");
     formData.append("tool_kit", data.tool_kit ? "1" : "0");
     formData.append("jack_and_lever", data.jack_and_lever ? "1" : "0");
+    // Detalles de trabajo
+    formData.append("oil_change", data.oil_change ? "1" : "0");
+    formData.append("check_level_lights", data.check_level_lights ? "1" : "0");
+    formData.append(
+      "general_lubrication",
+      data.general_lubrication ? "1" : "0",
+    );
+    formData.append(
+      "rotation_inspection_cleaning",
+      data.rotation_inspection_cleaning ? "1" : "0",
+    );
+    formData.append(
+      "insp_filter_basic_checks",
+      data.insp_filter_basic_checks ? "1" : "0",
+    );
+    formData.append(
+      "tire_pressure_inflation_check",
+      data.tire_pressure_inflation_check ? "1" : "0",
+    );
+    formData.append(
+      "alignment_balancing",
+      data.alignment_balancing ? "1" : "0",
+    );
+    formData.append(
+      "pad_replace_disc_resurface",
+      data.pad_replace_disc_resurface ? "1" : "0",
+    );
+    formData.append("other_work_details", data.other_work_details || "");
+    // Requerimiento del cliente
+    formData.append("customer_requirement", data.customer_requirement || "");
+    // Explicación de resultados
+    formData.append(
+      "explanation_work_performed",
+      data.explanation_work_performed ? "1" : "0",
+    );
+    formData.append("price_explanation", data.price_explanation ? "1" : "0");
+    formData.append(
+      "confirm_additional_work",
+      data.confirm_additional_work ? "1" : "0",
+    );
+    formData.append(
+      "clarification_customer_concerns",
+      data.clarification_customer_concerns ? "1" : "0",
+    );
+    formData.append("exterior_cleaning", data.exterior_cleaning ? "1" : "0");
+    formData.append("interior_cleaning", data.interior_cleaning ? "1" : "0");
+    formData.append("keeps_spare_parts", data.keeps_spare_parts ? "1" : "0");
+    formData.append("valuable_objects", data.valuable_objects ? "1" : "0");
+    // Items de cortesía
+    formData.append(
+      "courtesy_seat_cover",
+      data.courtesy_seat_cover ? "1" : "0",
+    );
+    formData.append("paper_floor", data.paper_floor ? "1" : "0");
     formData.append("general_observations", data.general_observations || "");
     formData.append("washed", data.washed ? "1" : "0");
     //photos front, back, left, right
@@ -168,6 +222,26 @@ export default function VehicleInspectionPage() {
     fluid_caps: false,
     tool_kit: false,
     jack_and_lever: false,
+    oil_change: false,
+    check_level_lights: false,
+    general_lubrication: false,
+    rotation_inspection_cleaning: false,
+    insp_filter_basic_checks: false,
+    tire_pressure_inflation_check: false,
+    alignment_balancing: false,
+    pad_replace_disc_resurface: false,
+    other_work_details: "",
+    customer_requirement: "",
+    explanation_work_performed: false,
+    price_explanation: false,
+    confirm_additional_work: false,
+    clarification_customer_concerns: false,
+    exterior_cleaning: false,
+    interior_cleaning: false,
+    keeps_spare_parts: false,
+    valuable_objects: false,
+    courtesy_seat_cover: false,
+    paper_floor: false,
     washed: false,
     general_observations: "",
     inspection_date: getCurrentDate(),
@@ -180,7 +254,7 @@ export default function VehicleInspectionPage() {
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={`Inspección de Vehículo - ${workOrder.correlative}`}
+        title={`Recepción de Vehículo - ${workOrder.correlative}`}
         mode="create"
         icon="ClipboardCheck"
       />
