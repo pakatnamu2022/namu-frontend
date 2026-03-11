@@ -4,6 +4,7 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Plus, Trash2, Edit2, PackagePlus, Loader } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DataTable } from "@/shared/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -32,12 +33,13 @@ export interface ApprovedAccessoryRow {
   additional_price?: number;
 }
 
-
 interface ApprovedAccessoriesTableProps {
   accessories: ApprovedAccesoriesResource[];
   onAccessoriesChange?: (accessories: ApprovedAccessoryRow[]) => void;
   initialData?: ApprovedAccessoryRow[];
   canCreateApprovedAccessory?: boolean;
+  invoiceCurrencyId?: number;
+  getExchangeRate?: (currencyId: number) => number;
 }
 
 export const ApprovedAccessoriesTable = ({
@@ -45,8 +47,11 @@ export const ApprovedAccessoriesTable = ({
   onAccessoriesChange,
   initialData = [],
   canCreateApprovedAccessory = false,
+  invoiceCurrencyId,
+  getExchangeRate,
 }: ApprovedAccessoriesTableProps) => {
   const queryClient = useQueryClient();
+  const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
 
   // Modal para crear nuevo accesorio homologado (solo comercial)
@@ -54,23 +59,31 @@ export const ApprovedAccessoriesTable = ({
   const { data: typesBody = [] } = useAllBodyType();
   const createForm = useForm<ApprovedAccesoriesSchema>({
     resolver: zodResolver(approvedAccesoriesSchemaCreate) as any,
-    defaultValues: { code: "", description: "", price: 0, type_operation_id: 794 },
+    defaultValues: {
+      code: "",
+      description: "",
+      price: 0,
+      type_operation_id: 794,
+    },
     mode: "onChange",
   });
-  const { mutate: createAccessory, isPending: isCreatingAccessory } = useMutation({
-    mutationFn: storeApprovedAccesories,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [APPROVED_ACCESSORIES.QUERY_KEY] });
-      toast.success("Accesorio homologado creado correctamente");
-      setIsCreateModalOpen(false);
-      createForm.reset();
-      setNewRow((prev) => ({ ...prev, accessory_id: data.id }));
-      setIsAddSheetOpen(true);
-    },
-    onError: () => {
-      toast.error("Error al crear el accesorio homologado");
-    },
-  });
+  const { mutate: createAccessory, isPending: isCreatingAccessory } =
+    useMutation({
+      mutationFn: storeApprovedAccesories,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({
+          queryKey: [APPROVED_ACCESSORIES.QUERY_KEY],
+        });
+        toast.success("Accesorio homologado creado correctamente");
+        setIsCreateModalOpen(false);
+        createForm.reset();
+        setNewRow((prev) => ({ ...prev, accessory_id: data.id }));
+        setIsAddSheetOpen(true);
+      },
+      onError: () => {
+        toast.error("Error al crear el accesorio homologado");
+      },
+    });
   const [newRow, setNewRow] = useState<Omit<ApprovedAccessoryRow, "id">>({
     accessory_id: 0,
     quantity: 1,
@@ -266,17 +279,35 @@ export const ApprovedAccessoriesTable = ({
     return (Number(accessory.price) + additional_price) * quantity;
   };
 
-  // Calcular el total general (excluyendo obsequios)
+  // Busca la moneda en allCurrencyTypes usando símbolo o código (matching flexible)
+  const findCurrencyBySymbol = (symbol?: string) => {
+    const sym = symbol?.trim() ?? "";
+    if (!sym) return undefined;
+    return allCurrencyTypes.find(
+      (c) =>
+        c.symbol?.trim() === sym ||
+        c.code?.trim() === sym ||
+        sym.startsWith(c.symbol?.trim() ?? "") ||
+        c.symbol?.startsWith(sym),
+    );
+  };
+
+  // Convierte un subtotal de la moneda del accesorio a la moneda de facturación
+  const convertToInvoiceCurrency = (subtotal: number, accessorySymbol?: string): number => {
+    if (!getExchangeRate || !invoiceCurrencyId || !allCurrencyTypes.length) return subtotal;
+    const accessoryCurrency = findCurrencyBySymbol(accessorySymbol);
+    if (!accessoryCurrency || accessoryCurrency.id === invoiceCurrencyId) return subtotal;
+    const tc = getExchangeRate(accessoryCurrency.id) / getExchangeRate(invoiceCurrencyId);
+    return subtotal * tc;
+  };
+
+  // Calcular el total general convertido a la moneda de facturación (excluyendo obsequios)
   const calculateTotal = () => {
     return rows.reduce((total, row) => {
-      // Solo sumar si NO es un obsequio
-      if (row.type === "OBSEQUIO") {
-        return total;
-      }
-      return (
-        total +
-        calculateSubtotal(row.accessory_id, row.quantity, row.additional_price)
-      );
+      if (row.type === "OBSEQUIO") return total;
+      const subtotal = calculateSubtotal(row.accessory_id, row.quantity, row.additional_price);
+      const accessory = accessories.find((acc) => acc.id === row.accessory_id);
+      return total + convertToInvoiceCurrency(subtotal, accessory?.currency_symbol);
     }, 0);
   };
 
@@ -373,6 +404,58 @@ export const ApprovedAccessoriesTable = ({
       },
     },
     {
+      id: "conversion",
+      header: "Conversión",
+      cell: ({ row }) => {
+        if (!getExchangeRate || !invoiceCurrencyId || !allCurrencyTypes.length) {
+          return <div className="text-center text-gray-400">—</div>;
+        }
+
+        const accessory = accessories.find(
+          (acc) => acc.id === row.original.accessory_id,
+        );
+        if (!accessory?.currency_symbol) {
+          return <div className="text-center text-gray-400">—</div>;
+        }
+
+        const accessoryCurrency = findCurrencyBySymbol(accessory.currency_symbol);
+        if (!accessoryCurrency || accessoryCurrency.id === invoiceCurrencyId) {
+          return <div className="text-center text-gray-400">—</div>;
+        }
+
+        const invoiceCurrency = allCurrencyTypes.find(
+          (c) => c.id === invoiceCurrencyId,
+        );
+
+        const subtotal = calculateSubtotal(
+          row.original.accessory_id,
+          row.original.quantity,
+          row.original.additional_price,
+        );
+
+        const fromRate = getExchangeRate(accessoryCurrency.id);
+        const toRate = getExchangeRate(invoiceCurrencyId);
+        // tc: cuántas unidades de moneda destino equivalen a 1 unidad de moneda origen
+        const tc = fromRate / toRate;
+        const convertedSubtotal = subtotal * tc;
+
+        return (
+          <div className="text-right text-sm">
+            {row.original.type === "OBSEQUIO" ? (
+              <span className="font-medium text-green-600">
+                {invoiceCurrency?.symbol ?? ""} 0.00
+              </span>
+            ) : (
+              <span className="font-medium text-primary">
+                {invoiceCurrency?.symbol ?? ""}{" "}
+                <NumberFormat value={convertedSubtotal.toFixed(2)} />
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       id: "actions",
       header: "Acciones",
       cell: ({ row }) => (
@@ -445,6 +528,9 @@ export const ApprovedAccessoriesTable = ({
                   </span>
                   <span className="ml-2 text-lg font-bold text-primary">
                     {(() => {
+                      if (invoiceCurrencyId && allCurrencyTypes.length) {
+                        return allCurrencyTypes.find((c) => c.id === invoiceCurrencyId)?.symbol ?? "S/";
+                      }
                       const firstAcc = rows
                         .filter((r) => r.type !== "OBSEQUIO")
                         .map((r) => accessories.find((a) => a.id === r.accessory_id))
@@ -528,7 +614,9 @@ export const ApprovedAccessoriesTable = ({
                 <Button
                   type="button"
                   disabled={isCreatingAccessory}
-                  onClick={createForm.handleSubmit((data) => createAccessory(data))}
+                  onClick={createForm.handleSubmit((data) =>
+                    createAccessory(data),
+                  )}
                   className="flex-1"
                 >
                   {isCreatingAccessory && (
@@ -563,33 +651,36 @@ export const ApprovedAccessoriesTable = ({
           size="lg"
         >
           <div className="space-y-4 px-4">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <SearchableSelect
-                value={newRow.type}
-                onChange={(value) =>
-                  setNewRow({
-                    ...newRow,
-                    type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
-                  })
-                }
-                options={[
-                  { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
-                  { label: "Obsequio", value: "OBSEQUIO" },
-                ]}
-                placeholder="Selecciona tipo"
-                showSearch={false}
-                allowClear={false}
-              />
-            </div>
+            <SearchableSelect
+              label="Tipo"
+              value={newRow.type}
+              onChange={(value) =>
+                setNewRow({
+                  ...newRow,
+                  type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
+                })
+              }
+              options={[
+                {
+                  label: "Accesorio Adicional",
+                  value: "ACCESORIO_ADICIONAL",
+                },
+                { label: "Obsequio", value: "OBSEQUIO" },
+              ]}
+              placeholder="Selecciona tipo"
+              showSearch={false}
+              allowClear={false}
+            />
 
             <div>
-              <label className="text-sm font-medium mb-1 block">
-                Accesorio
-              </label>
               <div className="flex gap-2">
                 <SearchableSelect
-                  value={newRow.accessory_id === 0 ? "" : newRow.accessory_id.toString()}
+                  label="Accesorio"
+                  value={
+                    newRow.accessory_id === 0
+                      ? ""
+                      : newRow.accessory_id.toString()
+                  }
                   onChange={(value) => {
                     setNewRow({ ...newRow, accessory_id: parseInt(value) });
                     setErrors({ ...errors, accessory_id: false });
@@ -597,10 +688,12 @@ export const ApprovedAccessoriesTable = ({
                   options={accessories.map((accessory) => ({
                     label: `${accessory.code} - ${accessory.description}`,
                     value: accessory.id.toString(),
+                    description: accessory.type_operation,
                   }))}
                   placeholder="Selecciona un accesorio"
                   className={errors.accessory_id ? "border-red-500" : ""}
                   classNameDiv="flex-1"
+                  withValue={false}
                 />
                 {canCreateApprovedAccessory && (
                   <Button
@@ -639,12 +732,19 @@ export const ApprovedAccessoriesTable = ({
                 setErrors({ ...errors, quantity: false });
               }}
               placeholder="0"
-              error={errors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+              error={
+                errors.quantity ? "Ingrese una cantidad mayor a 0" : undefined
+              }
             />
 
             <FormInput
               name="additional_price"
-              label={<>Precio Adicional <span className="text-gray-400 font-normal">(opcional)</span></>}
+              label={
+                <>
+                  Precio Adicional{" "}
+                  <span className="text-gray-400 font-normal">(opcional)</span>
+                </>
+              }
               type="number"
               min="0"
               step="0.01"
@@ -765,32 +865,35 @@ export const ApprovedAccessoriesTable = ({
           size="lg"
         >
           <div className="space-y-4 px-4">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <SearchableSelect
-                value={editForm.type}
-                onChange={(value) =>
-                  setEditForm({
-                    ...editForm,
-                    type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
-                  })
-                }
-                options={[
-                  { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
-                  { label: "Obsequio", value: "OBSEQUIO" },
-                ]}
-                placeholder="Selecciona tipo"
-                showSearch={false}
-                allowClear={false}
-              />
-            </div>
+            <SearchableSelect
+              label="Tipo"
+              value={editForm.type}
+              onChange={(value) =>
+                setEditForm({
+                  ...editForm,
+                  type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
+                })
+              }
+              options={[
+                {
+                  label: "Accesorio Adicional",
+                  value: "ACCESORIO_ADICIONAL",
+                },
+                { label: "Obsequio", value: "OBSEQUIO" },
+              ]}
+              placeholder="Selecciona tipo"
+              showSearch={false}
+              allowClear={false}
+            />
 
             <div>
-              <label className="text-sm font-medium mb-1 block">
-                Accesorio
-              </label>
               <SearchableSelect
-                value={editForm.accessory_id === 0 ? "" : editForm.accessory_id.toString()}
+                label="Accesorio"
+                value={
+                  editForm.accessory_id === 0
+                    ? ""
+                    : editForm.accessory_id.toString()
+                }
                 onChange={(value) => {
                   setEditForm({ ...editForm, accessory_id: parseInt(value) });
                   setEditErrors({ ...editErrors, accessory_id: false });
@@ -823,12 +926,21 @@ export const ApprovedAccessoriesTable = ({
                 setEditErrors({ ...editErrors, quantity: false });
               }}
               placeholder="0"
-              error={editErrors.quantity ? "Ingrese una cantidad mayor a 0" : undefined}
+              error={
+                editErrors.quantity
+                  ? "Ingrese una cantidad mayor a 0"
+                  : undefined
+              }
             />
 
             <FormInput
               name="additional_price"
-              label={<>Precio Adicional <span className="text-gray-400 font-normal">(opcional)</span></>}
+              label={
+                <>
+                  Precio Adicional{" "}
+                  <span className="text-gray-400 font-normal">(opcional)</span>
+                </>
+              }
               type="number"
               min="0"
               step="0.01"

@@ -31,12 +31,10 @@ export async function getWorkSchedulesByPeriod(
   params?: Record<string, any>,
 ): Promise<WorkScheduleResource[]> {
   const config: AxiosRequestConfig = {
-    params: { period_id: periodId, per_page: 100, ...params },
+    params: { period_id: periodId, all: true, ...params },
   };
   const { data } = await api.get<any>(ENDPOINT, config);
-  // Soporta respuesta paginada { data: { data: [...] } } o array directo
-  const inner = unwrap<any>(data);
-  return Array.isArray(inner) ? inner : (inner?.data ?? []);
+  return data;
 }
 
 export async function getWorkScheduleSummary(

@@ -17,7 +17,7 @@ const { QUERY_KEY } = EVALUATION_PERSON;
 
 export const useEvaluationPersonByPersonAndEvaluation = (
   person_id: number,
-  evaluation_id?: number
+  evaluation_id?: number,
 ) => {
   return useQuery<EvaluationPersonResultResource>({
     queryKey: [QUERY_KEY, person_id, evaluation_id],
@@ -39,12 +39,11 @@ export const useEvaluationPersonResult = (params?: Record<string, any>) => {
 export const useEvaluationsByPersonToEvaluate = (
   id: number,
   enabled: boolean,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery({
     queryKey: [QUERY_KEY, id, params],
     queryFn: () => getEvaluationsByPersonToEvaluate(id, params),
-    refetchOnWindowFocus: false,
     enabled: enabled,
   });
 };
@@ -52,7 +51,7 @@ export const useEvaluationsByPersonToEvaluate = (
 export const useLeadersStatus = (
   evaluationId: number,
   enabled: boolean = true,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery<LeaderStatusEvaluationResponse>({
     queryKey: [QUERY_KEY, "leaders-status", evaluationId, params],
@@ -66,7 +65,7 @@ export const useTeamMembersByLeader = (
   evaluationId: number,
   leaderId: number,
   enabled: boolean = true,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery<TeamMembersResponse>({
     queryKey: [QUERY_KEY, "team-members", evaluationId, leaderId, params],
