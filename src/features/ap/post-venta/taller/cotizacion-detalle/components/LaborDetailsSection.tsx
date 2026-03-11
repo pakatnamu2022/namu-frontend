@@ -502,6 +502,7 @@ export default function LaborDetailsSection({
                   )}
                 </div>
               ) : (
+                permissions.canRequest &&
                 !hasPartialRequests && (
                   <Button
                     variant="outline"

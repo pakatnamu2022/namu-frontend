@@ -54,8 +54,6 @@ export const ProductForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: defaultValues.warehouses || [],
-      cost_price: 0,
-      sale_price: 0,
     },
     mode: "onChange",
   });

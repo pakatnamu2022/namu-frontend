@@ -1,3 +1,4 @@
+import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface ProductResponse {
@@ -63,30 +64,16 @@ export interface ProductBrand {
   sede_id: number | null;
 }
 
-export interface ProductUnitMeasurement {
-  id: number;
-  dyn_code: string;
-  nubefac_code: string;
-  description: string;
-  status: boolean;
-}
-
 export interface ProductResource {
   id: number;
   code: string;
   dyn_code?: string;
-  nubefac_code?: string | null;
   name: string;
   description?: string;
   product_category_id: number;
   brand_id?: number;
   unit_measurement_id: number;
   ap_class_article_id: number;
-  cost_price?: string;
-  sale_price: string;
-  tax_rate?: string;
-  is_taxable?: boolean;
-  sunat_code?: string | null;
   warranty_months?: number;
   status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
 
@@ -103,7 +90,7 @@ export interface ProductResource {
   warehouse_stocks?: WarehouseStockDetail[];
   category?: ProductCategory;
   brand?: ProductBrand;
-  unit_measurement?: ProductUnitMeasurement;
+  unit_measurement?: UnitMeasurementResource;
 }
 
 export interface WarehouseStock {
@@ -116,15 +103,12 @@ export interface WarehouseStock {
 export interface ProductRequest {
   code: string;
   dyn_code?: string;
-  nubefac_code?: string;
   name: string;
   description?: string;
   product_category_id: string;
   brand_id?: string;
   unit_measurement_id: string;
   ap_class_article_id: string;
-  cost_price?: number;
-  sale_price: number;
   warranty_months?: number;
   notes?: string;
   status?: "ACTIVE" | "INACTIVE" | "DISCONTINUED";

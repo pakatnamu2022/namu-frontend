@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card.tsx";
 import { FileText, Package, TruckIcon } from "lucide-react";
 import { useReceptionById } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.hook.ts";
 import { Badge } from "@/components/ui/badge.tsx";
+import { IGV } from "@/core/core.constants";
 
 export default function InvoiceReceptionPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -230,14 +231,12 @@ export default function InvoiceReceptionPage() {
               quantity:
                 Number(detail.quantity_received) +
                 Number(detail.observed_quantity),
-              unit_price: Number(detail.product?.cost_price || 0),
+              unit_price: 0,
               unit_measurement_id:
                 detail.product?.unit_measurement_id?.toString() || "",
-              item_total:
-                Number(detail.quantity_received) *
-                Number(detail.product?.cost_price || 0),
+              item_total: 0,
               discount: 0,
-              tax_rate: 18,
+              tax_rate: Number(IGV.RATE) * 100,
               notes: detail.notes || "",
               product_name: detail.product?.name || "",
               product_code: detail.product?.code || "",
