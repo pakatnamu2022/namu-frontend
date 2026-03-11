@@ -166,7 +166,7 @@ export async function getNextCreditNoteNumber(
 
 export async function createCreditNote(
   id: number,
-  data: CreditNoteSchema,
+  data: Record<string, unknown>,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/credit-note`,

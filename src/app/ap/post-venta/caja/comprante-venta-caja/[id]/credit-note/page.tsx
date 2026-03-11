@@ -11,7 +11,10 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { CreditNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
+import {
+  CreditNoteSchema,
+  CREDIT_NOTE_TYPE_IDS,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
@@ -33,16 +36,26 @@ export default function AddCreditNoteCajaPage() {
    * Transforms CreditNoteSchema data to match backend API requirements
    */
   function enrichCreditNotePayload(data: CreditNoteSchema) {
-    return {
-      original_document_id: documentId,
-      sunat_concept_credit_note_type_id: data.sunat_concept_credit_note_type_id,
-      series: data.series,
-      fecha_de_emision: originalDocument!.fecha_de_emision,
+    const typeId = Number(data.sunat_concept_credit_note_type_id);
+    const base = {
+      sunat_concept_credit_note_type_id: typeId,
+      series: Number(data.series),
+      fecha_de_emision: data.fecha_de_emision,
       observaciones: data.observaciones,
-      enviar_automaticamente_a_la_sunat: data.enviar_automaticamente_a_la_sunat,
-      enviar_automaticamente_al_cliente: data.enviar_automaticamente_al_cliente,
-      items: data.items,
     };
+    if (typeId === CREDIT_NOTE_TYPE_IDS.DESCUENTO_GLOBAL) {
+      return {
+        ...base,
+        discount_amount: data.discount_amount,
+        account_plan_id: data.account_plan_id
+          ? parseInt(data.account_plan_id)
+          : undefined,
+      };
+    }
+    if (typeId === CREDIT_NOTE_TYPE_IDS.DEVOLUCION_ITEM) {
+      return { ...base, detail_ids: data.detail_ids };
+    }
+    return base; // Types 01 / 06 — no extra fields, backend copies items
   }
 
   const { mutate, isPending } = useMutation({
