@@ -31,10 +31,9 @@ const basePurchaseOrderSchema = z.object({
     }),
   invoice_number: z
     .string()
+    .min(1, "El número de factura es requerido")
     .max(20, "El número no puede tener más de 20 caracteres")
-    .refine((value) => value.trim() !== "", {
-      message: "Número de factura es requerido",
-    }),
+    .regex(/^\d+$/, "El número debe contener solo dígitos"),
   emission_date: z.date({
     error: "La fecha de emisión es requerida",
   }),
@@ -119,7 +118,7 @@ export const vehiclePurchaseOrderSchemaCreate =
       message:
         "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
       path: ["due_date"],
-    }
+    },
   );
 
 // Schema base genérico sin el refine
@@ -172,14 +171,15 @@ export const genericPurchaseOrderSchemaCreate =
       message:
         "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
       path: ["due_date"],
-    }
+    },
   );
 
 // Schema para órdenes de consignación (warehouse_id no requerido)
-const consignmentPurchaseOrderSchemaBase = genericPurchaseOrderSchemaBase.extend({
-  warehouse_id: z.string().optional().or(z.literal("")),
-  ap_brand_id: z.string().optional().or(z.literal("")),
-});
+const consignmentPurchaseOrderSchemaBase =
+  genericPurchaseOrderSchemaBase.extend({
+    warehouse_id: z.string().optional().or(z.literal("")),
+    ap_brand_id: z.string().optional().or(z.literal("")),
+  });
 
 export const consignmentPurchaseOrderSchemaCreate =
   consignmentPurchaseOrderSchemaBase.refine(
@@ -193,7 +193,7 @@ export const consignmentPurchaseOrderSchemaCreate =
       message:
         "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
       path: ["due_date"],
-    }
+    },
   );
 
 export const consignmentPurchaseOrderSchemaUpdate =
