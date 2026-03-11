@@ -273,22 +273,78 @@ export const CreditNoteItemSchema = z.object({
   anticipo_documento_numero: z.number().nullable().optional(),
 });
 
+// Credit Note Type IDs (from SUNAT concepts with type=BILLING_CREDIT_NOTE_TYPE)
+export const CREDIT_NOTE_TYPE_IDS = {
+  ANULACION: 68,        // Code 01 – Anulación de la operación
+  DESCUENTO_GLOBAL: 71, // Code 04 – Descuento global
+  DEVOLUCION_TOTAL: 73, // Code 06 – Devolución total
+  DEVOLUCION_ITEM: 74,  // Code 07 – Devolución por ítem
+} as const;
+
 // Schema para Nota de Crédito
-export const CreditNoteSchema = z.object({
-  fecha_de_emision: z.coerce.string(),
-  sunat_concept_credit_note_type_id: requiredStringId(
-    "Tipo de nota de crédito requerido",
-  ),
-  series: requiredStringId("Serie requerida"),
-  observaciones: z
-    .string()
-    .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z
-    .array(CreditNoteItemSchema)
-    .min(1, "Debe actualizar al menos un item"),
-});
+export const CreditNoteSchema = z
+  .object({
+    fecha_de_emision: z.coerce.string(),
+    sunat_concept_credit_note_type_id: requiredStringId(
+      "Tipo de nota de crédito requerido",
+    ),
+    series: requiredStringId("Serie requerida"),
+    observaciones: z
+      .string()
+      .min(10, "Las observaciones deben tener al menos 10 caracteres"),
+    // Type 04 – Descuento global
+    discount_amount: z.preprocess(
+      (val) =>
+        val === "" || val === null || val === undefined ? undefined : Number(val),
+      z.number().min(0.01, "El monto debe ser mayor a 0").optional().nullable(),
+    ),
+    account_plan_id: optionalStringId("Cuenta contable inválida"),
+    // Type 07 – Devolución por ítem
+    detail_ids: z.array(z.number().int()).optional().nullable(),
+    // Legacy fields kept for update flow
+    enviar_automaticamente_a_la_sunat: z.boolean().default(false),
+    enviar_automaticamente_al_cliente: z.boolean().default(false),
+    items: z.array(CreditNoteItemSchema).optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        Number(data.sunat_concept_credit_note_type_id) ===
+        CREDIT_NOTE_TYPE_IDS.DESCUENTO_GLOBAL
+      ) {
+        return data.discount_amount != null && data.discount_amount > 0;
+      }
+      return true;
+    },
+    { message: "El monto del descuento debe ser mayor a 0", path: ["discount_amount"] },
+  )
+  .refine(
+    (data) => {
+      if (
+        Number(data.sunat_concept_credit_note_type_id) ===
+        CREDIT_NOTE_TYPE_IDS.DESCUENTO_GLOBAL
+      ) {
+        return !!data.account_plan_id;
+      }
+      return true;
+    },
+    { message: "La cuenta contable es requerida", path: ["account_plan_id"] },
+  )
+  .refine(
+    (data) => {
+      if (
+        Number(data.sunat_concept_credit_note_type_id) ===
+        CREDIT_NOTE_TYPE_IDS.DEVOLUCION_ITEM
+      ) {
+        return data.detail_ids != null && data.detail_ids.length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Debe seleccionar al menos un ítem para la devolución",
+      path: ["detail_ids"],
+    },
+  );
 
 // Schema para Item de Nota de Débito (igual a CreditNoteItemSchema)
 export const DebitNoteItemSchema = z.object({
@@ -349,5 +405,6 @@ export type ElectronicDocumentInstallmentSchema = z.infer<
 >;
 export type CreditNoteItemSchema = z.infer<typeof CreditNoteItemSchema>;
 export type CreditNoteSchema = z.infer<typeof CreditNoteSchema>;
+export type CreditNoteTypeId = (typeof CREDIT_NOTE_TYPE_IDS)[keyof typeof CREDIT_NOTE_TYPE_IDS];
 export type DebitNoteItemSchema = z.infer<typeof DebitNoteItemSchema>;
 export type DebitNoteSchema = z.infer<typeof DebitNoteSchema>;

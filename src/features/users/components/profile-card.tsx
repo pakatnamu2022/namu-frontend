@@ -76,9 +76,9 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       label: "Mi desempeño",
       route: "mi-desempeno",
       icon: ClipboardList,
-      stats: () => (
-        <Badge className="bg-primary text-white animate-pulse">Nuevo</Badge>
-      ),
+      // stats: () => (
+      //   <Badge className="bg-primary text-white animate-pulse">Nuevo</Badge>
+      // ),
       allow: true,
     },
     {
@@ -215,7 +215,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
               onClick={() => handleProfileClick(option.route)}
             >
               <div className="flex items-center gap-2">
-                <option.icon className="w-4 h-4 text-primary dark:text-primary-foreground" />
+                <option.icon className="w-4 h-4 " />
                 <span>{option.label}</span>
               </div>
               {option.stats !== undefined &&
