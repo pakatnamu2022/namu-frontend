@@ -181,7 +181,7 @@ export default function PurchaseRequestQuotePage() {
               <CheckCircle className="size-4" />
             </Button>
           }
-          title="¿Confirmar solicitud de viáticos?"
+          title="¿Confirmar solicitud de cotización?"
           description="¿Está seguro de que desea confirmar esta solicitud de cotización? Esta acción actualizará el estado de aprobación."
           confirmText="Sí, confirmar"
           cancelText="Cancelar"
