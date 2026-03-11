@@ -1,7 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil, Check, Car, Link2Off, Eye, ArrowLeftRight } from "lucide-react";
+import {
+  FileText,
+  Pencil,
+  Check,
+  Car,
+  Link2Off,
+  Eye,
+  ArrowLeftRight,
+} from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
@@ -138,6 +146,7 @@ export const purchaseRequestQuoteColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id, is_approved } = row.original;
       const { ROUTE_UPDATE } = PURCHASE_REQUEST_QUOTE;

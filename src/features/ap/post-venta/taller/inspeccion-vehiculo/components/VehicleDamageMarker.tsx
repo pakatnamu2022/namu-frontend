@@ -42,6 +42,7 @@ export default function VehicleDamageMarker({
   const [selectedDamage, setSelectedDamage] =
     useState<VehicleInspectionDamageSchema | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [photoError, setPhotoError] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,8 +50,13 @@ export default function VehicleDamageMarker({
   const isMobile = useMemo(() => {
     if (typeof window === "undefined") return false;
     const userAgent = navigator.userAgent || "";
-    const mobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-    const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    const mobile =
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        userAgent.toLowerCase(),
+      );
+    const hasMediaDevices = !!(
+      navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+    );
     return mobile && hasMediaDevices;
   }, []);
 
@@ -69,15 +75,21 @@ export default function VehicleDamageMarker({
       photo_url: "",
     });
     setPreviewUrl("");
+    setPhotoError(false);
     setIsDialogOpen(true);
   };
 
   const handleSaveDamage = () => {
     if (selectedDamage) {
+      if (!selectedDamage.photo_url && !previewUrl) {
+        setPhotoError(true);
+        return;
+      }
       onChange([...damages, selectedDamage]);
       setIsDialogOpen(false);
       setSelectedDamage(null);
       setPreviewUrl("");
+      setPhotoError(false);
     }
   };
 
@@ -99,6 +111,7 @@ export default function VehicleDamageMarker({
         photo_url: localPreviewUrl,
         photo_file: file,
       });
+      setPhotoError(false);
     }
   };
 
@@ -262,7 +275,7 @@ export default function VehicleDamageMarker({
                   setSelectedDamage(
                     selectedDamage
                       ? { ...selectedDamage, damage_type: value }
-                      : null
+                      : null,
                   )
                 }
               >
@@ -298,14 +311,21 @@ export default function VehicleDamageMarker({
                   setSelectedDamage(
                     selectedDamage
                       ? { ...selectedDamage, description: e.target.value }
-                      : null
+                      : null,
                   )
                 }
               />
             </div>
 
             <div>
-              <Label>Foto del Daño</Label>
+              <Label>
+                Foto del Daño <span className="text-red-500">*</span>
+              </Label>
+              {photoError && (
+                <p className="text-sm text-red-500 mt-1">
+                  La foto del daño es obligatoria.
+                </p>
+              )}
               <div className="mt-2">
                 {selectedDamage?.photo_url || previewUrl ? (
                   <div className="relative">
@@ -374,11 +394,14 @@ export default function VehicleDamageMarker({
                 setIsDialogOpen(false);
                 setSelectedDamage(null);
                 setPreviewUrl("");
+                setPhotoError(false);
               }}
             >
               Cancelar
             </Button>
-            <Button type="button" onClick={handleSaveDamage}>Guardar Daño</Button>
+            <Button type="button" onClick={handleSaveDamage}>
+              Guardar Daño
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

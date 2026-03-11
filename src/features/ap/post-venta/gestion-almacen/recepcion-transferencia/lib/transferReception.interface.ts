@@ -1,4 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "../../productos/lib/product.interface";
 
 export interface TransferReceptionDetailResource {
   id: number;
@@ -21,16 +22,7 @@ export interface TransferReceptionDetailResource {
   batch_number?: string;
   expiration_date?: string;
   notes?: string;
-  product?: {
-    id: number;
-    code: string;
-    name: string;
-    brand_name?: string;
-    category_name?: string;
-    unit_measurement_name?: string;
-    cost_price?: string | number;
-    sale_price?: string | number;
-  };
+  product?: ProductResource;
   transfer_item?: {
     id: number;
     product_id: number;

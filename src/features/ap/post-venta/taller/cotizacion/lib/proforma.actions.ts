@@ -91,9 +91,15 @@ export async function deleteOrderQuotation(
   return data;
 }
 
-export async function downloadOrderQuotationPdf(id: number): Promise<void> {
+export async function downloadOrderQuotationPdf(
+  id: number,
+  show_codes: boolean,
+): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
+    params: {
+      show_codes: show_codes,
+    },
   });
 
   // Crear un blob desde la respuesta

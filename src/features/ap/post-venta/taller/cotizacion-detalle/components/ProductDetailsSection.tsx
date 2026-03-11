@@ -771,54 +771,60 @@ export default function ProductDetailsSection({
                   </Badge>
                   {globalRequest.status === STATUS_PENDING && (
                     <>
-                      <ConfirmationDialog
-                        trigger={
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                            tooltip="Aprobar solicitud global"
-                            disabled={isApproving}
-                          >
-                            <CheckCircle className="size-4" />
-                          </Button>
-                        }
-                        title="¿Aprobar solicitud?"
-                        description="Se aprobará el descuento global solicitado. ¿Deseas continuar?"
-                        confirmText="Sí, aprobar"
-                        cancelText="Cancelar"
-                        icon="info"
-                        onConfirm={() => doApprove(globalRequest.id)}
-                      />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="size-7"
-                        tooltip="Editar solicitud global"
-                        onClick={() => handleOpenEdit(globalRequest)}
-                      >
-                        <Pencil className="size-4" />
-                      </Button>
-                      <ConfirmationDialog
-                        trigger={
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            tooltip="Rechazar solicitud global"
-                            disabled={isRejecting}
-                          >
-                            <XCircle className="size-4" />
-                          </Button>
-                        }
-                        title="¿Rechazar solicitud?"
-                        description="Se rechazará el descuento global solicitado. ¿Deseas continuar?"
-                        confirmText="Sí, rechazar"
-                        cancelText="Cancelar"
-                        variant="destructive"
-                        icon="danger"
-                        onConfirm={() => doReject(globalRequest.id)}
-                      />
+                      {permissions.canApprove && (
+                        <ConfirmationDialog
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                              tooltip="Aprobar solicitud global"
+                              disabled={isApproving}
+                            >
+                              <CheckCircle className="size-4" />
+                            </Button>
+                          }
+                          title="¿Aprobar solicitud?"
+                          description="Se aprobará el descuento global solicitado. ¿Deseas continuar?"
+                          confirmText="Sí, aprobar"
+                          cancelText="Cancelar"
+                          icon="info"
+                          onConfirm={() => doApprove(globalRequest.id)}
+                        />
+                      )}
+                      {permissions.canEditDiscount && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="size-7"
+                          tooltip="Editar solicitud global"
+                          onClick={() => handleOpenEdit(globalRequest)}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                      )}
+                      {permissions.canReject && (
+                        <ConfirmationDialog
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              tooltip="Rechazar solicitud global"
+                              disabled={isRejecting}
+                            >
+                              <XCircle className="size-4" />
+                            </Button>
+                          }
+                          title="¿Rechazar solicitud?"
+                          description="Se rechazará el descuento global solicitado. ¿Deseas continuar?"
+                          confirmText="Sí, rechazar"
+                          cancelText="Cancelar"
+                          variant="destructive"
+                          icon="danger"
+                          onConfirm={() => doReject(globalRequest.id)}
+                        />
+                      )}
                     </>
                   )}
                 </div>

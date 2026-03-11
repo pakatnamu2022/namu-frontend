@@ -79,12 +79,6 @@ export default function ProductDetailSheet({
                     <p className="font-medium">{product.dyn_code}</p>
                   </div>
                 )}
-                {product.nubefac_code && (
-                  <div>
-                    <p className="text-muted-foreground">Código Nubefac</p>
-                    <p className="font-medium">{product.nubefac_code}</p>
-                  </div>
-                )}
                 {product.description && (
                   <div className="col-span-2">
                     <p className="text-muted-foreground">Descripción</p>
@@ -163,9 +157,6 @@ export default function ProductDetailSheet({
                   <p className="text-sm text-muted-foreground">
                     Precio de Costo
                   </p>
-                  <p className="text-xl font-bold">
-                    S/ {parseFloat(product.cost_price || "0").toFixed(2)}
-                  </p>
                   {product.cost_with_tax && (
                     <p className="text-xs text-muted-foreground">
                       c/IGV: S/ {product.cost_with_tax.toFixed(2)}
@@ -176,29 +167,12 @@ export default function ProductDetailSheet({
                   <p className="text-sm text-muted-foreground">
                     Precio de Venta
                   </p>
-                  <p className="text-xl font-bold">
-                    S/ {parseFloat(product.sale_price).toFixed(2)}
-                  </p>
                   {product.price_with_tax && (
                     <p className="text-xs text-muted-foreground">
                       c/IGV: S/ {product.price_with_tax.toFixed(2)}
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="mt-3 text-sm">
-                <p className="text-muted-foreground">
-                  Tasa de Impuesto:{" "}
-                  <span className="font-medium">
-                    {product.tax_rate || "0"}%
-                  </span>
-                </p>
-                <p className="text-muted-foreground">
-                  Gravable:{" "}
-                  <span className="font-medium">
-                    {product.is_taxable ? "Sí" : "No"}
-                  </span>
-                </p>
               </div>
             </div>
 

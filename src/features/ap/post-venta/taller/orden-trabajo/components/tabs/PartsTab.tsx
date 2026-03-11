@@ -71,6 +71,8 @@ import {
   MODEL_PART,
 } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.constants";
 import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.interface";
+import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface PartsTabProps {
   workOrderId: number;
@@ -107,6 +109,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [copiedPartId, setCopiedPartId] = useState<number | null>(null);
+  const { ROUTE } = WORKER_ORDER;
+  const permissions = useModulePermissions(ROUTE);
 
   const handleCopyCode = async (code: string, partId: number) => {
     try {
@@ -787,58 +791,65 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     {renderStatusBadge(globalRequest.status)}
                     {globalRequest.status === "pending" && (
                       <>
-                        <ConfirmationDialog
-                          trigger={
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                              tooltip="Aprobar solicitud global"
-                              disabled={isApproving}
-                            >
-                              <CheckCircle className="size-4" />
-                            </Button>
-                          }
-                          title="¿Aprobar solicitud?"
-                          description="Se aprobará el descuento global para los repuestos. ¿Deseas continuar?"
-                          confirmText="Sí, aprobar"
-                          cancelText="Cancelar"
-                          icon="info"
-                          onConfirm={() => doApprove(globalRequest.id)}
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="size-7"
-                          tooltip="Editar solicitud global"
-                          onClick={() => handleOpenEdit(globalRequest)}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <ConfirmationDialog
-                          trigger={
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              tooltip="Rechazar solicitud global"
-                              disabled={isRejecting}
-                            >
-                              <XCircle className="size-4" />
-                            </Button>
-                          }
-                          title="¿Rechazar solicitud?"
-                          description="Se rechazará el descuento global para los repuestos. ¿Deseas continuar?"
-                          confirmText="Sí, rechazar"
-                          cancelText="Cancelar"
-                          variant="destructive"
-                          icon="danger"
-                          onConfirm={() => doReject(globalRequest.id)}
-                        />
+                        {permissions.canApprove && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                tooltip="Aprobar solicitud global"
+                                disabled={isApproving}
+                              >
+                                <CheckCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Aprobar solicitud?"
+                            description="Se aprobará el descuento global para los repuestos. ¿Deseas continuar?"
+                            confirmText="Sí, aprobar"
+                            cancelText="Cancelar"
+                            icon="info"
+                            onConfirm={() => doApprove(globalRequest.id)}
+                          />
+                        )}
+                        {permissions.canEditDiscount && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7"
+                            tooltip="Editar solicitud global"
+                            onClick={() => handleOpenEdit(globalRequest)}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                        )}
+                        {permissions.canReject && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                tooltip="Rechazar solicitud global"
+                                disabled={isRejecting}
+                              >
+                                <XCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Rechazar solicitud?"
+                            description="Se rechazará el descuento global para los repuestos. ¿Deseas continuar?"
+                            confirmText="Sí, rechazar"
+                            cancelText="Cancelar"
+                            variant="destructive"
+                            icon="danger"
+                            onConfirm={() => doReject(globalRequest.id)}
+                          />
+                        )}
                       </>
                     )}
                   </div>
                 ) : (
+                  permissions.canRequest &&
                   !hasPartialRequests && (
                     <Button
                       variant="outline"
@@ -944,64 +955,70 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                 {renderStatusBadge(partialRequest.status)}
                                 {partialRequest.status === "pending" && (
                                   <>
-                                    <ConfirmationDialog
-                                      trigger={
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-7 w-7 p-0 text-green-600 hover:text-green-600 hover:bg-green-50"
-                                          tooltip="Aprobar solicitud"
-                                          disabled={isApproving}
-                                        >
-                                          <CheckCircle className="h-4 w-4" />
-                                        </Button>
-                                      }
-                                      title="¿Aprobar solicitud?"
-                                      description="Se aprobará el descuento solicitado para este repuesto. ¿Deseas continuar?"
-                                      confirmText="Sí, aprobar"
-                                      cancelText="Cancelar"
-                                      icon="info"
-                                      onConfirm={() =>
-                                        doApprove(partialRequest.id)
-                                      }
-                                    />
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-7 w-7 p-0"
-                                      tooltip="Editar solicitud"
-                                      onClick={() =>
-                                        handleOpenEdit(partialRequest, part)
-                                      }
-                                    >
-                                      <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <ConfirmationDialog
-                                      trigger={
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                          tooltip="Rechazar solicitud"
-                                          disabled={isRejecting}
-                                        >
-                                          <XCircle className="h-4 w-4" />
-                                        </Button>
-                                      }
-                                      title="¿Rechazar solicitud?"
-                                      description="Se rechazará el descuento solicitado para este repuesto. ¿Deseas continuar?"
-                                      confirmText="Sí, rechazar"
-                                      cancelText="Cancelar"
-                                      variant="destructive"
-                                      icon="danger"
-                                      onConfirm={() =>
-                                        doReject(partialRequest.id)
-                                      }
-                                    />
+                                    {permissions.canApprove && (
+                                      <ConfirmationDialog
+                                        trigger={
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                            tooltip="Aprobar solicitud"
+                                            disabled={isApproving}
+                                          >
+                                            <CheckCircle className="h-4 w-4" />
+                                          </Button>
+                                        }
+                                        title="¿Aprobar solicitud?"
+                                        description="Se aprobará el descuento solicitado para este repuesto. ¿Deseas continuar?"
+                                        confirmText="Sí, aprobar"
+                                        cancelText="Cancelar"
+                                        icon="info"
+                                        onConfirm={() =>
+                                          doApprove(partialRequest.id)
+                                        }
+                                      />
+                                    )}
+                                    {permissions.canEditDiscount && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 p-0"
+                                        tooltip="Editar solicitud"
+                                        onClick={() =>
+                                          handleOpenEdit(partialRequest, part)
+                                        }
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </Button>
+                                    )}
+                                    {permissions.canReject && (
+                                      <ConfirmationDialog
+                                        trigger={
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            tooltip="Rechazar solicitud"
+                                            disabled={isRejecting}
+                                          >
+                                            <XCircle className="h-4 w-4" />
+                                          </Button>
+                                        }
+                                        title="¿Rechazar solicitud?"
+                                        description="Se rechazará el descuento solicitado para este repuesto. ¿Deseas continuar?"
+                                        confirmText="Sí, rechazar"
+                                        cancelText="Cancelar"
+                                        variant="destructive"
+                                        icon="danger"
+                                        onConfirm={() =>
+                                          doReject(partialRequest.id)
+                                        }
+                                      />
+                                    )}
                                   </>
                                 )}
                               </>
-                            ) : (
+                            ) : permissions.canRequest ? (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -1013,7 +1030,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                               >
                                 <Tag className="h-4 w-4" />
                               </Button>
-                            )}
+                            ) : null}
                           </>
                         )}
                         {!globalRequest && !partialRequest && (
