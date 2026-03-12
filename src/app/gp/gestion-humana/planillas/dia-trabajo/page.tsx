@@ -349,6 +349,8 @@ export default function WorkSchedulesPage() {
                 schedules={schedules}
                 workerId={selectedWorkerId}
                 workerName={`${selectedWorkerData.worker_name} — ${format(new Date(selectedPeriod.year, selectedPeriod.month - 1), "MMMM yyyy", { locale: es })}`}
+                periodStartDate={selectedPeriod.start_date}
+                periodEndDate={selectedPeriod.end_date}
                 onAddSchedule={handleAddSchedule}
                 onEditSchedule={handleEditSchedule}
                 onDeleteSchedule={setDeleteId}
