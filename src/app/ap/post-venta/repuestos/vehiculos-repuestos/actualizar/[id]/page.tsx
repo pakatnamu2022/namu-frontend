@@ -13,7 +13,10 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import {
+  VEHICLES,
+  VEHICLES_RP,
+} from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { updateVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
 import { VehiclePVForm } from "@/features/ap/comercial/vehiculos/components/VehiclePVForm";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
@@ -27,7 +30,7 @@ export default function UpdateVehicleRepuestoPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLES_RP;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLES_RP;
 
   const { data: vehicle, isLoading: loadingVehicle } = useVehicleById(
     Number(id),
@@ -38,7 +41,7 @@ export default function UpdateVehicleRepuestoPage() {
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY, id],
+        queryKey: [VEHICLES.QUERY_KEY, Number(id)],
       });
       router(ABSOLUTE_ROUTE!);
     },
@@ -64,6 +67,7 @@ export default function UpdateVehicleRepuestoPage() {
       warehouse_physical_id: String(data.warehouse_physical_id),
       sede_id: String(data.sede_warehouse_id),
       customer_id: String(data.owner?.id || ""),
+      is_heavy: Boolean(data.is_heavy),
     };
   }
 

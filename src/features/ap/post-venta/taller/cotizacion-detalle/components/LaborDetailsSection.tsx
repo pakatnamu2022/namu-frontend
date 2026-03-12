@@ -60,6 +60,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface LaborDetailsSectionProps {
   quotationId: number;
+  constManHours: number;
   details: OrderQuotationDetailsResource[];
   isLoadingDetails: boolean;
   onRefresh: () => Promise<void>;
@@ -77,6 +78,7 @@ interface LaborDetailsSectionProps {
 
 export default function LaborDetailsSection({
   quotationId,
+  constManHours,
   details,
   isLoadingDetails,
   onRefresh,
@@ -106,7 +108,7 @@ export default function LaborDetailsSection({
       description: "",
       quantity: 1,
       unit_measure: "Horas",
-      unit_price: undefined,
+      unit_price: constManHours,
       discount_percentage: undefined,
       total_amount: 0,
       exchange_rate: exchangeRate,
@@ -342,8 +344,8 @@ export default function LaborDetailsSection({
                 label="Precio/Hora"
                 placeholder="Ej: Horas"
                 className="h-9 text-xs"
-                inputMode="numeric"
                 type="number"
+                disabled
               />
             </div>
 

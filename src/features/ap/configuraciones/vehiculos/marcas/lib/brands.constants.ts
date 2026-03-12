@@ -17,18 +17,6 @@ export const BRAND: ModelComplete<BrandsResource> = {
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `./agregar`,
   ROUTE_UPDATE: `./actualizar`,
-  EMPTY: {
-    id: 0,
-    code: "",
-    dyn_code: "",
-    name: "",
-    description: "",
-    logo_url: "",
-    logo_min_url: "",
-    group_id: 0,
-    status: true,
-    type_operation_id: 0,
-  },
 };
 
 const ROUTE_POSTVENTA = "marcas-producto";
@@ -47,16 +35,4 @@ export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
   ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_POSTVENTA,
   ROUTE_ADD: `${ABSOLUTE_ROUTE_POSTVENTA}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_POSTVENTA}/actualizar`,
-  EMPTY: {
-    id: 0,
-    code: "",
-    dyn_code: "",
-    name: "",
-    description: "",
-    logo_url: "",
-    logo_min_url: "",
-    group_id: 0,
-    status: true,
-    type_operation_id: 0,
-  },
 };

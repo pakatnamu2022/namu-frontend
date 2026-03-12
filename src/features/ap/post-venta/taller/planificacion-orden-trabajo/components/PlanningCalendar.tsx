@@ -177,7 +177,7 @@ export function PlanningCalendar({
                       variant="ghost"
                       size="sm"
                       className="h-5 w-5 p-0 hover:bg-muted"
-                      tooltip="Ver timeline"
+                      tooltip="Ver línea de tiempo"
                       onClick={() => handleExpandDay(day)}
                     >
                       <Eye className="h-3 w-3" />

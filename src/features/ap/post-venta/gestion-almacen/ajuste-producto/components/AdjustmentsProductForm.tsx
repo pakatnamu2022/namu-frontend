@@ -117,7 +117,6 @@ export const AdjustmentsProductForm = ({
       quantity: 1,
       unit_cost: undefined,
       batch_number: "",
-      expiration_date: "",
       notes: "",
     });
   };
@@ -279,7 +278,7 @@ export const AdjustmentsProductForm = ({
                       </div>
 
                       {/* Campos de cantidad y costos - grid en móvil, inline en desktop */}
-                      <div className="grid grid-cols-2 lg:flex lg:items-center gap-3 lg:shrink-0">
+                      <div className="grid grid-cols-2 lg:flex lg:items-end gap-3 lg:shrink-0">
                         <div className="lg:w-32">
                           <FormInput
                             control={form.control}
@@ -308,7 +307,7 @@ export const AdjustmentsProductForm = ({
                               <FormLabel className="lg:text-center">
                                 Costo Total
                               </FormLabel>
-                              <div className="h-9 flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-3 mt-2">
+                              <div className="h-9 flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-3">
                                 <span className="text-sm font-semibold text-gray-700">
                                   S/.{" "}
                                   {(

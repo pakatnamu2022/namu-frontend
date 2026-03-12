@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -38,9 +38,6 @@ export default function ReasonDiscardingSparePartPage() {
   const { MODEL, ROUTE } = REASONS_DISCARDING_SPAREPART;
   const permissions = useModulePermissions(ROUTE);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
   const { data, isLoading, refetch } = useReasonDiscardingSparePart({
     page,
     search,

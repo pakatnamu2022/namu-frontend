@@ -41,7 +41,6 @@ export interface OrderQuotationResource {
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
   status: string;
-  has_sufficient_stock: boolean;
   supply_type: "STOCK" | "LIMA" | "IMPORTACION";
   exchange_rate: number;
   chief_approval_by: string | null;
@@ -49,6 +48,9 @@ export interface OrderQuotationResource {
   customer_signature_delivery_url: string | null;
   delivery_document_number: string | null;
   has_management_discount: boolean;
+  //Opcionales
+  has_sufficient_stock: boolean;
+  cost_man_hours: number;
 }
 
 export interface ApprovalRequest {

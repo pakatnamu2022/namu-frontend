@@ -194,6 +194,7 @@ import ProductTypePage from "./app/ap/configuraciones/vehiculos/tipos-producto/p
 import TractionTypePage from "./app/ap/configuraciones/vehiculos/tipos-traccion/page.tsx";
 import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx";
 import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
+import AfterSalesParameterPage from "./app/ap/configuraciones/postventa/parametros/page.tsx";
 import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
 import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
 import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
@@ -395,7 +396,7 @@ import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asisten
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
-import PayrollConstantsPage from "./app/gp/gestion-humana/planillas/constantes/page.tsx";
+import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1052,6 +1053,10 @@ function App() {
               />
 
               {/* PostVentas Configuration */}
+              <Route
+                path="postventa/parametros-postventa"
+                element={<AfterSalesParameterPage />}
+              />
               <Route
                 path="postventa/tipos-operacion-cita"
                 element={<TypesOperationsAppointmentPage />}
@@ -1912,8 +1917,8 @@ function App() {
 
               {/* Constantes de Planilla */}
               <Route
-                path="planillas/constantes"
-                element={<PayrollConstantsPage />}
+                path="planillas/parametros-planilla"
+                element={<PayrollParameterPage />}
               />
             </Route>
 
