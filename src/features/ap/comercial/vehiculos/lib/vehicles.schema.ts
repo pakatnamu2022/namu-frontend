@@ -22,6 +22,7 @@ export const vehicleSchemaCreate = z.object({
   warehouse_physical_id: requiredStringId("El almacén físico es requerido"),
   type_operation_id: requiredStringId("El tipo de operación es requerido"),
   customer_id: requiredStringId("El cliente es requerido"),
+  is_heavy: z.boolean().optional(),
 });
 
 export const vehicleSchemaUpdate = vehicleSchemaCreate.partial();

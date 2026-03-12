@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
@@ -36,10 +36,6 @@ export default function BrandsPVPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = BRAND_POSTVENTA;
   const permissions = useModulePermissions(ROUTE);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
 
   const { data, isLoading, refetch } = useBrands({
     page,

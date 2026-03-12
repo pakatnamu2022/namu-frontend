@@ -2,7 +2,7 @@
 
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
@@ -37,15 +37,14 @@ export default function VehiclesPostVentaPage() {
   const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_TLL;
   const permissions = useModulePermissions(ROUTE);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
   const { data, isLoading, refetch } = useVehicles({
     page,
     search,
     per_page,
     type_operation_id: CM_POSTVENTA_ID,
-    ap_vehicle_status_id: ap_vehicle_status_id.length ? ap_vehicle_status_id : undefined,
+    ap_vehicle_status_id: ap_vehicle_status_id.length
+      ? ap_vehicle_status_id
+      : undefined,
   });
 
   const handleDelete = async () => {
@@ -86,7 +85,12 @@ export default function VehiclesPostVentaPage() {
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}
       >
-        <VehicleOptions search={search} setSearch={setSearch} ap_vehicle_status_id={ap_vehicle_status_id} set_ap_vehicle_status_id={setApVehicleStatusId} />
+        <VehicleOptions
+          search={search}
+          setSearch={setSearch}
+          ap_vehicle_status_id={ap_vehicle_status_id}
+          set_ap_vehicle_status_id={setApVehicleStatusId}
+        />
       </VehicleTable>
 
       {deleteId !== null && (

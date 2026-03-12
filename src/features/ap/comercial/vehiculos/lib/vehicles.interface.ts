@@ -39,6 +39,7 @@ export interface VehicleResource {
   warehouse_physical_name?: string;
   sede_name_warehouse_physical?: string;
   sede_name_warehouse?: string;
+  is_heavy: boolean;
   model: ModelsVnResource;
   movements: VehicleMovement[];
   owner?: CustomersResource;

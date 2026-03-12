@@ -44,6 +44,8 @@ import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { BRAND_ID } from "@/features/ap/configuraciones/vehiculos/grupos-marcas/lib/brandGroup.constants";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -253,6 +255,12 @@ export const VehiclePVForm = ({
                   }
                 : undefined
             }
+            onValueChange={(_value, item: ModelsVnResource) => {
+              form.setValue(
+                "is_heavy",
+                item?.brand_id === BRAND_ID.JAC_CAMIONES,
+              );
+            }}
           >
             <Button
               type="button"
@@ -362,6 +370,13 @@ export const VehiclePVForm = ({
             }))}
             label={"Almacén Físico"}
             disabled={true}
+          />
+
+          <FormSwitch
+            name="is_heavy"
+            control={form.control}
+            label="¿Es un vehículo pesado?"
+            text={form.watch("is_heavy") ? "Si" : "No"}
           />
         </GroupFormSection>
 

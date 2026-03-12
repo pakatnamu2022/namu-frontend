@@ -286,6 +286,7 @@ export default function ManageQuotationPage() {
       {/* Sección de Mano de Obra */}
       <LaborDetailsSection
         quotationId={quotationId}
+        constManHours={quotation.cost_man_hours}
         details={details}
         isLoadingDetails={isLoadingDetails}
         onRefresh={loadDetails}
