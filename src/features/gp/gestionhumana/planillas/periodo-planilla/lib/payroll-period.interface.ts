@@ -15,6 +15,7 @@ export interface PayrollPeriodResource {
   start_date: string;
   end_date: string;
   payment_date: string;
+  biweekly_date: string | null;
   status: PayrollPeriodStatus;
   company?: Company;
   created_at: string;
@@ -36,6 +37,7 @@ export interface CreatePayrollPeriodPayload {
   year: number;
   month: number;
   payment_date: string;
+  biweekly_date?: string | null;
   company_id: number;
 }
 

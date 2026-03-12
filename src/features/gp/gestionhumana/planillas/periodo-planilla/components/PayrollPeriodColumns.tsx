@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PayrollPeriodResource } from "../lib/payroll-period.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, Lock, Calculator, Play } from "lucide-react";
+import { Pencil, Lock, Calculator, Play, RotateCcw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { format } from "date-fns";
@@ -21,12 +21,14 @@ export const payrollPeriodColumns = ({
   onClose,
   onEdit,
   onCalculate,
+  onReset,
 }: {
   onDelete: (id: number) => void;
   onProcess: (id: number) => void;
   onClose: (id: number) => void;
   onEdit: (id: number) => void;
   onCalculate: (period: PayrollPeriodResource) => void;
+  onReset: (id: number) => void;
 }): PayrollPeriodColumns[] => [
   {
     accessorKey: "code",
@@ -149,6 +151,18 @@ export const payrollPeriodColumns = ({
               <Pencil className="size-4" />
             </Button>
           )}
+          {status !== PAYROLL_PERIOD_STATUS.OPEN &&
+            status !== PAYROLL_PERIOD_STATUS.CLOSED && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                onClick={() => onReset(id)}
+                tooltip="Reiniciar periodo"
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            )}
           {status === PAYROLL_PERIOD_STATUS.OPEN && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}

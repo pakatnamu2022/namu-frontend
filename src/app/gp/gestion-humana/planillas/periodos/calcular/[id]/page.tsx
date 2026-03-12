@@ -19,7 +19,9 @@ import {
   usePayrollReport,
 } from "@/features/gp/gestionhumana/planillas/calculo-planilla/lib/payroll-calculation.hook";
 import { SummaryWorkerItem } from "@/features/gp/gestionhumana/planillas/calculo-planilla/lib/payroll-calculation.interface";
-import PayrollCalculationToolbar from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
+import PayrollCalculationToolbar, {
+  Quincena,
+} from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
 
 import PayrollCalculationSummaryTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationSummaryTable";
 import PayrollCalculationDetailModal from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationDetailModal";
@@ -36,12 +38,23 @@ function TableSkeleton() {
   );
 }
 
+function SummarySectionSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-10 w-full rounded-md" />
+      ))}
+    </div>
+  );
+}
+
 export default function PayrollCalculationPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState("attendances");
+  const [quincena, setQuincena] = useState<Quincena>(null);
   const [selectedWorker, setSelectedWorker] =
     useState<SummaryWorkerItem | null>(null);
 
@@ -55,23 +68,21 @@ export default function PayrollCalculationPage() {
     data: attendancesData,
     isLoading: isLoadingAttendances,
     isError: isErrorAttendances,
-  } = usePayrollAttendances(period ? period.id : null);
+  } = usePayrollAttendances(period ? period.id : null, quincena);
 
   const {
-    data: summaryResponse,
+    data: summaryData,
     isLoading: isLoadingSummary,
     isError: isErrorSummary,
     refetch: refetchSummary,
-  } = usePayrollCalculationSummary(
-    activeTab === "totals" && period ? period.id : null,
-  );
+  } = usePayrollCalculationSummary(period ? period.id : null, quincena);
 
   const {
     data: reportData,
     isLoading: isLoadingReport,
     isError: isErrorReport,
     refetch: refetchReport,
-  } = usePayrollReport(activeTab === "report" && period ? period.id : null);
+  } = usePayrollReport(period ? period.id : null, quincena);
 
   const handleTabChange = (tab: string) => {
     if (tab === activeTab) {
@@ -95,8 +106,6 @@ export default function PayrollCalculationPage() {
       </div>
     );
   }
-
-  const summary = summaryResponse?.summary ?? [];
 
   return (
     <div className="space-y-6 p-6">
@@ -128,6 +137,9 @@ export default function PayrollCalculationPage() {
         <PayrollCalculationToolbar
           periodId={period.id}
           periodStatus={period.status}
+          biweeklyDate={period.biweekly_date}
+          quincena={quincena}
+          onQuincenaChange={setQuincena}
           onSuccess={handleSuccess}
         />
       </div>
@@ -186,26 +198,28 @@ export default function PayrollCalculationPage() {
             )}
 
             {attendancesData && (
-              <PayrollAttendanceTable data={attendancesData} />
+              <PayrollAttendanceTable
+                data={attendancesData}
+                biweeklyDate={period.biweekly_date}
+              />
             )}
           </TabsContent>
 
           <TabsContent value="totals" className="space-y-2">
             <h2 className="text-sm font-semibold text-foreground">
-              Resumen de Cálculos
+              Detalles de Cálculo
             </h2>
-
-            {isLoadingSummary && <TableSkeleton />}
-
+            {isLoadingSummary && <SummarySectionSkeleton />}
             {isErrorSummary && !isLoadingSummary && (
               <div className="py-6 text-center text-sm text-red-600 dark:text-red-400">
                 No se pudo cargar el resumen. Verifica que el período tenga
                 asistencias registradas.
               </div>
             )}
-
             {!isLoadingSummary && !isErrorSummary && (
-              <PayrollCalculationSummaryTable summary={summary} />
+              <PayrollCalculationSummaryTable
+                summary={summaryData?.summary ?? []}
+              />
             )}
           </TabsContent>
 
