@@ -307,8 +307,8 @@ export function WorkerTimeline({
     let hours = Math.floor(targetMinutes / 60);
     let mins = Math.round(targetMinutes % 60);
 
-    // Redondear a 6 minutos (0.1 horas)
-    mins = Math.round(mins / 6) * 6;
+    // Redondear a 1 minuto
+    mins = Math.round(mins);
     if (mins >= 60) {
       hours += 1;
       mins = 0;
@@ -475,8 +475,9 @@ export function WorkerTimeline({
       const deltaHours = deltaFraction * totalWorkHours;
 
       let newHours = Math.max(0.5, dragStartHoursRef.current + deltaHours);
-      // Redondear a 0.1h (6 min)
-      newHours = Math.round(newHours * 10) / 10;
+      // Redondear a 1 minuto (aprox 0.02h), mostrar máximo 2 decimales
+      newHours = Math.round(newHours * 60) / 60;
+      newHours = Math.round(newHours * 100) / 100;
 
       // Verificar que no salga del horario laboral
       const endTime = new Date(
@@ -647,7 +648,9 @@ export function WorkerTimeline({
                   step="0.5"
                   value={estimatedHours}
                   onChange={(e) =>
-                    onEstimatedHoursChange(Number(e.target.value))
+                    onEstimatedHoursChange(
+                      Math.round(Number(e.target.value) * 100) / 100,
+                    )
                   }
                   className="w-24 text-center font-semibold"
                 />
