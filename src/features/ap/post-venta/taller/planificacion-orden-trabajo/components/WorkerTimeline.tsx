@@ -108,7 +108,7 @@ export function WorkerTimeline({
   fullPage = false,
   sedeId,
   onRefresh,
-  readOnly = false,
+  //readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -359,12 +359,9 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     const endTime = addHours(startTime, estimatedHours);
-    const endHour = endTime.getHours();
-    const endMinute = endTime.getMinutes();
     const startHour = startTime.getHours();
     const startMin = startTime.getMinutes();
     const startTotalMin = startHour * 60 + startMin;
-    const endTotalMin = endHour * 60 + endMinute;
 
     // Si el día seleccionado es hoy, no permitir horas pasadas
     if (isSameDay(selectedDate, new Date())) {
@@ -376,31 +373,46 @@ export function WorkerTimeline({
     }
 
     // Verificar que no cruce el almuerzo
-    if (startTotalMin < LUNCH_START && endTotalMin > LUNCH_START) {
+    const endTotalMinForLunch = endTime.getHours() * 60 + endTime.getMinutes();
+    if (startTotalMin < LUNCH_START && endTotalMinForLunch > LUNCH_START) {
       return false; // Cruza el inicio del almuerzo
     }
 
-    // Verificar que esté dentro del horario laboral
-    const isInMorning =
-      startTotalMin >= MORNING_START && endTotalMin <= MORNING_END;
-    const isInAfternoon =
-      startTotalMin >= AFTERNOON_START && endTotalMin <= AFTERNOON_END;
+    // Verificar que el inicio esté dentro del horario laboral
+    const startInMorning =
+      startTotalMin >= MORNING_START && startTotalMin < MORNING_END;
+    const startInAfternoon =
+      startTotalMin >= AFTERNOON_START && startTotalMin <= AFTERNOON_END;
 
-    if (!isInMorning && !isInAfternoon) {
+    if (!startInMorning && !startInAfternoon) {
       return false;
     }
 
-    // Verificar conflictos con tareas existentes
+    // Verificar conflictos con tareas existentes (solo con la parte dentro del día)
+    const endTimeForConflict = endTime;
     return !workerPlannings.some((p) => {
       if (!p.planned_start_datetime || !p.planned_end_datetime) return false;
       const planStart = parseISO(p.planned_start_datetime);
       const planEnd = parseISO(p.planned_end_datetime);
       return (
         (startTime >= planStart && startTime < planEnd) ||
-        (endTime > planStart && endTime <= planEnd) ||
-        (startTime <= planStart && endTime >= planEnd)
+        (endTimeForConflict > planStart && endTimeForConflict <= planEnd) ||
+        (startTime <= planStart && endTimeForConflict >= planEnd)
       );
     });
+  };
+
+  // Calcula cuántas horas se derraman al día siguiente (overflow)
+  const getOverflowHours = (startTime: Date, hours: number): number => {
+    const endTime = addHours(startTime, hours);
+    const endTotalMin = endTime.getHours() * 60 + endTime.getMinutes();
+    // Si la hora de fin es menor que la de inicio en minutos absolutos,
+    // significa que pasó la medianoche (edge case extremo), lo ignoramos.
+    // Solo nos interesa si supera AFTERNOON_END (18:00)
+    if (endTotalMin > AFTERNOON_END) {
+      return (endTotalMin - AFTERNOON_END) / 60;
+    }
+    return 0;
   };
 
   // Devuelve la hora de fin del último bloque del trabajador en este día,
@@ -479,14 +491,7 @@ export function WorkerTimeline({
       newHours = Math.round(newHours * 60) / 60;
       newHours = Math.round(newHours * 100) / 100;
 
-      // Verificar que no salga del horario laboral
-      const endTime = new Date(
-        selectedTime.time.getTime() + newHours * 3600000,
-      );
-      const endMin = endTime.getHours() * 60 + endTime.getMinutes();
-      if (endMin <= WORK_SCHEDULE.AFTERNOON_END) {
-        onEstimatedHoursChange?.(newHours);
-      }
+      onEstimatedHoursChange?.(newHours);
     };
 
     const onMouseUp = () => {
@@ -616,7 +621,7 @@ export function WorkerTimeline({
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
-          {!readOnly && (
+          {/* {!readOnly && (
             <Button
               variant="outline"
               onClick={() => setIsExceptionalCaseOpen(true)}
@@ -625,7 +630,7 @@ export function WorkerTimeline({
               <Clock className="h-4 w-4" />
               Caso Excepcional
             </Button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -695,14 +700,14 @@ export function WorkerTimeline({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
+                <PopoverContent className="w-[400px] p-0 overflow-hidden" align="start">
                   <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar por correlativo o placa..."
                       value={searchWorkOrder}
                       onValueChange={setSearchWorkOrder}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-60 overflow-y-auto">
                       {isLoadingWorkOrders ? (
                         <div className="flex items-center justify-center py-6">
                           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -856,67 +861,69 @@ export function WorkerTimeline({
         </div>
       )}
 
-      {selectionMode && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <Clock className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-primary">
-            {!selectedWorkOrderId && (
-              <span>
-                Seleccione una <strong>Orden de Trabajo</strong> y luego haz
-                click en un espacio disponible del timeline.
-              </span>
-            )}
-            {selectedWorkOrderId && !selectedTime && (
-              <span>
-                Ahora haz click en un espacio disponible de la línea de tiempo.
-                La tarea durará <strong>{estimatedHours}h</strong>.
-              </span>
-            )}
-            {selectedWorkOrderId && selectedTime && selectedItemId === null && (
-              <span>
-                Selecciona una <strong>descripción de trabajo</strong> para
-                continuar.
-              </span>
-            )}
-            {selectedWorkOrderId && selectedTime && selectedItemId !== null && (
-              <span className="text-green-700 font-semibold">
-                ¡Todo listo! Haz click en "Confirmar y Crear Planificación".
-              </span>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {selectionMode && selectedTime && (
-        <div className="p-5 bg-linear-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-primary">
-                Horario seleccionado:
-              </p>
-              <p className="text-2xl font-bold text-primary">
-                {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
-                {format(addHours(selectedTime.time, estimatedHours), "HH:mm", {
-                  locale: es,
-                })}
-              </p>
-              {selectedItemId !== null && (
-                <p className="text-xs text-primary mt-1">
-                  1 descripción seleccionada
-                </p>
+      {selectionMode &&
+        selectedTime &&
+        (() => {
+          const overflowHours = getOverflowHours(
+            selectedTime.time,
+            estimatedHours,
+          );
+          const hasOverflow = overflowHours > 0;
+          const overflowMins = Math.round(overflowHours * 60);
+          const overflowLabel =
+            overflowMins % 60 === 0
+              ? `${overflowMins / 60}h`
+              : overflowMins < 60
+                ? `${overflowMins}min`
+                : `${Math.floor(overflowMins / 60)}h ${overflowMins % 60}min`;
+          return (
+            <div className="space-y-2">
+              {hasOverflow && (
+                <Alert className="border-orange-300 bg-orange-50">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-700 font-medium">
+                    El horario excede las 18:00.{" "}
+                    <strong>{overflowLabel}</strong> continuará al día siguiente
+                    desde las 08:00.
+                  </AlertDescription>
+                </Alert>
               )}
+              <div
+                className={`p-5 rounded-xl shadow-md border-2 ${hasOverflow ? "bg-linear-to-r from-orange-50 to-amber-50 border-orange-300" : "bg-linear-to-r from-blue-50 to-indigo-50 border-blue-300"}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p
+                      className={`text-sm font-medium ${hasOverflow ? "text-orange-700" : "text-primary"}`}
+                    >
+                      Horario seleccionado:
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${hasOverflow ? "text-orange-700" : "text-primary"}`}
+                    >
+                      {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
+                      {format(
+                        addHours(selectedTime.time, estimatedHours),
+                        "HH:mm",
+                        {
+                          locale: es,
+                        },
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleConfirmSelection}
+                    disabled={!canConfirm}
+                    size="lg"
+                    className="bg-primary hover:bg-primary"
+                  >
+                    Confirmar y Crear Planificación
+                  </Button>
+                </div>
+              </div>
             </div>
-            <Button
-              onClick={handleConfirmSelection}
-              disabled={!canConfirm}
-              size="lg"
-              className="bg-primary hover:bg-primary"
-            >
-              Confirmar y Crear Planificación
-            </Button>
-          </div>
-        </div>
-      )}
+          );
+        })()}
 
       <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg flex-wrap">
         {(
@@ -1324,6 +1331,67 @@ export function WorkerTimeline({
                               }}
                             >
                               <div className="w-1 h-6 bg-primary rounded-full" />
+                            </div>
+                          </div>
+                        </>
+                      );
+                    }
+
+                    // Caso overflow: parte dentro del día (azul) + parte fuera (naranja hasta el borde)
+                    const overflowHours = getOverflowHours(
+                      selectedTime.time,
+                      estimatedHours,
+                    );
+                    const hasOverflow = overflowHours > 0;
+
+                    // endPos clampado al 100% del timeline (18:00)
+                    const clampedEndPos = Math.min(endPos, 100);
+                    // posición de las 18:00 en el timeline
+                    const afternoonEndPos = timeToPosition(18, 0);
+
+                    if (hasOverflow) {
+                      return (
+                        <>
+                          {/* Segmento dentro del horario (azul) */}
+                          <div
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30 pointer-events-none"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${afternoonEndPos - startPos}%`,
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full">
+                              <span className="text-xs font-bold text-black">
+                                {format(selectedTime.time, "HH:mm")} - 18:00
+                              </span>
+                            </div>
+                          </div>
+                          {/* Segmento overflow (naranja, hasta el borde del timeline) */}
+                          <div
+                            className="absolute top-0 h-full bg-orange-400 opacity-60 border-2 border-orange-600 border-dashed z-30"
+                            style={{
+                              left: `${afternoonEndPos}%`,
+                              width: `${clampedEndPos - afternoonEndPos}%`,
+                              cursor: "ew-resize",
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full pointer-events-none">
+                              <span className="text-[10px] font-bold text-orange-900 whitespace-nowrap">
+                                +{Math.round(overflowHours * 60)}min →
+                              </span>
+                            </div>
+                            {/* Handle de resize */}
+                            <div
+                              className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-orange-500/30"
+                              onMouseDown={(e) => {
+                                const timelineEl = e.currentTarget.closest(
+                                  ".timeline-row",
+                                ) as HTMLDivElement;
+                                if (timelineEl)
+                                  handleResizeStart(e, timelineEl);
+                              }}
+                            >
+                              <div className="w-1 h-6 bg-orange-600 rounded-full pointer-events-none" />
                             </div>
                           </div>
                         </>
