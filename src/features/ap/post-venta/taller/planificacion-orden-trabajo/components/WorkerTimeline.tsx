@@ -441,6 +441,10 @@ export function WorkerTimeline({
     const lastEnd = getLastBlockEnd(workerPlannings);
 
     if (lastEnd) {
+      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
+      if (lastEndTotalMin >= AFTERNOON_END) return;
+
       // Tiene bloques: el inicio siempre es el fin del último bloque
       if (isSlotAvailable(lastEnd, workerPlannings)) {
         setSelectedTime({ time: lastEnd, workerId });
@@ -514,6 +518,13 @@ export function WorkerTimeline({
     const lastEnd = getLastBlockEnd(workerPlannings);
 
     if (lastEnd) {
+      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
+      if (lastEndTotalMin >= AFTERNOON_END) {
+        setHoveredSlot(null);
+        return;
+      }
+
       // Tiene bloques: preview fijo al fin del último bloque
       if (isSlotAvailable(lastEnd, workerPlannings)) {
         setHoveredSlot({ time: lastEnd, workerId });
@@ -700,7 +711,10 @@ export function WorkerTimeline({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0 overflow-hidden" align="start">
+                <PopoverContent
+                  className="w-[400px] p-0 overflow-hidden"
+                  align="start"
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar por correlativo o placa..."
