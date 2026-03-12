@@ -118,6 +118,11 @@ export function WorkerTimeline({
     time: Date;
     workerId: number;
   } | null>(null);
+  // Refs para el resize de la barra seleccionada
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartHoursRef = useRef(0);
+  const timelineRectRef = useRef<DOMRect | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -398,20 +403,99 @@ export function WorkerTimeline({
     });
   };
 
+  // Devuelve la hora de fin del último bloque del trabajador en este día,
+  // o null si no tiene bloques.
+  const getLastBlockEnd = (
+    workerPlannings: WorkOrderPlanningResource[],
+  ): Date | null => {
+    const sorted = [...workerPlannings]
+      .filter((p) => p.planned_end_datetime)
+      .sort(
+        (a, b) =>
+          parseISO(b.planned_end_datetime!).getTime() -
+          parseISO(a.planned_end_datetime!).getTime(),
+      );
+    if (sorted.length === 0) return null;
+    return parseISO(sorted[0].planned_end_datetime!);
+  };
+
   const handleTimelineClick = (
     event: React.MouseEvent<HTMLDivElement>,
     workerId: number,
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const position = (clickX / rect.width) * 100;
-    const clickedTime = positionToTime(position);
 
-    if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
-      setSelectedTime({ time: clickedTime, workerId });
+    const lastEnd = getLastBlockEnd(workerPlannings);
+
+    if (lastEnd) {
+      // Tiene bloques: el inicio siempre es el fin del último bloque
+      if (isSlotAvailable(lastEnd, workerPlannings)) {
+        setSelectedTime({ time: lastEnd, workerId });
+      }
+    } else {
+      // Sin bloques: libre desde hora actual
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const position = (clickX / rect.width) * 100;
+      const clickedTime = positionToTime(position);
+      if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
+        setSelectedTime({ time: clickedTime, workerId });
+      }
     }
+  };
+
+  // ── Resize handlers ───────────────────────────────────────────────────────
+  const handleResizeStart = (
+    e: React.MouseEvent,
+    timelineEl: HTMLDivElement,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.clientX;
+    dragStartHoursRef.current = estimatedHours;
+    timelineRectRef.current = timelineEl.getBoundingClientRect();
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDraggingRef.current || !timelineRectRef.current || !selectedTime)
+        return;
+      const rect = timelineRectRef.current;
+      const deltaX = ev.clientX - dragStartXRef.current;
+      const deltaFraction = deltaX / rect.width;
+
+      // Convertir fracción de timeline a horas (el timeline total = 8 horas laborales aprox)
+      // Mañana: 0-50% = 5h  |  Almuerzo: 50-60% = skip  |  Tarde: 60-100% = 3.6h
+      const totalWorkHours =
+        (WORK_SCHEDULE.MORNING_END -
+          WORK_SCHEDULE.MORNING_START +
+          WORK_SCHEDULE.AFTERNOON_END -
+          WORK_SCHEDULE.AFTERNOON_START) /
+        60;
+      const deltaHours = deltaFraction * totalWorkHours;
+
+      let newHours = Math.max(0.5, dragStartHoursRef.current + deltaHours);
+      // Redondear a 0.1h (6 min)
+      newHours = Math.round(newHours * 10) / 10;
+
+      // Verificar que no salga del horario laboral
+      const endTime = new Date(
+        selectedTime.time.getTime() + newHours * 3600000,
+      );
+      const endMin = endTime.getHours() * 60 + endTime.getMinutes();
+      if (endMin <= WORK_SCHEDULE.AFTERNOON_END) {
+        onEstimatedHoursChange?.(newHours);
+      }
+    };
+
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   };
 
   const handleTimelineHover = (
@@ -420,15 +504,27 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const hoverX = event.clientX - rect.left;
-    const position = (hoverX / rect.width) * 100;
-    const hoveredTime = positionToTime(position);
 
-    if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
-      setHoveredSlot({ time: hoveredTime, workerId });
+    const lastEnd = getLastBlockEnd(workerPlannings);
+
+    if (lastEnd) {
+      // Tiene bloques: preview fijo al fin del último bloque
+      if (isSlotAvailable(lastEnd, workerPlannings)) {
+        setHoveredSlot({ time: lastEnd, workerId });
+      } else {
+        setHoveredSlot(null);
+      }
     } else {
-      setHoveredSlot(null);
+      // Sin bloques: preview libre siguiendo el cursor
+      const rect = event.currentTarget.getBoundingClientRect();
+      const hoverX = event.clientX - rect.left;
+      const position = (hoverX / rect.width) * 100;
+      const hoveredTime = positionToTime(position);
+      if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
+        setHoveredSlot({ time: hoveredTime, workerId });
+      } else {
+        setHoveredSlot(null);
+      }
     }
   };
 
@@ -858,7 +954,7 @@ export function WorkerTimeline({
 
             <div className="flex-1">
               <div
-                className={`relative h-20 rounded border ${
+                className={`timeline-row relative h-20 rounded border ${
                   selectionMode ? "cursor-pointer" : ""
                 }`}
                 onClick={(e) =>
@@ -1133,34 +1229,133 @@ export function WorkerTimeline({
                     ></div>
                   )}
 
-                {/* Selección confirmada */}
+                {/* Selección confirmada (con resize y división por almuerzo) */}
                 {selectionMode &&
                   selectedTime &&
-                  selectedTime.workerId === worker.id && (
-                    <div
-                      className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
-                      style={{
-                        left: `${calculatePositionFromDate(
-                          selectedTime.time,
-                        )}%`,
-                        width: `${
-                          calculatePositionFromDate(
-                            addHours(selectedTime.time, estimatedHours),
-                          ) - calculatePositionFromDate(selectedTime.time)
-                        }%`,
-                      }}
-                    >
-                      <div className="flex items-center justify-center h-full">
-                        <span className="text-xs font-bold text-black">
-                          {format(selectedTime.time, "HH:mm")} -{" "}
-                          {format(
-                            addHours(selectedTime.time, estimatedHours),
-                            "HH:mm",
-                          )}
-                        </span>
+                  selectedTime.workerId === worker.id &&
+                  (() => {
+                    const startMin =
+                      selectedTime.time.getHours() * 60 +
+                      selectedTime.time.getMinutes();
+                    const endTime = addHours(selectedTime.time, estimatedHours);
+                    const endMin =
+                      endTime.getHours() * 60 + endTime.getMinutes();
+                    const crossesLunch =
+                      startMin < LUNCH_START &&
+                      endMin > WORK_SCHEDULE.LUNCH_END;
+
+                    const startPos = calculatePositionFromDate(
+                      selectedTime.time,
+                    );
+                    const endPos = calculatePositionFromDate(endTime);
+
+                    if (crossesLunch) {
+                      // Bloque mañana: inicio → almuerzo
+                      const lunchStartDate = new Date(selectedTime.time);
+                      lunchStartDate.setHours(
+                        Math.floor(LUNCH_START / 60),
+                        LUNCH_START % 60,
+                        0,
+                        0,
+                      );
+                      const lunchEndDate = new Date(selectedTime.time);
+                      lunchEndDate.setHours(
+                        Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+                        WORK_SCHEDULE.LUNCH_END % 60,
+                        0,
+                        0,
+                      );
+                      const morningEndPos =
+                        calculatePositionFromDate(lunchStartDate);
+                      const afternoonStartPos =
+                        calculatePositionFromDate(lunchEndDate);
+
+                      return (
+                        <>
+                          {/* Segmento mañana */}
+                          <div
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${morningEndPos - startPos}%`,
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full">
+                              <span className="text-xs font-bold text-black">
+                                {format(selectedTime.time, "HH:mm")} -{" "}
+                                {format(lunchStartDate, "HH:mm")}
+                              </span>
+                            </div>
+                          </div>
+                          {/* Segmento tarde */}
+                          <div
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                            style={{
+                              left: `${afternoonStartPos}%`,
+                              width: `${endPos - afternoonStartPos}%`,
+                              cursor: "ew-resize",
+                            }}
+                            ref={(el) => {
+                              if (el) {
+                                (el as any)._timelineEl = el.closest(
+                                  ".timeline-row",
+                                ) as HTMLDivElement;
+                              }
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full">
+                              <span className="text-xs font-bold text-black">
+                                {format(lunchEndDate, "HH:mm")} -{" "}
+                                {format(endTime, "HH:mm")}
+                              </span>
+                            </div>
+                            {/* Handle de resize */}
+                            <div
+                              className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                              onMouseDown={(e) => {
+                                const timelineEl = e.currentTarget.closest(
+                                  ".timeline-row",
+                                ) as HTMLDivElement;
+                                if (timelineEl)
+                                  handleResizeStart(e, timelineEl);
+                              }}
+                            >
+                              <div className="w-1 h-6 bg-primary rounded-full" />
+                            </div>
+                          </div>
+                        </>
+                      );
+                    }
+
+                    return (
+                      <div
+                        className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                        style={{
+                          left: `${startPos}%`,
+                          width: `${endPos - startPos}%`,
+                        }}
+                      >
+                        <div className="flex items-center justify-center h-full pointer-events-none">
+                          <span className="text-xs font-bold text-black">
+                            {format(selectedTime.time, "HH:mm")} -{" "}
+                            {format(endTime, "HH:mm")}
+                          </span>
+                        </div>
+                        {/* Handle de resize */}
+                        <div
+                          className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                          onMouseDown={(e) => {
+                            const timelineEl = e.currentTarget.closest(
+                              ".timeline-row",
+                            ) as HTMLDivElement;
+                            if (timelineEl) handleResizeStart(e, timelineEl);
+                          }}
+                        >
+                          <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                 {plannings.length === 0 && !selectionMode && (
                   <div className="absolute inset-0 flex items-center justify-center">
