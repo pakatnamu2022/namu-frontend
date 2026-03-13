@@ -121,11 +121,13 @@ export const PAYMENT_CONDITIONS = [
   { label: "CREDITO", value: "credito" },
 ] as const;
 
-export type PaymentConditionValue = (typeof PAYMENT_CONDITIONS)[number]["value"];
+export type PaymentConditionValue =
+  (typeof PAYMENT_CONDITIONS)[number]["value"];
 
 export const PAYMENT_CONDITION_CREDIT: PaymentConditionValue = "credito";
 
 export const CREDIT_DAYS_OPTIONS = [
+  { label: "1 día", value: "1" },
   { label: "15 días", value: "15" },
   { label: "30 días", value: "30" },
   { label: "45 días", value: "45" },
