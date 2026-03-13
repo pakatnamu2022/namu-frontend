@@ -491,9 +491,8 @@ export function WorkerTimeline({
       const deltaHours = deltaFraction * totalWorkHours;
 
       let newHours = Math.max(0.5, dragStartHoursRef.current + deltaHours);
-      // Redondear a 1 minuto (aprox 0.02h), mostrar máximo 2 decimales
+      // Redondear a 1 minuto exacto
       newHours = Math.round(newHours * 60) / 60;
-      newHours = Math.round(newHours * 100) / 100;
 
       onEstimatedHoursChange?.(newHours);
     };
@@ -662,7 +661,7 @@ export function WorkerTimeline({
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={estimatedHours}
+                  value={Number(estimatedHours.toFixed(2))}
                   onChange={(e) =>
                     onEstimatedHoursChange(
                       Math.round(Number(e.target.value) * 100) / 100,
