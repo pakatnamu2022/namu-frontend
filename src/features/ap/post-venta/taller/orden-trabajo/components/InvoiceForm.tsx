@@ -396,7 +396,6 @@ export default function InvoiceForm({
               currencySymbol={currencySymbol}
               porcentaje_de_igv={porcentaje_de_igv}
             />
-
             {/* Información del Documento */}
             <InvoiceDocumentInfoSection
               form={form}
@@ -407,7 +406,6 @@ export default function InvoiceForm({
               defaultCustomer={defaultCustomer!}
               isAdvancePayment={isAdvancePayment}
             />
-
             {/* Items (solo lectura, cargados automáticamente) */}
             <ItemsSection
               form={form}
@@ -418,12 +416,13 @@ export default function InvoiceForm({
               isFromQuotation={true}
               showActions={false}
             />
-
             {/* Configuración Adicional */}
             <AdditionalConfigSection
               form={form}
               checkbooks={checkbooks}
               isModuleCommercial={false}
+              showCardLast4={true}
+              showInternalNote={true}
             />
           </div>
 

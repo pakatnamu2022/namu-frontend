@@ -596,6 +596,8 @@ export function OrderQuotationBillingForm({
               form={form}
               checkbooks={checkbooks}
               isModuleCommercial={false}
+              showCardLast4={true}
+              showInternalNote={true}
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}

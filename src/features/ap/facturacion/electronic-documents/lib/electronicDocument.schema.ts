@@ -145,6 +145,19 @@ export const ElectronicDocumentSchema = z
       .optional(),
     codigo_unico: z.string().max(20, "Máximo 20 caracteres").optional(),
 
+    // ===== CAMPOS DE PAGO ADICIONALES =====
+    card_last4: z
+      .string()
+      .max(4, "Máximo 4 caracteres")
+      .regex(/^\d{0,4}$/, "Solo se permiten dígitos")
+      .optional()
+      .nullable(),
+    internal_note: z
+      .string()
+      .max(255, "Máximo 255 caracteres")
+      .optional()
+      .nullable(),
+
     // ===== CONFIGURACIÓN =====
     enviar_automaticamente_a_la_sunat: z.boolean().default(false),
     enviar_automaticamente_al_cliente: z.boolean().default(false),

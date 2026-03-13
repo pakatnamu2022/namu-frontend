@@ -14,6 +14,7 @@ import {
   PAYMENT_CONDITION_CREDIT,
   CREDIT_DAYS_OPTIONS,
 } from "../../lib/electronicDocument.constants";
+import { CHECKBOOKS_ID } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 import z from "zod";
 
 interface AdditionalConfigSectionProps {
@@ -21,6 +22,8 @@ interface AdditionalConfigSectionProps {
   checkbooks: ApBankResource[];
   isModuleCommercial?: boolean;
   useQuotation?: boolean;
+  showCardLast4?: boolean;
+  showInternalNote?: boolean;
 }
 
 export function AdditionalConfigSection({
@@ -28,6 +31,8 @@ export function AdditionalConfigSection({
   checkbooks,
   isModuleCommercial = true,
   useQuotation = false,
+  showCardLast4 = false,
+  showInternalNote = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
@@ -88,17 +93,19 @@ export function AdditionalConfigSection({
     ]);
   }
 
-  // Filtrar chequeras: si condiciones de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
+  // Filtrar chequeras según el medio de pago seleccionado
   const filteredCheckbooks =
     condicionesDePago === "EFECTIVO"
       ? checkbooks.filter((checkbook) =>
           checkbook.code.toUpperCase().includes("CAJ01"),
         )
-      : condicionesDePago !== "EFECTIVO"
-        ? checkbooks.filter(
-            (checkbook) => !checkbook.code.toUpperCase().includes("CAJ"),
+      : condicionesDePago === "TARJETA"
+        ? checkbooks.filter((checkbook) =>
+            Object.values(CHECKBOOKS_ID).includes(checkbook.id),
           )
-        : checkbooks;
+        : checkbooks.filter(
+            (checkbook) => !checkbook.code.toUpperCase().includes("CAJ"),
+          );
 
   const paymentMethodOptions = [
     ...(!isModuleCommercial ? [{ label: "EFECTIVO", value: "EFECTIVO" }] : []),
@@ -132,7 +139,9 @@ export function AdditionalConfigSection({
   ];
 
   const filteredFinancingTypeOptions = financingTypeOptions.filter((option) => {
-    return option.label.includes(form.watch("medio_de_pago")?.toUpperCase() || "");
+    return option.label.includes(
+      form.watch("medio_de_pago")?.toUpperCase() || "",
+    );
   });
 
   return (
@@ -226,6 +235,28 @@ export function AdditionalConfigSection({
             />
           )}
         </>
+      )}
+
+      {showCardLast4 && (
+        <FormInput
+          control={form.control}
+          name="card_last4"
+          label="Últimos 4 dígitos de tarjeta"
+          placeholder="Ej: 1234"
+          description="Últimos 4 dígitos de la tarjeta usada."
+          maxLength={4}
+        />
+      )}
+
+      {showInternalNote && (
+        <FormInput
+          control={form.control}
+          name="internal_note"
+          label="Nota interna"
+          placeholder="Nota interna..."
+          description="Nota interna (no se muestra en el documento)."
+          maxLength={255}
+        />
       )}
 
       <div className="col-span-full">

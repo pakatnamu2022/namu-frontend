@@ -116,6 +116,8 @@ export interface ElectronicDocumentResource {
   migration_status?: string;
   created_by?: number;
   updated_by?: number;
+  card_last4: string;
+  internal_note: string;
   document_type?: SunatConceptsResource;
   transaction_type?: SunatConceptsResource;
   identity_document_type?: SunatConceptsResource;

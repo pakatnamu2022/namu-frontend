@@ -110,6 +110,8 @@ function buildFormDefaults(
     enviar_automaticamente_al_cliente:
       document.enviar_automaticamente_al_cliente ?? false,
     generado_por_contingencia: document.generado_por_contingencia ?? false,
+    card_last4: document.card_last4 || "",
+    internal_note: document.internal_note || "",
     items:
       document.items?.map((item) => ({
         reference_document_id:
