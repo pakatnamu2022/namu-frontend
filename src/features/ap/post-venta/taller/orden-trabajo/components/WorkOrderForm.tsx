@@ -224,6 +224,7 @@ export const WorkOrderForm = ({
     if (!watchedIsRecall) {
       form.setValue("type_recall", undefined);
       form.setValue("description_recall", "");
+      form.trigger(["type_recall", "description_recall"]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedIsRecall]);
