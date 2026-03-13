@@ -11,6 +11,7 @@ import {
 
 interface Props {
   data: AttendancesData;
+  biweeklyDate?: string | null;
 }
 
 /** Extrae solo la parte YYYY-MM-DD de cualquier string de fecha (con o sin hora/timezone) */
@@ -57,10 +58,21 @@ const CODE_COLORS: Record<string, string> = {
   P: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300",
 };
 
-function AttendanceCell({ code }: { code?: string }) {
+function AttendanceCell({
+  code,
+  isLastOfQuincena,
+}: {
+  code?: string;
+  isLastOfQuincena?: boolean;
+}) {
+  const dividerClass = isLastOfQuincena
+    ? "border-r-2 border-r-amber-400"
+    : "";
   if (!code) {
     return (
-      <td className="px-1 py-1 text-center text-xs text-muted-foreground/30">
+      <td
+        className={`px-1 py-1 text-center text-xs text-muted-foreground/30 ${dividerClass}`}
+      >
         —
       </td>
     );
@@ -69,7 +81,7 @@ function AttendanceCell({ code }: { code?: string }) {
     CODE_COLORS[code] ??
     "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
   return (
-    <td className="px-0.5 py-1 text-center">
+    <td className={`px-0.5 py-1 text-center ${dividerClass}`}>
       <span
         className={`inline-block rounded px-1 py-0.5 text-[10px] font-semibold leading-none ${colorClass}`}
       >
@@ -100,7 +112,8 @@ function SummaryBadges({ summary }: { summary: WorkerAttendance["summary"] }) {
   );
 }
 
-export default function PayrollAttendanceTable({ data }: Props) {
+export default function PayrollAttendanceTable({ data, biweeklyDate }: Props) {
+  const biweeklyDateOnly = biweeklyDate ? toDateOnly(biweeklyDate) : null;
   const [copiedWorkerId, setCopiedWorkerId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
 
@@ -165,6 +178,37 @@ export default function PayrollAttendanceTable({ data }: Props) {
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-sm border-collapse">
           <thead>
+            {/* Quincena header row – only for biweekly periods */}
+            {biweeklyDateOnly && (() => {
+              const q1Count = dates.indexOf(biweeklyDateOnly) + 1;
+              const q2Count = dates.length - q1Count;
+              const q1End = biweeklyDateOnly.slice(8, 10) + "/" + biweeklyDateOnly.slice(5, 7);
+              const q2Start = dates[q1Count] ? dates[q1Count].slice(8, 10) + "/" + dates[q1Count].slice(5, 7) : "";
+              const q2End = dates[dates.length - 1];
+              const q2EndFmt = q2End ? q2End.slice(8, 10) + "/" + q2End.slice(5, 7) : "";
+              return (
+                <tr className="border-b">
+                  <th className="sticky left-0 z-10 bg-background px-3 py-1" />
+                  {q1Count > 0 && (
+                    <th
+                      colSpan={q1Count}
+                      className="px-1 py-1 text-center text-[10px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-50/60 dark:bg-amber-900/20 border-r-2 border-r-amber-400"
+                    >
+                      1ra Quincena · hasta {q1End}
+                    </th>
+                  )}
+                  {q2Count > 0 && (
+                    <th
+                      colSpan={q2Count}
+                      className="px-1 py-1 text-center text-[10px] font-semibold text-sky-700 dark:text-sky-400 bg-sky-50/60 dark:bg-sky-900/20"
+                    >
+                      2da Quincena · {q2Start} – {q2EndFmt}
+                    </th>
+                  )}
+                  <th className="px-3 py-1 bg-background" />
+                </tr>
+              );
+            })()}
             {/* Month row */}
             <tr className="bg-muted/50 border-b">
               <th className="sticky left-0 z-10 bg-muted/50 px-3 py-2 text-left text-sm font-semibold whitespace-nowrap min-w-[200px]">
@@ -193,14 +237,20 @@ export default function PayrollAttendanceTable({ data }: Props) {
             {/* Day numbers row */}
             <tr className="bg-muted/30 border-b">
               <th className="sticky left-0 z-10 bg-muted/30 px-3 py-1 text-left text-[10px] text-muted-foreground" />
-              {dates.map((date) => (
-                <th
-                  key={date}
-                  className="px-0.5 py-1 text-center text-[12px] text-muted-foreground w-7"
-                >
-                  {formatDay(date)}
-                </th>
-              ))}
+              {dates.map((date) => {
+                const isLastOfQuincena =
+                  biweeklyDateOnly !== null && date === biweeklyDateOnly;
+                return (
+                  <th
+                    key={date}
+                    className={`px-0.5 py-1 text-center text-[12px] text-muted-foreground w-7 ${
+                      isLastOfQuincena ? "border-r-2 border-r-amber-400" : ""
+                    }`}
+                  >
+                    {formatDay(date)}
+                  </th>
+                );
+              })}
               <th className="px-3 py-1" />
             </tr>
           </thead>
@@ -256,6 +306,9 @@ export default function PayrollAttendanceTable({ data }: Props) {
                     <AttendanceCell
                       key={date}
                       code={lookup[worker.worker_id]?.[date]}
+                      isLastOfQuincena={
+                        biweeklyDateOnly !== null && date === biweeklyDateOnly
+                      }
                     />
                   ))}
                   {/* Summary */}

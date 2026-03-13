@@ -56,6 +56,7 @@ export const PayrollPeriodForm = ({
       year: String(defaultValues.year ?? new Date().getFullYear()) as any,
       month: String(defaultValues.month ?? new Date().getMonth() + 1) as any,
       payment_date: defaultValues.payment_date ?? "",
+      biweekly_date: defaultValues.biweekly_date ?? "",
       company_id: defaultValues.company_id,
     },
     mode: "onChange",
@@ -95,6 +96,14 @@ export const PayrollPeriodForm = ({
             name="payment_date"
             label="Fecha de Pago"
             placeholder="Selecciona la fecha de pago"
+            captionLayout="dropdown"
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="biweekly_date"
+            label="Fecha de Quincena (opcional)"
+            placeholder="Selecciona la fecha de quincena"
             captionLayout="dropdown"
           />
 

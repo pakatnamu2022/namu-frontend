@@ -8,7 +8,11 @@ import {
   eachDayOfInterval,
   getDay,
   isWeekend,
+  parseISO,
+  isBefore,
+  isAfter,
 } from "date-fns";
+import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -26,6 +30,8 @@ interface WorkScheduleCalendarProps {
   schedules: WorkScheduleResource[];
   workerId: number;
   workerName: string;
+  periodStartDate?: string;
+  periodEndDate?: string;
   onAddSchedule: (date: Date) => void;
   onEditSchedule: (schedule: WorkScheduleResource) => void;
   onDeleteSchedule: (scheduleId: number) => void;
@@ -40,12 +46,28 @@ export function WorkScheduleCalendar({
   schedules,
   workerId,
   workerName,
+  periodStartDate,
+  periodEndDate,
   onAddSchedule,
   onEditSchedule,
   onDeleteSchedule,
   canModify = true,
 }: WorkScheduleCalendarProps) {
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+
+  const periodStart = useMemo(
+    () => (periodStartDate ? parseISO(periodStartDate) : null),
+    [periodStartDate],
+  );
+  const periodEnd = useMemo(
+    () => (periodEndDate ? parseISO(periodEndDate) : null),
+    [periodEndDate],
+  );
+
+  const isDayOutsidePeriod = (day: Date): boolean => {
+    if (!periodStart || !periodEnd) return false;
+    return isBefore(day, periodStart) || isAfter(day, periodEnd);
+  };
 
   const daysInMonth = useMemo(() => {
     const start = startOfMonth(new Date(year, month - 1));
@@ -83,6 +105,20 @@ export function WorkScheduleCalendar({
     const isHovered = hoveredDay === dateKey;
     const isSunday = getDay(day) === 0;
     const isSaturday = getDay(day) === 6;
+    const isOutsidePeriod = isDayOutsidePeriod(day);
+
+    if (isOutsidePeriod) {
+      return (
+        <div
+          className="w-full h-full min-h-16 p-1 rounded-md bg-muted/50 opacity-40 cursor-not-allowed"
+          title="Fuera del rango del período"
+        >
+          <div className="text-xs font-medium text-muted-foreground">
+            {format(day, "d")}
+          </div>
+        </div>
+      );
+    }
 
     if (schedule) {
       const statusOption = getStatusOption(schedule.status);
@@ -202,8 +238,20 @@ export function WorkScheduleCalendar({
 
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
-      <div className="bg-muted px-4 py-2 border-b">
+      <div className="bg-muted px-4 py-2 border-b flex items-center justify-between gap-2">
         <h3 className="font-semibold text-sm">{workerName}</h3>
+        {periodStart && periodEnd && (
+          <span className="text-xs text-muted-foreground shrink-0">
+            Período:{" "}
+            <span className="font-medium text-foreground">
+              {format(periodStart, "d MMM", { locale: es })}
+            </span>
+            {" – "}
+            <span className="font-medium text-foreground">
+              {format(periodEnd, "d MMM yyyy", { locale: es })}
+            </span>
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-7 border-b">

@@ -20,7 +20,10 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function DailyDeliveryDashboard() {
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState("hierarchy");
   const { canViewBranches } = useModulePermissions("dashboard-entregas");

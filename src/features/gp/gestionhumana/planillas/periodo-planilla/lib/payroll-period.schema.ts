@@ -1,4 +1,4 @@
-import { requiredDate } from "@/shared/lib/global.schema";
+import { optionalDate, requiredDate } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const payrollPeriodSchemaCreate = z.object({
@@ -8,6 +8,7 @@ export const payrollPeriodSchemaCreate = z.object({
     .max(2100, "El año debe ser menor a 2100"),
   month: z.coerce.number().min(1, "Mes inválido").max(12, "Mes inválido"),
   payment_date: requiredDate("La fecha de pago es requerida"),
+  biweekly_date: optionalDate(),
   company_id: z.coerce.number().min(1, "La empresa es requerida"),
 });
 

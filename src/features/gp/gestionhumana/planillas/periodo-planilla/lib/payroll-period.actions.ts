@@ -80,3 +80,12 @@ export async function closePayrollPeriod(id: number): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(`${ENDPOINT}/${id}/close`);
   return data;
 }
+
+export async function resetPayrollPeriod(
+  id: number,
+): Promise<PayrollPeriodResource> {
+  const { data } = await api.post<PayrollPeriodResource>(
+    `${ENDPOINT}/${id}/reset`,
+  );
+  return data;
+}

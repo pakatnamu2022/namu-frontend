@@ -13,18 +13,25 @@ import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.i
 import { PAYROLL_PERIOD_STATUS } from "../../periodo-planilla/lib/payroll-period.constant";
 
 export type ActiveView = "attendances" | "totals" | "report";
+export type Quincena = 1 | 2 | null;
 
 interface Props {
   periodId: number;
   periodStatus: PayrollPeriodStatus;
+  biweeklyDate?: string | null;
   activeView?: ActiveView;
   onChangeView?: (view: ActiveView) => void;
+  quincena?: Quincena;
+  onQuincenaChange?: (quincena: Quincena) => void;
   onSuccess: () => void;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodStatus,
+  biweeklyDate,
+  quincena,
+  onQuincenaChange,
   onSuccess,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -38,10 +45,12 @@ export default function PayrollCalculationToolbar({
     periodStatus === PAYROLL_PERIOD_STATUS.CLOSED ||
     hasExistingCalculations;
 
+  const hasBiweekly = Boolean(biweeklyDate);
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const response = await generatePayrollCalculations(periodId);
+      const response = await generatePayrollCalculations(periodId, quincena);
       successToast(response.message ?? "Cálculos generados correctamente");
       if (response.data.errors.length > 0) {
         response.data.errors.forEach((err) => errorToast(err));
@@ -68,7 +77,7 @@ export default function PayrollCalculationToolbar({
     setShowRecalcConfirm(false);
     setIsRecalculating(true);
     try {
-      const response = await recalculatePayrollCalculations(periodId);
+      const response = await recalculatePayrollCalculations(periodId, quincena);
       successToast(response.message ?? "Cálculos recalculados correctamente");
       if (response.data.errors.length > 0) {
         response.data.errors.forEach((err) => errorToast(err));
@@ -88,9 +97,34 @@ export default function PayrollCalculationToolbar({
     }
   };
 
+  const QUINCENA_OPTIONS: { value: Quincena; label: string }[] = [
+    { value: null, label: "Mes completo" },
+    { value: 1, label: "1ra quincena" },
+    { value: 2, label: "2da quincena" },
+  ];
+
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
+        {hasBiweekly && onQuincenaChange && (
+          <div className="flex rounded-md border overflow-hidden text-xs">
+            {QUINCENA_OPTIONS.map((opt) => (
+              <button
+                key={String(opt.value)}
+                type="button"
+                onClick={() => onQuincenaChange(opt.value)}
+                className={`px-3 py-1.5 transition-colors ${
+                  quincena === opt.value
+                    ? "bg-primary text-primary-foreground font-semibold"
+                    : "bg-background hover:bg-muted text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {!hasCalculations && (
           <Button
             variant="default"
