@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, Eye, FileText } from "lucide-react";
+import { CalendarDays, Eye, FileText } from "lucide-react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { findPayrollPeriodById } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.actions";
@@ -22,11 +21,13 @@ import { SummaryWorkerItem } from "@/features/gp/gestionhumana/planillas/calculo
 import PayrollCalculationToolbar, {
   Quincena,
 } from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
-
 import PayrollCalculationSummaryTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationSummaryTable";
 import PayrollCalculationDetailModal from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationDetailModal";
 import PayrollAttendanceTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollAttendanceTable";
 import PayrollReportTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollReportTable";
+import TitleComponent from "@/shared/components/TitleComponent";
+import PageWrapper from "@/shared/components/PageWrapper";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 
 function TableSkeleton() {
   return (
@@ -50,9 +51,7 @@ function SummarySectionSkeleton() {
 
 export default function PayrollCalculationPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
-
   const [activeTab, setActiveTab] = useState("attendances");
   const [quincena, setQuincena] = useState<Quincena>(null);
   const [selectedWorker, setSelectedWorker] =
@@ -84,6 +83,15 @@ export default function PayrollCalculationPage() {
     refetch: refetchReport,
   } = usePayrollReport(period ? period.id : null, quincena);
 
+  const hasBiweekly = Boolean(period?.biweekly_date);
+
+  // Para periodos biweekly: si el summary ya cargó, sabemos si la quincena actual tiene datos
+  const hasQuincenaCalculations = hasBiweekly
+    ? isLoadingReport
+      ? undefined
+      : !isErrorReport && (reportData?.rows.length ?? 0) > 0
+    : undefined;
+
   const handleTabChange = (tab: string) => {
     if (tab === activeTab) {
       if (tab === "totals") refetchSummary();
@@ -108,41 +116,29 @@ export default function PayrollCalculationPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <PageWrapper>
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            onClick={() => navigate(PAYROLL_PERIOD.ABSOLUTE_ROUTE)}
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <h1 className="text-lg sm:text-2xl font-bold truncate">
-              Cálculo de Nómina — {period.name}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Período: {period.code} | Estado:{" "}
-              {PAYROLL_PERIOD_STATUS_CONFIG[period.status]?.label ??
-                period.status}{" "}
-              | {format(new Date(period.start_date), "dd/MM/yyyy")} →{" "}
-              {format(new Date(period.end_date), "dd/MM/yyyy")}
-            </p>
-          </div>
-        </div>
-
-        <PayrollCalculationToolbar
-          periodId={period.id}
-          periodStatus={period.status}
-          biweeklyDate={period.biweekly_date}
-          quincena={quincena}
-          onQuincenaChange={setQuincena}
-          onSuccess={handleSuccess}
-        />
-      </div>
+      <HeaderTableWrapper>
+        <TitleComponent
+          title={`Cálculo de Nómina - ${period.name}`}
+          subtitle={`Período: ${period.code} | Estado: ${PAYROLL_PERIOD_STATUS_CONFIG[period.status]?.label ?? period.status} | ${format(
+            new Date(period.start_date),
+            "dd/MM/yyyy",
+          )} → ${format(new Date(period.end_date), "dd/MM/yyyy")}`}
+          icon="FileText"
+          backRoute={PAYROLL_PERIOD.ABSOLUTE_ROUTE}
+        >
+          <PayrollCalculationToolbar
+            periodId={period.id}
+            periodStatus={period.status}
+            biweeklyDate={period.biweekly_date}
+            quincena={quincena}
+            onQuincenaChange={setQuincena}
+            onSuccess={handleSuccess}
+            hasQuincenaCalculations={hasQuincenaCalculations}
+          />
+        </TitleComponent>
+      </HeaderTableWrapper>
 
       {/* Tabs */}
       <Tabs
@@ -251,6 +247,6 @@ export default function PayrollCalculationPage() {
           worker={selectedWorker}
         />
       )}
-    </div>
+    </PageWrapper>
   );
 }
