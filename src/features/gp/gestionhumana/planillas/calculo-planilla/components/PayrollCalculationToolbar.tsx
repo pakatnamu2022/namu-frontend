@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Calculator, RefreshCw, Loader2 } from "lucide-react";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
@@ -24,6 +25,8 @@ interface Props {
   quincena?: Quincena;
   onQuincenaChange?: (quincena: Quincena) => void;
   onSuccess: () => void;
+  /** Si se provee, sobreescribe la lógica de status para decidir si hay cálculos en la quincena actual */
+  hasQuincenaCalculations?: boolean;
 }
 
 export default function PayrollCalculationToolbar({
@@ -33,6 +36,7 @@ export default function PayrollCalculationToolbar({
   quincena,
   onQuincenaChange,
   onSuccess,
+  hasQuincenaCalculations,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -40,10 +44,16 @@ export default function PayrollCalculationToolbar({
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
 
   const isClosed = periodStatus === PAYROLL_PERIOD_STATUS.CLOSED;
-  const hasCalculations =
+  const hasCalculationsByStatus =
     periodStatus === PAYROLL_PERIOD_STATUS.CALCULATED ||
     periodStatus === PAYROLL_PERIOD_STATUS.CLOSED ||
     hasExistingCalculations;
+
+  // Si se provee hasQuincenaCalculations (no undefined), úsalo; si no, cae al status general
+  const hasCalculations =
+    hasQuincenaCalculations !== undefined
+      ? hasQuincenaCalculations
+      : hasCalculationsByStatus;
 
   const hasBiweekly = Boolean(biweeklyDate);
 
@@ -107,22 +117,19 @@ export default function PayrollCalculationToolbar({
     <>
       <div className="flex flex-wrap items-center gap-2">
         {hasBiweekly && onQuincenaChange && (
-          <div className="flex rounded-md border overflow-hidden text-xs">
+          <ButtonGroup>
             {QUINCENA_OPTIONS.map((opt) => (
-              <button
+              <Button
                 key={String(opt.value)}
                 type="button"
+                size="sm"
+                variant={quincena === opt.value ? "default" : "outline"}
                 onClick={() => onQuincenaChange(opt.value)}
-                className={`px-3 py-1.5 transition-colors ${
-                  quincena === opt.value
-                    ? "bg-primary text-primary-foreground font-semibold"
-                    : "bg-background hover:bg-muted text-foreground"
-                }`}
               >
                 {opt.label}
-              </button>
+              </Button>
             ))}
-          </div>
+          </ButtonGroup>
         )}
 
         {!hasCalculations && (
