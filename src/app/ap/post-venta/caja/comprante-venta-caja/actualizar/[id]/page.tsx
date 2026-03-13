@@ -323,23 +323,11 @@ function EditOrderQuotationPage({
 }: SubPageProps & { orderQuotationId: number }) {
   const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
 
-  const form = useForm<ElectronicDocumentSchemaType>({
-    resolver: zodResolver(ElectronicDocumentSchema) as any,
-    defaultValues: { items: [] },
-  });
-
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(orderQuotationId);
 
   const { data: document, isLoading: isLoadingDocument } =
     useElectronicDocument(documentId);
-
-  // Cargar los datos del documento existente en el formulario
-  useEffect(() => {
-    if (document) {
-      form.reset(buildFormDefaults(document));
-    }
-  }, [document, form]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
@@ -363,6 +351,69 @@ function EditOrderQuotationPage({
     onCancel();
     return <FormSkeleton />;
   }
+
+  if (!document) {
+    return <FormSkeleton />;
+  }
+
+  return (
+    <EditOrderQuotationForm
+      document={document}
+      quotation={quotation}
+      mutate={mutate}
+      isPending={isPending}
+      title={title}
+      icon={icon}
+    />
+  );
+}
+
+function EditOrderQuotationForm({
+  document,
+  quotation,
+  mutate,
+  isPending,
+  title,
+  icon,
+}: {
+  document: ElectronicDocumentResource;
+  quotation: any;
+  mutate: (data: ElectronicDocumentSchemaType) => void;
+  isPending: boolean;
+  title: string;
+  icon?: string;
+}) {
+  const form = useForm<ElectronicDocumentSchemaType>({
+    resolver: zodResolver(ElectronicDocumentSchema) as any,
+    defaultValues: buildFormDefaults(document),
+  });
+
+  const { data: sunatConcepts = [] } = useAllSunatConcepts({
+    type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
+  });
+
+  const tributeCode = useMemo(() => {
+    const docTypeId = document.sunat_concept_document_type_id.toString();
+    return sunatConcepts.find((c) => c.id.toString() === docTypeId)
+      ?.tribute_code;
+  }, [sunatConcepts, document.sunat_concept_document_type_id]);
+
+  const { data: authorizedSeries = [] } = useAuthorizedSeries({
+    type_receipt_id: tributeCode,
+  });
+
+  // Sincronizar serie: el documento guarda el string (ej. "FXX1"),
+  // el form necesita el ID numérico de la serie autorizada
+  useEffect(() => {
+    if (document && authorizedSeries.length > 0) {
+      const found = authorizedSeries.find(
+        (s: AssignSalesSeriesResource) => s.series === document.serie,
+      );
+      if (found && form.getValues("serie") !== found.id.toString()) {
+        form.setValue("serie", found.id.toString());
+      }
+    }
+  }, [document, authorizedSeries, form]);
 
   return (
     <PageWrapper>

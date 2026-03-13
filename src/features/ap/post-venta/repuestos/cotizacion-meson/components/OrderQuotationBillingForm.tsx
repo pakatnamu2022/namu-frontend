@@ -151,6 +151,7 @@ export function OrderQuotationBillingForm({
 
   // Cambiar tipo de operación según si es anticipo o no
   useEffect(() => {
+    if (isEdit) return;
     if (transactionTypes.length === 0) return;
 
     const currentValue = form.getValues("sunat_concept_transaction_type_id");
@@ -199,10 +200,12 @@ export function OrderQuotationBillingForm({
         }
       }
     }
-  }, [isAdvancePayment, transactionTypes, quotation?.advances, form]);
+  }, [isAdvancePayment, transactionTypes, quotation?.advances, form, isEdit]);
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
+    // En modo edición los datos ya vienen del documento existente
+    if (isEdit) return;
     // Esperar a que currencyTypes esté cargado antes de procesar
     if (!quotation || currencyTypes.length === 0) return;
 
@@ -245,10 +248,12 @@ export function OrderQuotationBillingForm({
         }
       }
     }
-  }, [quotation.id, currencyTypes, form, quotation]);
+  }, [quotation.id, currencyTypes, form, quotation, isEdit]);
 
   // Efecto para cargar items cuando cambia la cotización o isAdvancePayment
   useEffect(() => {
+    // En modo edición los items ya vienen del documento existente
+    if (isEdit) return;
     if (!quotation || igvTypes.length === 0) {
       return;
     }
@@ -410,6 +415,7 @@ export function OrderQuotationBillingForm({
     isAdvancePayment,
     form,
     quotation,
+    isEdit,
   ]);
 
   // Observar items para re-calcular totales cuando cambien
