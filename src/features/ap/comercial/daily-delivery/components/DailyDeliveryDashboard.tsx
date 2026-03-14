@@ -1,8 +1,6 @@
 "use client";
 
-import { FileSpreadsheet } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import {
@@ -18,9 +16,13 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cn } from "@/lib/utils";
 import TitleComponent from "@/shared/components/TitleComponent";
 import PageWrapper from "@/shared/components/PageWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 
 export default function DailyDeliveryDashboard() {
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState("hierarchy");
   const { canViewBranches } = useModulePermissions("dashboard-entregas");
@@ -32,7 +34,7 @@ export default function DailyDeliveryDashboard() {
     formattedDateFrom,
     formattedDateTo,
   );
-  const { mutate: exportToExcel, isPending: isExporting } =
+  const { mutateAsync: exportToExcel, isPending: isExporting } =
     useExportDailyDelivery();
 
   const handleDateChange = (from: Date | undefined, to: Date | undefined) => {
@@ -40,9 +42,8 @@ export default function DailyDeliveryDashboard() {
     setDateTo(to);
   };
 
-  const handleExport = () => {
+  const handleExport = () =>
     exportToExcel({ dateFrom: formattedDateFrom, dateTo: formattedDateTo });
-  };
 
   if (error) {
     return (
@@ -73,15 +74,11 @@ export default function DailyDeliveryDashboard() {
         />
 
         <div className="flex items-center gap-2">
-          <Button
-            onClick={handleExport}
-            disabled={isExporting || isLoading}
-            className="h-8 gap-1.5 text-xs"
-            size="sm"
-          >
-            <FileSpreadsheet className="h-3 w-3" />
-            {isExporting ? "Exportando..." : "Exportar"}
-          </Button>
+          <ExportButtons
+            onExcelDownload={handleExport}
+            disableExcel={isExporting || isLoading}
+            buttonVariant="default"
+          />
 
           <DateRangePickerFilter
             dateFrom={dateFrom}

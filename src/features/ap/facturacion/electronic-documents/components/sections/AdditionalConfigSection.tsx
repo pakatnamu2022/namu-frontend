@@ -1,12 +1,10 @@
-import { UseFormReturn, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { UseFormReturn } from "react-hook-form";
 import { useEffect } from "react";
 import { Settings } from "lucide-react";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { FormCombobox } from "@/shared/components/FormCombobox";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -16,7 +14,6 @@ import {
   CREDIT_DAYS_OPTIONS,
 } from "../../lib/electronicDocument.constants";
 import { CHECKBOOKS_ID } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
-import z from "zod";
 
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -44,34 +41,20 @@ export function AdditionalConfigSection({
   const isCredito = medioDePago === PAYMENT_CONDITION_CREDIT;
   const ordenCompraServicio = form.watch("orden_compra_servicio");
 
-  // Form auxiliar solo para UI - los días de crédito no se envían al backend
-  const creditDaysSchema = z.object({
-    credit_days: z
-      .string()
-      .min(1, "Requerido")
-      .refine((val) => Number.isInteger(Number(val)) && Number(val) > 0, {
-        message: "Debe ser un número entero positivo",
-      }),
-  });
-  const creditDaysForm = useForm<{ credit_days: string }>({
-    resolver: zodResolver(creditDaysSchema),
-    defaultValues: { credit_days: "" },
-    mode: "onChange",
-  });
-
   // Limpiar al cambiar a CONTADO; poner 30 días por defecto al cambiar a CREDITO
   useEffect(() => {
     if (!isCredito) {
-      creditDaysForm.reset();
+      form.setValue("credit_days", undefined);
       form.setValue("venta_al_credito", []);
       form.setValue("fecha_de_vencimiento", undefined);
     } else {
-      creditDaysForm.setValue("credit_days", "30");
+      form.setValue("credit_days", "30");
     }
-  }, [isCredito, form, creditDaysForm]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCredito]);
 
   // Recalcular fecha de vencimiento cuando cambian los días de crédito
-  const creditDaysValue = creditDaysForm.watch("credit_days");
+  const creditDaysValue = form.watch("credit_days");
   useEffect(() => {
     if (creditDaysValue) {
       handleCreditDaysChange(creditDaysValue);
@@ -84,8 +67,8 @@ export function AdditionalConfigSection({
     const total = form.getValues("total");
     if (!fechaEmision) return;
 
-    const fechaPago = new Date(fechaEmision);
-    fechaPago.setDate(fechaPago.getDate() + Number(days));
+    const [yyyyE, mmE, ddE] = String(fechaEmision).split("-").map(Number);
+    const fechaPago = new Date(yyyyE, mmE - 1, ddE + Number(days));
     const dd = String(fechaPago.getDate()).padStart(2, "0");
     const mm = String(fechaPago.getMonth() + 1).padStart(2, "0");
     const yyyy = fechaPago.getFullYear();
@@ -170,8 +153,8 @@ export function AdditionalConfigSection({
       />
       {isCredito ? (
         <>
-          <FormCombobox
-            control={creditDaysForm.control}
+          {/* <FormCombobox
+            control={form.control}
             label="Días de Crédito *"
             name="credit_days"
             options={CREDIT_DAYS_OPTIONS.map((o) => ({
@@ -181,7 +164,20 @@ export function AdditionalConfigSection({
             placeholder="Seleccione los días"
             description="La fecha de vencimiento se calculará automáticamente."
             validateCreate={(val) => /^\d+$/.test(val)}
+          /> */}
+
+          <FormSelect
+            control={form.control}
+            label="Días de Crédito *"
+            name="credit_days"
+            options={CREDIT_DAYS_OPTIONS.map((o) => ({
+              label: o.label,
+              value: o.value,
+            }))}
+            placeholder="Seleccione los días"
+            description="La fecha de vencimiento se calculará automáticamente."
           />
+
           {useQuotation && (
             <FormSelect
               control={form.control}

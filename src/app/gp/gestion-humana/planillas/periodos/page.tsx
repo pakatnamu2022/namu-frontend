@@ -17,6 +17,7 @@ import {
   closePayrollPeriod,
   deletePayrollPeriod,
   processPayrollPeriod,
+  resetPayrollPeriod,
 } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.actions";
 import {
   ERROR_MESSAGE,
@@ -40,6 +41,7 @@ export default function PayrollPeriodsPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [processId, setProcessId] = useState<number | null>(null);
   const [closeId, setCloseId] = useState<number | null>(null);
+  const [resetId, setResetId] = useState<number | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
 
@@ -94,6 +96,21 @@ export default function PayrollPeriodsPage() {
     }
   };
 
+  const handleReset = async () => {
+    if (!resetId) return;
+    try {
+      await resetPayrollPeriod(resetId);
+      await refetch();
+      successToast("Periodo reiniciado correctamente");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? "Error al reiniciar el periodo",
+      );
+    } finally {
+      setResetId(null);
+    }
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) return <div>No hay</div>;
@@ -118,6 +135,7 @@ export default function PayrollPeriodsPage() {
           onEdit: setEditId,
           onCalculate: (period) =>
             navigate(`${ABSOLUTE_ROUTE}/calcular/${period.id}`),
+          onReset: setResetId,
         })}
         data={data?.data || []}
       >
@@ -168,6 +186,19 @@ export default function PayrollPeriodsPage() {
           description="¿Estás seguro de que deseas cerrar este periodo? Esta acción no se puede deshacer."
           confirmText="Cerrar"
           cancelText="Cancelar"
+        />
+      )}
+
+      {resetId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setResetId(null)}
+          onConfirm={handleReset}
+          title="Reiniciar Periodo"
+          description="¿Estás seguro de que deseas reiniciar este periodo? Se eliminarán todos los cálculos generados y el periodo volverá al estado Abierto. Esta acción no se puede deshacer."
+          confirmText="Reiniciar"
+          cancelText="Cancelar"
+          icon="warning"
         />
       )}
 

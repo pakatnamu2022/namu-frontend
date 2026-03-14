@@ -43,6 +43,7 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
       year: data.year,
       month: data.month,
       payment_date: data.payment_date ? new Date(data.payment_date) : "",
+      biweekly_date: data.biweekly_date ? new Date(data.biweekly_date) : "",
       company_id: data.company?.id,
     };
   }

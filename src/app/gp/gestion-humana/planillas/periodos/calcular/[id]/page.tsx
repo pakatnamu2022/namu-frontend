@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, Eye, FileText } from "lucide-react";
+import { CalendarDays, Eye, FileText } from "lucide-react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { findPayrollPeriodById } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.actions";
@@ -19,12 +18,16 @@ import {
   usePayrollReport,
 } from "@/features/gp/gestionhumana/planillas/calculo-planilla/lib/payroll-calculation.hook";
 import { SummaryWorkerItem } from "@/features/gp/gestionhumana/planillas/calculo-planilla/lib/payroll-calculation.interface";
-import PayrollCalculationToolbar from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
-
+import PayrollCalculationToolbar, {
+  Quincena,
+} from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
 import PayrollCalculationSummaryTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationSummaryTable";
 import PayrollCalculationDetailModal from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationDetailModal";
 import PayrollAttendanceTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollAttendanceTable";
 import PayrollReportTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollReportTable";
+import TitleComponent from "@/shared/components/TitleComponent";
+import PageWrapper from "@/shared/components/PageWrapper";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 
 function TableSkeleton() {
   return (
@@ -36,12 +39,21 @@ function TableSkeleton() {
   );
 }
 
+function SummarySectionSkeleton() {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-10 w-full rounded-md" />
+      ))}
+    </div>
+  );
+}
+
 export default function PayrollCalculationPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
-
   const [activeTab, setActiveTab] = useState("attendances");
+  const [quincena, setQuincena] = useState<Quincena>(null);
   const [selectedWorker, setSelectedWorker] =
     useState<SummaryWorkerItem | null>(null);
 
@@ -55,23 +67,30 @@ export default function PayrollCalculationPage() {
     data: attendancesData,
     isLoading: isLoadingAttendances,
     isError: isErrorAttendances,
-  } = usePayrollAttendances(period ? period.id : null);
+  } = usePayrollAttendances(period ? period.id : null, quincena);
 
   const {
-    data: summaryResponse,
+    data: summaryData,
     isLoading: isLoadingSummary,
     isError: isErrorSummary,
     refetch: refetchSummary,
-  } = usePayrollCalculationSummary(
-    activeTab === "totals" && period ? period.id : null,
-  );
+  } = usePayrollCalculationSummary(period ? period.id : null, quincena);
 
   const {
     data: reportData,
     isLoading: isLoadingReport,
     isError: isErrorReport,
     refetch: refetchReport,
-  } = usePayrollReport(activeTab === "report" && period ? period.id : null);
+  } = usePayrollReport(period ? period.id : null, quincena);
+
+  const hasBiweekly = Boolean(period?.biweekly_date);
+
+  // Para periodos biweekly: si el summary ya cargó, sabemos si la quincena actual tiene datos
+  const hasQuincenaCalculations = hasBiweekly
+    ? isLoadingReport
+      ? undefined
+      : !isErrorReport && (reportData?.rows.length ?? 0) > 0
+    : undefined;
 
   const handleTabChange = (tab: string) => {
     if (tab === activeTab) {
@@ -96,41 +115,30 @@ export default function PayrollCalculationPage() {
     );
   }
 
-  const summary = summaryResponse?.summary ?? [];
-
   return (
-    <div className="space-y-6 p-6">
+    <PageWrapper>
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            onClick={() => navigate(PAYROLL_PERIOD.ABSOLUTE_ROUTE)}
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <h1 className="text-lg sm:text-2xl font-bold truncate">
-              Cálculo de Nómina — {period.name}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Período: {period.code} | Estado:{" "}
-              {PAYROLL_PERIOD_STATUS_CONFIG[period.status]?.label ??
-                period.status}{" "}
-              | {format(new Date(period.start_date), "dd/MM/yyyy")} →{" "}
-              {format(new Date(period.end_date), "dd/MM/yyyy")}
-            </p>
-          </div>
-        </div>
-
-        <PayrollCalculationToolbar
-          periodId={period.id}
-          periodStatus={period.status}
-          onSuccess={handleSuccess}
-        />
-      </div>
+      <HeaderTableWrapper>
+        <TitleComponent
+          title={`Cálculo de Nómina - ${period.name}`}
+          subtitle={`Período: ${period.code} | Estado: ${PAYROLL_PERIOD_STATUS_CONFIG[period.status]?.label ?? period.status} | ${format(
+            new Date(period.start_date),
+            "dd/MM/yyyy",
+          )} → ${format(new Date(period.end_date), "dd/MM/yyyy")}`}
+          icon="FileText"
+          backRoute={PAYROLL_PERIOD.ABSOLUTE_ROUTE}
+        >
+          <PayrollCalculationToolbar
+            periodId={period.id}
+            periodStatus={period.status}
+            biweeklyDate={period.biweekly_date}
+            quincena={quincena}
+            onQuincenaChange={setQuincena}
+            onSuccess={handleSuccess}
+            hasQuincenaCalculations={hasQuincenaCalculations}
+          />
+        </TitleComponent>
+      </HeaderTableWrapper>
 
       {/* Tabs */}
       <Tabs
@@ -186,26 +194,28 @@ export default function PayrollCalculationPage() {
             )}
 
             {attendancesData && (
-              <PayrollAttendanceTable data={attendancesData} />
+              <PayrollAttendanceTable
+                data={attendancesData}
+                biweeklyDate={period.biweekly_date}
+              />
             )}
           </TabsContent>
 
           <TabsContent value="totals" className="space-y-2">
             <h2 className="text-sm font-semibold text-foreground">
-              Resumen de Cálculos
+              Detalles de Cálculo
             </h2>
-
-            {isLoadingSummary && <TableSkeleton />}
-
+            {isLoadingSummary && <SummarySectionSkeleton />}
             {isErrorSummary && !isLoadingSummary && (
               <div className="py-6 text-center text-sm text-red-600 dark:text-red-400">
                 No se pudo cargar el resumen. Verifica que el período tenga
                 asistencias registradas.
               </div>
             )}
-
             {!isLoadingSummary && !isErrorSummary && (
-              <PayrollCalculationSummaryTable summary={summary} />
+              <PayrollCalculationSummaryTable
+                summary={summaryData?.summary ?? []}
+              />
             )}
           </TabsContent>
 
@@ -237,6 +247,6 @@ export default function PayrollCalculationPage() {
           worker={selectedWorker}
         />
       )}
-    </div>
+    </PageWrapper>
   );
 }

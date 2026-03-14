@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Calculator, RefreshCw, Loader2 } from "lucide-react";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
@@ -13,19 +14,29 @@ import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.i
 import { PAYROLL_PERIOD_STATUS } from "../../periodo-planilla/lib/payroll-period.constant";
 
 export type ActiveView = "attendances" | "totals" | "report";
+export type Quincena = 1 | 2 | null;
 
 interface Props {
   periodId: number;
   periodStatus: PayrollPeriodStatus;
+  biweeklyDate?: string | null;
   activeView?: ActiveView;
   onChangeView?: (view: ActiveView) => void;
+  quincena?: Quincena;
+  onQuincenaChange?: (quincena: Quincena) => void;
   onSuccess: () => void;
+  /** Si se provee, sobreescribe la lógica de status para decidir si hay cálculos en la quincena actual */
+  hasQuincenaCalculations?: boolean;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodStatus,
+  biweeklyDate,
+  quincena,
+  onQuincenaChange,
   onSuccess,
+  hasQuincenaCalculations,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -33,15 +44,23 @@ export default function PayrollCalculationToolbar({
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
 
   const isClosed = periodStatus === PAYROLL_PERIOD_STATUS.CLOSED;
-  const hasCalculations =
+  const hasCalculationsByStatus =
     periodStatus === PAYROLL_PERIOD_STATUS.CALCULATED ||
     periodStatus === PAYROLL_PERIOD_STATUS.CLOSED ||
     hasExistingCalculations;
 
+  // Si se provee hasQuincenaCalculations (no undefined), úsalo; si no, cae al status general
+  const hasCalculations =
+    hasQuincenaCalculations !== undefined
+      ? hasQuincenaCalculations
+      : hasCalculationsByStatus;
+
+  const hasBiweekly = Boolean(biweeklyDate);
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const response = await generatePayrollCalculations(periodId);
+      const response = await generatePayrollCalculations(periodId, quincena);
       successToast(response.message ?? "Cálculos generados correctamente");
       if (response.data.errors.length > 0) {
         response.data.errors.forEach((err) => errorToast(err));
@@ -68,7 +87,7 @@ export default function PayrollCalculationToolbar({
     setShowRecalcConfirm(false);
     setIsRecalculating(true);
     try {
-      const response = await recalculatePayrollCalculations(periodId);
+      const response = await recalculatePayrollCalculations(periodId, quincena);
       successToast(response.message ?? "Cálculos recalculados correctamente");
       if (response.data.errors.length > 0) {
         response.data.errors.forEach((err) => errorToast(err));
@@ -88,9 +107,31 @@ export default function PayrollCalculationToolbar({
     }
   };
 
+  const QUINCENA_OPTIONS: { value: Quincena; label: string }[] = [
+    { value: null, label: "Mes completo" },
+    { value: 1, label: "1ra quincena" },
+    { value: 2, label: "2da quincena" },
+  ];
+
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
+        {hasBiweekly && onQuincenaChange && (
+          <ButtonGroup>
+            {QUINCENA_OPTIONS.map((opt) => (
+              <Button
+                key={String(opt.value)}
+                type="button"
+                size="sm"
+                variant={quincena === opt.value ? "default" : "outline"}
+                onClick={() => onQuincenaChange(opt.value)}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        )}
+
         {!hasCalculations && (
           <Button
             variant="default"

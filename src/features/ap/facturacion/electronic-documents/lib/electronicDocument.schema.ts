@@ -132,6 +132,7 @@ export const ElectronicDocumentSchema = z
     observaciones: z.string().max(1000, "Máximo 1000 caracteres").optional(),
     medio_de_pago: z.string().min(1, "Condiciones de pago requeridas"),
     condiciones_de_pago: z.string().optional(),
+    credit_days: z.string().optional(),
     bank_id: optionalStringId("Chequera es inválida"),
     operation_number: z
       .string()

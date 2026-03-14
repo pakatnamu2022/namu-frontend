@@ -126,6 +126,8 @@ export interface AttendancePeriodInfo {
   period_name: string;
   start_date: string;
   end_date: string;
+  biweekly_date?: string | null;
+  quincena?: 1 | 2 | null;
   total_workers: number;
 }
 
