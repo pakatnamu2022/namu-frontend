@@ -43,6 +43,7 @@ export default function Header() {
           <div className="flex lg:hidden items-center justify-center">
             {mounted && <LogoLink theme={theme} />}
           </div>
+
           <ProfileHeader />
         </div>
       </div>

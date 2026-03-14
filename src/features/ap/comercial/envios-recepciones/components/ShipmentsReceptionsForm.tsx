@@ -210,8 +210,10 @@ export const ShipmentsReceptionsForm = ({
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
   const watchTransferModalityId = form.watch("transfer_modality_id");
-  const isPrivateTransport = watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
-  const isPublicTransport = watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
+  const isPrivateTransport =
+    watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+  const isPublicTransport =
+    watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
 
   const {
     data: conductorDniData,
@@ -219,7 +221,10 @@ export const ShipmentsReceptionsForm = ({
     error: conductorDniError,
   } = useLicenseValidation(
     conductorDni,
-    isPrivateTransport && !isFirstLoad && !!conductorDni && conductorDni.length === 8,
+    isPrivateTransport &&
+      !isFirstLoad &&
+      !!conductorDni &&
+      conductorDni.length === 8,
   );
 
   const { data: nextDocumentNumber } = useNextShippingGuideDocumentNumber(
@@ -242,6 +247,7 @@ export const ShipmentsReceptionsForm = ({
       warehouse$is_received: vehiclesIsReceived,
       warehouse$ap_class_article_id: watchArticleClassId,
       model$class_id: watchArticleClassId,
+      is_received: 0,
     });
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
@@ -1189,7 +1195,9 @@ export const ShipmentsReceptionsForm = ({
                   <ValidationIndicator
                     show={!!conductorDni}
                     isValidating={isConductorDniLoading}
-                    isValid={conductorDniData?.success && !!conductorDniData.data}
+                    isValid={
+                      conductorDniData?.success && !!conductorDniData.data
+                    }
                     hasError={
                       !!conductorDniError ||
                       (conductorDniData && !conductorDniData.success)

@@ -3,6 +3,7 @@ export interface NotificationResource {
   title: string;
   body: string;
   type: string;
+  route?: string;
   data: Record<string, any>;
   read_at: string | null;
   is_read: boolean;
