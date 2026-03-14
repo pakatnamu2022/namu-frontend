@@ -24,6 +24,7 @@ interface AdditionalConfigSectionProps {
   useQuotation?: boolean;
   showCardLast4?: boolean;
   showInternalNote?: boolean;
+  showOrdenCompraServicio?: boolean;
 }
 
 export function AdditionalConfigSection({
@@ -33,6 +34,7 @@ export function AdditionalConfigSection({
   useQuotation = false,
   showCardLast4 = false,
   showInternalNote = false,
+  showOrdenCompraServicio = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
@@ -162,7 +164,6 @@ export function AdditionalConfigSection({
         placeholder="Seleccione una opción"
         description="Condiciones de pago del documento."
       />
-
       {isCredito ? (
         <>
           <FormCombobox
@@ -236,7 +237,6 @@ export function AdditionalConfigSection({
           )}
         </>
       )}
-
       {showCardLast4 && (
         <FormInput
           control={form.control}
@@ -247,7 +247,6 @@ export function AdditionalConfigSection({
           maxLength={4}
         />
       )}
-
       {showInternalNote && (
         <FormInput
           control={form.control}
@@ -255,6 +254,16 @@ export function AdditionalConfigSection({
           label="Nota interna"
           placeholder="Nota interna..."
           description="Nota interna (no se muestra en el documento)."
+          maxLength={255}
+        />
+      )}
+      {showOrdenCompraServicio && (
+        <FormInput
+          control={form.control}
+          name="orden_compra_servicio"
+          label="Orden de compra/servicio"
+          placeholder="Orden de compra o servicio..."
+          description="Número de orden de compra o servicio relacionado (opcional)."
           maxLength={255}
         />
       )}

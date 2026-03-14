@@ -28,12 +28,15 @@ import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/com
 import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
 import {
   AREA_MESON,
+  AREA_POSTVENTA,
   AREA_TALLER,
 } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useNavigate } from "react-router-dom";
 
 export default function SalesReceiptsCajaPage() {
-  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
+  const router = useNavigate();
+  const { ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = ELECTRONIC_DOCUMENT_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const [sedeId, setSedeId] = useState<string>("");
@@ -63,7 +66,7 @@ export default function SalesReceiptsCajaPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: [AREA_TALLER, AREA_MESON], // Filtrar por ambas áreas
+    area_id: [AREA_TALLER, AREA_MESON, AREA_POSTVENTA], // Filtrar por ambas áreas
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
@@ -141,6 +144,7 @@ export default function SalesReceiptsCajaPage() {
           icon={currentView.icon}
         />
         <SalesReceiptsActions
+          onOtherSalesClick={() => router(`${ROUTE_ADD}-otros`)}
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
         />

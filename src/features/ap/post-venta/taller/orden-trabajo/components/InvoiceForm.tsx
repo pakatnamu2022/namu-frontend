@@ -21,7 +21,6 @@ import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-do
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WorkOrderFinancialInfo } from "./WorkOrderFinancialInfo";
-import { FormDebugPanel } from "@/shared/components/FormDebugPanel";
 
 interface InvoiceFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -443,12 +442,6 @@ export default function InvoiceForm({
             advancePayments={advances}
             labours={labours}
             parts={parts}
-          />
-
-          <FormDebugPanel
-            form={form}
-            isSubmitting={isPending}
-            show={true} // Solo en desarrollo o le puedes poner True
           />
         </div>
       </form>
