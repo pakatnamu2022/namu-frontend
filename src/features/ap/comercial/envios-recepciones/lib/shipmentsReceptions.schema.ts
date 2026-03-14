@@ -231,6 +231,7 @@ export const receptionChecklistSchemaUpdate = z.object({
   general_observations: z.string().max(1000).optional(),
   items_receiving: z.record(z.string(), z.string()),
   damages: z.array(receptionChecklistDamageSchema).default([]),
+  has_pdi: z.boolean().default(false),
 });
 
 export type ReceptionChecklistSchema = z.infer<

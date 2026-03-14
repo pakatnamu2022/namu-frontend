@@ -39,6 +39,7 @@ import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
 import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -82,6 +83,11 @@ export default function ShipmentsReceptionsPage() {
     issue_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
     send_dynamics: 1,
+    transfer_reason_id: [
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
+    ],
   });
 
   const handleDelete = async () => {

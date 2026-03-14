@@ -73,6 +73,7 @@ export const ReceptionChecklistForm = ({
       items_receiving: {},
       kilometers: "",
       damages: [],
+      has_pdi: false,
     },
     mode: "onChange",
   });
@@ -263,6 +264,31 @@ export const ReceptionChecklistForm = ({
                 placeholder="Ingresa el kilometraje"
                 type="number"
                 required
+              />
+              <FormField
+                control={form.control}
+                name="has_pdi"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center gap-2 pt-1">
+                        <Switch
+                          id="has-pdi-switch"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                        <Label
+                          htmlFor="has-pdi-switch"
+                          className="text-xs font-semibold cursor-pointer uppercase tracking-wide font-mono"
+                        >
+                          ¿Llega con PDI?
+                        </Label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </GroupFormSection>
           </div>

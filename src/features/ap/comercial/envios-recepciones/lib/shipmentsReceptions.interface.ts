@@ -196,6 +196,7 @@ export interface ReceptionChecklistRequest {
   photo_right?: File | null;
   items_receiving: Record<string, string>;
   damages?: ReceptionChecklistDamageRequest[];
+  has_pdi: boolean;
 }
 
 // Respuesta de Nubefact

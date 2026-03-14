@@ -11,7 +11,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -97,7 +96,7 @@ export default function NotificationBell() {
           )}
         </div>
         <Separator />
-        <ScrollArea className="h-[360px]">
+        <div className="max-h-[360px] overflow-y-auto">
           {isLoading ? (
             <div className="px-3 py-2 space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -117,12 +116,15 @@ export default function NotificationBell() {
             <div>
               {notifications.map((notification, index) => (
                 <div key={notification.id}>
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     className={cn(
-                      "w-full text-left px-3 py-2.5 hover:bg-muted/50 transition-colors group relative",
+                      "w-full text-left px-3 py-2.5 hover:bg-muted/50 transition-colors group relative cursor-pointer",
                       !notification.is_read && "bg-muted/30",
                     )}
                     onClick={() => handleNotificationClick(notification)}
+                    onKeyDown={(e) => e.key === "Enter" && handleNotificationClick(notification)}
                   >
                     <div className="flex items-start gap-2 pr-6">
                       {!notification.is_read && (
@@ -158,7 +160,7 @@ export default function NotificationBell() {
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
-                  </button>
+                  </div>
                   {index < notifications.length - 1 && (
                     <Separator className="opacity-30" />
                   )}
@@ -166,7 +168,7 @@ export default function NotificationBell() {
               ))}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </PopoverContent>
     </Popover>
   );

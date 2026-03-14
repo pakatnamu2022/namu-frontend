@@ -273,7 +273,7 @@ export const ShipmentsReceptionsForm = ({
     });
 
   // Determinar is_received para sedes según el motivo de traslado
-  // Si es COMPRA (id: 19): is_received = 0 (almacenes que no han recibido)
+  // Si es COMPRA (id: 15): is_received = 0 (almacenes que no han recibido)
   // Si NO es COMPRA: is_received = 1 (almacenes de recepción internos)
   const sedesIsReceived =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ? 0 : 1;
@@ -309,9 +309,13 @@ export const ShipmentsReceptionsForm = ({
     });
 
   // Distribuir los conceptos según el tipo
-  const reasonTransfer = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON,
-  );
+  const reasonTransfer = sunatConcepts.filter((concept) => {
+    return [
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
+    ].includes(concept.id.toString());
+  });
 
   const typeTransportation = sunatConcepts.filter(
     (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION,
