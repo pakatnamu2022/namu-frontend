@@ -63,7 +63,7 @@ import {
   CommandList,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   AT_WORK_WORK_ORDER_ID,
@@ -437,6 +437,8 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
+    // Si ya hay un slot seleccionado, no permitir reposicionar sin usar el botón "Mover"
+    if (selectedTime) return;
 
     const lastEnd = getLastBlockEnd(workerPlannings);
 
@@ -491,9 +493,8 @@ export function WorkerTimeline({
       const deltaHours = deltaFraction * totalWorkHours;
 
       let newHours = Math.max(0.5, dragStartHoursRef.current + deltaHours);
-      // Redondear a 1 minuto (aprox 0.02h), mostrar máximo 2 decimales
+      // Redondear a 1 minuto exacto
       newHours = Math.round(newHours * 60) / 60;
-      newHours = Math.round(newHours * 100) / 100;
 
       onEstimatedHoursChange?.(newHours);
     };
@@ -514,6 +515,8 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
+    // Si ya hay un slot seleccionado, no mostrar hover (solo se mueve con el botón)
+    if (selectedTime) return;
 
     const lastEnd = getLastBlockEnd(workerPlannings);
 
@@ -662,7 +665,7 @@ export function WorkerTimeline({
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={estimatedHours}
+                  value={Number(estimatedHours.toFixed(2))}
                   onChange={(e) =>
                     onEstimatedHoursChange(
                       Math.round(Number(e.target.value) * 100) / 100,
@@ -1298,18 +1301,31 @@ export function WorkerTimeline({
                         <>
                           {/* Segmento mañana */}
                           <div
-                            className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
                             style={{
                               left: `${startPos}%`,
                               width: `${morningEndPos - startPos}%`,
                             }}
                           >
-                            <div className="flex items-center justify-center h-full">
+                            <div className="flex items-center justify-center h-full pointer-events-none">
                               <span className="text-xs font-bold text-black">
                                 {format(selectedTime.time, "HH:mm")} -{" "}
                                 {format(lunchStartDate, "HH:mm")}
                               </span>
                             </div>
+                            {/* Botón mover */}
+                            <button
+                              className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTime(null);
+                                setHoveredSlot(null);
+                              }}
+                            >
+                              <MoveHorizontal className="h-3 w-3" />
+                              Mover
+                            </button>
                           </div>
                           {/* Segmento tarde */}
                           <div
@@ -1368,17 +1384,30 @@ export function WorkerTimeline({
                         <>
                           {/* Segmento dentro del horario (azul) */}
                           <div
-                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30 pointer-events-none"
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
                             style={{
                               left: `${startPos}%`,
                               width: `${afternoonEndPos - startPos}%`,
                             }}
                           >
-                            <div className="flex items-center justify-center h-full">
+                            <div className="flex items-center justify-center h-full pointer-events-none">
                               <span className="text-xs font-bold text-black">
                                 {format(selectedTime.time, "HH:mm")} - 18:00
                               </span>
                             </div>
+                            {/* Botón mover */}
+                            <button
+                              className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTime(null);
+                                setHoveredSlot(null);
+                              }}
+                            >
+                              <MoveHorizontal className="h-3 w-3" />
+                              Mover
+                            </button>
                           </div>
                           {/* Segmento overflow (naranja, hasta el borde del timeline) */}
                           <div
@@ -1420,12 +1449,25 @@ export function WorkerTimeline({
                           width: `${endPos - startPos}%`,
                         }}
                       >
-                        <div className="flex items-center justify-center h-full pointer-events-none">
+                        <div className="flex items-center justify-center gap-2 h-full pointer-events-none">
                           <span className="text-xs font-bold text-black">
                             {format(selectedTime.time, "HH:mm")} -{" "}
                             {format(endTime, "HH:mm")}
                           </span>
                         </div>
+                        {/* Botón mover */}
+                        <button
+                          className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTime(null);
+                            setHoveredSlot(null);
+                          }}
+                        >
+                          <MoveHorizontal className="h-3 w-3" />
+                          Mover
+                        </button>
                         {/* Handle de resize */}
                         <div
                           className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"

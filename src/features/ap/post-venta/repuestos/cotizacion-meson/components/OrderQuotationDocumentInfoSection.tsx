@@ -9,7 +9,10 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useMemo } from "react";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
@@ -49,7 +52,21 @@ export function OrderQuotationDocumentInfoSection({
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
-  >(defaultCustomer);
+  >(undefined);
+
+  // Observar cambios en el cliente
+  const clientId = form.watch("client_id");
+
+  // En modo edición, el cliente real viene del client_id del form (documento existente),
+  // no del defaultCustomer (que es el cliente de la cotización y puede ser distinto)
+  const { data: customerFromApi } = useCustomersById(
+    isEdit && clientId ? Number(clientId) : 0,
+  );
+
+  // Resolver el cliente efectivo: en edición usar el de la API, sino el estado local o defaultCustomer
+  const effectiveCustomer = isEdit
+    ? customerFromApi
+    : (selectedCustomer ?? defaultCustomer);
 
   // Crear defaultOption desde lockedClient o defaultCustomer
   const defaultOption = useMemo(() => {
@@ -84,9 +101,6 @@ export function OrderQuotationDocumentInfoSection({
       return authorizedSeries.filter((series) => series.is_advance === false);
     }
   }, [authorizedSeries, isAdvancePayment]);
-
-  // Observar cambios en el cliente
-  const clientId = form.watch("client_id");
 
   // Setear el cliente por defecto cuando se monta el componente
   useEffect(() => {
@@ -133,9 +147,32 @@ export function OrderQuotationDocumentInfoSection({
       return type.id === SUNAT_TYPE_INVOICES_ID.BOLETA;
     }
 
-    if (!selectedCustomer) return true; // Si no hay cliente seleccionado, mostrar todos
+    if (!effectiveCustomer) return true; // Si no hay cliente seleccionado, mostrar todos
 
-    const documentTypeId = selectedCustomer.document_type_id;
+    const documentTypeId = effectiveCustomer.document_type_id;
+
+    console.log(
+      "Filtrando tipos de documento para cliente:",
+      effectiveCustomer.full_name,
+      "con document_type_id:",
+      documentTypeId,
+      "-> Tipos válidos:",
+      documentTypes
+        .filter((t) => {
+          // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
+          if (Number(documentTypeId) === 810) {
+            return t.id === SUNAT_TYPE_INVOICES_ID.FACTURA;
+          }
+          // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
+          if (Number(documentTypeId) === 809) {
+            return t.id === SUNAT_TYPE_INVOICES_ID.BOLETA;
+          }
+          // Para otros tipos de documento, mostrar todos
+          return true;
+        })
+        .map((t) => t.description)
+        .join(", "),
+    );
 
     // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
     if (Number(documentTypeId) === 810) {
@@ -153,7 +190,13 @@ export function OrderQuotationDocumentInfoSection({
 
   // Validar y limpiar tipo de documento cuando cambia el cliente
   useEffect(() => {
-    if (!selectedCustomer) return;
+    if (!effectiveCustomer) return;
+    console.log(
+      "Validando tipo de documento:",
+      filteredDocumentTypes.map((t) => t.id),
+    );
+    // Si la lista de tipos aún no cargó, no limpiar nada
+    if (filteredDocumentTypes.length === 0) return;
 
     const currentDocumentTypeId = form.getValues(
       "sunat_concept_document_type_id",
@@ -171,10 +214,11 @@ export function OrderQuotationDocumentInfoSection({
         form.setValue("serie", ""); // También limpiar la serie ya que depende del tipo
       }
     }
-  }, [selectedCustomer, filteredDocumentTypes, form]);
+  }, [isEdit, effectiveCustomer, filteredDocumentTypes, form]);
 
   // Validar y limpiar serie cuando cambia isAdvancePayment
   useEffect(() => {
+    if (isEdit) return;
     const currentSerieId = form.getValues("serie");
 
     // Si hay una serie seleccionada, verificar si sigue siendo válida
@@ -188,7 +232,7 @@ export function OrderQuotationDocumentInfoSection({
         form.setValue("serie", "");
       }
     }
-  }, [isAdvancePayment, filteredSeries, form]);
+  }, [isEdit, isAdvancePayment, filteredSeries, form]);
 
   return (
     <>
@@ -223,6 +267,7 @@ export function OrderQuotationDocumentInfoSection({
             placeholder="Seleccionar cliente"
             control={form.control}
             useQueryHook={useCustomers}
+            useFindByIdHook={useCustomersById}
             mapOptionFn={(customer) => ({
               value: customer.id.toString(),
               label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
@@ -236,7 +281,7 @@ export function OrderQuotationDocumentInfoSection({
             }
             perPage={10}
             debounceMs={500}
-            disabled={isEdit || !!lockedClientId}
+            disabled={!!lockedClientId}
             defaultOption={defaultOption}
             onValueChange={(_, customer) => {
               // Actualizar el estado con el cliente seleccionado

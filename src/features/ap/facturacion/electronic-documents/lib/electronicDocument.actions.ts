@@ -92,6 +92,45 @@ export async function storeElectronicDocument(
   return response.data;
 }
 
+function appendToFormData(formData: FormData, key: string, value: unknown) {
+  if (value === undefined || value === null) return;
+  if (value instanceof File) {
+    formData.append(key, value);
+  } else if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      appendToFormData(formData, `${key}[${index}]`, item);
+    });
+  } else if (typeof value === "object") {
+    Object.entries(value as Record<string, unknown>).forEach(([k, v]) => {
+      appendToFormData(formData, `${key}[${k}]`, v);
+    });
+  } else {
+    formData.append(key, String(value));
+  }
+}
+
+export async function storeOtherSalesDocument(
+  data: ElectronicDocumentSchema,
+): Promise<ElectronicDocumentResource> {
+  const { orden_compra_servicio_file, ...rest } = data;
+  const formData = new FormData();
+
+  Object.entries(rest).forEach(([key, value]) => {
+    appendToFormData(formData, key, value);
+  });
+
+  if (orden_compra_servicio_file instanceof File) {
+    formData.append("orden_compra_servicio_file", orden_compra_servicio_file);
+  }
+
+  const response = await api.post<ElectronicDocumentResource>(
+    ENDPOINT,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data;
+}
+
 export async function updateElectronicDocument(
   id: number,
   data: ElectronicDocumentSchema,

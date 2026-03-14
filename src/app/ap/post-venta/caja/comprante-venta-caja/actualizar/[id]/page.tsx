@@ -44,7 +44,13 @@ import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/che
 // Work order
 import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import InvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceForm";
-import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  AREA_TALLER,
+  AREA_POSTVENTA,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
+
+// Other sales (post-venta general)
+import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm";
 
 // Order quotation
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
@@ -110,6 +116,8 @@ function buildFormDefaults(
     enviar_automaticamente_al_cliente:
       document.enviar_automaticamente_al_cliente ?? false,
     generado_por_contingencia: document.generado_por_contingencia ?? false,
+    card_last4: document.card_last4 || "",
+    internal_note: document.internal_note || "",
     items:
       document.items?.map((item) => ({
         reference_document_id:
@@ -321,23 +329,11 @@ function EditOrderQuotationPage({
 }: SubPageProps & { orderQuotationId: number }) {
   const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
 
-  const form = useForm<ElectronicDocumentSchemaType>({
-    resolver: zodResolver(ElectronicDocumentSchema) as any,
-    defaultValues: { items: [] },
-  });
-
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(orderQuotationId);
 
   const { data: document, isLoading: isLoadingDocument } =
     useElectronicDocument(documentId);
-
-  // Cargar los datos del documento existente en el formulario
-  useEffect(() => {
-    if (document) {
-      form.reset(buildFormDefaults(document));
-    }
-  }, [document, form]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
@@ -361,6 +357,69 @@ function EditOrderQuotationPage({
     onCancel();
     return <FormSkeleton />;
   }
+
+  if (!document) {
+    return <FormSkeleton />;
+  }
+
+  return (
+    <EditOrderQuotationForm
+      document={document}
+      quotation={quotation}
+      mutate={mutate}
+      isPending={isPending}
+      title={title}
+      icon={icon}
+    />
+  );
+}
+
+function EditOrderQuotationForm({
+  document,
+  quotation,
+  mutate,
+  isPending,
+  title,
+  icon,
+}: {
+  document: ElectronicDocumentResource;
+  quotation: any;
+  mutate: (data: ElectronicDocumentSchemaType) => void;
+  isPending: boolean;
+  title: string;
+  icon?: string;
+}) {
+  const form = useForm<ElectronicDocumentSchemaType>({
+    resolver: zodResolver(ElectronicDocumentSchema) as any,
+    defaultValues: buildFormDefaults(document),
+  });
+
+  const { data: sunatConcepts = [] } = useAllSunatConcepts({
+    type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
+  });
+
+  const tributeCode = useMemo(() => {
+    const docTypeId = document.sunat_concept_document_type_id.toString();
+    return sunatConcepts.find((c) => c.id.toString() === docTypeId)
+      ?.tribute_code;
+  }, [sunatConcepts, document.sunat_concept_document_type_id]);
+
+  const { data: authorizedSeries = [] } = useAuthorizedSeries({
+    type_receipt_id: tributeCode,
+  });
+
+  // Sincronizar serie: el documento guarda el string (ej. "FXX1"),
+  // el form necesita el ID numérico de la serie autorizada
+  useEffect(() => {
+    if (document && authorizedSeries.length > 0) {
+      const found = authorizedSeries.find(
+        (s: AssignSalesSeriesResource) => s.series === document.serie,
+      );
+      if (found && form.getValues("serie") !== found.id.toString()) {
+        form.setValue("serie", found.id.toString());
+      }
+    }
+  }, [document, authorizedSeries, form]);
 
   return (
     <PageWrapper>
@@ -529,6 +588,157 @@ function EditElectronicDocumentPage({
   );
 }
 
+// ─── Sub-page: Other Sales / Post-Venta (OtherSalesForm) ─────────────────────
+
+/**
+ * Edición de documentos de venta general del área Post-Venta (area_id = AREA_POSTVENTA)
+ * sin entidad vinculada (sin work_order_id ni order_quotation_id).
+ */
+function EditOtherSalesPage({
+  documentId,
+  onSuccess,
+  onCancel,
+  title,
+  icon,
+}: SubPageProps) {
+  const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
+
+  const form = useForm<ElectronicDocumentSchemaType>({
+    resolver: zodResolver(ElectronicDocumentSchema) as any,
+    defaultValues: {
+      area_id: AREA_POSTVENTA.toString(),
+      is_advance_payment: false,
+      items: [],
+    },
+  });
+
+  const { data: document, isLoading: isLoadingDocument } =
+    useElectronicDocument(documentId);
+
+  const { data: sunatConcepts = [], isLoading: isLoadingSunat } =
+    useAllSunatConcepts({
+      type: [
+        SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
+        SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT,
+        SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+        SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
+      ],
+    });
+
+  const documentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+      ),
+    [sunatConcepts],
+  );
+  const transactionTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
+      ),
+    [sunatConcepts],
+  );
+  const identityDocumentTypes = useMemo(
+    () =>
+      sunatConcepts.filter((c) => c.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT),
+    [sunatConcepts],
+  );
+  const currencyTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+      ),
+    [sunatConcepts],
+  );
+  const igvTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+      ),
+    [sunatConcepts],
+  );
+  const creditNoteTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
+      ),
+    [sunatConcepts],
+  );
+  const debitNoteTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const { data: authorizedSeries = [] } = useAuthorizedSeries({});
+
+  // Cargar datos del documento en el formulario
+  useEffect(() => {
+    if (document) {
+      form.reset(buildFormDefaults(document));
+    }
+  }, [document, form]);
+
+  // Sincronizar serie string → ID numérico
+  useEffect(() => {
+    if (document && authorizedSeries.length > 0) {
+      const found = authorizedSeries.find(
+        (s: AssignSalesSeriesResource) => s.series === document.serie,
+      );
+      if (found && form.getValues("serie") !== found.id.toString()) {
+        form.setValue("serie", found.id.toString());
+      }
+    }
+  }, [document, authorizedSeries, form]);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: ElectronicDocumentSchemaType) =>
+      updateElectronicDocument(documentId, data),
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      onSuccess();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    },
+  });
+
+  if (isLoadingDocument || isLoadingSunat) {
+    return <FormSkeleton />;
+  }
+
+  if (!document) {
+    onCancel();
+    return <FormSkeleton />;
+  }
+
+  return (
+    <PageWrapper>
+      <TitleFormComponent title={title} mode="edit" icon={icon as any} />
+      <OtherSalesForm
+        form={form}
+        onSubmit={(data) => mutate(data)}
+        isPending={isPending}
+        isEdit={true}
+        documentTypes={documentTypes}
+        transactionTypes={transactionTypes}
+        identityDocumentTypes={identityDocumentTypes}
+        currencyTypes={currencyTypes}
+        igvTypes={igvTypes}
+        creditNoteTypes={creditNoteTypes}
+        debitNoteTypes={debitNoteTypes}
+      />
+    </PageWrapper>
+  );
+}
+
 // ─── Root page: dispatcher ────────────────────────────────────────────────────
 
 export default function UpdateSalesReceiptsCajaPage() {
@@ -584,6 +794,10 @@ export default function UpdateSalesReceiptsCajaPage() {
         orderQuotationId={document.order_quotation_id}
       />
     );
+  }
+
+  if (document.area_id === AREA_POSTVENTA) {
+    return <EditOtherSalesPage {...sharedProps} />;
   }
 
   // Fallback: formulario genérico (purchase_request_quote_id u otros)

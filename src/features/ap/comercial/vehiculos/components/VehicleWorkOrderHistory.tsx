@@ -15,8 +15,6 @@ import {
   Clock,
   AlertCircle,
   Wrench,
-  ChevronDown,
-  ChevronUp,
   ShieldCheck,
   RotateCcw,
   Package,
@@ -171,7 +169,6 @@ const TimelineCard = ({
   item: VehicleWorkOrderHistoryItem;
   isLast: boolean;
 }) => {
-  const [expanded, setExpanded] = useState(false);
   const cfg = getStatusConfig(item.status);
   const hasWorks = item.works_performed.length > 0;
   const hasParts = item.parts_used.length > 0;
@@ -250,31 +247,20 @@ const TimelineCard = ({
 
           {hasWorks && (
             <>
-              <button
-                onClick={() => setExpanded((v) => !v)}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/40 transition-colors border-t border-border/50"
-              >
-                <span className="flex items-center gap-1.5">
+              <div className="border-t border-border/50 px-3 py-2">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                   <Wrench className="size-3" />
                   {item.works_performed.length}{" "}
                   {item.works_performed.length === 1
                     ? "trabajo realizado"
                     : "trabajos realizados"}
                 </span>
-                {expanded ? (
-                  <ChevronUp className="size-3.5" />
-                ) : (
-                  <ChevronDown className="size-3.5" />
-                )}
-              </button>
-
-              {expanded && (
-                <div className="px-3 pb-2">
-                  {item.works_performed.map((w, i) => (
-                    <WorkItem key={i} work={w} />
-                  ))}
-                </div>
-              )}
+              </div>
+              <div className="px-3 pb-2">
+                {item.works_performed.map((w, i) => (
+                  <WorkItem key={i} work={w} />
+                ))}
+              </div>
             </>
           )}
 

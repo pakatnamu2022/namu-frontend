@@ -66,8 +66,9 @@ export default function WorkOrderReceptionPage() {
         WORK_ORDER_STATUS_ID.RECEPCIONADO,
         WORK_ORDER_STATUS_ID.EN_TRABAJO,
         WORK_ORDER_STATUS_ID.TERMINADO,
-        WORK_ORDER_STATUS_ID.CERRADO,
       ],
+      sort: "estimated_delivery_date",
+      direction: "asc",
     },
   });
 
