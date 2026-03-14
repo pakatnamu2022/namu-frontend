@@ -190,15 +190,6 @@ export const ShipmentsReceptionsForm = ({
     setSelectedDestinationEstablishment,
   ] = useState<EstablishmentsResource | null>(null);
 
-  const {
-    data: conductorDniData,
-    isLoading: isConductorDniLoading,
-    error: conductorDniError,
-  } = useLicenseValidation(
-    conductorDni,
-    !isFirstLoad && !!conductorDni && conductorDni.length === 8,
-  );
-
   // Estados para almacenar el proveedor/cliente seleccionado
   const [selectedSupplier, setSelectedSupplier] = useState<{
     id: number;
@@ -218,6 +209,18 @@ export const ShipmentsReceptionsForm = ({
   const watchSedeTransmitterId = form.watch("sede_transmitter_id");
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
+  const watchTransferModalityId = form.watch("transfer_modality_id");
+  const isPrivateTransport = watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+  const isPublicTransport = watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
+
+  const {
+    data: conductorDniData,
+    isLoading: isConductorDniLoading,
+    error: conductorDniError,
+  } = useLicenseValidation(
+    conductorDni,
+    isPrivateTransport && !isFirstLoad && !!conductorDni && conductorDni.length === 8,
+  );
 
   const { data: nextDocumentNumber } = useNextShippingGuideDocumentNumber(
     mode === "create" && watchIssuerType === "SYSTEM" && watchDocumentSeriesId
@@ -488,6 +491,19 @@ export const ShipmentsReceptionsForm = ({
       }
     }
   }, [conductorDniData, isFirstLoad]);
+
+  // Limpiar campos al cambiar modalidad de transporte
+  useEffect(() => {
+    if (isPublicTransport) {
+      form.setValue("driver_doc", "", { shouldValidate: true });
+      form.setValue("license", "", { shouldValidate: true });
+      form.setValue("driver_name", "", { shouldValidate: true });
+      form.setValue("plate", "", { shouldValidate: true });
+    } else if (isPrivateTransport) {
+      form.setValue("transport_company_id", "", { shouldValidate: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchTransferModalityId]);
 
   // UseEffect para setear sedes cuando se selecciona una serie (Automotores)
   useEffect(() => {
@@ -1134,83 +1150,81 @@ export const ShipmentsReceptionsForm = ({
             </div>
           </div>
 
-          <div className="col-span-full">
-            <FormSelect
-              name="transport_company_id"
-              label="Empresa Transporte"
-              placeholder="Selecciona empresa"
-              options={suppliers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-            />
-          </div>
+          {isPublicTransport && (
+            <div className="col-span-full">
+              <FormSelect
+                name="transport_company_id"
+                label="Empresa Transporte"
+                placeholder="Selecciona empresa"
+                options={suppliers.map((item) => ({
+                  label: item.full_name,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
+            </div>
+          )}
 
-          <FormInput
-            control={form.control}
-            name="driver_doc"
-            label={
-              <div className="flex items-center gap-2 relative">
-                DNI del Conductor
-                <DocumentValidationStatus
-                  shouldValidate={true}
-                  documentNumber={conductorDni || ""}
-                  expectedDigits={8}
-                  isValidating={isConductorDniLoading}
-                  leftPosition="right-0"
-                />
-              </div>
-            }
-            placeholder="Ej: ABC-123"
-            maxLength={8}
-            addonEnd={
-              <ValidationIndicator
-                show={!!conductorDni}
-                isValidating={isConductorDniLoading}
-                isValid={conductorDniData?.success && !!conductorDniData.data}
-                hasError={
-                  !!conductorDniError ||
-                  (conductorDniData && !conductorDniData.success)
+          {isPrivateTransport && (
+            <>
+              <FormInput
+                control={form.control}
+                name="driver_doc"
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    DNI del Conductor
+                    <DocumentValidationStatus
+                      shouldValidate={true}
+                      documentNumber={conductorDni || ""}
+                      expectedDigits={8}
+                      isValidating={isConductorDniLoading}
+                      leftPosition="right-0"
+                    />
+                  </div>
+                }
+                placeholder="Ej: ABC-123"
+                maxLength={8}
+                addonEnd={
+                  <ValidationIndicator
+                    show={!!conductorDni}
+                    isValidating={isConductorDniLoading}
+                    isValid={conductorDniData?.success && !!conductorDniData.data}
+                    hasError={
+                      !!conductorDniError ||
+                      (conductorDniData && !conductorDniData.success)
+                    }
+                  />
                 }
               />
-            }
-          />
 
-          <FormInput
-            control={form.control}
-            name="driver_name"
-            label="Nombre del Conductor"
-            placeholder="Nombre completo"
-            uppercase
-          />
+              <FormInput
+                control={form.control}
+                name="license"
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    Licencia de Conducir
+                    {conductorDniData?.success &&
+                      conductorDniData.data?.licencia?.estado && (
+                        <span className="text-xs font-normal text-primary absolute right-0">
+                          {conductorDniData.data.licencia.estado}
+                        </span>
+                      )}
+                  </div>
+                }
+                uppercase
+                placeholder="Ej: Q12345678"
+              />
 
-          <FormInput
-            control={form.control}
-            name="license"
-            label={
-              <div className="flex items-center gap-2 relative">
-                Licencia de Conducir
-                {conductorDniData?.success &&
-                  conductorDniData.data?.licencia?.estado && (
-                    <span className="text-xs font-normal text-primary absolute right-0">
-                      {conductorDniData.data.licencia.estado}
-                    </span>
-                  )}
-              </div>
-            }
-            uppercase
-            placeholder="Ej: Q12345678"
-          />
-
-          <FormInput
-            control={form.control}
-            name="plate"
-            label="Placa del Vehículo (cigueña)"
-            placeholder="Ej: ABC-123"
-            uppercase
-          />
+              <FormInput
+                control={form.control}
+                name="plate"
+                label="Placa del Vehículo (cigueña)"
+                placeholder="Ej: ABC-123"
+                uppercase
+              />
+            </>
+          )}
 
           <div className="space-y-4 col-span-full">
             <FormField
