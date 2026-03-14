@@ -147,6 +147,7 @@ export const ElectronicDocumentSchema = z
       .string()
       .max(20, "Máximo 20 caracteres")
       .optional(),
+    orden_compra_servicio_file: z.instanceof(File).optional().nullable(),
     codigo_unico: z.string().max(20, "Máximo 20 caracteres").optional(),
 
     // ===== CAMPOS DE PAGO ADICIONALES =====

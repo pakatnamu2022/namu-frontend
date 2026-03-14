@@ -240,6 +240,7 @@ export function OtherSalesForm({
               checkbooks={checkbooks}
               showCardLast4={true}
               showOrdenCompraServicio={true}
+              isEdit={isEdit}
             />
           </div>
 

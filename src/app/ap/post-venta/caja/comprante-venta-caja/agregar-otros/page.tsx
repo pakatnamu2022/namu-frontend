@@ -11,7 +11,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
+import { storeOtherSalesDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
@@ -132,7 +132,7 @@ export default function AddGeneralSalesReceiptsCajaPage() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storeElectronicDocument,
+    mutationFn: storeOtherSalesDocument,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE);

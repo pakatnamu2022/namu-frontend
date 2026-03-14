@@ -2,6 +2,7 @@ import { UseFormReturn, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Settings } from "lucide-react";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -25,6 +26,7 @@ interface AdditionalConfigSectionProps {
   showCardLast4?: boolean;
   showInternalNote?: boolean;
   showOrdenCompraServicio?: boolean;
+  isEdit?: boolean;
 }
 
 export function AdditionalConfigSection({
@@ -35,10 +37,12 @@ export function AdditionalConfigSection({
   showCardLast4 = false,
   showInternalNote = false,
   showOrdenCompraServicio = false,
+  isEdit = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
   const isCredito = medioDePago === PAYMENT_CONDITION_CREDIT;
+  const ordenCompraServicio = form.watch("orden_compra_servicio");
 
   // Form auxiliar solo para UI - los días de crédito no se envían al backend
   const creditDaysSchema = z.object({
@@ -258,14 +262,27 @@ export function AdditionalConfigSection({
         />
       )}
       {showOrdenCompraServicio && (
-        <FormInput
-          control={form.control}
-          name="orden_compra_servicio"
-          label="Orden de compra/servicio"
-          placeholder="Orden de compra o servicio..."
-          description="Número de orden de compra o servicio relacionado (opcional)."
-          maxLength={255}
-        />
+        <>
+          <FormInput
+            control={form.control}
+            name="orden_compra_servicio"
+            label="Orden de compra/servicio"
+            placeholder="Orden de compra o servicio..."
+            description="Número de orden de compra o servicio relacionado (opcional)."
+            maxLength={255}
+          />
+          {!!ordenCompraServicio && !isEdit && (
+            <div className="col-span-full">
+              <FileUploadWithCamera
+                label="Archivo de orden de compra/servicio (opcional)"
+                value={form.watch("orden_compra_servicio_file") ?? null}
+                onChange={(file) =>
+                  form.setValue("orden_compra_servicio_file", file)
+                }
+              />
+            </div>
+          )}
+        </>
       )}
 
       <div className="col-span-full">
