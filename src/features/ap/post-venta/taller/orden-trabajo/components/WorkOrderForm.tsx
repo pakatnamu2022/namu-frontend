@@ -693,8 +693,9 @@ export const WorkOrderForm = ({
                             type="number"
                             min={1}
                             max={20}
-                            className={`text-center h-10 ${colors.input}`}
+                            className={`text-center ${colors.input}`}
                             control={form.control}
+                            disabled
                           />
                         </div>
 
@@ -723,6 +724,17 @@ export const WorkOrderForm = ({
                             }))}
                             control={form.control}
                             strictFilter={true}
+                            onValueChange={(value) => {
+                              const found = typesOperation.find(
+                                (p) => p.id.toString() === value,
+                              );
+                              if (found) {
+                                form.setValue(
+                                  `items.${index}.description`,
+                                  found.description,
+                                );
+                              }
+                            }}
                           />
                         </div>
                       </div>
@@ -793,7 +805,7 @@ export const WorkOrderForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : "Guardar Orden"}
+            {isSubmitting ? "Guardando" : "Guardar Orden de Trabajo"}
           </Button>
         </div>
 
