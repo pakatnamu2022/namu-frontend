@@ -331,7 +331,7 @@ export const vehicleDeliveryColumns = ({
             icon={FileText}
             color="indigo"
             variant="default"
-            canRender={!sent_at || aceptada_por_sunat !== true || canGenerate}
+            canRender={(!sent_at || aceptada_por_sunat !== true) && canGenerate}
           />
 
           {shipping_guide_id && !isAcceptedBySunat && canSend && (

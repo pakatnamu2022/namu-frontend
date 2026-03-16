@@ -26,6 +26,8 @@ export default function VehicleDeliveryActions({
 }: Props) {
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
 
+  const { canCreate, canMigrate } = permissions;
+
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllShippingGuides,
     onSuccess: () => {
@@ -44,7 +46,7 @@ export default function VehicleDeliveryActions({
         />
         Actualizar
       </Button>
-      {permissions.canMigrate && (
+      {canMigrate && (
         <Button
           size="sm"
           variant="outline"
@@ -59,7 +61,7 @@ export default function VehicleDeliveryActions({
           Migrar Todo
         </Button>
       )}
-      {permissions.canCreate && (
+      {canCreate && (
         <Link to={ROUTE_ADD}>
           <Button size="sm" className="ml-auto">
             <Plus className="size-4 mr-2" /> Programar Entrega

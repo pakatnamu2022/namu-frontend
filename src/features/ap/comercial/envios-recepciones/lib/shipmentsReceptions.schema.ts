@@ -31,7 +31,7 @@ const shipmentsReceptionsSchemaBase = z.object({
   ),
   transmitter_id: requiredStringId("El emisor es requerido"),
   receiver_id: requiredStringId("El receptor es requerido"),
-  total_packages: z
+  total_packages: z.coerce
     .string()
     .min(1, "El total de bultos es requerido")
     .refine(
@@ -41,7 +41,7 @@ const shipmentsReceptionsSchemaBase = z.object({
       },
       { message: "El total de bultos debe ser un número mayor o igual a 1" },
     ),
-  total_weight: z
+  total_weight: z.coerce
     .string()
     .min(1, "El peso total es requerido")
     .refine(
@@ -98,8 +98,14 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   )
   .refine(
     (data) => {
-      if (data.transfer_modality_id === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC) {
-        return !!data.transport_company_id && data.transport_company_id.trim().length > 0;
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC
+      ) {
+        return (
+          !!data.transport_company_id &&
+          data.transport_company_id.trim().length > 0
+        );
       }
       return true;
     },
@@ -110,19 +116,26 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   )
   .refine(
     (data) => {
-      if (data.transfer_modality_id === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC) {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC
+      ) {
         return data.receiver_destination_id !== data.transport_company_id;
       }
       return true;
     },
     {
-      message: "En transporte público, el remitente no puede ser igual al transportista",
+      message:
+        "En transporte público, el remitente no puede ser igual al transportista",
       path: ["transport_company_id"],
     },
   )
   .refine(
     (data) => {
-      if (data.transfer_modality_id === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE) {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
+      ) {
         return !!data.driver_doc && data.driver_doc.length >= 8;
       }
       return true;
@@ -134,8 +147,15 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   )
   .refine(
     (data) => {
-      if (data.transfer_modality_id === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE) {
-        return !!data.license && data.license.length >= 9 && data.license.length <= 10;
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
+      ) {
+        return (
+          !!data.license &&
+          data.license.length >= 9 &&
+          data.license.length <= 10
+        );
       }
       return true;
     },
@@ -146,13 +166,22 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   )
   .refine(
     (data) => {
-      if (data.transfer_modality_id === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE) {
-        return !!data.plate && data.plate.trim().length >= 6 && data.plate.trim().length <= 7 && /^[A-Z0-9-]+$/.test(data.plate);
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
+      ) {
+        return (
+          !!data.plate &&
+          data.plate.trim().length >= 6 &&
+          data.plate.trim().length <= 7 &&
+          /^[A-Z0-9-]+$/.test(data.plate)
+        );
       }
       return true;
     },
     {
-      message: "La placa del vehículo es requerida (6-7 caracteres, mayúsculas, números y guiones)",
+      message:
+        "La placa del vehículo es requerida (6-7 caracteres, mayúsculas, números y guiones)",
       path: ["plate"],
     },
   )
@@ -224,10 +253,16 @@ export const receptionChecklistSchemaUpdate = z.object({
       },
       { message: "El kilometraje debe ser un número mayor o igual a 0" },
     ),
-  photo_front: z.instanceof(File, { message: "La foto frontal es obligatoria" }),
+  photo_front: z.instanceof(File, {
+    message: "La foto frontal es obligatoria",
+  }),
   photo_back: z.instanceof(File, { message: "La foto trasera es obligatoria" }),
-  photo_left: z.instanceof(File, { message: "La foto lateral izquierda es obligatoria" }),
-  photo_right: z.instanceof(File, { message: "La foto lateral derecha es obligatoria" }),
+  photo_left: z.instanceof(File, {
+    message: "La foto lateral izquierda es obligatoria",
+  }),
+  photo_right: z.instanceof(File, {
+    message: "La foto lateral derecha es obligatoria",
+  }),
   general_observations: z.string().max(1000).optional(),
   items_receiving: z.record(z.string(), z.string()),
   damages: z.array(receptionChecklistDamageSchema).default([]),

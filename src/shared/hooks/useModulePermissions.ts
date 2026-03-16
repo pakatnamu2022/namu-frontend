@@ -170,6 +170,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "XCircle",
     description: "Permite migrar guías de remisión a nuevo sistema",
   },
+  {
+    value: "generate",
+    label: "Generar",
+    icon: "Zap",
+    description: "Permite generar documentos o procesos automáticamente",
+  },
 ];
 
 /**

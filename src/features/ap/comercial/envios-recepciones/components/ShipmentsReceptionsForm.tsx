@@ -944,7 +944,9 @@ export const ShipmentsReceptionsForm = ({
             name="total_packages"
             label="Núm. Bultos"
             placeholder="1"
+            min={1}
             type="number"
+            inputMode="text"
           />
 
           <FormInput
@@ -952,6 +954,9 @@ export const ShipmentsReceptionsForm = ({
             name="total_weight"
             label="Peso Total"
             placeholder="779.55"
+            min={1}
+            type="number"
+            inputMode="text"
           />
 
           {isConsignment && (
