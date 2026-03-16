@@ -25,6 +25,7 @@ interface FormInputProps extends Omit<
   name: string;
   description?: string;
   label?: string | React.ReactNode;
+  labelClassName?: string;
   control?: Control<any>;
   tooltip?: string | React.ReactNode;
   children?: React.ReactNode;
@@ -40,6 +41,7 @@ export function FormInput({
   name,
   description,
   label,
+  labelClassName,
   control,
   tooltip,
   children,
@@ -106,7 +108,12 @@ export function FormInput({
     return (
       <div className="flex flex-col justify-between">
         {label && (
-          <label className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit font-medium text-muted-foreground">
+          <label
+            className={cn(
+              "flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit font-medium text-muted-foreground",
+              labelClassName,
+            )}
+          >
             {label}
             {required && <RequiredField />}
             {tooltip && (
@@ -201,7 +208,12 @@ export function FormInput({
 
         return (
           <FormItem className="flex flex-col justify-between">
-            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground">
+            <FormLabel
+              className={cn(
+                "flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground",
+                labelClassName,
+              )}
+            >
               {label}
               {required && <RequiredField />}
               {tooltip && (

@@ -8,16 +8,7 @@ import { z } from "zod";
 // Schema para los detalles de productos
 export const productTransferDetailSchema = z.object({
   product_id: z.string().optional(),
-  quantity: z
-    .string()
-    .min(1, "La cantidad es requerida")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num >= 1;
-      },
-      { message: "La cantidad debe ser un número mayor o igual a 1" },
-    ),
+  quantity: requiredNumber("La cantidad es requerida"),
   unit_cost: z.string().optional(),
   notes: z.string().optional(),
 });

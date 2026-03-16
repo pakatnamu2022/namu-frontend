@@ -47,6 +47,7 @@ import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-me
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 
 const onSelectSupplyType = [
+  { label: "Local", value: "LOCAL" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];

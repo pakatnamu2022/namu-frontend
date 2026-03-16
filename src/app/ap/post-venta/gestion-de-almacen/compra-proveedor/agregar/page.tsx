@@ -56,7 +56,7 @@ export default function AddSupplierOrderPage() {
           warehouse_id: "",
           type_currency_id: CURRENCY_TYPE_IDS.DOLLARS,
           order_date: getTodayLocalDateString(),
-          supply_type: "LIMA",
+          supply_type: "LOCAL",
           details: [],
         }}
         onSubmit={handleSubmit}
