@@ -409,43 +409,48 @@ export function VehicleDeliveryDetailsSheet({
                     <MapPin className="h-4 w-4 text-primary" />
                     <h3 className="font-semibold">Origen y Destino</h3>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-                      <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-                        Origen
-                      </p>
-                      <p className="text-sm font-semibold">
-                        {guide.transmitter_name || guide.sede_transmitter}
-                      </p>
-                      {guide.transmitter_establishment?.description && (
-                        <p className="text-xs text-primary mt-1">
-                          {guide.transmitter_establishment.description}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {guide.transmitter_establishment?.full_address ||
-                          guide.transmitter_description ||
-                          "-"}
-                      </p>
+                  <div className="flex gap-4">
+                    {/* Timeline */}
+                    <div className="flex flex-col items-center pt-1">
+                      <div className="w-3 h-3 rounded-full bg-foreground ring-2 ring-background ring-offset-1 ring-offset-foreground/20" />
+                      <div className="w-px flex-1 bg-border my-1" />
+                      <div className="w-3 h-3 rounded-full bg-muted-foreground ring-2 ring-background ring-offset-1 ring-offset-muted-foreground/20" />
                     </div>
-                    <div className="p-4 rounded-lg border border-secondary/30 bg-secondary/5">
-                      <p className="text-xs font-semibold text-secondary uppercase tracking-wide mb-2">
-                        Destino
-                      </p>
-                      <p className="text-sm font-semibold">
-                        {vehicleDelivery.client_name || guide.receiver_name}
-                      </p>
-                      {guide.receiver_establishment?.description && (
-                        <p className="text-xs text-secondary mt-1">
-                          {guide.destination_ubigeo}
+                    {/* Content */}
+                    <div className="flex-1 space-y-3">
+                      <div className="rounded-lg border bg-card p-3 space-y-0.5">
+                        <p className="text-xs text-muted-foreground font-medium">Origen</p>
+                        <p className="text-sm font-semibold">
+                          {guide.transmitter_name || guide.sede_transmitter}
                         </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {guide.destination_address ||
-                          guide.receiver_establishment?.full_address ||
-                          guide.receiver_description ||
-                          "-"}
-                      </p>
+                        {guide.transmitter_establishment?.description && (
+                          <p className="text-xs text-muted-foreground">
+                            {guide.transmitter_establishment.description}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {guide.transmitter_establishment?.full_address ||
+                            guide.transmitter_description ||
+                            "-"}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border bg-card p-3 space-y-0.5">
+                        <p className="text-xs text-muted-foreground font-medium">Destino</p>
+                        <p className="text-sm font-semibold">
+                          {vehicleDelivery.client_name || guide.receiver_name}
+                        </p>
+                        {guide.receiver_establishment?.description && (
+                          <p className="text-xs text-muted-foreground">
+                            {guide.destination_ubigeo}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {guide.destination_address ||
+                            guide.receiver_establishment?.full_address ||
+                            guide.receiver_description ||
+                            "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
