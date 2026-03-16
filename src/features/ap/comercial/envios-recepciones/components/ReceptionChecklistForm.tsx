@@ -319,7 +319,7 @@ export const ReceptionChecklistForm = ({
 
             {/* Fotos del Vehículo — 4 en una sola fila */}
             <GroupFormSection
-              title="Fotos del estado del vehículo (Opcional)"
+              title="Fotos del estado del vehículo (Obligatorio)"
               icon={Camera}
               color="orange"
               cols={{ sm: 4 }}

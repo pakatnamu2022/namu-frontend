@@ -14,17 +14,16 @@ import {
   CheckCircle2,
   XCircle,
   Info,
-  Database,
   ArrowRightLeft,
+  Calendar,
+  Droplets,
+  User,
+  Car,
+  LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import ShippingGuideHistory from "../../envios-recepciones/components/ShippingGuideHistory";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 
@@ -44,53 +43,112 @@ interface Props {
   };
 }
 
+const formatDate = (value: string | Date | null | undefined) => {
+  if (!value) return null;
+  try {
+    const date = typeof value === "string" ? new Date(value) : value;
+    return date;
+  } catch {
+    return null;
+  }
+};
+
 export const vehicleDeliveryColumns = ({
   onDelete,
   onSendToNubefact,
   onQueryFromNubefact,
-  onSendToDynamic,
   onViewDetails,
   onMigrate,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
   {
     accessorKey: "advisor_name",
-    header: "Asesor",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+    header: "Asesor / Cliente",
+    cell: ({ row }) => {
+      const advisor = row.original.advisor_name;
+      const client = row.original.client_name;
+      return (
+        <div className="flex flex-col gap-0.5 min-w-[140px]">
+          {advisor ? (
+            <div className="flex items-center gap-1.5">
+              <User className="size-3 text-muted-foreground shrink-0" />
+              <span className="font-semibold text-sm leading-tight">{advisor}</span>
+            </div>
+          ) : (
+            <span className="text-muted-foreground text-xs">Sin asesor</span>
+          )}
+          {client && (
+            <span className="text-xs text-muted-foreground pl-4 leading-tight">
+              {client}
+            </span>
+          )}
+        </div>
+      );
     },
   },
   {
     accessorKey: "vin",
     header: "VIN",
+    cell: ({ row }) => {
+      const vin = row.original.vin;
+      const sede = row.original.sede_name;
+      return (
+        <div className="flex flex-col gap-0.5">
+          {vin ? (
+            <div className="flex items-center gap-1.5">
+              <Car className="size-3 text-muted-foreground shrink-0" />
+              <span className="font-mono text-xs font-semibold tracking-wide">{vin}</span>
+            </div>
+          ) : (
+            <span className="text-muted-foreground text-xs">—</span>
+          )}
+          {sede && (
+            <span className="text-xs text-muted-foreground pl-4">{sede}</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "scheduled_delivery_date",
-    header: "Fecha y Hora Entrega",
+    header: "Entrega",
     cell: ({ getValue }) => {
-      const value = getValue() as string | Date;
-      if (!value) return "-";
-      try {
-        const date = typeof value === "string" ? new Date(value) : value;
-        return format(date, "dd/MM/yyyy HH:mm", { locale: es });
-      } catch {
-        return "-";
-      }
+      const date = formatDate(getValue() as string | Date);
+      if (!date) return <span className="text-muted-foreground text-xs">—</span>;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="size-3 text-muted-foreground shrink-0" />
+            <span className="text-xs font-medium">
+              {format(date, "dd/MM/yyyy", { locale: es })}
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground font-mono pl-4">
+            {format(date, "HH:mm", { locale: es })}
+          </span>
+        </div>
+      );
     },
   },
   {
     accessorKey: "wash_date",
-    header: "Fecha y Hora Lavado",
+    header: "Lavado",
     cell: ({ getValue }) => {
-      const value = getValue() as string | Date;
-      if (!value) return "-";
-      try {
-        const date = typeof value === "string" ? new Date(value) : value;
-        return format(date, "dd/MM/yyyy HH:mm", { locale: es });
-      } catch {
-        return "-";
-      }
+      const date = formatDate(getValue() as string | Date);
+      if (!date) return <span className="text-muted-foreground text-xs">—</span>;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <Droplets className="size-3 text-muted-foreground shrink-0" />
+            <span className="text-xs font-medium">
+              {format(date, "dd/MM/yyyy", { locale: es })}
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground font-mono pl-4">
+            {format(date, "HH:mm", { locale: es })}
+          </span>
+        </div>
+      );
     },
   },
   {
@@ -98,12 +156,15 @@ export const vehicleDeliveryColumns = ({
     header: "Estado Lavado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
+      const isCompleted = value === "Completado";
+      const icon: LucideIcon = isCompleted ? CheckCircle2 : XCircle;
       return (
         <Badge
-          color={value == "Completado" ? "default" : "secondary"}
-          className="capitalize w-24 flex items-center justify-center"
+          color={isCompleted ? "green" : "gray"}
+          icon={icon}
+          className="capitalize w-fit"
         >
-          {value}
+          {value ?? "—"}
         </Badge>
       );
     },
@@ -113,12 +174,15 @@ export const vehicleDeliveryColumns = ({
     header: "Estado Entrega",
     cell: ({ getValue }) => {
       const value = getValue() as string;
+      const isCompleted = value === "Completado";
+      const icon: LucideIcon = isCompleted ? CheckCircle2 : XCircle;
       return (
         <Badge
-          color={value == "Completado" ? "default" : "secondary"}
-          className="capitalize w-24 flex items-center justify-center"
+          color={isCompleted ? "green" : "blue"}
+          icon={icon}
+          className="capitalize w-fit"
         >
-          {value}
+          {value ?? "Pendiente"}
         </Badge>
       );
     },
@@ -132,13 +196,10 @@ export const vehicleDeliveryColumns = ({
     header: () => (
       <div className="flex items-center gap-1.5">
         <span>Enviado SUNAT</span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="focus:outline-none">
-              <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-3" align="start">
+        <Badge
+          variant="ghost"
+          tooltipVariant="muted"
+          tooltip={
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
               <div className="space-y-1.5 text-xs">
@@ -160,79 +221,51 @@ export const vehicleDeliveryColumns = ({
                 </div>
               </div>
             </div>
-          </PopoverContent>
-        </Popover>
+          }
+        >
+          <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+        </Badge>
       </div>
     ),
     cell: ({ row }) => {
       const sentAt = row.getValue("sent_at") as string | null;
       const aceptadaPorSunat = row.original.aceptada_por_sunat;
 
-      // Configuración de estados con estilos modernos
-      const statusConfig = {
-        accepted: {
-          label: "Aceptado",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-300",
-        },
-        rejected: {
-          label: "Rechazado",
-          icon: <XCircle className="size-3" />,
-          className: "bg-red-100 text-red-700 hover:bg-red-200 border-red-300",
-        },
-        pending: {
-          label: "En espera",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300",
-        },
-        notSent: {
-          label: "No enviado",
-          icon: <XCircle className="size-3" />,
-          className:
-            "bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300",
-        },
-      };
-
-      if (sentAt) {
-        const sentDate = new Date(sentAt);
-
-        // Determinar estado
-        let status: keyof typeof statusConfig;
-
-        if (aceptadaPorSunat === true) {
-          status = "accepted";
-        } else if (aceptadaPorSunat === false) {
-          status = "rejected";
-        } else {
-          status = "pending";
-        }
-
-        const config = statusConfig[status];
-
+      if (!sentAt) {
         return (
-          <div className="flex flex-col gap-1">
-            <div
-              className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-            >
-              {config.icon}
-              <span>{config.label}</span>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
-            </span>
-          </div>
+          <Badge color="gray" icon={XCircle}>
+            No enviado
+          </Badge>
         );
       }
 
-      const config = statusConfig.notSent;
+      const sentDate = new Date(sentAt);
+      let color: "green" | "destructive" | "blue";
+      let label: string;
+      let icon: LucideIcon;
+
+      if (aceptadaPorSunat === true) {
+        color = "green";
+        label = "Aceptado";
+        icon = CheckCircle2;
+      } else if (aceptadaPorSunat === false) {
+        color = "destructive";
+        label = "Rechazado";
+        icon = XCircle;
+      } else {
+        color = "blue";
+        label = "En espera";
+        icon = CheckCircle2;
+      }
+
       return (
-        <div
-          className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-        >
-          {config.icon}
-          <span>{config.label}</span>
+        <div className="flex flex-col gap-1">
+          <Badge icon={icon} color={color} className="w-fit">
+            {label}
+          </Badge>
+          <span className="text-xs text-muted-foreground font-mono">
+            {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
+          </span>
         </div>
       );
     },
@@ -242,10 +275,15 @@ export const vehicleDeliveryColumns = ({
     header: "Observaciones",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return (
-        <p className="max-w-xs truncate" title={value}>
+      return value ? (
+        <span
+          className="text-sm text-muted-foreground truncate max-w-[200px] block"
+          title={value}
+        >
           {value}
-        </p>
+        </span>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
       );
     },
   },
@@ -258,17 +296,14 @@ export const vehicleDeliveryColumns = ({
         shipping_guide_id,
         sent_at,
         aceptada_por_sunat,
-        status_dynamic,
       } = row.original;
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
 
-      // Verificar si fue enviado y aceptado por SUNAT
       const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
 
       return (
         <div className="flex items-center gap-2">
-          {/* Ver detalles */}
           <Button
             variant="outline"
             size="icon"
@@ -279,7 +314,6 @@ export const vehicleDeliveryColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {/* Historial - Solo para GUIA_REMISION */}
           {isAcceptedBySunat && shipping_guide_id && (
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
@@ -288,12 +322,11 @@ export const vehicleDeliveryColumns = ({
             tooltip="Guía de Remisión"
             onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
             icon={FileText}
-            color="cyan"
+            color="indigo"
             variant="default"
-            canRender={!sent_at || aceptada_por_sunat !== true} // Solo mostrar si NO ha sido enviado o no fue aceptado
+            canRender={!sent_at || aceptada_por_sunat !== true}
           />
 
-          {/* Enviar a Nubefact - Solo si hay guía generada y NO ha sido aceptado por SUNAT */}
           {shipping_guide_id && !isAcceptedBySunat && (
             <Button
               variant="outline"
@@ -306,7 +339,6 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {/* Consultar estado en Nubefact - Solo si hay guía generada y NO ha sido aceptado por SUNAT */}
           {shipping_guide_id && !isAcceptedBySunat && (
             <Button
               variant="outline"
@@ -319,20 +351,6 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {/* Enviar a Dynamic - Solo si fue aceptado por SUNAT */}
-          {isAcceptedBySunat && !status_dynamic && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Enviar a Dynamic"
-              onClick={() => onSendToDynamic(id)}
-            >
-              <Database className="size-4" />
-            </Button>
-          )}
-
-          {/* Migrar */}
           {onMigrate && shipping_guide_id && (
             <Button
               variant="outline"
@@ -345,7 +363,6 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {/* Delete - Ocultar si ya se generó la guía de remisión */}
           {permissions.canDelete && !shipping_guide_id && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}

@@ -20,7 +20,6 @@ import {
   useVehicleDelivery,
   useSendVehicleDeliveryToNubefact,
   useQueryVehicleDeliveryFromNubefact,
-  useSendVehicleDeliveryToDynamic,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
 import {
   deleteVehicleDelivery,
@@ -51,13 +50,11 @@ export default function VehicleDeliveryPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
-  const [sendToDynamicId, setSendToDynamicId] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehiclesDeliveryResource | null>(null);
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendVehicleDeliveryToNubefact();
   const queryFromNubefactMutation = useQueryVehicleDeliveryFromNubefact();
-  const sendToDynamicMutation = useSendVehicleDeliveryToDynamic();
   const migrateMutation = useMutation({
     mutationFn: dispatchShippingGuideMigration,
     onSuccess: () => successToast("Migración despachada correctamente"),
@@ -71,7 +68,7 @@ export default function VehicleDeliveryPage() {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch } = useVehicleDelivery({
+  const { data, isLoading, refetch, isFetching } = useVehicleDelivery({
     page,
     search,
     per_page,
@@ -111,28 +108,6 @@ export default function VehicleDeliveryPage() {
     });
   };
 
-  const handleSendToDynamic = async () => {
-    if (!sendToDynamicId) return;
-    sendToDynamicMutation.mutate(sendToDynamicId, {
-      onSuccess: (response) => {
-        if (response.success) {
-          successToast(response.message);
-        } else {
-          errorToast(response.message || "Error al enviar a Dynamic");
-        }
-      },
-      onError: (error: any) => {
-        const errorMessage =
-          error?.response?.data?.message || "Error al enviar a Dynamic";
-        errorToast(errorMessage);
-      },
-      onSettled: () => {
-        refetch();
-        setSendToDynamicId(null);
-      },
-    });
-  };
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -145,7 +120,11 @@ export default function VehicleDeliveryPage() {
           subtitle={"Gestión de Entregas de Vehículos"}
           icon={currentView.icon}
         />
-        <VehicleDeliveryActions permissions={permissions} />
+        <VehicleDeliveryActions
+          permissions={permissions}
+          isFetching={isFetching && !isLoading}
+          onRefresh={refetch}
+        />
       </HeaderTableWrapper>
       <VehicleDeliveryTable
         isLoading={isLoading}
@@ -153,7 +132,6 @@ export default function VehicleDeliveryPage() {
           onDelete: setDeleteId,
           onSendToNubefact: setSendToNubefactId,
           onQueryFromNubefact: handleQueryFromNubefact,
-          onSendToDynamic: setSendToDynamicId,
           onViewDetails: setSelectedVehicle,
           onMigrate: (id) => migrateMutation.mutate(id),
           permissions,
@@ -191,21 +169,6 @@ export default function VehicleDeliveryPage() {
           variant="default"
           icon="warning"
           isLoading={sendToNubefactMutation.isPending}
-        />
-      )}
-
-      {sendToDynamicId !== null && (
-        <SimpleConfirmDialog
-          open={true}
-          onOpenChange={(open) => !open && setSendToDynamicId(null)}
-          onConfirm={handleSendToDynamic}
-          title="Enviar a Dynamic"
-          description="¿Está seguro de que desea enviar este registro a Dynamic?"
-          confirmText="Sí, enviar"
-          cancelText="Cancelar"
-          variant="default"
-          icon="warning"
-          isLoading={sendToDynamicMutation.isPending}
         />
       )}
 
