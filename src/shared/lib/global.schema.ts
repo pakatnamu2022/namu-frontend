@@ -48,8 +48,10 @@ export function optionalNumber(object: string, minValue: number = 0) {
 }
 
 export const requiredDecimalNumber = (object: string, minValue: number = 0) => {
-  return z
-    .string()
+  return z.coerce
+    .number({
+      error: `${object} es requerido`,
+    })
     .min(1, `${object} es requerido`)
     .refine(
       (val) => {

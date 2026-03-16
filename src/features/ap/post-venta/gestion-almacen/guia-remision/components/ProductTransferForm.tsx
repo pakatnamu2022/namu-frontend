@@ -3,16 +3,8 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, useRef } from "react";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form.tsx";
+import { Form, FormLabel } from "@/components/ui/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Input } from "@/components/ui/input.tsx";
 import {
   Loader,
   Truck,
@@ -433,7 +425,7 @@ export const ProductTransferForm = ({
     if (isProducto) {
       append({
         product_id: "",
-        quantity: "1",
+        quantity: 1,
         unit_cost: "0",
         notes: "",
       });
@@ -441,7 +433,7 @@ export const ProductTransferForm = ({
       // Para servicios
       append({
         notes: "",
-        quantity: "1",
+        quantity: 1,
       });
     }
   };
@@ -672,45 +664,38 @@ export const ProductTransferForm = ({
           {/* Campos para Persona Natural */}
           {isPersonaNatural && (
             <>
-              <FormField
-                control={form.control}
+              <FormInput
                 name="driver_doc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 relative">
-                      DNI del Conductor
-                      <DocumentValidationStatus
-                        shouldValidate={true}
-                        documentNumber={conductorDni || ""}
-                        expectedDigits={8}
-                        isValidating={isConductorDniLoading}
-                        leftPosition="right-0"
-                      />
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="Número de documento"
-                          {...field}
-                          maxLength={8}
-                          type="number"
-                        />
-                        <ValidationIndicator
-                          show={!!conductorDni}
-                          isValidating={isConductorDniLoading}
-                          isValid={
-                            conductorDniData?.success && !!conductorDniData.data
-                          }
-                          hasError={
-                            !!conductorDniError ||
-                            (conductorDniData && !conductorDniData.success)
-                          }
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label={
+                  <>
+                    <span>DNI del Conductor</span>
+                    <DocumentValidationStatus
+                      shouldValidate={true}
+                      documentNumber={conductorDni || ""}
+                      expectedDigits={8}
+                      isValidating={isConductorDniLoading}
+                      leftPosition=""
+                    />
+                  </>
+                }
+                labelClassName="w-full justify-between gap-2"
+                placeholder="Número de documento"
+                maxLength={8}
+                control={form.control}
+                addonEnd={
+                  <ValidationIndicator
+                    show={!!conductorDni}
+                    isValidating={isConductorDniLoading}
+                    isValid={
+                      conductorDniData?.success && !!conductorDniData.data
+                    }
+                    hasError={
+                      !!conductorDniError ||
+                      (conductorDniData && !conductorDniData.success)
+                    }
+                    positioned={false}
+                  />
+                }
               />
 
               <FormInput
@@ -720,26 +705,22 @@ export const ProductTransferForm = ({
                 control={form.control}
               />
 
-              <FormField
-                control={form.control}
+              <FormInput
                 name="license"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 relative">
-                      Licencia de Conducir
-                      {conductorDniData?.success &&
-                        conductorDniData.data?.licencia?.estado && (
-                          <span className="text-xs font-normal text-primary absolute right-0">
-                            {conductorDniData.data.licencia.estado}
-                          </span>
-                        )}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: Q12345678" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label={
+                  <>
+                    <span>Licencia de Conducir</span>
+                    {conductorDniData?.success &&
+                      conductorDniData.data?.licencia?.estado && (
+                        <span className="text-xs font-normal text-primary">
+                          {conductorDniData.data.licencia.estado}
+                        </span>
+                      )}
+                  </>
+                }
+                labelClassName="w-full justify-between gap-2"
+                placeholder="Ej: Q12345678"
+                control={form.control}
               />
             </>
           )}
@@ -766,30 +747,20 @@ export const ProductTransferForm = ({
           )}
 
           {/* Placa - Obligatoria para Natural, Opcional para Jurídica */}
-          <FormField
-            control={form.control}
+          <FormInput
             name="plate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Placa del Vehículo{" "}
-                  {isPersonaJuridica && (
-                    <span className="text-muted-foreground">(Opcional)</span>
-                  )}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: ABC-123"
-                    className="uppercase"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(e.target.value.toUpperCase())
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label={
+              <>
+                <span>Placa del Vehículo</span>
+                {isPersonaJuridica && (
+                  <span className="text-muted-foreground">(Opcional)</span>
+                )}
+              </>
+            }
+            labelClassName="gap-1"
+            placeholder="Ej: ABC-123"
+            control={form.control}
+            uppercase={true}
           />
         </GroupFormSection>
 
@@ -1036,86 +1007,49 @@ export const ProductTransferForm = ({
                         </div>
                       )}
 
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.quantity`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Cantidad *</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min="1"
-                                placeholder="1"
-                                {...field}
-                                disabled={mode === "update"}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="justify-start">
+                        <FormInput
+                          name={`details.${index}.quantity`}
+                          label="Cantidad *"
+                          type="number"
+                          min="1"
+                          placeholder="1"
+                          control={form.control}
+                          disabled={mode === "update"}
+                        />
+                      </div>
 
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.notes`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Notas</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Observaciones"
-                                {...field}
-                                disabled={mode === "update"}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="justify-start">
+                        <FormInput
+                          name={`details.${index}.notes`}
+                          label="Notas"
+                          placeholder="Observaciones"
+                          control={form.control}
+                          disabled={mode === "update"}
+                          className="justify-start"
+                        />
+                      </div>
                     </div>
                   ) : (
                     /* Campos para SERVICIO */
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-                      <FormField
-                        control={form.control}
+                      <FormInput
                         name={`details.${index}.notes`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              Descripción * (mín. 6 caracteres)
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ej: Sobres de documentos, celulares, etc."
-                                {...field}
-                                disabled={mode === "update"}
-                                minLength={6}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Descripción * (mín. 6 caracteres)"
+                        placeholder="Ej: Sobres de documentos, celulares, etc."
+                        control={form.control}
+                        disabled={mode === "update"}
+                        minLength={6}
                       />
 
-                      <FormField
-                        control={form.control}
+                      <FormInput
                         name={`details.${index}.quantity`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Cantidad *</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min="1"
-                                placeholder="1"
-                                {...field}
-                                disabled={mode === "update"}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Cantidad *"
+                        type="number"
+                        min="1"
+                        placeholder="1"
+                        control={form.control}
+                        disabled={mode === "update"}
                       />
                     </div>
                   )}

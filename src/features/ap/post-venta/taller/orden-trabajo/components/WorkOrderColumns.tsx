@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { WorkOrderActionCell } from "./WorkOrderActionCell";
+import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -95,6 +96,33 @@ export const workOrderColumns = ({
       } catch {
         return value;
       }
+    },
+  },
+  {
+    accessorKey: "items",
+    header: "Tipo de Planificación",
+    cell: ({ getValue }) => {
+      const items = getValue() as WorkOrderItemResource[];
+      const type_planning = items[0]?.type_planning_name || "-";
+      return type_planning;
+    },
+  },
+  {
+    accessorKey: "items",
+    header: "Tipo de Operación",
+    cell: ({ getValue }) => {
+      const items = getValue() as WorkOrderItemResource[];
+      const type_operation = items[0]?.type_operation_name || "-";
+      return type_operation;
+    },
+  },
+  {
+    accessorKey: "items",
+    header: "Descripción",
+    cell: ({ getValue }) => {
+      const items = getValue() as WorkOrderItemResource[];
+      const description_work = items[0]?.description || "-";
+      return description_work;
     },
   },
   {
