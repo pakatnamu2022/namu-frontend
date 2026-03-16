@@ -108,6 +108,8 @@ export default function SupplierEstablishmentsListPage() {
         <EstablishmentsActions
           baseRoute={`${ABSOLUTE_ROUTE}/${id}`}
           permissions={permissions}
+          customer={customer}
+          onReprocessed={refetch}
         />
       </HeaderTableWrapper>
 

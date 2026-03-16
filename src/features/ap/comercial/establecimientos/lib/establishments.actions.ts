@@ -61,3 +61,9 @@ export async function updateEstablishments(
 export async function deleteEstablishments(id: number): Promise<void> {
   await api.delete(`${ENDPOINT}/${id}`);
 }
+
+export async function reprocessEstablishments(
+  businessPartnerId: number
+): Promise<void> {
+  await api.post(`/ap/commercial/businessPartners/${businessPartnerId}/reprocess-establishments`);
+}

@@ -89,7 +89,7 @@ export default function UpdateProductTransferPage() {
       details:
         data.details?.map((item) => ({
           product_id: String(item.product_id),
-          quantity: String(item.quantity),
+          quantity: Number(item.quantity),
           unit_cost: String(item.unit_cost),
           notes: item.notes || "",
           description: item.notes,

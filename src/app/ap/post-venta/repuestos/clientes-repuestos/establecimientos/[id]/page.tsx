@@ -112,6 +112,8 @@ export default function CustomerRpEstablishmentsListPage() {
         <EstablishmentsActions
           baseRoute={`${ABSOLUTE_ROUTE}/${id}`}
           permissions={permissions}
+          customer={customer}
+          onReprocessed={refetch}
         />
       </HeaderTableWrapper>
 
