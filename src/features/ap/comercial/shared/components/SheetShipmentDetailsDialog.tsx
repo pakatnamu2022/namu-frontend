@@ -21,15 +21,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/shared/components/DataTable";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { shipmentItemsColumns } from "./ShipmentItemsColumns";
+import { receptionChecklistColumns } from "./ReceptionChecklistColumns";
+import { receptionAccessoriesColumns } from "./ReceptionAccessoriesColumns";
 
 // Tipo mínimo que cubre los campos usados en la UI.
 // Ambos ControlUnitsResource y ShipmentsReceptionsResource lo satisfacen estructuralmente.
@@ -497,38 +493,12 @@ export function SheetShipmentDetailsDialog({
                     Detalle de la Guía ({shipment.items.length})
                   </h3>
                 </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Código</TableHead>
-                        <TableHead className="text-right">
-                          Descripción
-                        </TableHead>
-                        <TableHead className="text-right">Unidad</TableHead>
-                        <TableHead className="text-right">Cantidad</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {shipment.items.map((item) => (
-                        <TableRow key={item.codigo}>
-                          <TableCell className="text-sm">
-                            {item.codigo}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-medium">
-                            {item.descripcion}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">
-                            {item.unidad}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-semibold">
-                            {item.cantidad}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  columns={shipmentItemsColumns}
+                  data={shipment.items}
+                  variant="outline"
+                  isVisibleColumnFilter={false}
+                />
               </div>
             </>
           )}
@@ -544,38 +514,12 @@ export function SheetShipmentDetailsDialog({
                     Checklist de Recepción ({receptionData.data.length})
                   </h3>
                 </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Producto</TableHead>
-                        <TableHead className="text-center">Cant.</TableHead>
-                        <TableHead className="text-center w-20">
-                          Estado
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {receptionData.data.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="text-sm">
-                            {item.receiving_description}
-                          </TableCell>
-                          <TableCell className="text-center text-sm font-medium">
-                            {item.quantity}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {item.quantity > 0 ? (
-                              <CheckCircle className="h-4 w-4 text-green-600 mx-auto" />
-                            ) : (
-                              <XCircle className="h-4 w-4 text-muted-foreground mx-auto" />
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  columns={receptionChecklistColumns}
+                  data={receptionData.data}
+                  variant="outline"
+                  isVisibleColumnFilter={false}
+                />
               </div>
             </>
           )}
@@ -589,32 +533,12 @@ export function SheetShipmentDetailsDialog({
                   <Wrench className="h-4 w-4 text-primary" />
                   <h3 className="font-semibold">Accesorios Incluidos</h3>
                 </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Descripción</TableHead>
-                        <TableHead className="text-right">Cant.</TableHead>
-                        <TableHead className="text-right">Unidad</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {receptionData.accessories.map((accessory) => (
-                        <TableRow key={accessory.id}>
-                          <TableCell className="text-sm">
-                            {accessory.description}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-medium">
-                            {accessory.quantity}
-                          </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
-                            {accessory.unit_measurement}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  columns={receptionAccessoriesColumns}
+                  data={receptionData.accessories}
+                  variant="outline"
+                  isVisibleColumnFilter={false}
+                />
               </div>
             </>
           )}
