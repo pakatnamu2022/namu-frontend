@@ -228,5 +228,6 @@ export function useModulePermissions(moduleCode: string) {
     canSeeReception: hasModulePermission("seeReception"),
     canRequestCancellation: hasModulePermission("requestCancellation"),
     canMigrate: hasModulePermission("migrate"),
+    canGenerate: hasModulePermission("generate"),
   };
 }

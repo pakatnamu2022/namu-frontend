@@ -40,6 +40,10 @@ interface Props {
     canUpdate: boolean;
     canDelete: boolean;
     canView: boolean;
+    canViewHistory: boolean;
+    canGenerate: boolean;
+    canSend: boolean;
+    canMigrate: boolean;
   };
 }
 
@@ -72,7 +76,9 @@ export const vehicleDeliveryColumns = ({
           {advisor ? (
             <div className="flex items-center gap-1.5">
               <User className="size-3 text-muted-foreground shrink-0" />
-              <span className="font-semibold text-sm leading-tight">{advisor}</span>
+              <span className="font-semibold text-sm leading-tight">
+                {advisor}
+              </span>
             </div>
           ) : (
             <span className="text-muted-foreground text-xs">Sin asesor</span>
@@ -97,7 +103,9 @@ export const vehicleDeliveryColumns = ({
           {vin ? (
             <div className="flex items-center gap-1.5">
               <Car className="size-3 text-muted-foreground shrink-0" />
-              <span className="font-mono text-xs font-semibold tracking-wide">{vin}</span>
+              <span className="font-mono text-xs font-semibold tracking-wide">
+                {vin}
+              </span>
             </div>
           ) : (
             <span className="text-muted-foreground text-xs">—</span>
@@ -114,7 +122,8 @@ export const vehicleDeliveryColumns = ({
     header: "Entrega",
     cell: ({ getValue }) => {
       const date = formatDate(getValue() as string | Date);
-      if (!date) return <span className="text-muted-foreground text-xs">—</span>;
+      if (!date)
+        return <span className="text-muted-foreground text-xs">—</span>;
       return (
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1.5">
@@ -135,7 +144,8 @@ export const vehicleDeliveryColumns = ({
     header: "Lavado",
     cell: ({ getValue }) => {
       const date = formatDate(getValue() as string | Date);
-      if (!date) return <span className="text-muted-foreground text-xs">—</span>;
+      if (!date)
+        return <span className="text-muted-foreground text-xs">—</span>;
       return (
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1.5">
@@ -291,15 +301,12 @@ export const vehicleDeliveryColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const {
-        id,
-        shipping_guide_id,
-        sent_at,
-        aceptada_por_sunat,
-      } = row.original;
+      const { id, shipping_guide_id, sent_at, aceptada_por_sunat } =
+        row.original;
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
-
+      const { canViewHistory, canGenerate, canSend, canMigrate, canDelete } =
+        permissions;
       const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
 
       return (
@@ -314,7 +321,7 @@ export const vehicleDeliveryColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {isAcceptedBySunat && shipping_guide_id && (
+          {isAcceptedBySunat && shipping_guide_id && canViewHistory && (
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
 
@@ -324,10 +331,10 @@ export const vehicleDeliveryColumns = ({
             icon={FileText}
             color="indigo"
             variant="default"
-            canRender={!sent_at || aceptada_por_sunat !== true}
+            canRender={!sent_at || aceptada_por_sunat !== true || canGenerate}
           />
 
-          {shipping_guide_id && !isAcceptedBySunat && (
+          {shipping_guide_id && !isAcceptedBySunat && canSend && (
             <Button
               variant="outline"
               size="icon"
@@ -339,7 +346,7 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {shipping_guide_id && !isAcceptedBySunat && (
+          {shipping_guide_id && !isAcceptedBySunat && canSend && (
             <Button
               variant="outline"
               size="icon"
@@ -351,7 +358,7 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {onMigrate && shipping_guide_id && (
+          {onMigrate && shipping_guide_id && canMigrate && (
             <Button
               variant="outline"
               size="icon"
@@ -363,7 +370,7 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && !shipping_guide_id && (
+          {canDelete && !shipping_guide_id && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>
