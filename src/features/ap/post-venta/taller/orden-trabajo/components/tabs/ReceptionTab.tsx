@@ -36,7 +36,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { WORKER_ORDER_RECEPCION } from "../../lib/workOrder.constants";
+import { WORKER_ORDER } from "../../lib/workOrder.constants";
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -49,8 +49,9 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
-  const { ROUTE } = WORKER_ORDER_RECEPCION;
+  const { ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
+  console.log("Permissions in ReceptionTab:", permissions);
 
   const queryClient = useQueryClient();
   const router = useNavigate();

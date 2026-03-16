@@ -24,11 +24,12 @@ export const useAllRoles = () => {
   });
 };
 
-export const useUsersByRole = (roleId: number) => {
+export const useUsersByRole = (roleId: number, enabled = true) => {
   return useQuery<UserResource[]>({
     queryKey: ["roleUsers", roleId],
     queryFn: () => getUsersByRole(roleId),
     refetchOnWindowFocus: false,
+    enabled,
   });
 };
 
