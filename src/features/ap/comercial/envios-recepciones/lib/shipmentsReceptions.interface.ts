@@ -104,11 +104,11 @@ export interface ShipmentsReceptionsRequest {
   total_packages: string;
   total_weight: string;
   file?: File | null;
-  transport_company_id: string;
-  driver_doc: string;
-  license: string;
-  plate: string;
-  driver_name: string;
+  transport_company_id?: string;
+  driver_doc?: string;
+  license?: string;
+  plate?: string;
+  driver_name?: string;
   notes?: string;
   transfer_reason_id: string;
   transfer_modality_id: string;
