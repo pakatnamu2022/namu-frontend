@@ -1,5 +1,6 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 // Schema base sin refinements
 const shipmentsReceptionsSchemaBase = z.object({
@@ -30,7 +31,7 @@ const shipmentsReceptionsSchemaBase = z.object({
   ),
   transmitter_id: requiredStringId("El emisor es requerido"),
   receiver_id: requiredStringId("El receptor es requerido"),
-  total_packages: z
+  total_packages: z.coerce
     .string()
     .min(1, "El total de bultos es requerido")
     .refine(
@@ -40,7 +41,7 @@ const shipmentsReceptionsSchemaBase = z.object({
       },
       { message: "El total de bultos debe ser un número mayor o igual a 1" },
     ),
-  total_weight: z
+  total_weight: z.coerce
     .string()
     .min(1, "El peso total es requerido")
     .refine(
@@ -51,25 +52,11 @@ const shipmentsReceptionsSchemaBase = z.object({
       { message: "El peso total debe ser un número mayor o igual a 0.1" },
     ),
   file: z.instanceof(File).nullable().optional(),
-  transport_company_id: requiredStringId(
-    "La empresa de transporte es requerida",
-  ),
-  driver_doc: z
-    .string()
-    .min(8, "El documento del conductor debe tener al menos 8 caracteres"),
-  license: z
-    .string()
-    .min(9, "La licencia debe tener al menos 9 caracteres")
-    .max(10, "La licencia no puede exceder 10 caracteres"),
-  plate: z
-    .string()
-    .min(6, "La placa debe tener al menos 6 caracteres")
-    .max(7, "La placa no puede exceder 7 caracteres")
-    .regex(
-      /^[A-Z0-9-]+$/,
-      "La placa solo puede contener letras mayúsculas, números y guiones",
-    ),
-  driver_name: z.string().min(1, "El nombre del conductor es requerido"),
+  transport_company_id: z.string().optional(),
+  driver_doc: z.string().optional(),
+  license: z.string().optional(),
+  plate: z.string().optional(),
+  driver_name: z.string().optional(),
   notes: z.string().optional(),
   transfer_reason_id: requiredStringId("El motivo de traslado es requerido"),
   transfer_modality_id: requiredStringId(
@@ -111,9 +98,28 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   )
   .refine(
     (data) => {
-      // Si el tipo de transporte es Público (ID: 83), el remitente no puede ser igual al transportista
-      const TRANSPORTE_PUBLICO_ID = "83";
-      if (data.transfer_modality_id === TRANSPORTE_PUBLICO_ID) {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC
+      ) {
+        return (
+          !!data.transport_company_id &&
+          data.transport_company_id.trim().length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message: "La empresa de transporte es requerida para transporte público",
+      path: ["transport_company_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC
+      ) {
         return data.receiver_destination_id !== data.transport_company_id;
       }
       return true;
@@ -122,6 +128,61 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
       message:
         "En transporte público, el remitente no puede ser igual al transportista",
       path: ["transport_company_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
+      ) {
+        return !!data.driver_doc && data.driver_doc.length >= 8;
+      }
+      return true;
+    },
+    {
+      message: "El DNI del conductor debe tener al menos 8 caracteres",
+      path: ["driver_doc"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
+      ) {
+        return (
+          !!data.license &&
+          data.license.length >= 9 &&
+          data.license.length <= 10
+        );
+      }
+      return true;
+    },
+    {
+      message: "La licencia debe tener entre 9 y 10 caracteres",
+      path: ["license"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.transfer_modality_id ===
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE
+      ) {
+        return (
+          !!data.plate &&
+          data.plate.trim().length >= 6 &&
+          data.plate.trim().length <= 7 &&
+          /^[A-Z0-9-]+$/.test(data.plate)
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        "La placa del vehículo es requerida (6-7 caracteres, mayúsculas, números y guiones)",
+      path: ["plate"],
     },
   )
   .refine(
@@ -141,6 +202,18 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     {
       message: "La sede destino es requerida para este motivo de traslado",
       path: ["sede_receiver_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.transmitter_origin_id && data.receiver_destination_id) {
+        return data.transmitter_origin_id !== data.receiver_destination_id;
+      }
+      return true;
+    },
+    {
+      message: "El origen y el destino no pueden ser iguales",
+      path: ["receiver_destination_id"],
     },
   );
 
@@ -180,13 +253,20 @@ export const receptionChecklistSchemaUpdate = z.object({
       },
       { message: "El kilometraje debe ser un número mayor o igual a 0" },
     ),
-  photo_front: z.instanceof(File).nullable().optional(),
-  photo_back: z.instanceof(File).nullable().optional(),
-  photo_left: z.instanceof(File).nullable().optional(),
-  photo_right: z.instanceof(File).nullable().optional(),
+  photo_front: z.instanceof(File, {
+    message: "La foto frontal es obligatoria",
+  }),
+  photo_back: z.instanceof(File, { message: "La foto trasera es obligatoria" }),
+  photo_left: z.instanceof(File, {
+    message: "La foto lateral izquierda es obligatoria",
+  }),
+  photo_right: z.instanceof(File, {
+    message: "La foto lateral derecha es obligatoria",
+  }),
   general_observations: z.string().max(1000).optional(),
   items_receiving: z.record(z.string(), z.string()),
   damages: z.array(receptionChecklistDamageSchema).default([]),
+  has_pdi: z.boolean().default(false),
 });
 
 export type ReceptionChecklistSchema = z.infer<

@@ -73,6 +73,7 @@ export const ReceptionChecklistForm = ({
       items_receiving: {},
       kilometers: "",
       damages: [],
+      has_pdi: false,
     },
     mode: "onChange",
   });
@@ -264,6 +265,31 @@ export const ReceptionChecklistForm = ({
                 type="number"
                 required
               />
+              <FormField
+                control={form.control}
+                name="has_pdi"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center gap-2 pt-1">
+                        <Switch
+                          id="has-pdi-switch"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                        <Label
+                          htmlFor="has-pdi-switch"
+                          className="text-xs font-semibold cursor-pointer uppercase tracking-wide font-mono"
+                        >
+                          ¿Llega con PDI?
+                        </Label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </GroupFormSection>
           </div>
 
@@ -293,7 +319,7 @@ export const ReceptionChecklistForm = ({
 
             {/* Fotos del Vehículo — 4 en una sola fila */}
             <GroupFormSection
-              title="Fotos del estado del vehículo (Opcional)"
+              title="Fotos del estado del vehículo (Obligatorio)"
               icon={Camera}
               color="orange"
               cols={{ sm: 4 }}

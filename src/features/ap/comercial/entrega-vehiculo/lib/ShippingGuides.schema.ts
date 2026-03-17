@@ -56,13 +56,6 @@ export const shippingGuideSchema = z
           path: ["license"],
         });
       }
-      if (!data.driver_name || data.driver_name.trim().length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "El nombre del conductor es obligatorio",
-          path: ["driver_name"],
-        });
-      }
 
       // Transporte privado - OBLIGATORIO: placa del vehículo
       if (!data.plate || data.plate.trim().length === 0) {
@@ -100,30 +93,6 @@ export const shippingGuideSchema = z
           message: "El transportista es obligatorio para transporte público",
           path: ["transport_company_id"],
         });
-      }
-
-      // Transporte público - OPCIONAL: placa (validar solo si se proporciona)
-      if (data.plate && data.plate.trim().length > 0) {
-        if (data.plate.length < 6) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "La placa debe tener al menos 6 caracteres",
-            path: ["plate"],
-          });
-        } else if (data.plate.length > 7) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "La placa no puede exceder 7 caracteres",
-            path: ["plate"],
-          });
-        } else if (!/^[A-Z0-9-]+$/.test(data.plate)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message:
-              "La placa solo puede contener letras mayúsculas, números y guiones",
-            path: ["plate"],
-          });
-        }
       }
     }
   });

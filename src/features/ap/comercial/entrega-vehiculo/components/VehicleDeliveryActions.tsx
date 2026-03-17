@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Send } from "lucide-react";
+import { Plus, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
@@ -13,11 +13,20 @@ import { cn } from "@/lib/utils";
 interface Props {
   permissions: {
     canCreate: boolean;
+    canMigrate: boolean;
   };
+  isFetching?: boolean;
+  onRefresh: () => void;
 }
 
-export default function VehicleDeliveryActions({ permissions }: Props) {
+export default function VehicleDeliveryActions({
+  permissions,
+  isFetching,
+  onRefresh,
+}: Props) {
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
+
+  const { canCreate, canMigrate } = permissions;
 
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllShippingGuides,
@@ -31,20 +40,28 @@ export default function VehicleDeliveryActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => dispatchAllMutation.mutate()}
-        disabled={dispatchAllMutation.isPending}
-      >
-        <Send
-          className={cn("size-4 mr-2", {
-            "animate-pulse": dispatchAllMutation.isPending,
-          })}
+      <Button size="sm" variant="outline" onClick={() => onRefresh()}>
+        <RefreshCcw
+          className={cn("size-4 mr-2", { "animate-spin": isFetching })}
         />
-        Migrar Todo
+        Actualizar
       </Button>
-      {permissions.canCreate && (
+      {canMigrate && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => dispatchAllMutation.mutate()}
+          disabled={dispatchAllMutation.isPending}
+        >
+          <Send
+            className={cn("size-4 mr-2", {
+              "animate-pulse": dispatchAllMutation.isPending,
+            })}
+          />
+          Migrar Todo
+        </Button>
+      )}
+      {canCreate && (
         <Link to={ROUTE_ADD}>
           <Button size="sm" className="ml-auto">
             <Plus className="size-4 mr-2" /> Programar Entrega

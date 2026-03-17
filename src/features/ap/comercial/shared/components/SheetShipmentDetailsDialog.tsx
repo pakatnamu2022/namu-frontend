@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import {
   Truck,
   Package,
@@ -20,15 +21,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/shared/components/DataTable";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { shipmentItemsColumns } from "./ShipmentItemsColumns";
+import { receptionChecklistColumns } from "./ReceptionChecklistColumns";
+import { receptionAccessoriesColumns } from "./ReceptionAccessoriesColumns";
 
 // Tipo mínimo que cubre los campos usados en la UI.
 // Ambos ControlUnitsResource y ShipmentsReceptionsResource lo satisfacen estructuralmente.
@@ -40,9 +37,13 @@ export interface ShipmentDetailResource {
   issue_date: string;
   transfer_reason_description?: string;
   transfer_modality_description?: string;
+  transfer_modality_id?: string;
   plate: string;
   driver_name: string;
+  driver_doc?: string;
   license: string;
+  ruc_transport?: string;
+  company_name_transport?: string;
   transmitter_name?: string;
   sede_transmitter?: string;
   transmitter_establishment?: { description?: string; full_address: string };
@@ -338,28 +339,69 @@ export function SheetShipmentDetailsDialog({
           <Separator />
 
           {/* Información de Transporte */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Truck className="h-4 w-4 text-primary" />
-              <h3 className="font-semibold">Información de Transporte</h3>
-            </div>
-            <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
-              <div>
-                <p className="text-xs text-muted-foreground">Placa</p>
-                <p className="text-sm font-semibold">{shipment.plate}</p>
+          {(() => {
+            const modalityId = String(shipment.transfer_modality_id);
+            const isPublic = modalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
+            const isPrivate = modalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+            return (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold">Información de Transporte</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
+                  {isPublic ? (
+                    <>
+                      <div>
+                        <p className="text-xs text-muted-foreground">RUC Transportista</p>
+                        <p className="text-sm font-semibold">{shipment.ruc_transport || "-"}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-xs text-muted-foreground">Empresa Transportista</p>
+                        <p className="text-sm font-medium">{shipment.company_name_transport || "-"}</p>
+                      </div>
+                    </>
+                  ) : isPrivate ? (
+                    <>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Placa</p>
+                        <p className="text-sm font-semibold">{shipment.plate || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Conductor</p>
+                        <p className="text-sm font-medium">{shipment.driver_name || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Licencia</p>
+                        <p className="text-sm font-medium">{shipment.license || "-"}</p>
+                      </div>
+                      {shipment.driver_doc && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">DNI Conductor</p>
+                          <p className="text-sm font-medium">{shipment.driver_doc}</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Placa</p>
+                        <p className="text-sm font-semibold">{shipment.plate || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Conductor</p>
+                        <p className="text-sm font-medium">{shipment.driver_name || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Licencia</p>
+                        <p className="text-sm font-medium">{shipment.license || "-"}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Conductor</p>
-                <p className="text-sm font-medium">
-                  {shipment.driver_name || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Licencia</p>
-                <p className="text-sm font-medium">{shipment.license || "-"}</p>
-              </div>
-            </div>
-          </div>
+            );
+          })()}
 
           <Separator />
 
@@ -369,42 +411,47 @@ export function SheetShipmentDetailsDialog({
               <MapPin className="h-4 w-4 text-primary" />
               <h3 className="font-semibold">Origen y Destino</h3>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-                <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-                  Origen
-                </p>
-                <p className="text-sm font-semibold">
-                  {shipment.transmitter_name || shipment.sede_transmitter}
-                </p>
-                {shipment.transmitter_establishment?.description && (
-                  <p className="text-xs text-primary mt-1">
-                    {shipment.transmitter_establishment.description}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground mt-1">
-                  {shipment.transmitter_establishment?.full_address ||
-                    shipment.transmitter_description ||
-                    "-"}
-                </p>
+            <div className="flex gap-4">
+              {/* Timeline */}
+              <div className="flex flex-col items-center pt-1">
+                <div className="w-3 h-3 rounded-full bg-foreground ring-2 ring-background ring-offset-1 ring-offset-foreground/20" />
+                <div className="w-px flex-1 bg-border my-1" />
+                <div className="w-3 h-3 rounded-full bg-muted-foreground ring-2 ring-background ring-offset-1 ring-offset-muted-foreground/20" />
               </div>
-              <div className="p-4 rounded-lg border border-secondary/30 bg-secondary/5">
-                <p className="text-xs font-semibold text-secondary uppercase tracking-wide mb-2">
-                  Destino
-                </p>
-                <p className="text-sm font-semibold">
-                  {shipment.receiver_name}
-                </p>
-                {shipment.receiver_establishment?.description && (
-                  <p className="text-xs text-secondary mt-1">
-                    {shipment.receiver_establishment.description}
+              {/* Content */}
+              <div className="flex-1 space-y-3">
+                <div className="rounded-lg border bg-card p-3 space-y-0.5">
+                  <p className="text-xs text-muted-foreground font-medium">Origen</p>
+                  <p className="text-sm font-semibold">
+                    {shipment.transmitter_name || shipment.sede_transmitter}
                   </p>
-                )}
-                <p className="text-xs text-muted-foreground mt-1">
-                  {shipment.receiver_establishment?.full_address ||
-                    shipment.receiver_description ||
-                    "-"}
-                </p>
+                  {shipment.transmitter_establishment?.description && (
+                    <p className="text-xs text-muted-foreground">
+                      {shipment.transmitter_establishment.description}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {shipment.transmitter_establishment?.full_address ||
+                      shipment.transmitter_description ||
+                      "-"}
+                  </p>
+                </div>
+                <div className="rounded-lg border bg-card p-3 space-y-0.5">
+                  <p className="text-xs text-muted-foreground font-medium">Destino</p>
+                  <p className="text-sm font-semibold">
+                    {shipment.receiver_name}
+                  </p>
+                  {shipment.receiver_establishment?.description && (
+                    <p className="text-xs text-muted-foreground">
+                      {shipment.receiver_establishment.description}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {shipment.receiver_establishment?.full_address ||
+                      shipment.receiver_description ||
+                      "-"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -446,38 +493,12 @@ export function SheetShipmentDetailsDialog({
                     Detalle de la Guía ({shipment.items.length})
                   </h3>
                 </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Código</TableHead>
-                        <TableHead className="text-right">
-                          Descripción
-                        </TableHead>
-                        <TableHead className="text-right">Unidad</TableHead>
-                        <TableHead className="text-right">Cantidad</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {shipment.items.map((item) => (
-                        <TableRow key={item.codigo}>
-                          <TableCell className="text-sm">
-                            {item.codigo}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-medium">
-                            {item.descripcion}
-                          </TableCell>
-                          <TableCell className="text-right text-sm">
-                            {item.unidad}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-semibold">
-                            {item.cantidad}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  columns={shipmentItemsColumns}
+                  data={shipment.items}
+                  variant="outline"
+                  isVisibleColumnFilter={false}
+                />
               </div>
             </>
           )}
@@ -493,38 +514,12 @@ export function SheetShipmentDetailsDialog({
                     Checklist de Recepción ({receptionData.data.length})
                   </h3>
                 </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Producto</TableHead>
-                        <TableHead className="text-center">Cant.</TableHead>
-                        <TableHead className="text-center w-20">
-                          Estado
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {receptionData.data.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="text-sm">
-                            {item.receiving_description}
-                          </TableCell>
-                          <TableCell className="text-center text-sm font-medium">
-                            {item.quantity}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {item.quantity > 0 ? (
-                              <CheckCircle className="h-4 w-4 text-green-600 mx-auto" />
-                            ) : (
-                              <XCircle className="h-4 w-4 text-muted-foreground mx-auto" />
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  columns={receptionChecklistColumns}
+                  data={receptionData.data}
+                  variant="outline"
+                  isVisibleColumnFilter={false}
+                />
               </div>
             </>
           )}
@@ -538,32 +533,12 @@ export function SheetShipmentDetailsDialog({
                   <Wrench className="h-4 w-4 text-primary" />
                   <h3 className="font-semibold">Accesorios Incluidos</h3>
                 </div>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/50">
-                        <TableHead>Descripción</TableHead>
-                        <TableHead className="text-right">Cant.</TableHead>
-                        <TableHead className="text-right">Unidad</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {receptionData.accessories.map((accessory) => (
-                        <TableRow key={accessory.id}>
-                          <TableCell className="text-sm">
-                            {accessory.description}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-medium">
-                            {accessory.quantity}
-                          </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
-                            {accessory.unit_measurement}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataTable
+                  columns={receptionAccessoriesColumns}
+                  data={receptionData.accessories}
+                  variant="outline"
+                  isVisibleColumnFilter={false}
+                />
               </div>
             </>
           )}

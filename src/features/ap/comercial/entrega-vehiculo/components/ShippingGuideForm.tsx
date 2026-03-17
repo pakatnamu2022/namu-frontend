@@ -130,6 +130,7 @@ export const ShippingGuideForm = ({
       form.setValue("driver_doc", "", { shouldValidate: true });
       form.setValue("license", "", { shouldValidate: true });
       form.setValue("driver_name", "", { shouldValidate: true });
+      form.setValue("plate", "", { shouldValidate: true });
       driverDocChangedByUser.current = false;
     } else if (isPrivateTransport) {
       form.setValue("transport_company_id", "", { shouldValidate: true });
@@ -263,13 +264,6 @@ export const ShippingGuideForm = ({
             />
             <FormInput
               control={form.control}
-              name="driver_name"
-              label="Nombre del Conductor"
-              placeholder="Nombre completo"
-              disabled={isDisabled || shouldDisableLicenseFields}
-            />
-            <FormInput
-              control={form.control}
               name="license"
               label="Licencia de Conducir"
               placeholder="Ej: A12345678"
@@ -291,7 +285,7 @@ export const ShippingGuideForm = ({
           <GroupFormSection
             title="Datos del Transportista"
             icon={Truck}
-            cols={{ sm: 1, md: 2 }}
+            cols={{ sm: 1 }}
             gap="gap-4"
           >
             <FormSelectAsync
@@ -307,15 +301,6 @@ export const ShippingGuideForm = ({
               perPage={10}
               debounceMs={500}
               disabled={isDisabled}
-            />
-            <FormInput
-              control={form.control}
-              name="plate"
-              label="Placa del Vehículo (Opcional)"
-              placeholder="Ej: ABC-123"
-              disabled={isDisabled}
-              uppercase
-              optional
             />
           </GroupFormSection>
         )}

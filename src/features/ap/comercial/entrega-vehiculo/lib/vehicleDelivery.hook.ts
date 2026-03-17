@@ -7,7 +7,6 @@ import {
   sendVehicleDeliveryToNubefact,
   generateOrUpdateShippingGuide,
   queryVehicleDeliveryFromNubefact,
-  sendVehicleDeliveryToDynamic,
   getNextShippingGuideDocumentNumber,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
@@ -56,7 +55,7 @@ export const useSendVehicleDeliveryToNubefact = () => {
         successToast(response.message);
       } else {
         errorToast(
-          response.message || "Error al enviar la guía de remisión a Nubefact"
+          response.message || "Error al enviar la guía de remisión a Nubefact",
         );
       }
     },
@@ -91,7 +90,7 @@ export const useQueryVehicleDeliveryFromNubefact = () => {
         successToast(response.message);
       } else {
         errorToast(
-          response.message || "Error al consultar el estado de la guía"
+          response.message || "Error al consultar el estado de la guía",
         );
       }
     },
@@ -126,16 +125,9 @@ export const useGenerateOrUpdateShippingGuide = () => {
   });
 };
 
-// Hook para enviar a Dynamic
-export const useSendVehicleDeliveryToDynamic = () => {
-  return useMutation({
-    mutationFn: (id: number) => sendVehicleDeliveryToDynamic(id),
-  });
-};
-
 // Hook para obtener el siguiente número de guía de remisión
 export const useNextShippingGuideDocumentNumber = (
-  documentSeriesId?: number
+  documentSeriesId?: number,
 ) => {
   return useQuery({
     queryKey: ["shippingGuide", "next-document-number", documentSeriesId],

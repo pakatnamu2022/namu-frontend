@@ -119,6 +119,7 @@ export async function updateReceptionChecklist(
 
   formData.append("shipping_guide_id", payload.shipping_guide_id);
   formData.append("kilometers", payload.kilometers);
+  formData.append("has_pdi", payload.has_pdi ? "1" : "0");
 
   if (payload.note) formData.append("note", payload.note);
   if (payload.general_observations)

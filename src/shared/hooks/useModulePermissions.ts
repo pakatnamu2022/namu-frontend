@@ -164,6 +164,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "XCircle",
     description: "Permite solicitar la anular un registro",
   },
+  {
+    value: "migrate",
+    label: "Migrar",
+    icon: "XCircle",
+    description: "Permite migrar guías de remisión a nuevo sistema",
+  },
+  {
+    value: "generate",
+    label: "Generar",
+    icon: "Zap",
+    description: "Permite generar documentos o procesos automáticamente",
+  },
 ];
 
 /**
@@ -221,5 +233,7 @@ export function useModulePermissions(moduleCode: string) {
     canEditDiscount: hasModulePermission("editDiscount"),
     canSeeReception: hasModulePermission("seeReception"),
     canRequestCancellation: hasModulePermission("requestCancellation"),
+    canMigrate: hasModulePermission("migrate"),
+    canGenerate: hasModulePermission("generate"),
   };
 }
