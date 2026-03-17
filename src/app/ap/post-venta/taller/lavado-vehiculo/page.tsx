@@ -5,7 +5,6 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import VehicleDeliveryActions from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryActions";
 import VehicleDeliveryTable from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryTable";
 import {
   useVehicleDelivery,
@@ -63,7 +62,6 @@ export default function CardWashPage() {
           subtitle={"Gestión de Entregas de Vehículos"}
           icon={currentView.icon}
         />
-        <VehicleDeliveryActions permissions={permissions} />
       </HeaderTableWrapper>
       <VehicleDeliveryTable
         isLoading={isLoading}

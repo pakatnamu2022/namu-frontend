@@ -1,15 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  Building2,
-  Calendar,
   Car,
-  CheckCircle2,
-  ClipboardList,
+  CheckCircle,
+  Clock,
   Download,
   FileCheck,
   FileCode,
@@ -18,7 +18,6 @@ import {
   Package,
   QrCode,
   Truck,
-  User,
   XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -30,6 +29,24 @@ interface VehicleDeliveryDetailsSheetProps {
   onOpenChange: (open: boolean) => void;
   vehicleDelivery: VehiclesDeliveryResource | null;
 }
+
+const sunatStatusConfig = {
+  accepted: {
+    label: "Aceptado por SUNAT",
+    icon: CheckCircle,
+    className: "text-green-600",
+  },
+  rejected: {
+    label: "Rechazado por SUNAT",
+    icon: XCircle,
+    className: "text-red-600",
+  },
+  pending: {
+    label: "Pendiente de envío",
+    icon: Clock,
+    className: "text-muted-foreground",
+  },
+};
 
 export function VehicleDeliveryDetailsSheet({
   open,
@@ -43,15 +60,27 @@ export function VehicleDeliveryDetailsSheet({
     open && vehicleId > 0
   );
 
-  const formatDate = (date: string | Date | null | undefined) => {
-    if (!date) return "-";
-    try {
-      const parsedDate = typeof date === "string" ? new Date(date) : date;
-      return format(parsedDate, "dd/MM/yyyy HH:mm", { locale: es });
-    } catch {
-      return "-";
-    }
+  const isLoading = !vehicleDelivery && !!initialVehicle;
+
+  const isPublicTransport =
+    vehicleDelivery?.shipping_guide?.transfer_modality_id ===
+    SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
+  const isPrivateTransport =
+    vehicleDelivery?.shipping_guide?.transfer_modality_id ===
+    SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+
+  const getSunatStatus = (): keyof typeof sunatStatusConfig | null => {
+    if (!vehicleDelivery?.shipping_guide?.requires_sunat) return null;
+    if (vehicleDelivery.shipping_guide.aceptada_por_sunat === true)
+      return "accepted";
+    if (vehicleDelivery.shipping_guide.aceptada_por_sunat === false)
+      return "rejected";
+    return "pending";
   };
+
+  const sunatStatus = getSunatStatus();
+  const sunatConfig = sunatStatus ? sunatStatusConfig[sunatStatus] : null;
+  const SunatIcon = sunatConfig?.icon;
 
   const formatDateOnly = (date: string | Date | null | undefined) => {
     if (!date) return "-";
@@ -63,559 +92,438 @@ export function VehicleDeliveryDetailsSheet({
     }
   };
 
-  const isPublicTransport =
-    vehicleDelivery?.shipping_guide?.transfer_modality_id ===
-    SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
-  const isPrivateTransport =
-    vehicleDelivery?.shipping_guide?.transfer_modality_id ===
-    SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+  const guide = vehicleDelivery?.shipping_guide;
 
   return (
     <GeneralSheet
       open={open}
       onClose={() => onOpenChange(false)}
       title="Detalles de Entrega de Vehículo"
-      subtitle={vehicleDelivery ? `VIN: ${vehicleDelivery.vin || "N/A"}` : undefined}
+      subtitle={
+        vehicleDelivery ? `VIN: ${vehicleDelivery.vin || "N/A"}` : undefined
+      }
       icon="Truck"
-      size="4xl"
-      isLoading={!vehicleDelivery && !!initialVehicle}
+      size="5xl"
     >
-      {vehicleDelivery && (
-        <div className="space-y-6">
-          {/* Información del Vehículo */}
-          <div className="space-y-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Car className="size-5 text-primary mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 mb-1">VIN</p>
-                    <p className="text-base font-semibold text-gray-900">
-                      {vehicleDelivery.vin || "-"}
-                    </p>
+      {isLoading ? (
+        <FormSkeleton />
+      ) : (
+        vehicleDelivery && (
+          <div className="space-y-3">
+            {/* VIN y Estado SUNAT */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">VIN</p>
+                <p className="text-sm font-semibold">
+                  {vehicleDelivery.vin || "-"}
+                </p>
+              </div>
+              {sunatConfig && SunatIcon && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Estado SUNAT</p>
+                  <div className="flex items-center gap-1">
+                    <SunatIcon
+                      className={`h-4 w-4 ${sunatConfig.className}`}
+                    />
+                    <span
+                      className={`text-sm font-medium ${sunatConfig.className}`}
+                    >
+                      {sunatConfig.label}
+                    </span>
                   </div>
                 </div>
+              )}
+            </div>
 
-                <div className="flex items-start gap-3">
-                  <Building2 className="size-5 text-primary mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Sede</p>
-                    <p className="text-base text-gray-900">
+            {/* Archivos SUNAT */}
+            {guide?.requires_sunat &&
+              guide.is_sunat_registered &&
+              (guide.enlace_del_pdf ||
+                guide.enlace_del_xml ||
+                guide.enlace_del_cdr ||
+                guide.cadena_para_codigo_qr) && (
+                <>
+                  <Separator />
+                  <div className="space-y-3">
+                    <h3 className="font-semibold">Archivos Disponibles</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {guide.enlace_del_pdf && (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            to={guide.enlace_del_pdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Ver PDF
+                          </Link>
+                        </Button>
+                      )}
+                      {guide.enlace_del_xml && (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            to={guide.enlace_del_xml}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FileCode className="h-4 w-4 mr-2" />
+                            Descargar XML
+                          </Link>
+                        </Button>
+                      )}
+                      {guide.enlace_del_cdr && (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            to={guide.enlace_del_cdr}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Descargar CDR
+                          </Link>
+                        </Button>
+                      )}
+                      {guide.cadena_para_codigo_qr && (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            to={guide.cadena_para_codigo_qr}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <QrCode className="h-4 w-4 mr-2" />
+                            Ver QR
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+            <Separator />
+
+            {/* Información del Vehículo */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Car className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold">Información del Vehículo</h3>
+              </div>
+              <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Sede</p>
+                    <p className="text-sm font-medium">
                       {vehicleDelivery.sede_name || "-"}
                     </p>
                   </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <User className="size-5 text-primary mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Asesor</p>
-                    <p className="text-base text-gray-900">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Asesor</p>
+                    <p className="text-sm font-medium">
                       {vehicleDelivery.advisor_name || "-"}
                     </p>
                   </div>
-                </div>
-
-                {vehicleDelivery.client_name && (
-                  <div className="flex items-start gap-3">
-                    <User className="size-5 text-primary mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-gray-500 mb-1">
-                        Cliente
-                      </p>
-                      <p className="text-base text-gray-900">
+                  {vehicleDelivery.client_name && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Cliente</p>
+                      <p className="text-sm font-medium">
                         {vehicleDelivery.client_name}
                       </p>
                     </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Fecha Lavado
+                    </p>
+                    <p className="text-sm font-medium">
+                      {formatDateOnly(vehicleDelivery.wash_date)}
+                    </p>
                   </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Entrega Programada
+                    </p>
+                    <p className="text-sm font-medium">
+                      {formatDateOnly(vehicleDelivery.scheduled_delivery_date)}
+                    </p>
+                  </div>
+                </div>
+                {vehicleDelivery.observations && (
+                  <>
+                    <Separator />
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Observaciones
+                      </p>
+                      <p className="text-sm">{vehicleDelivery.observations}</p>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
 
-            {/* Fechas */}
-            <div className="border-t border-blue-200 pt-4 mt-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Calendar className="size-5 text-primary" />
-                <h4 className="text-sm font-semibold text-primary">Fechas</h4>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-1">
-                    Fecha Lavado
-                  </p>
-                  <p className="text-sm text-gray-900">
-                    {formatDateOnly(vehicleDelivery.wash_date)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-1">
-                    Fecha Entrega Programada
-                  </p>
-                  <p className="text-sm text-gray-900">
-                    {formatDateOnly(vehicleDelivery.scheduled_delivery_date)}
-                  </p>
-                </div>
-              </div>
-            </div>
+            {guide && (
+              <>
+                <Separator />
 
-            {/* Observaciones */}
-            {vehicleDelivery.observations && (
-              <div className="border-t border-blue-200 pt-4 mt-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <ClipboardList className="size-5 text-primary" />
-                  <h4 className="text-sm font-semibold text-primary">
-                    Observaciones
-                  </h4>
-                </div>
-                <p className="text-sm text-gray-900">
-                  {vehicleDelivery.observations}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Guía de Remisión */}
-          {vehicleDelivery.shipping_guide && (
-            <>
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                  <FileText className="size-5 text-primary" />
-                  Guía de Remisión
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <FileCheck className="size-5 text-primary mt-0.5" />
+                {/* Información General de la Guía */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold">Guía de Remisión</h3>
+                  </div>
+                  <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground">
                           Número de Documento
                         </p>
-                        <p className="text-base font-semibold text-gray-900">
-                          {vehicleDelivery.shipping_guide.document_number}
+                        <p className="text-sm font-medium">
+                          {guide.document_number}
                         </p>
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <FileText className="size-5 text-primary mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground">
                           Tipo de Documento
                         </p>
-                        <Badge color="default">
-                          {vehicleDelivery.shipping_guide.document_type ===
-                          "GUIA_REMISION"
-                            ? "Guía Remisión"
-                            : "Guía Traslado"}
+                        <Badge variant="outline" className="mt-1">
+                          {guide.document_type === "GUIA_REMISION"
+                            ? "Guía de Remisión"
+                            : "Guía de Traslado"}
                         </Badge>
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <Calendar className="size-5 text-primary mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground">
                           Fecha de Emisión
                         </p>
-                        <p className="text-base text-gray-900">
-                          {vehicleDelivery.shipping_guide.issue_date
-                            ? format(
-                                new Date(
-                                  vehicleDelivery.shipping_guide.issue_date
-                                ),
-                                "dd/MM/yyyy",
-                                { locale: es }
+                        <p className="text-sm font-medium">
+                          {guide.issue_date
+                            ? new Date(guide.issue_date).toLocaleDateString(
+                                "es-PE",
+                                {
+                                  day: "2-digit",
+                                  month: "long",
+                                  year: "numeric",
+                                }
                               )
                             : "-"}
                         </p>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <Building2 className="size-5 text-primary mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground">
                           Tipo de Emisor
                         </p>
-                        <Badge variant="outline">
-                          {vehicleDelivery.shipping_guide.issuer_type}
-                        </Badge>
+                        <p className="text-sm font-medium">
+                          {guide.issuer_type}
+                        </p>
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <ClipboardList className="size-5 text-primary mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground">
                           Motivo de Traslado
                         </p>
-                        <p className="text-base text-gray-900">
-                          {
-                            vehicleDelivery.shipping_guide
-                              .transfer_reason_description
-                          }
+                        <p className="text-sm font-medium">
+                          {guide.transfer_reason_description || "-"}
                         </p>
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <Truck className="size-5 text-primary mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
+                        <p className="text-xs text-muted-foreground">
                           Modalidad de Transporte
                         </p>
-                        <p className="text-base text-gray-900">
-                          {
-                            vehicleDelivery.shipping_guide
-                              .transfer_modality_description
-                          }
+                        <p className="text-sm font-medium">
+                          {guide.transfer_modality_description || "-"}
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Información de Transporte */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                  <Truck className="size-5 text-primary" />
-                  Información de Transporte
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">Placa</p>
-                    <p className="text-base font-semibold text-gray-900">
-                      {vehicleDelivery.shipping_guide.plate || "-"}
-                    </p>
+                <Separator />
+
+                {/* Información de Transporte */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold">Información de Transporte</h3>
                   </div>
-
-                  {isPrivateTransport ? (
-                    <>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Conductor
-                        </p>
-                        <p className="text-base text-gray-900">
-                          {vehicleDelivery.shipping_guide.driver_name || "-"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Licencia
-                        </p>
-                        <p className="text-base text-gray-900">
-                          {vehicleDelivery.shipping_guide.license || "-"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          DNI Conductor
-                        </p>
-                        <p className="text-base text-gray-900">
-                          {vehicleDelivery.shipping_guide.driver_doc || "-"}
-                        </p>
-                      </div>
-                    </>
-                  ) : isPublicTransport ? (
-                    <>
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          RUC Transportista
-                        </p>
-                        <p className="text-base font-semibold text-gray-900">
-                          {vehicleDelivery.shipping_guide.ruc_transport || "-"}
-                        </p>
-                      </div>
-                      <div className="md:col-span-2">
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Razón Social Transportista
-                        </p>
-                        <p className="text-base text-gray-900">
-                          {vehicleDelivery.shipping_guide
-                            .company_name_transport || "-"}
-                        </p>
-                      </div>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-
-              {/* Origen y Destino */}
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                  <MapPin className="size-5 text-primary" />
-                  Origen y Destino
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-5 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 shadow-sm">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-2 bg-primary rounded-lg">
-                        <Building2 className="size-4 text-white" />
-                      </div>
-                      <span className="text-sm font-bold text-primary uppercase tracking-wide">
-                        Origen
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-base font-bold text-gray-900">
-                        {vehicleDelivery.shipping_guide.transmitter_name ||
-                          vehicleDelivery.shipping_guide.sede_transmitter}
-                      </p>
-                      {vehicleDelivery.shipping_guide.transmitter_establishment
-                        ?.description && (
-                        <p className="text-sm font-medium text-primary">
-                          {
-                            vehicleDelivery.shipping_guide
-                              .transmitter_establishment.description
-                          }
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        {vehicleDelivery.shipping_guide
-                          .transmitter_establishment?.full_address ||
-                          vehicleDelivery.shipping_guide
-                            .transmitter_description}
+                  <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Placa</p>
+                      <p className="text-sm font-semibold">
+                        {guide.plate || "-"}
                       </p>
                     </div>
-                  </div>
-
-                  <div className="p-5 bg-linear-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300 shadow-sm">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-2 bg-secondary rounded-lg">
-                        <Building2 className="size-4 text-white" />
-                      </div>
-                      <span className="text-sm font-bold text-red-900 uppercase tracking-wide">
-                        Destino
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-base font-bold text-gray-900">
-                        {vehicleDelivery.client_name ||
-                          vehicleDelivery.shipping_guide.receiver_name}
-                      </p>
-                      {vehicleDelivery.shipping_guide.receiver_establishment
-                        ?.description && (
-                        <p className="text-sm font-medium text-secondary">
-                          {vehicleDelivery.shipping_guide.destination_ubigeo}
-                        </p>
-                      )}
-                      {vehicleDelivery.shipping_guide.destination_address ? (
-                        <p className="text-xs text-gray-600 leading-relaxed">
-                          {vehicleDelivery.shipping_guide.destination_address}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-600 leading-relaxed">
-                          {vehicleDelivery.shipping_guide.receiver_establishment
-                            ?.full_address ||
-                            vehicleDelivery.shipping_guide.receiver_description}
-                        </p>
-                      )}
-                    </div>
+                    {isPrivateTransport ? (
+                      <>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Conductor
+                          </p>
+                          <p className="text-sm font-medium">
+                            {guide.driver_name || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Licencia
+                          </p>
+                          <p className="text-sm font-medium">
+                            {guide.license || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            DNI Conductor
+                          </p>
+                          <p className="text-sm font-medium">
+                            {guide.driver_doc || "-"}
+                          </p>
+                        </div>
+                      </>
+                    ) : isPublicTransport ? (
+                      <>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            RUC Transportista
+                          </p>
+                          <p className="text-sm font-semibold">
+                            {guide.ruc_transport || "-"}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-xs text-muted-foreground">
+                            Razón Social Transportista
+                          </p>
+                          <p className="text-sm font-medium">
+                            {guide.company_name_transport || "-"}
+                          </p>
+                        </div>
+                      </>
+                    ) : null}
                   </div>
                 </div>
-              </div>
 
-              {/* Información de Carga */}
-              {(vehicleDelivery.shipping_guide.total_packages ||
-                vehicleDelivery.shipping_guide.total_weight) && (
+                <Separator />
+
+                {/* Origen y Destino */}
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                    <Package className="size-5 text-primary" />
-                    Información de Carga
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-purple-50/50 rounded-lg border border-purple-100">
-                    {vehicleDelivery.shipping_guide.total_packages && (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Total de Paquetes
-                        </p>
-                        <p className="text-base font-semibold text-gray-900">
-                          {vehicleDelivery.shipping_guide.total_packages}
-                        </p>
-                      </div>
-                    )}
-                    {vehicleDelivery.shipping_guide.total_weight && (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">
-                          Peso Total
-                        </p>
-                        <p className="text-base font-semibold text-gray-900">
-                          {vehicleDelivery.shipping_guide.total_weight} kg
-                        </p>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold">Origen y Destino</h3>
                   </div>
-                </div>
-              )}
-
-              {/* Estado SUNAT */}
-              {vehicleDelivery.shipping_guide.requires_sunat && (
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                    <FileCheck className="size-5 text-primary" />
-                    Estado SUNAT de la Guía
-                  </h3>
-                  <div className="p-5 bg-blue-50/50 rounded-lg border border-blue-100 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        Registrado en SUNAT
-                      </span>
-                      {vehicleDelivery.shipping_guide.is_sunat_registered ? (
-                        <CheckCircle2 className="size-5 text-green-600" />
-                      ) : (
-                        <XCircle className="size-5 text-secondary" />
-                      )}
+                  <div className="flex gap-4">
+                    {/* Timeline */}
+                    <div className="flex flex-col items-center pt-1">
+                      <div className="w-3 h-3 rounded-full bg-foreground ring-2 ring-background ring-offset-1 ring-offset-foreground/20" />
+                      <div className="w-px flex-1 bg-border my-1" />
+                      <div className="w-3 h-3 rounded-full bg-muted-foreground ring-2 ring-background ring-offset-1 ring-offset-muted-foreground/20" />
                     </div>
-                    {vehicleDelivery.shipping_guide.sent_at && (
-                      <div>
-                        <span className="text-sm font-medium">
-                          Fecha de Envío:{" "}
-                        </span>
-                        <span className="text-sm">
-                          {formatDate(vehicleDelivery.shipping_guide.sent_at)}
-                        </span>
+                    {/* Content */}
+                    <div className="flex-1 space-y-3">
+                      <div className="rounded-lg border bg-card p-3 space-y-0.5">
+                        <p className="text-xs text-muted-foreground font-medium">Origen</p>
+                        <p className="text-sm font-semibold">
+                          {guide.transmitter_name || guide.sede_transmitter}
+                        </p>
+                        {guide.transmitter_establishment?.description && (
+                          <p className="text-xs text-muted-foreground">
+                            {guide.transmitter_establishment.description}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {guide.transmitter_establishment?.full_address ||
+                            guide.transmitter_description ||
+                            "-"}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        Aceptado por SUNAT
-                      </span>
-                      {vehicleDelivery.shipping_guide.aceptada_por_sunat ? (
-                        <CheckCircle2 className="size-5 text-green-600" />
-                      ) : (
-                        <XCircle className="size-5 text-secondary" />
-                      )}
+                      <div className="rounded-lg border bg-card p-3 space-y-0.5">
+                        <p className="text-xs text-muted-foreground font-medium">Destino</p>
+                        <p className="text-sm font-semibold">
+                          {vehicleDelivery.client_name || guide.receiver_name}
+                        </p>
+                        {guide.receiver_establishment?.description && (
+                          <p className="text-xs text-muted-foreground">
+                            {guide.destination_ubigeo}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {guide.destination_address ||
+                            guide.receiver_establishment?.full_address ||
+                            guide.receiver_description ||
+                            "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {/* Notas de la Guía */}
-              {(vehicleDelivery.shipping_guide.notes ||
-                vehicleDelivery.shipping_guide.note_received) && (
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                    <ClipboardList className="size-5 text-primary" />
-                    Notas de la Guía
-                  </h3>
-                  <div className="space-y-2">
-                    {vehicleDelivery.shipping_guide.notes && (
-                      <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-100">
-                        <p className="text-sm font-medium text-primary mb-1">
-                          Nota de Guía
-                        </p>
-                        <p className="text-sm text-gray-900">
-                          {vehicleDelivery.shipping_guide.notes}
-                        </p>
+                {/* Información de Carga */}
+                {(guide.total_packages || guide.total_weight) && (
+                  <>
+                    <Separator />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold">
+                          Información de Carga
+                        </h3>
                       </div>
-                    )}
-                    {vehicleDelivery.shipping_guide.note_received && (
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-300">
-                        <p className="text-sm font-medium text-gray-800 mb-1">
-                          Nota de Recepción
-                        </p>
-                        <p className="text-sm text-gray-900">
-                          {vehicleDelivery.shipping_guide.note_received}
-                        </p>
+                      <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
+                        {guide.total_packages && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              Total de Paquetes
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {guide.total_packages}
+                            </p>
+                          </div>
+                        )}
+                        {guide.total_weight && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              Peso Total
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {guide.total_weight} kg
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Documentos SUNAT */}
-              {vehicleDelivery.shipping_guide.requires_sunat &&
-                vehicleDelivery.shipping_guide.is_sunat_registered &&
-                (vehicleDelivery.shipping_guide.enlace_del_pdf ||
-                  vehicleDelivery.shipping_guide.enlace_del_xml ||
-                  vehicleDelivery.shipping_guide.enlace_del_cdr ||
-                  vehicleDelivery.shipping_guide.cadena_para_codigo_qr) && (
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                      <FileText className="size-5 text-primary" />
-                      Documentos SUNAT
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {vehicleDelivery.shipping_guide.enlace_del_pdf && (
-                        <Link
-                          to={vehicleDelivery.shipping_guide.enlace_del_pdf}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full gap-2 h-20 flex-col hover:bg-blue-50 hover:border-blue-300"
-                          >
-                            <FileText className="size-6 text-secondary" />
-                            <span className="text-xs">Ver PDF</span>
-                          </Button>
-                        </Link>
-                      )}
-
-                      {vehicleDelivery.shipping_guide.enlace_del_xml && (
-                        <Link
-                          to={vehicleDelivery.shipping_guide.enlace_del_xml}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full gap-2 h-20 flex-col hover:bg-blue-50 hover:border-blue-300"
-                          >
-                            <FileCode className="size-6 text-primary" />
-                            <span className="text-xs">Descargar XML</span>
-                          </Button>
-                        </Link>
-                      )}
-
-                      {vehicleDelivery.shipping_guide.enlace_del_cdr && (
-                        <Link
-                          to={vehicleDelivery.shipping_guide.enlace_del_cdr}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full gap-2 h-20 flex-col hover:bg-blue-50 hover:border-blue-300"
-                          >
-                            <Download className="size-6 text-primary" />
-                            <span className="text-xs">Descargar CDR</span>
-                          </Button>
-                        </Link>
-                      )}
-
-                      {vehicleDelivery.shipping_guide.cadena_para_codigo_qr && (
-                        <Link
-                          to={
-                            vehicleDelivery.shipping_guide.cadena_para_codigo_qr
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full gap-2 h-20 flex-col hover:bg-blue-50 hover:border-blue-300"
-                          >
-                            <QrCode className="size-6 text-primary" />
-                            <span className="text-xs">Ver QR</span>
-                          </Button>
-                        </Link>
-                      )}
                     </div>
-                  </div>
+                  </>
                 )}
-            </>
-          )}
-        </div>
+
+                {/* Notas de la Guía */}
+                {(guide.notes || guide.note_received) && (
+                  <>
+                    <Separator />
+                    <div className="space-y-3">
+                      <h3 className="font-semibold">Notas</h3>
+                      <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
+                        {guide.notes && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              Nota de Guía
+                            </p>
+                            <p className="text-sm">{guide.notes}</p>
+                          </div>
+                        )}
+                        {guide.notes && guide.note_received && <Separator />}
+                        {guide.note_received && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              Nota de Recepción
+                            </p>
+                            <p className="text-sm">{guide.note_received}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        )
       )}
     </GeneralSheet>
   );

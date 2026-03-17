@@ -8,6 +8,7 @@ import { storeRole, updateRole } from "../lib/role.actions";
 import {
   ERROR_MESSAGE,
   errorToast,
+  SUBTITLE,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export default function RoleModal({ id, open, onClose, title, mode }: Props) {
-  const { EMPTY, MODEL, QUERY_KEY } = ROLE;
+  const { EMPTY, MODEL, QUERY_KEY, ICON } = ROLE;
   const queryClient = useQueryClient();
   const {
     data: role,
@@ -64,7 +65,13 @@ export default function RoleModal({ id, open, onClose, title, mode }: Props) {
   const isLoadingAny = loadingRole || !role;
 
   return (
-    <GeneralModal open={open} onClose={onClose} title={title}>
+    <GeneralModal
+      open={open}
+      onClose={onClose}
+      title={title}
+      icon={ICON}
+      subtitle={SUBTITLE(MODEL, mode)}
+    >
       {!isLoadingAny && role ? (
         <RoleForm
           defaultValues={mapRoleToForm(role)}

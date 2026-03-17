@@ -9,7 +9,6 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { SHIPMENTS_RECEPTIONS } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.constants";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ShipmentsReceptionsForm } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsForm";
@@ -24,6 +23,7 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useEffect } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function UpdateShipmentsReceptionsPage() {
   const { id } = useParams();
@@ -115,7 +115,7 @@ export default function UpdateShipmentsReceptionsPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <div className="space-y-4">
         <TitleFormComponent
           title={MODEL.name}
@@ -129,6 +129,6 @@ export default function UpdateShipmentsReceptionsPage() {
           mode="update"
         />
       </div>
-    </FormWrapper>
+    </PageWrapper>
   );
 }
