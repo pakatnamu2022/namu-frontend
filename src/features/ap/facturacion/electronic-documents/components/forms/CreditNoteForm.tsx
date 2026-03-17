@@ -207,54 +207,6 @@ export function CreditNoteForm({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Original Document Info */}
-            <GroupFormSection
-              title="Documento Original"
-              icon={FileCheck}
-              color="primary"
-              cols={{ sm: 1, md: 3 }}
-            >
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Tipo de Documento
-                </Label>
-                <p className="font-semibold">
-                  {originalDocument.document_type?.description}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Serie - Número
-                </Label>
-                <p className="font-semibold">
-                  {originalDocument.serie}-{originalDocument.numero}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">Moneda</Label>
-                <p className="font-semibold">
-                  {originalDocument.currency?.description}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-muted-foreground text-xs">Cliente</Label>
-                <p className="font-semibold">
-                  {originalDocument.cliente_denominacion}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {originalDocument.cliente_numero_de_documento}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Total Original
-                </Label>
-                <p className="font-semibold text-lg">
-                  {currency} {Math.abs(originalDocument.total).toFixed(2)}
-                </p>
-              </div>
-            </GroupFormSection>
-
             {/* Credit Note Configuration */}
             <GroupFormSection
               title="Configuración de Nota de Crédito"
@@ -544,6 +496,36 @@ export function CreditNoteForm({
               </CardHeader>
 
               <CardContent className="space-y-4">
+                {/* Original Document Info */}
+                <div className="p-3 rounded-lg bg-muted/30 border space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Documento Original
+                  </p>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-semibold">
+                      {originalDocument.serie}-{originalDocument.numero}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {originalDocument.document_type?.description}
+                    </p>
+                    <p className="text-xs font-medium truncate">
+                      {originalDocument.cliente_denominacion}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {originalDocument.cliente_numero_de_documento}
+                    </p>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">
+                      Total Original
+                    </span>
+                    <span className="text-sm font-bold">
+                      {currency} {Math.abs(originalDocument.total).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Type info */}
                 {selectedTypeId > 0 && (
                   <div className="p-3 rounded-lg bg-muted/30 border space-y-1">
