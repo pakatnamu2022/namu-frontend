@@ -74,7 +74,7 @@ export default function ManageQuotationPage() {
       if (showLoading) {
         errorToast("Error al cargar los datos");
       }
-      console.error(error);
+      errorToast(error?.response?.data?.message || "Error al cargar los datos");
     } finally {
       if (showLoading) {
         setIsLoading(false);

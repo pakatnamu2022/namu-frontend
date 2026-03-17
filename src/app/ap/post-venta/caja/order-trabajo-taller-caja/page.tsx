@@ -16,16 +16,23 @@ import {
   WORK_ORDER_STATUS_ID,
   WORKER_ORDER_CAJA,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
-import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
+import {
+  useGetWorkOrder,
+  useGetWorkOrderWithInternalNotes,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import WorkOrderTable from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderTable";
 import WorkOrderOptions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import { workOrderCajaColumns } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderCajaColumns";
+import WorkOrderActionsFilters, {
+  WorkOrderCajaView,
+} from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderActionsFilters";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const [activeView, setActiveView] = useState<WorkOrderCajaView>("OT");
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -42,7 +49,7 @@ export default function WorkOrderCajaPage() {
   );
 
   const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+    return date ? date.toLocaleDateString("en-CA") : undefined;
   };
 
   const handleDateFromChange = (date: Date | undefined) => {
@@ -53,15 +60,24 @@ export default function WorkOrderCajaPage() {
     }
   };
 
-  const { data, isLoading } = useGetWorkOrder({
+  const handleViewChange = (view: WorkOrderCajaView) => {
+    setActiveView(view);
+    setPage(1);
+  };
+
+  const commonParams = {
+    page,
+    search,
+    per_page,
+    opening_date:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
+  };
+
+  const { data: dataOT, isLoading: isLoadingOT } = useGetWorkOrder({
     params: {
-      page,
-      search,
-      per_page,
-      opening_date:
-        dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
-          : undefined,
+      ...commonParams,
       status_id: [
         WORK_ORDER_STATUS_ID.RECEPCIONADO,
         WORK_ORDER_STATUS_ID.EN_TRABAJO,
@@ -70,6 +86,36 @@ export default function WorkOrderCajaPage() {
       ],
     },
   });
+
+  const { data: dataPending, isLoading: isLoadingPending } =
+    useGetWorkOrderWithInternalNotes({
+      params: {
+        ...commonParams,
+        internal_note_status: "pending",
+      },
+    });
+
+  const { data: dataInvoiced, isLoading: isLoadingInvoiced } =
+    useGetWorkOrderWithInternalNotes({
+      params: {
+        ...commonParams,
+        internal_note_status: "invoiced",
+      },
+    });
+
+  const currentData =
+    activeView === "OT"
+      ? dataOT
+      : activeView === "PENDING"
+        ? dataPending
+        : dataInvoiced;
+
+  const currentIsLoading =
+    activeView === "OT"
+      ? isLoadingOT
+      : activeView === "PENDING"
+        ? isLoadingPending
+        : isLoadingInvoiced;
 
   const handleManage = (id: number) => {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
@@ -87,15 +133,19 @@ export default function WorkOrderCajaPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
+        <WorkOrderActionsFilters
+          activeView={activeView}
+          onViewChange={handleViewChange}
+        />
       </HeaderTableWrapper>
 
       <WorkOrderTable
-        isLoading={isLoading}
+        isLoading={currentIsLoading}
         columns={workOrderCajaColumns({
           onManage: handleManage,
           permissions,
         })}
-        data={data?.data || []}
+        data={currentData?.data || []}
       >
         <WorkOrderOptions
           search={search}
@@ -109,8 +159,8 @@ export default function WorkOrderCajaPage() {
 
       <DataTablePagination
         page={page}
-        totalPages={data?.meta?.last_page || 1}
-        totalData={data?.meta?.total || 0}
+        totalPages={currentData?.meta?.last_page || 1}
+        totalData={currentData?.meta?.total || 0}
         onPageChange={setPage}
         per_page={per_page}
         setPerPage={setPerPage}

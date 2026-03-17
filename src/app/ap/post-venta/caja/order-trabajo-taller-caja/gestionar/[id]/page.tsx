@@ -104,9 +104,11 @@ export default function ManageWorkOrderCajaPage() {
       setIsDownloading(true);
       await downloadPreLiquidationPdf(workOrder.id);
       successToast("PDF descargado exitosamente");
-    } catch (error) {
-      console.error("Error al descargar PDF:", error);
-      errorToast("Error al descargar el PDF de la preliquidación");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al descargar el PDF de la preliquidación",
+      );
     } finally {
       setIsDownloading(false);
     }

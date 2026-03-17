@@ -9,6 +9,7 @@ import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderIte
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
 interface Props {
+  onInternalNote: (id: number) => void;
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export const workOrderColumns = ({
+  onInternalNote,
   onDelete,
   onUpdate,
   onManage,
@@ -99,6 +101,7 @@ export const workOrderColumns = ({
     },
   },
   {
+    id: "type_planning",
     accessorKey: "items",
     header: "Tipo de Planificación",
     cell: ({ getValue }) => {
@@ -108,6 +111,7 @@ export const workOrderColumns = ({
     },
   },
   {
+    id: "type_operation",
     accessorKey: "items",
     header: "Tipo de Operación",
     cell: ({ getValue }) => {
@@ -117,6 +121,7 @@ export const workOrderColumns = ({
     },
   },
   {
+    id: "items_description",
     accessorKey: "items",
     header: "Descripción",
     cell: ({ getValue }) => {
@@ -188,6 +193,7 @@ export const workOrderColumns = ({
       <WorkOrderActionCell
         row={row.original}
         permissions={permissions}
+        onInternalNote={onInternalNote}
         onDelete={onDelete}
         onUpdate={onUpdate}
         onManage={onManage}

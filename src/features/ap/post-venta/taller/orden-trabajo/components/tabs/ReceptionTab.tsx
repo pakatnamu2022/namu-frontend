@@ -97,9 +97,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       setDialogOpen(false);
       setCancellationReason("");
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
-    } catch (error) {
-      console.error("Error al solicitar anulación:", error);
-      errorToast("Error al solicitar la anulación");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al solicitar la anulación",
+      );
     } finally {
       setIsCancelling(false);
     }
@@ -113,9 +114,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       successToast("Anulación confirmada exitosamente");
       setConfirmDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
-    } catch (error) {
-      console.error("Error al confirmar anulación:", error);
-      errorToast("Error al confirmar la anulación");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al confirmar la anulación",
+      );
     }
   };
 
@@ -126,9 +128,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         queryKey: ["workOrder", workOrderId],
       });
       successToast("Información actualizada");
-    } catch (error) {
-      console.error("Error al actualizar:", error);
-      errorToast("Error al actualizar la información");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al actualizar la información",
+      );
     } finally {
       setIsRefreshing(false);
     }

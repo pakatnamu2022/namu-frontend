@@ -32,6 +32,7 @@ import {
   CommandEmpty,
   CommandItem,
 } from "@/components/ui/command";
+import { errorToast } from "@/core/core.function";
 
 interface AppointmentCalendarViewProps {
   asesores: WorkerResource[];
@@ -43,7 +44,7 @@ export default function AppointmentCalendarView({
   isLoadingAsesores,
 }: AppointmentCalendarViewProps) {
   const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
+    startOfWeek(new Date(), { weekStartsOn: 1 }),
   );
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedAdvisor, setSelectedAdvisor] = useState<string>("all");
@@ -56,7 +57,7 @@ export default function AppointmentCalendarView({
 
   useEffect(() => {
     loadSlots();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWeekStart]);
 
   const loadSlots = async () => {
@@ -68,15 +69,18 @@ export default function AppointmentCalendarView({
         end_date: format(weekEnd, "yyyy-MM-dd"),
       });
       setAvailableSlots(slots);
-    } catch (error) {
-      console.error("Error loading slots:", error);
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al cargar los horarios disponibles",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const weekDays = Array.from({ length: 7 }, (_, i) =>
-    addDays(currentWeekStart, i)
+    addDays(currentWeekStart, i),
   );
 
   const handlePreviousWeek = () => {
@@ -104,7 +108,7 @@ export default function AppointmentCalendarView({
     }
 
     return daySlots.filter(
-      (slot) => slot.advisor_id === parseInt(selectedAdvisor)
+      (slot) => slot.advisor_id === parseInt(selectedAdvisor),
     );
   };
 
@@ -143,7 +147,7 @@ export default function AppointmentCalendarView({
                 "dd MMM yyyy",
                 {
                   locale: es,
-                }
+                },
               )}
             </p>
           </div>
@@ -202,7 +206,7 @@ export default function AppointmentCalendarView({
                             "mr-2 h-4 w-4",
                             selectedAdvisor === "all"
                               ? "opacity-100"
-                              : "opacity-0"
+                              : "opacity-0",
                           )}
                         />
                         Todos los asesores
@@ -221,7 +225,7 @@ export default function AppointmentCalendarView({
                               "mr-2 h-4 w-4",
                               selectedAdvisor === String(asesor.id)
                                 ? "opacity-100"
-                                : "opacity-0"
+                                : "opacity-0",
                             )}
                           />
                           {asesor.name}
@@ -255,9 +259,9 @@ export default function AppointmentCalendarView({
                 isPast
                   ? "bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed"
                   : occupiedCount > 0
-                  ? "bg-white border-blue-200 hover:border-blue-400 hover:shadow-lg cursor-pointer"
-                  : "bg-gray-50 border-gray-200 opacity-75 cursor-pointer hover:border-gray-400",
-                isToday && "ring-2 ring-primary ring-offset-2"
+                    ? "bg-white border-blue-200 hover:border-blue-400 hover:shadow-lg cursor-pointer"
+                    : "bg-gray-50 border-gray-200 opacity-75 cursor-pointer hover:border-gray-400",
+                isToday && "ring-2 ring-primary ring-offset-2",
               )}
             >
               {isToday && (
@@ -268,7 +272,7 @@ export default function AppointmentCalendarView({
               <Calendar
                 className={cn(
                   "h-6 w-6",
-                  isPast ? "text-gray-400" : "text-primary"
+                  isPast ? "text-gray-400" : "text-primary",
                 )}
               />
               <div className="text-center">
@@ -288,7 +292,7 @@ export default function AppointmentCalendarView({
                     <div
                       className={cn(
                         "h-2 w-2 rounded-full",
-                        occupiedCount > 0 ? "bg-orange-500" : "bg-gray-300"
+                        occupiedCount > 0 ? "bg-orange-500" : "bg-gray-300",
                       )}
                     />
                     <span className="text-xs font-semibold">
@@ -321,16 +325,19 @@ export default function AppointmentCalendarView({
     });
 
     // Agrupar por asesor
-    const slotsByAdvisor = occupiedSlots.reduce((acc, slot) => {
-      if (!acc[slot.advisor_id]) {
-        acc[slot.advisor_id] = {
-          name: slot.advisor_name,
-          slots: [],
-        };
-      }
-      acc[slot.advisor_id].slots.push(slot);
-      return acc;
-    }, {} as Record<number, { name: string; slots: TimeSlot[] }>);
+    const slotsByAdvisor = occupiedSlots.reduce(
+      (acc, slot) => {
+        if (!acc[slot.advisor_id]) {
+          acc[slot.advisor_id] = {
+            name: slot.advisor_name,
+            slots: [],
+          };
+        }
+        acc[slot.advisor_id].slots.push(slot);
+        return acc;
+      },
+      {} as Record<number, { name: string; slots: TimeSlot[] }>,
+    );
 
     return (
       <div className="space-y-6">
@@ -384,7 +391,7 @@ export default function AppointmentCalendarView({
                             "h-6 w-6 rounded-full flex items-center justify-center text-white text-xs font-bold",
                             slot.type === "Entrega"
                               ? "bg-red-500"
-                              : "bg-primary"
+                              : "bg-primary",
                           )}
                         >
                           {slot.type === "Entrega" ? "E" : "R"}
@@ -434,7 +441,7 @@ export default function AppointmentCalendarView({
                             "h-6 w-6 rounded-full flex items-center justify-center text-white text-xs font-bold",
                             slot.type === "Entrega"
                               ? "bg-red-500"
-                              : "bg-primary"
+                              : "bg-primary",
                           )}
                         >
                           {slot.type === "Entrega" ? "E" : "R"}

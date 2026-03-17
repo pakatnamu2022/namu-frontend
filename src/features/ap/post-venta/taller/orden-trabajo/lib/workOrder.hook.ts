@@ -7,6 +7,7 @@ import {
   storeWorkOrder,
   downloadWorkOrderPdf,
   getPaymentSummary,
+  getWorkOrderWithInternalNotes,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -18,6 +19,13 @@ export function useGetWorkOrder(props: getWorkOrderProps) {
   return useQuery({
     queryKey: [QUERY_KEY, props],
     queryFn: () => getWorkOrder(props),
+  });
+}
+
+export function useGetWorkOrderWithInternalNotes(props: getWorkOrderProps) {
+  return useQuery({
+    queryKey: [QUERY_KEY, props, "with-internal-notes"],
+    queryFn: () => getWorkOrderWithInternalNotes(props),
   });
 }
 
@@ -94,7 +102,7 @@ export function useDownloadWorkOrderPdf() {
 
 export function useGetPaymentSummary(
   workOrderId: number,
-  groupNumber?: number
+  groupNumber?: number,
 ) {
   return useQuery({
     queryKey: [QUERY_KEY, "payment-summary", workOrderId, groupNumber],
