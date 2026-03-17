@@ -23,6 +23,19 @@ export async function getWorkOrder({
   return data;
 }
 
+export async function getWorkOrderWithInternalNotes({
+  params,
+}: getWorkOrderProps): Promise<WorkOrderResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<WorkOrderResponse>(
+    `${ENDPOINT}/with-internal-notes`,
+    config,
+  );
+  return data;
+}
+
 export async function getAllWorkOrder({
   params,
 }: getWorkOrderProps): Promise<WorkOrderResource[]> {
@@ -40,6 +53,13 @@ export async function findWorkOrderById(
   id: number,
 ): Promise<WorkOrderResource> {
   const response = await api.get<WorkOrderResource>(`${ENDPOINT}/${id}`);
+  return response.data;
+}
+
+export async function findWorkOrdersByIds(
+  ids: number[],
+): Promise<WorkOrderResource[]> {
+  const response = await api.post<WorkOrderResource[]>(`${ENDPOINT}/by-ids`, { ids });
   return response.data;
 }
 
@@ -166,4 +186,13 @@ export async function downloadDeliveryPdf(id: number): Promise<void> {
   // Limpiar
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
+}
+
+export async function generateInternalNote(
+  id: number,
+): Promise<WorkOrderResource> {
+  const response = await api.post<WorkOrderResource>(
+    `${ENDPOINT}/${id}/generate-internal-note`,
+  );
+  return response.data;
 }

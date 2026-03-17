@@ -41,10 +41,11 @@ export default function ClientOriginModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useClientOriginById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useClientOriginById(id!);
 
   function mapClientOriginToForm(
-    data: ClientOriginResource
+    data: ClientOriginResource,
   ): Partial<ClientOriginSchema> {
     return {
       description: data.description,

@@ -6,6 +6,7 @@ import {
   Pencil,
   Download,
   Loader2,
+  BookMarked,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
@@ -21,6 +22,7 @@ interface WorkOrderActionCellProps {
     canUpdate: boolean;
     canDelete: boolean;
   };
+  onInternalNote: (id: number) => void;
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
@@ -30,6 +32,7 @@ interface WorkOrderActionCellProps {
 export function WorkOrderActionCell({
   row,
   permissions,
+  onInternalNote,
   onDelete,
   onUpdate,
   onManage,
@@ -108,6 +111,18 @@ export function WorkOrderActionCell({
           ) : (
             <Download className="size-5" />
           )}
+        </Button>
+      )}
+
+      {!isClosed && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Generar Nota Interna"
+          onClick={() => onInternalNote(id)}
+        >
+          <BookMarked className="size-5" />
         </Button>
       )}
     </div>

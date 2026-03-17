@@ -16,8 +16,14 @@ import {
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Car, ExternalLink, User } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import {
+  Car,
+  ExternalLink,
+  FileText,
+  User,
+  Gauge,
+  Calendar,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -31,6 +37,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { DataCard } from "@/components/DataCard";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -234,90 +241,85 @@ export default function OrderQuotationForm({
 
         {/* Información del Vehículo Seleccionado */}
         {selectedVehicle && (
-          <div className="col-span-1 md:col-span-3">
-            <Card className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200">
-              <div className="flex items-center gap-2 mb-3">
-                <Car className="h-5 w-5 text-primary" />
-                <h4 className="font-semibold text-gray-800">
-                  Información del Vehículo
-                </h4>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500">VIN</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.vin || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Marca</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.model?.brand || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Modelo</p>
-                  <p className="font-semibold text-sm truncate">
-                    {selectedVehicle.model?.version || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Año</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.year || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Color</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.vehicle_color || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Motor</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.engine_type || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">N° Motor</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.engine_number || "N/A"}
-                  </p>
-                </div>
-                {selectedVehicle.owner !== null && (
-                  <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <User className="h-4 w-4 text-primary" />
-                      <p className="text-xs font-semibold text-gray-700">
-                        Propietario
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      <div>
-                        <p className="text-xs text-gray-500">Nombre</p>
-                        <p className="font-medium text-sm">
-                          {selectedVehicle.owner.full_name}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Documento</p>
-                        <p className="font-medium text-sm">
-                          {selectedVehicle.owner.num_doc}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Teléfono</p>
-                        <p className="font-medium text-sm">
-                          {selectedVehicle.owner.phone || "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
+          <DataCard
+            title="INFORMACIÓN DEL VEHÍCULO"
+            columns={3}
+            fields={[
+              {
+                key: "vin",
+                label: "VIN",
+                icon: FileText,
+                value: selectedVehicle.vin || "N/A",
+              },
+              {
+                key: "brand",
+                label: "Marca",
+                icon: Car,
+                value: selectedVehicle.model?.brand || "N/A",
+              },
+              {
+                key: "model",
+                label: "Modelo",
+                icon: FileText,
+                value: selectedVehicle.model?.version || "N/A",
+              },
+              {
+                key: "year",
+                label: "Año",
+                icon: Calendar,
+                value: selectedVehicle.year || "N/A",
+              },
+              {
+                key: "color",
+                label: "Color",
+                icon: Car,
+                value: selectedVehicle.vehicle_color || "N/A",
+              },
+              {
+                key: "engine_type",
+                label: "Motor",
+                icon: Gauge,
+                value: selectedVehicle.engine_type || "N/A",
+              },
+              {
+                key: "engine_number",
+                label: "N° Motor",
+                icon: FileText,
+                value: selectedVehicle.engine_number || "N/A",
+              },
+            ]}
+            sections={
+              selectedVehicle.owner
+                ? [
+                    {
+                      key: "owner",
+                      title: "Propietario",
+                      icon: User,
+                      fields: [
+                        {
+                          key: "owner_name",
+                          label: "Nombre",
+                          icon: User,
+                          value: selectedVehicle.owner.full_name || "N/A",
+                        },
+                        {
+                          key: "owner_document",
+                          label: "Documento",
+                          icon: FileText,
+                          value: selectedVehicle.owner.num_doc || "N/A",
+                        },
+                        {
+                          key: "owner_phone",
+                          label: "Teléfono",
+                          icon: User,
+                          value: selectedVehicle.owner.phone || "N/A",
+                        },
+                      ],
+                    },
+                  ]
+                : undefined
+            }
+          />
         )}
 
         <FormInputText

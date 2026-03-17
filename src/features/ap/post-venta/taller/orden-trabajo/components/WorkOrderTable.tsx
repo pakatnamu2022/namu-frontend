@@ -1,12 +1,17 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { WorkOrderColumns } from "./WorkOrderColumns";
 import { WorkOrderResource } from "../lib/workOrder.interface";
+import type { RowSelectionState, OnChangeFn } from "@tanstack/react-table";
 
 interface Props {
   columns: WorkOrderColumns[];
   data: WorkOrderResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  enableRowSelection?: boolean;
+  getRowId?: (row: WorkOrderResource) => string;
 }
 
 export default function WorkOrderTable({
@@ -14,6 +19,10 @@ export default function WorkOrderTable({
   data,
   children,
   isLoading,
+  rowSelection,
+  onRowSelectionChange,
+  enableRowSelection,
+  getRowId,
 }: Props) {
   return (
     <div className="border-none text-muted-foreground max-w-full">
@@ -21,6 +30,10 @@ export default function WorkOrderTable({
         columns={columns}
         data={data}
         isLoading={isLoading}
+        rowSelection={rowSelection}
+        onRowSelectionChange={onRowSelectionChange}
+        enableRowSelection={enableRowSelection}
+        getRowId={getRowId as any}
         initialColumnVisibility={{
           correlative: true,
           vehicle_plate: true,

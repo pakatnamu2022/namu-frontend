@@ -46,6 +46,15 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
+  //Costos
+  total_labor_cost: number;
+  total_parts_cost: number;
+  subtotal: number;
+  discount_percentage: number;
+  discount_amount: number;
+  tax_amount: number;
+  final_amount: number;
+
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];
@@ -56,6 +65,18 @@ export interface WorkOrderResource {
   status: ApMastersResource;
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
+  internal_note?: InternalNoteResource;
+}
+
+export interface InternalNoteResource {
+  id: number;
+  number: string;
+  work_order_id: number;
+  created_date: string;
+  closed_date: string | null;
+  status: "pending" | "invoiced";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface WorkOrderRequest {
@@ -134,6 +155,7 @@ export const DEFAULT_GROUP_COLOR = {
 
 export interface getWorkOrderProps {
   params?: Record<string, any>;
+  enabled?: boolean;
 }
 
 export interface VehicleWorkOrderHistoryWork {
