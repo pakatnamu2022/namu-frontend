@@ -51,7 +51,6 @@ import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inve
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { FormInput } from "@/shared/components/FormInput";
@@ -432,11 +431,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   return (
     <div className="space-y-6">
       {/* Selector de Grupo */}
-      <GroupSelector
+      {/* <GroupSelector
         items={items}
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
-      />
+      /> */}
 
       {/* Botón Agregar Repuesto */}
       {!showAddForm && (

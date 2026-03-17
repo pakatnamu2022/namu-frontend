@@ -41,7 +41,6 @@ import {
 } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.hook";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -343,11 +342,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   return (
     <div className="space-y-6">
       {/* Selector de Grupo */}
-      <GroupSelector
+      {/* <GroupSelector
         items={items}
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
-      />
+      /> */}
 
       {/* Información de Mano de Obra de la Cotización (Compacta) */}
       {hasAssociatedQuotation && laborItems.length > 0 && (
