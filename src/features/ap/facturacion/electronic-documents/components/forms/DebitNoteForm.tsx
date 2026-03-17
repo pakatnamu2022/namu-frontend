@@ -13,13 +13,11 @@ import { Label } from "@/components/ui/label";
 import {
   FileCheck,
   Loader2,
-  Send,
   Plus,
   Pencil,
   Trash2,
   AlertCircle,
   CheckCircle2,
-  User,
   FileText,
 } from "lucide-react";
 import {
@@ -27,7 +25,6 @@ import {
   DebitNoteItemSchema,
 } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { FormSwitch } from "@/shared/components/FormSwitch";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
@@ -45,6 +42,7 @@ import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.
 import { getNextDebitNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { ACP_TYPE_DEBIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface DebitNoteFormProps {
   originalDocument: ElectronicDocumentResource;
@@ -61,7 +59,7 @@ export function DebitNoteForm({
   const [nextNumber, setNextNumber] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(
-    null
+    null,
   );
 
   // Item management
@@ -76,7 +74,9 @@ export function DebitNoteForm({
   const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: accountPlans } = useAllAccountingAccountPlan();
+  const { data: accountPlans } = useAllAccountingAccountPlan({
+    type: ACP_TYPE_DEBIT_NOTE,
+  });
   const { data: customers = [] } = useAllCustomers();
 
   // Fetch debit note types from SUNAT
@@ -96,7 +96,7 @@ export function DebitNoteForm({
 
   // Calculate IGV percentage from customer
   const selectedCustomer = customers.find(
-    (customer) => customer.id === originalDocument.client_id
+    (customer) => customer.id === originalDocument.client_id,
   );
   const porcentaje_de_igv =
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
@@ -108,8 +108,6 @@ export function DebitNoteForm({
       sunat_concept_debit_note_type_id: "",
       series: "",
       observaciones: "",
-      enviar_automaticamente_a_la_sunat: false,
-      enviar_automaticamente_al_cliente: false,
       items: [],
     },
   });
@@ -134,7 +132,7 @@ export function DebitNoteForm({
         const response = await getNextDebitNoteNumber(
           originalDocument.id,
           parseInt(selectedSeries),
-          originalDocument.sunat_concept_document_type_id
+          originalDocument.sunat_concept_document_type_id,
         );
         setNextNumber(response.number);
       } catch (error: any) {
@@ -444,11 +442,11 @@ export function DebitNoteForm({
 
               {/* Debit Note Configuration */}
               <GroupFormSection
-                title="Información del Cliente"
-                icon={User}
+                title="Configuración de Nota de Débito"
+                icon={FileText}
                 className="lg:col-span-2"
                 color="primary"
-                cols={{ sm: 1, md: 1 }}
+                cols={{ sm: 1, md: 2 }}
               >
                 <FormSelect
                   name="sunat_concept_debit_note_type_id"
@@ -459,6 +457,7 @@ export function DebitNoteForm({
                     value: type.id.toString(),
                     label: type.description,
                   }))}
+                  description="Seleccione el tipo de nota de débito según SUNAT"
                 />
 
                 <FormSelect
@@ -475,7 +474,7 @@ export function DebitNoteForm({
 
                 {/* Series Verification */}
                 {selectedSeries && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 col-span-2">
                     {isVerifying ? (
                       <Alert className="bg-blue-50 border-blue-200">
                         <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
@@ -502,7 +501,7 @@ export function DebitNoteForm({
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label>
                     Observaciones <span className="text-red-500">*</span>
                   </Label>
@@ -510,7 +509,7 @@ export function DebitNoteForm({
                     placeholder="Ej: Ajuste por intereses de pago tardío"
                     rows={4}
                     maxLength={250}
-                    className="resize-none"
+                    className="resize-none uppercase"
                     {...form.register("observaciones")}
                   />
                   <div className="flex justify-between items-center text-xs text-muted-foreground">
@@ -529,20 +528,6 @@ export function DebitNoteForm({
                       {form.formState.errors.observaciones.message}
                     </p>
                   )}
-                </div>
-
-                <div className="space-y-4 pt-2 border-t">
-                  <h4 className="text-sm font-medium">Opciones de envío</h4>
-                  <FormSwitch
-                    name="enviar_automaticamente_a_la_sunat"
-                    control={form.control}
-                    text="Enviar automáticamente a SUNAT"
-                  />
-                  <FormSwitch
-                    name="enviar_automaticamente_al_cliente"
-                    control={form.control}
-                    text="Enviar automáticamente al cliente"
-                  />
                 </div>
               </GroupFormSection>
 
@@ -586,14 +571,6 @@ export function DebitNoteForm({
                   </div>
                 )}
               </GroupFormSection>
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Items</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent></CardContent>
-              </Card>
             </div>
 
             {/* Summary Sidebar */}
@@ -725,11 +702,6 @@ export function DebitNoteForm({
                           <Loader2 className="size-4 mr-2 animate-spin" />
                           Generando...
                         </>
-                      ) : form.watch("enviar_automaticamente_a_la_sunat") ? (
-                        <>
-                          <Send className="size-4 mr-2" />
-                          Generar y Enviar a SUNAT
-                        </>
                       ) : (
                         <>
                           <FileCheck className="size-4 mr-2" />
@@ -753,7 +725,7 @@ export function DebitNoteForm({
                     <p className="text-xs text-center text-muted-foreground">
                       Fecha de emisión:{" "}
                       {new Date(
-                        originalDocument.fecha_de_emision + "T00:00:00"
+                        originalDocument.fecha_de_emision + "T00:00:00",
                       ).toLocaleDateString("es-PE", {
                         day: "2-digit",
                         month: "long",
@@ -786,7 +758,7 @@ export function DebitNoteForm({
                 ref={textareaRef}
                 id="item-description"
                 placeholder="Descripción del concepto (ej: Intereses por pago tardío)"
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none uppercase"
                 value={newItem.descripcion}
                 onChange={(e) =>
                   setNewItem({ ...newItem, descripcion: e.target.value })

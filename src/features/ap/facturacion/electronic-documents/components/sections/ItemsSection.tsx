@@ -380,7 +380,7 @@ export function ItemsSection({
                 ref={textareaRef}
                 id="item-description"
                 placeholder="Descripción del producto/servicio"
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none uppercase"
                 value={newItem.descripcion}
                 onChange={(e) =>
                   setNewItem({ ...newItem, descripcion: e.target.value })
