@@ -2,6 +2,7 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useState } from "react";
+import type { RowSelectionState } from "@tanstack/react-table";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -29,6 +30,8 @@ import { workOrderCajaColumns } from "@/features/ap/post-venta/taller/orden-trab
 import WorkOrderActionsFilters, {
   WorkOrderCajaView,
 } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderActionsFilters";
+import { Button } from "@/components/ui/button";
+import { Receipt } from "lucide-react";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -36,6 +39,7 @@ export default function WorkOrderCajaPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const { ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -63,6 +67,7 @@ export default function WorkOrderCajaPage() {
   const handleViewChange = (view: WorkOrderCajaView) => {
     setActiveView(view);
     setPage(1);
+    setRowSelection({});
   };
 
   const commonParams = {
@@ -85,6 +90,7 @@ export default function WorkOrderCajaPage() {
         WORK_ORDER_STATUS_ID.CERRADO,
       ],
     },
+    enabled: activeView === "OT",
   });
 
   const { data: dataPending, isLoading: isLoadingPending } =
@@ -93,6 +99,7 @@ export default function WorkOrderCajaPage() {
         ...commonParams,
         internal_note_status: "pending",
       },
+      enabled: activeView === "PENDING",
     });
 
   const { data: dataInvoiced, isLoading: isLoadingInvoiced } =
@@ -101,6 +108,7 @@ export default function WorkOrderCajaPage() {
         ...commonParams,
         internal_note_status: "invoiced",
       },
+      enabled: activeView === "INVOICED",
     });
 
   const currentData =
@@ -121,6 +129,17 @@ export default function WorkOrderCajaPage() {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
+  const selectedIds = Object.keys(rowSelection).filter(
+    (key) => rowSelection[key],
+  );
+
+  const handleGenerateInvoice = () => {
+    if (selectedIds.length === 0) return;
+    router(
+      `${ABSOLUTE_ROUTE}/factura-directa?ids=${selectedIds.join(",")}`,
+    );
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -139,13 +158,29 @@ export default function WorkOrderCajaPage() {
         />
       </HeaderTableWrapper>
 
+      {activeView === "PENDING" && selectedIds.length > 0 && (
+        <div className="flex justify-end">
+          <Button onClick={handleGenerateInvoice} className="gap-2">
+            <Receipt className="h-4 w-4" />
+            Generar Factura ({selectedIds.length})
+          </Button>
+        </div>
+      )}
+
       <WorkOrderTable
         isLoading={currentIsLoading}
         columns={workOrderCajaColumns({
           onManage: handleManage,
           permissions,
+          showCheckbox: activeView === "PENDING",
         })}
         data={currentData?.data || []}
+        enableRowSelection={activeView === "PENDING"}
+        rowSelection={activeView === "PENDING" ? rowSelection : undefined}
+        onRowSelectionChange={
+          activeView === "PENDING" ? setRowSelection : undefined
+        }
+        getRowId={(row) => String(row.id)}
       >
         <WorkOrderOptions
           search={search}

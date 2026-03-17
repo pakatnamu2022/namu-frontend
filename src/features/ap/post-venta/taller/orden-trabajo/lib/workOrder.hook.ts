@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteWorkOrder,
   findWorkOrderById,
+  findWorkOrdersByIds,
   getAllWorkOrder,
   getWorkOrder,
   storeWorkOrder,
@@ -19,6 +20,7 @@ export function useGetWorkOrder(props: getWorkOrderProps) {
   return useQuery({
     queryKey: [QUERY_KEY, props],
     queryFn: () => getWorkOrder(props),
+    enabled: props.enabled !== false,
   });
 }
 
@@ -26,6 +28,7 @@ export function useGetWorkOrderWithInternalNotes(props: getWorkOrderProps) {
   return useQuery({
     queryKey: [QUERY_KEY, props, "with-internal-notes"],
     queryFn: () => getWorkOrderWithInternalNotes(props),
+    enabled: props.enabled !== false,
   });
 }
 
@@ -33,6 +36,16 @@ export function useGetAllWorkOrder(params?: Record<string, any>) {
   return useQuery({
     queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllWorkOrder({ params }),
+  });
+}
+
+export function useWorkOrdersByIds(ids: number[]) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "by-ids", ids],
+    queryFn: () => findWorkOrdersByIds(ids),
+    enabled: ids.length > 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }
 

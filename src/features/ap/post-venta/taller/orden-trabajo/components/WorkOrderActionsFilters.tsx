@@ -64,7 +64,7 @@ export default function WorkOrderActionsFilters({
               onClick={() => onViewChange(view)}
               className="gap-1.5"
               aria-pressed={isActive}
-              title={option.label}
+              tooltip={option.label}
             >
               <Icon className="size-4" />
               {option.shortLabel}

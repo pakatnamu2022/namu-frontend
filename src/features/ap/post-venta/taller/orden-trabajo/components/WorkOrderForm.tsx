@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Form,
   FormField,
@@ -20,6 +20,10 @@ import {
   List,
   Search,
   ClipboardCheck,
+  Calendar,
+  Gauge,
+  FileCheck,
+  User,
 } from "lucide-react";
 import {
   WorkOrderSchema,
@@ -55,6 +59,7 @@ import { FormInputText } from "@/shared/components/FormInputText";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
+import { DataCard } from "@/components/DataCard";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -137,6 +142,17 @@ export const WorkOrderForm = ({
   const watchedAppointmentId = form.watch("appointment_planning_id");
   const watchedHasInspection = form.watch("has_inspection");
   const watchedInspectionId = form.watch("vehicle_inspection_id");
+  const watchedItems = useWatch({
+    control: form.control,
+    name: "items",
+  });
+  const watchedTypePlanningIds = useMemo(
+    () =>
+      (watchedItems ?? [])
+        .map((item) => item?.type_planning_id)
+        .filter((id): id is string => Boolean(id)),
+    [watchedItems],
+  );
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
@@ -228,6 +244,34 @@ export const WorkOrderForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedIsRecall]);
+
+  // Auto-setear type_operation_id cuando la descripcion de type_planning_id coincide con alguna operacion
+  useEffect(() => {
+    if (!watchedItems || watchedItems.length === 0) return;
+    watchedItems.forEach((item, index) => {
+      if (!item?.type_planning_id) return;
+      const planning = typesPlanning.find(
+        (tp) => tp.id.toString() === item.type_planning_id,
+      );
+      if (!planning) return;
+      const matchedOperation = typesOperation.find(
+        (to) => to.description === planning.description,
+      );
+      if (matchedOperation) {
+        const currentOperationId = form.getValues(
+          `items.${index}.type_operation_id`,
+        );
+        if (currentOperationId !== matchedOperation.id.toString()) {
+          form.setValue(
+            `items.${index}.type_operation_id`,
+            matchedOperation.id.toString(),
+            { shouldDirty: true, shouldValidate: true },
+          );
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedTypePlanningIds, typesPlanning, typesOperation]);
 
   const handleAddItem = () => {
     append({
@@ -411,58 +455,55 @@ export const WorkOrderForm = ({
 
           {/* Información de la Recepción Seleccionada */}
           {selectedInspection && watchedHasInspection && (
-            <Card className="p-4 bg-green-50 border-green-200">
-              <div className="flex items-center gap-2 mb-3">
-                <ClipboardCheck className="h-5 w-5 text-green-600" />
-                <h4 className="font-semibold text-gray-800">
-                  Información de la Recepción
-                </h4>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500">Placa</p>
-                  <p className="font-semibold text-sm">
-                    {selectedInspection.vehicle_plate || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">VIN</p>
-                  <p className="font-semibold text-sm">
-                    {selectedInspection.vehicle_vin || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Fecha Recepción</p>
-                  <p className="font-semibold text-sm">
-                    {typeof selectedInspection.inspection_date === "string"
+            <DataCard
+              title="INFORMACIÓN DE LA RECEPCIÓN"
+              columns={3}
+              fields={[
+                {
+                  key: "plate",
+                  label: "Placa",
+                  icon: Car,
+                  value: selectedInspection.vehicle_plate || "—",
+                },
+                {
+                  key: "vin",
+                  label: "VIN",
+                  icon: FileText,
+                  value: selectedInspection.vehicle_vin || "—",
+                },
+                {
+                  key: "date",
+                  label: "Fecha Recepción",
+                  icon: Calendar,
+                  value:
+                    (typeof selectedInspection.inspection_date === "string"
                       ? selectedInspection.inspection_date
                       : selectedInspection.inspection_date
                           ?.toISOString()
-                          .split("T")[0] || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Kilometraje</p>
-                  <p className="font-semibold text-sm">
-                    {selectedInspection.mileage
-                      ? `${selectedInspection.mileage} km`
-                      : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">OT Origen</p>
-                  <p className="font-semibold text-sm">
-                    {selectedInspection.work_order_correlative || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Inspeccionado por</p>
-                  <p className="font-semibold text-sm">
-                    {selectedInspection.inspected_by_name || "N/A"}
-                  </p>
-                </div>
-              </div>
-            </Card>
+                          .split("T")[0]) || "—",
+                },
+                {
+                  key: "mileage",
+                  label: "Kilometraje",
+                  icon: Gauge,
+                  value: selectedInspection.mileage
+                    ? `${selectedInspection.mileage.toLocaleString()} km`
+                    : "—",
+                },
+                {
+                  key: "order",
+                  label: "OT Origen",
+                  icon: FileCheck,
+                  value: selectedInspection.work_order_correlative || "—",
+                },
+                {
+                  key: "inspector",
+                  label: "Inspeccionado por",
+                  icon: User,
+                  value: selectedInspection.inspected_by_name || "—",
+                },
+              ]}
+            />
           )}
         </GroupFormSection>
 
@@ -471,123 +512,121 @@ export const WorkOrderForm = ({
           title="Datos del Servicio"
           icon={Car}
           color="gray"
-          cols={{ sm: 2 }}
+          cols={{ sm: 1 }}
         >
-          <FormSelectAsync
-            name="vehicle_id"
-            label="Vehículo"
-            placeholder="Seleccione vehículo"
-            control={form.control}
-            useQueryHook={useVehicles}
-            mapOptionFn={(item: VehicleResource) => ({
-              value: item.id.toString(),
-              label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
-                item.model?.brand || ""
-              }`,
-            })}
-            perPage={10}
-            debounceMs={500}
-            defaultOption={
-              selectedVehicle
-                ? {
-                    value: selectedVehicle.id.toString(),
-                    label: `${selectedVehicle.vin || "S/N"} | ${
-                      selectedVehicle.plate || ""
-                    } | ${selectedVehicle.model?.brand || ""}`,
-                  }
-                : workOrderData?.vehicle
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormSelectAsync
+              name="vehicle_id"
+              label="Vehículo"
+              placeholder="Seleccione vehículo"
+              control={form.control}
+              useQueryHook={useVehicles}
+              mapOptionFn={(item: VehicleResource) => ({
+                value: item.id.toString(),
+                label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
+                  item.model?.brand || ""
+                }`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              defaultOption={
+                selectedVehicle
                   ? {
-                      value: workOrderData.vehicle.id.toString(),
-                      label: `${workOrderData.vehicle.vin || "S/N"} | ${
-                        workOrderData.vehicle.plate || ""
-                      } | ${workOrderData.vehicle.model?.brand || ""}`,
+                      value: selectedVehicle.id.toString(),
+                      label: `${selectedVehicle.vin || "S/N"} | ${
+                        selectedVehicle.plate || ""
+                      } | ${selectedVehicle.model?.brand || ""}`,
                     }
-                  : undefined
-            }
-            onValueChange={(_value, item) => {
-              setSelectedVehicle(item || null);
-            }}
-            disabled={
-              (watchedHasAppointment && Boolean(watchedAppointmentId)) ||
-              (watchedHasInspection && Boolean(watchedInspectionId))
-            }
-          />
+                  : workOrderData?.vehicle
+                    ? {
+                        value: workOrderData.vehicle.id.toString(),
+                        label: `${workOrderData.vehicle.vin || "S/N"} | ${
+                          workOrderData.vehicle.plate || ""
+                        } | ${workOrderData.vehicle.model?.brand || ""}`,
+                      }
+                    : undefined
+              }
+              onValueChange={(_value, item) => {
+                setSelectedVehicle(item || null);
+              }}
+              disabled={
+                (watchedHasAppointment && Boolean(watchedAppointmentId)) ||
+                (watchedHasInspection && Boolean(watchedInspectionId))
+              }
+            />
 
-          <FormSelect
-            name="sede_id"
-            label="Sede Taller"
-            placeholder="Seleccione sede"
-            options={sedes.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={watchedHasAppointment && Boolean(watchedAppointmentId)}
-          />
+            <FormSelect
+              name="sede_id"
+              label="Sede Taller"
+              placeholder="Seleccione sede"
+              options={sedes.map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={watchedHasAppointment && Boolean(watchedAppointmentId)}
+            />
+          </div>
+
+          {/* Información del Vehículo Seleccionado */}
+          {selectedVehicle && (
+            <DataCard
+              title="INFORMACIÓN DEL VEHÍCULO"
+              columns={3}
+              fields={[
+                {
+                  key: "plate",
+                  label: "Placa",
+                  icon: Car,
+                  value: selectedVehicle.plate || "—",
+                },
+                {
+                  key: "vin",
+                  label: "VIN",
+                  icon: FileText,
+                  value: selectedVehicle.vin || "—",
+                },
+                {
+                  key: "brand",
+                  label: "Marca",
+                  icon: Car,
+                  value: selectedVehicle.model?.brand || "—",
+                },
+                {
+                  key: "model",
+                  label: "Modelo",
+                  icon: FileText,
+                  value: selectedVehicle.model?.version || "—",
+                },
+                {
+                  key: "year",
+                  label: "Año",
+                  icon: Calendar,
+                  value: selectedVehicle.year || "—",
+                },
+                {
+                  key: "color",
+                  label: "Color",
+                  icon: Car,
+                  value: selectedVehicle.vehicle_color || "—",
+                },
+                {
+                  key: "engine_type",
+                  label: "Motor",
+                  icon: Gauge,
+                  value: selectedVehicle.engine_type || "—",
+                },
+                {
+                  key: "engine_number",
+                  label: "Núm. Motor",
+                  icon: FileText,
+                  value: selectedVehicle.engine_number || "—",
+                },
+              ]}
+            />
+          )}
         </GroupFormSection>
-
-        {/* Información del Vehículo Seleccionado */}
-        {selectedVehicle && (
-          <Card className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-              <Car className="h-5 w-5 text-primary" />
-              <h4 className="font-semibold text-gray-800">
-                Información del Vehículo
-              </h4>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <p className="text-xs text-gray-500">Placa</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.plate || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">VIN</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.vin || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Marca</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.model?.brand || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Modelo</p>
-                <p className="font-semibold text-sm truncate">
-                  {selectedVehicle.model?.version || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Año</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.year || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Color</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.vehicle_color || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Motor</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.engine_type || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Núm. Motor</p>
-                <p className="font-semibold text-sm">
-                  {selectedVehicle.engine_number || "N/A"}
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
 
         {/* Información de la OT */}
         <GroupFormSection
