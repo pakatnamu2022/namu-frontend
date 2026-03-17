@@ -33,7 +33,7 @@ interface Props {
   onDelete: (id: number) => void;
   onSendToNubefact: (id: number) => void;
   onQueryFromNubefact: (id: number) => void;
-  onSendToDynamic: (id: number) => void;
+  onSendToDynamic?: (id: number) => void;
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
   onMigrate?: (id: number) => void;
   permissions: {
