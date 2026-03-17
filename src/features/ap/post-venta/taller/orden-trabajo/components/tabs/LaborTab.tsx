@@ -511,107 +511,115 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
       )}
 
       {/* Labor List Table */}
-      <Card className="p-6">
-        {/* Header con botón descuento global */}
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <h3 className="text-lg font-semibold">Mano de Obra Registrada</h3>
 
-          {hasMultipleItems && filteredLabours.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap">
-              {globalRequest ? (
-                <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
-                  <span className="text-muted-foreground text-xs">
-                    Desc. global:
-                  </span>
-                  <span className="font-semibold">
-                    {Number(
-                      globalRequest.requested_discount_percentage,
-                    ).toFixed(2)}
-                    %
-                  </span>
-                  {renderStatusBadge(globalRequest.status)}
-                  {globalRequest.status === "pending" && (
-                    <>
-                      {permissions.canApprove && (
-                        <ConfirmationDialog
-                          trigger={
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                              tooltip="Aprobar solicitud global"
-                              disabled={isApproving}
-                            >
-                              <CheckCircle className="size-4" />
-                            </Button>
-                          }
-                          title="¿Aprobar solicitud?"
-                          description="Se aprobará el descuento global para la mano de obra. ¿Deseas continuar?"
-                          confirmText="Sí, aprobar"
-                          cancelText="Cancelar"
-                          icon="info"
-                          onConfirm={() => doApprove(globalRequest.id)}
-                        />
-                      )}
-                      {permissions.canEditDiscount && (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="size-7"
-                          tooltip="Editar solicitud global"
-                          onClick={() => handleOpenEdit(globalRequest)}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                      )}
-                      {permissions.canReject && (
-                        <ConfirmationDialog
-                          trigger={
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              tooltip="Rechazar solicitud global"
-                              disabled={isRejecting}
-                            >
-                              <XCircle className="size-4" />
-                            </Button>
-                          }
-                          title="¿Rechazar solicitud?"
-                          description="Se rechazará el descuento global para la mano de obra. ¿Deseas continuar?"
-                          confirmText="Sí, rechazar"
-                          cancelText="Cancelar"
-                          variant="destructive"
-                          icon="danger"
-                          onConfirm={() => doReject(globalRequest.id)}
-                        />
-                      )}
-                    </>
-                  )}
-                </div>
-              ) : (
-                permissions.canRequest &&
-                !hasPartialRequests && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenCreate(TYPE_GLOBAL)}
-                    className="gap-2"
-                  >
-                    <Percent className="size-4" />
-                    Desc. global
-                  </Button>
-                )
-              )}
-            </div>
-          )}
-        </div>
-
-        {filteredLabours.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No hay registros de mano de obra para este grupo
+      {filteredLabours.length === 0 ? (
+        <Card className="p-12">
+          <div className="text-center">
+            <Wrench className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No hay mano de obra en el Grupo {selectedGroupNumber}
+            </h3>
+            <p className="text-sm text-gray-600">
+              Aún no se han agregado mano de obra para este grupo.
+            </p>
           </div>
-        ) : (
+        </Card>
+      ) : (
+        <Card className="p-6">
+          {/* Header con botón descuento global */}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 className="text-lg font-semibold">Mano de Obra Registrada</h3>
+
+            {hasMultipleItems && filteredLabours.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {globalRequest ? (
+                  <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
+                    <span className="text-muted-foreground text-xs">
+                      Desc. global:
+                    </span>
+                    <span className="font-semibold">
+                      {Number(
+                        globalRequest.requested_discount_percentage,
+                      ).toFixed(2)}
+                      %
+                    </span>
+                    {renderStatusBadge(globalRequest.status)}
+                    {globalRequest.status === "pending" && (
+                      <>
+                        {permissions.canApprove && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                tooltip="Aprobar solicitud global"
+                                disabled={isApproving}
+                              >
+                                <CheckCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Aprobar solicitud?"
+                            description="Se aprobará el descuento global para la mano de obra. ¿Deseas continuar?"
+                            confirmText="Sí, aprobar"
+                            cancelText="Cancelar"
+                            icon="info"
+                            onConfirm={() => doApprove(globalRequest.id)}
+                          />
+                        )}
+                        {permissions.canEditDiscount && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7"
+                            tooltip="Editar solicitud global"
+                            onClick={() => handleOpenEdit(globalRequest)}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                        )}
+                        {permissions.canReject && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                tooltip="Rechazar solicitud global"
+                                disabled={isRejecting}
+                              >
+                                <XCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Rechazar solicitud?"
+                            description="Se rechazará el descuento global para la mano de obra. ¿Deseas continuar?"
+                            confirmText="Sí, rechazar"
+                            cancelText="Cancelar"
+                            variant="destructive"
+                            icon="danger"
+                            onConfirm={() => doReject(globalRequest.id)}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  permissions.canRequest &&
+                  !hasPartialRequests && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenCreate(TYPE_GLOBAL)}
+                      className="gap-2"
+                    >
+                      <Percent className="size-4" />
+                      Desc. global
+                    </Button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -823,8 +831,8 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               </div>
             </div>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* Delete Confirmation Dialog */}
       {deleteId !== null && (
