@@ -19,7 +19,7 @@ const supplierOrderSchemaBase = z.object({
   warehouse_id: requiredStringId("Almacén es requerido"),
   type_currency_id: requiredStringId("Tipo de moneda es requerida"),
   order_date: requiredDate("Fecha de pedido es requerida"),
-  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"], {
+  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION", "LOCAL"], {
     message: "Tipo de abastecimiento inválido",
   }),
   details: z

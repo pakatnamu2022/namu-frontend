@@ -30,12 +30,18 @@ interface AppointmentTimeSlotPickerProps {
   onSelect: (date: string, time: string) => void;
   selectedDate?: string;
   selectedTime?: string;
+  mode?: "appointment" | "delivery";
+  appointmentDate?: string;
+  appointmentTime?: string;
 }
 
 export default function AppointmentTimeSlotPicker({
   open,
   onClose,
   onSelect,
+  mode = "appointment",
+  appointmentDate,
+  appointmentTime,
 }: AppointmentTimeSlotPickerProps) {
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
@@ -105,6 +111,25 @@ export default function AppointmentTimeSlotPicker({
     return slots.filter((s) => s.available).length;
   };
 
+  // Para modo entrega: verifica si un día es anterior a la fecha de cita
+  const isDayBeforeAppointment = (day: Date): boolean => {
+    if (mode !== "delivery" || !appointmentDate) return false;
+    const apptDay = new Date(appointmentDate + "T00:00:00");
+    const dayNormalized = new Date(format(day, "yyyy-MM-dd") + "T00:00:00");
+    return dayNormalized < apptDay;
+  };
+
+  // Para modo entrega: verifica si un slot está bloqueado por ser igual/anterior a la cita
+  const isSlotBlockedByAppointment = (slot: TimeSlot, day: Date): boolean => {
+    if (mode !== "delivery" || !appointmentDate || !appointmentTime) return false;
+    const dayStr = format(day, "yyyy-MM-dd");
+    if (dayStr !== appointmentDate) return false;
+    // Mismo día: bloquear slots iguales o anteriores a la hora de cita
+    const [apptH, apptM] = appointmentTime.split(":").map(Number);
+    const [slotH, slotM] = slot.time.split(":").map(Number);
+    return slotH * 60 + slotM <= apptH * 60 + apptM;
+  };
+
   const renderWeekView = () => (
     <div className="space-y-6">
       {/* Week Navigation */}
@@ -147,16 +172,18 @@ export default function AppointmentTimeSlotPicker({
           const totalSlots = getSlotsForDay(day).length;
           const isToday = isSameDay(day, new Date());
           const isPast = day < new Date() && !isToday;
+          const isBeforeAppointment = isDayBeforeAppointment(day);
+          const isDisabled = isPast || isBeforeAppointment;
 
           return (
             <button
               key={day.toISOString()}
-              onClick={() => !isPast && handleDayClick(day)}
-              disabled={isPast || loading}
+              onClick={() => !isDisabled && handleDayClick(day)}
+              disabled={isDisabled || loading}
               className={cn(
                 "relative p-4 rounded-xl border-2 transition-all duration-200 hover:scale-105",
                 "flex flex-col items-center justify-center space-y-2",
-                isPast
+                isDisabled
                   ? "bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed"
                   : availableCount > 0
                   ? "bg-white border-blue-200 hover:border-blue-400 hover:shadow-lg cursor-pointer"
@@ -172,7 +199,7 @@ export default function AppointmentTimeSlotPicker({
               <Calendar
                 className={cn(
                   "h-6 w-6",
-                  isPast ? "text-gray-400" : "text-primary"
+                  isDisabled ? "text-gray-400" : "text-primary"
                 )}
               />
               <div className="text-center">
@@ -187,7 +214,7 @@ export default function AppointmentTimeSlotPicker({
                 </p>
               </div>
               <div className="mt-2 w-full">
-                {!isPast && (
+                {!isDisabled && (
                   <div className="flex items-center justify-center space-x-1">
                     <div
                       className={cn(
@@ -274,7 +301,8 @@ export default function AppointmentTimeSlotPicker({
             <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-2">
               {morningSlots.map((slot) => {
                 const isPast = isTimeSlotPast(slot, selectedDay);
-                const isAvailable = slot.available && !isPast;
+                const isBlocked = isSlotBlockedByAppointment(slot, selectedDay);
+                const isAvailable = slot.available && !isPast && !isBlocked;
 
                 return (
                   <button
@@ -327,7 +355,8 @@ export default function AppointmentTimeSlotPicker({
             <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-2">
               {afternoonSlots.map((slot) => {
                 const isPast = isTimeSlotPast(slot, selectedDay);
-                const isAvailable = slot.available && !isPast;
+                const isBlocked = isSlotBlockedByAppointment(slot, selectedDay);
+                const isAvailable = slot.available && !isPast && !isBlocked;
 
                 return (
                   <button

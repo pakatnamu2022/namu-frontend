@@ -5,6 +5,7 @@ interface ValidationIndicatorProps {
   isValid?: boolean;
   hasError?: boolean;
   show?: boolean;
+  positioned?: boolean;
 }
 
 export function ValidationIndicator({
@@ -12,11 +13,18 @@ export function ValidationIndicator({
   isValid = false,
   hasError = false,
   show = true,
+  positioned = true,
 }: ValidationIndicatorProps) {
   if (!show) return null;
 
   return (
-    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+    <div
+      className={
+        positioned
+          ? "absolute right-3 top-1/2 transform -translate-y-1/2"
+          : "flex items-center justify-center"
+      }
+    >
       {isValidating && (
         <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
       )}

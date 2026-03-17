@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import { Calendar, Settings } from "lucide-react";
 import { WorkOrderResource } from "../lib/workOrder.interface";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 
@@ -66,15 +66,44 @@ export const workOrderReceptionColumns = ({
   },
   {
     accessorKey: "estimated_delivery_date",
-    header: "Fecha Est. Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
+    header: "Fecha y Hora Entrega",
+    cell: ({ row }) => {
+      const dateValue = row.original.estimated_delivery_date;
+      const timeValue = row.original.estimated_delivery_time;
+      if (!dateValue && !timeValue)
+        return <span className="text-muted-foreground">-</span>;
+      if (!dateValue)
+        return (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{timeValue || "-"}</span>
+          </div>
+        );
+
       try {
-        const date = new Date(value.replace(" ", "T"));
-        return format(date, "dd/MM/yyyy", { locale: es });
+        const dateOnly = dateValue.replace(" ", "T").split("T")[0];
+        const fullTime = (timeValue || "00:00:00").split(" ")[0];
+        const datetime = `${dateOnly}T${fullTime}`;
+
+        return (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">
+              {format(parseISO(datetime), "dd/MM/yyyy HH:mm", {
+                locale: es,
+              })}
+            </span>
+          </div>
+        );
       } catch {
-        return value;
+        return (
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">
+              {[dateValue, timeValue].filter(Boolean).join(" ")}
+            </span>
+          </div>
+        );
       }
     },
   },
@@ -111,22 +140,6 @@ export const workOrderReceptionColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "has_management_discount",
-    header: "Dcto. Gerencial",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge
-          variant="outline"
-          color={value ? "green" : "gray"}
-          className="capitalize w-8 flex items-center justify-center"
-        >
           {value ? "Sí" : "No"}
         </Badge>
       );

@@ -194,6 +194,7 @@ import ProductTypePage from "./app/ap/configuraciones/vehiculos/tipos-producto/p
 import TractionTypePage from "./app/ap/configuraciones/vehiculos/tipos-traccion/page.tsx";
 import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx";
 import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
+import AfterSalesParameterPage from "./app/ap/configuraciones/postventa/parametros/page.tsx";
 import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
 import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
 import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
@@ -316,6 +317,7 @@ import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-vent
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/actualizar/[id]/page.tsx";
+import AddGeneralSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/agregar-otros/page.tsx";
 import AddCreditNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/credit-note/page.tsx";
 import UpdateCreditNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx";
 import AddDebitNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/debit-note/page.tsx";
@@ -395,7 +397,7 @@ import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asisten
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
-import PayrollConstantsPage from "./app/gp/gestion-humana/planillas/constantes/page.tsx";
+import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1053,6 +1055,10 @@ function App() {
 
               {/* PostVentas Configuration */}
               <Route
+                path="postventa/parametros-postventa"
+                element={<AfterSalesParameterPage />}
+              />
+              <Route
                 path="postventa/tipos-operacion-cita"
                 element={<TypesOperationsAppointmentPage />}
               />
@@ -1586,6 +1592,10 @@ function App() {
                 path="caja/comprobante-venta-caja/actualizar/:id"
                 element={<UpdateSalesReceiptsCajaPage />}
               />
+              <Route
+                path="caja/comprobante-venta-caja/agregar-otros"
+                element={<AddGeneralSalesReceiptsCajaPage />}
+              />
               {/* Credit Note */}
               <Route
                 path="caja/comprobante-venta-caja/:id/credit-note"
@@ -1912,8 +1922,8 @@ function App() {
 
               {/* Constantes de Planilla */}
               <Route
-                path="planillas/constantes"
-                element={<PayrollConstantsPage />}
+                path="planillas/parametros-planilla"
+                element={<PayrollParameterPage />}
               />
             </Route>
 

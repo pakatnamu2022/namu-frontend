@@ -63,7 +63,7 @@ import {
   CommandList,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   AT_WORK_WORK_ORDER_ID,
@@ -108,7 +108,7 @@ export function WorkerTimeline({
   fullPage = false,
   sedeId,
   onRefresh,
-  readOnly = false,
+  //readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -118,6 +118,11 @@ export function WorkerTimeline({
     time: Date;
     workerId: number;
   } | null>(null);
+  // Refs para el resize de la barra seleccionada
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartHoursRef = useRef(0);
+  const timelineRectRef = useRef<DOMRect | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -302,8 +307,8 @@ export function WorkerTimeline({
     let hours = Math.floor(targetMinutes / 60);
     let mins = Math.round(targetMinutes % 60);
 
-    // Redondear a 6 minutos (0.1 horas)
-    mins = Math.round(mins / 6) * 6;
+    // Redondear a 1 minuto
+    mins = Math.round(mins);
     if (mins >= 60) {
       hours += 1;
       mins = 0;
@@ -354,12 +359,9 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     const endTime = addHours(startTime, estimatedHours);
-    const endHour = endTime.getHours();
-    const endMinute = endTime.getMinutes();
     const startHour = startTime.getHours();
     const startMin = startTime.getMinutes();
     const startTotalMin = startHour * 60 + startMin;
-    const endTotalMin = endHour * 60 + endMinute;
 
     // Si el día seleccionado es hoy, no permitir horas pasadas
     if (isSameDay(selectedDate, new Date())) {
@@ -371,31 +373,62 @@ export function WorkerTimeline({
     }
 
     // Verificar que no cruce el almuerzo
-    if (startTotalMin < LUNCH_START && endTotalMin > LUNCH_START) {
+    const endTotalMinForLunch = endTime.getHours() * 60 + endTime.getMinutes();
+    if (startTotalMin < LUNCH_START && endTotalMinForLunch > LUNCH_START) {
       return false; // Cruza el inicio del almuerzo
     }
 
-    // Verificar que esté dentro del horario laboral
-    const isInMorning =
-      startTotalMin >= MORNING_START && endTotalMin <= MORNING_END;
-    const isInAfternoon =
-      startTotalMin >= AFTERNOON_START && endTotalMin <= AFTERNOON_END;
+    // Verificar que el inicio esté dentro del horario laboral
+    const startInMorning =
+      startTotalMin >= MORNING_START && startTotalMin < MORNING_END;
+    const startInAfternoon =
+      startTotalMin >= AFTERNOON_START && startTotalMin <= AFTERNOON_END;
 
-    if (!isInMorning && !isInAfternoon) {
+    if (!startInMorning && !startInAfternoon) {
       return false;
     }
 
-    // Verificar conflictos con tareas existentes
+    // Verificar conflictos con tareas existentes (solo con la parte dentro del día)
+    const endTimeForConflict = endTime;
     return !workerPlannings.some((p) => {
       if (!p.planned_start_datetime || !p.planned_end_datetime) return false;
       const planStart = parseISO(p.planned_start_datetime);
       const planEnd = parseISO(p.planned_end_datetime);
       return (
         (startTime >= planStart && startTime < planEnd) ||
-        (endTime > planStart && endTime <= planEnd) ||
-        (startTime <= planStart && endTime >= planEnd)
+        (endTimeForConflict > planStart && endTimeForConflict <= planEnd) ||
+        (startTime <= planStart && endTimeForConflict >= planEnd)
       );
     });
+  };
+
+  // Calcula cuántas horas se derraman al día siguiente (overflow)
+  const getOverflowHours = (startTime: Date, hours: number): number => {
+    const endTime = addHours(startTime, hours);
+    const endTotalMin = endTime.getHours() * 60 + endTime.getMinutes();
+    // Si la hora de fin es menor que la de inicio en minutos absolutos,
+    // significa que pasó la medianoche (edge case extremo), lo ignoramos.
+    // Solo nos interesa si supera AFTERNOON_END (18:00)
+    if (endTotalMin > AFTERNOON_END) {
+      return (endTotalMin - AFTERNOON_END) / 60;
+    }
+    return 0;
+  };
+
+  // Devuelve la hora de fin del último bloque del trabajador en este día,
+  // o null si no tiene bloques.
+  const getLastBlockEnd = (
+    workerPlannings: WorkOrderPlanningResource[],
+  ): Date | null => {
+    const sorted = [...workerPlannings]
+      .filter((p) => p.planned_end_datetime)
+      .sort(
+        (a, b) =>
+          parseISO(b.planned_end_datetime!).getTime() -
+          parseISO(a.planned_end_datetime!).getTime(),
+      );
+    if (sorted.length === 0) return null;
+    return parseISO(sorted[0].planned_end_datetime!);
   };
 
   const handleTimelineClick = (
@@ -404,14 +437,76 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const position = (clickX / rect.width) * 100;
-    const clickedTime = positionToTime(position);
+    // Si ya hay un slot seleccionado, no permitir reposicionar sin usar el botón "Mover"
+    if (selectedTime) return;
 
-    if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
-      setSelectedTime({ time: clickedTime, workerId });
+    const lastEnd = getLastBlockEnd(workerPlannings);
+
+    if (lastEnd) {
+      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
+      if (lastEndTotalMin >= AFTERNOON_END) return;
+
+      // Tiene bloques: el inicio siempre es el fin del último bloque
+      if (isSlotAvailable(lastEnd, workerPlannings)) {
+        setSelectedTime({ time: lastEnd, workerId });
+      }
+    } else {
+      // Sin bloques: libre desde hora actual
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const position = (clickX / rect.width) * 100;
+      const clickedTime = positionToTime(position);
+      if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
+        setSelectedTime({ time: clickedTime, workerId });
+      }
     }
+  };
+
+  // ── Resize handlers ───────────────────────────────────────────────────────
+  const handleResizeStart = (
+    e: React.MouseEvent,
+    timelineEl: HTMLDivElement,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.clientX;
+    dragStartHoursRef.current = estimatedHours;
+    timelineRectRef.current = timelineEl.getBoundingClientRect();
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDraggingRef.current || !timelineRectRef.current || !selectedTime)
+        return;
+      const rect = timelineRectRef.current;
+      const deltaX = ev.clientX - dragStartXRef.current;
+      const deltaFraction = deltaX / rect.width;
+
+      // Convertir fracción de timeline a horas (el timeline total = 8 horas laborales aprox)
+      // Mañana: 0-50% = 5h  |  Almuerzo: 50-60% = skip  |  Tarde: 60-100% = 3.6h
+      const totalWorkHours =
+        (WORK_SCHEDULE.MORNING_END -
+          WORK_SCHEDULE.MORNING_START +
+          WORK_SCHEDULE.AFTERNOON_END -
+          WORK_SCHEDULE.AFTERNOON_START) /
+        60;
+      const deltaHours = deltaFraction * totalWorkHours;
+
+      let newHours = Math.max(0.5, dragStartHoursRef.current + deltaHours);
+      // Redondear a 1 minuto exacto
+      newHours = Math.round(newHours * 60) / 60;
+
+      onEstimatedHoursChange?.(newHours);
+    };
+
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   };
 
   const handleTimelineHover = (
@@ -420,15 +515,36 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const hoverX = event.clientX - rect.left;
-    const position = (hoverX / rect.width) * 100;
-    const hoveredTime = positionToTime(position);
+    // Si ya hay un slot seleccionado, no mostrar hover (solo se mueve con el botón)
+    if (selectedTime) return;
 
-    if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
-      setHoveredSlot({ time: hoveredTime, workerId });
+    const lastEnd = getLastBlockEnd(workerPlannings);
+
+    if (lastEnd) {
+      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
+      if (lastEndTotalMin >= AFTERNOON_END) {
+        setHoveredSlot(null);
+        return;
+      }
+
+      // Tiene bloques: preview fijo al fin del último bloque
+      if (isSlotAvailable(lastEnd, workerPlannings)) {
+        setHoveredSlot({ time: lastEnd, workerId });
+      } else {
+        setHoveredSlot(null);
+      }
     } else {
-      setHoveredSlot(null);
+      // Sin bloques: preview libre siguiendo el cursor
+      const rect = event.currentTarget.getBoundingClientRect();
+      const hoverX = event.clientX - rect.left;
+      const position = (hoverX / rect.width) * 100;
+      const hoveredTime = positionToTime(position);
+      if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
+        setHoveredSlot({ time: hoveredTime, workerId });
+      } else {
+        setHoveredSlot(null);
+      }
     }
   };
 
@@ -519,7 +635,7 @@ export function WorkerTimeline({
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
-          {!readOnly && (
+          {/* {!readOnly && (
             <Button
               variant="outline"
               onClick={() => setIsExceptionalCaseOpen(true)}
@@ -528,7 +644,7 @@ export function WorkerTimeline({
               <Clock className="h-4 w-4" />
               Caso Excepcional
             </Button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -549,9 +665,11 @@ export function WorkerTimeline({
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={estimatedHours}
+                  value={Number(estimatedHours.toFixed(2))}
                   onChange={(e) =>
-                    onEstimatedHoursChange(Number(e.target.value))
+                    onEstimatedHoursChange(
+                      Math.round(Number(e.target.value) * 100) / 100,
+                    )
                   }
                   className="w-24 text-center font-semibold"
                 />
@@ -596,14 +714,17 @@ export function WorkerTimeline({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
+                <PopoverContent
+                  className="w-[400px] p-0 overflow-hidden"
+                  align="start"
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar por correlativo o placa..."
                       value={searchWorkOrder}
                       onValueChange={setSearchWorkOrder}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-60 overflow-y-auto">
                       {isLoadingWorkOrders ? (
                         <div className="flex items-center justify-center py-6">
                           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -757,67 +878,69 @@ export function WorkerTimeline({
         </div>
       )}
 
-      {selectionMode && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <Clock className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-primary">
-            {!selectedWorkOrderId && (
-              <span>
-                Seleccione una <strong>Orden de Trabajo</strong> y luego haz
-                click en un espacio disponible del timeline.
-              </span>
-            )}
-            {selectedWorkOrderId && !selectedTime && (
-              <span>
-                Ahora haz click en un espacio disponible de la línea de tiempo.
-                La tarea durará <strong>{estimatedHours}h</strong>.
-              </span>
-            )}
-            {selectedWorkOrderId && selectedTime && selectedItemId === null && (
-              <span>
-                Selecciona una <strong>descripción de trabajo</strong> para
-                continuar.
-              </span>
-            )}
-            {selectedWorkOrderId && selectedTime && selectedItemId !== null && (
-              <span className="text-green-700 font-semibold">
-                ¡Todo listo! Haz click en "Confirmar y Crear Planificación".
-              </span>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {selectionMode && selectedTime && (
-        <div className="p-5 bg-linear-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-primary">
-                Horario seleccionado:
-              </p>
-              <p className="text-2xl font-bold text-primary">
-                {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
-                {format(addHours(selectedTime.time, estimatedHours), "HH:mm", {
-                  locale: es,
-                })}
-              </p>
-              {selectedItemId !== null && (
-                <p className="text-xs text-primary mt-1">
-                  1 descripción seleccionada
-                </p>
+      {selectionMode &&
+        selectedTime &&
+        (() => {
+          const overflowHours = getOverflowHours(
+            selectedTime.time,
+            estimatedHours,
+          );
+          const hasOverflow = overflowHours > 0;
+          const overflowMins = Math.round(overflowHours * 60);
+          const overflowLabel =
+            overflowMins % 60 === 0
+              ? `${overflowMins / 60}h`
+              : overflowMins < 60
+                ? `${overflowMins}min`
+                : `${Math.floor(overflowMins / 60)}h ${overflowMins % 60}min`;
+          return (
+            <div className="space-y-2">
+              {hasOverflow && (
+                <Alert className="border-orange-300 bg-orange-50">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-700 font-medium">
+                    El horario excede las 18:00.{" "}
+                    <strong>{overflowLabel}</strong> continuará al día siguiente
+                    desde las 08:00.
+                  </AlertDescription>
+                </Alert>
               )}
+              <div
+                className={`p-5 rounded-xl shadow-md border-2 ${hasOverflow ? "bg-linear-to-r from-orange-50 to-amber-50 border-orange-300" : "bg-linear-to-r from-blue-50 to-indigo-50 border-blue-300"}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p
+                      className={`text-sm font-medium ${hasOverflow ? "text-orange-700" : "text-primary"}`}
+                    >
+                      Horario seleccionado:
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${hasOverflow ? "text-orange-700" : "text-primary"}`}
+                    >
+                      {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
+                      {format(
+                        addHours(selectedTime.time, estimatedHours),
+                        "HH:mm",
+                        {
+                          locale: es,
+                        },
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleConfirmSelection}
+                    disabled={!canConfirm}
+                    size="lg"
+                    className="bg-primary hover:bg-primary"
+                  >
+                    Confirmar y Crear Planificación
+                  </Button>
+                </div>
+              </div>
             </div>
-            <Button
-              onClick={handleConfirmSelection}
-              disabled={!canConfirm}
-              size="lg"
-              className="bg-primary hover:bg-primary"
-            >
-              Confirmar y Crear Planificación
-            </Button>
-          </div>
-        </div>
-      )}
+          );
+        })()}
 
       <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg flex-wrap">
         {(
@@ -858,7 +981,7 @@ export function WorkerTimeline({
 
             <div className="flex-1">
               <div
-                className={`relative h-20 rounded border ${
+                className={`timeline-row relative h-20 rounded border ${
                   selectionMode ? "cursor-pointer" : ""
                 }`}
                 onClick={(e) =>
@@ -1133,34 +1256,233 @@ export function WorkerTimeline({
                     ></div>
                   )}
 
-                {/* Selección confirmada */}
+                {/* Selección confirmada (con resize y división por almuerzo) */}
                 {selectionMode &&
                   selectedTime &&
-                  selectedTime.workerId === worker.id && (
-                    <div
-                      className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
-                      style={{
-                        left: `${calculatePositionFromDate(
-                          selectedTime.time,
-                        )}%`,
-                        width: `${
-                          calculatePositionFromDate(
-                            addHours(selectedTime.time, estimatedHours),
-                          ) - calculatePositionFromDate(selectedTime.time)
-                        }%`,
-                      }}
-                    >
-                      <div className="flex items-center justify-center h-full">
-                        <span className="text-xs font-bold text-black">
-                          {format(selectedTime.time, "HH:mm")} -{" "}
-                          {format(
-                            addHours(selectedTime.time, estimatedHours),
-                            "HH:mm",
-                          )}
-                        </span>
+                  selectedTime.workerId === worker.id &&
+                  (() => {
+                    const startMin =
+                      selectedTime.time.getHours() * 60 +
+                      selectedTime.time.getMinutes();
+                    const endTime = addHours(selectedTime.time, estimatedHours);
+                    const endMin =
+                      endTime.getHours() * 60 + endTime.getMinutes();
+                    const crossesLunch =
+                      startMin < LUNCH_START &&
+                      endMin > WORK_SCHEDULE.LUNCH_END;
+
+                    const startPos = calculatePositionFromDate(
+                      selectedTime.time,
+                    );
+                    const endPos = calculatePositionFromDate(endTime);
+
+                    if (crossesLunch) {
+                      // Bloque mañana: inicio → almuerzo
+                      const lunchStartDate = new Date(selectedTime.time);
+                      lunchStartDate.setHours(
+                        Math.floor(LUNCH_START / 60),
+                        LUNCH_START % 60,
+                        0,
+                        0,
+                      );
+                      const lunchEndDate = new Date(selectedTime.time);
+                      lunchEndDate.setHours(
+                        Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+                        WORK_SCHEDULE.LUNCH_END % 60,
+                        0,
+                        0,
+                      );
+                      const morningEndPos =
+                        calculatePositionFromDate(lunchStartDate);
+                      const afternoonStartPos =
+                        calculatePositionFromDate(lunchEndDate);
+
+                      return (
+                        <>
+                          {/* Segmento mañana */}
+                          <div
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${morningEndPos - startPos}%`,
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full pointer-events-none">
+                              <span className="text-xs font-bold text-black">
+                                {format(selectedTime.time, "HH:mm")} -{" "}
+                                {format(lunchStartDate, "HH:mm")}
+                              </span>
+                            </div>
+                            {/* Botón mover */}
+                            <button
+                              className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTime(null);
+                                setHoveredSlot(null);
+                              }}
+                            >
+                              <MoveHorizontal className="h-3 w-3" />
+                              Mover
+                            </button>
+                          </div>
+                          {/* Segmento tarde */}
+                          <div
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                            style={{
+                              left: `${afternoonStartPos}%`,
+                              width: `${endPos - afternoonStartPos}%`,
+                              cursor: "ew-resize",
+                            }}
+                            ref={(el) => {
+                              if (el) {
+                                (el as any)._timelineEl = el.closest(
+                                  ".timeline-row",
+                                ) as HTMLDivElement;
+                              }
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full">
+                              <span className="text-xs font-bold text-black">
+                                {format(lunchEndDate, "HH:mm")} -{" "}
+                                {format(endTime, "HH:mm")}
+                              </span>
+                            </div>
+                            {/* Handle de resize */}
+                            <div
+                              className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                              onMouseDown={(e) => {
+                                const timelineEl = e.currentTarget.closest(
+                                  ".timeline-row",
+                                ) as HTMLDivElement;
+                                if (timelineEl)
+                                  handleResizeStart(e, timelineEl);
+                              }}
+                            >
+                              <div className="w-1 h-6 bg-primary rounded-full" />
+                            </div>
+                          </div>
+                        </>
+                      );
+                    }
+
+                    // Caso overflow: parte dentro del día (azul) + parte fuera (naranja hasta el borde)
+                    const overflowHours = getOverflowHours(
+                      selectedTime.time,
+                      estimatedHours,
+                    );
+                    const hasOverflow = overflowHours > 0;
+
+                    // endPos clampado al 100% del timeline (18:00)
+                    const clampedEndPos = Math.min(endPos, 100);
+                    // posición de las 18:00 en el timeline
+                    const afternoonEndPos = timeToPosition(18, 0);
+
+                    if (hasOverflow) {
+                      return (
+                        <>
+                          {/* Segmento dentro del horario (azul) */}
+                          <div
+                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${afternoonEndPos - startPos}%`,
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full pointer-events-none">
+                              <span className="text-xs font-bold text-black">
+                                {format(selectedTime.time, "HH:mm")} - 18:00
+                              </span>
+                            </div>
+                            {/* Botón mover */}
+                            <button
+                              className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTime(null);
+                                setHoveredSlot(null);
+                              }}
+                            >
+                              <MoveHorizontal className="h-3 w-3" />
+                              Mover
+                            </button>
+                          </div>
+                          {/* Segmento overflow (naranja, hasta el borde del timeline) */}
+                          <div
+                            className="absolute top-0 h-full bg-orange-400 opacity-60 border-2 border-orange-600 border-dashed z-30"
+                            style={{
+                              left: `${afternoonEndPos}%`,
+                              width: `${clampedEndPos - afternoonEndPos}%`,
+                              cursor: "ew-resize",
+                            }}
+                          >
+                            <div className="flex items-center justify-center h-full pointer-events-none">
+                              <span className="text-[10px] font-bold text-orange-900 whitespace-nowrap">
+                                +{Math.round(overflowHours * 60)}min →
+                              </span>
+                            </div>
+                            {/* Handle de resize */}
+                            <div
+                              className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-orange-500/30"
+                              onMouseDown={(e) => {
+                                const timelineEl = e.currentTarget.closest(
+                                  ".timeline-row",
+                                ) as HTMLDivElement;
+                                if (timelineEl)
+                                  handleResizeStart(e, timelineEl);
+                              }}
+                            >
+                              <div className="w-1 h-6 bg-orange-600 rounded-full pointer-events-none" />
+                            </div>
+                          </div>
+                        </>
+                      );
+                    }
+
+                    return (
+                      <div
+                        className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                        style={{
+                          left: `${startPos}%`,
+                          width: `${endPos - startPos}%`,
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-2 h-full pointer-events-none">
+                          <span className="text-xs font-bold text-black">
+                            {format(selectedTime.time, "HH:mm")} -{" "}
+                            {format(endTime, "HH:mm")}
+                          </span>
+                        </div>
+                        {/* Botón mover */}
+                        <button
+                          className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTime(null);
+                            setHoveredSlot(null);
+                          }}
+                        >
+                          <MoveHorizontal className="h-3 w-3" />
+                          Mover
+                        </button>
+                        {/* Handle de resize */}
+                        <div
+                          className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                          onMouseDown={(e) => {
+                            const timelineEl = e.currentTarget.closest(
+                              ".timeline-row",
+                            ) as HTMLDivElement;
+                            if (timelineEl) handleResizeStart(e, timelineEl);
+                          }}
+                        >
+                          <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                 {plannings.length === 0 && !selectionMode && (
                   <div className="absolute inset-0 flex items-center justify-center">

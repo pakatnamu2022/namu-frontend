@@ -51,7 +51,7 @@ export default function AddPurchaseRequestRepuestoPage() {
       />
       <PurchaseRequestForm
         defaultValues={{
-          supply_type: "LIMA",
+          supply_type: "LOCAL",
           requested_date: new Date(),
           observations: "",
           area_id: AREA_MESON,

@@ -121,30 +121,6 @@ export const productColumns = ({
     },
   },
   {
-    accessorKey: "sale_price",
-    header: "P. Venta",
-    cell: ({ getValue, row }) => {
-      const value = getValue();
-      const priceWithTax = row.original.price_with_tax;
-
-      if (value == null || value === "") return "S/ 0.00";
-      const numValue =
-        typeof value === "string" ? parseFloat(value) : Number(value);
-      const basePrice = isNaN(numValue) ? 0 : numValue;
-
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">S/ {basePrice.toFixed(2)}</span>
-          {priceWithTax != null && priceWithTax !== basePrice && (
-            <span className="text-xs text-muted-foreground">
-              c/IGV: S/ {priceWithTax.toFixed(2)}
-            </span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {

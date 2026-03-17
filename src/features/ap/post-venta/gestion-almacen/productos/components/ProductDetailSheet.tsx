@@ -79,12 +79,6 @@ export default function ProductDetailSheet({
                     <p className="font-medium">{product.dyn_code}</p>
                   </div>
                 )}
-                {product.nubefac_code && (
-                  <div>
-                    <p className="text-muted-foreground">Código Nubefac</p>
-                    <p className="font-medium">{product.nubefac_code}</p>
-                  </div>
-                )}
                 {product.description && (
                   <div className="col-span-2">
                     <p className="text-muted-foreground">Descripción</p>
@@ -155,55 +149,6 @@ export default function ProductDetailSheet({
 
             <Separator />
 
-            {/* Precios */}
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Precios</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    Precio de Costo
-                  </p>
-                  <p className="text-xl font-bold">
-                    S/ {parseFloat(product.cost_price || "0").toFixed(2)}
-                  </p>
-                  {product.cost_with_tax && (
-                    <p className="text-xs text-muted-foreground">
-                      c/IGV: S/ {product.cost_with_tax.toFixed(2)}
-                    </p>
-                  )}
-                </div>
-                <div className="p-3 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    Precio de Venta
-                  </p>
-                  <p className="text-xl font-bold">
-                    S/ {parseFloat(product.sale_price).toFixed(2)}
-                  </p>
-                  {product.price_with_tax && (
-                    <p className="text-xs text-muted-foreground">
-                      c/IGV: S/ {product.price_with_tax.toFixed(2)}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-3 text-sm">
-                <p className="text-muted-foreground">
-                  Tasa de Impuesto:{" "}
-                  <span className="font-medium">
-                    {product.tax_rate || "0"}%
-                  </span>
-                </p>
-                <p className="text-muted-foreground">
-                  Gravable:{" "}
-                  <span className="font-medium">
-                    {product.is_taxable ? "Sí" : "No"}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <Separator />
-
             {/* Stock por Almacén */}
             {product.warehouse_stocks &&
               product.warehouse_stocks.length > 0 && (
@@ -247,9 +192,6 @@ export default function ProductDetailSheet({
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {ws.warehouse.dyn_code} - {ws.warehouse.sede}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {ws.warehouse.type_operation}
                             </p>
                           </div>
                           <Badge
@@ -313,6 +255,35 @@ export default function ProductDetailSheet({
                               Stock Máximo
                             </p>
                             <p className="font-medium">{ws.maximum_stock}</p>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <p className="text-muted-foreground">
+                              Precio de Costo
+                            </p>
+                            <p className="font-medium">
+                              S/ {Number(ws.cost_price).toFixed(2)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">
+                              Costo Promedio
+                            </p>
+                            <p className="font-medium">
+                              S/ {Number(ws.average_cost).toFixed(2)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">
+                              Precio de Venta
+                            </p>
+                            <p className="font-medium">
+                              S/ {Number(ws.sale_price).toFixed(2)}
+                            </p>
                           </div>
                         </div>
 

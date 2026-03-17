@@ -12,11 +12,13 @@ export interface BrandsResource {
   dyn_code: string;
   name: string;
   description: string;
-  logo_url: string;
-  logo_min_url: string;
+  logo: string;
+  logo_min: string;
   group_id: number;
   type_operation_id: number;
   status: boolean;
+  group: string;
+  sede_id: number | null;
 }
 
 export interface BrandsRequest {

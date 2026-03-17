@@ -8,6 +8,12 @@ import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 
@@ -155,9 +161,9 @@ export const orderQuotationColumns = ({
       const isFullyApproved = !!chief_approval_by && !!manager_approval_by;
       const isLocked = isFullyApproved || !!has_management_discount;
 
-      const handleDownloadPdf = async () => {
+      const handleDownloadPdf = async (withCode: boolean) => {
         try {
-          await downloadOrderQuotationPdf(id);
+          await downloadOrderQuotationPdf(id, withCode);
           successToast("PDF descargado correctamente");
         } catch {
           errorToast("Error al descargar el PDF");
@@ -190,15 +196,28 @@ export const orderQuotationColumns = ({
             </Button>
           )}
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={handleDownloadPdf}
-            tooltip="PDF"
-          >
-            <Download className="size-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Descargar PDF"
+              >
+                <Download className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleDownloadPdf(true)}>
+                <Download className="size-4 mr-2" />
+                PDF con código
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleDownloadPdf(false)}>
+                <Download className="size-4 mr-2" />
+                PDF sin código
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {permissions.canUpdate && !isLocked && (
             <Button

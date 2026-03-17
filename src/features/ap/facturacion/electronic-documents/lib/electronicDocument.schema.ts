@@ -1,5 +1,9 @@
 import { AREAS_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { optionalStringId, requiredDate, requiredStringId } from "@/shared/lib/global.schema";
+import {
+  optionalStringId,
+  requiredDate,
+  requiredStringId,
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 import { PAYMENT_CONDITION_CREDIT } from "./electronicDocument.constants";
 
@@ -144,7 +148,21 @@ export const ElectronicDocumentSchema = z
       .string()
       .max(20, "Máximo 20 caracteres")
       .optional(),
+    orden_compra_servicio_file: z.instanceof(File).optional().nullable(),
     codigo_unico: z.string().max(20, "Máximo 20 caracteres").optional(),
+
+    // ===== CAMPOS DE PAGO ADICIONALES =====
+    card_last4: z
+      .string()
+      .max(4, "Máximo 4 caracteres")
+      .regex(/^\d{0,4}$/, "Solo se permiten dígitos")
+      .optional()
+      .nullable(),
+    internal_note: z
+      .string()
+      .max(255, "Máximo 255 caracteres")
+      .optional()
+      .nullable(),
 
     // ===== CONFIGURACIÓN =====
     enviar_automaticamente_a_la_sunat: z.boolean().default(false),
@@ -276,10 +294,10 @@ export const CreditNoteItemSchema = z.object({
 
 // Credit Note Type IDs (from SUNAT concepts with type=BILLING_CREDIT_NOTE_TYPE)
 export const CREDIT_NOTE_TYPE_IDS = {
-  ANULACION: 68,        // Code 01 – Anulación de la operación
+  ANULACION: 68, // Code 01 – Anulación de la operación
   DESCUENTO_GLOBAL: 71, // Code 04 – Descuento global
   DEVOLUCION_TOTAL: 73, // Code 06 – Devolución total
-  DEVOLUCION_ITEM: 74,  // Code 07 – Devolución por ítem
+  DEVOLUCION_ITEM: 74, // Code 07 – Devolución por ítem
 } as const;
 
 // Schema para Nota de Crédito
@@ -296,7 +314,9 @@ export const CreditNoteSchema = z
     // Type 04 – Descuento global
     discount_amount: z.preprocess(
       (val) =>
-        val === "" || val === null || val === undefined ? undefined : Number(val),
+        val === "" || val === null || val === undefined
+          ? undefined
+          : Number(val),
       z.number().min(0.01, "El monto debe ser mayor a 0").optional().nullable(),
     ),
     account_plan_id: optionalStringId("Cuenta contable inválida"),
@@ -317,7 +337,10 @@ export const CreditNoteSchema = z
       }
       return true;
     },
-    { message: "El monto del descuento debe ser mayor a 0", path: ["discount_amount"] },
+    {
+      message: "El monto del descuento debe ser mayor a 0",
+      path: ["discount_amount"],
+    },
   )
   .refine(
     (data) => {
@@ -406,6 +429,7 @@ export type ElectronicDocumentInstallmentSchema = z.infer<
 >;
 export type CreditNoteItemSchema = z.infer<typeof CreditNoteItemSchema>;
 export type CreditNoteSchema = z.infer<typeof CreditNoteSchema>;
-export type CreditNoteTypeId = (typeof CREDIT_NOTE_TYPE_IDS)[keyof typeof CREDIT_NOTE_TYPE_IDS];
+export type CreditNoteTypeId =
+  (typeof CREDIT_NOTE_TYPE_IDS)[keyof typeof CREDIT_NOTE_TYPE_IDS];
 export type DebitNoteItemSchema = z.infer<typeof DebitNoteItemSchema>;
 export type DebitNoteSchema = z.infer<typeof DebitNoteSchema>;

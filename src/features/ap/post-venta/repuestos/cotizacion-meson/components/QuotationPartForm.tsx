@@ -40,8 +40,6 @@ export const QuotationPartForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: [],
-      cost_price: 0,
-      sale_price: 0,
     },
     mode: "onChange",
   });
@@ -124,7 +122,13 @@ export const QuotationPartForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
+      <form
+        onSubmit={(e) => {
+          e.stopPropagation();
+          form.handleSubmit(onSubmit)(e);
+        }}
+        className="space-y-6 w-full"
+      >
         {/* Selector o indicador de almacén */}
         {warehouses.length > 0 && (
           <div className="space-y-2">

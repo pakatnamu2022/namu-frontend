@@ -1,4 +1,8 @@
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
+import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductCategoryResource } from "../../categorias-producto/lib/productCategory.interface";
+import { BrandsResource } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.interface";
 
 export interface ProductResponse {
   data: ProductResource[];
@@ -17,76 +21,28 @@ export interface WarehouseStockDetail {
   available_quantity: number;
   minimum_stock: number;
   maximum_stock: number;
+  cost_price: number;
+  average_cost: number;
+  sale_price: number;
   last_movement_date: string | null;
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   stock_status: "NORMAL" | "LOW" | "OUT";
-  warehouse: {
-    id: number;
-    dyn_code: string;
-    description: string;
-    article_class_id: number;
-    article_class: string;
-    sede_id: number;
-    sede: string;
-    type_operation_id: number;
-    type_operation: string;
-    status: number;
-    is_received: number;
-    inventory_account: string;
-    counterparty_account: string;
-  };
+  warehouse: WarehouseResource;
   created_at: string;
   updated_at: string;
-}
-
-export interface ProductCategory {
-  id: number;
-  code: string;
-  description: string;
-  status: number;
-  type: number;
-}
-
-export interface ProductBrand {
-  id: number;
-  code: string;
-  dyn_code: string;
-  name: string;
-  description: string;
-  logo: string;
-  logo_min: string;
-  type_operation_id: number;
-  status: number;
-  group_id: number;
-  group: string;
-  sede_id: number | null;
-}
-
-export interface ProductUnitMeasurement {
-  id: number;
-  dyn_code: string;
-  nubefac_code: string;
-  description: string;
-  status: boolean;
 }
 
 export interface ProductResource {
   id: number;
   code: string;
   dyn_code?: string;
-  nubefac_code?: string | null;
   name: string;
   description?: string;
   product_category_id: number;
   brand_id?: number;
   unit_measurement_id: number;
   ap_class_article_id: number;
-  cost_price?: string;
-  sale_price: string;
-  tax_rate?: string;
-  is_taxable?: boolean;
-  sunat_code?: string | null;
   warranty_months?: number;
   status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
 
@@ -101,9 +57,9 @@ export interface ProductResource {
 
   // Nested relations (when included)
   warehouse_stocks?: WarehouseStockDetail[];
-  category?: ProductCategory;
-  brand?: ProductBrand;
-  unit_measurement?: ProductUnitMeasurement;
+  category?: ProductCategoryResource;
+  brand?: BrandsResource;
+  unit_measurement?: UnitMeasurementResource;
 }
 
 export interface WarehouseStock {
@@ -116,15 +72,12 @@ export interface WarehouseStock {
 export interface ProductRequest {
   code: string;
   dyn_code?: string;
-  nubefac_code?: string;
   name: string;
   description?: string;
   product_category_id: string;
   brand_id?: string;
   unit_measurement_id: string;
   ap_class_article_id: string;
-  cost_price?: number;
-  sale_price: number;
   warranty_months?: number;
   notes?: string;
   status?: "ACTIVE" | "INACTIVE" | "DISCONTINUED";

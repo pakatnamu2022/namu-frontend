@@ -21,7 +21,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 export default function CreatePlanningPage() {
   const navigate = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const [estimatedHours, setEstimatedHours] = useState(2);
+  const [estimatedHours, setEstimatedHours] = useState(1);
   const selectedSedeId = localStorage.getItem("planningPage_selectedSedeId");
 
   const getInitialDate = (): Date => {

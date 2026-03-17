@@ -30,14 +30,6 @@ export default function PurchaseOrderWarehousePage() {
   const [sedeId, setSedeId] = useState<string>("");
   const { ROUTE, MODEL } = PURCHASE_INVOICE_PV;
 
-  const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
-    page,
-    search,
-    per_page,
-    sede_id: sedeId !== "all" ? sedeId : undefined,
-    type_operation_id: CM_POSTVENTA_ID,
-  });
-
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 
   // Setear el primer almacén por defecto
@@ -47,6 +39,14 @@ export default function PurchaseOrderWarehousePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sedes]);
+
+  const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
+    page,
+    search,
+    per_page,
+    sede_id: sedeId !== "all" ? sedeId : undefined,
+    type_operation_id: CM_POSTVENTA_ID,
+  });
 
   const handleRequestInvoice = async (purchaseOrderId: number) => {
     await dispatchSyncInvoice(purchaseOrderId)

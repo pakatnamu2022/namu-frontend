@@ -1,3 +1,4 @@
+import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface InventoryProductCategory {
@@ -25,14 +26,6 @@ export interface InventoryProductBrand {
   sede_id: number | null;
 }
 
-export interface InventoryProductUnitMeasurement {
-  id: number;
-  dyn_code: string;
-  nubefac_code: string;
-  description: string;
-  status: boolean;
-}
-
 export interface InventoryProduct {
   id: number;
   code: string;
@@ -48,7 +41,6 @@ export interface InventoryProduct {
   sale_price: string;
   tax_rate: string;
   is_taxable: boolean;
-  sunat_code: string | null;
   warranty_months: number;
   status: string;
   brand_name: string;
@@ -60,7 +52,7 @@ export interface InventoryProduct {
   cost_with_tax: number;
   category: InventoryProductCategory;
   brand: InventoryProductBrand;
-  unit_measurement: InventoryProductUnitMeasurement;
+  unit_measurement: UnitMeasurementResource;
 }
 
 export interface InventoryWarehouse {

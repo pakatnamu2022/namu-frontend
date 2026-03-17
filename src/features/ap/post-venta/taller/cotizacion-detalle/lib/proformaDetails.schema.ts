@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
+import { requiredNumber, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 import {
   ITEM_TYPE_LABOR,
@@ -12,7 +12,7 @@ export const laborDetailSchema = z.object({
   description: z.string().min(1, "Descripción es requerida").max(500),
   quantity: z.number().min(0.1, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1, "Unidad de medida es requerida"),
-  unit_price: z.number().min(0.1, "Precio debe ser mayor a 0"),
+  unit_price: requiredNumber("Precio unitario es requerido"),
   discount_percentage: z
     .number()
     .min(0, "Descuento debe ser mayor o igual a 0")

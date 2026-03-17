@@ -28,11 +28,12 @@ import GeneralMastersTable from "@/features/gp/maestros-generales/components/Gen
 import { generalMastersColumns } from "@/features/gp/maestros-generales/components/GeneralMastersColumns";
 import GeneralMastersModal from "@/features/gp/maestros-generales/components/GeneralMastersModal";
 import GeneralMastersOptions from "@/features/gp/maestros-generales/components/GeneralMastersOptions";
-import { PAYROLL_CONSTANTS } from "@/features/gp/maestros-generales/lib/generalMasters.constants";
+import {
+  PAYROLL_CONSTANTS,
+  PAYROLL_CONSTANTS_TYPE,
+} from "@/features/gp/maestros-generales/lib/generalMasters.constants";
 
-const PAYROLL_CONSTANTS_TYPE = "SPREADSHEET_PARAMETERS";
-
-export default function PayrollConstantsPage() {
+export default function PayrollParameterPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE } = PAYROLL_CONSTANTS;
   const permissions = useModulePermissions(ROUTE);

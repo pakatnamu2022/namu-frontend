@@ -29,11 +29,40 @@ const workOrderSchemaBase = z.object({
   items: z
     .array(workOrderItemSchema)
     .min(1, "Debe agregar al menos un trabajo"),
-  is_guarantee: z.boolean().default(true),
-  is_recall: z.boolean().default(true),
+  is_guarantee: z.boolean().default(false),
+  is_recall: z.boolean().default(false),
   description_recall: z.string().max(500).optional(),
   type_recall: z.enum(["ROJO", "AMARILLO", "VERDE"]).optional(),
 });
+
+const recallRefine = (
+  data: {
+    is_recall?: boolean;
+    type_recall?: string;
+    description_recall?: string;
+  },
+  ctx: z.RefinementCtx,
+) => {
+  if (data.is_recall) {
+    if (!data.type_recall) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Tipo recall es requerido cuando recall está activo",
+        path: ["type_recall"],
+      });
+    }
+    if (
+      !data.description_recall ||
+      data.description_recall.trim().length === 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Descripción recall es requerida cuando recall está activo",
+        path: ["description_recall"],
+      });
+    }
+  }
+};
 
 const appointmentRefine = (data: {
   has_appointment?: boolean;
@@ -60,6 +89,7 @@ const inspectionRefine = (data: {
 };
 
 export const workOrderSchemaCreate = workOrderSchemaBase
+  .superRefine(recallRefine)
   .refine(appointmentRefine, {
     message:
       "Cita de planificación es requerida cuando 'Tiene cita' está activo",
@@ -76,6 +106,7 @@ export const workOrderSchemaUpdate = workOrderSchemaBase
     items: z.array(workOrderItemSchema).optional(),
   })
   .partial()
+  .superRefine(recallRefine)
   .refine(appointmentRefine, {
     message:
       "Cita de planificación es requerida cuando 'Tiene cita' está activo",

@@ -52,7 +52,7 @@ export default function AddWarehousePurchaseRequestPage() {
       />
       <PurchaseRequestForm
         defaultValues={{
-          supply_type: "LIMA",
+          supply_type: "LOCAL",
           requested_date: getTodayLocalDateString(),
           observations: "",
           area_id: AREA_POSTVENTA,

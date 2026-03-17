@@ -549,10 +549,16 @@ export const AppointmentPlanningForm = ({
                         Fecha y Hora de Entrega
                       </h4>
                     </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Selecciona cuándo se entregará el vehículo al cliente.
-                      También disponible en intervalos de 15 minutos.
-                    </p>
+                    {!form.watch("date_appointment") || !form.watch("time_appointment") ? (
+                      <p className="text-sm text-red-500 font-medium mb-4">
+                        Primero debes seleccionar la Fecha y Hora de la Cita.
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-600 mb-4">
+                        Selecciona cuándo se entregará el vehículo al cliente.
+                        También disponible en intervalos de 15 minutos.
+                      </p>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormInput
                         control={form.control}
@@ -576,7 +582,9 @@ export const AppointmentPlanningForm = ({
                   <Button
                     type="button"
                     onClick={() => setShowDeliveryTimePicker(true)}
-                    className="w-full lg:w-auto lg:ml-4 bg-red-600 hover:bg-red-700 shrink-0"
+                    disabled={!form.watch("date_appointment") || !form.watch("time_appointment")}
+                    className="w-full lg:w-auto lg:ml-4 bg-red-600 hover:bg-red-700 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    tooltip={!form.watch("date_appointment") || !form.watch("time_appointment") ? "Primero selecciona la Fecha y Hora de la Cita" : undefined}
                   >
                     <Calendar className="h-4 w-4 mr-2" />
                     <span className="whitespace-nowrap">
@@ -641,6 +649,9 @@ export const AppointmentPlanningForm = ({
           onSelect={handleDeliveryTimeSlotSelect}
           selectedDate={form.watch("delivery_date")}
           selectedTime={form.watch("delivery_time")}
+          mode="delivery"
+          appointmentDate={form.watch("date_appointment")}
+          appointmentTime={form.watch("time_appointment")}
         />
       </form>
     </Form>
