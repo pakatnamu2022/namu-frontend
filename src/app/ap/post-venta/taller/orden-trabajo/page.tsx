@@ -18,7 +18,10 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
-import { deleteWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import {
+  deleteWorkOrder,
+  generateInternalNote,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import WorkOrderActions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderActions";
 import WorkOrderTable from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderTable";
 import { workOrderColumns } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderColumns";
@@ -26,6 +29,7 @@ import WorkOrderOptions from "@/features/ap/post-venta/taller/orden-trabajo/comp
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export default function WorkOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -33,6 +37,7 @@ export default function WorkOrderPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [internalNoteId, setInternalNoteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -82,6 +87,21 @@ export default function WorkOrderPage() {
     }
   };
 
+  const handleGenerateInternalNote = async () => {
+    if (!internalNoteId) return;
+    try {
+      await generateInternalNote(internalNoteId);
+      await refetch();
+      successToast("Nota interna generada exitosamente");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al generar la nota interna",
+      );
+    } finally {
+      setInternalNoteId(null);
+    }
+  };
+
   const handleUpdate = (id: number) => {
     router(`${ROUTE_UPDATE}/${id}`);
   };
@@ -112,6 +132,7 @@ export default function WorkOrderPage() {
       <WorkOrderTable
         isLoading={isLoading}
         columns={workOrderColumns({
+          onInternalNote: setInternalNoteId,
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
           onManage: handleManage,
@@ -144,6 +165,21 @@ export default function WorkOrderPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
+        />
+      )}
+
+      {internalNoteId !== null && (
+        <ConfirmationDialog
+          trigger={false}
+          open={internalNoteId !== null}
+          onOpenChange={(open) => !open && setInternalNoteId(null)}
+          title="Generar Nota Interna"
+          description="¿Estás seguro de que deseas generar una nota interna para esta orden de trabajo? Esta acción no se puede deshacer."
+          confirmText="Sí, generar"
+          cancelText="No, cancelar"
+          variant="default"
+          icon="info"
+          onConfirm={handleGenerateInternalNote}
         />
       )}
     </div>

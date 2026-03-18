@@ -151,29 +151,6 @@ export function OrderQuotationDocumentInfoSection({
 
     const documentTypeId = effectiveCustomer.document_type_id;
 
-    console.log(
-      "Filtrando tipos de documento para cliente:",
-      effectiveCustomer.full_name,
-      "con document_type_id:",
-      documentTypeId,
-      "-> Tipos válidos:",
-      documentTypes
-        .filter((t) => {
-          // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
-          if (Number(documentTypeId) === 810) {
-            return t.id === SUNAT_TYPE_INVOICES_ID.FACTURA;
-          }
-          // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
-          if (Number(documentTypeId) === 809) {
-            return t.id === SUNAT_TYPE_INVOICES_ID.BOLETA;
-          }
-          // Para otros tipos de documento, mostrar todos
-          return true;
-        })
-        .map((t) => t.description)
-        .join(", "),
-    );
-
     // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
     if (Number(documentTypeId) === 810) {
       return type.id === SUNAT_TYPE_INVOICES_ID.FACTURA;
@@ -191,10 +168,7 @@ export function OrderQuotationDocumentInfoSection({
   // Validar y limpiar tipo de documento cuando cambia el cliente
   useEffect(() => {
     if (!effectiveCustomer) return;
-    console.log(
-      "Validando tipo de documento:",
-      filteredDocumentTypes.map((t) => t.id),
-    );
+
     // Si la lista de tipos aún no cargó, no limpiar nada
     if (filteredDocumentTypes.length === 0) return;
 

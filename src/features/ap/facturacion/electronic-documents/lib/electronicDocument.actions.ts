@@ -92,6 +92,23 @@ export async function storeElectronicDocument(
   return response.data;
 }
 
+export async function storeConsolidatedInvoice(
+  data: ElectronicDocumentSchema,
+  internal_note_ids: number[],
+): Promise<ElectronicDocumentResource> {
+  console.log(
+    "Storing consolidated invoice with data:",
+    data,
+    "and internal_note_ids:",
+    internal_note_ids,
+  );
+  const response = await api.post<ElectronicDocumentResource>(
+    `${ENDPOINT}/consolidated-invoice`,
+    { ...data, internal_note_ids },
+  );
+  return response.data;
+}
+
 function appendToFormData(formData: FormData, key: string, value: unknown) {
   if (value === undefined || value === null) return;
   if (value instanceof File) {

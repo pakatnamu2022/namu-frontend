@@ -325,6 +325,7 @@ import UpdateDebitNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-ca
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
 import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
+import DirectInvoicePage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx";
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -1630,6 +1631,10 @@ function App() {
               <Route
                 path="caja/orden-trabajo-taller-caja/gestionar/:id"
                 element={<ManageWorkOrderCajaPage />}
+              />
+              <Route
+                path="caja/orden-trabajo-taller-caja/factura-directa"
+                element={<DirectInvoicePage />}
               />
             </Route>
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,36 @@ export default function WorkOrderItemForm({
       description: "",
     },
   });
+
+  const watchedTypePlanningId = useWatch({
+    control: form.control,
+    name: "type_planning_id",
+  });
+
+  useEffect(() => {
+    if (!watchedTypePlanningId) return;
+
+    const planningSelected = typesPlanning.find(
+      (tp) => tp.id.toString() === watchedTypePlanningId,
+    );
+    if (!planningSelected) return;
+
+    const matchedOperation = typesOperation.find(
+      (to) => to.description === planningSelected.description,
+    );
+
+    if (matchedOperation) {
+      form.setValue("type_operation_id", matchedOperation.id.toString(), {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    } else {
+      form.setValue("type_operation_id", "", {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+    }
+  }, [watchedTypePlanningId, typesPlanning, typesOperation, form]);
 
   const onSubmit = (data: WorkOrderItemFormValues) => {
     const payload: WorkOrderItemRequest = {

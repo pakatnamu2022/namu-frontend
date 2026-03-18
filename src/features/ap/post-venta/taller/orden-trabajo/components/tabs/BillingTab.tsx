@@ -12,7 +12,6 @@ import { Progress } from "@/components/ui/progress";
 import { FileText, Plus, Receipt, AlertCircle } from "lucide-react";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useGetPaymentSummary } from "../../lib/workOrder.hook";
-import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import {
   ElectronicDocumentSchema,
@@ -296,11 +295,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   return (
     <div className="space-y-6">
       {/* Selector de grupos en la parte superior */}
-      <GroupSelector
+      {/* <GroupSelector
         items={items}
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
-      />
+      /> */}
 
       {/* Contenido del grupo seleccionado */}
       {selectedGroupNumber ? (

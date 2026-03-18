@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Settings } from "lucide-react";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
@@ -16,12 +17,42 @@ interface Props {
     canUpdate: boolean;
     canDelete: boolean;
   };
+  showCheckbox?: boolean;
 }
 
 export const workOrderCajaColumns = ({
   onManage,
   permissions,
+  showCheckbox = false,
 }: Props): WorkOrderColumns[] => [
+  ...(showCheckbox
+    ? ([
+        {
+          id: "select",
+          header: ({ table }) => (
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+              aria-label="Seleccionar todos"
+            />
+          ),
+          cell: ({ row }) => (
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Seleccionar fila"
+            />
+          ),
+          enableSorting: false,
+          enableHiding: false,
+        },
+      ] as WorkOrderColumns[])
+    : []),
   {
     accessorKey: "correlative",
     header: "Correlativo",
