@@ -329,11 +329,13 @@ const EmptyState = () => (
 interface Props {
   vehicleId: number;
   vehiclePlate?: string;
+  buttonVariant?: "icon" | "default";
 }
 
 export default function VehicleWorkOrderHistory({
   vehicleId,
   vehiclePlate,
+  buttonVariant = "icon",
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -347,15 +349,29 @@ export default function VehicleWorkOrderHistory({
 
   return (
     <>
-      <Button
-        size="icon"
-        variant="outline"
-        className="size-7"
-        tooltip="Historial de Mantenimientos y Reparaciones"
-        onClick={() => setOpen(true)}
-      >
-        <ClipboardList className="size-4" />
-      </Button>
+      {buttonVariant === "default" ? (
+        <Button
+          variant="outline"
+          color="primary"
+          size="sm"
+          className="group gap-2 rounded-full border-primary/30 bg-primary/5 px-4 font-semibold hover:bg-primary/10"
+          tooltip="Mantenimientos y Reparaciones"
+          onClick={() => setOpen(true)}
+        >
+          <ClipboardList className="size-3.5 text-primary" />
+          Mantenimientos
+        </Button>
+      ) : (
+        <Button
+          size="icon"
+          variant="outline"
+          className="size-7"
+          tooltip="Historial de Mantenimientos y Reparaciones"
+          onClick={() => setOpen(true)}
+        >
+          <ClipboardList className="size-4" />
+        </Button>
+      )}
 
       <GeneralSheet
         open={open}
