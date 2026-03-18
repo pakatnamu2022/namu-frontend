@@ -35,6 +35,7 @@ interface InvoiceFormProps {
   authorizedSeries: AssignSalesSeriesResource[];
   checkbooks: ApBankResource[];
   workOrder: WorkOrderResource;
+  isInvalidWithQuote?: boolean;
 }
 
 export default function InvoiceForm({
@@ -50,6 +51,7 @@ export default function InvoiceForm({
   authorizedSeries,
   checkbooks,
   workOrder,
+  isInvalidWithQuote = false,
 }: InvoiceFormProps) {
   // Cliente por defecto desde la orden de trabajo y otros datos necesarios
   const defaultCustomer = workOrder.invoice_to_client;
@@ -59,6 +61,7 @@ export default function InvoiceForm({
 
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
+  const lastLoadedIsInvalidWithQuote = useRef<boolean | null>(null);
   const itemsAlreadyLoaded = useRef<boolean>(false);
 
   // Watch para obtener valores en tiempo real
@@ -106,21 +109,44 @@ export default function InvoiceForm({
 
   // Efecto para cargar items automáticamente desde labours y parts
   useEffect(() => {
+    console.log(
+      "[InvoiceForm] useEffect items - igvTypes.length:",
+      igvTypes.length,
+    );
+    console.log("[InvoiceForm] isAdvancePayment:", isAdvancePayment);
+    console.log("[InvoiceForm] isInvalidWithQuote:", isInvalidWithQuote);
+    console.log(
+      "[InvoiceForm] workOrder.final_amount:",
+      workOrder.final_amount,
+    );
+    console.log(
+      "[InvoiceForm] itemsAlreadyLoaded.current:",
+      itemsAlreadyLoaded.current,
+    );
+    console.log(
+      "[InvoiceForm] lastLoadedAdvancePaymentState.current:",
+      lastLoadedAdvancePaymentState.current,
+    );
+
     if (igvTypes.length === 0) return;
 
-    // Verificar si ya se cargaron los items o si cambió el estado de anticipo
+    // Verificar si ya se cargaron los items o si cambió el estado de anticipo/invalid
     const shouldReload =
       !itemsAlreadyLoaded.current ||
-      isAdvancePayment !== lastLoadedAdvancePaymentState.current;
+      isAdvancePayment !== lastLoadedAdvancePaymentState.current ||
+      isInvalidWithQuote !== lastLoadedIsInvalidWithQuote.current;
 
+    console.log("[InvoiceForm] shouldReload:", shouldReload);
     if (!shouldReload) return;
 
     lastLoadedAdvancePaymentState.current = isAdvancePayment;
+    lastLoadedIsInvalidWithQuote.current = isInvalidWithQuote;
     itemsAlreadyLoaded.current = true;
 
     const gravadaType = igvTypes.find(
       (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
     );
+    console.log("[InvoiceForm] gravadaType:", gravadaType);
 
     if (isAdvancePayment) {
       // MODO ANTICIPO: Consolidar todo en un solo item
@@ -141,19 +167,44 @@ export default function InvoiceForm({
           ? `ANTICIPO POR ${allDescriptions.join(", ")}`
           : "ANTICIPO POR SERVICIOS DE TALLER";
 
-      // Crear un solo item consolidado con valores en 0 para que el usuario los edite
+      // Cuando la cotización es inválida, pre-llenar con los montos de la orden de trabajo
+      let valor_unitario = 0;
+      let precio_unitario = 0;
+      let subtotal = 0;
+      let igvAmount = 0;
+      let total = 0;
+
+      if (isInvalidWithQuote && workOrder.final_amount) {
+        const round2 = (num: number) => Math.round(num * 100) / 100;
+        // final_amount ya incluye IGV, calcular hacia atrás
+        total = round2(workOrder.final_amount);
+        subtotal = round2(total / (1 + porcentaje_de_igv / 100));
+        igvAmount = round2(total - subtotal);
+        valor_unitario = subtotal;
+        precio_unitario = total;
+      }
+
+      console.log(
+        "[InvoiceForm] anticipoItem montos => total:",
+        total,
+        "subtotal:",
+        subtotal,
+        "igv:",
+        igvAmount,
+      );
+
       const anticipoItem: ElectronicDocumentItemSchema = {
         account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
         unidad_de_medida: "ZZ",
         codigo: selectedGroupNumber?.toString() || "",
         descripcion: consolidatedDescription,
         cantidad: 1,
-        valor_unitario: 0,
-        precio_unitario: 0,
-        subtotal: 0,
+        valor_unitario,
+        precio_unitario,
+        subtotal,
         sunat_concept_igv_type_id: gravadaType?.id || 0,
-        igv: 0,
-        total: 0,
+        igv: igvAmount,
+        total,
       };
 
       form.setValue("items", [anticipoItem], { shouldValidate: false });
@@ -276,6 +327,8 @@ export default function InvoiceForm({
     porcentaje_de_igv,
     isAdvancePayment,
     selectedGroupNumber,
+    isInvalidWithQuote,
+    workOrder.final_amount,
     form,
   ]);
 
@@ -394,6 +447,8 @@ export default function InvoiceForm({
               advances={advances}
               currencySymbol={currencySymbol}
               porcentaje_de_igv={porcentaje_de_igv}
+              isInvalidWithQuote={isInvalidWithQuote}
+              finalAmount={workOrder.final_amount}
             />
             {/* Información del Documento */}
             <InvoiceDocumentInfoSection
@@ -404,6 +459,7 @@ export default function InvoiceForm({
               authorizedSeries={authorizedSeries}
               defaultCustomer={defaultCustomer!}
               isAdvancePayment={isAdvancePayment}
+              isInvalidWithQuote={isInvalidWithQuote}
             />
             {/* Items (solo lectura, cargados automáticamente) */}
             <ItemsSection

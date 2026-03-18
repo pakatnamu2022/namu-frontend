@@ -59,7 +59,9 @@ export async function findWorkOrderById(
 export async function findWorkOrdersByIds(
   ids: number[],
 ): Promise<WorkOrderResource[]> {
-  const response = await api.post<WorkOrderResource[]>(`${ENDPOINT}/by-ids`, { ids });
+  const response = await api.post<WorkOrderResource[]>(`${ENDPOINT}/by-ids`, {
+    ids,
+  });
   return response.data;
 }
 
