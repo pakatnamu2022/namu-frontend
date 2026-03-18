@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Car, User, FileText } from "lucide-react";
+import VehicleWorkOrderHistory from "@/features/ap/comercial/vehiculos/components/VehicleWorkOrderHistory";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -213,6 +214,13 @@ export default function ManageQuotationPage() {
             <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <Car className="h-5 w-5 text-gray-600" />
               Información del Vehículo
+              <div className="ml-auto">
+                <VehicleWorkOrderHistory
+                  vehicleId={quotation.vehicle.id}
+                  vehiclePlate={quotation.vehicle.plate}
+                  buttonVariant="default"
+                />
+              </div>
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
               <div>

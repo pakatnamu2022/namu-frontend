@@ -313,16 +313,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   // Obtener facturas de adelanto (advances) del resumen de pago
   const advances = workOrder?.advances || [];
 
-  // Calcular si ya se pagó el monto total
-  const totalInvoiced = advances.reduce(
-    (sum, advance) => sum + Number(advance.total),
-    0,
-  );
-  const totalAmount = isInvalidWithQuote
-    ? (workOrder?.final_amount ?? 0)
-    : (paymentSummary?.payment_summary.total_amount ?? 0);
-  const isFullyPaid = totalAmount > 0 && totalInvoiced >= totalAmount;
-
   return (
     <div className="space-y-6">
       {/* Selector de grupos en la parte superior */}
@@ -459,7 +449,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                       </Badge>
                     )}
                   </div>
-                  {!isFullyPaid && (
+                  {!workOrder?.is_invoiced && (
                     <Button
                       onClick={handleCreateInvoice}
                       size="sm"
