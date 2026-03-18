@@ -9,11 +9,11 @@ const purchaseRequestQuoteSchemaBase = z.object({
       message: "Tipo de documento es requerido",
     }),
   warranty_years: z.coerce
-    .number({ invalid_type_error: "Ingrese los años de garantía" })
+    .number()
     .int("Debe ser un número entero")
     .min(1, "Mínimo 1 año"),
   warranty_km: z.coerce
-    .number({ invalid_type_error: "Ingrese los km de garantía" })
+    .number()
     .int("Debe ser un número entero")
     .min(1, "Mínimo 1 km"),
   opportunity_id: requiredStringId("Oportunidad es requerido"),

@@ -59,7 +59,7 @@ export default function UpdatePurchaseRequestQuotePage() {
   };
 
   function mapPurchaseRequestQuoteToForm(
-    data: PurchaseRequestQuoteResource
+    data: PurchaseRequestQuoteResource,
   ): any {
     return {
       sede_id: String(data.sede_id),
@@ -73,7 +73,8 @@ export default function UpdatePurchaseRequestQuotePage() {
       sale_price: data.base_selling_price?.toString() || "0",
       doc_type_currency_id: data.doc_type_currency_id?.toString(),
       comment: data.comment || "",
-      warranty: data.warranty || "",
+      warranty_years: data.warranty_years || 0,
+      warranty_km: data.warranty_km || 0,
       // Pasar los arrays tal como vienen del API
       bonus_discounts: data.bonus_discounts || [],
       accessories: data.accessories || [],
