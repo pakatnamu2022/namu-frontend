@@ -26,6 +26,7 @@ interface WorkOrderLabourFormProps {
   onCancel: () => void;
   workOrderItems?: WorkOrderItemResource[];
   currencySymbol?: string;
+  costManHours: number;
 }
 
 export default function WorkOrderLabourForm({
@@ -35,6 +36,7 @@ export default function WorkOrderLabourForm({
   onCancel,
   workOrderItems = [],
   currencySymbol = "S/",
+  costManHours,
 }: WorkOrderLabourFormProps) {
   const storeMutation = useStoreWorkOrderLabour();
   const { user } = useAuthStore();
@@ -49,7 +51,7 @@ export default function WorkOrderLabourForm({
     defaultValues: {
       description: "",
       time_spent: "",
-      hourly_rate: "",
+      hourly_rate: costManHours.toString(),
       discount_percentage: "0",
       work_order_id: workOrderId.toString(),
       group_number: groupNumber,
@@ -121,6 +123,7 @@ export default function WorkOrderLabourForm({
             label={`Tarifa/Hora (${currencySymbol})`}
             placeholder="Ej: 50.00"
             control={form.control}
+            disabled
           />
 
           <FormInput

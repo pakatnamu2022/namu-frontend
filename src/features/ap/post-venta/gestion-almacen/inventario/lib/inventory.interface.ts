@@ -90,6 +90,12 @@ export interface InventoryResource {
   last_movement_date: string;
   is_low_stock: boolean;
   is_out_of_stock: boolean;
+  //Costos
+  cost_price: string;
+  sale_price: string;
+  tax_rate: string;
+  is_taxable: boolean;
+
   stock_status: "LOW_STOCK" | "OUT_OF_STOCK" | "NORMAL";
   product: InventoryProduct;
   warehouse: InventoryWarehouse;
@@ -125,9 +131,6 @@ interface WarehouseStock {
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   last_movement_date: string;
-  last_purchase_price: number;
-  public_sale_price: number;
-  minimum_sale_price: number;
 }
 
 export interface InventoryResponse {
