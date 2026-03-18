@@ -197,17 +197,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   const isInvalidWithQuote = workOrder?.is_invalid_with_quote ?? false;
 
-  console.log("Work Order:", workOrder);
-
   const handleCreateInvoice = () => {
     if (!selectedGroupNumber) {
       errorToast("Selecciona un grupo primero");
       return;
     }
-
-    console.log("[BillingTab] handleCreateInvoice - isInvalidWithQuote:", isInvalidWithQuote);
-    console.log("[BillingTab] workOrder.is_invalid_with_quote:", workOrder?.is_invalid_with_quote);
-    console.log("[BillingTab] workOrder.final_amount:", workOrder?.final_amount);
 
     // Setear moneda por defecto (PEN)
     const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
@@ -324,7 +318,9 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     (sum, advance) => sum + Number(advance.total),
     0,
   );
-  const totalAmount = paymentSummary?.payment_summary.total_amount || 0;
+  const totalAmount = isInvalidWithQuote
+    ? (workOrder?.final_amount ?? 0)
+    : (paymentSummary?.payment_summary.total_amount ?? 0);
   const isFullyPaid = totalAmount > 0 && totalInvoiced >= totalAmount;
 
   return (

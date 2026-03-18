@@ -109,25 +109,6 @@ export default function InvoiceForm({
 
   // Efecto para cargar items automáticamente desde labours y parts
   useEffect(() => {
-    console.log(
-      "[InvoiceForm] useEffect items - igvTypes.length:",
-      igvTypes.length,
-    );
-    console.log("[InvoiceForm] isAdvancePayment:", isAdvancePayment);
-    console.log("[InvoiceForm] isInvalidWithQuote:", isInvalidWithQuote);
-    console.log(
-      "[InvoiceForm] workOrder.final_amount:",
-      workOrder.final_amount,
-    );
-    console.log(
-      "[InvoiceForm] itemsAlreadyLoaded.current:",
-      itemsAlreadyLoaded.current,
-    );
-    console.log(
-      "[InvoiceForm] lastLoadedAdvancePaymentState.current:",
-      lastLoadedAdvancePaymentState.current,
-    );
-
     if (igvTypes.length === 0) return;
 
     // Verificar si ya se cargaron los items o si cambió el estado de anticipo/invalid
@@ -136,7 +117,6 @@ export default function InvoiceForm({
       isAdvancePayment !== lastLoadedAdvancePaymentState.current ||
       isInvalidWithQuote !== lastLoadedIsInvalidWithQuote.current;
 
-    console.log("[InvoiceForm] shouldReload:", shouldReload);
     if (!shouldReload) return;
 
     lastLoadedAdvancePaymentState.current = isAdvancePayment;
@@ -146,7 +126,6 @@ export default function InvoiceForm({
     const gravadaType = igvTypes.find(
       (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
     );
-    console.log("[InvoiceForm] gravadaType:", gravadaType);
 
     if (isAdvancePayment) {
       // MODO ANTICIPO: Consolidar todo en un solo item
@@ -183,15 +162,6 @@ export default function InvoiceForm({
         valor_unitario = subtotal;
         precio_unitario = total;
       }
-
-      console.log(
-        "[InvoiceForm] anticipoItem montos => total:",
-        total,
-        "subtotal:",
-        subtotal,
-        "igv:",
-        igvAmount,
-      );
 
       const anticipoItem: ElectronicDocumentItemSchema = {
         account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
@@ -498,6 +468,8 @@ export default function InvoiceForm({
             advancePayments={advances}
             labours={labours}
             parts={parts}
+            isInvalidWithQuote={isInvalidWithQuote}
+            finalAmount={workOrder.final_amount}
           />
         </div>
       </form>

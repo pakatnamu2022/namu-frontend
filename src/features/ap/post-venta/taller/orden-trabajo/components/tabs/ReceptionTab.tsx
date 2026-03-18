@@ -51,7 +51,6 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [cancellationReason, setCancellationReason] = useState("");
   const { ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
-  console.log("Permissions in ReceptionTab:", permissions);
 
   const queryClient = useQueryClient();
   const router = useNavigate();

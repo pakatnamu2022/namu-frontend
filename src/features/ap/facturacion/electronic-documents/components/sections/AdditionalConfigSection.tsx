@@ -251,9 +251,9 @@ export function AdditionalConfigSection({
         <FormInput
           control={form.control}
           name="internal_note"
-          label="Nota interna"
-          placeholder="Nota interna..."
-          description="Nota interna (no se muestra en el documento)."
+          label="Comentario"
+          placeholder="Comentario interno..."
+          description="Comentario (no se muestra en el documento)."
           maxLength={255}
         />
       )}

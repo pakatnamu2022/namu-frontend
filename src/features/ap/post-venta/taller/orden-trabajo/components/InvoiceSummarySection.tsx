@@ -37,6 +37,8 @@ interface InvoiceSummarySectionProps {
   advancePayments?: ElectronicDocumentResource[];
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
+  isInvalidWithQuote?: boolean;
+  finalAmount?: number;
 }
 
 export function InvoiceSummarySection({
@@ -55,6 +57,8 @@ export function InvoiceSummarySection({
   advancePayments = [],
   labours,
   parts,
+  isInvalidWithQuote = false,
+  finalAmount,
 }: InvoiceSummarySectionProps) {
   //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
@@ -74,17 +78,20 @@ export function InvoiceSummarySection({
     (advance) => advance.is_advance_payment === true,
   );
 
-  // Calcular el total de la orden de trabajo desde labours y parts (sin IGV)
-  const laboursTotal = labours.reduce(
-    (sum, labour) => sum + parseFloat(labour.net_amount || "0"),
-    0,
-  );
-  const partsTotal = parts.reduce(
-    (sum, part) => sum + parseFloat(part.net_amount || "0"),
-    0,
-  );
-  const subtotal = laboursTotal + partsTotal;
-  const workOrderTotal = subtotal * (1 + porcentaje_de_igv / 100);
+  // Calcular el total de la orden de trabajo
+  // Si la cotización es inválida, usar final_amount directamente (los costos pueden no estar definidos aún)
+  const workOrderTotal = (() => {
+    if (isInvalidWithQuote && finalAmount) return finalAmount;
+    const laboursTotal = labours.reduce(
+      (sum, labour) => sum + parseFloat(labour.net_amount || "0"),
+      0,
+    );
+    const partsTotal = parts.reduce(
+      (sum, part) => sum + parseFloat(part.net_amount || "0"),
+      0,
+    );
+    return (laboursTotal + partsTotal) * (1 + porcentaje_de_igv / 100);
+  })();
 
   // Total pagado con todos los advances
   const totalPaid = advancePayments.reduce(
@@ -92,6 +99,10 @@ export function InvoiceSummarySection({
     0,
   );
   const pendingBalance = workOrderTotal - totalPaid;
+
+  console.log("Work Order pendingBalance:", pendingBalance);
+  console.log("Work Order hasRealAdvancePayments:", hasRealAdvancePayments);
+  console.log("Work Order totalPaid:", totalPaid);
 
   // Si el saldo está completado (<=0) y NO hay anticipos reales, no se puede facturar nada más
   const isCompletedWithoutAdvances =
