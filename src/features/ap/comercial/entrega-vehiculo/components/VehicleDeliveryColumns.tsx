@@ -16,6 +16,7 @@ import {
   Info,
   ArrowRightLeft,
   Calendar,
+  ClipboardList,
   Droplets,
   User,
   Car,
@@ -42,6 +43,7 @@ interface Props {
     canView: boolean;
     canViewHistory: boolean;
     canGenerate: boolean;
+    canChecklist: boolean;
     canSend: boolean;
     canMigrate: boolean;
   };
@@ -305,7 +307,7 @@ export const vehicleDeliveryColumns = ({
         row.original;
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
-      const { canViewHistory, canGenerate, canSend, canMigrate, canDelete } =
+      const { canViewHistory, canGenerate, canChecklist, canSend, canMigrate, canDelete } =
         permissions;
       const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
 
@@ -324,6 +326,15 @@ export const vehicleDeliveryColumns = ({
           {isAcceptedBySunat && shipping_guide_id && canViewHistory && (
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
+
+          <ButtonAction
+            tooltip="Checklist de Entrega"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
+            icon={ClipboardList}
+            color="green"
+            variant="default"
+            canRender={!canChecklist}
+          />
 
           <ButtonAction
             tooltip="Guía de Remisión"

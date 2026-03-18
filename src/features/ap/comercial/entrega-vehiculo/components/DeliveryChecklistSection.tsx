@@ -106,12 +106,13 @@ export function DeliveryChecklistSection({
   if (isLoading) return <FormSkeleton />;
   if (!checklist) return null;
 
+  const items = checklist.items ?? [];
   const isDraft = checklist.id !== null && checklist.status === "draft";
   const isConfirmed = checklist.id !== null && checklist.status === "confirmed";
   const hasChecklist = checklist.id !== null;
 
   const handleCreate = () => {
-    const itemsToSend = checklist.items
+    const itemsToSend = items
       .filter((item) => item.id !== null || !hasChecklist)
       .map((item) => ({
         description: item.description,
@@ -213,7 +214,7 @@ export function DeliveryChecklistSection({
 
   const handleConfirm = () => {
     if (!checklist.id) return;
-    if (checklist.items.length === 0) return;
+    if (items.length === 0) return;
     confirmMutation.mutate(checklist.id);
   };
 
@@ -248,7 +249,7 @@ export function DeliveryChecklistSection({
       </div>
 
       {/* Observations field */}
-      {(hasChecklist || checklist.items.length > 0) && (
+      {(hasChecklist || items.length > 0) && (
         <div className="space-y-2">
           <Label htmlFor="checklist-obs">Observaciones generales</Label>
           <Textarea
@@ -277,7 +278,7 @@ export function DeliveryChecklistSection({
       )}
 
       {/* No checklist state — show suggested items */}
-      {!hasChecklist && checklist.items.length === 0 && (
+      {!hasChecklist && items.length === 0 && (
         <div className="rounded-lg border border-dashed p-8 text-center space-y-3">
           <ClipboardList className="h-10 w-10 mx-auto text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
@@ -297,7 +298,7 @@ export function DeliveryChecklistSection({
       )}
 
       {/* Items table (suggested preview or real items) */}
-      {checklist.items.length > 0 && (
+      {items.length > 0 && (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -315,7 +316,7 @@ export function DeliveryChecklistSection({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {checklist.items.map((item, index) => {
+              {items.map((item, index) => {
                 const sourceBadge =
                   SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
                 return (
@@ -384,7 +385,7 @@ export function DeliveryChecklistSection({
       {/* Action buttons */}
       <div className="flex flex-wrap items-center gap-2 pt-2">
         {/* No checklist with suggested items */}
-        {!hasChecklist && checklist.items.length > 0 && (
+        {!hasChecklist && items.length > 0 && (
           <Button
             onClick={handleCreate}
             disabled={createMutation.isPending}
@@ -414,7 +415,7 @@ export function DeliveryChecklistSection({
                   <Button
                     size="sm"
                     disabled={
-                      checklist.items.length === 0 || confirmMutation.isPending
+                      items.length === 0 || confirmMutation.isPending
                     }
                   >
                     {confirmMutation.isPending && (

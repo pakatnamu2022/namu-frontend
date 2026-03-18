@@ -235,5 +235,6 @@ export function useModulePermissions(moduleCode: string) {
     canRequestCancellation: hasModulePermission("requestCancellation"),
     canMigrate: hasModulePermission("migrate"),
     canGenerate: hasModulePermission("generate"),
+    canChecklist: hasModulePermission("checklist"),
   };
 }
