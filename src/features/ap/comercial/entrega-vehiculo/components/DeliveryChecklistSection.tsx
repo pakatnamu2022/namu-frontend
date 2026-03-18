@@ -1,33 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import {
+  ChecklistItemDialog,
+  type ChecklistItemFormState,
+} from "./ChecklistItemDialog";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   CheckCircle2,
+  Circle,
   ClipboardList,
   Download,
   Loader2,
@@ -48,6 +36,8 @@ import type { DeliveryChecklistItemResource } from "../lib/vehicleDelivery.inter
 
 interface DeliveryChecklistSectionProps {
   vehicleDeliveryId: number;
+  hideHeader?: boolean;
+  onChecklistConfirmed?: () => void;
 }
 
 const SOURCE_BADGE: Record<
@@ -59,14 +49,7 @@ const SOURCE_BADGE: Record<
   manual: { label: "Manual", color: "gray" },
 };
 
-interface ItemFormState {
-  description: string;
-  quantity: string;
-  unit: string;
-  observations: string;
-}
-
-const emptyItemForm: ItemFormState = {
+const emptyItemForm: ChecklistItemFormState = {
   description: "",
   quantity: "1",
   unit: "",
@@ -75,6 +58,8 @@ const emptyItemForm: ItemFormState = {
 
 export function DeliveryChecklistSection({
   vehicleDeliveryId,
+  hideHeader = false,
+  onChecklistConfirmed,
 }: DeliveryChecklistSectionProps) {
   const { data: checklist, isLoading } = useDeliveryChecklist(vehicleDeliveryId);
 
@@ -90,12 +75,12 @@ export function DeliveryChecklistSection({
   const [observationsInitialized, setObservationsInitialized] = useState(false);
 
   const [addItemOpen, setAddItemOpen] = useState(false);
-  const [addItemForm, setAddItemForm] = useState<ItemFormState>(emptyItemForm);
+  const [addItemForm, setAddItemForm] = useState<ChecklistItemFormState>(emptyItemForm);
 
   const [editItemOpen, setEditItemOpen] = useState(false);
   const [editingItem, setEditingItem] =
     useState<DeliveryChecklistItemResource | null>(null);
-  const [editItemForm, setEditItemForm] = useState<ItemFormState>(emptyItemForm);
+  const [editItemForm, setEditItemForm] = useState<ChecklistItemFormState>(emptyItemForm);
 
   // Initialize observations from fetched data
   if (checklist && !observationsInitialized) {
@@ -215,7 +200,9 @@ export function DeliveryChecklistSection({
   const handleConfirm = () => {
     if (!checklist.id) return;
     if (items.length === 0) return;
-    confirmMutation.mutate(checklist.id);
+    confirmMutation.mutate(checklist.id, {
+      onSuccess: () => onChecklistConfirmed?.(),
+    });
   };
 
   const handleDownloadPdf = () => {
@@ -223,34 +210,225 @@ export function DeliveryChecklistSection({
     downloadPdfMutation.mutate(checklist.id);
   };
 
+  const confirmedCount = items.filter((i) => i.is_confirmed).length;
+  const totalCount = items.length;
+
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ClipboardList className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold">Checklist de Entrega</h3>
-          {!hasChecklist && (
-            <Badge color="gray" className="text-xs">
-              Sin checklist
-            </Badge>
+      {/* Header — ocultable cuando el padre ya lo muestra */}
+      {!hideHeader && (
+        <>
+          <div className="flex items-center gap-2">
+            <ClipboardList className="h-4 w-4 text-primary shrink-0" />
+            <span className="font-semibold text-sm">Checklist de Entrega</span>
+            {!hasChecklist && (
+              <Badge color="gray" className="text-xs">Sin checklist</Badge>
+            )}
+            {isDraft && (
+              <Badge color="blue" className="text-xs">Borrador</Badge>
+            )}
+            {isConfirmed && (
+              <Badge color="green" icon={CheckCircle2} className="text-xs">Confirmado</Badge>
+            )}
+            {hasChecklist && totalCount > 0 && (
+              <span className="ml-auto text-xs text-muted-foreground font-medium">
+                {confirmedCount}/{totalCount} conformes
+              </span>
+            )}
+          </div>
+          {hasChecklist && totalCount > 0 && (
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${(confirmedCount / totalCount) * 100}%` }}
+              />
+            </div>
           )}
-          {isDraft && (
-            <Badge color="blue" className="text-xs">
-              Borrador
-            </Badge>
-          )}
-          {isConfirmed && (
-            <Badge color="green" icon={CheckCircle2} className="text-xs">
-              Confirmado
-            </Badge>
-          )}
+        </>
+      )}
+
+      {/* No checklist empty state */}
+      {!hasChecklist && items.length === 0 && (
+        <div className="rounded-lg border border-dashed p-10 text-center space-y-3">
+          <ClipboardList className="h-10 w-10 mx-auto text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            No existe un checklist de entrega para esta programación.
+          </p>
+          <Button onClick={handleCreate} disabled={createMutation.isPending}>
+            {createMutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Checklist
+          </Button>
         </div>
+      )}
+
+      {/* Items — filas interactivas */}
+      {items.length > 0 && (
+        <div className="space-y-1.5">
+          {items.map((item, index) => {
+            const sourceBadge = SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
+            return (
+              <div
+                key={item.id ?? `suggested-${index}`}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors",
+                  item.is_confirmed
+                    ? "bg-green-50/60 border-green-200 dark:bg-green-950/20 dark:border-green-800"
+                    : "bg-background border-border"
+                )}
+              >
+                {/* Número */}
+                <span className="text-xs text-muted-foreground w-5 shrink-0 text-center">
+                  {index + 1}
+                </span>
+
+                {/* Badge origen */}
+                <Badge color={sourceBadge.color} className="text-xs shrink-0 whitespace-nowrap">
+                  {sourceBadge.label}
+                </Badge>
+
+                {/* Descripción + cantidad/unidad + observaciones */}
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-sm font-medium truncate",
+                    item.is_confirmed && "text-green-800 dark:text-green-300"
+                  )}>
+                    {item.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.quantity}{item.unit ? ` ${item.unit}` : ""}
+                    {item.observations ? ` · ${item.observations}` : ""}
+                  </p>
+                </div>
+
+                {/* Botón toggle conforme */}
+                {isDraft && item.id !== null ? (
+                  <Button
+                    size="sm"
+                    variant={item.is_confirmed ? "default" : "outline"}
+                    className={cn(
+                      "shrink-0 gap-1.5 text-xs h-7 px-2.5",
+                      item.is_confirmed && "bg-green-600 hover:bg-green-700 border-green-600 text-white"
+                    )}
+                    onClick={() => handleToggleConfirmed(item)}
+                    disabled={updateItemMutation.isPending}
+                  >
+                    {item.is_confirmed ? (
+                      <><CheckCircle2 className="size-3.5" /> Conforme</>
+                    ) : (
+                      <><Circle className="size-3.5" /> Pendiente</>
+                    )}
+                  </Button>
+                ) : (
+                  <span className={cn(
+                    "flex items-center gap-1 text-xs shrink-0 font-medium",
+                    item.is_confirmed ? "text-green-600" : "text-muted-foreground"
+                  )}>
+                    {item.is_confirmed ? (
+                      <><CheckCircle2 className="size-3.5" /> Conforme</>
+                    ) : (
+                      <><Circle className="size-3.5" /> Pendiente</>
+                    )}
+                  </span>
+                )}
+
+                {/* Editar / Eliminar */}
+                {isDraft && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7"
+                      tooltip="Editar ítem"
+                      onClick={() => handleOpenEdit(item)}
+                      disabled={item.id === null}
+                    >
+                      <Pencil className="size-3.5" />
+                    </Button>
+                    <DeleteButton
+                      onClick={() => handleDelete(item)}
+                      disabled={item.id === null || deleteItemMutation.isPending}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap items-center gap-2">
+        {!hasChecklist && items.length > 0 && (
+          <Button onClick={handleCreate} disabled={createMutation.isPending}>
+            {createMutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Checklist con estos ítems
+          </Button>
+        )}
+
+        {isDraft && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddItemOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Agregar ítem
+            </Button>
+
+            <div className="ml-auto">
+              <ConfirmationDialog
+                trigger={
+                  <Button
+                    size="sm"
+                    disabled={items.length === 0 || confirmMutation.isPending}
+                  >
+                    {confirmMutation.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Confirmar Checklist
+                  </Button>
+                }
+                title="¿Confirmar checklist?"
+                description="Una vez confirmado no podrás modificar los ítems ni las observaciones. Esta acción no se puede deshacer."
+                confirmText="Sí, confirmar"
+                cancelText="Cancelar"
+                icon="warning"
+                onConfirm={handleConfirm}
+              />
+            </div>
+          </>
+        )}
+
+        {isConfirmed && (
+          <div className="ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPdf}
+              disabled={downloadPdfMutation.isPending}
+            >
+              {downloadPdfMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Descargar PDF
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Observations field */}
+      {/* Observations — al fondo */}
       {(hasChecklist || items.length > 0) && (
-        <div className="space-y-2">
+        <div className="space-y-2 pt-1">
           <Label htmlFor="checklist-obs">Observaciones generales</Label>
           <Textarea
             id="checklist-obs"
@@ -277,378 +455,47 @@ export function DeliveryChecklistSection({
         </div>
       )}
 
-      {/* No checklist state — show suggested items */}
-      {!hasChecklist && items.length === 0 && (
-        <div className="rounded-lg border border-dashed p-8 text-center space-y-3">
-          <ClipboardList className="h-10 w-10 mx-auto text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            No existe un checklist de entrega para esta programación.
-          </p>
-          <Button
-            onClick={handleCreate}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            <Plus className="mr-2 h-4 w-4" />
-            Crear Checklist
-          </Button>
-        </div>
-      )}
-
-      {/* Items table (suggested preview or real items) */}
-      {items.length > 0 && (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10">#</TableHead>
-                <TableHead className="w-28">Origen</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead className="w-20 text-center">Cantidad</TableHead>
-                <TableHead className="w-20 text-center">Unidad</TableHead>
-                <TableHead className="w-24 text-center">Conforme</TableHead>
-                <TableHead>Observaciones</TableHead>
-                {isDraft && (
-                  <TableHead className="w-20 text-center">Acciones</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item, index) => {
-                const sourceBadge =
-                  SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
-                return (
-                  <TableRow key={item.id ?? `suggested-${index}`}>
-                    <TableCell className="text-muted-foreground text-xs">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell>
-                      <Badge color={sourceBadge.color} className="text-xs whitespace-nowrap">
-                        {sourceBadge.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm font-medium">
-                      {item.description}
-                    </TableCell>
-                    <TableCell className="text-center text-sm">
-                      {item.quantity}
-                    </TableCell>
-                    <TableCell className="text-center text-xs text-muted-foreground">
-                      {item.unit ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {isDraft && item.id !== null ? (
-                        <Checkbox
-                          checked={item.is_confirmed}
-                          onCheckedChange={() => handleToggleConfirmed(item)}
-                          disabled={updateItemMutation.isPending}
-                        />
-                      ) : (
-                        <Checkbox checked={item.is_confirmed} disabled />
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-[160px] truncate">
-                      {item.observations ?? "—"}
-                    </TableCell>
-                    {isDraft && (
-                      <TableCell>
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7"
-                            tooltip="Editar ítem"
-                            onClick={() => handleOpenEdit(item)}
-                            disabled={item.id === null}
-                          >
-                            <Pencil className="size-3.5" />
-                          </Button>
-                          <DeleteButton
-                            onClick={() => handleDelete(item)}
-                            disabled={
-                              item.id === null || deleteItemMutation.isPending
-                            }
-                          />
-                        </div>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-
-      {/* Action buttons */}
-      <div className="flex flex-wrap items-center gap-2 pt-2">
-        {/* No checklist with suggested items */}
-        {!hasChecklist && items.length > 0 && (
-          <Button
-            onClick={handleCreate}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            <Plus className="mr-2 h-4 w-4" />
-            Crear Checklist con estos ítems
-          </Button>
-        )}
-
-        {isDraft && (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAddItemOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Agregar ítem
-            </Button>
-
-            <div className="ml-auto">
-              <ConfirmationDialog
-                trigger={
-                  <Button
-                    size="sm"
-                    disabled={
-                      items.length === 0 || confirmMutation.isPending
-                    }
-                  >
-                    {confirmMutation.isPending && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Confirmar Checklist
-                  </Button>
-                }
-                title="¿Confirmar checklist?"
-                description="Una vez confirmado no podrás modificar los ítems ni las observaciones. Esta acción no se puede deshacer."
-                confirmText="Sí, confirmar"
-                cancelText="Cancelar"
-                icon="warning"
-                onConfirm={handleConfirm}
-              />
-            </div>
-          </>
-        )}
-
-        {isConfirmed && (
-          <div className="flex gap-2 ml-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadPdf}
-              disabled={downloadPdfMutation.isPending}
-            >
-              {downloadPdfMutation.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Download className="mr-2 h-4 w-4" />
-              )}
-              Descargar PDF
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Confirmed by info */}
+      {/* Confirmed by */}
       {isConfirmed && checklist.confirmed_by_name && (
-        <>
-          <Separator />
-          <p className="text-xs text-muted-foreground">
-            Confirmado por{" "}
-            <span className="font-medium">{checklist.confirmed_by_name}</span>
-            {checklist.confirmed_at && (
-              <>
-                {" "}
-                el{" "}
-                {new Date(checklist.confirmed_at).toLocaleString("es-PE", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </>
-            )}
-          </p>
-        </>
+        <div className="rounded-lg border bg-muted/40 px-4 py-3 space-y-0.5">
+          <p className="text-xs text-muted-foreground">Confirmado por</p>
+          <p className="text-sm font-medium">{checklist.confirmed_by_name}</p>
+          {checklist.confirmed_at && (
+            <p className="text-xs text-muted-foreground">
+              {new Date(checklist.confirmed_at).toLocaleString("es-PE", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
+        </div>
       )}
 
-      {/* Add item dialog */}
-      <Dialog open={addItemOpen} onOpenChange={setAddItemOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Agregar ítem manual</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="add-description">
-                Descripción <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="add-description"
-                value={addItemForm.description}
-                onChange={(e) =>
-                  setAddItemForm((f) => ({ ...f, description: e.target.value }))
-                }
-                placeholder="Ej. MANUAL DEL PROPIETARIO"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="add-quantity">Cantidad</Label>
-                <Input
-                  id="add-quantity"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={addItemForm.quantity}
-                  onChange={(e) =>
-                    setAddItemForm((f) => ({ ...f, quantity: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="add-unit">Unidad</Label>
-                <Input
-                  id="add-unit"
-                  value={addItemForm.unit}
-                  onChange={(e) =>
-                    setAddItemForm((f) => ({ ...f, unit: e.target.value }))
-                  }
-                  placeholder="Ej. UND"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="add-observations">Observaciones</Label>
-              <Textarea
-                id="add-observations"
-                value={addItemForm.observations}
-                onChange={(e) =>
-                  setAddItemForm((f) => ({
-                    ...f,
-                    observations: e.target.value,
-                  }))
-                }
-                rows={2}
-                className="resize-none"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setAddItemOpen(false);
-                setAddItemForm(emptyItemForm);
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleAddSubmit}
-              disabled={
-                !addItemForm.description.trim() || addItemMutation.isPending
-              }
-            >
-              {addItemMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Agregar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ChecklistItemDialog
+        open={addItemOpen}
+        onClose={() => {
+          setAddItemOpen(false);
+          setAddItemForm(emptyItemForm);
+        }}
+        mode="add"
+        form={addItemForm}
+        onChange={setAddItemForm}
+        onSubmit={handleAddSubmit}
+        isPending={addItemMutation.isPending}
+      />
 
-      {/* Edit item dialog */}
-      <Dialog open={editItemOpen} onOpenChange={setEditItemOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar ítem</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">
-                Descripción <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="edit-description"
-                value={editItemForm.description}
-                onChange={(e) =>
-                  setEditItemForm((f) => ({
-                    ...f,
-                    description: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="edit-quantity">Cantidad</Label>
-                <Input
-                  id="edit-quantity"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={editItemForm.quantity}
-                  onChange={(e) =>
-                    setEditItemForm((f) => ({ ...f, quantity: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-unit">Unidad</Label>
-                <Input
-                  id="edit-unit"
-                  value={editItemForm.unit}
-                  onChange={(e) =>
-                    setEditItemForm((f) => ({ ...f, unit: e.target.value }))
-                  }
-                  placeholder="Ej. UND"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-observations">Observaciones</Label>
-              <Textarea
-                id="edit-observations"
-                value={editItemForm.observations}
-                onChange={(e) =>
-                  setEditItemForm((f) => ({
-                    ...f,
-                    observations: e.target.value,
-                  }))
-                }
-                rows={2}
-                className="resize-none"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditItemOpen(false)}>
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleEditSubmit}
-              disabled={
-                !editItemForm.description.trim() ||
-                updateItemMutation.isPending
-              }
-            >
-              {updateItemMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Guardar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ChecklistItemDialog
+        open={editItemOpen}
+        onClose={() => setEditItemOpen(false)}
+        mode="edit"
+        form={editItemForm}
+        onChange={setEditItemForm}
+        onSubmit={handleEditSubmit}
+        isPending={updateItemMutation.isPending}
+      />
     </div>
   );
 }
