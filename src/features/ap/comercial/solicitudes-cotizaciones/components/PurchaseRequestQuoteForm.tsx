@@ -13,6 +13,7 @@ import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { WarrantyInput } from "./WarrantyInput";
 import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -1059,13 +1060,7 @@ export const PurchaseRequestQuoteForm = ({
                   )}
               </FormInput>
 
-              <FormInput
-                control={form.control}
-                name="warranty"
-                label="Garantía"
-                type="text"
-                placeholder="3 años o 100km"
-              />
+              <WarrantyInput control={form.control} required />
             </GroupFormSection>
 
             {/*Seccion de Bonos y Descuentos*/}
