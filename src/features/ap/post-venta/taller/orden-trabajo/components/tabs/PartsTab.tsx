@@ -2,9 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Package,
   Loader2,
@@ -22,7 +19,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form } from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -41,22 +37,16 @@ import {
 import {
   getAllWorkOrderParts,
   storeBulkFromQuotation,
-  storeWorkOrderParts,
   deleteWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
-import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
-import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
-import { FormInput } from "@/shared/components/FormInput";
-import { useAuthStore } from "@/features/auth/lib/auth.store";
-import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { ITEM_TYPE_PRODUCT } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
+import WorkOrderPartsForm from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/components/WorkOrderPartsForm";
 import { useDiscountRequestsByWorkOrder } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.hook";
 import { DiscountRequestWorkOrderModal } from "../../../descuento-cotizacion-taller/components/DiscountRequestWorkOrderModal";
 import {
@@ -77,29 +67,9 @@ interface PartsTabProps {
   workOrderId: number;
 }
 
-interface AddPartFormValues {
-  product_id: string;
-  quantity_used: number;
-  unit_price: number;
-  discount_percentage: number;
-}
-
-const createPartFormSchema = (maxDiscount: number) => {
-  return z.object({
-    product_id: z.string().min(1, "El producto es requerido"),
-    quantity_used: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
-    unit_price: z.number().min(0, "El precio debe ser mayor o igual a 0"),
-    discount_percentage: z
-      .number()
-      .min(0, "El descuento no puede ser negativo")
-      .max(maxDiscount, `El descuento no puede ser mayor a ${maxDiscount}%`),
-  });
-};
-
 export default function PartsTab({ workOrderId }: PartsTabProps) {
   const queryClient = useQueryClient();
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
-  const { user } = useAuthStore();
   const [selectedWarehouseForBulk, setSelectedWarehouseForBulk] =
     useState<string>("");
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
@@ -129,20 +99,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const [selectedPart, setSelectedPart] = useState<any | null>(null);
   const [editingRequest, setEditingRequest] =
     useState<DiscountRequestWorkOrderQuotationResource | null>(null);
-
-  const maxDiscountPercentage =
-    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
-
-  const form = useForm<AddPartFormValues>({
-    resolver: zodResolver(createPartFormSchema(maxDiscountPercentage)),
-    mode: "onChange",
-    defaultValues: {
-      product_id: "",
-      quantity_used: 1,
-      unit_price: 0,
-      discount_percentage: 0,
-    },
-  });
 
   const { data: parts = [], isLoading } = useQuery({
     queryKey: ["workOrderParts", workOrderId],
@@ -221,48 +177,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       errorToast(msg || "Error al insertar los repuestos desde la cotización");
     },
   });
-
-  const storePartMutation = useMutation({
-    mutationFn: (data: AddPartFormValues) =>
-      storeWorkOrderParts({
-        work_order_id: workOrderId,
-        product_id: data.product_id,
-        warehouse_id: selectedWarehouseForAdd,
-        quantity_used: data.quantity_used,
-        unit_price: data.unit_price,
-        discount_percentage: data.discount_percentage,
-        group_number: selectedGroupNumber!,
-      }),
-    onSuccess: () => {
-      successToast("Repuesto agregado exitosamente");
-      queryClient.invalidateQueries({
-        queryKey: ["workOrderParts", workOrderId],
-      });
-      form.reset({
-        product_id: "",
-        quantity_used: 1,
-        unit_price: 0,
-        discount_percentage: 0,
-      });
-      setShowAddForm(false);
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al agregar el repuesto");
-    },
-  });
-
-  const handleSubmitPart = (data: AddPartFormValues) => {
-    if (!selectedGroupNumber) {
-      errorToast("Debe seleccionar un grupo");
-      return;
-    }
-    if (!selectedWarehouseForAdd) {
-      errorToast("Debe seleccionar un almacén");
-      return;
-    }
-    storePartMutation.mutate(data);
-  };
 
   const handleToggleProduct = (productId: number) => {
     setSelectedProductIds((prev) =>
@@ -460,122 +374,24 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             <Package className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Agregar Repuesto</h3>
           </div>
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmitPart)}
-              className="space-y-4"
-            >
-              <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Almacén:</span>{" "}
-                  {filteredWarehouses.find(
-                    (w) => w.id.toString() === selectedWarehouseForAdd,
-                  )?.description || "No seleccionado"}
-                </p>
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Sede:</span>{" "}
-                  {workOrder?.sede_name || "N/A"}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <FormSelectAsync
-                  name="product_id"
-                  label="Producto"
-                  placeholder="Buscar producto en el almacén..."
-                  control={form.control}
-                  useQueryHook={useInventory}
-                  additionalParams={{
-                    warehouse_id: selectedWarehouseForAdd,
-                    available_quantity: 0,
-                  }}
-                  mapOptionFn={(inventory: InventoryResource) => ({
-                    label: () => (
-                      <div className="flex items-center justify-between gap-2 w-full">
-                        <span className="font-medium truncate">
-                          {inventory.product.code} - {inventory.product.name}
-                        </span>
-                        <span
-                          className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                            inventory.available_quantity > 0
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          Stock: {inventory.available_quantity}
-                        </span>
-                      </div>
-                    ),
-                    value: inventory.product_id.toString(),
-                  })}
-                  perPage={10}
-                  debounceMs={500}
-                />
-
-                <FormInput
-                  name="quantity_used"
-                  label="Cantidad"
-                  type="number"
-                  placeholder="1"
-                  control={form.control}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormInput
-                  name="unit_price"
-                  label={`Precio Unitario (${associatedQuotation?.type_currency?.symbol || workOrder?.type_currency?.symbol || "S/"})`}
-                  type="number"
-                  placeholder="0.0"
-                  control={form.control}
-                />
-
-                <FormInput
-                  name="discount_percentage"
-                  label={`Descuento (% máx: ${maxDiscountPercentage})`}
-                  type="number"
-                  min={0}
-                  max={maxDiscountPercentage}
-                  step="0.01"
-                  control={form.control}
-                  placeholder="0.0"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    form.reset();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    storePartMutation.isPending || !form.watch("product_id")
-                  }
-                  className="gap-2"
-                >
-                  {storePartMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4" />
-                      Agregar
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <WorkOrderPartsForm
+            workOrderId={workOrderId}
+            groupNumber={selectedGroupNumber!}
+            warehouseId={selectedWarehouseForAdd}
+            warehouseName={
+              filteredWarehouses.find(
+                (w) => w.id.toString() === selectedWarehouseForAdd,
+              )?.description || ""
+            }
+            sedeName={workOrder?.sede_name}
+            currencySymbol={
+              associatedQuotation?.type_currency?.symbol ||
+              workOrder?.type_currency?.symbol ||
+              "S/"
+            }
+            onSuccess={() => setShowAddForm(false)}
+            onCancel={() => setShowAddForm(false)}
+          />
         </Card>
       )}
 

@@ -46,6 +46,7 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
+  cost_man_hours: number;
   //Costos
   total_labor_cost: number;
   total_parts_cost: number;
