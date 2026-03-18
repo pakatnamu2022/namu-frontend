@@ -13,10 +13,7 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import {
-  WORK_ORDER_STATUS_ID,
-  WORKER_ORDER_CAJA,
-} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import {
   useGetWorkOrder,
   useGetWorkOrderWithInternalNotes,
@@ -82,13 +79,19 @@ export default function WorkOrderCajaPage() {
 
   const { data: dataOT, isLoading: isLoadingOT } = useGetWorkOrder({
     params: {
-      ...commonParams,
-      status_id: [
-        WORK_ORDER_STATUS_ID.RECEPCIONADO,
-        WORK_ORDER_STATUS_ID.EN_TRABAJO,
-        WORK_ORDER_STATUS_ID.TERMINADO,
-        WORK_ORDER_STATUS_ID.CERRADO,
-      ],
+      page,
+      search,
+      per_page,
+      opening_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      // status_id: [
+      //   WORK_ORDER_STATUS_ID.RECEPCIONADO,
+      //   WORK_ORDER_STATUS_ID.EN_TRABAJO,
+      //   WORK_ORDER_STATUS_ID.TERMINADO,
+      //   WORK_ORDER_STATUS_ID.CERRADO,
+      // ],
     },
     enabled: activeView === "OT",
   });
@@ -135,9 +138,7 @@ export default function WorkOrderCajaPage() {
 
   const handleGenerateInvoice = () => {
     if (selectedIds.length === 0) return;
-    router(
-      `${ABSOLUTE_ROUTE}/factura-directa?ids=${selectedIds.join(",")}`,
-    );
+    router(`${ABSOLUTE_ROUTE}/factura-directa?ids=${selectedIds.join(",")}`);
   };
 
   if (isLoadingModule) return <PageSkeleton />;
