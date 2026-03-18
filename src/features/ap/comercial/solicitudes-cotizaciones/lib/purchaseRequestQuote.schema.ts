@@ -8,12 +8,14 @@ const purchaseRequestQuoteSchemaBase = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Tipo de documento es requerido",
     }),
-  warranty: z
-    .string()
-    .max(100)
-    .refine((value) => value.trim() !== "", {
-      message: "Garantía es requerido",
-    }),
+  warranty_years: z.coerce
+    .number()
+    .int("Debe ser un número entero")
+    .min(1, "Mínimo 1 año"),
+  warranty_km: z.coerce
+    .number()
+    .int("Debe ser un número entero")
+    .min(1, "Mínimo 1 km"),
   opportunity_id: requiredStringId("Oportunidad es requerido"),
   comment: z.string().optional().default(""),
   holder_id: requiredStringId("Titular es requerido"),

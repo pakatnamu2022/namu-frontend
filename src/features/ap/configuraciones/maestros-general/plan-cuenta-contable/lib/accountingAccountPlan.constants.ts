@@ -28,3 +28,7 @@ export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResourc
       is_detraction: false,
     },
   };
+
+export const ACP_TYPE_SALE = 0;
+export const ACP_TYPE_CREDIT_NOTE = 1;
+export const ACP_TYPE_DEBIT_NOTE = 2;

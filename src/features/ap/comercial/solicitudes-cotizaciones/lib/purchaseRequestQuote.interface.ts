@@ -73,7 +73,8 @@ export interface PurchaseRequestQuoteResource {
   doc_type_currency: string;
   doc_type_currency_symbol: string;
   advisor_name: string;
-  warranty: string;
+  warranty_years: number;
+  warranty_km: number;
   consultant: WorkerResource;
   bonus_discounts: BonusDiscountResource[];
   accessories: AccessoryResource[];

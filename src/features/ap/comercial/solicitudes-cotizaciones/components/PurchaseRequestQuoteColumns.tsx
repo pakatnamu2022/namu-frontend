@@ -123,8 +123,13 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
   },
   {
-    accessorKey: "warranty",
+    id: "warranty",
     header: "Garantía",
+    cell: ({ row }) => {
+      const { warranty_years, warranty_km } = row.original;
+      if (!warranty_years || !warranty_km) return "N/A";
+      return `${warranty_years} ${warranty_years === 1 ? "año" : "años"} / ${warranty_km.toLocaleString("es-PE")} km`;
+    },
   },
   {
     accessorKey: "sede",

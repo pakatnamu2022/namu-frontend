@@ -407,11 +407,12 @@ export const DebitNoteSchema = z.object({
     "Tipo de nota de débito requerido",
   ),
   series: requiredStringId("Serie requerida"),
+  fecha_nota_debito: z
+    .string()
+    .min(1, "La fecha de la nota de débito es requerida"),
   observaciones: z
     .string()
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().default(false),
   items: z
     .array(DebitNoteItemSchema)
     .min(1, "Debe actualizar al menos un item"),

@@ -13,13 +13,11 @@ import { Label } from "@/components/ui/label";
 import {
   FileCheck,
   Loader2,
-  Send,
   Plus,
   Pencil,
   Trash2,
   AlertCircle,
   CheckCircle2,
-  User,
   FileText,
 } from "lucide-react";
 import {
@@ -27,7 +25,6 @@ import {
   DebitNoteItemSchema,
 } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { FormSwitch } from "@/shared/components/FormSwitch";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
@@ -45,6 +42,9 @@ import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.
 import { getNextDebitNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { ACP_TYPE_DEBIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { format } from "date-fns";
 
 interface DebitNoteFormProps {
   originalDocument: ElectronicDocumentResource;
@@ -61,7 +61,7 @@ export function DebitNoteForm({
   const [nextNumber, setNextNumber] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(
-    null
+    null,
   );
 
   // Item management
@@ -76,47 +76,48 @@ export function DebitNoteForm({
   const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { data: accountPlans } = useAllAccountingAccountPlan();
+  const { data: accountPlans } = useAllAccountingAccountPlan({
+    type: ACP_TYPE_DEBIT_NOTE,
+  });
   const { data: customers = [] } = useAllCustomers();
 
-  // Fetch debit note types from SUNAT
   const { data: debitNoteTypes = [] } = useAllSunatConcepts({
     type: [SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE],
   });
 
-  // Fetch IGV types
   const { data: igvTypes = [] } = useAllSunatConcepts({
     type: [SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE],
   });
 
-  // Fetch authorized series for debit notes
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: TYPE_RECEIPT_SERIES.NOTA_DEBITO,
   });
 
-  // Calculate IGV percentage from customer
   const selectedCustomer = customers.find(
-    (customer) => customer.id === originalDocument.client_id
+    (customer) => customer.id === originalDocument.client_id,
   );
   const porcentaje_de_igv =
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
-  // Initialize form
+  const currency =
+    originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
+
   const form = useForm<DebitNoteSchema>({
     resolver: zodResolver(DebitNoteSchema as any),
     defaultValues: {
       sunat_concept_debit_note_type_id: "",
       series: "",
+      fecha_nota_debito: format(new Date(), "yyyy-MM-dd"),
       observaciones: "",
-      enviar_automaticamente_a_la_sunat: false,
-      enviar_automaticamente_al_cliente: false,
       items: [],
     },
+    mode: "onChange",
   });
 
   const items = form.watch("items") || [];
   const observaciones = form.watch("observaciones") || "";
   const selectedSeries = form.watch("series");
+  const fechaNotaDebito = form.watch("fecha_nota_debito");
 
   // Verify next debit note number when series changes
   useEffect(() => {
@@ -134,7 +135,7 @@ export function DebitNoteForm({
         const response = await getNextDebitNoteNumber(
           originalDocument.id,
           parseInt(selectedSeries),
-          originalDocument.sunat_concept_document_type_id
+          originalDocument.sunat_concept_document_type_id,
         );
         setNextNumber(response.number);
       } catch (error: any) {
@@ -189,7 +190,6 @@ export function DebitNoteForm({
     )
       return;
 
-    // Calcular valores basados en el precio unitario y el IGV
     const precio_sin_igv =
       newItem.precio_unitario / (1 + porcentaje_de_igv / 100);
     const subtotal = precio_sin_igv * newItem.cantidad;
@@ -248,7 +248,6 @@ export function DebitNoteForm({
     )
       return;
 
-    // Calcular valores basados en el precio unitario y el IGV
     const precio_sin_igv =
       newItem.precio_unitario / (1 + porcentaje_de_igv / 100);
     const subtotal = precio_sin_igv * newItem.cantidad;
@@ -338,7 +337,8 @@ export function DebitNoteForm({
         const precio = getValue() as number;
         return (
           <div className="text-right">
-            S/ {precio.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+            {currency}{" "}
+            {precio.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
           </div>
         );
       },
@@ -350,7 +350,8 @@ export function DebitNoteForm({
         const total = getValue() as number;
         return (
           <div className="text-right font-semibold">
-            S/ {total.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+            {currency}{" "}
+            {total.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
           </div>
         );
       },
@@ -388,67 +389,12 @@ export function DebitNoteForm({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Original Document Info */}
-              <GroupFormSection
-                title="Documento Original"
-                icon={FileCheck}
-                className="lg:col-span-2"
-                color="primary"
-                cols={{ sm: 1, md: 3 }}
-              >
-                <div>
-                  <Label className="text-muted-foreground text-xs">
-                    Tipo de Documento
-                  </Label>
-                  <p className="font-semibold">
-                    {originalDocument.document_type?.description}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground text-xs">
-                    Serie - Número
-                  </Label>
-                  <p className="font-semibold">
-                    {originalDocument.serie}-{originalDocument.numero}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground text-xs">
-                    Moneda
-                  </Label>
-                  <p className="font-semibold">
-                    {originalDocument.currency?.description}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-muted-foreground text-xs">
-                    Cliente
-                  </Label>
-                  <p className="font-semibold">
-                    {originalDocument.cliente_denominacion}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {originalDocument.cliente_numero_de_documento}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground text-xs">
-                    Total Original
-                  </Label>
-                  <p className="font-semibold text-lg">
-                    {originalDocument.currency?.iso_code === "PEN" ? "S/" : "$"}{" "}
-                    {originalDocument.total.toFixed(2)}
-                  </p>
-                </div>
-              </GroupFormSection>
-
               {/* Debit Note Configuration */}
               <GroupFormSection
-                title="Información del Cliente"
-                icon={User}
-                className="lg:col-span-2"
+                title="Configuración de Nota de Débito"
+                icon={FileText}
                 color="primary"
-                cols={{ sm: 1, md: 1 }}
+                cols={{ sm: 1, md: 2 }}
               >
                 <FormSelect
                   name="sunat_concept_debit_note_type_id"
@@ -459,6 +405,7 @@ export function DebitNoteForm({
                     value: type.id.toString(),
                     label: type.description,
                   }))}
+                  description="Seleccione el tipo de nota de débito según SUNAT"
                 />
 
                 <FormSelect
@@ -473,9 +420,18 @@ export function DebitNoteForm({
                   description="Seleccione la serie autorizada para notas de débito"
                 />
 
+                <DatePickerFormField
+                  control={form.control}
+                  name="fecha_nota_debito"
+                  label="Fecha de Nota de Débito *"
+                  placeholder="Seleccione fecha"
+                  description="Fecha de emisión de la nota de débito"
+                  disabledRange={{ after: new Date() }}
+                />
+
                 {/* Series Verification */}
                 {selectedSeries && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 col-span-2">
                     {isVerifying ? (
                       <Alert className="bg-blue-50 border-blue-200">
                         <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
@@ -502,7 +458,7 @@ export function DebitNoteForm({
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label>
                     Observaciones <span className="text-red-500">*</span>
                   </Label>
@@ -510,7 +466,7 @@ export function DebitNoteForm({
                     placeholder="Ej: Ajuste por intereses de pago tardío"
                     rows={4}
                     maxLength={250}
-                    className="resize-none"
+                    className="resize-none uppercase"
                     {...form.register("observaciones")}
                   />
                   <div className="flex justify-between items-center text-xs text-muted-foreground">
@@ -530,27 +486,12 @@ export function DebitNoteForm({
                     </p>
                   )}
                 </div>
-
-                <div className="space-y-4 pt-2 border-t">
-                  <h4 className="text-sm font-medium">Opciones de envío</h4>
-                  <FormSwitch
-                    name="enviar_automaticamente_a_la_sunat"
-                    control={form.control}
-                    text="Enviar automáticamente a SUNAT"
-                  />
-                  <FormSwitch
-                    name="enviar_automaticamente_al_cliente"
-                    control={form.control}
-                    text="Enviar automáticamente al cliente"
-                  />
-                </div>
               </GroupFormSection>
 
               {/* Items Section */}
               <GroupFormSection
                 title="Items del Documento Original"
                 icon={FileText}
-                className="lg:col-span-2"
                 color="primary"
                 cols={{ sm: 1, md: 1 }}
               >
@@ -586,14 +527,6 @@ export function DebitNoteForm({
                   </div>
                 )}
               </GroupFormSection>
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Items</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent></CardContent>
-              </Card>
             </div>
 
             {/* Summary Sidebar */}
@@ -615,12 +548,42 @@ export function DebitNoteForm({
                 </CardHeader>
 
                 <CardContent className="space-y-4">
+                  {/* Original Document Info */}
+                  <div className="p-3 rounded-lg bg-muted/30 border space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Documento Original
+                    </p>
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-semibold">
+                        {originalDocument.serie}-{originalDocument.numero}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {originalDocument.document_type?.description}
+                      </p>
+                      <p className="text-xs font-medium truncate">
+                        {originalDocument.cliente_denominacion}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {originalDocument.cliente_numero_de_documento}
+                      </p>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">
+                        Total Original
+                      </span>
+                      <span className="text-sm font-bold">
+                        {currency} {originalDocument.total.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Items Summary */}
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground mb-3">
+                    <p className="text-xs font-medium text-muted-foreground">
                       Items ({items.length})
                     </p>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                    <div className="space-y-1 max-h-[200px] overflow-y-auto pr-1">
                       {items.length === 0 ? (
                         <p className="text-xs text-center text-muted-foreground py-4">
                           No hay items agregados
@@ -629,26 +592,21 @@ export function DebitNoteForm({
                         items.map((item, index) => (
                           <div
                             key={index}
-                            className="flex justify-between items-start gap-2 text-sm p-2 rounded bg-background/50 border border-muted-foreground/10"
+                            className="flex justify-between items-start gap-2 text-xs p-2 rounded bg-background/50 border border-muted-foreground/10"
                           >
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-xs whitespace-pre-line">
+                              <p className="font-medium leading-tight truncate">
                                 {item.descripcion}
                               </p>
-                              <p className="text-xs text-muted-foreground">
-                                {item.cantidad} x{" "}
-                                {originalDocument.currency?.iso_code === "PEN"
-                                  ? "S/"
-                                  : "$"}{" "}
+                              <p className="text-muted-foreground">
+                                {item.cantidad} x {currency}{" "}
                                 {item.precio_unitario.toLocaleString("es-PE", {
                                   minimumFractionDigits: 2,
                                 })}
                               </p>
                             </div>
-                            <p className="text-xs font-semibold whitespace-nowrap">
-                              {originalDocument.currency?.iso_code === "PEN"
-                                ? "S/"
-                                : "$"}{" "}
+                            <p className="font-semibold whitespace-nowrap shrink-0">
+                              {currency}{" "}
                               {item.total.toLocaleString("es-PE", {
                                 minimumFractionDigits: 2,
                               })}
@@ -661,13 +619,11 @@ export function DebitNoteForm({
                   </div>
 
                   {/* Totals */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-medium">
-                        {originalDocument.currency?.iso_code === "PEN"
-                          ? "S/"
-                          : "$"}{" "}
+                        {currency}{" "}
                         {totalSubtotal.toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                         })}
@@ -678,9 +634,7 @@ export function DebitNoteForm({
                         IGV ({porcentaje_de_igv}%)
                       </span>
                       <span className="font-medium">
-                        {originalDocument.currency?.iso_code === "PEN"
-                          ? "S/"
-                          : "$"}{" "}
+                        {currency}{" "}
                         {totalIgv.toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                         })}
@@ -694,9 +648,7 @@ export function DebitNoteForm({
                         Total a Cobrar
                       </span>
                       <span className="text-xl font-bold text-purple-700">
-                        {originalDocument.currency?.iso_code === "PEN"
-                          ? "S/"
-                          : "$"}{" "}
+                        {currency}{" "}
                         {totalAmount.toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                         })}
@@ -707,11 +659,10 @@ export function DebitNoteForm({
                   <Separator />
 
                   {/* Action Buttons */}
-                  <div className="space-y-2 pt-4">
+                  <div className="pt-2 flex justify-end flex-wrap gap-4">
                     <Button
                       type="submit"
-                      className="w-full"
-                      size="lg"
+                      className="truncate flex-1"
                       disabled={
                         isPending ||
                         !form.formState.isValid ||
@@ -725,11 +676,6 @@ export function DebitNoteForm({
                           <Loader2 className="size-4 mr-2 animate-spin" />
                           Generando...
                         </>
-                      ) : form.watch("enviar_automaticamente_a_la_sunat") ? (
-                        <>
-                          <Send className="size-4 mr-2" />
-                          Generar y Enviar a SUNAT
-                        </>
                       ) : (
                         <>
                           <FileCheck className="size-4 mr-2" />
@@ -740,7 +686,6 @@ export function DebitNoteForm({
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full"
                       onClick={() => window.history.back()}
                       disabled={isPending}
                     >
@@ -749,18 +694,20 @@ export function DebitNoteForm({
                   </div>
 
                   {/* Footer Info */}
-                  <div className="pt-4 border-t border-muted-foreground/10">
-                    <p className="text-xs text-center text-muted-foreground">
-                      Fecha de emisión:{" "}
-                      {new Date(
-                        originalDocument.fecha_de_emision + "T00:00:00"
-                      ).toLocaleDateString("es-PE", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
+                  {fechaNotaDebito && (
+                    <div className="pt-2 border-t border-muted-foreground/10">
+                      <p className="text-xs text-center text-muted-foreground">
+                        Fecha de nota:{" "}
+                        {new Date(
+                          fechaNotaDebito + "T00:00:00",
+                        ).toLocaleDateString("es-PE", {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -786,7 +733,7 @@ export function DebitNoteForm({
                 ref={textareaRef}
                 id="item-description"
                 placeholder="Descripción del concepto (ej: Intereses por pago tardío)"
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none uppercase"
                 value={newItem.descripcion}
                 onChange={(e) =>
                   setNewItem({ ...newItem, descripcion: e.target.value })
