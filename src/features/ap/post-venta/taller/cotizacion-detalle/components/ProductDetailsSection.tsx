@@ -586,7 +586,7 @@ export default function ProductDetailsSection({
                                 </div>
                               )}
                             </div>
-                            <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
+                            {/* <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
                               <div>
                                 <div className="text-gray-500">Últ. compra</div>
                                 <div className="font-semibold text-gray-700">
@@ -611,7 +611,7 @@ export default function ProductDetailsSection({
                                     "0.00"}
                                 </div>
                               </div>
-                            </div>
+                            </div> */}
                           </div>
                         ))}
                       </div>
