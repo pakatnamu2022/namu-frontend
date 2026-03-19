@@ -24,7 +24,6 @@ import {
   FileText,
   Info,
   Shield,
-  XCircle,
 } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { JSX } from "react";
