@@ -28,6 +28,9 @@ export default function OrderQuotationTable({
           total_amount: true,
           observations: false,
           is_take: true,
+          has_management_discount: false,
+          chief_approval_by: false,
+          manager_approval_by: false,
         }}
       >
         {children}
