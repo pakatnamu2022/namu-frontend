@@ -25,6 +25,7 @@ export interface VehiclesDeliveryResource {
   aceptada_por_sunat?: boolean | null;
   status_dynamic?: string | null;
   sent_at?: string | null;
+  checklist_status?: "draft" | "confirmed" | null;
   shipping_guide?: ShipmentsReceptionsResource | null;
 }
 

@@ -31,6 +31,7 @@ export default function VehicleDeliveryTable({
           wash_date: true,
           status_wash: true,
           status_delivery: true,
+          checklist_status: true,
           status_nubefact: false,
           status_sunat: false,
           status_dynamic: false,

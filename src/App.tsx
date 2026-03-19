@@ -57,6 +57,7 @@ import ResendVehiclePurchaseOrderPage from "./app/ap/comercial/compra-vehiculo-n
 import VehicleDeliveryPage from "./app/ap/comercial/entrega-vehiculo/page";
 import AddVehicleDeliveryPage from "./app/ap/comercial/entrega-vehiculo/agregar/page";
 import ShippingGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page";
+import DeliveryChecklistPage from "./app/ap/comercial/entrega-vehiculo/checklist/[id]/page";
 import ShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/page";
 import AddShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/agregar/page";
 import UpdateShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/actualizar/[id]/page";
@@ -169,7 +170,6 @@ import UpdateDistrictPage from "./app/ap/configuraciones/maestros-general/ubigeo
 import UnitMeasurementPage from "./app/ap/configuraciones/maestros-general/unidad-medida/page.tsx";
 import VehicleCategoryPage from "./app/ap/configuraciones/vehiculos/categorias/page.tsx";
 import CategoryChecklistPage from "./app/ap/configuraciones/vehiculos/categorias-checklist/page.tsx";
-import DeliveryChecklistPage from "./app/ap/configuraciones/vehiculos/checklist-entrega/page.tsx";
 import ReceptionChecklistPage from "./app/ap/configuraciones/vehiculos/checklist-recepcion/page.tsx";
 import VehicleColorPage from "./app/ap/configuraciones/vehiculos/colores-vehiculo/page.tsx";
 import VehicleStatusPage from "./app/ap/configuraciones/vehiculos/estados-vehiculo/page.tsx";
@@ -719,6 +719,10 @@ function App() {
               <Route
                 path="entrega-vehiculo/guia-remision/:id"
                 element={<ShippingGuidePage />}
+              />
+              <Route
+                path="entrega-vehiculo/checklist/:id"
+                element={<DeliveryChecklistPage />}
               />
 
               {/* Envios & Recepciones */}

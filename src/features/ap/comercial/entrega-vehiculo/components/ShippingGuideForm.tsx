@@ -30,6 +30,12 @@ import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sun
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormInput } from "@/shared/components/FormInput";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
@@ -57,7 +63,7 @@ export const ShippingGuideForm = ({
       license: defaultValues?.license || "",
       driver_name: defaultValues?.driver_name || "",
       transport_company_id: defaultValues?.transport_company_id || "",
-      plate: defaultValues?.plate || "",
+      plate: (defaultValues?.plate || "").replace(/-/g, ""),
       notes: defaultValues?.notes || "",
     },
     mode: "onChange",
@@ -74,7 +80,7 @@ export const ShippingGuideForm = ({
         license: defaultValues.license || "",
         driver_name: defaultValues.driver_name || "",
         transport_company_id: defaultValues.transport_company_id || "",
-        plate: defaultValues.plate || "",
+        plate: (defaultValues.plate || "").replace(/-/g, ""),
         notes: defaultValues.notes || "",
       });
       initialDriverDoc.current = defaultValues.driver_doc || "";
@@ -269,13 +275,35 @@ export const ShippingGuideForm = ({
               placeholder="Ej: A12345678"
               disabled={isDisabled || shouldDisableLicenseFields}
             />
-            <FormInput
+            <FormField
               control={form.control}
               name="plate"
-              label="Placa del Vehículo"
-              placeholder="Ej: ABC-123"
-              disabled={isDisabled}
-              uppercase
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Placa del Vehículo</FormLabel>
+                  <FormControl>
+                    <InputOTP
+                      maxLength={6}
+                      value={(field.value ?? "").replace(/-/g, "")}
+                      onChange={(val) => field.onChange(val.toUpperCase())}
+                      disabled={isDisabled}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator>-</InputOTPSeparator>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </GroupFormSection>
         )}

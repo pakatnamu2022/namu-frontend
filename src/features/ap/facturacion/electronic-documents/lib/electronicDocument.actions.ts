@@ -275,7 +275,7 @@ function enrichDebitNotePayload(
       data.sunat_concept_debit_note_type_id,
     ),
     series: Number(data.series),
-    fecha_de_emision: fecha_de_emision,
+    fecha_de_emision: fecha_de_emision.slice(0, 10),
     observaciones: data.observaciones,
     items: data.items,
   };
