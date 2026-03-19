@@ -7,13 +7,13 @@ import VehicleWorkOrderHistory from "@/features/ap/comercial/vehiculos/component
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Card } from "@/components/ui/card.tsx";
 import {
   errorToast,
   successToast,
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from "@/core/core.function.ts";
+import { IGV } from "@/core/core.constants.ts";
 import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
 import { ORDER_QUOTATION_DETAILS } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants.ts";
 import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
@@ -128,6 +128,8 @@ export default function ManageQuotationPage() {
   const currentTotal = details.reduce((sum, detail) => {
     return sum + (Number(detail.total_amount) || 0);
   }, 0);
+  const igvAmount = currentTotal * IGV.RATE;
+  const proposalTotal = currentTotal + igvAmount;
 
   if (isLoading) {
     return <PageSkeleton />;
@@ -159,137 +161,184 @@ export default function ManageQuotationPage() {
       </div>
 
       {/* Información de la Cotización */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Resumen de Cotización */}
-        <Card className="p-6 border-gray-200 bg-gray-100">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <FileText className="h-4 w-4 text-gray-600" />
+      <section className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/5 via-background to-background">
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)]">
+          <div className="border-b border-border/80 bg-primary/5 p-6 md:p-7 lg:border-b-0 lg:border-r lg:border-border/80">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-full bg-background/80 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-primary" />
+              </div>
+              <h3 className="text-base md:text-lg font-semibold text-foreground">
+                Datos de Cotización
+              </h3>
             </div>
-            Datos de Cotización
-          </h3>
-          <div className="space-y-3">
-            <div>
-              <p className="text-xs text-gray-600 mb-0.5">N° Cotización</p>
-              <p className="font-bold text-lg text-gray-900">
+
+            <div className="mt-5 space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                N° Cotización
+              </p>
+              <p className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
                 {quotation.quotation_number}
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            <div className="mt-5 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-600 mb-0.5">Fecha</p>
-                <p className="font-medium text-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                  Fecha
+                </p>
+                <p className="text-base font-medium text-foreground">
                   {formatDate(quotation.quotation_date)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-600 mb-0.5">Vencimiento</p>
-                <p className="font-medium text-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                  Vencimiento
+                </p>
+                <p className="text-base font-medium text-foreground">
                   {quotation.expiration_date
                     ? formatDate(quotation.expiration_date)
                     : "N/A"}
                 </p>
               </div>
             </div>
-            <div className="pt-3 border-t border-gray-200">
-              <p className="text-xs text-gray-600 mb-1">Monto Total</p>
-              <p className="font-bold text-2xl text-gray-900">
-                {formatCurrency(currentTotal, quotation)}
-              </p>
-            </div>
-          </div>
-          {quotation.observations && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-600 mb-1">Observaciones</p>
-              <p className="text-sm text-gray-700 line-clamp-3">
-                {quotation.observations}
-              </p>
-            </div>
-          )}
-        </Card>
 
-        {/* Información del Vehículo */}
-        {quotation.vehicle && (
-          <Card className="p-6 border-gray-200 lg:col-span-2 bg-gray-100">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-              <Car className="h-5 w-5 text-gray-600" />
-              Información del Vehículo
-              <div className="ml-auto">
-                <VehicleWorkOrderHistory
-                  vehicleId={quotation.vehicle.id}
-                  vehiclePlate={quotation.vehicle.plate}
-                  buttonVariant="default"
-                />
-              </div>
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-              <div>
-                <p className="text-xs text-gray-600 mb-0.5">Placa</p>
-                <p className="font-bold text-base text-gray-900">
-                  {quotation.vehicle.plate || "N/A"}
+            <div className="mt-6 rounded-2xl border border-border/80 bg-background/70 px-4 py-4 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">Monto Total</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {formatCurrency(currentTotal, quotation)}
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-0.5">VIN</p>
-                <p className="font-medium text-sm text-gray-800 truncate">
-                  {quotation.vehicle.vin || "N/A"}
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-muted-foreground">
+                  IGV ({(IGV.RATE * 100).toFixed(0)}%)
+                </p>
+                <p className="text-base font-medium text-foreground">
+                  {formatCurrency(igvAmount, quotation)}
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-0.5">Marca</p>
-                <p className="font-medium text-sm text-gray-800 truncate">
-                  {quotation.vehicle.model?.brand || "N/A"}
+              <div className="pt-3 border-t border-dashed border-border flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-foreground">
+                  Total Propuesta
                 </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-0.5">Año</p>
-                <p className="font-medium text-sm text-gray-800">
-                  {quotation.vehicle.year || "N/A"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-0.5">Modelo</p>
-                <p className="font-medium text-sm text-gray-800 truncate">
-                  {quotation.vehicle.model?.version || ""}
+                <p className="text-2xl font-bold text-primary">
+                  {formatCurrency(proposalTotal, quotation)}
                 </p>
               </div>
             </div>
 
-            {quotation.vehicle.owner && (
-              <div className="pt-4 border-t border-gray-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <User className="h-4 w-4 text-gray-600" />
-                  <p className="text-xs font-semibold text-gray-700">
-                    Propietario del Vehículo
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-xs text-gray-600 mb-0.5">
-                      Nombre Completo
-                    </p>
-                    <p className="font-medium text-sm text-gray-900">
-                      {quotation.vehicle.owner.full_name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-0.5">Documento</p>
-                    <p className="font-medium text-sm text-gray-900">
-                      {quotation.vehicle.owner.num_doc}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-0.5">Teléfono</p>
-                    <p className="font-medium text-sm text-gray-900">
-                      {quotation.vehicle.owner.phone || "N/A"}
-                    </p>
-                  </div>
-                </div>
+            {quotation.observations && (
+              <div className="mt-5 rounded-xl border border-border/70 bg-background/60 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+                  Observaciones
+                </p>
+                <p className="text-sm leading-relaxed text-foreground/90 line-clamp-3">
+                  {quotation.observations}
+                </p>
               </div>
             )}
-          </Card>
-        )}
-      </div>
+          </div>
+
+          {quotation.vehicle && (
+            <div className="p-6 md:p-7">
+              <div className="flex items-center gap-2">
+                <Car className="h-5 w-5 text-primary" />
+                <h3 className="text-base md:text-lg font-semibold text-foreground">
+                  Información del Vehículo
+                </h3>
+                <div className="ml-auto">
+                  <VehicleWorkOrderHistory
+                    vehicleId={quotation.vehicle.id}
+                    vehiclePlate={quotation.vehicle.plate}
+                    buttonVariant="default"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    Placa
+                  </p>
+                  <p className="text-xl font-semibold text-foreground">
+                    {quotation.vehicle.plate || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    VIN
+                  </p>
+                  <p className="text-base font-medium text-foreground truncate">
+                    {quotation.vehicle.vin || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    Marca
+                  </p>
+                  <p className="text-base font-medium text-foreground truncate">
+                    {quotation.vehicle.model?.brand || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    Año
+                  </p>
+                  <p className="text-base font-medium text-foreground">
+                    {quotation.vehicle.year || "N/A"}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                    Modelo
+                  </p>
+                  <p className="text-base font-medium text-foreground truncate">
+                    {quotation.vehicle.model?.version || "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              {quotation.vehicle.owner && (
+                <div className="mt-6 rounded-2xl border border-border/80 bg-muted/35 p-4 md:p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-semibold text-foreground">
+                      Propietario del Vehículo
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Nombre Completo
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        {quotation.vehicle.owner.full_name}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Documento
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        {quotation.vehicle.owner.num_doc}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Teléfono
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        {quotation.vehicle.owner.phone || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Sección de Mano de Obra */}
       <LaborDetailsSection

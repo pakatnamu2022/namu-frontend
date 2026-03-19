@@ -123,6 +123,31 @@ export const orderQuotationColumns = ({
     header: "Creado por",
   },
   {
+    accessorKey: "emails_sent_count",
+    header: "Emails enviados",
+    cell: ({ row }) => {
+      const sentCount = Number(
+        (row.getValue("emails_sent_count") as
+          | number
+          | string
+          | null
+          | undefined) ?? 0,
+      );
+      const hasSent = sentCount > 0;
+
+      return (
+        <Badge
+          variant="outline"
+          color={hasSent ? "sky" : "gray"}
+          className="inline-flex items-center gap-1"
+        >
+          <Send className="size-3" />
+          {sentCount} {sentCount === 1 ? "envío" : "envíos"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "is_take",
     header: "Aceptada",
     cell: ({ getValue }) => {
