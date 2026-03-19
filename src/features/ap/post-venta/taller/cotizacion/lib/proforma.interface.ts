@@ -51,6 +51,7 @@ export interface OrderQuotationResource {
   //Opcionales
   has_sufficient_stock: boolean;
   cost_man_hours: number;
+  is_requested_by_management: boolean;
 }
 
 export interface ApprovalRequest {

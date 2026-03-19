@@ -24,7 +24,10 @@ import OrderQuotationActions from "@/features/ap/post-venta/taller/cotizacion/co
 import { orderQuotationColumns } from "@/features/ap/post-venta/taller/cotizacion/components/ProformaColumns.tsx";
 import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/components/ProformaTable.tsx";
 import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions.tsx";
-import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import {
+  deleteOrderQuotation,
+  sendNotificationManagement,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
@@ -94,6 +97,21 @@ export default function OrderQuotationPage() {
     router(`${ABSOLUTE_ROUTE}/aprobar/${id}`);
   };
 
+  const handleSendNotification = async (id: number) => {
+    try {
+      await sendNotificationManagement(id);
+      await refetch();
+      successToast("Notificación enviada a gerencia correctamente");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al enviar la notificación a gerencia",
+      );
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -116,6 +134,7 @@ export default function OrderQuotationPage() {
           onUpdate: handleUpdate,
           onManage: handleManage,
           onApprove: handleApprove,
+          onSendNotification: handleSendNotification,
           permissions,
         })}
         data={data?.data || []}

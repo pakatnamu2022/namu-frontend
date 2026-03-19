@@ -14,6 +14,7 @@ export const orderQuotationSchemaCreate = z.object({
   observations: z.string().min(0).max(500).optional(),
   area_id: optionalStringId("Área es requerido"),
   currency_id: requiredStringId("Moneda es requerida"),
+  is_requested_by_management: z.boolean().optional(),
 });
 
 export const orderQuotationSchemaUpdate = orderQuotationSchemaCreate.partial();
