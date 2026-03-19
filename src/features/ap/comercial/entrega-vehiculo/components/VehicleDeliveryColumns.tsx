@@ -16,6 +16,8 @@ import {
   Info,
   ArrowRightLeft,
   Calendar,
+  ClipboardList,
+  Download,
   Droplets,
   User,
   Car,
@@ -42,6 +44,7 @@ interface Props {
     canView: boolean;
     canViewHistory: boolean;
     canGenerate: boolean;
+    canChecklist: boolean;
     canSend: boolean;
     canMigrate: boolean;
   };
@@ -198,6 +201,32 @@ export const vehicleDeliveryColumns = ({
     },
   },
   {
+    accessorKey: "checklist_status",
+    header: "Checklist",
+    cell: ({ getValue }) => {
+      const value = getValue() as "draft" | "confirmed" | null | undefined;
+      if (!value) {
+        return (
+          <Badge color="gray" icon={XCircle} className="capitalize w-fit">
+            Sin checklist
+          </Badge>
+        );
+      }
+      if (value === "confirmed") {
+        return (
+          <Badge color="green" icon={CheckCircle2} className="capitalize w-fit">
+            Confirmado
+          </Badge>
+        );
+      }
+      return (
+        <Badge color="blue" icon={ClipboardList} className="capitalize w-fit">
+          Borrador
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "sent_at",
     id: "sent_at",
     meta: {
@@ -301,13 +330,18 @@ export const vehicleDeliveryColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, shipping_guide_id, sent_at, aceptada_por_sunat } =
+      const { id, shipping_guide_id, sent_at, aceptada_por_sunat, checklist_status } =
         row.original;
+      const migrationStatus = row.original.shipping_guide?.migration_status;
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
-      const { canViewHistory, canGenerate, canSend, canMigrate, canDelete } =
+      const { canViewHistory, canGenerate, canChecklist, canSend, canMigrate, canDelete } =
         permissions;
-      const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
+
+      const isAcceptedBySunat = !!sent_at && aceptada_por_sunat === true;
+      const isChecklistConfirmed = checklist_status === "confirmed";
+      const isMigrated =
+        migrationStatus === "completed" || migrationStatus === "updated_with_nc";
 
       return (
         <div className="flex items-center gap-2">
@@ -321,17 +355,34 @@ export const vehicleDeliveryColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {isAcceptedBySunat && shipping_guide_id && canViewHistory && (
-            <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
-          )}
+          {/* Checklist editable: solo hasta que no esté confirmado */}
+          <ButtonAction
+            tooltip="Checklist de Entrega"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
+            icon={ClipboardList}
+            color="amber"
+            variant="secondary"
+            canRender={canChecklist && !isChecklistConfirmed}
+          />
 
+          {/* PDF del checklist: solo cuando está confirmado */}
+          <ButtonAction
+            tooltip="Ver PDF Checklist"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
+            icon={Download}
+            color="green"
+            variant="secondary"
+            canRender={isChecklistConfirmed}
+          />
+
+          {/* Guía de remisión: solo cuando checklist confirmado y aún no enviada/aceptada */}
           <ButtonAction
             tooltip="Guía de Remisión"
             onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
             icon={FileText}
-            color="indigo"
-            variant="default"
-            canRender={(!sent_at || aceptada_por_sunat !== true) && canGenerate}
+            color="sky"
+            variant="secondary"
+            canRender={isChecklistConfirmed && (!sent_at || aceptada_por_sunat !== true) && canGenerate}
           />
 
           {shipping_guide_id && !isAcceptedBySunat && canSend && (
@@ -358,16 +409,22 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {onMigrate && shipping_guide_id && canMigrate && (
+          {/* Migrar: cuando hay guía y aún no fue migrada */}
+          {onMigrate && shipping_guide_id && canMigrate && !isMigrated && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              tooltip="Migrar"
+              tooltip="Migrar a Dynamics"
               onClick={() => onMigrate(shipping_guide_id)}
             >
               <ArrowRightLeft className="size-4" />
             </Button>
+          )}
+
+          {/* Historial: solo cuando ya está migrado */}
+          {shipping_guide_id && canViewHistory && isMigrated && (
+            <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
 
           {canDelete && !shipping_guide_id && (

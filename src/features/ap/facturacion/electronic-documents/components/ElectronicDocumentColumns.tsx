@@ -377,8 +377,6 @@ export const electronicDocumentColumns = ({
           document.status === "accepted" &&
           document.aceptada_por_sunat &&
           document.is_accounted &&
-          // document.migrated_at &&
-          // document.migration_status === "completed" &&
           !document.anulado &&
           !document.credit_note_id &&
           permissions.canCreateCreditNote;
@@ -391,6 +389,7 @@ export const electronicDocumentColumns = ({
           document.aceptada_por_sunat &&
           document.is_accounted &&
           !document.anulado &&
+          !document.debit_note_id &&
           !document.is_advance_payment &&
           permissions.canCreateDebitNote;
 
