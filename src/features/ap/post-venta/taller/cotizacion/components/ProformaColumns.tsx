@@ -30,6 +30,26 @@ interface Props {
   };
 }
 
+const getQuotationStatus = (
+  quotationDate: string | null | undefined,
+  isTake: boolean,
+): "Aperturada" | "Vencida" | "Aceptada" => {
+  if (!quotationDate) return "Aperturada";
+
+  const createdAt = new Date(quotationDate);
+  if (Number.isNaN(createdAt.getTime())) return "Aperturada";
+
+  const expirationByRule = new Date(createdAt);
+  expirationByRule.setDate(expirationByRule.getDate() + 15);
+
+  const today = new Date();
+  const expired = today > expirationByRule;
+
+  if (expired && isTake) return "Aceptada";
+  if (expired) return "Vencida";
+  return "Aperturada";
+};
+
 export const orderQuotationColumns = ({
   onUpdate,
   onManage,
@@ -102,7 +122,7 @@ export const orderQuotationColumns = ({
   },
   {
     accessorKey: "is_take",
-    header: "Tomada",
+    header: "Aceptada",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
@@ -126,7 +146,7 @@ export const orderQuotationColumns = ({
   },
   {
     accessorKey: "chief_approval_by",
-    header: "Aprobado Jefe",
+    header: "Aprob. Jefe",
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return (
@@ -138,12 +158,35 @@ export const orderQuotationColumns = ({
   },
   {
     accessorKey: "manager_approval_by",
-    header: "Aprobado Gerente",
+    header: "Aprob. Gerente",
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return (
         <Badge variant="outline" color={value ? "green" : "red"}>
           {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const isTake = !!(row.getValue("is_take") as boolean | undefined);
+      const status = getQuotationStatus(row.original.quotation_date, isTake);
+
+      return (
+        <Badge
+          variant="outline"
+          color={
+            status === "Aceptada"
+              ? "green"
+              : status === "Vencida"
+                ? "red"
+                : "blue"
+          }
+        >
+          {status}
         </Badge>
       );
     },
