@@ -146,35 +146,18 @@ export default function InvoiceForm({
           ? `ANTICIPO POR ${allDescriptions.join(", ")}`
           : "ANTICIPO POR SERVICIOS DE TALLER";
 
-      // Cuando la cotización es inválida, pre-llenar con los montos de la orden de trabajo
-      let valor_unitario = 0;
-      let precio_unitario = 0;
-      let subtotal = 0;
-      let igvAmount = 0;
-      let total = 0;
-
-      if (isInvalidWithQuote && workOrder.final_amount) {
-        const round2 = (num: number) => Math.round(num * 100) / 100;
-        // final_amount ya incluye IGV, calcular hacia atrás
-        total = round2(workOrder.final_amount);
-        subtotal = round2(total / (1 + porcentaje_de_igv / 100));
-        igvAmount = round2(total - subtotal);
-        valor_unitario = subtotal;
-        precio_unitario = total;
-      }
-
       const anticipoItem: ElectronicDocumentItemSchema = {
         account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
         unidad_de_medida: "ZZ",
         codigo: selectedGroupNumber?.toString() || "",
         descripcion: consolidatedDescription,
         cantidad: 1,
-        valor_unitario,
-        precio_unitario,
-        subtotal,
+        valor_unitario: 0,
+        precio_unitario: 0,
+        subtotal: 0,
         sunat_concept_igv_type_id: gravadaType?.id || 0,
-        igv: igvAmount,
-        total,
+        igv: 0,
+        total: 0,
       };
 
       form.setValue("items", [anticipoItem], { shouldValidate: false });
@@ -431,7 +414,7 @@ export default function InvoiceForm({
               isAdvancePayment={isAdvancePayment}
               isInvalidWithQuote={isInvalidWithQuote}
             />
-            {/* Items (solo lectura, cargados automáticamente) */}
+            {/* Items (solo lectura, cargados automáticamente; editable en modo anticipo) */}
             <ItemsSection
               form={form}
               igvTypes={igvTypes}
@@ -439,7 +422,7 @@ export default function InvoiceForm({
               porcentaje_de_igv={porcentaje_de_igv}
               isAdvancePayment={isAdvancePayment}
               isFromQuotation={true}
-              showActions={false}
+              showActions={isAdvancePayment}
             />
             {/* Configuración Adicional */}
             <AdditionalConfigSection
@@ -469,7 +452,7 @@ export default function InvoiceForm({
             labours={labours}
             parts={parts}
             isInvalidWithQuote={isInvalidWithQuote}
-            finalAmount={workOrder.final_amount}
+            isInvoiced={workOrder.is_invoiced}
           />
         </div>
       </form>

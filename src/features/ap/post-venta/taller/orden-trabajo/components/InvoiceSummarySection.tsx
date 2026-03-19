@@ -38,7 +38,7 @@ interface InvoiceSummarySectionProps {
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
   isInvalidWithQuote?: boolean;
-  finalAmount?: number;
+  isInvoiced?: boolean;
 }
 
 export function InvoiceSummarySection({
@@ -58,7 +58,7 @@ export function InvoiceSummarySection({
   labours,
   parts,
   isInvalidWithQuote = false,
-  finalAmount,
+  isInvoiced = false,
 }: InvoiceSummarySectionProps) {
   //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
@@ -78,10 +78,8 @@ export function InvoiceSummarySection({
     (advance) => advance.is_advance_payment === true,
   );
 
-  // Calcular el total de la orden de trabajo
-  // Si la cotización es inválida, usar final_amount directamente (los costos pueden no estar definidos aún)
+  // Calcular el total de la orden de trabajo (solo usado cuando isInvalidWithQuote = false)
   const workOrderTotal = (() => {
-    if (isInvalidWithQuote && finalAmount) return finalAmount;
     const laboursTotal = labours.reduce(
       (sum, labour) => sum + parseFloat(labour.net_amount || "0"),
       0,
@@ -93,20 +91,26 @@ export function InvoiceSummarySection({
     return (laboursTotal + partsTotal) * (1 + porcentaje_de_igv / 100);
   })();
 
-  // Total pagado con todos los advances
+  // Total pagado con todos los advances (solo usado cuando isInvalidWithQuote = false)
   const totalPaid = advancePayments.reduce(
     (sum, advance) => sum + (Number(advance.total) || 0),
     0,
   );
-  const pendingBalance = workOrderTotal - totalPaid;
 
-  console.log("Work Order pendingBalance:", pendingBalance);
-  console.log("Work Order hasRealAdvancePayments:", hasRealAdvancePayments);
-  console.log("Work Order totalPaid:", totalPaid);
-
-  // Si el saldo está completado (<=0) y NO hay anticipos reales, no se puede facturar nada más
-  const isCompletedWithoutAdvances =
-    pendingBalance <= 0 && !hasRealAdvancePayments;
+  // Determinar si está completamente facturado (bloquear botón)
+  // Cuando isInvalidWithQuote = true: todos los pagos son anticipos → el parámetro que manda es isInvoiced
+  // Cuando isInvalidWithQuote = false: usar workOrderTotal y totalPaid, pero solo bloquear si isInvoiced = true
+  const isCompletedWithoutAdvances = (() => {
+    if (isInvalidWithQuote) {
+      // Con cotización inválida: solo bloquear si el backend ya marcó como facturado
+      return isInvoiced;
+    }
+    // Sin cotización inválida: bloquear si el saldo está en 0 sin anticipos pendientes,
+    // PERO solo si isInvoiced = true (el backend confirmó que ya está cerrada)
+    const pendingBalance = Math.round((workOrderTotal - totalPaid) * 100) / 100;
+    if (isInvoiced) return true;
+    return pendingBalance <= 0 && !hasRealAdvancePayments;
+  })();
 
   return (
     <div className="lg:col-span-1 h-full">
@@ -343,7 +347,7 @@ export function InvoiceSummarySection({
                 isPending ||
                 !form.formState.isValid ||
                 isCompletedWithoutAdvances ||
-                (totales.total <= 0 && !hasRealAdvancePayments)
+                (!isInvalidWithQuote && totales.total <= 0 && !hasRealAdvancePayments)
               }
             >
               {form.watch("enviar_automaticamente_a_la_sunat") ? (
@@ -365,7 +369,8 @@ export function InvoiceSummarySection({
                 más documentos.
               </p>
             )}
-            {!isCompletedWithoutAdvances &&
+            {!isInvalidWithQuote &&
+              !isCompletedWithoutAdvances &&
               totales.total <= 0 &&
               !hasRealAdvancePayments && (
                 <p className="text-xs text-center text-destructive font-medium">
