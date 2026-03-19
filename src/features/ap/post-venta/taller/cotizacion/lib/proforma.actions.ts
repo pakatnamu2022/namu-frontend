@@ -84,6 +84,15 @@ export async function approveOrderQuotation(
   return response.data;
 }
 
+export async function sendNotificationManagement(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/send-notification`,
+  );
+  return response.data;
+}
+
 export async function deleteOrderQuotation(
   id: number,
 ): Promise<GeneralResponse> {

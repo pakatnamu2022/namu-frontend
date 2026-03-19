@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings, ClipboardCheck } from "lucide-react";
+import { Pencil, Download, Settings, ClipboardCheck, Send } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { OrderQuotationResource } from "../lib/proforma.interface";
@@ -22,6 +22,7 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onApprove: (id: number) => void;
+  onSendNotification: (id: number) => void;
   permissions: {
     canApprove: boolean;
     canManage: boolean;
@@ -55,6 +56,7 @@ export const orderQuotationColumns = ({
   onManage,
   onDelete,
   onApprove,
+  onSendNotification,
   permissions,
 }: Props): OrderQuotationColumns[] => [
   {
@@ -200,9 +202,11 @@ export const orderQuotationColumns = ({
         chief_approval_by,
         manager_approval_by,
         has_management_discount,
+        is_requested_by_management,
       } = row.original;
       const isFullyApproved = !!chief_approval_by && !!manager_approval_by;
       const isLocked = isFullyApproved || !!has_management_discount;
+      const canSendNotification = is_requested_by_management;
 
       const handleDownloadPdf = async (withCode: boolean) => {
         try {
@@ -224,6 +228,18 @@ export const orderQuotationColumns = ({
               tooltip="Gestionar"
             >
               <Settings className="size-5" />
+            </Button>
+          )}
+
+          {canSendNotification && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onSendNotification(id)}
+              tooltip="Enviar notificación a gerencia"
+            >
+              <Send className="size-5" />
             </Button>
           )}
 

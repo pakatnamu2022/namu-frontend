@@ -38,6 +38,7 @@ import { OrderQuotationResource } from "../lib/proforma.interface";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { DataCard } from "@/components/DataCard";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -319,8 +320,16 @@ export default function OrderQuotationForm({
                   ]
                 : undefined
             }
-          />
+          /> 
         )}
+
+        <FormSwitch
+          control={form.control}
+          name="is_requested_by_management"
+          text={form.watch("is_requested_by_management") ? "Si" : "No"}
+          label="¿Solicitado por Gerencia?"
+          description="Indica si esta cotización ha sido solicitada por el área de gerencia."
+        />
 
         <FormInputText
           name="observations"
