@@ -58,30 +58,23 @@ export const shippingGuideSchema = z
       }
 
       // Transporte privado - OBLIGATORIO: placa del vehículo
-      if (!data.plate || data.plate.trim().length === 0) {
+      if (!data.plate || data.plate.replace(/-/g, "").length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
             "La placa del vehículo es obligatoria para transporte privado",
           path: ["plate"],
         });
-      } else if (data.plate.length < 6) {
+      } else if (data.plate.replace(/-/g, "").length !== 6) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "La placa debe tener al menos 6 caracteres",
+          message: "La placa debe tener 6 caracteres",
           path: ["plate"],
         });
-      } else if (data.plate.length > 7) {
+      } else if (!/^[A-Z0-9]+$/.test(data.plate.replace(/-/g, ""))) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "La placa no puede exceder 7 caracteres",
-          path: ["plate"],
-        });
-      } else if (!/^[A-Z0-9-]+$/.test(data.plate)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "La placa solo puede contener letras mayúsculas, números y guiones",
+          message: "La placa solo puede contener letras mayúsculas y números",
           path: ["plate"],
         });
       }

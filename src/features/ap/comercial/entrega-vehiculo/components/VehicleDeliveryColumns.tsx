@@ -331,8 +331,8 @@ export const vehicleDeliveryColumns = ({
             tooltip="Checklist de Entrega"
             onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
             icon={ClipboardList}
-            color="green"
-            variant="default"
+            color="amber"
+            variant="secondary"
             canRender={!canChecklist}
           />
 
@@ -340,8 +340,8 @@ export const vehicleDeliveryColumns = ({
             tooltip="Guía de Remisión"
             onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
             icon={FileText}
-            color="indigo"
-            variant="default"
+            color="sky"
+            variant="secondary"
             canRender={(!sent_at || aceptada_por_sunat !== true) && canGenerate}
           />
 

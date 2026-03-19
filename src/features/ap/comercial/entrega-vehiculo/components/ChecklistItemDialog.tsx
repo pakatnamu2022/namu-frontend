@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Loader2 } from "lucide-react";
 
@@ -34,7 +33,6 @@ export function ChecklistItemDialog({
   isPending,
 }: ChecklistItemDialogProps) {
   const isAdd = mode === "add";
-  const idPrefix = isAdd ? "add" : "edit";
 
   return (
     <GeneralModal
@@ -59,51 +57,43 @@ export function ChecklistItemDialog({
       }
     >
       <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}-description`}>
-            Descripción <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id={`${idPrefix}-description`}
-            value={form.description}
-            onChange={(e) => onChange({ ...form, description: e.target.value })}
-            placeholder={isAdd ? "Ej. MANUAL DEL PROPIETARIO" : undefined}
-          />
-        </div>
+        <FormInput
+          name="description"
+          label="Descripción"
+          required
+          value={form.description}
+          onChange={(e) => onChange({ ...form, description: e.target.value })}
+          placeholder={isAdd ? "Ej. MANUAL DEL PROPIETARIO" : undefined}
+          uppercase
+        />
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor={`${idPrefix}-quantity`}>Cantidad</Label>
-            <Input
-              id={`${idPrefix}-quantity`}
-              type="number"
-              min={0}
-              step="0.01"
-              value={form.quantity}
-              onChange={(e) => onChange({ ...form, quantity: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor={`${idPrefix}-unit`}>Unidad</Label>
-            <Input
-              id={`${idPrefix}-unit`}
-              value={form.unit}
-              onChange={(e) => onChange({ ...form, unit: e.target.value })}
-              placeholder="Ej. UND"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}-observations`}>Observaciones</Label>
-          <Textarea
-            id={`${idPrefix}-observations`}
-            value={form.observations}
-            onChange={(e) =>
-              onChange({ ...form, observations: e.target.value })
-            }
-            rows={2}
-            className="resize-none"
+          <FormInput
+            name="quantity"
+            label="Cantidad"
+            type="number"
+            min={0}
+            step="0.01"
+            value={form.quantity}
+            onChange={(e) => onChange({ ...form, quantity: e.target.value })}
+          />
+          <FormInput
+            name="unit"
+            label="Unidad"
+            value={form.unit}
+            onChange={(e) => onChange({ ...form, unit: e.target.value })}
+            placeholder="Ej. UND"
+            uppercase
           />
         </div>
+        <FormTextArea
+          name="observations"
+          label="Observaciones"
+          value={form.observations}
+          onChange={(e) => onChange({ ...form, observations: e.target.value })}
+          rows={2}
+          className="resize-none"
+          uppercase
+        />
       </div>
     </GeneralModal>
   );
