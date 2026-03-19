@@ -5,12 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -52,6 +47,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import { ACP_TYPE_CREDIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface CreditNoteFormProps {
   creditNote?: ElectronicDocumentResource;
@@ -69,7 +65,7 @@ export function CreditNoteForm({
   const [nextNumber, setNextNumber] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(
-    null
+    null,
   );
 
   const { data: creditNoteTypes = [] } = useAllSunatConcepts({
@@ -82,6 +78,7 @@ export function CreditNoteForm({
 
   const { data: allAccountingPlans = [] } = useAllAccountingAccountPlan({
     status: 1,
+    type: ACP_TYPE_CREDIT_NOTE,
   });
   const accountingPlans = allAccountingPlans.filter((p) => p.status);
 
@@ -95,11 +92,9 @@ export function CreditNoteForm({
         creditNote?.sunat_concept_credit_note_type_id?.toString() || "",
       series: creditNote?.series_id?.toString() || "",
       observaciones: creditNote?.observaciones || "",
-      discount_amount: undefined,
-      account_plan_id: undefined,
+      discount_amount: creditNote?.items?.[0]?.total ?? undefined,
+      account_plan_id: creditNote?.items?.[0]?.account_plan_id?.toString() ?? undefined,
       detail_ids: [],
-      enviar_automaticamente_a_la_sunat: false,
-      enviar_automaticamente_al_cliente: false,
     },
     mode: "onChange",
   });
@@ -153,13 +148,13 @@ export function CreditNoteForm({
         const response = await getNextCreditNoteNumber(
           originalDocument.id,
           parseInt(selectedSeries),
-          originalDocument.sunat_concept_document_type_id
+          originalDocument.sunat_concept_document_type_id,
         );
         setNextNumber(response.number);
       } catch (error: any) {
         setVerificationError(
           error?.response?.data?.message ||
-            "No se puede generar nota de crédito para esta serie"
+            "No se puede generar nota de crédito para esta serie",
         );
         setNextNumber(null);
       } finally {
@@ -173,20 +168,19 @@ export function CreditNoteForm({
     originalDocument.sunat_concept_document_type_id,
   ]);
 
-  const currency =
-    originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
+  const currency = originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
 
   const originalItems = originalDocument.items || [];
   const itemsWithId = originalItems.filter((item) => item.id != null);
   const selectedItems = originalItems.filter(
-    (item) => item.id != null && detailIds.includes(item.id!)
+    (item) => item.id != null && detailIds.includes(item.id!),
   );
 
   const totalToCredit = isDescuentoGlobal
     ? discountAmount
     : isDevolucionItem
-    ? selectedItems.reduce((sum, item) => sum + item.total, 0)
-    : Math.abs(originalDocument.total);
+      ? selectedItems.reduce((sum, item) => sum + item.total, 0)
+      : Math.abs(originalDocument.total);
 
   const allSelected =
     itemsWithId.length > 0 && detailIds.length === itemsWithId.length;
@@ -196,19 +190,15 @@ export function CreditNoteForm({
     const current = form.getValues("detail_ids") || [];
     form.setValue(
       "detail_ids",
-      checked
-        ? [...current, itemId]
-        : current.filter((id) => id !== itemId),
-      { shouldValidate: true }
+      checked ? [...current, itemId] : current.filter((id) => id !== itemId),
+      { shouldValidate: true },
     );
   };
 
   const handleToggleAll = (checked: boolean) => {
-    form.setValue(
-      "detail_ids",
-      checked ? itemsWithId.map((i) => i.id!) : [],
-      { shouldValidate: true }
-    );
+    form.setValue("detail_ids", checked ? itemsWithId.map((i) => i.id!) : [], {
+      shouldValidate: true,
+    });
   };
 
   return (
@@ -217,54 +207,6 @@ export function CreditNoteForm({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Original Document Info */}
-            <GroupFormSection
-              title="Documento Original"
-              icon={FileCheck}
-              color="primary"
-              cols={{ sm: 1, md: 3 }}
-            >
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Tipo de Documento
-                </Label>
-                <p className="font-semibold">
-                  {originalDocument.document_type?.description}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Serie - Número
-                </Label>
-                <p className="font-semibold">
-                  {originalDocument.serie}-{originalDocument.numero}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">Moneda</Label>
-                <p className="font-semibold">
-                  {originalDocument.currency?.description}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-muted-foreground text-xs">Cliente</Label>
-                <p className="font-semibold">
-                  {originalDocument.cliente_denominacion}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {originalDocument.cliente_numero_de_documento}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Total Original
-                </Label>
-                <p className="font-semibold text-lg">
-                  {currency} {Math.abs(originalDocument.total).toFixed(2)}
-                </p>
-              </div>
-            </GroupFormSection>
-
             {/* Credit Note Configuration */}
             <GroupFormSection
               title="Configuración de Nota de Crédito"
@@ -348,12 +290,11 @@ export function CreditNoteForm({
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                   <span>
                     {observaciones.length}/250 caracteres
-                    {observaciones.length > 0 &&
-                      observaciones.length < 10 && (
-                        <span className="text-orange-600 ml-2">
-                          (mínimo 10 caracteres)
-                        </span>
-                      )}
+                    {observaciones.length > 0 && observaciones.length < 10 && (
+                      <span className="text-orange-600 ml-2">
+                        (mínimo 10 caracteres)
+                      </span>
+                    )}
                   </span>
                 </div>
                 {form.formState.errors.observaciones && (
@@ -370,9 +311,7 @@ export function CreditNoteForm({
             {(isAnulacion || isDevolucionTotal) && (
               <GroupFormSection
                 title={
-                  isAnulacion
-                    ? "Anulación de la operación"
-                    : "Devolución total"
+                  isAnulacion ? "Anulación de la operación" : "Devolución total"
                 }
                 icon={Info}
                 color="primary"
@@ -478,14 +417,11 @@ export function CreditNoteForm({
                         <TableBody>
                           {originalItems.map((item, idx) => {
                             const isChecked =
-                              item.id != null &&
-                              detailIds.includes(item.id);
+                              item.id != null && detailIds.includes(item.id);
                             return (
                               <TableRow
                                 key={item.id ?? idx}
-                                className={
-                                  isChecked ? "bg-blue-50/50" : ""
-                                }
+                                className={isChecked ? "bg-blue-50/50" : ""}
                               >
                                 <TableCell>
                                   <Checkbox
@@ -509,8 +445,7 @@ export function CreditNoteForm({
                                   {item.cantidad}
                                 </TableCell>
                                 <TableCell className="text-right text-sm">
-                                  {currency}{" "}
-                                  {item.precio_unitario.toFixed(2)}
+                                  {currency} {item.precio_unitario.toFixed(2)}
                                 </TableCell>
                                 <TableCell className="text-right text-sm font-semibold">
                                   {currency} {item.total.toFixed(2)}
@@ -554,16 +489,43 @@ export function CreditNoteForm({
                     <FileCheck className="size-5 text-blue-600" />
                     Resumen
                   </CardTitle>
-                  <Badge
-                    variant="outline"
-                    className="bg-blue-50 text-blue-700"
-                  >
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
                     Nota de Crédito
                   </Badge>
                 </div>
               </CardHeader>
 
               <CardContent className="space-y-4">
+                {/* Original Document Info */}
+                <div className="p-3 rounded-lg bg-muted/30 border space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Documento Original
+                  </p>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-semibold">
+                      {originalDocument.serie}-{originalDocument.numero}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {originalDocument.document_type?.description}
+                    </p>
+                    <p className="text-xs font-medium truncate">
+                      {originalDocument.cliente_denominacion}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {originalDocument.cliente_numero_de_documento}
+                    </p>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">
+                      Total Original
+                    </span>
+                    <span className="text-sm font-bold">
+                      {currency} {Math.abs(originalDocument.total).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Type info */}
                 {selectedTypeId > 0 && (
                   <div className="p-3 rounded-lg bg-muted/30 border space-y-1">
@@ -641,8 +603,7 @@ export function CreditNoteForm({
                     ) : (
                       <>
                         <FileCheck className="size-4 mr-2" />
-                        {creditNote ? "Actualizar" : "Generar"} Nota de
-                        Crédito
+                        {creditNote ? "Actualizar" : "Generar"} Nota de Crédito
                       </>
                     )}
                   </Button>
@@ -661,7 +622,7 @@ export function CreditNoteForm({
                   <p className="text-xs text-center text-muted-foreground">
                     Fecha de emisión:{" "}
                     {new Date(
-                      form.watch("fecha_de_emision")
+                      form.watch("fecha_de_emision"),
                     ).toLocaleDateString("es-PE", {
                       day: "2-digit",
                       month: "long",

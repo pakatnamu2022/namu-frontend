@@ -109,7 +109,11 @@ export default function PurchaseRequestQuoteDetailModal({
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Garantía</p>
-              <p className="font-medium">{quote.warranty || "N/A"}</p>
+              <p className="font-medium">
+                {quote.warranty_years && quote.warranty_km
+                  ? `${quote.warranty_years} ${quote.warranty_years === 1 ? "año" : "años"} / ${quote.warranty_km.toLocaleString("es-PE")} km`
+                  : "N/A"}
+              </p>
             </div>
             <div className="xl:col-span-2">
               <p className="text-xs text-muted-foreground">Asesor</p>

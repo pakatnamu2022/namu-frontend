@@ -19,6 +19,7 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { errorToast } from "@/core/core.function";
 import { FormInput } from "@/shared/components/FormInput";
+import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface ItemsSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -49,12 +50,14 @@ export function ItemsSection({
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
     is_detraction: isDetraction ? 1 : 0,
+    type: ACP_TYPE_SALE,
   });
 
   // Validate existing items when detraction mode changes
   const lastValidatedForDetraction = useRef<boolean | null>(null);
   useEffect(() => {
-    if (!accountPlans || lastValidatedForDetraction.current === isDetraction) return;
+    if (!accountPlans || lastValidatedForDetraction.current === isDetraction)
+      return;
 
     if (lastValidatedForDetraction.current === null) {
       lastValidatedForDetraction.current = isDetraction;
@@ -380,7 +383,7 @@ export function ItemsSection({
                 ref={textareaRef}
                 id="item-description"
                 placeholder="Descripción del producto/servicio"
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none uppercase"
                 value={newItem.descripcion}
                 onChange={(e) =>
                   setNewItem({ ...newItem, descripcion: e.target.value })

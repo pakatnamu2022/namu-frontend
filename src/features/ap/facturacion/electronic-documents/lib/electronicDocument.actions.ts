@@ -235,8 +235,8 @@ export async function updateCreditNote(
   id: number,
   data: CreditNoteSchema,
 ): Promise<ElectronicDocumentResource> {
-  const response = await api.patch<ElectronicDocumentResource>(
-    `${ENDPOINT}/${id}`,
+  const response = await api.put<ElectronicDocumentResource>(
+    `${ENDPOINT}/${id}/credit-note`,
     data,
   );
   return response.data;
@@ -277,8 +277,6 @@ function enrichDebitNotePayload(
     series: Number(data.series),
     fecha_de_emision: fecha_de_emision,
     observaciones: data.observaciones,
-    enviar_automaticamente_a_la_sunat: data.enviar_automaticamente_a_la_sunat,
-    enviar_automaticamente_al_cliente: data.enviar_automaticamente_al_cliente,
     items: data.items,
   };
 }
