@@ -1,37 +1,37 @@
 "use client";
 
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import TitleComponent from "@/shared/components/TitleComponent";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { errorToast, successToast } from "@/core/core.function";
-import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
+import TitleComponent from "@/shared/components/TitleComponent.tsx";
+import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
+import { errorToast, successToast } from "@/core/core.function.ts";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
   preCancelElectronicDocument,
-} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
-import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns";
-import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentDetailSheet";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
-import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { notFound } from "@/shared/hooks/useNotFound";
-import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
-import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
+import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable.tsx";
+import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns.tsx";
+import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentDetailSheet.tsx";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface.ts";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
+import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
+import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
+import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions.tsx";
+import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions.tsx";
 import {
   AREA_MESON,
   AREA_POSTVENTA,
   AREA_TALLER,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
-import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+} from "@/features/ap/ap-master/lib/apMaster.constants.ts";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
 import { useNavigate } from "react-router-dom";
 
 export default function SalesReceiptsCajaPage() {
@@ -46,6 +46,7 @@ export default function SalesReceiptsCajaPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
+  const [consolidationType, setConsolidationType] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -71,6 +72,7 @@ export default function SalesReceiptsCajaPage() {
       ? parseInt(documentTypeFilter)
       : undefined,
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
+    consolidation_type: consolidationType || undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
@@ -179,6 +181,8 @@ export default function SalesReceiptsCajaPage() {
           documentTypeFilter={documentTypeFilter}
           setDocumentTypeFilter={setDocumentTypeFilter}
           documentTypes={documentTypes || []}
+          consolidationType={consolidationType}
+          setConsolidationType={setConsolidationType}
         />
       </ElectronicDocumentTable>
 

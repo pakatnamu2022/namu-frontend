@@ -6,56 +6,56 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import PageWrapper from "@/shared/components/PageWrapper";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { notFound } from "@/shared/hooks/useNotFound";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import PageWrapper from "@/shared/components/PageWrapper.tsx";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
 import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
   errorToast,
   successToast,
-} from "@/core/core.function";
-import { STATUS_ACTIVE } from "@/core/core.constants";
+} from "@/core/core.function.ts";
+import { STATUS_ACTIVE } from "@/core/core.constants.ts";
 
 // Electronic document
 import {
   ElectronicDocumentSchema,
   type ElectronicDocumentSchema as ElectronicDocumentSchemaType,
-} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
-import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import { updateElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
-import { ElectronicDocumentForm } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentForm";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
+import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
+import { updateElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
+import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
+import { ElectronicDocumentForm } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentForm.tsx";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface.ts";
 
 // SUNAT concepts
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
 
 // Series autorizadas (única fuente)
-import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook.ts";
 
 // Checkbooks
-import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
+import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook.ts";
 
 // Work order
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import InvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceForm";
+import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions.ts";
+import InvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceForm.tsx";
 import {
   AREA_TALLER,
   AREA_POSTVENTA,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
+} from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 // Other sales (post-venta general)
-import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm";
+import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm.tsx";
 
 // Order quotation
-import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { OrderQuotationBillingForm } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingForm";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
+import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
+import { OrderQuotationBillingForm } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingForm.tsx";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface.ts";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

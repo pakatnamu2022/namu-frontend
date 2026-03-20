@@ -2,18 +2,18 @@
 
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
-import { errorToast, successToast } from "@/core/core.function";
-import { createDebitNote } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
-import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
-import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { DebitNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
-import { DebitNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/DebitNoteForm";
-import { notFound } from "@/shared/hooks/useNotFound";
+import { errorToast, successToast } from "@/core/core.function.ts";
+import { createDebitNote } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import FormWrapper from "@/shared/components/FormWrapper.tsx";
+import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
+import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import { DebitNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
+import { DebitNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/DebitNoteForm.tsx";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
 
 export default function UpdateDebitNoteCajaPage() {
   const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;

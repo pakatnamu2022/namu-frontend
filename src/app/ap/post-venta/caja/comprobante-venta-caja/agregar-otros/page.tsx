@@ -1,7 +1,7 @@
 "use client";
 
 import { useNavigate } from "react-router-dom";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,20 +10,20 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import { storeOtherSalesDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { notFound } from "@/shared/hooks/useNotFound";
+} from "@/core/core.function.ts";
+import { storeOtherSalesDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
+import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useEffect, useMemo } from "react";
-import PageWrapper from "@/shared/components/PageWrapper";
-import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { useSidebar } from "@/components/ui/sidebar";
-import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm";
+import PageWrapper from "@/shared/components/PageWrapper.tsx";
+import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
+import { useSidebar } from "@/components/ui/sidebar.tsx";
+import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm.tsx";
 
 export default function AddGeneralSalesReceiptsCajaPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;

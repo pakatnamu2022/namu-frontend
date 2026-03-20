@@ -15,7 +15,14 @@ interface Props {
   documentTypeFilter: string;
   setDocumentTypeFilter: (value: string) => void;
   documentTypes: SunatConceptsResource[];
+  consolidationType?: string;
+  setConsolidationType?: (value: string) => void;
 }
+
+const CONSOLIDATION_TYPE_OPTIONS = [
+  { value: "work_orders", label: "Órdenes de trabajo" },
+  { value: "simple", label: "Simple" },
+];
 
 export default function SalesReceiptsOptions({
   search,
@@ -28,6 +35,8 @@ export default function SalesReceiptsOptions({
   documentTypeFilter,
   setDocumentTypeFilter,
   documentTypes = [],
+  consolidationType,
+  setConsolidationType,
 }: Props) {
   return (
     <div className="flex items-end gap-4 flex-wrap">
@@ -71,6 +80,16 @@ export default function SalesReceiptsOptions({
             value: type.id.toString(),
             label: type.description,
           }))}
+        />
+      )}
+
+      {setConsolidationType && (
+        <SearchableSelect
+          onChange={setConsolidationType}
+          value={consolidationType ?? ""}
+          className="md:min-w-44"
+          placeholder="Tipo de consolidación"
+          options={CONSOLIDATION_TYPE_OPTIONS}
         />
       )}
     </div>
