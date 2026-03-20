@@ -108,7 +108,7 @@ export const VehicleInspectionForm = ({
         >
           <DateTimePickerForm
             name="inspection_date"
-            label="Fecha y Hora Estimada de Recepción"
+            label="Fecha y Hora de Recepción"
             control={form.control}
             placeholder="Seleccione fecha y hora"
             disabledRange={{ before: dateOrderWork || new Date() }}
