@@ -1,4 +1,5 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
+import { type BadgeColor } from "@/components/ui/badge";
 import { WorkOrderResource } from "./workOrder.interface";
 
 // RUTAS PARA POSTVENTA - TALLER
@@ -48,6 +49,15 @@ export const WORK_ORDER_STATUS = {
   CERRADO: "CERRADO",
   ANULADO: "ANULADO",
 } as const;
+
+export const WORK_ORDER_STATUS_COLORS: Record<string, BadgeColor> = {
+  APERTURADO: "blue",
+  RECEPCIONADO: "cyan",
+  "EN TRABAJO": "amber",
+  TERMINADO: "green",
+  CERRADO: "gray",
+  ANULADO: "red",
+};
 
 // IDs DE ESTADOS DE ORDEN DE TRABAJO
 export const WORK_ORDER_STATUS_ID = {

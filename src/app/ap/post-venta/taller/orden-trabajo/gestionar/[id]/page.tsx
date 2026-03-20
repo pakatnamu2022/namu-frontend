@@ -24,7 +24,10 @@ import {
   updateWorkOrder,
   unlinkQuotation,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import {
+  WORK_ORDER_STATUS_COLORS,
+  WORKER_ORDER,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
@@ -36,6 +39,7 @@ import { WorkOrderQuotationSelectionModal } from "@/features/ap/post-venta/talle
 import { useParams, useNavigate } from "react-router-dom";
 import { successToast, errorToast } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { Badge } from "@/components/ui/badge";
 
 export default function ManageWorkOrderPage() {
   const params = useParams();
@@ -62,6 +66,9 @@ export default function ManageWorkOrderPage() {
     queryFn: () => findWorkOrderById(id),
     enabled: !!id,
   });
+
+  const color =
+    WORK_ORDER_STATUS_COLORS[workOrder?.status.description || ""] ?? "gray";
 
   // Mutación para adjuntar cotización
   const attachQuotationMutation = useMutation({
@@ -160,9 +167,12 @@ export default function ManageWorkOrderPage() {
               </div>
               <div className="shrink-0 flex flex-col items-end">
                 <span className="text-xs text-gray-500 mb-1">Estado</span>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap">
+                {/* <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap">
                   {workOrder.status.description}
-                </span>
+                </span> */}
+                <Badge variant="outline" color={color}>
+                  {workOrder.status.description}
+                </Badge>
               </div>
             </div>
 
