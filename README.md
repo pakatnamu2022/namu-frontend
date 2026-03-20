@@ -71,3 +71,5 @@ export default defineConfig([
   },
 ])
 ```
+
+Use Node 22
