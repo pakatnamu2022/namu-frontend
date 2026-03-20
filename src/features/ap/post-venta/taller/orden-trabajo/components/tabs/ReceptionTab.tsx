@@ -32,7 +32,7 @@ import {
   confirmCancellation,
 } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
 import { useState } from "react";
-import { errorToast, successToast } from "@/core/core.function";
+import { errorToast, formatDateTime, successToast } from "@/core/core.function";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -265,7 +265,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       {/* Inspection Header */}
       <Card className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <h3 className="text-lg font-semibold">Recepción de Recepción</h3>
+          <h3 className="text-lg font-semibold">Recepción de Vehículo</h3>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
@@ -331,7 +331,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 Fecha de Recepción
               </p>
               <p className="font-semibold text-sm sm:text-base truncate">
-                {new Date(inspection.inspection_date).toLocaleString("es-PE")}
+                {formatDateTime(inspection.inspection_date)}
               </p>
             </div>
           </div>

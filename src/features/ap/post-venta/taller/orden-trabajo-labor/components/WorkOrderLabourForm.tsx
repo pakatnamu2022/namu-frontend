@@ -65,11 +65,14 @@ export default function WorkOrderLabourForm({
 
   // Crear opciones de descripción a partir de los items de la orden de trabajo
   const descriptionOptions = useMemo(() => {
-    return workOrderItems.map((item) => ({
-      label: item.description,
-      value: item.description,
-      description: item.type_planning_name,
-    }));
+    return [
+      ...workOrderItems.map((item) => ({
+        label: item.description,
+        value: item.description,
+        description: item.type_planning_name,
+      })),
+      { label: "Materiales", value: "Materiales", description: "" },
+    ];
   }, [workOrderItems]);
 
   // Auto-seleccionar el operario si solo hay uno disponible
@@ -123,7 +126,6 @@ export default function WorkOrderLabourForm({
             label={`Tarifa/Hora (${currencySymbol})`}
             placeholder="Ej: 50.00"
             control={form.control}
-            disabled
           />
 
           <FormInput

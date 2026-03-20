@@ -65,6 +65,16 @@ const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
 };
 
+const formatDateTimeLocalInput = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 interface WorkOrderFormProps {
   defaultValues: Partial<WorkOrderSchema>;
   onSubmit: (data: any) => void;
@@ -96,6 +106,11 @@ export const WorkOrderForm = ({
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentPlanningResource | null>(null);
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
+  const estimatedDeliveryDefault = useMemo(() => {
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + 30);
+    return formatDateTimeLocalInput(date);
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(
@@ -103,6 +118,9 @@ export const WorkOrderForm = ({
     ),
     defaultValues: {
       ...defaultValues,
+      estimated_delivery_time:
+        defaultValues.estimated_delivery_time ||
+        (mode === "create" ? estimatedDeliveryDefault : undefined),
       has_appointment: defaultValues.has_appointment ?? false,
       has_inspection: defaultValues.has_inspection ?? false,
       items: defaultValues.items ?? [],

@@ -27,12 +27,12 @@ import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
 import VehicleDamageMarker from "./VehicleDamageMarker";
 import { CHECKLIST_ITEMS } from "../lib/vehicleInspection.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormCheckbox } from "@/shared/components/FormCheckbox";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -40,6 +40,7 @@ interface VehicleInspectionFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  dateOrderWork?: Date;
 }
 
 // Niveles de combustible
@@ -66,6 +67,7 @@ export const VehicleInspectionForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  dateOrderWork = undefined,
 }: VehicleInspectionFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -104,14 +106,12 @@ export const VehicleInspectionForm = ({
           color="primary"
           cols={{ sm: 2 }}
         >
-          <DatePickerFormField
-            control={form.control}
+          <DateTimePickerForm
             name="inspection_date"
-            label="Fecha de Recepción"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabled={true}
+            label="Fecha y Hora Estimada de Entrega"
+            control={form.control}
+            placeholder="Seleccione fecha y hora"
+            disabledRange={{ before: dateOrderWork || new Date() }}
           />
 
           <FormInput

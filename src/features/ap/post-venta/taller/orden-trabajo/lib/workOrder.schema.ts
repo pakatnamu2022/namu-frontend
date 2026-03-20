@@ -88,8 +88,33 @@ const inspectionRefine = (data: {
   return true;
 };
 
+const estimatedDeliveryLeadTimeRefine = (
+  data: {
+    estimated_delivery_time?: string;
+  },
+  ctx: z.RefinementCtx,
+) => {
+  if (!data.estimated_delivery_time) return;
+
+  const estimatedDateTime = new Date(data.estimated_delivery_time);
+  if (Number.isNaN(estimatedDateTime.getTime())) return;
+
+  const minimumAllowedDateTime = new Date();
+  minimumAllowedDateTime.setMinutes(minimumAllowedDateTime.getMinutes() + 20);
+
+  if (estimatedDateTime < minimumAllowedDateTime) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        "La fecha y hora estimada de entrega debe ser al menos 20 minutos mayor que la hora actual",
+      path: ["estimated_delivery_time"],
+    });
+  }
+};
+
 export const workOrderSchemaCreate = workOrderSchemaBase
   .superRefine(recallRefine)
+  .superRefine(estimatedDeliveryLeadTimeRefine)
   .refine(appointmentRefine, {
     message:
       "Cita de planificación es requerida cuando 'Tiene cita' está activo",
