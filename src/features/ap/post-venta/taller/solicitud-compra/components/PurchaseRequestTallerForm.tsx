@@ -11,9 +11,9 @@ import {
   PackagePlus,
   Copy,
   Check,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -46,6 +46,7 @@ import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-me
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 import { QuotationSelectionTallerModal } from "../../cotizacion/components/QuotationSelectionTallerModal";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -279,8 +280,11 @@ export default function PurchaseRequestTallerForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Información General */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Información General</h3>
+        <GroupFormSection
+          title="Información General"
+          icon={Info}
+          cols={{ sm: 1 }}
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormSelect
               name="warehouse_id"
@@ -307,83 +311,77 @@ export default function PurchaseRequestTallerForm({
 
           {/* Checkbox para adjuntar cotización */}
           {showQuotationOption && (
-            <div className="mt-4">
-              <FormField
-                control={form.control}
-                name="has_appointment"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>¿Adjuntar Cotización?</FormLabel>
-                      <p className="text-sm text-muted-foreground">
-                        Marque esta opción si desea adjuntar una cotización a la
-                        solicitud de compra.
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="has_appointment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>¿Adjuntar Cotización?</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Marque esta opción si desea adjuntar una cotización a la
+                      solicitud de compra.
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
           )}
 
           {/* Selector de Cotización - Solo visible si has_appointment es true */}
           {showQuotationOption && hasAppointment && (
-            <div className="mt-4">
-              <FormField
-                control={form.control}
-                name="ap_order_quotation_id"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Cotización</FormLabel>
-                    <FormControl>
-                      <div className="space-y-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full justify-start"
-                          onClick={() => {
-                            setIsQuotationModalOpen(true);
-                          }}
-                          disabled={isLoadingQuotations}
-                        >
-                          <Search className="h-4 w-4 mr-2" />
-                          {isLoadingQuotations
-                            ? "Cargando cotizaciones..."
-                            : getSelectedQuotationLabel() ||
-                              "Buscar y seleccionar cotización"}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="ap_order_quotation_id"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Cotización</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          setIsQuotationModalOpen(true);
+                        }}
+                        disabled={isLoadingQuotations}
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        {isLoadingQuotations
+                          ? "Cargando cotizaciones..."
+                          : getSelectedQuotationLabel() ||
+                            "Buscar y seleccionar cotización"}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
-          <div className="mt-4">
-            <FormInputText
-              name="observations"
-              label="Observaciones"
-              placeholder="Notas adicionales sobre la solicitud..."
-              control={form.control}
-            />
-          </div>
-        </Card>
+          <FormInputText
+            name="observations"
+            label="Observaciones"
+            placeholder="Notas adicionales sobre la solicitud..."
+            control={form.control}
+          />
+        </GroupFormSection>
 
         {/* Productos */}
-        <Card className="p-6">
+        <GroupFormSection
+          title="Productos a solicitar"
+          icon={Package}
+          cols={{ sm: 1 }}
+        >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Productos Solicitados</h3>
-            </div>
             {allowCreateProduct && (
               <Button
                 type="button"
@@ -679,7 +677,7 @@ export default function PurchaseRequestTallerForm({
           )}
 
           <FormMessage>{form.formState.errors.details?.message}</FormMessage>
-        </Card>
+        </GroupFormSection>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>

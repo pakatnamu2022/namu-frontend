@@ -86,6 +86,7 @@ export default function AppointmentPlanningPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    sede_id: sedeId || undefined,
   });
 
   const handleDelete = async () => {
