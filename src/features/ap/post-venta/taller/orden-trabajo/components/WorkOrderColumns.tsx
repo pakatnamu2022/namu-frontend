@@ -178,11 +178,27 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge color={value ? "default" : "secondary"}>
+        <Badge variant="outline" color={value ? "green" : "gray"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
     },
+  },
+  {
+    accessorKey: "is_delivery",
+    header: "Entregado",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={value ? "green" : "gray"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "delivery_by_name",
+    header: "Entregado Por",
   },
   {
     accessorKey: "status.description",

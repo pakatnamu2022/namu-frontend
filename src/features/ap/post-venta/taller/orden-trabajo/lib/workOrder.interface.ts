@@ -56,6 +56,7 @@ export interface WorkOrderResource {
   discount_amount: number;
   tax_amount: number;
   final_amount: number;
+  is_delivery: boolean;
 
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
