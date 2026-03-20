@@ -15,6 +15,7 @@ import {
   ElectronicDocumentMigrationHistoryResponse,
   MigrationAllResponse,
   ExchangeRateResource,
+  InvoiceWithWorkOrdersResponse,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
@@ -345,6 +346,15 @@ export async function dispatchElectronicDocumentMigration(
 
 export async function syncAccountingStatus(): Promise<void> {
   await api.post(`${ENDPOINT}/sync-accounting-status`);
+}
+
+export async function getInvoiceWithWorkOrders(
+  id: number,
+): Promise<InvoiceWithWorkOrdersResponse> {
+  const { data } = await api.get<InvoiceWithWorkOrdersResponse>(
+    `${ENDPOINT}/${id}/work-orders`,
+  );
+  return data;
 }
 
 export async function getExchangeRateByDateAndCurrency(
