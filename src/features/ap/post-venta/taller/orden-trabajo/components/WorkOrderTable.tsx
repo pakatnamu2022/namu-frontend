@@ -46,6 +46,9 @@ export default function WorkOrderTable({
           is_guarantee: true,
           is_recall: true,
           is_invoiced: false,
+          is_delivery: false,
+          delivery_by_name: false,
+          status: true,
         }}
       >
         {children}
