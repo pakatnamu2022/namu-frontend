@@ -5,15 +5,7 @@ import {
 } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.schema.ts";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form.tsx";
-import { Input } from "@/components/ui/input.tsx";
+import { Form, FormLabel } from "@/components/ui/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   FileText,
@@ -50,6 +42,7 @@ interface ReceptionsProductsFormProps {
   onCancel?: () => void;
   supplierOrderNumber?: string;
   supplierOrderItems?: SupplierOrderDetailsResource[];
+  dateSupplierOrder?: string;
 }
 
 export const ReceptionsProductsForm = ({
@@ -59,6 +52,7 @@ export const ReceptionsProductsForm = ({
   mode = "create",
   onCancel,
   supplierOrderItems = [],
+  dateSupplierOrder = "",
 }: ReceptionsProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -160,7 +154,7 @@ export const ReceptionsProductsForm = ({
         <GroupFormSection
           title="Información de Recepción"
           icon={FileText}
-          color="blue"
+          color="primary"
           cols={{ sm: 2, md: 3 }}
         >
           <DatePickerFormField
@@ -170,7 +164,11 @@ export const ReceptionsProductsForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={{ after: new Date() }}
+            disabledRange={{
+              before: new Date(dateSupplierOrder + "T00:00:00"),
+              after: new Date(),
+            }}
+            description="Rango entre orden de compra y fecha actual"
           />
 
           <FormSelect
@@ -284,7 +282,8 @@ export const ReceptionsProductsForm = ({
                       </div>
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
+                        color="red"
                         size="icon"
                         className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
                         onClick={() => {
@@ -338,185 +337,106 @@ export const ReceptionsProductsForm = ({
                             />
                           ))}
 
-                        <FormField
+                        <FormInput
                           control={form.control}
                           name={`details.${index}.quantity_received`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs font-medium">
-                                Cant. Recibida *
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  className="text-center"
-                                  placeholder="0"
-                                  disabled={mode === "update"}
-                                  value={
-                                    typeof field.value === "number"
-                                      ? field.value
-                                      : ""
-                                  }
-                                  onChange={(e) => {
-                                    const num = parseFloat(e.target.value);
-                                    const newQuantityReceived = isNaN(num)
-                                      ? 0
-                                      : num;
-
-                                    // Si es producto ordenado, calcular cantidad observada
-                                    if (isOrderedProduct && productItem) {
-                                      const orderedQuantity =
-                                        productItem.quantity;
-
-                                      // No permitir que la cantidad recibida supere la ordenada
-                                      const finalQuantityReceived = Math.min(
-                                        newQuantityReceived,
-                                        orderedQuantity,
-                                      );
-                                      const observedQuantity =
-                                        orderedQuantity - finalQuantityReceived;
-
-                                      field.onChange(finalQuantityReceived);
-                                      form.setValue(
-                                        `details.${index}.observed_quantity`,
-                                        observedQuantity,
-                                      );
-                                    } else {
-                                      field.onChange(newQuantityReceived);
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          label="Cant. Recibida *"
+                          placeholder="0"
+                          type="number"
+                          min="0"
+                          className="text-center"
+                          disabled={mode === "update"}
+                          onChange={(e) => {
+                            if (isOrderedProduct && productItem) {
+                              const num = parseFloat(String(e.target.value));
+                              const newVal = isNaN(num) ? 0 : num;
+                              const orderedQuantity = productItem.quantity;
+                              const finalReceived = Math.min(
+                                newVal,
+                                orderedQuantity,
+                              );
+                              const observed = orderedQuantity - finalReceived;
+                              form.setValue(
+                                `details.${index}.quantity_received`,
+                                finalReceived,
+                              );
+                              form.setValue(
+                                `details.${index}.observed_quantity`,
+                                observed,
+                              );
+                            }
+                          }}
                         />
 
                         {isOrderedProduct && (
-                          <FormField
+                          <FormInput
                             control={form.control}
                             name={`details.${index}.observed_quantity`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Cant. Observada
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    className="text-center"
-                                    placeholder="0"
-                                    disabled={mode === "update"}
-                                    value={
-                                      typeof field.value === "number"
-                                        ? field.value
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      const num = parseFloat(e.target.value);
-                                      const newObservedQuantity = isNaN(num)
-                                        ? 0
-                                        : num;
-
-                                      // Si es producto ordenado, calcular cantidad recibida
-                                      if (productItem) {
-                                        const orderedQuantity =
-                                          productItem.quantity;
-
-                                        // No permitir que la cantidad observada supere la ordenada
-                                        const finalObservedQuantity = Math.min(
-                                          newObservedQuantity,
-                                          orderedQuantity,
-                                        );
-                                        const receivedQuantity =
-                                          orderedQuantity -
-                                          finalObservedQuantity;
-
-                                        field.onChange(finalObservedQuantity);
-                                        form.setValue(
-                                          `details.${index}.quantity_received`,
-                                          receivedQuantity,
-                                        );
-                                      } else {
-                                        field.onChange(newObservedQuantity);
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            label="Cant. Observada"
+                            placeholder="0"
+                            type="number"
+                            min="0"
+                            className="text-center"
+                            disabled={mode === "update"}
+                            onChange={(e) => {
+                              if (productItem) {
+                                const num = parseFloat(String(e.target.value));
+                                const newVal = isNaN(num) ? 0 : num;
+                                const orderedQuantity = productItem.quantity;
+                                const finalObserved = Math.min(
+                                  newVal,
+                                  orderedQuantity,
+                                );
+                                const received =
+                                  orderedQuantity - finalObserved;
+                                form.setValue(
+                                  `details.${index}.observed_quantity`,
+                                  finalObserved,
+                                );
+                                form.setValue(
+                                  `details.${index}.quantity_received`,
+                                  received,
+                                );
+                              }
+                            }}
                           />
                         )}
 
                         {/* Notas adicionales en la misma fila para productos ordenados */}
                         {isOrderedProduct && (
-                          <FormField
-                            control={form.control}
+                          <FormInput
                             name={`details.${index}.notes`}
-                            render={({ field }) => (
-                              <FormItem className="col-span-2 md:col-span-1">
-                                <FormLabel className="text-xs font-medium">
-                                  Notas Adicionales
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Comentarios..."
-                                    disabled={mode === "update"}
-                                    {...field}
-                                    value={field.value || ""}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            label="Notas Adicionales"
+                            placeholder="Comentarios..."
+                            control={form.control}
+                            disabled={mode === "update"}
                           />
                         )}
                       </div>
 
                       {/* Campo oculto para reception_type */}
-                      <FormField
-                        control={form.control}
+                      <FormInput
                         name={`details.${index}.reception_type`}
-                        render={({ field }) => (
-                          <FormItem className="hidden">
-                            <FormControl>
-                              <input type="hidden" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
+                        control={form.control}
+                        type="hidden"
                       />
 
                       {/* Motivo bonificación */}
                       {(receptionType === "BONUS" ||
                         receptionType === "GIFT" ||
                         receptionType === "SAMPLE") && (
-                        <FormField
-                          control={form.control}
+                        <FormInput
                           name={`details.${index}.bonus_reason`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs font-medium">
-                                Motivo{" "}
-                                {receptionType === "BONUS"
-                                  ? "Bonificación"
-                                  : receptionType === "GIFT"
-                                    ? "Regalo"
-                                    : "Muestra"}
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Ingresa el motivo..."
-                                  disabled={mode === "update"}
-                                  {...field}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          label={
+                            receptionType === "BONUS"
+                              ? "Motivo de Bonificación"
+                              : receptionType === "GIFT"
+                                ? "Motivo de Regalo"
+                                : "Motivo de Muestra"
+                          }
+                          placeholder="Ingresa el motivo..."
+                          control={form.control}
+                          disabled={mode === "update"}
                         />
                       )}
 
@@ -527,52 +447,24 @@ export const ReceptionsProductsForm = ({
                             Observación Detectada
                           </p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <FormField
-                              control={form.control}
+                            <FormSelect
                               name={`details.${index}.reason_observation`}
-                              render={() => (
-                                <FormItem>
-                                  <FormLabel className="text-xs font-medium">
-                                    Motivo de Observación *
-                                  </FormLabel>
-                                  <FormControl>
-                                    <FormSelect
-                                      name={`details.${index}.reason_observation`}
-                                      placeholder="Selecciona motivo"
-                                      options={OBSERVATION_REASONS.map(
-                                        (reason) => ({
-                                          label: reason.label,
-                                          value: reason.value,
-                                        }),
-                                      )}
-                                      control={form.control}
-                                      disabled={mode === "update"}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                              label="Motivo de Observación *"
+                              placeholder="Selecciona motivo"
+                              options={OBSERVATION_REASONS.map((reason) => ({
+                                label: reason.label,
+                                value: reason.value,
+                              }))}
+                              control={form.control}
+                              disabled={mode === "update"}
                             />
 
-                            <FormField
-                              control={form.control}
+                            <FormInput
                               name={`details.${index}.observation_notes`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs font-medium">
-                                    Notas de Observación
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Detalles adicionales..."
-                                      disabled={mode === "update"}
-                                      {...field}
-                                      value={field.value || ""}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
+                              label="Notas de Observación"
+                              placeholder="Detalles adicionales..."
+                              control={form.control}
+                              disabled={mode === "update"}
                             />
                           </div>
                         </div>

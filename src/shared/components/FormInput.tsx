@@ -204,6 +204,8 @@ export function FormInput({
               : e.target.value;
             field.onChange(val);
           }
+
+          if (onChange) onChange(e);
         };
 
         return (
