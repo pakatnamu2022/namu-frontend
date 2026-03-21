@@ -89,7 +89,11 @@ export default function AddReceptionProductPage() {
         mode="create"
         onCancel={() => router(`${ABSOLUTE_ROUTE}/${supplierOrderId}`)}
         supplierOrderNumber={supplierOrder.order_number}
-        supplierOrderItems={supplierOrder.details}
+        supplierOrderItems={
+          pendingProducts && pendingProducts.length > 0
+            ? pendingProducts
+            : supplierOrder.details
+        }
         dateSupplierOrder={supplierOrder.order_date}
       />
     </FormWrapper>

@@ -4,7 +4,7 @@ import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import { SUPPLIER_ORDER } from "./supplierOrder.constants.ts";
 import {
   getSupplierOrderProps,
-  SupplierOrderDetailsRequest,
+  SupplierOrderDetailsResource,
   SupplierOrderRequest,
   SupplierOrderResource,
   SupplierOrderResponse,
@@ -53,8 +53,8 @@ export async function findSupplierOrderById(
 
 export async function pendingProductsById(
   id: number,
-): Promise<SupplierOrderDetailsRequest> {
-  const response = await api.get<SupplierOrderDetailsRequest>(
+): Promise<SupplierOrderDetailsResource[]> {
+  const response = await api.get<SupplierOrderDetailsResource[]>(
     `${ENDPOINT}/${id}/pending-products`,
   );
   return response.data;

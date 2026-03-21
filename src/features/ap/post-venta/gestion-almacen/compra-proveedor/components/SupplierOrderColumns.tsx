@@ -6,6 +6,10 @@ import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
+import {
+  RECEPCION_TYPE_LABELS,
+  RECEPCION_STATUS_COLORS,
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 
 export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
 
@@ -135,6 +139,21 @@ export const supplierOrderColumns = ({
             <CopyCell key={index} value={purchase_order} />
           ))}
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "reception_type",
+    header: "Recepción",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      if (!value) return "N/A";
+      const label = RECEPCION_TYPE_LABELS[value] ?? value;
+      const color = RECEPCION_STATUS_COLORS[label] ?? "gray";
+      return (
+        <Badge variant="outline" color={color} className="w-fit">
+          {label}
+        </Badge>
       );
     },
   },

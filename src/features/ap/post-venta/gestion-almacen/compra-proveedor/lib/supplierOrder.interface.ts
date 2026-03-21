@@ -45,6 +45,7 @@ export interface SupplierOrderResource {
   has_receptions: boolean;
   invoice_numbers: string[];
   oc_dyn_numbers: string[];
+  reception_type: "PENDING" | "PARTIAL" | "COMPLETE";
   status: boolean;
   supplier?: SuppliersResource;
   sede?: SedeResource;

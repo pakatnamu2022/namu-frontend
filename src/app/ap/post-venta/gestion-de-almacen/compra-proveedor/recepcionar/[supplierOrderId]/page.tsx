@@ -51,10 +51,7 @@ export default function ReceptionsProductsPage() {
 
   const { data, isLoading, refetch } = useAllReceptions({}, supplierOrderIdNum);
 
-  const hasCompleteReception = useMemo(
-    () => data?.some((r) => r.reception_type === "COMPLETE") ?? false,
-    [data],
-  );
+  const hasCompleteReception = supplierOrder?.reception_type === "COMPLETE";
 
   // Calcular el total de facturas de todas las recepciones
   const invoicesTotals = useMemo(() => {
