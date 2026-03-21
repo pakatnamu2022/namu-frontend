@@ -8,6 +8,7 @@ import {
   findSupplierOrderById,
   getAllSupplierOrder,
   getSupplierOrder,
+  pendingProductsById,
 } from "./supplierOrder.actions.ts";
 
 const { QUERY_KEY } = SUPPLIER_ORDER;
@@ -32,6 +33,14 @@ export const useSupplierOrderById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findSupplierOrderById(id),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const usePendingProductsById = (id: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "pending-products", id],
+    queryFn: () => pendingProductsById(id),
     refetchOnWindowFocus: false,
   });
 };

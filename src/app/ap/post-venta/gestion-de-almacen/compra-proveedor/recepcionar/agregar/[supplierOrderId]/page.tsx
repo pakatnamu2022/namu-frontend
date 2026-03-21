@@ -17,7 +17,10 @@ import { ReceptionSchema } from "@/features/ap/post-venta/gestion-almacen/recepc
 import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/components/ReceptionsProductsForm.tsx";
 import { RECEPTION } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.constants.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
-import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.hook.ts";
+import {
+  usePendingProductsById,
+  useSupplierOrderById,
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.hook.ts";
 import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 
 export default function AddReceptionProductPage() {
@@ -32,6 +35,9 @@ export default function AddReceptionProductPage() {
 
   const { data: supplierOrder, isLoading: isLoadingPurchaseOrder } =
     useSupplierOrderById(supplierOrderIdNum || 0);
+
+  const { data: pendingProducts, isLoading: isLoadingPendingProducts } =
+    usePendingProductsById(supplierOrderIdNum || 0);
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeReception,
@@ -49,12 +55,16 @@ export default function AddReceptionProductPage() {
     mutate(data);
   };
 
-  if (isLoadingPurchaseOrder) return <PageSkeleton />;
+  if (isLoadingPurchaseOrder || isLoadingPendingProducts)
+    return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
   if (!supplierOrder) return <NotFound />;
 
   const today = new Date();
+
+  console.log("supplierOrder.details", supplierOrder.details);
+  console.log("pendingProducts", pendingProducts);
 
   return (
     <FormWrapper>
@@ -79,7 +89,11 @@ export default function AddReceptionProductPage() {
         mode="create"
         onCancel={() => router(`${ABSOLUTE_ROUTE}/${supplierOrderId}`)}
         supplierOrderNumber={supplierOrder.order_number}
-        supplierOrderItems={supplierOrder.details}
+        supplierOrderItems={
+          pendingProducts && pendingProducts.length > 0
+            ? pendingProducts
+            : supplierOrder.details
+        }
         dateSupplierOrder={supplierOrder.order_date}
       />
     </FormWrapper>
