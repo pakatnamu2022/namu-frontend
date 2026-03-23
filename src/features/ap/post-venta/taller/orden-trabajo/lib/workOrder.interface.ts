@@ -199,3 +199,7 @@ export interface VehicleWorkOrderHistoryResponse {
   vehicle_vin: string;
   data: VehicleWorkOrderHistoryItem[];
 }
+
+export interface GenerateWorkOrderResponse {
+  message: string;
+}
