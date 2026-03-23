@@ -649,6 +649,7 @@ export const CustomersForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode == "update"}
           />
 
           <FormSelect
@@ -661,6 +662,7 @@ export const CustomersForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode == "update"}
           />
 
           <FormInput
@@ -707,6 +709,7 @@ export const CustomersForm = ({
                 </div>
               )
             }
+            disabled={mode == "update"}
           />
 
           {/* Campos para Persona Jurídica */}
@@ -727,7 +730,7 @@ export const CustomersForm = ({
                     </div>
                   }
                   placeholder="Ingrese razón social"
-                  disabled={shouldDisableMainFields}
+                  disabled={shouldDisableMainFields || mode == "update"}
                 />
               </div>
 
@@ -757,7 +760,7 @@ export const CustomersForm = ({
                 name="first_name"
                 label="Primer Nombre"
                 placeholder="Ingrese primer nombres"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <FormInput
@@ -765,7 +768,7 @@ export const CustomersForm = ({
                 name="middle_name"
                 label="Segundo Nombre"
                 placeholder="Ingrese segundo nombres"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <FormInput
@@ -773,7 +776,7 @@ export const CustomersForm = ({
                 name="paternal_surname"
                 label="Apellido Paterno"
                 placeholder="Apellido paterno"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <FormInput
@@ -781,7 +784,7 @@ export const CustomersForm = ({
                 name="maternal_surname"
                 label="Apellido Materno"
                 placeholder="Apellido materno"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <div className="col-span-1 md:col-span-2">
@@ -910,6 +913,7 @@ export const CustomersForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode === "update"}
           />
 
           <div className="col-span-1 md:col-span-2 lg:col-span-3">
@@ -918,7 +922,10 @@ export const CustomersForm = ({
               name="direction"
               label="Dirección"
               placeholder="Ingrese dirección"
-              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
+              disabled={
+                (shouldDisableMainFields && !isRucNatural && isJuridica) ||
+                mode === "update"
+              }
             />
           </div>
 
