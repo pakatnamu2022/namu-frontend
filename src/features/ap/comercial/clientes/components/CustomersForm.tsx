@@ -54,6 +54,11 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CUSTOMERS } from "../lib/customers.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { Badge } from "@/components/ui/badge";
+import {
+  NUM_DIGITS_CE,
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -167,16 +172,6 @@ export const CustomersForm = ({
     maritalStatusId === BUSINESS_PARTNERS.MARRIED_ID ||
     maritalStatusId === BUSINESS_PARTNERS.CO_OWNER_ID;
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
-  // Obtenemos los numeros de dígitos esperados para DNI y RUC
-  const selectedDocumentTypeDni = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
-  );
-  const selectedDocumentTypeRuc = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
-  );
-
-  const numDigitsDni = selectedDocumentTypeDni?.code;
-  const numDigitsRuc = selectedDocumentTypeRuc?.code;
 
   const selectedDocumentType = documentTypes.find(
     (type) => type.id.toString() === documentTypeId,
@@ -184,9 +179,15 @@ export const CustomersForm = ({
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
   const validationType = VALIDATABLE_DOCUMENT.TYPE_MAP[documentTypeId!] || null;
-  const expectedDigits = selectedDocumentType?.code
-    ? Number(selectedDocumentType.code)
-    : 0;
+
+  const DIGITS_MAP: Record<string, number> = {
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID]: NUM_DIGITS_DNI,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID]: NUM_DIGITS_RUC,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_CE_ID]: NUM_DIGITS_CE,
+    // si hay CE, agregar aquí
+  };
+  const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
+
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
 
@@ -205,7 +206,7 @@ export const CustomersForm = ({
 
   // Extraer DNI del RUC natural (10 + DNI + dígito verificador)
   const extractedDni =
-    isRucNatural && documentNumber?.length === Number(numDigitsRuc)
+    isRucNatural && documentNumber?.length === Number(NUM_DIGITS_RUC)
       ? documentNumber!.substring(2, 10)
       : documentNumber;
 
@@ -243,7 +244,9 @@ export const CustomersForm = ({
     error: conyugeDniError,
   } = useDniValidation(
     conyugeDni,
-    !isFirstLoad && !!conyugeDni && conyugeDni.length === Number(numDigitsDni),
+    !isFirstLoad &&
+      !!conyugeDni &&
+      conyugeDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
 
@@ -256,7 +259,7 @@ export const CustomersForm = ({
     isJuridica &&
       !!legalRepresentativeDni &&
       !isFirstLoad &&
-      legalRepresentativeDni.length === Number(numDigitsDni),
+      legalRepresentativeDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
 
@@ -268,7 +271,7 @@ export const CustomersForm = ({
     conductorDni,
     !isFirstLoad &&
       !!conductorDni &&
-      conductorDni.length === Number(numDigitsDni),
+      conductorDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
 

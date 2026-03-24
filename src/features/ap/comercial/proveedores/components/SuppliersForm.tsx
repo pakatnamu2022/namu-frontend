@@ -39,6 +39,12 @@ import {
   suppliersSchemaUpdate,
 } from "../lib/suppliers.schema";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import {
+  NUM_DIGITS_CE,
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface SuppliersFormProps {
   defaultValues: Partial<SuppliersSchema>;
@@ -66,7 +72,7 @@ export const SuppliersForm = ({
     },
     mode: "onChange",
   });
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const [companyStatus, setCompanyStatus] = useState("-");
   const [companyCondition, setCompanyCondition] = useState("-");
   const [initialDocumentNumber] = useState(defaultValues.num_doc);
@@ -89,10 +95,6 @@ export const SuppliersForm = ({
   const documentNumber = form.watch("num_doc");
   const typePersonWatch = form.watch("type_person_id");
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
-  const selectedDocumentTypeRuc = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
-  );
-  const numDigitsRuc = selectedDocumentTypeRuc?.code;
 
   const selectedDocumentType = documentTypes.find(
     (type) => type.id.toString() === documentTypeId,
@@ -100,9 +102,15 @@ export const SuppliersForm = ({
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
   const validationType = VALIDATABLE_DOCUMENT.TYPE_MAP[documentTypeId!] || null;
-  const expectedDigits = selectedDocumentType?.code
-    ? Number(selectedDocumentType.code)
-    : 0;
+  const DIGITS_MAP: Record<string, number> = {
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID]: NUM_DIGITS_DNI,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID]: NUM_DIGITS_RUC,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_CE_ID]: NUM_DIGITS_CE,
+    // si hay CE, agregar aquí
+  };
+
+  const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
+
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
 
@@ -121,7 +129,7 @@ export const SuppliersForm = ({
 
   // Extraer DNI del RUC natural (10 + DNI + dígito verificador)
   const extractedDni =
-    isRucNatural && documentNumber?.length === Number(numDigitsRuc)
+    isRucNatural && documentNumber?.length === Number(NUM_DIGITS_RUC)
       ? documentNumber!.substring(2, 10)
       : documentNumber;
 
@@ -187,7 +195,7 @@ export const SuppliersForm = ({
       return;
     }
 
-    if (typePersonWatch) {
+    if (typePersonWatch && mode === "create") {
       form.setValue("num_doc", "");
       form.setValue("first_name", "");
       form.setValue("paternal_surname", "");
@@ -414,8 +422,8 @@ export const SuppliersForm = ({
                 control={form.control}
                 name="num_doc"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 relative">
+                  <FormItem className="flex flex-col justify-between">
+                    <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground gap-2">
                       Núm. Documento
                       <DocumentValidationStatus
                         shouldValidate={shouldValidate}
@@ -424,18 +432,21 @@ export const SuppliersForm = ({
                         isValidating={isValidatingDocument}
                       />
                     </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder={
-                            selectedDocumentType
-                              ? `Ingrese ${expectedDigits} dígitos`
-                              : "Ingrese número"
-                          }
-                          {...field}
-                          maxLength={expectedDigits || undefined}
-                        />
+                    <div className="flex flex-col gap-2 items-center">
+                      <div className="relative w-full">
+                        <FormControl>
+                          <Input
+                            type="number"
+                            className="h-8 md:h-9 text-xs md:text-sm"
+                            placeholder={
+                              selectedDocumentType
+                                ? `Ingrese ${expectedDigits} dígitos`
+                                : "Ingrese número"
+                            }
+                            {...field}
+                            maxLength={expectedDigits || undefined}
+                          />
+                        </FormControl>
                         {/* Indicador de estado */}
                         {shouldValidate && documentNumber && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -452,7 +463,7 @@ export const SuppliersForm = ({
                           </div>
                         )}
                       </div>
-                    </FormControl>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -466,9 +477,11 @@ export const SuppliersForm = ({
                       control={form.control}
                       name="full_name"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col justify-between">
                           <div className="relative">
-                            <FormLabel>Razón Social</FormLabel>
+                            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground">
+                              Razón Social
+                            </FormLabel>
                             {/* Indicadores de Estado y Condición */}
                             {isJuridica &&
                               (companyStatus !== "-" ||
@@ -512,13 +525,18 @@ export const SuppliersForm = ({
                                 </div>
                               )}
                           </div>
-                          <FormControl>
-                            <Input
-                              placeholder="Ingrese razón social"
-                              {...field}
-                              disabled={shouldDisableMainFields}
-                            />
-                          </FormControl>
+                          <div className="flex flex-col gap-2 items-center">
+                            <div className="relative w-full">
+                              <FormControl>
+                                <Input
+                                  className="h-8 md:h-9 text-xs md:text-sm"
+                                  placeholder="Ingrese razón social"
+                                  {...field}
+                                  disabled={shouldDisableMainFields}
+                                />
+                              </FormControl>
+                            </div>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -537,95 +555,45 @@ export const SuppliersForm = ({
               {/* Campos para Persona Natural */}
               {!isJuridica && (
                 <>
-                  <FormField
-                    control={form.control}
+                  <FormInput
                     name="first_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Primer Nombre</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Ingrese primer nombres"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Primer Nombre"
+                    placeholder="Ingrese primer nombre"
+                    control={form.control}
+                    disabled={shouldDisableMainFields}
                   />
 
-                  <FormField
-                    control={form.control}
+                  <FormInput
                     name="middle_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Segundo Nombre</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Ingrese segundo nombres"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Segundo Nombre"
+                    placeholder="Ingrese segundo nombre"
+                    control={form.control}
+                    disabled={shouldDisableMainFields}
                   />
 
-                  <FormField
-                    control={form.control}
+                  <FormInput
                     name="paternal_surname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Apellido Paterno</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Apellido paterno"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Apellido Paterno"
+                    placeholder="Ingrese apellido paterno"
+                    control={form.control}
+                    disabled={shouldDisableMainFields}
                   />
 
-                  <FormField
-                    control={form.control}
+                  <FormInput
                     name="maternal_surname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Apellido Materno</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Apellido materno"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Apellido Materno"
+                    placeholder="Ingrese apellido materno"
+                    control={form.control}
+                    disabled={shouldDisableMainFields}
                   />
 
                   <div className="col-span-1 md:col-span-2">
-                    <FormField
-                      control={form.control}
+                    <FormInput
                       name="full_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Razón Social</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ingrese razón social"
-                              {...field}
-                              disabled={true}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      label="Nombre Completo"
+                      placeholder="Nombre completo se genera automáticamente"
+                      control={form.control}
+                      disabled={true}
                     />
                   </div>
                 </>
@@ -672,22 +640,12 @@ export const SuppliersForm = ({
               />
 
               <div className="col-span-1 md:col-span-2">
-                <FormField
-                  control={form.control}
+                <FormInput
                   name="direction"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dirección</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Ingrese dirección"
-                          {...field}
-                          disabled={shouldDisableMainFields && !isRucNatural}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Dirección"
+                  placeholder="Ingrese dirección"
+                  control={form.control}
+                  disabled={shouldDisableMainFields && !isRucNatural}
                 />
               </div>
             </div>
@@ -701,83 +659,41 @@ export const SuppliersForm = ({
           color="red"
           cols={{ sm: 2, md: 3 }}
         >
-          <FormField
-            control={form.control}
+          <FormInput
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Principal</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="email@ejemplo.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email Principal"
+            placeholder="email@ejemplo.com"
+            control={form.control}
+            type="email"
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono Principal</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingrese teléfono" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono Principal"
+            placeholder="Ingrese teléfono"
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="secondary_phone_contact_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contacto</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre del contacto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Contacto"
+            placeholder="Nombre del contacto"
+            control={form.control}
           />
 
-          {/* Contacto adicional */}
-          <FormField
-            control={form.control}
+          <FormInput
             name="secondary_email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Opcional</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="email2@ejemplo.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email Opcional"
+            placeholder="email2@ejemplo.com"
+            control={form.control}
+            type="email"
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="secondary_phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono Opcional</FormLabel>
-                <FormControl>
-                  <Input placeholder="Teléfono 2" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono Opcional"
+            placeholder="Teléfono 2"
+            control={form.control}
           />
         </GroupFormSection>
 
@@ -805,9 +721,7 @@ export const SuppliersForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting
-              ? "Guardando..."
-              : `Guardar ${isJuridica ? "Empresa" : "Cliente"}`}
+            {isSubmitting ? "Guardando..." : "Guardar Proveedor"}
           </Button>
         </div>
       </form>

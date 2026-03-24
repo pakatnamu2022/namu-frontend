@@ -26,6 +26,10 @@ export const documentTypeColumns = ({
   permissions,
 }: Props): DocumentTypeColumns[] => [
   {
+    accessorKey: "code",
+    header: "Cód. Dynamic",
+  },
+  {
     accessorKey: "description",
     header: "Descripción",
     cell: ({ getValue }) => {
@@ -34,17 +38,13 @@ export const documentTypeColumns = ({
     },
   },
   {
-    accessorKey: "code",
-    header: "Num. Dígitos",
-  },
-  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
         <Badge
-          color={value ? "default" : "secondary"}                      
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}
