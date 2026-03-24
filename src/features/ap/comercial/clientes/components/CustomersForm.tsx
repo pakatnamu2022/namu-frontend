@@ -1084,6 +1084,7 @@ export const CustomersForm = ({
             name="phone"
             label="Teléfono Principal"
             placeholder="Ingrese teléfono"
+            maxLength={9}
           />
 
           <FormInput
@@ -1106,6 +1107,7 @@ export const CustomersForm = ({
             name="secondary_phone"
             label="Teléfono Opcional"
             placeholder="Teléfono 2"
+            maxLength={9}
           />
         </GroupFormSection>
 

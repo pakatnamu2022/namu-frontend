@@ -457,6 +457,13 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [copyClientToHolder, opportunityWatch, opportunity]);
 
+  // Effect para setear sede_id automáticamente cuando viene la prop opportunity con sede desde el lead
+  useEffect(() => {
+    if (opportunity?.lead?.sede_id) {
+      form.setValue("sede_id", opportunity.lead.sede_id.toString());
+    }
+  }, [opportunity]);
+
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
     // Si viene la prop opportunity directamente, usar su family_id
@@ -559,7 +566,11 @@ export const PurchaseRequestQuoteForm = ({
   // Para USD usa el tipo de cambio oficial SBS del día; para otras monedas usa current_exchange_rate
   const getExchangeRate = (currencyId: number): number => {
     if (usdCurrencyId && currencyId === usdCurrencyId) {
-      return usdExchangeRateData?.rate ?? currencyTypes.find((c) => c.id === currencyId)?.current_exchange_rate ?? 1;
+      return (
+        usdExchangeRateData?.rate ??
+        currencyTypes.find((c) => c.id === currencyId)?.current_exchange_rate ??
+        1
+      );
     }
     const currency = currencyTypes.find((c) => c.id === currencyId);
     return currency?.current_exchange_rate ?? 1;
@@ -615,7 +626,8 @@ export const PurchaseRequestQuoteForm = ({
           accessory.type_operation_id === 794 ? usdId : solesId;
 
         return (
-          total + convertAmount(accessoryPrice, accessoryCurrencyId, vehicleCurrencyId)
+          total +
+          convertAmount(accessoryPrice, accessoryCurrencyId, vehicleCurrencyId)
         );
       }
       return total;
@@ -740,17 +752,26 @@ export const PurchaseRequestQuoteForm = ({
               color="blue"
               cols={{ sm: 1, md: 2 }}
             >
-              <FormSelect
-                name="sede_id"
-                label="Sede"
-                placeholder="Selecciona una sede"
-                options={mySedes.map((item) => ({
-                  label: item.abreviatura,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-              />
+              {opportunity?.lead?.sede_id ? (
+                <FormInput
+                  name="sede_disabled"
+                  label="Sede"
+                  value={opportunity.lead.sede}
+                  readOnly
+                />
+              ) : (
+                <FormSelect
+                  name="sede_id"
+                  label="Sede"
+                  placeholder="Selecciona una sede"
+                  options={mySedes.map((item) => ({
+                    label: item.abreviatura,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                />
+              )}
 
               <FormSelect
                 name="type_document"
@@ -1079,7 +1100,9 @@ export const PurchaseRequestQuoteForm = ({
               onAccessoriesChange={setAccessoriesRows}
               initialData={initialAccessories}
               canCreateApprovedAccessory={canAssign}
-              invoiceCurrencyId={invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined}
+              invoiceCurrencyId={
+                invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined
+              }
               getExchangeRate={getExchangeRate}
             />
           </div>
