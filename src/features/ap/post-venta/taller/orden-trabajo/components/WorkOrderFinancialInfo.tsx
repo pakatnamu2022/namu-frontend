@@ -12,6 +12,8 @@ interface WorkOrderFinancialInfoProps {
   advances: ElectronicDocumentResource[];
   currencySymbol: string;
   porcentaje_de_igv: number;
+  isInvalidWithQuote?: boolean;
+  finalAmount?: number;
 }
 
 export function WorkOrderFinancialInfo({
@@ -20,6 +22,8 @@ export function WorkOrderFinancialInfo({
   advances,
   currencySymbol,
   porcentaje_de_igv,
+  isInvalidWithQuote = false,
+  finalAmount,
 }: WorkOrderFinancialInfoProps) {
   // Calcular subtotal de la orden de trabajo desde labours y parts (sin IGV)
   const laboursTotal = labours.reduce(
@@ -34,7 +38,9 @@ export function WorkOrderFinancialInfo({
 
   const subtotal = laboursTotal + partsTotal;
   const igvAmount = subtotal * (porcentaje_de_igv / 100);
-  const workOrderTotal = subtotal + igvAmount;
+  // Si la cotización es inválida, usar final_amount de la OT directamente
+  const workOrderTotal =
+    isInvalidWithQuote && finalAmount ? finalAmount : subtotal + igvAmount;
 
   // Calcular total de TODOS los pagos previos
   const totalAdvances = advances.reduce((sum, advance) => {

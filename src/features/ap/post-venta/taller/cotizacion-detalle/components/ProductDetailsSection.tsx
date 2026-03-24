@@ -96,6 +96,7 @@ interface ProductDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
+    canDelete: boolean;
   };
 }
 
@@ -960,7 +961,7 @@ export default function ProductDetailsSection({
                         </span>
                       </div>
 
-                      <div className="col-span-2 flex justify-end">
+                      <div className="col-span-2 flex justify-end gap-1">
                         {partialRequest ? (
                           <div className="flex items-center gap-1 flex-wrap">
                             <span className="text-xs font-semibold">
@@ -1064,6 +1065,20 @@ export default function ProductDetailsSection({
                               <Tag className="size-4" />
                             </Button>
                           )
+                        )}
+
+                        {/* Botón Eliminar */}
+                        {permissions.canDelete && (
+                          <Button
+                            variant="ghost"
+                            color="red"
+                            size="icon"
+                            className="size-7 border"
+                            onClick={() => onDelete(detail.id)}
+                            tooltip="Eliminar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         )}
                       </div>
                     </div>

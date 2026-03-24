@@ -44,7 +44,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   // Obtener resumen de pago del grupo seleccionado
   const { data: paymentSummary, isLoading: isLoadingPaymentSummary } =
-    useGetPaymentSummary(workOrderId, selectedGroupNumber || undefined);
+    useGetPaymentSummary(workOrderId, undefined); //selectedGroupNumber || undefined
 
   // Obtener todos los conceptos SUNAT necesarios en una sola consulta
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
@@ -195,6 +195,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     },
   });
 
+  const isInvalidWithQuote = workOrder?.is_invalid_with_quote ?? false;
+
   const handleCreateInvoice = () => {
     if (!selectedGroupNumber) {
       errorToast("Selecciona un grupo primero");
@@ -204,13 +206,18 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     // Setear moneda por defecto (PEN)
     const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
 
+    // Si is_invalid_with_quote, forzar anticipo y usar tipo de transacción ANTICIPOS
+    const isAdvance = isInvalidWithQuote ? true : false;
+    const transactionTypeId = isInvalidWithQuote
+      ? SUNAT_TRANSACTIONS_ID.ANTICIPOS.toString()
+      : SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString();
+
     form.reset({
       sunat_concept_document_type_id: "",
       serie: "",
-      sunat_concept_transaction_type_id:
-        SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString(),
+      sunat_concept_transaction_type_id: transactionTypeId,
       area_id: AREA_TALLER.toString(),
-      is_advance_payment: false,
+      is_advance_payment: isAdvance,
       client_id: workOrder?.invoice_to_client?.id?.toString() || "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       sunat_concept_currency_id: penCurrency?.id.toString() || "",
@@ -232,15 +239,37 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   const handleSubmitInvoice = (data: ElectronicDocumentSchemaType) => {
     // Validar que el monto del anticipo no sea mayor al total o saldo pendiente
-    if (data.is_advance_payment && paymentSummary) {
-      // Redondear a 2 decimales para evitar problemas de precisión de punto flotante
+    if (data.is_advance_payment) {
       const totalAnticipo = Number(data.total.toFixed(2));
-      const totalOrdenTrabajo = Number(
-        paymentSummary.payment_summary.total_amount.toFixed(2),
-      );
-      const saldoPendiente = Number(
-        paymentSummary.payment_summary.remaining_balance.toFixed(2),
-      );
+
+      let totalOrdenTrabajo: number;
+      let saldoPendiente: number;
+
+      if (isInvalidWithQuote && workOrder) {
+        // Cuando la cotización es inválida, usar los montos directamente de la orden de trabajo
+        totalOrdenTrabajo = Number(workOrder.final_amount.toFixed(2));
+        const totalFacturado = workOrder.advances.reduce(
+          (sum, adv) => sum + Number(adv.total),
+          0,
+        );
+        saldoPendiente = Number(
+          (totalOrdenTrabajo - totalFacturado).toFixed(2),
+        );
+      } else if (paymentSummary) {
+        totalOrdenTrabajo = Number(
+          paymentSummary.payment_summary.total_amount.toFixed(2),
+        );
+        saldoPendiente = Number(
+          paymentSummary.payment_summary.remaining_balance.toFixed(2),
+        );
+      } else {
+        // Sin datos de referencia, no se puede validar
+        createInvoiceMutation.mutate({
+          ...data,
+          work_order_id: String(workOrderId),
+        });
+        return;
+      }
 
       // Validar que el anticipo no sea mayor al total de la orden
       if (totalAnticipo > totalOrdenTrabajo) {
@@ -283,14 +312,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   // Obtener facturas de adelanto (advances) del resumen de pago
   const advances = workOrder?.advances || [];
-
-  // Calcular si ya se pagó el monto total
-  const totalInvoiced = advances.reduce(
-    (sum, advance) => sum + Number(advance.total),
-    0,
-  );
-  const totalAmount = paymentSummary?.payment_summary.total_amount || 0;
-  const isFullyPaid = totalAmount > 0 && totalInvoiced >= totalAmount;
 
   return (
     <div className="space-y-6">
@@ -408,6 +429,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
               authorizedSeries={authorizedSeries}
               checkbooks={checkbooks}
               workOrder={workOrder!}
+              isInvalidWithQuote={isInvalidWithQuote}
             />
           ) : (
             /* Facturas del grupo */
@@ -427,7 +449,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                       </Badge>
                     )}
                   </div>
-                  {!isFullyPaid && (
+                  {!workOrder?.is_invoiced && (
                     <Button
                       onClick={handleCreateInvoice}
                       size="sm"

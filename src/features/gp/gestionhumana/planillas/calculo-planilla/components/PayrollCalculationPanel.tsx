@@ -49,13 +49,14 @@ export default function PayrollCalculationPanel({
   } = usePayrollCalculationSummary(activeView === "totals" ? period.id : null);
 
   const handleChangeView = (view: ActiveView) => {
-    if (view === activeView && view === "totals") refetchSummary();
     setActiveView(view);
+    if (view === "totals") refetchSummary();
   };
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: [PAYROLL_PERIOD.QUERY_KEY] });
-    if (activeView === "totals") refetchSummary();
+    setActiveView("totals");
+    refetchSummary();
   };
 
   const summary = summaryResponse?.summary ?? [];

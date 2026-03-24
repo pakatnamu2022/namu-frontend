@@ -7,12 +7,14 @@ import {
   Download,
   Loader2,
   BookMarked,
+  CarFront,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
+import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
 
 interface WorkOrderActionCellProps {
   row: WorkOrderResource;
@@ -39,9 +41,11 @@ export function WorkOrderActionCell({
   onInspect,
 }: WorkOrderActionCellProps) {
   const [isDownloading, setIsDownloading] = useState(false);
-  const { id, is_inspection_completed, status } = row;
+  const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
+  const { id, is_inspection_completed, status, is_delivery } = row;
   const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
   const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
+  const isDelivery = is_delivery;
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
@@ -114,6 +118,18 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
+      {isClosed && !isDelivery && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Entrega de Vehículo"
+          onClick={() => setIsDeliveryOpen(true)}
+        >
+          <CarFront className="size-5" />
+        </Button>
+      )}
+
       {!isClosed && (
         <Button
           variant="outline"
@@ -125,6 +141,12 @@ export function WorkOrderActionCell({
           <BookMarked className="size-5" />
         </Button>
       )}
+
+      <WorkOrderDeliverySheet
+        open={isDeliveryOpen}
+        onClose={() => setIsDeliveryOpen(false)}
+        workOrderId={id}
+      />
     </div>
   );
 }

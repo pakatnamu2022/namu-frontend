@@ -536,6 +536,32 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                               <p className="font-medium">
                                 {detail.description}
                               </p>
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold">
+                                  {detail.product?.code || "-"}
+                                </span>
+                                {detail.product?.code && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 hover:bg-blue-100"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        detail.product.code,
+                                        detail.id,
+                                      )
+                                    }
+                                    tooltip="Copiar código"
+                                  >
+                                    {copiedPartId === detail.id ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3 text-primary" />
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell className="text-center">
                               {Number(detail.quantity).toFixed(2)}

@@ -3,8 +3,10 @@ import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { StickyNote } from "lucide-react";
 import { WorkOrderActionCell } from "./WorkOrderActionCell";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
+import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -176,15 +178,49 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge color={value ? "default" : "secondary"}>
+        <Badge variant="outline" color={value ? "green" : "gray"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
     },
   },
   {
+    accessorKey: "is_delivery",
+    header: "Entregado",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={value ? "green" : "gray"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "delivery_by_name",
+    header: "Entregado Por",
+  },
+  {
     accessorKey: "status.description",
     header: "Estado",
+    cell: ({ getValue, row }) => {
+      const description = getValue() as string;
+      const internalNote = row.original.internal_note;
+      const color = WORK_ORDER_STATUS_COLORS[description] ?? "gray";
+      return (
+        <div className="flex flex-col gap-1">
+          <Badge variant="outline" color={color}>
+            {description}
+          </Badge>
+          {internalNote && (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground font-medium pl-1">
+              <StickyNote className="size-3" />
+              {internalNote.number}
+            </span>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: "actions",

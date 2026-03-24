@@ -1,19 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings, ClipboardCheck } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { errorToast, successToast } from "@/core/core.function";
+import { Send } from "lucide-react";
 import { OrderQuotationResource } from "../lib/proforma.interface";
-import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ProformaActionsCell } from "./ProformaActionsCell";
 
 export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 
@@ -22,6 +13,7 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onApprove: (id: number) => void;
+  onSendNotification: (id: number) => void;
   permissions: {
     canApprove: boolean;
     canManage: boolean;
@@ -30,11 +22,32 @@ interface Props {
   };
 }
 
+const getQuotationStatus = (
+  quotationDate: string | null | undefined,
+  isTake: boolean,
+): "Aperturada" | "Vencida" | "Aceptada" => {
+  if (!quotationDate) return "Aperturada";
+
+  const createdAt = new Date(quotationDate);
+  if (Number.isNaN(createdAt.getTime())) return "Aperturada";
+
+  const expirationByRule = new Date(createdAt);
+  expirationByRule.setDate(expirationByRule.getDate() + 15);
+
+  const today = new Date();
+  const expired = today > expirationByRule;
+
+  if (expired && isTake) return "Aceptada";
+  if (expired) return "Vencida";
+  return "Aperturada";
+};
+
 export const orderQuotationColumns = ({
   onUpdate,
   onManage,
   onDelete,
   onApprove,
+  onSendNotification,
   permissions,
 }: Props): OrderQuotationColumns[] => [
   {
@@ -101,8 +114,33 @@ export const orderQuotationColumns = ({
     header: "Creado por",
   },
   {
+    accessorKey: "emails_sent_count",
+    header: "Emails enviados",
+    cell: ({ row }) => {
+      const sentCount = Number(
+        (row.getValue("emails_sent_count") as
+          | number
+          | string
+          | null
+          | undefined) ?? 0,
+      );
+      const hasSent = sentCount > 0;
+
+      return (
+        <Badge
+          variant="outline"
+          color={hasSent ? "sky" : "gray"}
+          className="inline-flex items-center gap-1"
+        >
+          <Send className="size-3" />
+          {sentCount} {sentCount === 1 ? "envío" : "envíos"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "is_take",
-    header: "Tomada",
+    header: "Aceptada",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
@@ -126,7 +164,7 @@ export const orderQuotationColumns = ({
   },
   {
     accessorKey: "chief_approval_by",
-    header: "Aprobado Jefe",
+    header: "Aprob. Jefe",
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return (
@@ -138,7 +176,7 @@ export const orderQuotationColumns = ({
   },
   {
     accessorKey: "manager_approval_by",
-    header: "Aprobado Gerente",
+    header: "Aprob. Gerente",
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return (
@@ -149,93 +187,41 @@ export const orderQuotationColumns = ({
     },
   },
   {
-    id: "actions",
-    header: "Acciones",
+    id: "status",
+    header: "Estado",
     cell: ({ row }) => {
-      const {
-        id,
-        chief_approval_by,
-        manager_approval_by,
-        has_management_discount,
-      } = row.original;
-      const isFullyApproved = !!chief_approval_by && !!manager_approval_by;
-      const isLocked = isFullyApproved || !!has_management_discount;
-
-      const handleDownloadPdf = async (withCode: boolean) => {
-        try {
-          await downloadOrderQuotationPdf(id, withCode);
-          successToast("PDF descargado correctamente");
-        } catch {
-          errorToast("Error al descargar el PDF");
-        }
-      };
+      const isTake = !!(row.getValue("is_take") as boolean | undefined);
+      const status = getQuotationStatus(row.original.quotation_date, isTake);
 
       return (
-        <div className="flex items-center gap-2">
-          {permissions.canManage && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onManage(id)}
-              tooltip="Gestionar"
-            >
-              <Settings className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canApprove && !isFullyApproved && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onApprove(id)}
-              tooltip="Aprobar"
-            >
-              <ClipboardCheck className="size-5" />
-            </Button>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Descargar PDF"
-              >
-                <Download className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleDownloadPdf(true)}>
-                <Download className="size-4 mr-2" />
-                PDF con código
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDownloadPdf(false)}>
-                <Download className="size-4 mr-2" />
-                PDF sin código
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {permissions.canUpdate && !isLocked && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canDelete && !isLocked && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
-        </div>
+        <Badge
+          variant="outline"
+          color={
+            status === "Aceptada"
+              ? "green"
+              : status === "Vencida"
+                ? "red"
+                : "blue"
+          }
+        >
+          {status}
+        </Badge>
       );
     },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => (
+      <ProformaActionsCell
+        row={row.original}
+        permissions={permissions}
+        onManage={onManage}
+        onSendNotification={onSendNotification}
+        onApprove={onApprove}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+      />
+    ),
   },
 ];

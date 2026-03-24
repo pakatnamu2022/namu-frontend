@@ -19,26 +19,42 @@ jobs:
         timeout: 30s
         command_timeout: 15m
         script: |
-          cd /var/www/html/namu-frontend
-          
-          echo "📥 Pulling latest changes..."
-          git pull origin main
-          
-          echo "🔧 Loading Node (nvm)..."
-          export NVM_DIR="$HOME/.nvm"
-          source "$NVM_DIR/nvm.sh"
-          nvm use 22
-          
-          echo "📦 Installing dependencies..."
-          npm install
-          
-          echo "🏗️ Building application..."
-          if ! npm run build; then
-            echo "❌ BUILD FAILED - Deploy stopped"
-            exit 1
-          fi
-          
-          echo "🔄 Restarting PM2..."
-          pm2 restart namu-frontend
-          
-          echo "✅ Deploy completed successfully!"
+          deploy_app() {
+            local DIR=$1
+            local PM2_NAME=$2
+
+            echo ""
+            echo "========================================"
+            echo "🚀 Deploying: $PM2_NAME"
+            echo "========================================"
+
+            cd /var/www/html/$DIR
+
+            echo "📥 Pulling latest changes..."
+            git pull origin main
+
+            echo "🔧 Loading Node (nvm)..."
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            nvm use 22
+
+            echo "📦 Installing dependencies..."
+            npm install
+
+            echo "🏗️ Building application..."
+            if ! npm run build; then
+              echo "❌ BUILD FAILED on $PM2_NAME - Deploy stopped"
+              exit 1
+            fi
+
+            echo "🔄 Restarting PM2: $PM2_NAME..."
+            pm2 restart $PM2_NAME
+
+            echo "✅ $PM2_NAME deployed successfully!"
+          }
+
+          deploy_app "namu-frontend" "namu-frontend"
+          deploy_app "namu-frontend-test" "namu-frontend-test"
+
+          echo ""
+          echo "🎉 All deployments completed successfully!"

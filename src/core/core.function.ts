@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import { ACTIONS, ACTIONS_NAMES, IGV } from "./core.constants";
 import type { Action, ModelInterface } from "./core.interface";
-import { format, parseISO, isValid } from "date-fns";
+import { format, parseISO, isValid, parse } from "date-fns";
 import { es } from "date-fns/locale";
 
 export const successToast = (
@@ -218,7 +218,27 @@ export const formatDate = (
   if (!date) return "-";
 
   try {
-    const parsedDate = typeof date === "string" ? parseISO(date) : date;
+    const parsedDate =
+      typeof date === "string"
+        ? (() => {
+            const normalizedDate = date.trim();
+            const isoDate = normalizedDate.includes(" ")
+              ? normalizedDate.replace(" ", "T")
+              : normalizedDate;
+
+            const parsedIsoDate = parseISO(isoDate);
+            if (isValid(parsedIsoDate)) return parsedIsoDate;
+
+            const parsedDateTime = parse(
+              normalizedDate,
+              "yyyy-MM-dd HH:mm:ss",
+              new Date(),
+            );
+            if (isValid(parsedDateTime)) return parsedDateTime;
+
+            return parse(normalizedDate, "yyyy-MM-dd", new Date());
+          })()
+        : date;
 
     if (!isValid(parsedDate)) return "-";
 

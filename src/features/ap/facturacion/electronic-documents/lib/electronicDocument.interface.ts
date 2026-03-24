@@ -6,6 +6,7 @@ import {
 } from "../../../comercial/vehiculos/lib/vehicles.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { AreaType } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
 
 export interface ExchangeRateResource {
   id: number;
@@ -118,6 +119,7 @@ export interface ElectronicDocumentResource {
   updated_by?: number;
   card_last4: string;
   internal_note: string;
+  consolidation_type: "work_orders" | "simple";
   document_type?: SunatConceptsResource;
   transaction_type?: SunatConceptsResource;
   identity_document_type?: SunatConceptsResource;
@@ -237,6 +239,43 @@ export interface EventHistoryResponse {
   status: string;
   error?: string;
   proceso_estado?: number;
+}
+
+export interface InternalNote {
+  id: number;
+  number: string;
+  status: string;
+  created_date: string;
+  closed_date: string | null;
+  work_order: WorkOrderResource;
+}
+
+export interface InvoiceWorkOrdersSummary {
+  total_internal_notes: number;
+  total_work_orders: number;
+  total_amount: string;
+}
+
+export interface InvoiceWorkOrdersInvoice {
+  id: number;
+  full_number: string;
+  serie: string;
+  numero: number;
+  document_type: string;
+  client_name: string;
+  client_document: string;
+  emission_date: string;
+  due_date: string | null;
+  currency: string;
+  total: string;
+  status: string;
+  consolidation_type: string;
+}
+
+export interface InvoiceWithWorkOrdersResponse {
+  invoice: InvoiceWorkOrdersInvoice;
+  internal_notes: InternalNote[];
+  summary: InvoiceWorkOrdersSummary;
 }
 
 export interface MigrationAllResponse {

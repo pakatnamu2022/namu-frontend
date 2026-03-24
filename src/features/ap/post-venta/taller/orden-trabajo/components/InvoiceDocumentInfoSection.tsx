@@ -22,6 +22,7 @@ interface InvoiceDocumentInfoSectionProps {
   authorizedSeries: AssignSalesSeriesResource[];
   defaultCustomer?: CustomersResource;
   isAdvancePayment: boolean;
+  isInvalidWithQuote?: boolean;
 }
 
 export function InvoiceDocumentInfoSection({
@@ -32,6 +33,7 @@ export function InvoiceDocumentInfoSection({
   authorizedSeries,
   defaultCustomer,
   isAdvancePayment,
+  isInvalidWithQuote = false,
 }: InvoiceDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -186,10 +188,13 @@ export function InvoiceDocumentInfoSection({
         label="Tipo de Operación"
         text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
         description={
-          isAdvancePayment
-            ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-            : "Tipo de operación: Venta Interna (código 01)"
+          isInvalidWithQuote
+            ? "Solo se permiten anticipos (cotización con diferencias)"
+            : isAdvancePayment
+              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+              : "Tipo de operación: Venta Interna (código 01)"
         }
+        disabled={isInvalidWithQuote}
       />
 
       <FormSelect

@@ -18,8 +18,8 @@ import { VehicleInspectionForm } from "@/features/ap/post-venta/taller/inspeccio
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
-import { Card } from "@/components/ui/card";
-import { Car, Wrench } from "lucide-react";
+import { DataCard } from "@/components/DataCard";
+import { Car, FileText, Gauge, Wrench } from "lucide-react";
 
 export default function VehicleInspectionPage() {
   const { workOrderId } = useParams();
@@ -147,9 +147,7 @@ export default function VehicleInspectionPage() {
     // Daños y otros campos
     formData.append(
       "inspection_date",
-      data.inspection_date instanceof Date
-        ? data.inspection_date.toISOString()
-        : "",
+      data.inspection_date ? data.inspection_date : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
@@ -244,12 +242,43 @@ export default function VehicleInspectionPage() {
     paper_floor: false,
     washed: false,
     general_observations: "",
-    inspection_date: getCurrentDate(),
+    inspection_date: String(getCurrentDate()),
     fuel_level: workOrder.fuel_level || "",
     oil_level: "",
     mileage: workOrder.mileage ? Number(workOrder.mileage) : undefined,
     damages: [],
   };
+
+  const workOrderSections = (workOrder.items || []).map((item, index) => ({
+    key: `work-item-${item.id ?? index}`,
+    title: `Trabajo`,
+    icon: Wrench,
+    columns: 3 as const,
+    fields: [
+      {
+        key: `planning-${item.id ?? index}`,
+        label: "Planificación",
+        icon: Wrench,
+        value: item.type_planning_name || "—",
+      },
+      {
+        key: `operation-${item.id ?? index}`,
+        label: "Operación",
+        icon: Wrench,
+        value: item.type_operation_name || "—",
+      },
+      ...(item.description
+        ? [
+            {
+              key: `description-${item.id ?? index}`,
+              label: "Detalle",
+              icon: FileText,
+              value: item.description,
+            },
+          ]
+        : []),
+    ],
+  }));
 
   return (
     <FormWrapper>
@@ -260,80 +289,39 @@ export default function VehicleInspectionPage() {
       />
 
       {/* Información de la Orden de Trabajo */}
-      <Card className="p-4 mb-6 gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <div className="flex items-center gap-2 mb-3">
-          <Car className="h-5 w-5 text-primary" />
-          <h4 className="font-semibold text-gray-800">
-            Información de la Orden de Trabajo
-          </h4>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div>
-            <p className="text-xs text-gray-500">Correlativo</p>
-            <p className="font-semibold text-sm">{workOrder.correlative}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Placa</p>
-            <p className="font-semibold text-sm">
-              {workOrder.vehicle_plate || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">VIN</p>
-            <p className="font-semibold text-sm">
-              {workOrder.vehicle_vin || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Kilometraje</p>
-            <p className="font-semibold text-sm">
-              {workOrder.mileage ? `${workOrder.mileage} km` : "N/A"}
-            </p>
-          </div>
-        </div>
-
-        {/* Trabajo a Realizar */}
-        {workOrder.items && workOrder.items.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-              <Wrench className="h-5 w-5 text-primary" />
-              <h5 className="font-semibold text-gray-800">
-                Trabajo a Realizar
-              </h5>
-            </div>
-            <div className="space-y-2">
-              {workOrder.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3 bg-white rounded-lg border border-blue-100"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
-                    <div>
-                      <span className="text-xs font-medium text-gray-500">
-                        Planificación:
-                      </span>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {item.type_planning_name}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-xs font-medium text-gray-500">
-                        Operación:
-                      </span>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {item.type_operation_name}
-                      </p>
-                    </div>
-                  </div>
-                  {item.description && (
-                    <p className="text-sm text-gray-600">{item.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </Card>
+      <div className="mb-6">
+        <DataCard
+          title="INFORMACIÓN DE LA ORDEN DE TRABAJO"
+          columns={4}
+          fields={[
+            {
+              key: "correlative",
+              label: "Correlativo",
+              icon: Car,
+              value: workOrder.correlative || "—",
+            },
+            {
+              key: "plate",
+              label: "Placa",
+              icon: Car,
+              value: workOrder.vehicle_plate || "—",
+            },
+            {
+              key: "vin",
+              label: "VIN",
+              icon: FileText,
+              value: workOrder.vehicle_vin || "—",
+            },
+            {
+              key: "mileage",
+              label: "Kilometraje",
+              icon: Gauge,
+              value: workOrder.mileage ? `${workOrder.mileage} km` : "—",
+            },
+          ]}
+          sections={workOrderSections}
+        />
+      </div>
 
       <VehicleInspectionForm
         defaultValues={defaultValues}
@@ -341,6 +329,9 @@ export default function VehicleInspectionPage() {
         isSubmitting={isCreating}
         mode="create"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
+        dateOrderWork={
+          workOrder.opening_date ? new Date(workOrder.opening_date) : undefined
+        }
       />
     </FormWrapper>
   );

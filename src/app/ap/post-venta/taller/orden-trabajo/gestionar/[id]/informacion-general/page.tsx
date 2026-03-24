@@ -23,6 +23,7 @@ import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { useParams, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { formatDate, formatDateTime } from "@/core/core.function";
 
 export default function GeneralInformationPage() {
   const params = useParams();
@@ -390,9 +391,7 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Fecha de Apertura</p>
                 <p className="font-semibold">
                   {workOrder.opening_date
-                    ? new Date(workOrder.opening_date).toLocaleDateString(
-                        "es-PE",
-                      )
+                    ? formatDate(workOrder.opening_date)
                     : "N/A"}
                 </p>
               </div>
@@ -405,9 +404,7 @@ export default function GeneralInformationPage() {
                 </p>
                 <p className="font-semibold">
                   {workOrder.estimated_delivery_date
-                    ? new Date(
-                        workOrder.estimated_delivery_date,
-                      ).toLocaleDateString("es-PE")
+                    ? formatDateTime(workOrder.estimated_delivery_date)
                     : "N/A"}
                 </p>
               </div>
@@ -418,9 +415,7 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Fecha Real de Entrega</p>
                 <p className="font-semibold">
                   {workOrder.actual_delivery_date
-                    ? new Date(
-                        workOrder.actual_delivery_date,
-                      ).toLocaleDateString("es-PE")
+                    ? formatDate(workOrder.actual_delivery_date)
                     : "- / - / -"}
                 </p>
               </div>
@@ -431,9 +426,7 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Fecha de Diagnóstico</p>
                 <p className="font-semibold">
                   {workOrder.diagnosis_date
-                    ? new Date(workOrder.diagnosis_date).toLocaleDateString(
-                        "es-PE",
-                      )
+                    ? formatDate(workOrder.diagnosis_date)
                     : "N/A"}
                 </p>
               </div>
@@ -506,9 +499,9 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Recepción</p>
                   <p className="font-semibold">
-                    {new Date(
+                    {formatDateTime(
                       workOrder.vehicle_inspection.inspection_date,
-                    ).toLocaleDateString("es-PE")}
+                    )}
                   </p>
                 </div>
               </div>
@@ -744,12 +737,12 @@ export default function GeneralInformationPage() {
               </Badge>
             </div>
 
-            {/* Anticipos */}
+            {/* Facturas */}
             {workOrder.advances && workOrder.advances.length > 0 ? (
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                   <CircleDollarSign className="h-4 w-4" />
-                  Anticipos ({workOrder.advances.length})
+                  Facturas ({workOrder.advances.length})
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
@@ -797,10 +790,10 @@ export default function GeneralInformationPage() {
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                   <CircleDollarSign className="h-4 w-4" />
-                  Anticipos
+                  Facturas
                 </h4>
                 <p className="text-sm text-gray-500 italic">
-                  Sin anticipos registrados.
+                  Sin facturas registradas.
                 </p>
               </div>
             )}

@@ -35,6 +35,7 @@ interface InvoiceFormProps {
   authorizedSeries: AssignSalesSeriesResource[];
   checkbooks: ApBankResource[];
   workOrder: WorkOrderResource;
+  isInvalidWithQuote?: boolean;
 }
 
 export default function InvoiceForm({
@@ -50,6 +51,7 @@ export default function InvoiceForm({
   authorizedSeries,
   checkbooks,
   workOrder,
+  isInvalidWithQuote = false,
 }: InvoiceFormProps) {
   // Cliente por defecto desde la orden de trabajo y otros datos necesarios
   const defaultCustomer = workOrder.invoice_to_client;
@@ -59,6 +61,7 @@ export default function InvoiceForm({
 
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
+  const lastLoadedIsInvalidWithQuote = useRef<boolean | null>(null);
   const itemsAlreadyLoaded = useRef<boolean>(false);
 
   // Watch para obtener valores en tiempo real
@@ -108,14 +111,16 @@ export default function InvoiceForm({
   useEffect(() => {
     if (igvTypes.length === 0) return;
 
-    // Verificar si ya se cargaron los items o si cambió el estado de anticipo
+    // Verificar si ya se cargaron los items o si cambió el estado de anticipo/invalid
     const shouldReload =
       !itemsAlreadyLoaded.current ||
-      isAdvancePayment !== lastLoadedAdvancePaymentState.current;
+      isAdvancePayment !== lastLoadedAdvancePaymentState.current ||
+      isInvalidWithQuote !== lastLoadedIsInvalidWithQuote.current;
 
     if (!shouldReload) return;
 
     lastLoadedAdvancePaymentState.current = isAdvancePayment;
+    lastLoadedIsInvalidWithQuote.current = isInvalidWithQuote;
     itemsAlreadyLoaded.current = true;
 
     const gravadaType = igvTypes.find(
@@ -141,7 +146,6 @@ export default function InvoiceForm({
           ? `ANTICIPO POR ${allDescriptions.join(", ")}`
           : "ANTICIPO POR SERVICIOS DE TALLER";
 
-      // Crear un solo item consolidado con valores en 0 para que el usuario los edite
       const anticipoItem: ElectronicDocumentItemSchema = {
         account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
         unidad_de_medida: "ZZ",
@@ -276,6 +280,8 @@ export default function InvoiceForm({
     porcentaje_de_igv,
     isAdvancePayment,
     selectedGroupNumber,
+    isInvalidWithQuote,
+    workOrder.final_amount,
     form,
   ]);
 
@@ -394,6 +400,8 @@ export default function InvoiceForm({
               advances={advances}
               currencySymbol={currencySymbol}
               porcentaje_de_igv={porcentaje_de_igv}
+              isInvalidWithQuote={isInvalidWithQuote}
+              finalAmount={workOrder.final_amount}
             />
             {/* Información del Documento */}
             <InvoiceDocumentInfoSection
@@ -404,8 +412,9 @@ export default function InvoiceForm({
               authorizedSeries={authorizedSeries}
               defaultCustomer={defaultCustomer!}
               isAdvancePayment={isAdvancePayment}
+              isInvalidWithQuote={isInvalidWithQuote}
             />
-            {/* Items (solo lectura, cargados automáticamente) */}
+            {/* Items (solo lectura, cargados automáticamente; editable en modo anticipo) */}
             <ItemsSection
               form={form}
               igvTypes={igvTypes}
@@ -413,7 +422,7 @@ export default function InvoiceForm({
               porcentaje_de_igv={porcentaje_de_igv}
               isAdvancePayment={isAdvancePayment}
               isFromQuotation={true}
-              showActions={false}
+              showActions={isAdvancePayment}
             />
             {/* Configuración Adicional */}
             <AdditionalConfigSection
@@ -442,6 +451,8 @@ export default function InvoiceForm({
             advancePayments={advances}
             labours={labours}
             parts={parts}
+            isInvalidWithQuote={isInvalidWithQuote}
+            isInvoiced={workOrder.is_invoiced}
           />
         </div>
       </form>

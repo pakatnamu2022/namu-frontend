@@ -59,7 +59,9 @@ export async function findWorkOrderById(
 export async function findWorkOrdersByIds(
   ids: number[],
 ): Promise<WorkOrderResource[]> {
-  const response = await api.post<WorkOrderResource[]>(`${ENDPOINT}/by-ids`, { ids });
+  const response = await api.post<WorkOrderResource[]>(`${ENDPOINT}/by-ids`, {
+    ids,
+  });
   return response.data;
 }
 
@@ -193,6 +195,20 @@ export async function generateInternalNote(
 ): Promise<WorkOrderResource> {
   const response = await api.post<WorkOrderResource>(
     `${ENDPOINT}/${id}/generate-internal-note`,
+  );
+  return response.data;
+}
+
+export async function generateDelivery(
+  id: number,
+  data: {
+    actual_delivery_date: string;
+    follow_ups: { days: number; time_start: string; time_end: string }[];
+  },
+): Promise<WorkOrderResource> {
+  const response = await api.post<WorkOrderResource>(
+    `${ENDPOINT}/${id}/generate-delivery`,
+    data,
   );
   return response.data;
 }

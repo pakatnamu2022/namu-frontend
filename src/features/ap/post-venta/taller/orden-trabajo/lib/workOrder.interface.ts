@@ -47,6 +47,7 @@ export interface WorkOrderResource {
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
   cost_man_hours: number;
+  is_invalid_with_quote: boolean;
   //Costos
   total_labor_cost: number;
   total_parts_cost: number;
@@ -55,6 +56,7 @@ export interface WorkOrderResource {
   discount_amount: number;
   tax_amount: number;
   final_amount: number;
+  is_delivery: boolean;
 
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;

@@ -2,18 +2,18 @@
 
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
-import { errorToast, successToast } from "@/core/core.function";
-import { updateCreditNote } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
-import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { CreditNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
-import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm";
-import { notFound } from "@/shared/hooks/useNotFound";
-import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import { errorToast, successToast } from "@/core/core.function.ts";
+import { updateCreditNote } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import FormWrapper from "@/shared/components/FormWrapper.tsx";
+import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import { CreditNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
+import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm.tsx";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
 
 export default function UpdateCreditNoteCajaPage() {
   const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;

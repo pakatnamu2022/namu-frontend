@@ -20,6 +20,7 @@ import { ElectronicDocumentResource } from "../lib/electronicDocument.interface"
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
+import WorkOrdersSheet from "./WorkOrdersSheet";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import MigrationStatusBadge from "./MigrationStatusBadge";
@@ -496,6 +497,11 @@ export const electronicDocumentColumns = ({
                   />
                 }
               />
+            )}
+
+            {/* Work Orders */}
+            {document.consolidation_type === "work_orders" && (
+              <WorkOrdersSheet documentId={document.id} />
             )}
 
             {/* Migration History */}

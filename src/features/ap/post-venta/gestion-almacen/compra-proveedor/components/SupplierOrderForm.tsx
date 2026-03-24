@@ -22,14 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import {
-  FileText,
-  Loader,
-  Package,
-  Plus,
-  Trash2,
-  Calculator,
-} from "lucide-react";
+import { FileText, Loader, Package, Trash2, Calculator } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
@@ -273,16 +266,16 @@ export const SupplierOrderForm = ({
     return <FormSkeleton />;
   }
 
-  const handleAddItem = () => {
-    append({
-      product_id: "",
-      unit_measurement_id: "",
-      quantity: 1,
-      total: 0,
-      unit_price: 0,
-      note: "",
-    });
-  };
+  // const handleAddItem = () => {
+  //   append({
+  //     product_id: "",
+  //     unit_measurement_id: "",
+  //     quantity: 1,
+  //     total: 0,
+  //     unit_price: 0,
+  //     note: "",
+  //   });
+  // };
 
   const handleRemoveItem = (index: number) => {
     // Obtener el product_id del item que se va a eliminar
@@ -1004,7 +997,7 @@ export const SupplierOrderForm = ({
                     </div>
 
                     {/* Botón para actualizar items */}
-                    <Button
+                    {/* <Button
                       type="button"
                       variant="outline"
                       onClick={handleAddItem}
@@ -1012,7 +1005,7 @@ export const SupplierOrderForm = ({
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       Agregar Producto
-                    </Button>
+                    </Button> */}
                   </div>
                 </GroupFormSection>
               </div>

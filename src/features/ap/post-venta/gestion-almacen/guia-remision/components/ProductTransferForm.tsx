@@ -610,7 +610,7 @@ export const ProductTransferForm = ({
             name="total_packages"
             label="Núm. Bultos"
             type="number"
-            placeholder="1"
+            placeholder="0"
             control={form.control}
           />
 
