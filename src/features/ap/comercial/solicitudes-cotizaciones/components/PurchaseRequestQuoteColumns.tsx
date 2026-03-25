@@ -9,6 +9,7 @@ import {
   Link2Off,
   Eye,
   ArrowLeftRight,
+  X,
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
@@ -91,8 +92,11 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => {
       const isApproved = getValue() as boolean;
       return (
-        <Badge color={isApproved ? "blue" : "red"}>
-          {isApproved ? "Sí" : "No"}
+        <Badge
+          color={isApproved ? "green" : "gray"}
+          icon={isApproved ? Check : X}
+        >
+          {isApproved ? "Aprobado" : "Pendiente"}
         </Badge>
       );
     },
@@ -103,8 +107,8 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => {
       const is_paid = getValue() as boolean;
       return (
-        <Badge variant="outline" color={is_paid ? "green" : "red"}>
-          {is_paid ? "Sí" : "No"}
+        <Badge color={is_paid ? "green" : "gray"} icon={is_paid ? Check : X}>
+          {is_paid ? "Pagado" : "Pendiente Pago"}
         </Badge>
       );
     },
@@ -139,11 +143,20 @@ export const purchaseRequestQuoteColumns = ({
     accessorKey: "ap_vehicle",
     header: "Vehículo Asignado",
     cell: ({ getValue }) => {
-      const vehicle = getValue() as string;
-      return vehicle ? (
-        <p>{vehicle}</p>
-      ) : (
-        <p className="italic text-muted-foreground">No asignado</p>
+      if (!getValue()) {
+        return (
+          <p className="text-muted-foreground uppercase text-xs">No asignado</p>
+        );
+      }
+      const vehicle = (getValue() as string)?.split(" - ");
+      const model = vehicle[0] || "";
+      const vin = vehicle[1] || "";
+
+      return (
+        <div className="flex flex-col">
+          <span>{model}</span>
+          <span className="text-xs font-semibold text-primary">{vin}</span>
+        </div>
       );
     },
   },
