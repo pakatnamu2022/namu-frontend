@@ -38,7 +38,7 @@ const COLS = [
   { key: "days_vacation", label: "Días V", align: "right" },
   {
     key: "vacation_hour_value",
-    label: "Valor H.Vac.",
+    label: "Valor D.Vac.",
     align: "right",
     money: true,
   },
