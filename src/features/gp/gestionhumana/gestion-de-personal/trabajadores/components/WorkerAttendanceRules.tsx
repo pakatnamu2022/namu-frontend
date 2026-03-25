@@ -25,7 +25,9 @@ interface WorkerAttendanceRulesProps {
   workerId: number;
 }
 
-export function WorkerAttendanceRules({ workerId }: WorkerAttendanceRulesProps) {
+export function WorkerAttendanceRules({
+  workerId,
+}: WorkerAttendanceRulesProps) {
   const queryClient = useQueryClient();
   const { data: rulesData, isLoading } = useWorkerAttendanceRules(workerId);
   const { data: allCodes = [] } = useAttendanceRuleCodes();
@@ -34,7 +36,7 @@ export function WorkerAttendanceRules({ workerId }: WorkerAttendanceRulesProps) 
   const [isSaving, setIsSaving] = useState(false);
 
   const currentCodes =
-    pendingCodes ?? (rulesData?.rules.map((r) => r.code) ?? []);
+    pendingCodes ?? rulesData?.rules.map((r) => r.code) ?? [];
   const hasRestriction =
     pendingCodes !== null
       ? pendingCodes.length > 0
@@ -43,12 +45,12 @@ export function WorkerAttendanceRules({ workerId }: WorkerAttendanceRulesProps) 
   const availableCodes = allCodes.filter((c) => !currentCodes.includes(c.code));
 
   const handleAddCode = (code: string) => {
-    const base = pendingCodes ?? (rulesData?.rules.map((r) => r.code) ?? []);
+    const base = pendingCodes ?? rulesData?.rules.map((r) => r.code) ?? [];
     setPendingCodes([...base, code]);
   };
 
   const handleRemoveCode = (code: string) => {
-    const base = pendingCodes ?? (rulesData?.rules.map((r) => r.code) ?? []);
+    const base = pendingCodes ?? rulesData?.rules.map((r) => r.code) ?? [];
     setPendingCodes(base.filter((c) => c !== code));
   };
 
@@ -133,7 +135,6 @@ export function WorkerAttendanceRules({ workerId }: WorkerAttendanceRulesProps) 
               return (
                 <Badge
                   key={code}
-                  variant="secondary"
                   className="pl-2.5 pr-1 py-1 gap-1.5 text-sm font-semibold"
                 >
                   {code}
