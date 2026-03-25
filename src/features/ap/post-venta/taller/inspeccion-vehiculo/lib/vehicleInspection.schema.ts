@@ -59,15 +59,13 @@ export const vehicleInspectionSchemaCreate = z.object({
   courtesy_seat_cover: z.boolean().default(false),
   paper_floor: z.boolean().default(false),
   general_observations: z.string().max(1000).optional(),
-  inspection_date: z.union([z.string(), z.date()]).refine(
-    (value) => {
-      const date = value instanceof Date ? value : new Date(value);
-      return !isNaN(date.getTime());
-    },
-    {
-      message: "La fecha de inspección debe ser una fecha válida",
-    },
-  ),
+  inspection_date: z.string().min(1, "La fecha y hora de inicio es requerida"),
+  fuel_level: z
+    .string()
+    .max(50)
+    .refine((value) => value.trim() !== "", {
+      message: "Nivel de combustible es requerido",
+    }),
   oil_level: z
     .string()
     .max(50)
