@@ -20,6 +20,7 @@ import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import { DataCard } from "@/components/DataCard";
 import { Car, FileText, Gauge, Wrench } from "lucide-react";
+import { format } from "date-fns";
 
 export default function VehicleInspectionPage() {
   const { workOrderId } = useParams();
@@ -147,7 +148,7 @@ export default function VehicleInspectionPage() {
     // Daños y otros campos
     formData.append(
       "inspection_date",
-      data.inspection_date ? data.inspection_date : "",
+      data.inspection_date ? format(data.inspection_date, "yyyy-MM-dd") : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
