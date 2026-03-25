@@ -48,6 +48,7 @@ interface Props {
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onCancel: (id: number) => void;
   onMigrate?: (id: number) => void;
+  onGeneratePDI: (ap_vehicle_id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -117,6 +118,7 @@ export const ShipmentsReceptionsColumns = ({
   onViewDetails,
   onCancel,
   onMigrate,
+  onGeneratePDI,
   permissions,
 }: Props): ShipmentsReceptionsColumns[] => [
   {
@@ -472,6 +474,7 @@ export const ShipmentsReceptionsColumns = ({
         is_received,
         document_type,
         transfer_reason_id,
+        ap_vehicle_id,
         status,
       } = row.original;
       const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
@@ -616,6 +619,21 @@ export const ShipmentsReceptionsColumns = ({
               onClick={() => onCancel(id)}
             >
               <Ban className="size-4" />
+            </Button>
+          )}
+
+          {/*Generamos la OT de PDI tomado el ap_vehicle_id*/}
+          {ap_vehicle_id && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Generar OT de PDI para el vehículo asociado"
+              onClick={() =>
+                ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
+              }
+            >
+              <BookCheck className="size-4" />
             </Button>
           )}
         </div>

@@ -1,14 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
@@ -16,6 +8,7 @@ import {
   documentTypeSchemaCreate,
   documentTypeSchemaUpdate,
 } from "../lib/documentTypes.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface DocumentTypeFormProps {
   defaultValues: Partial<DocumentTypeSchema>;
@@ -34,7 +27,7 @@ export const DocumentTypeForm = ({
 }: DocumentTypeFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? documentTypeSchemaCreate : documentTypeSchemaUpdate
+      mode === "create" ? documentTypeSchemaCreate : documentTypeSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -46,31 +39,18 @@ export const DocumentTypeForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: DNI" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+          <FormInput
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Num. Dígitos</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 8" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cód. Dynamic"
+            placeholder="Ej: 01"
+          />
+
+          <FormInput
+            control={form.control}
+            name="description"
+            label="Descripción"
+            placeholder="Ej: DNI"
           />
         </div>
 

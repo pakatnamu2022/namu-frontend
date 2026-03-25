@@ -64,7 +64,7 @@ export default function UpdateSuppliersStorePage() {
       paternal_surname: data.paternal_surname || "",
       maternal_surname: data.maternal_surname || "",
       full_name: data.full_name || "",
-      num_doc: data.num_doc,
+      num_doc: data.num_doc || "",
       direction: data.direction || "",
       email: data.email,
       secondary_email: data.secondary_email || "",

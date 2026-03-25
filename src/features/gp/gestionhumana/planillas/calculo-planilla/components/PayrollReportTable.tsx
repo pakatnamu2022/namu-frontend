@@ -21,7 +21,20 @@ const COLS = [
   { key: "empresa", label: "Empresa", align: "left" },
   { key: "nombre", label: "Nombre", align: "left" },
   { key: "dni", label: "DNI", align: "left" },
-  { key: "days_worked", label: "Días", align: "right" },
+  { key: "days_worked", label: "Días T", align: "right" },
+  { key: "days_vacation", label: "Días V", align: "right" },
+  {
+    key: "vacation_hour_value",
+    label: "Valor H.Vac.",
+    align: "right",
+    money: true,
+  },
+  {
+    key: "vacation_amount",
+    label: "Monto Vac.",
+    align: "right",
+    money: true,
+  },
   { key: "basic_salary", label: "Básico", align: "right", money: true },
   { key: "night_bonus", label: "Bono Noc.", align: "right", money: true },
   { key: "gross_salary", label: "Bruto", align: "right", money: true },
@@ -107,6 +120,13 @@ export default function PayrollReportTable({ data }: Props) {
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">{row.dni}</td>
                   <td className="px-3 py-2 text-right">{row.days_worked}</td>
+                  <td className="px-3 py-2 text-right">{row.days_vacation}</td>
+                  <td className="px-3 py-2 text-right">
+                    {row.vacation_hour_value}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {row.vacation_amount}
+                  </td>
                   <td className="px-3 py-2 text-right">
                     {fmt(row.basic_salary)}
                   </td>
@@ -143,6 +163,15 @@ export default function PayrollReportTable({ data }: Props) {
               </td>
               <td className="px-3 py-2 text-right">
                 {data.totals.days_worked}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {data.totals.days_vacation}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {data.totals.vacation_hour_value}
+              </td>
+              <td className="px-3 py-2 text-right">
+                {data.totals.vacation_amount}
               </td>
               <td className="px-3 py-2 text-right">
                 {fmt(data.totals.basic_salary)}

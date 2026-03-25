@@ -40,6 +40,7 @@ import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
 import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { generatePDIForVehicle } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -58,6 +59,9 @@ export default function ShipmentsReceptionsPage() {
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [markAsReceivedId, setMarkAsReceivedId] = useState<number | null>(null);
   const [cancelId, setCancelId] = useState<number | null>(null);
+  const [generatePDIVehicleId, setGeneratePDIVehicleId] = useState<
+    number | null
+  >(null);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentsReceptionsResource | null>(null);
   const { MODEL, ROUTE } = SHIPMENTS_RECEPTIONS;
@@ -150,6 +154,15 @@ export default function ShipmentsReceptionsPage() {
     );
   };
 
+  const generatePDIMutation = useMutation({
+    mutationFn: (vehicleId: number) => generatePDIForVehicle(vehicleId),
+    onSuccess: () => successToast("OT de PDI generada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al generar OT de PDI: ${msg}`);
+    },
+  });
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -179,6 +192,7 @@ export default function ShipmentsReceptionsPage() {
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onGeneratePDI: setGeneratePDIVehicleId,
           permissions,
         })}
         data={data?.data || []}
@@ -243,6 +257,25 @@ export default function ShipmentsReceptionsPage() {
           cancelText="Volver"
           fieldLabel="Motivo de cancelación"
           required={true}
+        />
+      )}
+
+      {generatePDIVehicleId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setGeneratePDIVehicleId(null)}
+          onConfirm={() => {
+            generatePDIMutation.mutate(generatePDIVehicleId, {
+              onSettled: () => setGeneratePDIVehicleId(null),
+            });
+          }}
+          title="Generar OT de PDI"
+          description="¿Está seguro de que desea generar una Orden de Trabajo de PDI para el vehículo asociado?"
+          confirmText="Sí, generar"
+          cancelText="Cancelar"
+          variant="default"
+          icon="warning"
+          isLoading={generatePDIMutation.isPending}
         />
       )}
 
