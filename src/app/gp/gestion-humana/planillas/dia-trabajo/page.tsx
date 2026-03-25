@@ -29,6 +29,7 @@ import {
   useCurrentPayrollPeriod,
 } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import { useAttendanceRuleCodes } from "@/features/gp/gestionhumana/planillas/reglas-asistencia/lib/attendance-rule.hook";
+import { useWorkerAttendanceRules } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker-attendance-rules.hook";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useForm } from "react-hook-form";
@@ -85,6 +86,7 @@ export default function WorkSchedulesPage() {
     isError: isCurrentPeriodError,
   } = useCurrentPayrollPeriod();
   const { data: codes = [] } = useAttendanceRuleCodes();
+  const { data: workerRules } = useWorkerAttendanceRules(selectedWorkerId);
 
   const selectedPeriodCompanyId = useMemo(() => {
     return periods.find((p) => p.id === selectedPeriodId)?.company?.id;
@@ -146,6 +148,14 @@ export default function WorkSchedulesPage() {
       periods.find((p) => p.id === selectedPeriodId) || summaryData?.period
     );
   }, [periods, selectedPeriodId, summaryData]);
+
+  // Filter attendance codes by worker restrictions
+  const filteredCodes = useMemo(() => {
+    if (!workerRules?.has_restriction) return codes;
+    return codes.filter((c) =>
+      workerRules.rules.some((r) => r.code === c.code),
+    );
+  }, [codes, workerRules]);
 
   // Period options for select
   const periodOptions = useMemo(() => {
@@ -394,7 +404,7 @@ export default function WorkSchedulesPage() {
             onOpenChange={setFormOpen}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
-            codes={codes}
+            codes={filteredCodes}
             periodId={selectedPeriodId}
             workerId={selectedWorkerId}
             workerName={selectedWorkerData.worker_name}
