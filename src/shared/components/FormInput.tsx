@@ -141,7 +141,7 @@ export function FormInput({
             <Input
               name={name}
               className={cn(
-                "h-8 md:h-9 text-xs md:text-sm",
+                "h-7 md:h-8 text-xs md:text-sm",
                 addonStart && "pl-10",
                 addonEnd && "pr-10",
                 optional && "border-dashed",
@@ -242,7 +242,7 @@ export function FormInput({
                 <FormControl>
                   <Input
                     className={cn(
-                      "h-8 md:h-9 text-xs md:text-sm",
+                      "h-7 md:h-8 text-xs md:text-sm",
                       addonStart && "pl-10",
                       addonEnd && "pr-10",
                       optional && "border-dashed",
