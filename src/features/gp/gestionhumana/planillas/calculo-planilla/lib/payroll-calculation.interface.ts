@@ -146,6 +146,9 @@ export interface PayrollReportRow {
   nombre: string;
   dni: string;
   days_worked: number;
+  days_vacation: number;
+  vacation_hour_value: number;
+  vacation_amount: number;
   basic_salary: number;
   night_bonus: number;
   gross_salary: number;
@@ -158,6 +161,9 @@ export interface PayrollReportRow {
 
 export interface PayrollReportTotals {
   days_worked: number;
+  days_vacation: number;
+  vacation_hour_value: number;
+  vacation_amount: number;
   basic_salary: number;
   night_bonus: number;
   gross_salary: number;
