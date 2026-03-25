@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
-  FileText,
   Pencil,
   Check,
   Car,
@@ -15,6 +14,8 @@ import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { Badge } from "@/components/ui/badge";
+import { ButtonAction } from "@/shared/components/ButtonAction";
+import ExportButtons from "@/shared/components/ExportButtons";
 
 export type PurchaseRequestQuoteColumns =
   ColumnDef<PurchaseRequestQuoteResource>;
@@ -181,6 +182,13 @@ export const purchaseRequestQuoteColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {/* PDF - Only show if user has export permission */}
+          <ExportButtons
+            variant="separate"
+            buttonVariant="outline"
+            onPdfDownload={() => onDownloadPdf(id)}
+            disablePdf={!permissions.canExport}
+          />
           {/* View Detail */}
           <Button
             variant="outline"
@@ -191,7 +199,6 @@ export const purchaseRequestQuoteColumns = ({
           >
             <Eye className="size-5" />
           </Button>
-
           {/* Assign Vehicle */}
           {canAssignVehicle && (
             <Button
@@ -204,7 +211,6 @@ export const purchaseRequestQuoteColumns = ({
               <Car className="size-5" />
             </Button>
           )}
-
           {/* Swap Vehicle */}
           {canSwapVehicle && (
             <Button
@@ -217,7 +223,6 @@ export const purchaseRequestQuoteColumns = ({
               <ArrowLeftRight className="size-5" />
             </Button>
           )}
-
           {/* Unassign Vehicle */}
           {canUnassignVehicle && (
             <Button
@@ -228,18 +233,6 @@ export const purchaseRequestQuoteColumns = ({
               onClick={() => onUnassignVehicle(id)}
             >
               <Link2Off className="size-5" />
-            </Button>
-          )}
-          {/* PDF - Only show if user has export permission */}
-          {permissions.canExport && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Descargar PDF"
-              onClick={() => onDownloadPdf(id)}
-            >
-              <FileText className="size-5" />
             </Button>
           )}
           {/* Edit - Only show if user has update permission */}
@@ -254,19 +247,17 @@ export const purchaseRequestQuoteColumns = ({
               <Pencil className="size-5" />
             </Button>
           )}
+
           {/* Approve - Only show if user has approve permission */}
-          {permissions.canApprove && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Confirmar"
-              onClick={() => onApprove(id)}
-              disabled={isApproved}
-            >
-              <Check className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            variant="outline"
+            className="size-7"
+            tooltip="Confirmar"
+            color="emerald"
+            onClick={() => onApprove(id)}
+            canRender={!isApproved && permissions.canApprove}
+            icon={Check}
+          />
         </div>
       );
     },

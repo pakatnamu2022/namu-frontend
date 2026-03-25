@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { api } from "@/core/api";
 import { promiseToast } from "@/core/core.function";
-import { Sheet, FileText } from "lucide-react";
+import { Sheet, FileDown } from "lucide-react";
 
 type ButtonVariant =
   | "default"
@@ -112,7 +112,7 @@ export default function ExportButtons({
   const showExcelButton = excelEndpoint || onExcelDownload;
   const showPdfButton = pdfEndpoint || onPdfDownload;
 
-  const isGhost = buttonVariant === "ghost";
+  const canColored = ["ghost", "outline"].includes(buttonVariant);
 
   if (variant === "grouped") {
     return (
@@ -123,7 +123,7 @@ export default function ExportButtons({
               <Button
                 size="sm"
                 variant={buttonVariant}
-                color={isGhost ? "green" : undefined}
+                color={canColored ? "green" : undefined}
                 onClick={handleExcelDownload}
                 disabled={disableExcel}
               >
@@ -143,11 +143,11 @@ export default function ExportButtons({
               <Button
                 size="sm"
                 variant={buttonVariant}
-                color={isGhost ? "red" : undefined}
+                color={canColored ? "primary" : undefined}
                 onClick={handlePDFDownload}
                 disabled={disablePdf}
               >
-                <FileText className="h-4 w-4" />
+                <FileDown className="h-4 w-4" />
                 PDF
               </Button>
             </TooltipTrigger>
@@ -167,9 +167,9 @@ export default function ExportButtons({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              size="sm"
+              size="icon-sm"
               variant={buttonVariant}
-              color={isGhost ? "green" : undefined}
+              color={canColored ? "green" : undefined}
               onClick={handleExcelDownload}
               disabled={disableExcel}
             >
@@ -186,13 +186,13 @@ export default function ExportButtons({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              size="sm"
+              size="icon-sm"
               variant={buttonVariant}
-              color={isGhost ? "red" : undefined}
+              color={canColored ? "primary" : undefined}
               onClick={handlePDFDownload}
               disabled={disablePdf}
             >
-              <FileText className="h-4 w-4" />
+              <FileDown className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>

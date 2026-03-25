@@ -4,6 +4,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useEffect, useState } from "react";
+import { WorkerAttendanceRulesModal } from "@/features/gp/gestionhumana/planillas/reglas-asistencia/components/WorkerAttendanceRulesModal";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useAttendanceRules } from "@/features/gp/gestionhumana/planillas/reglas-asistencia/lib/attendance-rule.hook";
 import AttendanceRuleTable from "@/features/gp/gestionhumana/planillas/reglas-asistencia/components/AttendanceRuleTable";
@@ -33,6 +34,7 @@ export default function AttendanceRulePage() {
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [restrictionsOpen, setRestrictionsOpen] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -89,7 +91,7 @@ export default function AttendanceRulePage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <AttendanceRuleActions />
+        <AttendanceRuleActions onOpenRestrictions={() => setRestrictionsOpen(true)} />
       </HeaderTableWrapper>
 
       <AttendanceRuleTable
@@ -102,6 +104,11 @@ export default function AttendanceRulePage() {
       >
         <AttendanceRuleOptions search={search} setSearch={setSearch} />
       </AttendanceRuleTable>
+
+      <WorkerAttendanceRulesModal
+        open={restrictionsOpen}
+        onOpenChange={setRestrictionsOpen}
+      />
 
       {deleteId !== null && (
         <SimpleDeleteDialog
