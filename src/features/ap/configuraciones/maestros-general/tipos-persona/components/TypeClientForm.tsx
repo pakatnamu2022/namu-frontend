@@ -2,22 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   TypeClientSchema,
   typeClientSchemaCreate,
   typeClientSchemaUpdate,
 } from "../lib/typeClient.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface TypeClientFormProps {
   defaultValues: Partial<TypeClientSchema>;
@@ -36,7 +29,7 @@ export const TypeClientForm = ({
 }: TypeClientFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? typeClientSchemaCreate : typeClientSchemaUpdate
+      mode === "create" ? typeClientSchemaCreate : typeClientSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -48,31 +41,18 @@ export const TypeClientForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cód. Dynamic</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 01" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cód. Dynamic"
+            placeholder="Ej: 01"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Natural" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Persona Natural"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

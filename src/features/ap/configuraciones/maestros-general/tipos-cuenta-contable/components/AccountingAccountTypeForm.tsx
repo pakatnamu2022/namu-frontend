@@ -2,15 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
@@ -18,6 +10,7 @@ import {
   accountingAccountTypeSchemaCreate,
   accountingAccountTypeSchemaUpdate,
 } from "../lib/accountingAccountType.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface AccountingAccountTypeFormProps {
   defaultValues: Partial<AccountingAccountTypeSchema>;
@@ -38,7 +31,7 @@ export const AccountingAccountTypeForm = ({
     resolver: zodResolver(
       mode === "create"
         ? accountingAccountTypeSchemaCreate
-        : accountingAccountTypeSchemaUpdate
+        : accountingAccountTypeSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -50,18 +43,11 @@ export const AccountingAccountTypeForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Gasto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Gasto"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

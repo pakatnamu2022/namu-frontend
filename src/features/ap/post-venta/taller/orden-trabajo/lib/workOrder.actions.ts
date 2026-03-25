@@ -8,6 +8,7 @@ import {
   WorkOrderRequest,
   WorkOrderPaymentSummary,
   VehicleWorkOrderHistoryResponse,
+  GenerateWorkOrderResponse,
 } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
 
@@ -192,8 +193,8 @@ export async function downloadDeliveryPdf(id: number): Promise<void> {
 
 export async function generateInternalNote(
   id: number,
-): Promise<WorkOrderResource> {
-  const response = await api.post<WorkOrderResource>(
+): Promise<GenerateWorkOrderResponse> {
+  const response = await api.post<GenerateWorkOrderResponse>(
     `${ENDPOINT}/${id}/generate-internal-note`,
   );
   return response.data;
@@ -209,6 +210,15 @@ export async function generateDelivery(
   const response = await api.post<WorkOrderResource>(
     `${ENDPOINT}/${id}/generate-delivery`,
     data,
+  );
+  return response.data;
+}
+
+export async function generatePDIForVehicle(
+  id: number, // ID del vehículo
+): Promise<GenerateWorkOrderResponse> {
+  const response = await api.post<GenerateWorkOrderResponse>(
+    `${ENDPOINT}/generate-pdi/${id}`,
   );
   return response.data;
 }

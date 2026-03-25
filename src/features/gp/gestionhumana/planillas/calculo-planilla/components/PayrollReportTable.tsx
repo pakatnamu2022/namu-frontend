@@ -21,7 +21,7 @@ const COLS = [
   { key: "empresa", label: "Empresa", align: "left" },
   { key: "nombre", label: "Nombre", align: "left" },
   { key: "dni", label: "DNI", align: "left" },
-  { key: "days_worked", label: "Días", align: "right" },
+  { key: "days_worked", label: "Días T", align: "right" },
   { key: "basic_salary", label: "Básico", align: "right", money: true },
   { key: "night_bonus", label: "Bono Noc.", align: "right", money: true },
   { key: "gross_salary", label: "Bruto", align: "right", money: true },
@@ -35,7 +35,28 @@ const COLS = [
     money: true,
   },
   { key: "net_salary", label: "Neto", align: "right", money: true },
+  { key: "days_vacation", label: "Días V", align: "right" },
+  {
+    key: "vacation_hour_value",
+    label: "Valor D.Vac.",
+    align: "right",
+    money: true,
+  },
+  {
+    key: "vacation_amount",
+    label: "Monto Vac.",
+    align: "right",
+    money: true,
+  },
 ] as const;
+
+const VACATION_COL_KEYS = new Set([
+  "days_vacation",
+  "vacation_hour_value",
+  "vacation_amount",
+]);
+
+const FIRST_VACATION_COL_KEY = "days_vacation";
 
 export default function PayrollReportTable({ data }: Props) {
   const [search, setSearch] = useState("");
@@ -71,14 +92,28 @@ export default function PayrollReportTable({ data }: Props) {
         />
       </div>
 
-      <div className="overflow-x-auto rounded-md border">
+      <div className="overflow-x-auto rounded-lg border bg-background">
         <table className="w-full text-sm">
           <thead>
+            <tr className="border-b bg-muted/30">
+              <th
+                colSpan={COLS.length - 3}
+                className="px-3 py-1.5 text-left text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+              >
+                Principal
+              </th>
+              <th
+                colSpan={3}
+                className="border-l px-3 py-1.5 text-left text-[11px] font-medium uppercase tracking-wide text-muted-foreground bg-muted/40"
+              >
+                Información de vacaciones
+              </th>
+            </tr>
             <tr className="bg-muted/50 border-b">
               {COLS.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-3 py-2 font-semibold whitespace-nowrap ${col.align === "right" ? "text-right" : "text-left"}`}
+                  className={`px-3 py-2 font-semibold whitespace-nowrap ${col.align === "right" ? "text-right" : "text-left"} ${VACATION_COL_KEYS.has(col.key) ? "bg-muted/30" : ""} ${col.key === FIRST_VACATION_COL_KEY ? "border-l" : ""}`}
                 >
                   {col.label}
                 </th>
@@ -131,6 +166,15 @@ export default function PayrollReportTable({ data }: Props) {
                   <td className="px-3 py-2 text-right font-semibold text-green-700 dark:text-green-400">
                     {fmt(row.net_salary)}
                   </td>
+                  <td className="px-3 py-2 text-right bg-muted/20 border-l">
+                    {row.days_vacation}
+                  </td>
+                  <td className="px-3 py-2 text-right bg-muted/20">
+                    {row.vacation_hour_value}
+                  </td>
+                  <td className="px-3 py-2 text-right bg-muted/20 font-medium">
+                    {row.vacation_amount}
+                  </td>
                 </tr>
               ))
             )}
@@ -167,6 +211,15 @@ export default function PayrollReportTable({ data }: Props) {
               </td>
               <td className="px-3 py-2 text-right font-bold text-green-700 dark:text-green-400">
                 {fmt(data.totals.net_salary)}
+              </td>
+              <td className="px-3 py-2 text-right bg-muted/30 border-l">
+                {data.totals.days_vacation}
+              </td>
+              <td className="px-3 py-2 text-right bg-muted/30">
+                {data.totals.vacation_hour_value}
+              </td>
+              <td className="px-3 py-2 text-right bg-muted/30">
+                {data.totals.vacation_amount}
               </td>
             </tr>
           </tfoot>
