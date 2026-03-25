@@ -30,54 +30,61 @@ const purchaseRequestQuoteSchemaBase = z.object({
     },
     {
       message: "El precio de venta debe ser un número mayor a 1",
-    }
+    },
   ),
   doc_type_currency_id: requiredStringId("Moneda es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
-  quote_deadline:  z.coerce.string().min(1, "Fecha límite de cotización es requerida" ),
+  quote_deadline: z.union([z.string(), z.date()]).refine(
+    (value) => {
+      const date = value instanceof Date ? value : new Date(value);
+      return !isNaN(date.getTime()) && date > new Date();
+    },
+    {
+      message: "La fecha de vencimiento debe ser una fecha válida en el futuro",
+    },
+  ),
 });
 
-export const purchaseRequestQuoteSchemaCreate =
-  purchaseRequestQuoteSchemaBase
-    .refine(
-      (data) => {
-        // Si with_vin es true, ap_vehicle_id es requerido
-        if (data.with_vin) {
-          return !!data.ap_vehicle_id && data.ap_vehicle_id.trim() !== "";
-        }
-        return true;
-      },
-      {
-        message: "Debes seleccionar un vehículo VN",
-        path: ["ap_vehicle_id"],
+export const purchaseRequestQuoteSchemaCreate = purchaseRequestQuoteSchemaBase
+  .refine(
+    (data) => {
+      // Si with_vin es true, ap_vehicle_id es requerido
+      if (data.with_vin) {
+        return !!data.ap_vehicle_id && data.ap_vehicle_id.trim() !== "";
       }
-    )
-    .refine(
-      (data) => {
-        // Si with_vin es false, ap_models_vn_id es requerido
-        if (!data.with_vin) {
-          return !!data.ap_models_vn_id && data.ap_models_vn_id.trim() !== "";
-        }
-        return true;
-      },
-      {
-        message: "Debes seleccionar un modelo VN",
-        path: ["ap_models_vn_id"],
+      return true;
+    },
+    {
+      message: "Debes seleccionar un vehículo VN",
+      path: ["ap_vehicle_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si with_vin es false, ap_models_vn_id es requerido
+      if (!data.with_vin) {
+        return !!data.ap_models_vn_id && data.ap_models_vn_id.trim() !== "";
       }
-    )
-    .refine(
-      (data) => {
-        // Si with_vin es false, vehicle_color_id es requerido
-        if (!data.with_vin) {
-          return !!data.vehicle_color_id && data.vehicle_color_id.trim() !== "";
-        }
-        return true;
-      },
-      {
-        message: "Debes seleccionar un color de vehículo",
-        path: ["vehicle_color_id"],
+      return true;
+    },
+    {
+      message: "Debes seleccionar un modelo VN",
+      path: ["ap_models_vn_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si with_vin es false, vehicle_color_id es requerido
+      if (!data.with_vin) {
+        return !!data.vehicle_color_id && data.vehicle_color_id.trim() !== "";
       }
-    );
+      return true;
+    },
+    {
+      message: "Debes seleccionar un color de vehículo",
+      path: ["vehicle_color_id"],
+    },
+  );
 
 export const purchaseRequestQuoteSchemaUpdate =
   purchaseRequestQuoteSchemaBase.partial();
