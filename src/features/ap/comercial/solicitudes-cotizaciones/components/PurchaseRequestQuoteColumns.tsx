@@ -69,7 +69,12 @@ export const purchaseRequestQuoteColumns = ({
   {
     accessorKey: "sale_price",
     header: "P. Venta Vehículo",
-    cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
+    cell: ({ row }) => (
+      <NumberFormat
+        prefix={row.original.doc_type_currency}
+        value={row.original.sale_price}
+      />
+    ),
   },
   {
     accessorKey: "comment",
@@ -154,9 +159,9 @@ export const purchaseRequestQuoteColumns = ({
       const vin = vehicle[1] || "";
 
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col text-xs">
           <span>{model}</span>
-          <span className="text-xs font-semibold text-primary">{vin}</span>
+          <span className="font-semibold text-primary">{vin}</span>
         </div>
       );
     },

@@ -1132,10 +1132,6 @@ export const PurchaseRequestQuoteForm = ({
             onSubmit={handleFormSubmit}
           />
         </div>
-
-        <pre>
-          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre>
       </form>
       <VehicleColorModal
         open={isColorModalOpen}

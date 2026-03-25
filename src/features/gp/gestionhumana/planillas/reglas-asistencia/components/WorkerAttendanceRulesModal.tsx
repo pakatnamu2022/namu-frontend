@@ -54,14 +54,25 @@ export function WorkerAttendanceRulesModal({
 
   const form = useForm({ defaultValues: { worker_id: "" } });
 
-  const currentCodes =
-    pendingCodes ?? rulesData?.rules.map((r) => r.code) ?? [];
+  // Solo usamos los códigos del servidor si hay restricción activa
+  const serverCodes: string[] = rulesData?.has_restriction
+    ? [...new Set(rulesData.rules.map((r) => r.code))]
+    : [];
+
+  const currentCodes: string[] = pendingCodes ?? serverCodes;
+
   const hasRestriction =
     pendingCodes !== null
       ? pendingCodes.length > 0
       : (rulesData?.has_restriction ?? false);
 
-  const availableCodes = allCodes.filter((c) => !currentCodes.includes(c.code));
+  // Deduplicar allCodes por código y excluir los ya asignados
+  const uniqueAllCodes = allCodes.filter(
+    (c, idx, arr) => arr.findIndex((x) => x.code === c.code) === idx,
+  );
+  const availableCodes = uniqueAllCodes.filter(
+    (c) => !currentCodes.includes(c.code),
+  );
 
   const handleWorkerChange = (value: string, label?: string) => {
     const id = value ? Number(value) : null;
@@ -71,12 +82,12 @@ export function WorkerAttendanceRulesModal({
   };
 
   const handleAddCode = (code: string) => {
-    const base = pendingCodes ?? rulesData?.rules.map((r) => r.code) ?? [];
+    const base = pendingCodes ?? serverCodes;
     setPendingCodes([...base, code]);
   };
 
   const handleRemoveCode = (code: string) => {
-    const base = pendingCodes ?? rulesData?.rules.map((r) => r.code) ?? [];
+    const base = pendingCodes ?? serverCodes;
     setPendingCodes(base.filter((c) => c !== code));
   };
 
