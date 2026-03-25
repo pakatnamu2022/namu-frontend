@@ -37,6 +37,7 @@ export default function AgendaActions({
           options={workers.map((worker) => ({
             value: worker.id.toString(),
             label: worker.name,
+            description: worker.sede,
           }))}
           value={selectedAdvisorId?.toString() || ""}
           onChange={(value: string) =>

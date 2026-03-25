@@ -116,14 +116,14 @@ export default function ExportButtons({
 
   if (variant === "grouped") {
     return (
-      <div className="flex items-center gap-1 bg-muted rounded-lg border h-8">
+      <div className="flex items-center gap-1 bg-muted rounded-lg border h-fit">
         {showExcelButton && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 size="sm"
                 variant={buttonVariant}
-                className={isGhost ? "gap-2 hover:bg-green-700/5 hover:text-green-700 transition-colors" : "gap-2"}
+                color={isGhost ? "green" : undefined}
                 onClick={handleExcelDownload}
                 disabled={disableExcel}
               >
@@ -143,7 +143,7 @@ export default function ExportButtons({
               <Button
                 size="sm"
                 variant={buttonVariant}
-                className={isGhost ? "gap-2 hover:bg-red-700/5 hover:text-red-700 transition-colors" : "gap-2"}
+                color={isGhost ? "red" : undefined}
                 onClick={handlePDFDownload}
                 disabled={disablePdf}
               >
@@ -169,7 +169,7 @@ export default function ExportButtons({
             <Button
               size="sm"
               variant={buttonVariant}
-              className={isGhost ? "h-8 w-8 p-0 hover:bg-green-700/5 hover:text-green-700 transition-colors" : "h-8 w-8 p-0"}
+              color={isGhost ? "green" : undefined}
               onClick={handleExcelDownload}
               disabled={disableExcel}
             >
@@ -188,7 +188,7 @@ export default function ExportButtons({
             <Button
               size="sm"
               variant={buttonVariant}
-              className={isGhost ? "h-8 w-8 p-0 hover:bg-red-700/5 hover:text-red-700 transition-colors" : "h-8 w-8 p-0"}
+              color={isGhost ? "red" : undefined}
               onClick={handlePDFDownload}
               disabled={disablePdf}
             >

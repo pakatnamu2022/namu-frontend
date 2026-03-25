@@ -1,14 +1,25 @@
 import axios from "axios";
 import { errorToast } from "./core.function";
 
-const MILLA_BASE = "https://api.grupopakatnamu.com/storage/app/";
-// const MILLA_BASE = "http://localhost/web_millagp_2/storage/app/";
-// const MILLA_GP_BASEPATH = "http://localhost/milla-backend/public";
+/**
+ * PRODUCTION
+ */
+// const MILLA_BASE = "https://api.grupopakatnamu.com/storage/app/";
+// const MILLA_GP_BASEPATH = "https://api.grupopakatnamu.com";
+
+/**
+ * DEVELOPMENT
+ */
+const MILLA_BASE = "http://localhost/web_millagp_2/storage/app/";
+const MILLA_GP_BASEPATH = "http://localhost/milla-backend/public";
+
+/**
+ * TESTING
+ */
 // const MILLA_GP_BASEPATH = "http://192.168.1.37/milla-backend/public";
 // const MILLA_GP_BASEPATH = "http://192.168.2.23/milla-backend/public";
 // const MILLA_GP_BASEPATH = "http://192.168.9.69/milla-backend/public";
 // const MILLA_GP_BASEPATH = "http://192.168.18.122/milla-backend/public";
-const MILLA_GP_BASEPATH = "https://api.grupopakatnamu.com";
 
 const API_URL = "/api";
 const BASE_PATH = "";

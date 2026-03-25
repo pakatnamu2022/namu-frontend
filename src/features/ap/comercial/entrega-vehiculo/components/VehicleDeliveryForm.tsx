@@ -33,6 +33,7 @@ interface VehicleDeliveryFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  isSupplier?: boolean;
   onCancel?: () => void;
 }
 
@@ -41,11 +42,12 @@ export const VehicleDeliveryForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  isSupplier = false,
   onCancel,
 }: VehicleDeliveryFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create"
+      mode === "create" && !isSupplier
         ? vehicleDeliverySchemaCreate
         : (vehicleDeliverySchemaUpdate as any),
     ),
@@ -158,25 +160,27 @@ export const VehicleDeliveryForm = ({
               strictFilter={true}
             />
 
-            <FormSelect
-              name="sede_id"
-              label="Sede"
-              placeholder="Selecciona sede"
-              options={mySedes.map((item) => ({
-                label: item.sede,
-                description: item.description,
-                value: item.sede_id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={!watchArticleClassId || isLoadingMySedes}
-            />
+            {!isSupplier && (
+              <FormSelect
+                name="sede_id"
+                label="Sede"
+                placeholder="Selecciona sede"
+                options={mySedes.map((item) => ({
+                  label: item.sede,
+                  description: item.description,
+                  value: item.sede_id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+                disabled={!watchArticleClassId || isLoadingMySedes}
+              />
+            )}
 
             <FormSelectAsync
               name="vehicle_id"
               label="Vehículo Facturado"
               placeholder={
-                watchSedeId
+                isSupplier || watchSedeId
                   ? "Selecciona un vehículo"
                   : "Primero selecciona una sede"
               }
@@ -188,15 +192,19 @@ export const VehicleDeliveryForm = ({
                   item.sede_name_warehouse + " - " + item.warehouse_name || "",
               })}
               additionalParams={{
-                warehouse$sede_id: watchSedeId
-                  ? Number(watchSedeId)
-                  : undefined,
+                ...(isSupplier
+                  ? {}
+                  : {
+                      warehouse$sede_id: watchSedeId
+                        ? Number(watchSedeId)
+                        : undefined,
+                    }),
                 warehouse$is_received: 1,
                 warehouse$article_class_id: watchArticleClassId,
                 is_paid: 1,
               }}
               control={form.control}
-              disabled={!watchSedeId || isLoadingVehicles}
+              disabled={isSupplier ? isLoadingVehicles : !watchSedeId || isLoadingVehicles}
             />
           </div>
 
