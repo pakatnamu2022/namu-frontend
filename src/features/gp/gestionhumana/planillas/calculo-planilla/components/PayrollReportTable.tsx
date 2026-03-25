@@ -18,7 +18,6 @@ function fmt(value: number): string {
 }
 
 const COLS = [
-  { key: "empresa", label: "Empresa", align: "left" },
   { key: "nombre", label: "Nombre", align: "left" },
   { key: "dni", label: "DNI", align: "left" },
   { key: "days_worked", label: "Días T", align: "right" },
@@ -82,10 +81,18 @@ export default function PayrollReportTable({ data }: Props) {
 
   return (
     <div className="space-y-3">
+      {data.rows.length > 0 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium">Empresa:</span>{" "}
+            {Array.from(new Set(data.rows.map((r) => r.empresa))).join(", ")}
+          </div>
+        </div>
+      )}
       <div className="relative w-full max-w-xs">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
-          placeholder="Buscar por nombre, empresa o DNI..."
+          placeholder="Buscar por nombre o DNI..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-8 h-8 text-sm"
@@ -136,7 +143,6 @@ export default function PayrollReportTable({ data }: Props) {
                   key={i}
                   className="border-b hover:bg-muted/30 transition-colors"
                 >
-                  <td className="px-3 py-2 whitespace-nowrap">{row.empresa}</td>
                   <td className="px-3 py-2 whitespace-nowrap font-medium">
                     {row.nombre}
                   </td>
@@ -181,7 +187,7 @@ export default function PayrollReportTable({ data }: Props) {
           </tbody>
           <tfoot>
             <tr className="border-t bg-muted/50 font-semibold">
-              <td colSpan={3} className="px-3 py-2">
+              <td colSpan={2} className="px-3 py-2">
                 Totales ({data.rows.length} trabajador
                 {data.rows.length !== 1 ? "es" : ""})
               </td>
