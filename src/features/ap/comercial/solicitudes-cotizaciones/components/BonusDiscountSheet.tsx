@@ -26,7 +26,12 @@ const EMPTY_FORM: Omit<BonusDiscountRow, "id"> = {
 const getDescriptionOptions = (conceptId: string): string[] | null => {
   if (conceptId === BONO_FINANCIERO_ID) return ["MARCA", "BANCO", "AP"];
   if (conceptId === BONO_MARCA_ID)
-    return ["BONO NCP", "BONO ESPECIAL", "PLAN NORTE", "BONO ADICIONAL (DERCO)"];
+    return [
+      "BONO NCP",
+      "BONO ESPECIAL",
+      "PLAN NORTE",
+      "BONO ADICIONAL (DERCO)",
+    ];
   return null;
 };
 
@@ -93,7 +98,8 @@ export function BonusDiscountSheet({
       valor: form.valor <= 0,
     };
     setErrors(newErrors);
-    if (newErrors.concept_id || newErrors.descripcion || newErrors.valor) return;
+    if (newErrors.concept_id || newErrors.descripcion || newErrors.valor)
+      return;
     onSubmit(form);
     handleClose();
   };
@@ -104,7 +110,9 @@ export function BonusDiscountSheet({
     <GeneralSheet
       open={open}
       onClose={handleClose}
-      title={mode === "add" ? "Agregar Bono / Descuento" : "Editar Bono / Descuento"}
+      title={
+        mode === "add" ? "Agregar Bono / Descuento" : "Editar Bono / Descuento"
+      }
       subtitle={
         mode === "add"
           ? "Agrega un nuevo bono o descuento a la cotización"
@@ -116,7 +124,9 @@ export function BonusDiscountSheet({
       <div className="space-y-4">
         <div>
           <SearchableSelect
-            options={conceptsOptions.map((o): Option => ({ value: o.id.toString(), label: o.description }))}
+            options={conceptsOptions.map(
+              (o): Option => ({ value: o.id.toString(), label: o.description }),
+            )}
             value={form.concept_id}
             onChange={(value) => {
               setForm({ ...form, concept_id: value });
@@ -139,7 +149,9 @@ export function BonusDiscountSheet({
         <div>
           {descriptionOptions ? (
             <SearchableSelect
-              options={descriptionOptions.map((o): Option => ({ value: o, label: o }))}
+              options={descriptionOptions.map(
+                (o): Option => ({ value: o, label: o }),
+              )}
               value={form.descripcion}
               onChange={(value) => {
                 setForm({ ...form, descripcion: value });
@@ -149,6 +161,7 @@ export function BonusDiscountSheet({
               placeholder="Selecciona una descripción"
               className={errors.descripcion ? "border-red-500" : ""}
               allowClear={false}
+              buttonSize="default"
             />
           ) : (
             <FormInput
@@ -201,7 +214,9 @@ export function BonusDiscountSheet({
                   <span className="opacity-75">Precio de Venta:</span>
                   <p className="font-medium">
                     {currencySymbol}{" "}
-                    {costoReferencia.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+                    {costoReferencia.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <div>
@@ -212,17 +227,24 @@ export function BonusDiscountSheet({
                     {form.isNegative ? "- " : ""}
                     {currencySymbol}{" "}
                     {form.isPercentage
-                      ? ((costoReferencia * form.valor) / 100).toLocaleString("es-PE", {
+                      ? ((costoReferencia * form.valor) / 100).toLocaleString(
+                          "es-PE",
+                          {
+                            minimumFractionDigits: 2,
+                          },
+                        )
+                      : form.valor.toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
-                        })
-                      : form.valor.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+                        })}
                   </p>
                 </div>
               </div>
               {form.concept_id === DESCUENTO_NUEVO_ID && (
                 <Alert variant="destructive" className="mt-2">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>Este descuento afectará el precio final del vehículo</AlertDescription>
+                  <AlertDescription>
+                    Este descuento afectará el precio final del vehículo
+                  </AlertDescription>
                 </Alert>
               )}
             </AlertDescription>
@@ -230,7 +252,12 @@ export function BonusDiscountSheet({
         )}
 
         <div className="flex gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="button" onClick={handleSubmit} className="flex-1">
