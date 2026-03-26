@@ -15,7 +15,7 @@ export const modelsVnSchemaCreate = z.object({
       message: "Versión es requerido",
     }),
   power: z.string().max(50).default("0"),
-  model_year: z.string().max(50).default("0"),
+  model_year: z.coerce.string().max(50).default("0"),
   wheelbase: z.string().max(50).default("0"),
   axles_number: z.string().max(50).default("0"),
   width: z.string().max(50).default("0"),
