@@ -42,8 +42,10 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
+import ModelVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useAllBrandsBySede } from "../../../configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
@@ -82,6 +84,7 @@ export const VehiclePurchaseOrderForm = ({
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [hasIsc, setHasIsc] = useState(false);
   const hasAddedInitialItem = useRef(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<
@@ -634,7 +637,18 @@ export const VehiclePurchaseOrderForm = ({
                     isLoadingQuotation ||
                     isFetchingQuotation
                   }
-                />
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="aspect-square"
+                    onClick={() => setIsModelModalOpen(true)}
+                    title="Agregar nuevo modelo"
+                  >
+                    <Plus className="size-2 md:size-4" />
+                  </Button>
+                </FormSelectAsync>
               </div>
 
               <FormInput
@@ -1255,6 +1269,15 @@ export const VehiclePurchaseOrderForm = ({
         }}
         title="Nuevo Color de Vehículo"
         mode="create"
+      />
+
+      <ModelVnModal
+        open={isModelModalOpen}
+        onClose={() => setIsModelModalOpen(false)}
+        onSuccess={(newModel) => {
+          queryClient.invalidateQueries({ queryKey: [MODELS_VN.QUERY_KEY] });
+          form.setValue("ap_models_vn_id", newModel.id.toString());
+        }}
       />
     </Form>
   );
