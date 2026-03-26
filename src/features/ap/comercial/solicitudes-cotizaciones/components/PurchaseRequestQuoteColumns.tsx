@@ -189,8 +189,9 @@ export const purchaseRequestQuoteColumns = ({
         <div className="flex items-center gap-2">
           {/* PDF - Only show if user has export permission */}
           <ExportButtons
-            variant="separate"
-            buttonVariant="outline"
+            variant="separate-icon"
+            pdfVariant="outline"
+            excelVariant="outline"
             onPdfDownload={() => onDownloadPdf(id)}
             disablePdf={!permissions.canExport}
           />

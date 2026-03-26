@@ -77,7 +77,8 @@ export default function DailyDeliveryDashboard() {
           <ExportButtons
             onExcelDownload={handleExport}
             disableExcel={isExporting || isLoading}
-            buttonVariant="default"
+            pdfVariant="default"
+            excelVariant="default"
           />
 
           <DateRangePickerFilter

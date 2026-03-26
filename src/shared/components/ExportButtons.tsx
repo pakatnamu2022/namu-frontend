@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, ButtonColors } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipTrigger,
@@ -29,8 +29,13 @@ interface ExportButtonsProps {
   onPdfDownload?: () => void | Promise<void>;
   disableExcel?: boolean;
   disablePdf?: boolean;
-  variant?: "grouped" | "separate";
-  buttonVariant?: ButtonVariant;
+  variant?: "grouped" | "separate" | "separate-icon";
+  excelVariant?: ButtonVariant;
+  excelColor?: ButtonColors;
+  excelButtonText?: string;
+  pdfVariant?: ButtonVariant;
+  pdfColor?: ButtonColors;
+  pdfButtonText?: string;
 }
 
 export default function ExportButtons({
@@ -43,7 +48,12 @@ export default function ExportButtons({
   disableExcel = false,
   disablePdf = false,
   variant = "grouped",
-  buttonVariant = "ghost",
+  excelVariant = "default",
+  excelColor = "emerald",
+  pdfVariant = "default",
+  pdfColor = "rose",
+  excelButtonText = "Excel",
+  pdfButtonText = "PDF"
 }: ExportButtonsProps) {
   const handleExcelDownload = () => {
     if (onExcelDownload) {
@@ -112,8 +122,6 @@ export default function ExportButtons({
   const showExcelButton = excelEndpoint || onExcelDownload;
   const showPdfButton = pdfEndpoint || onPdfDownload;
 
-  const canColored = ["ghost", "outline"].includes(buttonVariant);
-
   if (variant === "grouped") {
     return (
       <div className="flex items-center gap-1 bg-muted rounded-lg border h-fit">
@@ -122,13 +130,13 @@ export default function ExportButtons({
             <TooltipTrigger asChild>
               <Button
                 size="sm"
-                variant={buttonVariant}
-                color={canColored ? "green" : undefined}
+                variant={excelVariant}
+                color={excelColor}
                 onClick={handleExcelDownload}
                 disabled={disableExcel}
               >
                 <Sheet className="h-4 w-4" />
-                Excel
+                {excelButtonText}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -142,13 +150,13 @@ export default function ExportButtons({
             <TooltipTrigger asChild>
               <Button
                 size="sm"
-                variant={buttonVariant}
-                color={canColored ? "primary" : undefined}
+                variant={pdfVariant}
+                color={pdfColor}
                 onClick={handlePDFDownload}
                 disabled={disablePdf}
               >
                 <FileDown className="h-4 w-4" />
-                PDF
+                {pdfButtonText}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -167,13 +175,14 @@ export default function ExportButtons({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              size="icon-sm"
-              variant={buttonVariant}
-              color={canColored ? "green" : undefined}
+              size={variant === "separate-icon" ? "icon-sm" : "sm"}
+              variant={excelVariant}
+              color={excelColor}
               onClick={handleExcelDownload}
               disabled={disableExcel}
             >
               <Sheet className="h-4 w-4" />
+              {variant !== "separate-icon" && excelButtonText}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -186,13 +195,14 @@ export default function ExportButtons({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              size="icon-sm"
-              variant={buttonVariant}
-              color={canColored ? "primary" : undefined}
+              size={variant === "separate-icon" ? "icon-sm" : "sm"}
+              variant={pdfVariant}
+              color={pdfColor}
               onClick={handlePDFDownload}
               disabled={disablePdf}
             >
               <FileDown className="h-4 w-4" />
+              {variant !== "separate-icon" && pdfButtonText}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
