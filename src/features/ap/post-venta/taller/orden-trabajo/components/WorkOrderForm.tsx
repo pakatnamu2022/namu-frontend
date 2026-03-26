@@ -196,10 +196,9 @@ export const WorkOrderForm = ({
         selectedAppointment.delivery_time
       ) {
         const time = selectedAppointment.delivery_time.slice(0, 5); // "15:30:00" -> "15:30"
-        form.setValue(
-          "estimated_delivery_time",
-          `${selectedAppointment.delivery_date}T${time}`,
-        );
+        // delivery_date puede venir como ISO completo "2025-03-26T00:00:00Z" o solo "2025-03-26"
+        const dateOnly = selectedAppointment.delivery_date.split("T")[0];
+        form.setValue("estimated_delivery_time", `${dateOnly}T${time}`);
       }
 
       // Agregar item desde la cita solo si no hay items
