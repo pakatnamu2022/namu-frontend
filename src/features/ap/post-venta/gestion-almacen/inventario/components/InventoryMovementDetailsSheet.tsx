@@ -1,4 +1,7 @@
-import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import {
+  CreditNoteResource,
+  InventoryMovementResource,
+} from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -9,6 +12,7 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
+import { formatDate } from "@/core/core.function.ts";
 
 interface InventoryMovementDetailsSheetProps {
   open: boolean;
@@ -679,6 +683,141 @@ export default function InventoryMovementDetailsSheet({
         return null;
       }
 
+      case "RETURN_OUT": {
+        const creditNote = reference as CreditNoteResource;
+        return (
+          <div className="space-y-4">
+            <div className="border rounded-lg">
+              <div className="p-4 bg-muted/50 border-b">
+                <h3 className="font-semibold text-sm">
+                  Detalles de Salida por Devolución
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-4 p-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    N° Nota de Crédito
+                  </p>
+                  <p className="font-semibold">
+                    {creditNote.credit_note_number}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Fecha</p>
+                  <p className="font-medium">
+                    {formatDate(creditNote.credit_note_date)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Subtotal</p>
+                  <p className="font-medium">
+                    S/ {Number(creditNote.subtotal).toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">IGV</p>
+                  <p className="font-medium">
+                    S/ {Number(creditNote.tax_amount).toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="font-semibold text-lg">
+                    S/ {Number(creditNote.total).toFixed(2)}
+                  </p>
+                </div>
+                {creditNote.notes && (
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Notas</p>
+                    <p className="font-medium text-sm">{creditNote.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="border rounded-lg">
+              <div className="p-4 bg-muted/50 border-b">
+                <h3 className="font-semibold text-sm">
+                  Detalle de Productos Devueltos
+                </h3>
+              </div>
+              <div className="p-4 space-y-3">
+                {creditNote.details?.length ? (
+                  creditNote.details.map((detail, index) => (
+                    <div
+                      key={detail.id}
+                      className="border rounded-md p-3 space-y-2"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-sm">
+                            {detail.product?.name ||
+                              `Producto #${detail.product_id}`}
+                          </p>
+                          {detail.product?.code && (
+                            <p className="text-xs text-muted-foreground">
+                              Cód: {detail.product.code} | Cód Dyn:{" "}
+                              {detail.product.dyn_code}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant="outline">Artículo {index + 1}</Badge>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Cantidad
+                          </p>
+                          <p className="font-medium">{detail.quantity}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Precio Unitario
+                          </p>
+                          <p className="font-medium">
+                            S/ {Number(detail.unit_price).toFixed(2)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Descuento
+                          </p>
+                          <p className="font-medium">
+                            {detail.discount_percentage}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Subtotal
+                          </p>
+                          <p className="font-semibold">
+                            S/ {Number(detail.subtotal).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {detail.notes && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Observación
+                          </p>
+                          <p className="font-medium text-sm">{detail.notes}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No hay detalle de productos para esta nota de crédito.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       default:
         return null;
     }
@@ -691,7 +830,7 @@ export default function InventoryMovementDetailsSheet({
       title="Detalles del Movimiento"
       size="3xl"
     >
-      <div className="space-y-6 mt-6">
+      <div className="space-y-6">
         {/* Información General del Movimiento */}
         <div className="space-y-4">
           <div className="p-4 bg-muted/50 border-b rounded-t-lg">
@@ -705,9 +844,7 @@ export default function InventoryMovementDetailsSheet({
             <div>
               <p className="text-xs text-muted-foreground">Fecha</p>
               <p className="font-medium">
-                {format(new Date(movement.movement_date), "dd/MM/yyyy HH:mm", {
-                  locale: es,
-                })}
+                {formatDate(movement.movement_date)}
               </p>
             </div>
             <div>

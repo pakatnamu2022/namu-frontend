@@ -45,6 +45,7 @@ export interface ProductResource {
   ap_class_article_id: number;
   warranty_months?: number;
   status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
+  has_purchase_order: boolean;
 
   // Computed/appended fields from backend
   brand_name?: string;

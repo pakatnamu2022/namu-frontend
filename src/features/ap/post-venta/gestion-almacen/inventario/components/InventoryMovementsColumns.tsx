@@ -1,5 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import {
+  CreditNoteResource,
+  InventoryMovementResource,
+} from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -251,6 +254,29 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
             <span className="font-medium">Ajuste de inventario</span>
             <span className="text-xs text-gray-500">
               {movement.reason_in_out.description || "-"}
+            </span>
+          </div>
+        );
+      }
+
+      // SALE - Mostrar cliente de la cotización
+      if (movementType === "RETURN_OUT") {
+        const creditNote = reference as CreditNoteResource;
+
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">
+              {creditNote.purchase_order.supplier}
+            </span>
+            <span className="text-xs text-gray-500">
+              RUC: {creditNote.purchase_order.supplier_num_doc}
+            </span>
+            <span className="text-xs text-gray-500">
+              Factura: {creditNote.purchase_order.invoice_series} -{" "}
+              {creditNote.purchase_order.invoice_number}
+            </span>
+            <span className="text-xs text-gray-500">
+              Nota de Crédito: {creditNote.credit_note_number}
             </span>
           </div>
         );
