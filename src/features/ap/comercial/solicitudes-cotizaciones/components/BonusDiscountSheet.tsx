@@ -173,6 +173,7 @@ export function BonusDiscountSheet({
                 setErrors({ ...errors, descripcion: false });
               }}
               required
+              uppercase
               placeholder="Ingrese descripción"
               className={errors.descripcion ? "border-red-500" : ""}
               error={errors.descripcion ? "Este campo es requerido" : undefined}
