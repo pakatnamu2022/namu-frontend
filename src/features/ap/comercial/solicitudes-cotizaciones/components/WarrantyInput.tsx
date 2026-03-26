@@ -24,7 +24,7 @@ export function WarrantyInput({ control, required }: WarrantyInputProps) {
   const hasError = !!(yearsError || kmError);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col">
       <label className="flex items-center gap-1 text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground leading-none h-fit mb-1">
         Garantía
         {required && <RequiredField />}
@@ -54,7 +54,7 @@ export function WarrantyInput({ control, required }: WarrantyInputProps) {
                     inputMode="numeric"
                     className={cn(
                       "border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0",
-                      "h-8 md:h-9 text-xs md:text-sm w-12 p-0 text-center",
+                      "h-7 md:h-8 text-xs md:text-sm w-12 p-0 text-center",
                       "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                       yearsError && "text-destructive placeholder:text-destructive/50",
                     )}
@@ -92,7 +92,7 @@ export function WarrantyInput({ control, required }: WarrantyInputProps) {
                     inputMode="numeric"
                     className={cn(
                       "border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0",
-                      "h-8 md:h-9 text-xs md:text-sm w-20 p-0 text-center",
+                      "h-7 md:h-8 text-xs md:text-sm w-20 p-0 text-center",
                       "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                       kmError && "text-destructive placeholder:text-destructive/50",
                     )}

@@ -1,6 +1,7 @@
 "use server";
 
 import { api } from "@/core/api";
+import { toLocalDateTimeString } from "@/core/core.function";
 import type { AxiosRequestConfig } from "axios";
 import { HotelReservationRequest } from "./hotelReservation.interface";
 import { HotelReservationResource } from "./perDiemRequest.interface";
@@ -56,18 +57,8 @@ export async function createHotelReservation(
     formData.append("document_number", requestData.document_number);
   }
 
-  // Convertir fechas a formato ISO con hora
-  const checkinDate =
-    typeof requestData.checkin_date === "string"
-      ? new Date(requestData.checkin_date)
-      : requestData.checkin_date;
-  const checkoutDate =
-    typeof requestData.checkout_date === "string"
-      ? new Date(requestData.checkout_date)
-      : requestData.checkout_date;
-
-  formData.append("checkin_date", checkinDate.toISOString());
-  formData.append("checkout_date", checkoutDate.toISOString());
+  formData.append("checkin_date", toLocalDateTimeString(requestData.checkin_date));
+  formData.append("checkout_date", toLocalDateTimeString(requestData.checkout_date));
 
   // Agregar archivo (obligatorio)
   formData.append("receipt_file", requestData.receipt_file);

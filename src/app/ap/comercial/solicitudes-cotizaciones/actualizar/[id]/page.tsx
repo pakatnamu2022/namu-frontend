@@ -75,6 +75,8 @@ export default function UpdatePurchaseRequestQuotePage() {
       comment: data.comment || "",
       warranty_years: data.warranty_years || 0,
       warranty_km: data.warranty_km || 0,
+      // quote_deadline llega del backend como "YYYY-MM-DD", se pasa directo
+      quote_deadline: data.quote_deadline || "",
       // Pasar los arrays tal como vienen del API
       bonus_discounts: data.bonus_discounts || [],
       accessories: data.accessories || [],
