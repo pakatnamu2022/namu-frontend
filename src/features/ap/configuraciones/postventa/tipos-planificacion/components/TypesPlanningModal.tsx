@@ -15,7 +15,6 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { TypesPlanningForm } from "./TypesPlanningForm.tsx";
-import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { TYPE_PLANNING } from "../lib/typesPlanning.constants.ts";
 
 interface Props {
@@ -45,12 +44,14 @@ export default function TypesPlanningModal({
       useTypesPlanningById(id!);
 
   function mapRoleToForm(
-    data: TypesPlanningResource
+    data: TypesPlanningResource,
   ): Partial<TypesPlanningSchema> {
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_TYPE.TYPE_PLANNING,
+      validate_receipt: Boolean(data.validate_receipt),
+      validate_labor: Boolean(data.validate_labor),
+      type_document: data.type_document,
     };
   }
 

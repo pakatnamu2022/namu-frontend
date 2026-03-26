@@ -13,11 +13,13 @@ export const typesPlanningSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Descripción es requerida",
     }),
-  type: z
+  validate_receipt: z.boolean(),
+  validate_labor: z.boolean(),
+  type_document: z
     .string()
     .max(100)
     .refine((value) => value.trim() !== "", {
-      message: "Tipo es requerido",
+      message: "Tipo de documento es requerido",
     }),
   status: z.boolean().optional().default(true),
 });
