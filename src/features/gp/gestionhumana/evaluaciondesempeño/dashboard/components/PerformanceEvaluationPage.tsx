@@ -90,29 +90,18 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
     );
   }
 
-  const handleDownloadReport = async () => {
-    try {
-      const blob = await exportEvaluationReport(evaluationData.id);
-
-      // Crear URL del blob
+  const handleDownload = (format: "excel" | "pdf") => {
+    const ext = format === "excel" ? "xlsx" : "pdf";
+    return exportEvaluationReport(evaluationData.id, format).then((blob) => {
       const url = window.URL.createObjectURL(blob);
-
-      // Crear elemento <Link> temporal para la descarga
       const link = document.createElement("a");
       link.href = url;
-      link.download = `reporte-evaluacion-${evaluationData.id}.xlsx`; // o .xlsx, .csv según el tipo
-
-      // Agregar al DOM, hacer click y remover
+      link.download = `reporte-evaluacion-${evaluationData.id}.${ext}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      // Limpiar la URL del objeto
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error al descargar el reporte:", error);
-      // Aquí puedes actualizar un toast o notificación de error
-    }
+    });
   };
 
   const progressStats: ProgressStats = evaluationData.progress_stats!;
@@ -129,7 +118,8 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
         onRefresh={handleRefresh}
         refetching={evaluationQuery.isRefetching}
         evaluationData={evaluationData}
-        onDownloadReport={handleDownloadReport}
+        onExcelDownload={() => handleDownload("excel")}
+        onPdfDownload={() => handleDownload("pdf")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
