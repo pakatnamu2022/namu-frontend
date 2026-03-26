@@ -28,17 +28,21 @@ export default function StoreVisitsActions({
   };
 
   const getDateRange = () =>
-    dateFrom && dateTo
-      ? [formatDate(dateFrom), formatDate(dateTo)]
-      : undefined;
+    dateFrom && dateTo ? [formatDate(dateFrom), formatDate(dateTo)] : undefined;
 
   return (
     <ActionsWrapper>
       <div className="flex items-center gap-2">
         {permissions.canExport && (
           <ExportButtons
+            pdfVariant="ghost"
+            excelVariant="outline"
+            pdfColor="muted"
+            excelColor="muted"
             onExcelDownload={() =>
-              downloadStoreVisitsFile({ params: { created_at: getDateRange() } })
+              downloadStoreVisitsFile({
+                params: { created_at: getDateRange() },
+              })
             }
             onPdfDownload={() =>
               downloadStoreVisitsFile({
