@@ -46,7 +46,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   useEffect(() => {
     if (!loadingVehiclePurchaseOrder && vehiclePurchaseOrder && !canResend) {
       errorToast(
-        "Esta orden de compra no cumple con los requisitos para ser reenviada"
+        "Esta orden de compra no cumple con los requisitos para ser reenviada",
       );
       router(ABSOLUTE_ROUTE);
     }
@@ -91,7 +91,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   };
 
   function mapVehiclePurchaseOrderToForm(
-    data: VehiclePurchaseOrderResource
+    data: VehiclePurchaseOrderResource,
   ): Partial<VehiclePurchaseOrderSchema> {
     return {
       // Vehicle - Los datos vienen dentro del objeto vehicle
@@ -120,10 +120,8 @@ export default function ResendVehiclePurchaseOrderPage() {
       // Invoice
       invoice_series: data.invoice_series || "",
       invoice_number: data.invoice_number || "",
-      emission_date: parse(data.emission_date, "yyyy-MM-dd", new Date()),
-      due_date: data.due_date
-        ? parse(data.due_date, "yyyy-MM-dd", new Date())
-        : undefined,
+      emission_date: data.emission_date ?? "",
+      due_date: data.due_date ?? "",
       subtotal: Number(data.subtotal) || 0,
       igv: Number(data.igv) || 0,
       total: Number(data.total) || 0,
