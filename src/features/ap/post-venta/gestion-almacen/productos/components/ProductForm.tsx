@@ -26,7 +26,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useEffect } from "react";
 import { FormInput } from "@/shared/components/FormInput.tsx";
-import { FormInputText } from "@/shared/components/FormInputText.tsx";
+import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 import {
   CM_COMERCIAL_ID,
   CM_POSTVENTA_ID,
@@ -342,7 +342,7 @@ export const ProductForm = ({
         )}
 
         {/* Notas */}
-        <FormInputText
+        <FormTextArea
           name="description"
           label="Descripción / Notas"
           placeholder="Descripción o notas del producto"

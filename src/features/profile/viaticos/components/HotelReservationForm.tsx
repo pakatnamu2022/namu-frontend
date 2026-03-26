@@ -23,7 +23,7 @@ import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Option } from "@/core/core.interface";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 
 interface HotelReservationFormProps {
@@ -398,7 +398,7 @@ export const HotelReservationForm = ({
         />
 
         {/* Notas */}
-        <FormInputText
+        <FormTextArea
           control={form.control}
           name="notes"
           label="Notas (Opcional)"

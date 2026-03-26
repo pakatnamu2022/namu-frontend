@@ -12,7 +12,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { useStoreWorkOrderItem } from "../lib/workOrderItem.hook";
 import { WorkOrderItemRequest } from "../lib/workOrderItem.interface";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 
 const workOrderItemSchema = z.object({
@@ -141,7 +141,7 @@ export default function WorkOrderItemForm({
           disabled={isLoadingTypesOperation}
         />
 
-        <FormInputText
+        <FormTextArea
           control={form.control}
           name="description"
           label="Descripción"

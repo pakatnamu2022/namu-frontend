@@ -281,7 +281,7 @@ export default function PurchaseRequestQuoteDetailModal({
                       </div>
                     )}
                     {quote.ap_vehicle.vehicle_status && (
-                      <div>
+                      <div className="col-span-2">
                         <p className="text-xs text-muted-foreground">Estado</p>
                         <span
                           className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full"

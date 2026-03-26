@@ -7,15 +7,7 @@ import {
 } from "../lib/storeVisits.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, Loader, X } from "lucide-react";
@@ -303,94 +295,75 @@ export const StoreVisitsForm = ({
             }
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="full_name"
-            render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel>
-                  {validationType === "ruc" ? "Razón Social" : "Nombres"}
-                  {validationType === "ruc" &&
-                    companyStatus !== "-" &&
-                    companyCondition !== "-" && (
-                      <div className="absolute right-0 top-0 flex gap-2">
-                        {/* Estado */}
+            label={
+              <div className="flex items-center justify-between gap-2 w-full">
+                {validationType === "ruc" ? "Razón Social" : "Nombres"}
+                {validationType === "ruc" &&
+                  companyStatus !== "-" &&
+                  companyCondition !== "-" && (
+                    <div className="flex gap-2">
+                      <div
+                        className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          companyStatus === "ACTIVO"
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : "bg-red-100 text-red-800 border border-red-200"
+                        }`}
+                      >
                         <div
-                          className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          className={`w-2 h-2 rounded-full ${
                             companyStatus === "ACTIVO"
-                              ? "bg-green-100 text-green-800 border border-green-200"
-                              : "bg-red-100 text-red-800 border border-red-200"
+                              ? "bg-green-500"
+                              : "bg-red-500"
                           }`}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              companyStatus === "ACTIVO"
-                                ? "bg-green-500"
-                                : "bg-red-500"
-                            }`}
-                          ></div>
-                          {companyStatus}
-                        </div>
-
-                        {/* Condición */}
-                        <div
-                          className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                            companyCondition === "HABIDO"
-                              ? "bg-green-100 text-green-800 border border-green-200"
-                              : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                          }`}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              companyCondition === "HABIDO"
-                                ? "bg-green-500"
-                                : "bg-yellow-500"
-                            }`}
-                          ></div>
-                          {companyCondition}
-                        </div>
+                        />
+                        {companyStatus}
                       </div>
-                    )}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: Juan"
-                    {...field}
-                    disabled={shouldDisableMainFields}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+                      <div
+                        className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          companyCondition === "HABIDO"
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                        }`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            companyCondition === "HABIDO"
+                              ? "bg-green-500"
+                              : "bg-yellow-500"
+                          }`}
+                        />
+                        {companyCondition}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            }
+            placeholder="Ej: Juan"
+            disabled={shouldDisableMainFields}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
+            label="Email"
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: example@gmail.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            placeholder="Ej: example@gmail.com"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
+            label="Teléfono"
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 987635542" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="text"
+            inputMode="numeric"
+            placeholder="Ej: 987635542"
+            maxLength={9}
           />
+
+
         </div>
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE}>

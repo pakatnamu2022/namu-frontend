@@ -61,7 +61,7 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ITEM_TYPE_PRODUCT } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
@@ -1194,7 +1194,7 @@ export default function ProformaMesonForm({
             />
           </div>
 
-          <FormInputText
+          <FormTextArea
             name="observations"
             label="Observaciones"
             placeholder="Notas adicionales sobre la cotización..."

@@ -40,7 +40,7 @@ import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interfac
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import {
   useDniValidation,
   useRucValidation,
@@ -597,7 +597,7 @@ export const AppointmentPlanningForm = ({
           </div>
 
           <div className="mt-6">
-            <FormInputText
+            <FormTextArea
               control={form.control}
               name="description"
               label="Descripción"

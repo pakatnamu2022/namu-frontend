@@ -22,22 +22,17 @@ export const hotelAgreementSchemaCreate = z.object({
       message: "Nombre del hotel es requerido",
     }),
   corporate_rate: z
-    .union([z.string(), z.number()])
-    .transform((val) => {
-      if (typeof val === "string") {
-        const parsed = parseFloat(val);
-        return isNaN(parsed) ? 0 : parsed;
-      }
-      return val;
+    .number({
+      error: "Ingrese un número válido",
     })
-    .refine((val) => val > 0, {
+    .positive({
       message: "Tarifa corporativa debe ser mayor a 0",
     }),
-  features: z.string().max(500).optional().default(""),
-  includes_breakfast: z.boolean().optional().default(false),
-  includes_lunch: z.boolean().optional().default(false),
-  includes_dinner: z.boolean().optional().default(false),
-  includes_parking: z.boolean().optional().default(false),
+  features: z.string().max(500).optional(),
+  includes_breakfast: z.boolean().optional(),
+  includes_lunch: z.boolean().optional(),
+  includes_dinner: z.boolean().optional(),
+  includes_parking: z.boolean().optional(),
   email: z
     .email("Email inválido")
     .max(100)
@@ -46,7 +41,7 @@ export const hotelAgreementSchemaCreate = z.object({
     }),
   phone: z
     .string()
-    .max(20)
+    .max(20, "El teléfono no puede tener más de 20 caracteres")
     .refine((value) => value.trim() !== "", {
       message: "Teléfono es requerido",
     }),
@@ -57,7 +52,7 @@ export const hotelAgreementSchemaCreate = z.object({
       message: "Dirección es requerida",
     }),
   website: z.string().max(255).optional().or(z.literal("")),
-  active: z.boolean().optional().default(true),
+  active: z.boolean().optional(),
 });
 
 export const hotelAgreementSchemaUpdate = hotelAgreementSchemaCreate;

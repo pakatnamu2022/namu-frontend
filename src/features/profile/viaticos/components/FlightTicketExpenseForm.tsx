@@ -22,7 +22,7 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { ExpenseTypeResource } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.interface";
 
 interface FlightTicketExpenseFormProps {
@@ -324,7 +324,7 @@ export default function FlightTicketExpenseForm({
 
           {/* Notas */}
           <div>
-            <FormInputText
+            <FormTextArea
               name="notes"
               label="Notas (Opcional)"
               placeholder="Observaciones adicionales..."
