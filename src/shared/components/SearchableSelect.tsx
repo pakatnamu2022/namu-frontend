@@ -56,7 +56,7 @@ export function SearchableSelect({
   withValue = true,
   label,
   disabled = false,
-  buttonSize = "default",
+  buttonSize = "sm",
   showSearch = true,
   allowClear = true,
 }: SearchableSelectProps) {
@@ -186,7 +186,7 @@ export function SearchableSelect({
   );
 
   return (
-    <div className={cn("flex flex-col gap-2 min-w-0", classNameDiv)}>
+    <div className={cn("flex flex-col gap-0.5 min-w-0", classNameDiv)}>
       {label && <label className="text-sm font-medium">{label}</label>}
       {isMobile ? (
         <Drawer
