@@ -7,20 +7,13 @@ import {
   hotelAgreementSchemaUpdate,
 } from "../lib/hotelAgreement.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Info, Loader } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface HotelAgreementFormProps {
   defaultValues: Partial<HotelAgreementSchema>;
@@ -72,6 +65,7 @@ export const HotelAgreementForm = ({
             label="RUC"
             placeholder="Ej: 20123456789"
             type="text"
+            maxLength={11}
           />
 
           <FormInput
@@ -131,113 +125,58 @@ export const HotelAgreementForm = ({
               type="text"
             />
           </div>
-        </GroupFormSection>
 
-        <FormTextArea
-          control={form.control}
-          name="features"
-          label="Características (Opcional)"
-          placeholder="Ej: WiFi, Piscina, Gimnasio, Room Service..."
-          description="Describe las amenidades y servicios del hotel"
-        />
-
-        <div className="space-y-4 rounded-md border p-4">
-          <h3 className="font-medium text-sm">Servicios Incluidos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
+          <div className="col-span-full">
+            <FormTextArea
               control={form.control}
-              name="includes_breakfast"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Incluye Desayuno</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="includes_lunch"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Incluye Almuerzo</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="includes_dinner"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Incluye Cena</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="includes_parking"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Incluye Estacionamiento</FormLabel>
-                  </div>
-                </FormItem>
-              )}
+              name="features"
+              label="Características (Opcional)"
+              placeholder="Ej: WiFi, Piscina, Gimnasio, Room Service..."
+              description="Describe las amenidades y servicios del hotel"
             />
           </div>
-        </div>
+        </GroupFormSection>
+
+        <GroupFormSection
+          title="Servicios Incluidos"
+          cols={{
+            md: 2,
+            lg: 4,
+          }}
+          icon={Info}
+        >
+          <FormSwitch
+            control={form.control}
+            name="includes_breakfast"
+            label="Incluye Desayuno"
+            text="Desayuno incluido"
+          />
+          <FormSwitch
+            control={form.control}
+            name="includes_lunch"
+            label="Incluye Almuerzo"
+            text="Almuerzo incluido"
+          />
+          <FormSwitch
+            control={form.control}
+            name="includes_dinner"
+            label="Incluye Cena"
+            text="Cena incluida"
+          />
+          <FormSwitch
+            control={form.control}
+            name="includes_parking"
+            label="Incluye Estacionamiento"
+            text="Estacionamiento incluido"
+          />
+        </GroupFormSection>
 
         {mode === "update" && (
-          <FormField
+          <FormSwitch
             control={form.control}
             name="active"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Convenio Activo</FormLabel>
-                  <FormDescription>
-                    Marcar si este convenio está vigente actualmente
-                  </FormDescription>
-                </div>
-              </FormItem>
-            )}
+            label="Convenio Activo"
+            text="Marcar si este convenio está vigente actualmente"
           />
         )}
 
