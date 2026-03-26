@@ -275,11 +275,14 @@ export const CustomersForm = ({
     true,
   );
 
-  // Hook para buscar distrito por ubigeo cuando se valida RUC
+  // Hook para buscar distrito por ubigeo cuando se valida DNI o RUC
+  const ubigeoFromDni =
+    dniData?.data?.ubigeo_reniec || dniData?.data?.ubigeo_sunat || "";
   const ubigeoFromRuc = rucData?.data?.ubigeo?.[2] || "";
+  const ubigeoToSearch = ubigeoFromRuc || ubigeoFromDni;
   const { data: districtByUbigeo, isLoading: isLoadingDistrictByUbigeo } =
     useDistricts({
-      search: ubigeoFromRuc,
+      search: ubigeoToSearch,
       per_page: 1,
     });
 
@@ -522,9 +525,10 @@ export const CustomersForm = ({
     }
   }, [conductorDniData, form]);
 
-  // UseEffect específico para setear distrito automáticamente desde ubigeo del RUC:
+  // UseEffect específico para setear distrito automáticamente desde ubigeo del DNI o RUC:
   useEffect(() => {
     if (isFirstLoad || isLoadingDistrictByUbigeo) return;
+    if (!ubigeoToSearch) return;
 
     if (districtByUbigeo?.data && districtByUbigeo.data.length > 0) {
       const firstDistrict = districtByUbigeo.data[0];
@@ -540,7 +544,7 @@ export const CustomersForm = ({
         value: firstDistrict.id.toString(),
       });
     }
-  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo]);
+  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo, ubigeoToSearch]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {

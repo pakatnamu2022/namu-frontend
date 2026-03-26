@@ -63,7 +63,7 @@ export default function ModulesGrid({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 md:gap-6">
         {modules.map((module, index) => {
           const IconComponent = LucideReact[
             module.icon ?? "FolderDot"
@@ -76,7 +76,7 @@ export default function ModulesGrid({
               onClick={() => handleModuleSelect(module)}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="text-center relative z-10 flex-row gap-2 md:gap-4 md:p-2 space-y-0 w-full flex items-center">
+              <div className="text-center relative z-10 flex-row gap-2 md:gap-4 p-1 md:p-2 space-y-0 w-full flex items-center">
                 <div className="relative">
                   <div
                     className={cn(

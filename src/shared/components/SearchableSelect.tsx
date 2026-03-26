@@ -56,7 +56,7 @@ export function SearchableSelect({
   withValue = true,
   label,
   disabled = false,
-  buttonSize = "sm",
+  buttonSize = "default",
   showSearch = true,
   allowClear = true,
 }: SearchableSelectProps) {
