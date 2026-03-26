@@ -2,32 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Info } from "lucide-react";
 import { ConceptDiscountBondResource } from "../lib/purchaseRequestQuote.interface";
-import { cn } from "@/lib/utils";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { BonusDiscountRow } from "./BonusDiscountTable";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { FormInput } from "@/shared/components/FormInput";
+import { Option } from "@/core/core.interface";
 
 const BONO_FINANCIERO_ID = "862";
 const BONO_MARCA_ID = "861";
@@ -75,7 +57,6 @@ export function BonusDiscountSheet({
     descripcion: false,
     valor: false,
   });
-  const [openCombobox, setOpenCombobox] = useState(false);
   const [previousConceptId, setPreviousConceptId] = useState("");
 
   useEffect(() => {
@@ -84,7 +65,6 @@ export function BonusDiscountSheet({
       setForm(initial);
       setPreviousConceptId(initial.concept_id);
       setErrors({ concept_id: false, descripcion: false, valor: false });
-      setOpenCombobox(false);
     }
   }, [open]);
 
@@ -103,7 +83,6 @@ export function BonusDiscountSheet({
   const handleClose = () => {
     setForm(EMPTY_FORM);
     setErrors({ concept_id: false, descripcion: false, valor: false });
-    setOpenCombobox(false);
     onClose();
   };
 
@@ -134,147 +113,102 @@ export function BonusDiscountSheet({
       icon={mode === "add" ? "Gift" : "Edit2"}
       size="lg"
     >
-      <div className="space-y-4 px-4">
+      <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium mb-1 block">Concepto</label>
-          <Select
+          <SearchableSelect
+            options={conceptsOptions.map((o): Option => ({ value: o.id.toString(), label: o.description }))}
             value={form.concept_id}
-            onValueChange={(value) => {
+            onChange={(value) => {
               setForm({ ...form, concept_id: value });
               setErrors({ ...errors, concept_id: false });
             }}
-          >
-            <SelectTrigger className={errors.concept_id ? "border-red-500" : ""}>
-              <SelectValue placeholder="Selecciona un concepto" />
-            </SelectTrigger>
-            <SelectContent>
-              {conceptsOptions.map((option) => (
-                <SelectItem key={option.id} value={option.id.toString()}>
-                  {option.description}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            label="Concepto"
+            placeholder="Selecciona un concepto"
+            className={errors.concept_id ? "border-red-500" : ""}
+            allowClear={false}
+            buttonSize="default"
+          />
           {errors.concept_id && (
-            <p className="text-xs text-red-500 mt-1">Este campo es requerido</p>
+            <Alert variant="destructive" className="mt-1 py-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>Este campo es requerido</AlertDescription>
+            </Alert>
           )}
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-1 block">Descripción</label>
           {descriptionOptions ? (
-            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  size="lg"
-                  aria-expanded={openCombobox}
-                  className={cn(
-                    "w-full justify-between",
-                    errors.descripcion && "border-red-500"
-                  )}
-                >
-                  {form.descripcion || "Ingrese descripción"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Buscar o escribir..."
-                    value={form.descripcion}
-                    onValueChange={(value) => {
-                      setForm({ ...form, descripcion: value });
-                      setErrors({ ...errors, descripcion: false });
-                    }}
-                  />
-                  <CommandList>
-                    <CommandEmpty>
-                      <div className="p-2">
-                        <p className="text-sm text-muted-foreground mb-2">
-                          No se encontraron resultados.
-                        </p>
-                      </div>
-                    </CommandEmpty>
-                    <CommandGroup>
-                      {descriptionOptions.map((option) => (
-                        <CommandItem
-                          key={option}
-                          value={option}
-                          onSelect={(currentValue) => {
-                            setForm({ ...form, descripcion: currentValue.toUpperCase() });
-                            setErrors({ ...errors, descripcion: false });
-                            setOpenCombobox(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              form.descripcion === option ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {option}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <SearchableSelect
+              options={descriptionOptions.map((o): Option => ({ value: o, label: o }))}
+              value={form.descripcion}
+              onChange={(value) => {
+                setForm({ ...form, descripcion: value });
+                setErrors({ ...errors, descripcion: false });
+              }}
+              label="Descripción"
+              placeholder="Selecciona una descripción"
+              className={errors.descripcion ? "border-red-500" : ""}
+              allowClear={false}
+            />
           ) : (
-            <Input
+            <FormInput
+              name="descripcion"
+              label="Descripción"
               value={form.descripcion}
               onChange={(e) => {
                 setForm({ ...form, descripcion: e.target.value });
                 setErrors({ ...errors, descripcion: false });
               }}
+              required
               placeholder="Ingrese descripción"
               className={errors.descripcion ? "border-red-500" : ""}
+              error={errors.descripcion ? "Este campo es requerido" : undefined}
             />
           )}
-          {errors.descripcion && (
-            <p className="text-xs text-red-500 mt-1">Este campo es requerido</p>
+          {errors.descripcion && descriptionOptions && (
+            <Alert variant="destructive" className="mt-1 py-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>Este campo es requerido</AlertDescription>
+            </Alert>
           )}
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-1 block">Valor</label>
-          <Input
+          <FormInput
+            name="valor"
+            label="Valor"
             type="number"
             value={form.valor || ""}
             onChange={(e) => {
               setForm({ ...form, valor: parseFloat(e.target.value) || 0 });
               setErrors({ ...errors, valor: false });
             }}
+            required
             placeholder="0.00"
             step="0.01"
             className={errors.valor ? "border-red-500" : ""}
+            error={errors.valor ? "Ingrese un valor mayor a 0" : undefined}
           />
-          {errors.valor && (
-            <p className="text-xs text-red-500 mt-1">Ingrese un valor mayor a 0</p>
-          )}
         </div>
 
         {form.valor > 0 && (
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm text-primary">Vista Previa</h4>
+          <Alert variant="info">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              <p className="font-medium mb-1">Vista Previa</p>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-gray-600">Precio de Venta:</span>
+                  <span className="opacity-75">Precio de Venta:</span>
                   <p className="font-medium">
                     {currencySymbol}{" "}
                     {costoReferencia.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-600">
+                  <span className="opacity-75">
                     Monto {form.isNegative ? "Descuento" : "Bono"}:
                   </span>
-                  <p
-                    className={`font-medium ${form.isNegative ? "text-red-600" : "text-primary"}`}
-                  >
+                  <p className="font-medium">
                     {form.isNegative ? "- " : ""}
                     {currencySymbol}{" "}
                     {form.isPercentage
@@ -286,14 +220,13 @@ export function BonusDiscountSheet({
                 </div>
               </div>
               {form.concept_id === DESCUENTO_NUEVO_ID && (
-                <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
-                  <p className="text-xs text-red-800 font-medium">
-                    Este descuento afectará el precio final del vehículo
-                  </p>
-                </div>
+                <Alert variant="destructive" className="mt-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>Este descuento afectará el precio final del vehículo</AlertDescription>
+                </Alert>
               )}
-            </div>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
         <div className="flex gap-3 pt-4">
