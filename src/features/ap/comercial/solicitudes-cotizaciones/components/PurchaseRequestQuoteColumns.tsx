@@ -2,18 +2,20 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
-  FileText,
   Pencil,
   Check,
   Car,
   Link2Off,
   Eye,
   ArrowLeftRight,
+  X,
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { Badge } from "@/components/ui/badge";
+import { ButtonAction } from "@/shared/components/ButtonAction";
+import ExportButtons from "@/shared/components/ExportButtons";
 
 export type PurchaseRequestQuoteColumns =
   ColumnDef<PurchaseRequestQuoteResource>;
@@ -67,7 +69,12 @@ export const purchaseRequestQuoteColumns = ({
   {
     accessorKey: "sale_price",
     header: "P. Venta Vehículo",
-    cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
+    cell: ({ row }) => (
+      <NumberFormat
+        prefix={row.original.doc_type_currency}
+        value={row.original.sale_price}
+      />
+    ),
   },
   {
     accessorKey: "comment",
@@ -91,8 +98,11 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => {
       const isApproved = getValue() as boolean;
       return (
-        <Badge color={isApproved ? "blue" : "red"}>
-          {isApproved ? "Sí" : "No"}
+        <Badge
+          color={isApproved ? "green" : "gray"}
+          icon={isApproved ? Check : X}
+        >
+          {isApproved ? "Aprobado" : "Pendiente"}
         </Badge>
       );
     },
@@ -103,8 +113,8 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => {
       const is_paid = getValue() as boolean;
       return (
-        <Badge variant="outline" color={is_paid ? "green" : "red"}>
-          {is_paid ? "Sí" : "No"}
+        <Badge color={is_paid ? "green" : "gray"} icon={is_paid ? Check : X}>
+          {is_paid ? "Pagado" : "Pendiente Pago"}
         </Badge>
       );
     },
@@ -139,11 +149,20 @@ export const purchaseRequestQuoteColumns = ({
     accessorKey: "ap_vehicle",
     header: "Vehículo Asignado",
     cell: ({ getValue }) => {
-      const vehicle = getValue() as string;
-      return vehicle ? (
-        <p>{vehicle}</p>
-      ) : (
-        <p className="italic text-muted-foreground">No asignado</p>
+      if (!getValue()) {
+        return (
+          <p className="text-muted-foreground uppercase text-xs">No asignado</p>
+        );
+      }
+      const vehicle = (getValue() as string)?.split(" - ");
+      const model = vehicle[0] || "";
+      const vin = vehicle[1] || "";
+
+      return (
+        <div className="flex flex-col text-xs">
+          <span>{model}</span>
+          <span className="font-semibold text-primary">{vin}</span>
+        </div>
       );
     },
   },
@@ -168,6 +187,14 @@ export const purchaseRequestQuoteColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {/* PDF - Only show if user has export permission */}
+          <ExportButtons
+            variant="separate-icon"
+            pdfVariant="outline"
+            excelVariant="outline"
+            onPdfDownload={() => onDownloadPdf(id)}
+            disablePdf={!permissions.canExport}
+          />
           {/* View Detail */}
           <Button
             variant="outline"
@@ -178,7 +205,6 @@ export const purchaseRequestQuoteColumns = ({
           >
             <Eye className="size-5" />
           </Button>
-
           {/* Assign Vehicle */}
           {canAssignVehicle && (
             <Button
@@ -191,7 +217,6 @@ export const purchaseRequestQuoteColumns = ({
               <Car className="size-5" />
             </Button>
           )}
-
           {/* Swap Vehicle */}
           {canSwapVehicle && (
             <Button
@@ -204,7 +229,6 @@ export const purchaseRequestQuoteColumns = ({
               <ArrowLeftRight className="size-5" />
             </Button>
           )}
-
           {/* Unassign Vehicle */}
           {canUnassignVehicle && (
             <Button
@@ -215,18 +239,6 @@ export const purchaseRequestQuoteColumns = ({
               onClick={() => onUnassignVehicle(id)}
             >
               <Link2Off className="size-5" />
-            </Button>
-          )}
-          {/* PDF - Only show if user has export permission */}
-          {permissions.canExport && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Descargar PDF"
-              onClick={() => onDownloadPdf(id)}
-            >
-              <FileText className="size-5" />
             </Button>
           )}
           {/* Edit - Only show if user has update permission */}
@@ -241,19 +253,17 @@ export const purchaseRequestQuoteColumns = ({
               <Pencil className="size-5" />
             </Button>
           )}
+
           {/* Approve - Only show if user has approve permission */}
-          {permissions.canApprove && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Confirmar"
-              onClick={() => onApprove(id)}
-              disabled={isApproved}
-            >
-              <Check className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            variant="outline"
+            className="size-7"
+            tooltip="Confirmar"
+            color="emerald"
+            onClick={() => onApprove(id)}
+            canRender={!isApproved && permissions.canApprove}
+            icon={Check}
+          />
         </div>
       );
     },

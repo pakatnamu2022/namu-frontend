@@ -3,11 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { AGENDA } from "../../agenda/lib/agenda.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
-import { useCalendarMonth, useCalendarYear, type CalendarState } from "@/shared/components/CalendarGrid";
+import {
+  useCalendarMonth,
+  useCalendarYear,
+  type CalendarState,
+} from "@/shared/components/CalendarGrid";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface Props {
   canViewAllUsers: boolean;
@@ -64,38 +69,40 @@ export default function OpportunityActions({
 
   return (
     <ActionsWrapper>
-      <SearchableSelect
-        options={monthOptions}
-        value={(calendarMonth + 1).toString()}
-        onChange={handleMonthChange}
-        placeholder="Mes"
-        className="w-32"
-        allowClear={false}
-      />
-
-      <SearchableSelect
-        options={yearOptions}
-        value={calendarYear.toString()}
-        onChange={handleYearChange}
-        placeholder="Año"
-        className="w-24"
-        allowClear={false}
-      />
-
-      {canViewAllUsers && (
+      <FilterWrapper>
         <SearchableSelect
-          options={workers.map((worker) => ({
-            value: worker.id.toString(),
-            label: worker.name,
-          }))}
-          value={selectedAdvisorId?.toString() || ""}
-          onChange={(value: string) =>
-            setSelectedAdvisorId(value ? Number(value) : undefined)
-          }
-          className="min-w-72"
-          placeholder="Filtrar por asesor..."
+          options={monthOptions}
+          value={(calendarMonth + 1).toString()}
+          onChange={handleMonthChange}
+          placeholder="Mes"
+          className="w-32"
+          allowClear={false}
         />
-      )}
+
+        <SearchableSelect
+          options={yearOptions}
+          value={calendarYear.toString()}
+          onChange={handleYearChange}
+          placeholder="Año"
+          className="w-24"
+          allowClear={false}
+        />
+
+        {canViewAllUsers && (
+          <SearchableSelect
+            options={workers.map((worker) => ({
+              value: worker.id.toString(),
+              label: worker.name,
+            }))}
+            value={selectedAdvisorId?.toString() || ""}
+            onChange={(value: string) =>
+              setSelectedAdvisorId(value ? Number(value) : undefined)
+            }
+            className="min-w-72"
+            placeholder="Filtrar por asesor..."
+          />
+        )}
+      </FilterWrapper>
 
       <Button size="sm" className="" onClick={handleAgenda}>
         <Calendar className="size-4 mr-2" /> Ver Agenda

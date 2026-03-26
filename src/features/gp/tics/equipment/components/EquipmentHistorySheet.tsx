@@ -126,14 +126,14 @@ export default function EquipmentHistorySheet({
                       </Badge>
                       {isActive && (
                         <ExportButtons
-                          variant="separate"
+                          variant="separate-icon"
                           pdfEndpoint={`gp/tics/equipmentAssigment/${item.id}/pdf/assignment`}
                           pdfFileName="acta-asignacion.pdf"
                         />
                       )}
                       {!isActive && (
                         <ExportButtons
-                          variant="separate"
+                          variant="separate-icon"
                           pdfEndpoint={`gp/tics/equipmentAssigment/${item.id}/pdf/unassignment`}
                           pdfFileName="acta-devolucion.pdf"
                         />

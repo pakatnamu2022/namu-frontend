@@ -16,10 +16,12 @@ const { ENDPOINT } = EVALUATION_PERSON;
 
 export async function exportEvaluationReport(
   evaluation_id: number,
+  format: "excel" | "pdf",
 ): Promise<Blob> {
   const { data } = await api.get(`${ENDPOINT}/export`, {
     params: {
       evaluation_id,
+      format,
     },
     responseType: "blob",
   });

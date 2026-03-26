@@ -3,7 +3,6 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  Download,
   Calendar,
   BarChart3,
   Activity,
@@ -17,12 +16,14 @@ import { parse } from "date-fns";
 import { Link } from "react-router-dom";
 import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
 import TitleComponent from "@/shared/components/TitleComponent";
+import ExportButtons from "@/shared/components/ExportButtons";
 
 interface EvaluationHeaderProps {
   evaluationData: EvaluationResource;
   refetching: boolean;
   onRefresh: () => void;
-  onDownloadReport: () => void;
+  onExcelDownload: () => void | Promise<void>;
+  onPdfDownload: () => void | Promise<void>;
 }
 
 const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
@@ -31,7 +32,8 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
   evaluationData,
   refetching,
   onRefresh,
-  onDownloadReport,
+  onExcelDownload,
+  onPdfDownload,
 }) => {
   const getStatusVariant = (status: number): BadgeColor => {
     switch (status) {
@@ -128,14 +130,15 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               Ver Evaluaciones
             </Button>
           </Link>
-          <Button
-            size="sm"
-            onClick={onDownloadReport}
-            className="order-1 sm:order-2"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Descargar Reporte
-          </Button>
+          <ExportButtons
+            onExcelDownload={onExcelDownload}
+            onPdfDownload={onPdfDownload}
+            excelVariant="default"
+            pdfVariant="default"
+            variant="separate"
+            pdfButtonText="Descargar PDF"
+            excelButtonText="Descargar Reporte"
+          />
         </div>
       </div>
 
