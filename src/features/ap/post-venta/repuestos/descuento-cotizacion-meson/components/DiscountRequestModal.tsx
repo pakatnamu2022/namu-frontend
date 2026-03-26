@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loader } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
-import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import {
   discountRequestSchema,
@@ -45,7 +44,7 @@ interface DiscountRequestModalProps {
   onSuccess?: () => void;
   /** Tipo de ítem al que aplica el descuento */
   itemType?: "PRODUCT" | "LABOR";
-  /** Descuento máximo permitido (0-100). Por defecto 100. */
+  /** Descuento máximo que el usuario puede aplicar sin solicitar (0-100). La solicitud debe superar este valor. */
   maxDiscount?: number;
 }
 
@@ -65,13 +64,10 @@ export const DiscountRequestModal = ({
   const queryClient = useQueryClient();
   const isEditing = !!existingRequest;
 
-  // Descuento mínimo: el porcentaje ya aplicado al ítem (para PARTIAL) o 0 (para GLOBAL)
-  const minDiscount =
-    type === TYPE_PARTIAL ? Number(detail?.discount_percentage ?? 0) : 0;
-
+  // La solicitud debe ser MAYOR al descuento que el usuario ya tiene permitido
   const defaultPct = existingRequest
     ? Number(existingRequest.requested_discount_percentage)
-    : Math.max(DEFAULT_APPROVED_DISCOUNT, minDiscount);
+    : maxDiscount + 1;
 
   const form = useForm<DiscountRequestSchema>({
     resolver: zodResolver(discountRequestSchema),
@@ -92,7 +88,7 @@ export const DiscountRequestModal = ({
     if (!open) return;
     const pct = existingRequest
       ? Number(existingRequest.requested_discount_percentage)
-      : Math.max(DEFAULT_APPROVED_DISCOUNT, minDiscount);
+      : maxDiscount + 1;
     form.reset({
       type,
       requested_discount_percentage: pct,
@@ -109,7 +105,7 @@ export const DiscountRequestModal = ({
     existingRequest,
     form,
     itemType,
-    minDiscount,
+    maxDiscount,
     open,
     quotationId,
     type,
@@ -213,14 +209,18 @@ export const DiscountRequestModal = ({
                 name="requested_discount_percentage"
                 label="Porcentaje de descuento solicitado"
                 type="number"
-                min={0}
-                max={maxDiscount}
-                step={0.01}
+                max={100}
                 addonEnd={<span className="text-xs font-medium">%</span>}
                 required
               />
+              {pct <= maxDiscount && (
+                <p className="text-xs text-destructive font-medium">
+                  El descuento solicitado debe ser mayor al{" "}
+                  {maxDiscount.toFixed(2)}% que ya tienes permitido.
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
-                Máximo permitido:{" "}
+                Debe superar tu límite actual de{" "}
                 <span className="font-semibold text-foreground">
                   {maxDiscount.toFixed(2)}%
                 </span>
@@ -267,7 +267,7 @@ export const DiscountRequestModal = ({
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending || pct <= maxDiscount}>
                 {isPending && <Loader className="mr-2 h-4 w-4 animate-spin" />}
                 {isPending
                   ? "Guardando..."

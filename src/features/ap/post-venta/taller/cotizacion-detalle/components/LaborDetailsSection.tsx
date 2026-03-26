@@ -303,8 +303,7 @@ export default function LaborDetailsSection({
       ? globalBaseAmount
       : Number(selectedDetail?.total_amount || 0);
 
-  // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
-  const maxDiscountForModal = 100;
+  const maxDiscountForModal = maxDiscountAllowed;
 
   return (
     <Card className="p-6">
@@ -346,7 +345,6 @@ export default function LaborDetailsSection({
                 placeholder="Ej: Horas"
                 className="h-9 text-xs"
                 type="number"
-                disabled
               />
             </div>
 

@@ -190,6 +190,17 @@ export const WorkOrderForm = ({
         form.setValue("sede_id", selectedAppointment.sede_id.toString());
       }
 
+      if (selectedAppointment.full_name_client) {
+        form.setValue(
+          "full_contact_name",
+          selectedAppointment.full_name_client,
+        );
+      }
+
+      if (selectedAppointment.phone_client) {
+        form.setValue("phone_contact", selectedAppointment.phone_client);
+      }
+
       // Setear fecha y hora estimada de entrega desde la cita
       if (
         selectedAppointment.delivery_date &&
@@ -823,6 +834,27 @@ export const WorkOrderForm = ({
             </div>
           </GroupFormSection>
         )}
+
+        {/* Persona de Contacto */}
+        <GroupFormSection
+          title="Persona de Contacto"
+          icon={User}
+          color="gray"
+          cols={{ sm: 2 }}
+        >
+          <FormInput
+            name="full_contact_name"
+            label="Nombre Completo"
+            placeholder="Ingrese el nombre del contacto"
+            control={form.control}
+          />
+          <FormInput
+            name="phone_contact"
+            label="Teléfono"
+            placeholder="Ingrese el teléfono del contacto"
+            control={form.control}
+          />
+        </GroupFormSection>
 
         {/* Observaciones */}
         <GroupFormSection

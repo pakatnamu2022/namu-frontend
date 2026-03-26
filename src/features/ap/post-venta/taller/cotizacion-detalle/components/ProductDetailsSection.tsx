@@ -77,6 +77,7 @@ import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-alma
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
+  { label: "Local", value: "LOCAL" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];
