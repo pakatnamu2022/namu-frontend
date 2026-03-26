@@ -669,6 +669,10 @@ export const VehiclePurchaseOrderForm = ({
                   value: item.id.toString(),
                   description: item.code ?? "-",
                 })}
+                additionalParams={{
+                  sort: "description",
+                  direction: "desc",
+                }}
                 control={form.control}
               >
                 <Button
