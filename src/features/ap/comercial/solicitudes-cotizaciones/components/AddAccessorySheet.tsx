@@ -80,7 +80,7 @@ export function AddAccessorySheet({
       icon="PackagePlus"
       size="lg"
     >
-      <div className="space-y-4 px-4">
+      <div className="space-y-4">
         <SearchableSelect
           label="Tipo"
           value={form.type}

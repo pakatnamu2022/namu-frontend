@@ -152,7 +152,10 @@ export function DatePickerFormField<T extends FieldValues>({
               <Button
                 size={size ? size : isMobile ? "sm" : "default"}
                 variant="outline"
-                className="w-full justify-between font-normal text-xs"
+                className={cn(
+                  "w-full justify-between font-normal text-xs",
+                  field.value && "bg-muted",
+                )}
                 disabled={disabled}
               >
                 {displayValue} <span className="truncate">{displayValue}</span>
@@ -188,6 +191,7 @@ export function DatePickerFormField<T extends FieldValues>({
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !parsedDate && "text-muted-foreground",
+                  field.value && "bg-muted",
                 )}
                 disabled={disabled}
               >

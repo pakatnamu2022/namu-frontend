@@ -45,7 +45,9 @@ export function CreateApprovedAccessoryModal({
   const { mutate: createAccessory, isPending } = useMutation({
     mutationFn: storeApprovedAccesories,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [APPROVED_ACCESSORIES.QUERY_KEY] });
+      queryClient.invalidateQueries({
+        queryKey: [APPROVED_ACCESSORIES.QUERY_KEY],
+      });
       toast.success("Accesorio homologado creado correctamente");
       form.reset();
       onClose();
@@ -68,12 +70,12 @@ export function CreateApprovedAccessoryModal({
       title="Nuevo Accesorio Homologado"
       subtitle="Solo disponible para Comercial"
       icon="PackagePlus"
-      size="lg"
+      size="xl"
     >
       <div className="space-y-4">
         <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
-          Este accesorio se creará para usarse en el cotizador comercial.
-          No aplica para los accesorios de post-venta.
+          Este accesorio se creará para usarse en el cotizador comercial. No
+          aplica para los accesorios de post-venta.
         </div>
 
         <Form {...form}>
@@ -85,6 +87,7 @@ export function CreateApprovedAccessoryModal({
                 control={form.control}
                 placeholder="Ej: LS"
                 uppercase
+                required
               />
               <FormInput
                 name="description"
@@ -92,6 +95,7 @@ export function CreateApprovedAccessoryModal({
                 control={form.control}
                 placeholder="Ej: Láminas de Seguridad"
                 uppercase
+                required
               />
               <FormInput
                 name="price"
@@ -99,6 +103,7 @@ export function CreateApprovedAccessoryModal({
                 control={form.control}
                 placeholder="Ej: 390"
                 type="number"
+                required
               />
               <FormSelect
                 name="body_type_id"
@@ -109,6 +114,7 @@ export function CreateApprovedAccessoryModal({
                   value: item.id.toString(),
                 }))}
                 control={form.control}
+                required
               />
             </div>
 
