@@ -303,7 +303,6 @@ export const VehiclePurchaseOrderForm = ({
   const igvInput = form.watch("igv") || 0;
   const iscInput = form.watch("isc") || 0;
   const totalInput = form.watch("total") || 0;
-  const emissionDate = form.watch("emission_date");
   const quotationWatch = form.watch("quotation_id");
 
   // Watch all items to trigger recalculation on any change
@@ -351,15 +350,6 @@ export const VehiclePurchaseOrderForm = ({
       form.setValue("items.0.description", vehicleDescription);
     }
   }, [vin, selectedModel, isVehiclePurchase, fields.length, form]);
-
-  useEffect(() => {
-    if (emissionDate) {
-      form.setValue(
-        "due_date",
-        new Date(emissionDate.getTime() + 30 * 24 * 60 * 60 * 1000),
-      );
-    }
-  }, [emissionDate]);
 
   // Detectar si hay ISC basado en si el usuario ingresó un valor mayor a 0
   useEffect(() => {
