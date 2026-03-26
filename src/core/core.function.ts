@@ -206,6 +206,44 @@ export const getTodayLocalDateString = () => {
 };
 
 /**
+ * Convierte un Date (o string) a "YYYY-MM-DD" usando hora LOCAL.
+ * Usar en lugar de toISOString().split("T")[0] que usa UTC y puede dar el día anterior.
+ * Úsalo como defaultValue para DatePickerFormField y al enviar fechas al backend.
+ */
+export const toLocalDateString = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Convierte un Date (o string) a "YYYY-MM-DDTHH:mm" usando hora LOCAL.
+ * Usar en lugar de toISOString() que usa UTC y desplaza la hora según el timezone.
+ * Úsalo como defaultValue para DateTimePickerForm y al enviar fecha+hora al backend.
+ */
+export const toLocalDateTimeString = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+/**
+ * Retorna la fecha local de hoy más N días en formato "YYYY-MM-DD".
+ * Úsalo para calcular defaultValues de date pickers (ej: vencimiento en 30 días).
+ */
+export const localDatePlusDays = (days: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return toLocalDateString(d);
+};
+
+/**
  * Formatea una fecha ISO o Date a un formato legible
  * @param date - Fecha en formato ISO string o Date
  * @param dateFormat - Formato deseado (por defecto: "dd/MM/yyyy")

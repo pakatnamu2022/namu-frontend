@@ -22,6 +22,7 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/form";
+import { toLocalDateString } from "@/core/core.function";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -136,8 +137,8 @@ export function DateRangePickerFormField<T extends FieldValues>({
                       selected={dateRange}
                       defaultMonth={dateRange?.from}
                       onSelect={(range) => {
-                        fieldFrom.onChange(range?.from ?? "");
-                        fieldTo.onChange(range?.to ?? "");
+                        fieldFrom.onChange(range?.from ? toLocalDateString(range.from) : "");
+                        fieldTo.onChange(range?.to ? toLocalDateString(range.to) : "");
                       }}
                       disabled={disabled}
                       className="rounded-md border"

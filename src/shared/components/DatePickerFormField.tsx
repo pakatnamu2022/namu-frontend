@@ -109,7 +109,13 @@ export function DatePickerFormField<T extends FieldValues>({
 
   const handleChange = (date: Date | undefined) => {
     if (date) {
-      field.onChange(date);
+      // Emitir string local "YYYY-MM-DD" en vez de Date object.
+      // Date object serializado por JSON.stringify usa toISOString() → UTC,
+      // lo que puede desplazar la fecha según el timezone del usuario.
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      field.onChange(`${year}-${month}-${day}`);
       if (isMobile) setDrawerOpen(false);
     } else {
       field.onChange("");
