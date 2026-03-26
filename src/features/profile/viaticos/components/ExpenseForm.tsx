@@ -24,7 +24,7 @@ import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { errorToast } from "@/core/core.function";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { TYPE_EXPENSE_LOCAL_MOBILITY } from "../lib/perDiemExpense.constants";
 
 interface ExpenseFormProps {
@@ -383,7 +383,7 @@ export default function ExpenseForm({
             {/* Motivo (solo para Movilidad Local) */}
             {expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY && (
               <div className="mb-4">
-                <FormInputText
+                <FormTextArea
                   name="reason"
                   label="Motivo"
                   placeholder="Ejem: Desayuno"
@@ -394,7 +394,7 @@ export default function ExpenseForm({
               </div>
             )}
 
-            <FormInputText
+            <FormTextArea
               name="notes"
               label={
                 expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY

@@ -17,7 +17,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useGetAllPerDiemCategory } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.hook";
 import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
@@ -195,14 +195,14 @@ export const PerDiemRequestForm = ({
           />
         </div>
 
-        <FormInputText
+        <FormTextArea
           name="purpose"
           label="Propósito"
           placeholder="Describa el propósito del viático..."
           control={form.control}
         />
 
-        <FormInputText
+        <FormTextArea
           name="notes"
           label="Notas (Opcional)"
           placeholder="Observaciones o notas adicionales sobre esta solicitud..."

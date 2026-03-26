@@ -57,7 +57,7 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";
-import { FormInputText } from "@/shared/components/FormInputText.tsx";
+import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -1061,7 +1061,7 @@ export const ProductTransferForm = ({
 
         {/* Sección: Observaciones */}
         <div className="space-y-4">
-          <FormInputText
+          <FormTextArea
             name="notes"
             label="Notas u Observaciones"
             placeholder="Observaciones adicionales sobre la transferencia..."

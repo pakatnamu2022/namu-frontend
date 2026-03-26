@@ -42,7 +42,7 @@ import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizaci
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 
@@ -384,7 +384,7 @@ export default function PurchaseRequestForm({
           )}
 
           <div className="mt-4">
-            <FormInputText
+            <FormTextArea
               name="observations"
               label="Observaciones"
               placeholder="Notas adicionales sobre la solicitud..."

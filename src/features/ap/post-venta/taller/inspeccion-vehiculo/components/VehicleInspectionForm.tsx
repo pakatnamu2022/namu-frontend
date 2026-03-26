@@ -28,7 +28,7 @@ import VehicleDamageMarker from "./VehicleDamageMarker";
 import { CHECKLIST_ITEMS } from "../lib/vehicleInspection.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormCheckbox } from "@/shared/components/FormCheckbox";
@@ -200,7 +200,7 @@ export const VehicleInspectionForm = ({
             control={form.control}
           />
           <div className="col-span-full">
-            <FormInputText
+            <FormTextArea
               name="other_work_details"
               label="Otros Trabajos"
               placeholder="Detalles de otros trabajos realizados..."
@@ -216,7 +216,7 @@ export const VehicleInspectionForm = ({
           color="gray"
           cols={{ sm: 1 }}
         >
-          <FormInputText
+          <FormTextArea
             name="customer_requirement"
             label="Requerimiento del Cliente"
             placeholder="Ingrese el requerimiento del cliente..."
@@ -412,7 +412,7 @@ export const VehicleInspectionForm = ({
           color="gray"
           cols={{ sm: 1 }}
         >
-          <FormInputText
+          <FormTextArea
             name="general_observations"
             label="Observaciones"
             placeholder="Ingrese observaciones generales de la recepción..."

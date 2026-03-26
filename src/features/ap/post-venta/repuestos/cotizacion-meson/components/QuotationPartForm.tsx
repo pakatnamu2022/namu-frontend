@@ -16,7 +16,7 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useEffect } from "react";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import {
   CM_COMERCIAL_ID,
   CM_POSTVENTA_ID,
@@ -224,7 +224,7 @@ export const QuotationPartForm = ({
           />
         </div>
 
-        <FormInputText
+        <FormTextArea
           name="description"
           label="Descripción / Notas"
           placeholder="Descripción o notas del producto"

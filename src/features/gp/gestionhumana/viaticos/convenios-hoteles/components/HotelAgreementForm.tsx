@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import {
   HotelAgreementSchema,
-  HotelAgreementSchemaUpdate,
   hotelAgreementSchemaCreate,
   hotelAgreementSchemaUpdate,
 } from "../lib/hotelAgreement.schema";
@@ -17,13 +16,14 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Info, Loader } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface HotelAgreementFormProps {
-  defaultValues: Partial<HotelAgreementSchema | HotelAgreementSchemaUpdate>;
+  defaultValues: Partial<HotelAgreementSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
@@ -37,13 +37,19 @@ export const HotelAgreementForm = ({
   mode = "create",
   onCancel,
 }: HotelAgreementFormProps) => {
-  const form = useForm<HotelAgreementSchema | HotelAgreementSchemaUpdate>({
+  const form = useForm<HotelAgreementSchema>({
     resolver: zodResolver(
       mode === "create"
         ? hotelAgreementSchemaCreate
         : hotelAgreementSchemaUpdate,
-    ) as any,
+    ),
     defaultValues: {
+      features: "",
+      includes_breakfast: false,
+      includes_lunch: false,
+      includes_dinner: false,
+      includes_parking: false,
+      active: true,
       ...defaultValues,
     },
     mode: "onChange",
@@ -52,7 +58,14 @@ export const HotelAgreementForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <GroupFormSection
+          title="Información del Hotel"
+          cols={{
+            md: 2,
+            lg: 3,
+          }}
+          icon={Info}
+        >
           <FormInput
             control={form.control}
             name="ruc"
@@ -108,17 +121,19 @@ export const HotelAgreementForm = ({
             placeholder="Ej: https://www.hotel.com"
             type="text"
           />
-        </div>
 
-        <FormInput
-          control={form.control}
-          name="address"
-          label="Dirección"
-          placeholder="Ej: Av. Principal 123, Distrito"
-          type="text"
-        />
+          <div className="col-span-2">
+            <FormInput
+              control={form.control}
+              name="address"
+              label="Dirección"
+              placeholder="Ej: Av. Principal 123, Distrito"
+              type="text"
+            />
+          </div>
+        </GroupFormSection>
 
-        <FormInputText
+        <FormTextArea
           control={form.control}
           name="features"
           label="Características (Opcional)"
