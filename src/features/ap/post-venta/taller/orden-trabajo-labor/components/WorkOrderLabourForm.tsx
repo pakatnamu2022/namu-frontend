@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,8 +11,6 @@ import {
   createWorkOrderLabourSchema,
   WorkOrderLabourFormValues,
 } from "../lib/workOrderLabour.schema";
-import { useGetConsolidatedWorkers } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormCombobox } from "@/shared/components/FormCombobox";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
@@ -58,10 +56,10 @@ export default function WorkOrderLabourForm({
     },
   });
 
-  const {
-    data: consolidatedWorkers = [],
-    isLoading: isLoadingConsolidatedWorkers,
-  } = useGetConsolidatedWorkers(workOrderId);
+  // const {
+  //   data: consolidatedWorkers = [],
+  //   isLoading: isLoadingConsolidatedWorkers,
+  // } = useGetConsolidatedWorkers(workOrderId);
 
   // Crear opciones de descripción a partir de los items de la orden de trabajo
   const descriptionOptions = useMemo(() => {
@@ -76,11 +74,11 @@ export default function WorkOrderLabourForm({
   }, [workOrderItems]);
 
   // Auto-seleccionar el operario si solo hay uno disponible
-  useEffect(() => {
-    if (consolidatedWorkers.length === 1) {
-      form.setValue("worker_id", consolidatedWorkers[0].worker_id.toString());
-    }
-  }, [consolidatedWorkers, form]);
+  // useEffect(() => {
+  //   if (consolidatedWorkers.length === 1) {
+  //     form.setValue("worker_id", consolidatedWorkers[0].worker_id.toString());
+  //   }
+  // }, [consolidatedWorkers, form]);
 
   const onSubmit = (data: WorkOrderLabourFormValues) => {
     const payload: WorkOrderLabourRequest = {
@@ -139,7 +137,7 @@ export default function WorkOrderLabourForm({
             control={form.control}
           />
 
-          <FormSelect
+          {/* <FormSelect
             name="worker_id"
             label="Operario"
             placeholder="Operario"
@@ -150,7 +148,7 @@ export default function WorkOrderLabourForm({
             control={form.control}
             strictFilter={true}
             disabled={isLoadingConsolidatedWorkers}
-          />
+          /> */}
         </div>
 
         <div className="flex justify-end gap-2 pt-2">

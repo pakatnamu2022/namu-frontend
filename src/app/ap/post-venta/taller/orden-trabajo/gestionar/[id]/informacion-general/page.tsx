@@ -441,6 +441,24 @@ export default function GeneralInformationPage() {
               </div>
             </div>
             <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Contacto</p>
+                <p className="font-semibold">
+                  {workOrder.full_contact_name || "N/A"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Teléfono de Contacto</p>
+                <p className="font-semibold">
+                  {workOrder.phone_contact || "N/A"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
               <Building2 className="h-5 w-5 text-gray-500 mt-0.5" />
               <div>
                 <p className="text-sm text-gray-600">Sede</p>
@@ -453,6 +471,20 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Moneda</p>
                 <p className="font-semibold">
                   {workOrder.type_currency.name || "N/A"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Cliente a Facturar</p>
+                <p className="font-semibold">
+                  {workOrder.invoice_to_client?.full_name || "No vinculado"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {workOrder.invoice_to_client
+                    ? `${workOrder.invoice_to_client.document_type || "Doc"}: ${workOrder.invoice_to_client.num_doc || "S/N"}`
+                    : "Sin cliente de facturación asociado"}
                 </p>
               </div>
             </div>

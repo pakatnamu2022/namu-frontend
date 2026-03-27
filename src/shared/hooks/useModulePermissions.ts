@@ -182,6 +182,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Plus",
     description: "Permite crear nuevos repuestos en el sistema",
   },
+  {
+    value: "confirmCancellationReception",
+    label: "Confirmar Anulación Recepción",
+    icon: "CheckCircle",
+    description: "Permite confirmar la anulación de una recepción",
+  },
 ];
 
 /**
@@ -243,5 +249,8 @@ export function useModulePermissions(moduleCode: string) {
     canGenerate: hasModulePermission("generate"),
     canChecklist: hasModulePermission("checklist"),
     canCreateSpare: hasModulePermission("createSpare"),
+    canConfirmCancellationReception: hasModulePermission(
+      "confirmCancellationReception",
+    ),
   };
 }

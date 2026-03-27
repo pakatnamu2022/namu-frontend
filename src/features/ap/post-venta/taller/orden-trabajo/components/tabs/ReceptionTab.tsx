@@ -308,18 +308,19 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
               </Button>
             )}
 
-            {cancellationRequested && (
-              <Button
-                variant="destructive"
-                className="gap-2 text-xs sm:text-sm flex-1 sm:flex-none"
-                onClick={() => setConfirmDialogOpen(true)}
-                size="sm"
-              >
-                <Ban className="h-4 w-4" />
-                <span className="hidden sm:inline">Confirmar Anulación</span>
-                <span className="sm:hidden">Confirmar</span>
-              </Button>
-            )}
+            {cancellationRequested &&
+              permissions.canConfirmCancellationReception && (
+                <Button
+                  variant="destructive"
+                  className="gap-2 text-xs sm:text-sm flex-1 sm:flex-none"
+                  onClick={() => setConfirmDialogOpen(true)}
+                  size="sm"
+                >
+                  <Ban className="h-4 w-4" />
+                  <span className="hidden sm:inline">Confirmar Anulación</span>
+                  <span className="sm:hidden">Confirmar</span>
+                </Button>
+              )}
           </div>
         </div>
 

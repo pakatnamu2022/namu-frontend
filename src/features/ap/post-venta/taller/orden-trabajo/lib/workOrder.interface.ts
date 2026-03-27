@@ -57,6 +57,8 @@ export interface WorkOrderResource {
   tax_amount: number;
   final_amount: number;
   is_delivery: boolean;
+  full_contact_name: string;
+  phone_contact: string;
 
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
