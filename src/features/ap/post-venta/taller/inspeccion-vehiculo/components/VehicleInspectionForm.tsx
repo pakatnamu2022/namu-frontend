@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -69,6 +69,30 @@ export const VehicleInspectionForm = ({
   onCancel,
   dateOrderWork = undefined,
 }: VehicleInspectionFormProps) => {
+  const workDetailFields = [
+    "oil_change",
+    "check_level_lights",
+    "general_lubrication",
+    "rotation_inspection_cleaning",
+    "insp_filter_basic_checks",
+    "tire_pressure_inflation_check",
+    "alignment_balancing",
+    "pad_replace_disc_resurface",
+  ] as const;
+
+  const resultExplanationFields = [
+    "explanation_work_performed",
+    "price_explanation",
+    "confirm_additional_work",
+    "clarification_customer_concerns",
+    "exterior_cleaning",
+    "interior_cleaning",
+    "keeps_spare_parts",
+    "valuable_objects",
+  ] as const;
+
+  const courtesyFields = ["courtesy_seat_cover", "paper_floor"] as const;
+
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -87,10 +111,28 @@ export const VehicleInspectionForm = ({
     form.setValue("damages", damages);
   };
 
+  const setCheckboxGroupValues = (
+    fields: readonly string[],
+    checked: boolean,
+  ) => {
+    fields.forEach((field) => {
+      form.setValue(field as any, checked, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    });
+  };
+
+  const areAllChecked = (fields: readonly string[]) => {
+    return fields.every((field) => !!form.getValues(field as any));
+  };
+
+  const watchedValues = useWatch({ control: form.control });
+
   const checklistValues = CHECKLIST_ITEMS.reduce(
     (acc, item) => {
-      // eslint-disable-next-line react-hooks/incompatible-library
-      acc[item.key] = form.watch(item.key as any) || false;
+      acc[item.key] = !!(watchedValues as Record<string, unknown>)?.[item.key];
       return acc;
     },
     {} as Record<string, boolean>,
@@ -144,7 +186,7 @@ export const VehicleInspectionForm = ({
             name="washed"
             label="¿Se realizará lavado?"
             text={
-              form.watch("washed")
+              (watchedValues as Record<string, unknown>)?.washed
                 ? "Sí, se realizará lavado"
                 : "No, no se realizará lavado"
             }
@@ -159,6 +201,23 @@ export const VehicleInspectionForm = ({
           color="primary"
           cols={{ sm: 2 }}
         >
+          <div className="col-span-full flex justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const shouldSelectAll = !areAllChecked(workDetailFields);
+                setCheckboxGroupValues(workDetailFields, shouldSelectAll);
+              }}
+              disabled={isSubmitting}
+            >
+              {areAllChecked(workDetailFields)
+                ? "Quitar selección"
+                : "Seleccionar todo"}
+            </Button>
+          </div>
+
           <FormCheckbox
             name="oil_change"
             label="Cambio de aceite y filtro"
@@ -226,9 +285,28 @@ export const VehicleInspectionForm = ({
 
         {/* Checklist de Verificación */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Checklist de Verificación</h3>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">
+                Checklist de Verificación
+              </h3>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const checklistFields = CHECKLIST_ITEMS.map((item) => item.key);
+                const shouldSelectAll = !areAllChecked(checklistFields);
+                setCheckboxGroupValues(checklistFields, shouldSelectAll);
+              }}
+              disabled={isSubmitting}
+            >
+              {areAllChecked(CHECKLIST_ITEMS.map((item) => item.key))
+                ? "Quitar selección"
+                : "Seleccionar todo"}
+            </Button>
           </div>
           <VehicleInspectionChecklist
             values={checklistValues}
@@ -244,6 +322,26 @@ export const VehicleInspectionForm = ({
           color="gray"
           cols={{ sm: 2 }}
         >
+          <div className="col-span-full flex justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const shouldSelectAll = !areAllChecked(resultExplanationFields);
+                setCheckboxGroupValues(
+                  resultExplanationFields,
+                  shouldSelectAll,
+                );
+              }}
+              disabled={isSubmitting}
+            >
+              {areAllChecked(resultExplanationFields)
+                ? "Quitar selección"
+                : "Seleccionar todo"}
+            </Button>
+          </div>
+
           <FormCheckbox
             name="explanation_work_performed"
             label="Explicación de trabajos realizados"
@@ -301,6 +399,23 @@ export const VehicleInspectionForm = ({
           color="gray"
           cols={{ sm: 2 }}
         >
+          <div className="col-span-full flex justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const shouldSelectAll = !areAllChecked(courtesyFields);
+                setCheckboxGroupValues(courtesyFields, shouldSelectAll);
+              }}
+              disabled={isSubmitting}
+            >
+              {areAllChecked(courtesyFields)
+                ? "Quitar selección"
+                : "Seleccionar todo"}
+            </Button>
+          </div>
+
           <FormCheckbox
             name="courtesy_seat_cover"
             label="Cobertor de asiento"
@@ -399,7 +514,10 @@ export const VehicleInspectionForm = ({
         {/* Marcador de Daños */}
         <div className="space-y-4">
           <VehicleDamageMarker
-            damages={form.watch("damages") || []}
+            damages={
+              ((watchedValues as Record<string, unknown>)?.damages as any[]) ||
+              []
+            }
             onChange={handleDamagesChange}
             disabled={isSubmitting}
           />

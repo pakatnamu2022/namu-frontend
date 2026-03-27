@@ -335,6 +335,51 @@ export default function ManageQuotationPage() {
                   </div>
                 </div>
               )}
+
+              {quotation.client && (
+                <div className="mt-6 rounded-2xl border border-border/80 bg-muted/35 p-4 md:p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-semibold text-foreground">
+                      Cliente de la Cotización
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Nombre Completo
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        {quotation.client.full_name || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Documento
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        {quotation.client.num_doc || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Teléfono
+                      </p>
+                      <p className="text-sm font-medium text-foreground">
+                        {quotation.client.phone || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                        Correo
+                      </p>
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {quotation.client.email || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -369,6 +414,7 @@ export default function ManageQuotationPage() {
         discountRequests={discountRequests.filter(
           (r) => r.item_type === "PRODUCT",
         )}
+        warehouseId={quotation.warehouse_id}
         permissions={permissions}
       />
     </div>

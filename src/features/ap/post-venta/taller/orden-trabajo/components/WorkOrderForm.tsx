@@ -190,6 +190,17 @@ export const WorkOrderForm = ({
         form.setValue("sede_id", selectedAppointment.sede_id.toString());
       }
 
+      if (selectedAppointment.full_name_client) {
+        form.setValue(
+          "full_contact_name",
+          selectedAppointment.full_name_client,
+        );
+      }
+
+      if (selectedAppointment.phone_client) {
+        form.setValue("phone_contact", selectedAppointment.phone_client);
+      }
+
       // Setear fecha y hora estimada de entrega desde la cita
       if (
         selectedAppointment.delivery_date &&
@@ -263,10 +274,16 @@ export const WorkOrderForm = ({
   }, [watchedIsRecall]);
 
   // Auto-setear type_operation_id cuando la descripcion de type_planning_id coincide con alguna operacion
+  // Solo se auto-setea si el campo está vacío, para no pisar la selección manual del usuario
   useEffect(() => {
     if (!watchedItems || watchedItems.length === 0) return;
     watchedItems.forEach((item, index) => {
       if (!item?.type_planning_id) return;
+      const currentOperationId = form.getValues(
+        `items.${index}.type_operation_id`,
+      );
+      // Si ya tiene un valor, no sobreescribir la selección del usuario
+      if (currentOperationId) return;
       const planning = typesPlanning.find(
         (tp) => tp.id.toString() === item.type_planning_id,
       );
@@ -275,16 +292,11 @@ export const WorkOrderForm = ({
         (to) => to.description === planning.description,
       );
       if (matchedOperation) {
-        const currentOperationId = form.getValues(
+        form.setValue(
           `items.${index}.type_operation_id`,
+          matchedOperation.id.toString(),
+          { shouldDirty: true, shouldValidate: true },
         );
-        if (currentOperationId !== matchedOperation.id.toString()) {
-          form.setValue(
-            `items.${index}.type_operation_id`,
-            matchedOperation.id.toString(),
-            { shouldDirty: true, shouldValidate: true },
-          );
-        }
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -823,6 +835,27 @@ export const WorkOrderForm = ({
             </div>
           </GroupFormSection>
         )}
+
+        {/* Persona de Contacto */}
+        <GroupFormSection
+          title="Persona de Contacto"
+          icon={User}
+          color="gray"
+          cols={{ sm: 2 }}
+        >
+          <FormInput
+            name="full_contact_name"
+            label="Nombre Completo"
+            placeholder="Ingrese el nombre del contacto"
+            control={form.control}
+          />
+          <FormInput
+            name="phone_contact"
+            label="Teléfono"
+            placeholder="Ingrese el teléfono del contacto"
+            control={form.control}
+          />
+        </GroupFormSection>
 
         {/* Observaciones */}
         <GroupFormSection

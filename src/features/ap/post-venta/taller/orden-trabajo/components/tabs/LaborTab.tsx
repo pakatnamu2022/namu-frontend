@@ -24,13 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import WorkOrderLabourForm from "@/features/ap/post-venta/taller/orden-trabajo-labor/components/WorkOrderLabourForm";
 import { EditableCell } from "@/shared/components/EditableCell";
 import {
@@ -44,7 +37,6 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useGetConsolidatedWorkers } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { ITEM_TYPE_LABOR } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
 import { useDiscountRequestsByWorkOrder } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.hook";
@@ -110,10 +102,10 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
     );
   }, [associatedQuotation]);
 
-  const {
-    data: consolidatedWorkers = [],
-    isLoading: isLoadingConsolidatedWorkers,
-  } = useGetConsolidatedWorkers(workOrderId);
+  // const {
+  //   data: consolidatedWorkers = [],
+  //   isLoading: isLoadingConsolidatedWorkers,
+  // } = useGetConsolidatedWorkers(workOrderId);
 
   // Solicitudes de descuento de la OT — solo las de LABOUR
   const { data: allDiscountRequests = [] } =
@@ -124,20 +116,20 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
 
-  const handleWorkerChange = (labour: any, newWorkerId: number) => {
-    updateGroupMutation.mutate({
-      id: labour.id,
-      data: {
-        description: labour.description,
-        time_spent: labour.time_spent,
-        hourly_rate: labour.hourly_rate,
-        discount_percentage: labour.discount_percentage,
-        work_order_id: labour.work_order_id,
-        worker_id: newWorkerId,
-        group_number: labour.group_number,
-      },
-    });
-  };
+  // const handleWorkerChange = (labour: any, newWorkerId: number) => {
+  //   updateGroupMutation.mutate({
+  //     id: labour.id,
+  //     data: {
+  //       description: labour.description,
+  //       time_spent: labour.time_spent,
+  //       hourly_rate: labour.hourly_rate,
+  //       discount_percentage: labour.discount_percentage,
+  //       work_order_id: labour.work_order_id,
+  //       worker_id: newWorkerId,
+  //       group_number: labour.group_number,
+  //     },
+  //   });
+  // };
 
   const handleTimeSpentChange = (labour: any, newValue: any) => {
     updateGroupMutation.mutate({
@@ -610,7 +602,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Descripción</TableHead>
-                  <TableHead className="text-left">Operario</TableHead>
+                  {/* <TableHead className="text-left">Operario</TableHead> */}
                   <TableHead className="text-right">Tiempo (hrs)</TableHead>
                   <TableHead className="text-right">Tarifa/Hora</TableHead>
                   <TableHead className="text-right">Cto. Total</TableHead>
@@ -627,7 +619,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       <TableCell className="max-w-md">
                         <div className="line-clamp-2">{labour.description}</div>
                       </TableCell>
-                      <TableCell className="text-left">
+                      {/* <TableCell className="text-left">
                         <Select
                           value={labour.worker_id?.toString() || ""}
                           onValueChange={(value) =>
@@ -649,7 +641,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                             ))}
                           </SelectContent>
                         </Select>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell className="text-right">
                         <div className="flex justify-end">
                           <EditableCell

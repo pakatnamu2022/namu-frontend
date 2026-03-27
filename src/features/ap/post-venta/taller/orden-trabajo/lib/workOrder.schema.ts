@@ -29,6 +29,10 @@ const workOrderSchemaBase = z.object({
   items: z
     .array(workOrderItemSchema)
     .min(1, "Debe agregar al menos un trabajo"),
+  full_contact_name: z.string().optional(),
+  phone_contact: z
+    .string()
+    .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos"),
   is_guarantee: z.boolean().default(false),
   is_recall: z.boolean().default(false),
   description_recall: z.string().max(500).optional(),

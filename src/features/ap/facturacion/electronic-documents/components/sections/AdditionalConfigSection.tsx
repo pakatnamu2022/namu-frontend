@@ -237,7 +237,7 @@ export function AdditionalConfigSection({
           )}
         </>
       )}
-      {showCardLast4 && (
+      {showCardLast4 && condicionesDePago === "TARJETA" && (
         <FormInput
           control={form.control}
           name="card_last4"

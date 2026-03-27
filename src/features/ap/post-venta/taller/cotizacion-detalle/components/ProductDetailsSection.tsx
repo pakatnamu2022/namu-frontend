@@ -19,6 +19,8 @@ import {
   AlertCircle,
   Check,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -73,10 +75,15 @@ import {
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
-import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
+import {
+  StockByProductIdsResponse,
+  InventoryResource,
+} from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
+import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
+  { label: "Local", value: "LOCAL" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];
@@ -91,12 +98,14 @@ interface ProductDetailsSectionProps {
   currencySymbol: string;
   currencyId: number;
   discountRequests: DiscountRequestOrderQuotationResource[];
+  warehouseId?: number;
   permissions: {
     canEditDiscount: boolean;
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
     canDelete: boolean;
+    canCreateSpare: boolean;
   };
 }
 
@@ -110,11 +119,98 @@ export default function ProductDetailsSection({
   currencySymbol,
   currencyId,
   discountRequests,
+  warehouseId,
   permissions,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [mode, setMode] = useState<"DEALER_PORTAL" | "AP">("DEALER_PORTAL");
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+
+  // AP mode
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+  const [apMinSalePrice, setApMinSalePrice] = useState(0);
+  const [isApSaving, setIsApSaving] = useState(false);
+
+  const apForm = useForm({
+    defaultValues: {
+      ap_product_id: "",
+      ap_quantity: 1,
+      ap_unit_price: 0,
+      ap_discount: 0,
+      ap_description: "",
+      ap_supply_type: "",
+    },
+  });
+
+  const apUnitPrice = apForm.watch("ap_unit_price");
+  const apProductId = apForm.watch("ap_product_id");
+  const apIsPriceBelowMin = apMinSalePrice > 0 && apUnitPrice < apMinSalePrice;
+
+  const handleApInventoryChange = (
+    _value: string,
+    item?: InventoryResource,
+  ) => {
+    if (item) {
+      const price = parseFloat(item.sale_price);
+      setApMinSalePrice(price);
+      apForm.setValue("ap_unit_price", price);
+      apForm.setValue("ap_description", item.product?.name || "");
+    } else {
+      setApMinSalePrice(0);
+      apForm.setValue("ap_unit_price", 0);
+      apForm.setValue("ap_description", "");
+    }
+  };
+
+  const handleApSubmit = apForm.handleSubmit(async (data) => {
+    if (apIsPriceBelowMin) return;
+    if (!data.ap_supply_type) {
+      apForm.setError("ap_supply_type", {
+        type: "manual",
+        message: "El tipo de abastecimiento es requerido",
+      });
+      return;
+    }
+    try {
+      setIsApSaving(true);
+      const subtotal = data.ap_quantity * data.ap_unit_price;
+      const total_amount = subtotal - (subtotal * data.ap_discount) / 100;
+      await storeOrderQuotationDetails({
+        order_quotation_id: quotationId,
+        item_type: ITEM_TYPE_PRODUCT,
+        product_id: Number(data.ap_product_id),
+        description: data.ap_description,
+        quantity: data.ap_quantity,
+        unit_measure: "UND",
+        retail_price_external: undefined,
+        freight_commission: 1,
+        exchange_rate: 0,
+        unit_price: data.ap_unit_price,
+        discount_percentage: data.ap_discount,
+        total_amount,
+        observations: "",
+        supply_type: data.ap_supply_type,
+      });
+      successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
+      setApMinSalePrice(0);
+      apForm.reset({
+        ap_product_id: "",
+        ap_quantity: 1,
+        ap_unit_price: 0,
+        ap_discount: 0,
+        ap_description: "",
+        ap_supply_type: "",
+      });
+      await onRefresh();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create", msg));
+    } finally {
+      setIsApSaving(false);
+    }
+  });
 
   // Estado del modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
@@ -209,6 +305,7 @@ export default function ProductDetailsSection({
     }
   };
 
+  const [externalPriceText, setExternalPriceText] = useState("");
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
@@ -255,17 +352,22 @@ export default function ProductDetailsSection({
     const normalizedValue = pastedText.replace(",", ".");
     const numericValue = parseFloat(normalizedValue);
     if (!isNaN(numericValue)) {
+      setExternalPriceText(normalizedValue);
       form.setValue("retail_price_external", numericValue);
     }
   };
 
   const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(",", ".");
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue)) {
-      form.setValue("retail_price_external", numericValue);
-    } else if (value === "") {
-      form.setValue("retail_price_external", 0);
+    // Allow intermediate decimal states like "1." while typing
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setExternalPriceText(value);
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue)) {
+        form.setValue("retail_price_external", numericValue);
+      } else {
+        form.setValue("retail_price_external", 0);
+      }
     }
   };
 
@@ -275,6 +377,19 @@ export default function ProductDetailsSection({
       form.setValue("unit_measure", productData.unit_measurement_name || "UND");
     }
   }, [productData, form]);
+
+  // Sync externalPriceText when form value is set externally (e.g. loading an existing detail)
+  useEffect(() => {
+    if (
+      retailPriceExternal != null &&
+      parseFloat(externalPriceText) !== retailPriceExternal
+    ) {
+      setExternalPriceText(
+        retailPriceExternal === 0 ? "" : String(retailPriceExternal),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retailPriceExternal]);
 
   // Fetch stock por almacén cuando se selecciona un producto
   useEffect(() => {
@@ -410,7 +525,7 @@ export default function ProductDetailsSection({
       : Number(selectedDetail?.total_amount || 0);
 
   // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
-  const maxDiscountForModal = 100;
+  const maxDiscountForModal = maxDiscountAllowed;
 
   return (
     <Card className="p-6">
@@ -419,19 +534,212 @@ export default function ProductDetailsSection({
           <Package className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Repuestos</h3>
         </div>
-        <Button
-          type="button"
-          onClick={() => setIsPartModalOpen(true)}
-          size="sm"
-          variant="outline"
-        >
-          <PackagePlus className="h-4 w-4 mr-2" />
-          Crear Repuesto
-        </Button>
+
+        <div className="flex items-center gap-4">
+          {/* Switch de modo */}
+          <div className="flex items-center gap-2">
+            <Label
+              htmlFor="mode-switch"
+              className={`text-xs font-semibold cursor-pointer ${mode === "DEALER_PORTAL" ? "text-primary" : "text-muted-foreground"}`}
+            >
+              DEALER PORTAL
+            </Label>
+            <Switch
+              id="mode-switch"
+              checked={mode === "AP"}
+              onCheckedChange={(checked) => {
+                const newMode = checked ? "AP" : "DEALER_PORTAL";
+                setMode(newMode);
+                if (newMode === "AP") {
+                  apForm.reset({
+                    ap_product_id: "",
+                    ap_quantity: 1,
+                    ap_unit_price: 0,
+                    ap_discount: 0,
+                    ap_description: "",
+                    ap_supply_type: "",
+                  });
+                  setApMinSalePrice(0);
+                } else {
+                  form.reset({
+                    order_quotation_id: quotationId,
+                    item_type: ITEM_TYPE_PRODUCT,
+                    product_id: "",
+                    description: "",
+                    quantity: 1,
+                    unit_measure: "UND",
+                    retail_price_external: undefined,
+                    freight_commission: 1.05,
+                    exchange_rate: exchangeRate || 0,
+                    unit_price: 0,
+                    discount_percentage: 0,
+                    total_amount: 0,
+                    observations: "",
+                    supply_type: "",
+                  });
+                  setExternalPriceText("");
+                  setStockData(null);
+                }
+              }}
+            />
+            <Label
+              htmlFor="mode-switch"
+              className={`text-xs font-semibold cursor-pointer ${mode === "AP" ? "text-primary" : "text-muted-foreground"}`}
+            >
+              AP
+            </Label>
+          </div>
+
+          {permissions.canCreateSpare && (
+            <Button
+              type="button"
+              onClick={() => setIsPartModalOpen(true)}
+              size="sm"
+              variant="outline"
+            >
+              <PackagePlus className="h-4 w-4 mr-2" />
+              Crear Repuesto
+            </Button>
+          )}
+        </div>
       </div>
 
+      {/* Formulario modo AP */}
+      {mode === "AP" && (
+        <div className="space-y-4 mt-4">
+          <Form {...apForm}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <FormSelectAsync
+                name="ap_product_id"
+                label="Producto"
+                placeholder="Buscar producto en el almacén..."
+                control={apForm.control}
+                useQueryHook={useInventory}
+                additionalParams={{
+                  warehouse_id: warehouseId?.toString() ?? "",
+                  available_quantity: 0,
+                }}
+                mapOptionFn={(inventory: InventoryResource) => ({
+                  label: () => (
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <span className="font-medium truncate">
+                        {inventory.product.code} - {inventory.product.name}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                          inventory.available_quantity > 0
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        Stock: {inventory.available_quantity}
+                      </span>
+                    </div>
+                  ),
+                  value: inventory.product_id.toString(),
+                })}
+                perPage={10}
+                debounceMs={500}
+                onValueChange={handleApInventoryChange}
+              />
+
+              <div className="flex flex-col gap-1">
+                <FormInput
+                  name="ap_unit_price"
+                  label={`Precio Unitario (${currencySymbol})`}
+                  type="number"
+                  placeholder="0.0"
+                  step="0.01"
+                  control={apForm.control}
+                />
+                {apIsPriceBelowMin && (
+                  <p className="text-xs font-medium text-destructive">
+                    El precio no puede ser menor a {apMinSalePrice}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormInput
+                name="ap_quantity"
+                label="Cantidad"
+                type="number"
+                placeholder="1"
+                step="0.01"
+                min={0.01}
+                control={apForm.control}
+              />
+
+              <FormInput
+                name="ap_discount"
+                label={`Descuento (% máx: ${maxDiscountPercentage})`}
+                type="number"
+                placeholder="0.0"
+                step="0.01"
+                min={0}
+                max={maxDiscountPercentage}
+                control={apForm.control}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value) || 0;
+                  apForm.setValue(
+                    "ap_discount",
+                    Math.min(val, maxDiscountPercentage),
+                  );
+                }}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="hidden">
+                <FormInput
+                  name="ap_description"
+                  label="Descripción"
+                  placeholder="Descripción del producto"
+                  control={apForm.control}
+                />
+              </div>
+
+              <FormSelect
+                control={apForm.control}
+                name="ap_supply_type"
+                options={onSelectSupplyType}
+                label="Tipo de Abastecimiento"
+                placeholder="Seleccionar un tipo"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={isApSaving || !apProductId || apIsPriceBelowMin}
+                className="gap-2"
+                onClick={handleApSubmit}
+              >
+                {isApSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    Agregar
+                  </>
+                )}
+              </Button>
+            </div>
+          </Form>
+        </div>
+      )}
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+          style={{ display: mode === "DEALER_PORTAL" ? undefined : "none" }}
+        >
           {/* Mensaje de tipo de cambio y comisión */}
           <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 space-y-1">
             <p className="text-xs text-primary">
@@ -487,6 +795,7 @@ export default function ProductDetailsSection({
                 placeholder="Ej: 1.5"
                 inputMode="decimal"
                 type="text"
+                value={externalPriceText}
                 onPaste={handlePaste}
                 onChange={handleNumericChange}
               />
@@ -587,7 +896,7 @@ export default function ProductDetailsSection({
                                 </div>
                               )}
                             </div>
-                            {/* <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
+                            <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
                               <div>
                                 <div className="text-gray-500">Últ. compra</div>
                                 <div className="font-semibold text-gray-700">
@@ -612,7 +921,7 @@ export default function ProductDetailsSection({
                                     "0.00"}
                                 </div>
                               </div>
-                            </div> */}
+                            </div>
                           </div>
                         ))}
                       </div>
