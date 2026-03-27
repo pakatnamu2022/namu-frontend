@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Matcher, type DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
@@ -22,7 +21,11 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/form";
-import { toLocalDateString } from "@/core/core.function";
+import {
+  formatDate,
+  toDateOrUndefined,
+  toLocalDateString,
+} from "@/core/core.function";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -58,7 +61,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
   dateFormat = "dd/MM/yyyy",
   disabled,
   required = false,
-  size,
+  size = "default",
 }: DateRangePickerFormFieldProps<T>) {
   const [open, setOpen] = React.useState(false);
   const isMobile = useIsMobile();
@@ -73,15 +76,21 @@ export function DateRangePickerFormField<T extends FieldValues>({
           name={nameTo}
           render={({ field: fieldTo }) => {
             const dateRange: DateRange = {
-              from: fieldFrom.value ? new Date(fieldFrom.value) : undefined,
-              to: fieldTo.value ? new Date(fieldTo.value) : undefined,
+              from: toDateOrUndefined(
+                typeof fieldFrom.value === "string"
+                  ? fieldFrom.value
+                  : undefined,
+              ),
+              to: toDateOrUndefined(
+                typeof fieldTo.value === "string" ? fieldTo.value : undefined,
+              ),
             };
 
             const displayValue =
               dateRange.from && dateRange.to
-                ? `${format(dateRange.from, dateFormat)} - ${format(
+                ? `${formatDate(dateRange.from, dateFormat)} - ${formatDate(
                     dateRange.to,
-                    dateFormat
+                    dateFormat,
                   )}`
                 : placeholder;
 
@@ -118,7 +127,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
-                          !dateRange.from && "text-muted-foreground"
+                          !dateRange.from && "text-muted-foreground",
                         )}
                       >
                         {displayValue}
@@ -137,8 +146,12 @@ export function DateRangePickerFormField<T extends FieldValues>({
                       selected={dateRange}
                       defaultMonth={dateRange?.from}
                       onSelect={(range) => {
-                        fieldFrom.onChange(range?.from ? toLocalDateString(range.from) : "");
-                        fieldTo.onChange(range?.to ? toLocalDateString(range.to) : "");
+                        fieldFrom.onChange(
+                          range?.from ? toLocalDateString(range.from) : "",
+                        );
+                        fieldTo.onChange(
+                          range?.to ? toLocalDateString(range.to) : "",
+                        );
                       }}
                       disabled={disabled}
                       className="rounded-md border"

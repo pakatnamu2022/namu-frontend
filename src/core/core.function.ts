@@ -219,6 +219,34 @@ export const toLocalDateString = (date: Date | string): string => {
 };
 
 /**
+ * Convierte una fecha (string o Date) a Date válido para uso en calendarios.
+ * Retorna undefined cuando el valor no puede parsearse.
+ */
+export const toDateOrUndefined = (
+  date: string | Date | null | undefined,
+): Date | undefined => {
+  if (!date) return undefined;
+
+  if (date instanceof Date) {
+    return isValid(date) ? date : undefined;
+  }
+
+  const normalizedDate = date.trim();
+  const isoDate = normalizedDate.includes(" ")
+    ? normalizedDate.replace(" ", "T")
+    : normalizedDate;
+
+  const parsedIsoDate = parseISO(isoDate);
+  if (isValid(parsedIsoDate)) return parsedIsoDate;
+
+  const parsedDateTime = parse(normalizedDate, "yyyy-MM-dd HH:mm:ss", new Date());
+  if (isValid(parsedDateTime)) return parsedDateTime;
+
+  const parsedDate = parse(normalizedDate, "yyyy-MM-dd", new Date());
+  return isValid(parsedDate) ? parsedDate : undefined;
+};
+
+/**
  * Convierte un Date (o string) a "YYYY-MM-DDTHH:mm" usando hora LOCAL.
  * Usar en lugar de toISOString() que usa UTC y desplaza la hora según el timezone.
  * Úsalo como defaultValue para DateTimePickerForm y al enviar fecha+hora al backend.
