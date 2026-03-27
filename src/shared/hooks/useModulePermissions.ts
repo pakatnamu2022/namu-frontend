@@ -176,6 +176,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Zap",
     description: "Permite generar documentos o procesos automáticamente",
   },
+  {
+    value: "createSpare",
+    label: "Crear Repuesto",
+    icon: "Plus",
+    description: "Permite crear nuevos repuestos en el sistema",
+  },
 ];
 
 /**
@@ -236,5 +242,6 @@ export function useModulePermissions(moduleCode: string) {
     canMigrate: hasModulePermission("migrate"),
     canGenerate: hasModulePermission("generate"),
     canChecklist: hasModulePermission("checklist"),
+    canCreateSpare: hasModulePermission("createSpare"),
   };
 }

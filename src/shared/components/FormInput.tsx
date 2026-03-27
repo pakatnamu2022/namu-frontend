@@ -177,6 +177,12 @@ export function FormInput({
       name={name}
       render={({ field }) => {
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          // If an external onChange is provided for text inputs, let it fully control the value
+          if (onChange && !isNumberType) {
+            onChange(e);
+            return;
+          }
+
           if (isNumberType) {
             const val = e.target.value;
             let numValue = val === "" ? "" : Number(val);
@@ -251,7 +257,7 @@ export function FormInput({
                     {...field}
                     {...inputProps}
                     onChange={handleChange}
-                    value={field.value ?? ""}
+                    value={value !== undefined ? value : (field.value ?? "")}
                   />
                 </FormControl>
                 {addonEnd && (

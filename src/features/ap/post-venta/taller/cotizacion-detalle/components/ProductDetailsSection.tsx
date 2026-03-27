@@ -98,6 +98,7 @@ interface ProductDetailsSectionProps {
     canReject: boolean;
     canRequest: boolean;
     canDelete: boolean;
+    canCreateSpare: boolean;
   };
 }
 
@@ -210,6 +211,7 @@ export default function ProductDetailsSection({
     }
   };
 
+  const [externalPriceText, setExternalPriceText] = useState("");
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
@@ -256,17 +258,22 @@ export default function ProductDetailsSection({
     const normalizedValue = pastedText.replace(",", ".");
     const numericValue = parseFloat(normalizedValue);
     if (!isNaN(numericValue)) {
+      setExternalPriceText(normalizedValue);
       form.setValue("retail_price_external", numericValue);
     }
   };
 
   const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(",", ".");
-    const numericValue = parseFloat(value);
-    if (!isNaN(numericValue)) {
-      form.setValue("retail_price_external", numericValue);
-    } else if (value === "") {
-      form.setValue("retail_price_external", 0);
+    // Allow intermediate decimal states like "1." while typing
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setExternalPriceText(value);
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue)) {
+        form.setValue("retail_price_external", numericValue);
+      } else {
+        form.setValue("retail_price_external", 0);
+      }
     }
   };
 
@@ -276,6 +283,19 @@ export default function ProductDetailsSection({
       form.setValue("unit_measure", productData.unit_measurement_name || "UND");
     }
   }, [productData, form]);
+
+  // Sync externalPriceText when form value is set externally (e.g. loading an existing detail)
+  useEffect(() => {
+    if (
+      retailPriceExternal != null &&
+      parseFloat(externalPriceText) !== retailPriceExternal
+    ) {
+      setExternalPriceText(
+        retailPriceExternal === 0 ? "" : String(retailPriceExternal),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retailPriceExternal]);
 
   // Fetch stock por almacén cuando se selecciona un producto
   useEffect(() => {
@@ -411,7 +431,7 @@ export default function ProductDetailsSection({
       : Number(selectedDetail?.total_amount || 0);
 
   // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
-  const maxDiscountForModal = 100;
+  const maxDiscountForModal = maxDiscountAllowed;
 
   return (
     <Card className="p-6">
@@ -420,15 +440,18 @@ export default function ProductDetailsSection({
           <Package className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Repuestos</h3>
         </div>
-        <Button
-          type="button"
-          onClick={() => setIsPartModalOpen(true)}
-          size="sm"
-          variant="outline"
-        >
-          <PackagePlus className="h-4 w-4 mr-2" />
-          Crear Repuesto
-        </Button>
+
+        {permissions.canCreateSpare && (
+          <Button
+            type="button"
+            onClick={() => setIsPartModalOpen(true)}
+            size="sm"
+            variant="outline"
+          >
+            <PackagePlus className="h-4 w-4 mr-2" />
+            Crear Repuesto
+          </Button>
+        )}
       </div>
 
       <Form {...form}>
@@ -488,6 +511,7 @@ export default function ProductDetailsSection({
                 placeholder="Ej: 1.5"
                 inputMode="decimal"
                 type="text"
+                value={externalPriceText}
                 onPaste={handlePaste}
                 onChange={handleNumericChange}
               />
@@ -588,7 +612,7 @@ export default function ProductDetailsSection({
                                 </div>
                               )}
                             </div>
-                            {/* <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
+                            <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
                               <div>
                                 <div className="text-gray-500">Últ. compra</div>
                                 <div className="font-semibold text-gray-700">
@@ -613,7 +637,7 @@ export default function ProductDetailsSection({
                                     "0.00"}
                                 </div>
                               </div>
-                            </div> */}
+                            </div>
                           </div>
                         ))}
                       </div>
