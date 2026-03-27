@@ -2,9 +2,9 @@
 
 import { useForm } from "react-hook-form";
 import {
+  perDiemRequestSchema,
   PerDiemRequestSchema,
   PerDiemRequestSchemaUpdate,
-  perDiemRequestSchemaCreate,
   perDiemRequestSchemaUpdate,
 } from "../lib/perDiemRequest.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,12 +42,10 @@ export const PerDiemRequestForm = ({
   const previousCompanyIdRef = useRef<string | undefined>(undefined);
   const [isFormLoaded, setIsFormLoaded] = useState(false);
 
-  const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
+  const form = useForm<PerDiemRequestSchema>({
     resolver: zodResolver(
-      mode === "create"
-        ? perDiemRequestSchemaCreate
-        : perDiemRequestSchemaUpdate,
-    ) as any,
+      mode === "create" ? perDiemRequestSchema : perDiemRequestSchemaUpdate,
+    ),
     defaultValues: {
       ...defaultValues,
       with_request: defaultValues.with_request ?? false,
