@@ -42,8 +42,10 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
+import ModelVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useAllBrandsBySede } from "../../../configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
@@ -82,6 +84,7 @@ export const VehiclePurchaseOrderForm = ({
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [hasIsc, setHasIsc] = useState(false);
   const hasAddedInitialItem = useRef(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<
@@ -300,7 +303,6 @@ export const VehiclePurchaseOrderForm = ({
   const igvInput = form.watch("igv") || 0;
   const iscInput = form.watch("isc") || 0;
   const totalInput = form.watch("total") || 0;
-  const emissionDate = form.watch("emission_date");
   const quotationWatch = form.watch("quotation_id");
 
   // Watch all items to trigger recalculation on any change
@@ -348,15 +350,6 @@ export const VehiclePurchaseOrderForm = ({
       form.setValue("items.0.description", vehicleDescription);
     }
   }, [vin, selectedModel, isVehiclePurchase, fields.length, form]);
-
-  useEffect(() => {
-    if (emissionDate) {
-      form.setValue(
-        "due_date",
-        new Date(emissionDate.getTime() + 30 * 24 * 60 * 60 * 1000),
-      );
-    }
-  }, [emissionDate]);
 
   // Detectar si hay ISC basado en si el usuario ingresó un valor mayor a 0
   useEffect(() => {
@@ -634,7 +627,18 @@ export const VehiclePurchaseOrderForm = ({
                     isLoadingQuotation ||
                     isFetchingQuotation
                   }
-                />
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="aspect-square"
+                    onClick={() => setIsModelModalOpen(true)}
+                    title="Agregar nuevo modelo"
+                  >
+                    <Plus className="size-2 md:size-4" />
+                  </Button>
+                </FormSelectAsync>
               </div>
 
               <FormInput
@@ -669,6 +673,10 @@ export const VehiclePurchaseOrderForm = ({
                   value: item.id.toString(),
                   description: item.code ?? "-",
                 })}
+                additionalParams={{
+                  sort: "description",
+                  direction: "desc",
+                }}
                 control={form.control}
               >
                 <Button
@@ -1251,6 +1259,15 @@ export const VehiclePurchaseOrderForm = ({
         }}
         title="Nuevo Color de Vehículo"
         mode="create"
+      />
+
+      <ModelVnModal
+        open={isModelModalOpen}
+        onClose={() => setIsModelModalOpen(false)}
+        onSuccess={(newModel) => {
+          queryClient.invalidateQueries({ queryKey: [MODELS_VN.QUERY_KEY] });
+          form.setValue("ap_models_vn_id", newModel.id.toString());
+        }}
       />
     </Form>
   );

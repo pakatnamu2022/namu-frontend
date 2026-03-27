@@ -34,11 +34,12 @@ const basePurchaseOrderSchema = z.object({
     .min(1, "El número de factura es requerido")
     .max(20, "El número no puede tener más de 20 caracteres")
     .regex(/^\d+$/, "El número debe contener solo dígitos"),
-  emission_date: z.date({
+  emission_date: z.string().min(1, {
     error: "La fecha de emisión es requerida",
   }),
   due_date: z
-    .date({
+    .string()
+    .min(1, {
       error: "La fecha de vencimiento debe ser una fecha válida",
     })
     .optional(),

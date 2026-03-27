@@ -55,7 +55,7 @@ import { VehicleInspectionSelectionModal } from "../../inspeccion-vehiculo/compo
 import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
@@ -808,7 +808,7 @@ export const WorkOrderForm = ({
                       </div>
 
                       {/* Fila 2: Descripción */}
-                      <FormInputText
+                      <FormTextArea
                         name={`items.${index}.description`}
                         label="Descripción del Trabajo"
                         placeholder="Ingrese la descripción del trabajo..."
@@ -864,7 +864,7 @@ export const WorkOrderForm = ({
           color="gray"
           cols={{ sm: 1 }}
         >
-          <FormInputText
+          <FormTextArea
             name="observations"
             label="Observaciones"
             placeholder="Ingrese observaciones adicionales..."

@@ -41,7 +41,7 @@ import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inve
 import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { errorToast } from "@/core/core.function";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 import { QuotationSelectionTallerModal } from "../../cotizacion/components/QuotationSelectionTallerModal";
@@ -367,7 +367,7 @@ export default function PurchaseRequestTallerForm({
             />
           )}
 
-          <FormInputText
+          <FormTextArea
             name="observations"
             label="Observaciones"
             placeholder="Notas adicionales sobre la solicitud..."

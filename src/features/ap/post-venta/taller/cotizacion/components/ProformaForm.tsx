@@ -27,7 +27,7 @@ import {
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
@@ -331,7 +331,7 @@ export default function OrderQuotationForm({
           description="Indica si esta cotización ha sido solicitada por el área de gerencia."
         />
 
-        <FormInputText
+        <FormTextArea
           name="observations"
           label="Observaciones"
           control={form.control}

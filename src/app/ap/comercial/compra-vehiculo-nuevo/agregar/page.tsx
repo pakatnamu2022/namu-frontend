@@ -7,8 +7,10 @@ import {
   currentYear,
   ERROR_MESSAGE,
   errorToast,
+  localDatePlusDays,
   SUCCESS_MESSAGE,
   successToast,
+  toLocalDateString,
 } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
@@ -133,7 +135,7 @@ export default function AddVehiclePurchaseOrderPage() {
             : "",
           invoice_series: "",
           invoice_number: "",
-          emission_date: new Date(),
+          emission_date: toLocalDateString(new Date()),
           subtotal: 0,
           igv: 0,
           total: 0,
@@ -144,7 +146,7 @@ export default function AddVehiclePurchaseOrderPage() {
           discount: 0,
           isc: 0,
           // eslint-disable-next-line react-hooks/purity
-          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          due_date: localDatePlusDays(30),
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

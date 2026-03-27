@@ -144,7 +144,8 @@ export function FormInput({
                 "h-7 md:h-8 text-xs md:text-sm",
                 addonStart && "pl-10",
                 addonEnd && "pr-10",
-                optional && "border-dashed",
+                (optional || !required) && "border-dashed",
+                value && "bg-muted",
                 className,
               )}
               {...inputProps}
@@ -251,7 +252,8 @@ export function FormInput({
                       "h-7 md:h-8 text-xs md:text-sm",
                       addonStart && "pl-10",
                       addonEnd && "pr-10",
-                      optional && "border-dashed",
+                      (optional || !required) && "border-dashed",
+                      field.value && "bg-muted",
                       className,
                     )}
                     {...field}

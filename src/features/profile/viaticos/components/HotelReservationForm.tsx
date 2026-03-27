@@ -23,7 +23,7 @@ import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Option } from "@/core/core.interface";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 
 interface HotelReservationFormProps {
@@ -50,6 +50,18 @@ export const HotelReservationForm = ({
   existingFileUrl,
 }: HotelReservationFormProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Document number parts
+  const [docSerie, setDocSerie] = useState(() => {
+    const num = defaultValues?.document_number ?? "";
+    return num.split("-")[0] ?? "";
+  });
+  const [docCorrelativo, setDocCorrelativo] = useState(() => {
+    const num = defaultValues?.document_number ?? "";
+    const parts = num.split("-");
+    return parts.length > 1 ? parts.slice(1).join("-") : "";
+  });
+  const padLength = 8; // Dígitos del correlativo (rellenado con ceros)
 
   // Convertir las fechas del viático a Date para validación
   const tripStartDate = useMemo(() => {
@@ -197,6 +209,7 @@ export const HotelReservationForm = ({
           name="ruc"
           label="RUC del Hotel"
           placeholder="Ej: 20512345678"
+          maxLength={11}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -266,11 +279,66 @@ export const HotelReservationForm = ({
             placeholder="0.00"
           />
           {/* Nro del Documento */}
-          <FormInput
+          <FormField
             control={form.control}
             name="document_number"
-            label="Nro del Documento"
-            placeholder="Ej: F001-123456"
+            render={() => (
+              <FormItem>
+                <FormLabel>Nro del Documento</FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-1">
+                    <FormInput
+                      name="doc_serie"
+                      value={docSerie}
+                      onChange={(e) => {
+                        const val = (e.target.value as string)
+                          .toUpperCase()
+                          .slice(0, 4);
+                        setDocSerie(val);
+                        const padded = docCorrelativo.padStart(padLength, "0");
+                        form.setValue(
+                          "document_number",
+                          val ? `${val}-${padded}` : padded,
+                          { shouldValidate: true },
+                        );
+                      }}
+                      placeholder="F001"
+                      maxLength={4}
+                      className="w-20 text-center font-mono"
+                    />
+                    <span className="text-muted-foreground font-mono pb-0.5">
+                      -
+                    </span>
+                    <FormInput
+                      name="doc_correlativo"
+                      value={docCorrelativo}
+                      onChange={(e) => {
+                        const val = e.target.value as string;
+                        setDocCorrelativo(val);
+                        const padded = val.padStart(padLength, "0");
+                        form.setValue(
+                          "document_number",
+                          docSerie ? `${docSerie}-${padded}` : padded,
+                          { shouldValidate: true },
+                        );
+                      }}
+                      onBlur={() => {
+                        if (docCorrelativo) {
+                          const padded = docCorrelativo.padStart(
+                            padLength,
+                            "0",
+                          );
+                          setDocCorrelativo(padded);
+                        }
+                      }}
+                      placeholder={"0".repeat(padLength)}
+                      className="flex-1 font-mono"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
 
@@ -330,7 +398,7 @@ export const HotelReservationForm = ({
         />
 
         {/* Notas */}
-        <FormInputText
+        <FormTextArea
           control={form.control}
           name="notes"
           label="Notas (Opcional)"

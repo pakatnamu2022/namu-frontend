@@ -34,15 +34,21 @@ const purchaseRequestQuoteSchemaBase = z.object({
   ),
   doc_type_currency_id: requiredStringId("Moneda es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
-  quote_deadline: z.union([z.string(), z.date()]).refine(
-    (value) => {
-      const date = value instanceof Date ? value : new Date(value);
-      return !isNaN(date.getTime()) && date > new Date();
-    },
-    {
-      message: "La fecha de vencimiento debe ser una fecha válida en el futuro",
-    },
-  ),
+  quote_deadline: z
+    .string()
+    .min(1, "La fecha de vencimiento es requerida")
+    .refine(
+      (value) => {
+        // Añadir T12:00:00 para comparar en hora local y evitar el problema
+        // de UTC midnight que desplaza la fecha en timezones negativos (Peru UTC-5).
+        const date = new Date(`${value}T12:00:00`);
+        return !isNaN(date.getTime()) && date > new Date();
+      },
+      {
+        message:
+          "La fecha de vencimiento debe ser una fecha válida en el futuro",
+      },
+    ),
 });
 
 export const purchaseRequestQuoteSchemaCreate = purchaseRequestQuoteSchemaBase

@@ -35,9 +35,9 @@ export function FormSwitch<T extends FieldValues>({
   autoHeight = false,
 }: FormSwitchProps<T>) {
   const sizeClasses = {
-    sm: "h-8 p-2 gap-2",
-    md: "h-9 p-3 gap-3",
-    lg: "h-11 p-4 gap-4",
+    sm: "h-7 p-2 gap-2",
+    md: "h-8 p-3 gap-3",
+    lg: "h-10 p-4 gap-4",
   };
 
   return (

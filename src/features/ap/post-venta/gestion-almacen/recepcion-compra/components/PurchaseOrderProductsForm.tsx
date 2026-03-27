@@ -55,7 +55,7 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 
@@ -794,7 +794,7 @@ export const PurchaseOrderProductsForm = ({
               {/* Campo de notas dentro de items */}
               {fields.length > 0 && (
                 <div className="mt-4">
-                  <FormInputText
+                  <FormTextArea
                     control={form.control}
                     name="notes"
                     label="Notas Generales"

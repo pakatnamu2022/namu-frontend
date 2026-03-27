@@ -31,7 +31,7 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { SupplierOrderDetailsResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface";
 
 interface ReceptionsProductsFormProps {
@@ -478,7 +478,7 @@ export const ReceptionsProductsForm = ({
         </Card>
 
         {/* Notas */}
-        <FormInputText
+        <FormTextArea
           name="notes"
           label="Notas Generales"
           placeholder="Notas o comentarios adicionales de la recepción"

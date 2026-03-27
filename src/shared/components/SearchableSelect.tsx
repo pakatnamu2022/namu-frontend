@@ -186,7 +186,7 @@ export function SearchableSelect({
   );
 
   return (
-    <div className={cn("flex flex-col gap-2 min-w-0", classNameDiv)}>
+    <div className={cn("flex flex-col gap-0.5 min-w-0", classNameDiv)}>
       {label && <label className="text-sm font-medium">{label}</label>}
       {isMobile ? (
         <Drawer

@@ -34,7 +34,7 @@ import {
   workTypeSegmentSchema,
 } from "../lib/work-type.schema";
 import { ShiftType } from "../lib/work-type.interface";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface SegmentDialogProps {
   open: boolean;
@@ -314,7 +314,7 @@ export const SegmentDialog = ({
               </div>
             </div>
 
-            <FormInputText
+            <FormTextArea
               control={form.control}
               name="description"
               label="Descripción"

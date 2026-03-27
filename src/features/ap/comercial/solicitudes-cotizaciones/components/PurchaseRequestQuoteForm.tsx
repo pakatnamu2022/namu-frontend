@@ -3,6 +3,7 @@ import {
   purchaseRequestQuoteSchemaCreate,
   purchaseRequestQuoteSchemaUpdate,
 } from "../lib/purchaseRequestQuote.schema";
+import { localDatePlusDays } from "@/core/core.function";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -88,11 +89,7 @@ export const PurchaseRequestQuoteForm = ({
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
-  const defaultDeadline = (() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    return d.toISOString().split("T")[0];
-  })();
+  const defaultDeadline = localDatePlusDays(30);
 
   const form = useForm({
     resolver: zodResolver(
@@ -853,6 +850,9 @@ export const PurchaseRequestQuoteForm = ({
                 name="quote_deadline"
                 label="Fecha Límite de Cotización"
                 captionLayout="dropdown"
+                disabledRange={
+                  { before: new Date() } // Solo permitir fechas futuras
+                }
               />
             </GroupFormSection>
 
