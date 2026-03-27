@@ -414,6 +414,7 @@ export default function ManageQuotationPage() {
         discountRequests={discountRequests.filter(
           (r) => r.item_type === "PRODUCT",
         )}
+        warehouseId={quotation.warehouse_id}
         permissions={permissions}
       />
     </div>
