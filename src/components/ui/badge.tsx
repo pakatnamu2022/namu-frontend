@@ -15,6 +15,7 @@ export type BadgeColor =
   | "destructive"
   | "orange"
   | "green"
+  | "emerald"
   | "blue"
   | "sky"
   | "red"
@@ -44,6 +45,7 @@ const badgeVariants = cva(
         destructive: "",
         orange: "",
         green: "",
+        emerald: "",
         blue: "",
         sky: "",
         red: "",
@@ -121,6 +123,14 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
       "bg-green-100 border-green-400 text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-950/50",
     ghost:
       "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/50",
+  },
+  emerald: {
+    default:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200",
+    outline:
+      "bg-emerald-100 border-emerald-400 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/50",
+    ghost:
+      "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50",
   },
   blue: {
     default: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-200",

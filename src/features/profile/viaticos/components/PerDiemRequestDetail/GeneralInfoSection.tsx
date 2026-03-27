@@ -80,7 +80,7 @@ export default function GeneralInfoSection({
               <CalendarClock className="h-3 w-3 mr-1" />
               {format(new Date(request.end_date), "dd/MM/yyyy", { locale: es })}
             </Badge>
-            <Badge color="secondary" className="text-xs">
+            <Badge color="emerald" className="text-xs">
               {request.days_count} {request.days_count === 1 ? "día" : "días"}
             </Badge>
           </div>

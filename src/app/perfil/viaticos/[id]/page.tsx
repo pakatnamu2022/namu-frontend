@@ -288,8 +288,6 @@ export default function PerDiemRequestDetailPage() {
                     navigate(`/perfil/solicitud-viaticos/actualizar/${id}`)
                   }
                   size="sm"
-                  variant="outline"
-                  color="primary"
                   className="gap-2 w-fit sm:w-auto"
                 >
                   <Edit className="h-4 w-4 shrink-0" />
