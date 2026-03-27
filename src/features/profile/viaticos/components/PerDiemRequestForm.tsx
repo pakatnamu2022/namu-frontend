@@ -48,6 +48,7 @@ export const PerDiemRequestForm = ({
     ),
     defaultValues: {
       ...defaultValues,
+      with_active: defaultValues.with_active ?? false,
       with_request: defaultValues.with_request ?? false,
     },
     mode: "onChange",
