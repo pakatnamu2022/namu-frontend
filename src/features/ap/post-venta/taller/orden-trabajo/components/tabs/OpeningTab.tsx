@@ -30,6 +30,7 @@ import { downloadOrderReceiptPdf } from "../../../inspeccion-vehiculo/lib/vehicl
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -294,38 +295,55 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FormProvider {...invoiceToForm}>
-            <FormSelectAsync
-              name="invoice_to_id"
-              label="Cliente de facturación"
-              placeholder="Seleccionar cliente"
-              control={invoiceToForm.control}
-              useQueryHook={useCustomers}
-              mapOptionFn={(customer: CustomersResource) => ({
-                value: customer.id.toString(),
-                label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-              })}
-              description={
-                isInvoiced
-                  ? "Ya existe una factura emitida, no se puede modificar"
-                  : (workOrder?.advances?.length ?? 0) > 0
-                    ? "Ya se registraron avances de pago, no se puede modificar"
-                    : "Cliente a quien se le emitirá la factura de esta OT"
-              }
-              perPage={10}
-              debounceMs={500}
-              disabled={
-                isInvoiced ||
-                invoiceToMutation.isPending ||
-                (workOrder?.advances?.length ?? 0) > 0
-              }
-              defaultOption={invoiceToDefaultOption}
-              onValueChange={(value) => {
-                invoiceToMutation.mutate(value ? Number(value) : null);
-              }}
-              allowClear={false}
-            />
-          </FormProvider>
+          <div className="w-full">
+            <FormProvider {...invoiceToForm}>
+              <div className="flex w-full items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <FormSelectAsync
+                    name="invoice_to_id"
+                    label="Cliente de facturación"
+                    placeholder="Seleccionar cliente"
+                    control={invoiceToForm.control}
+                    useQueryHook={useCustomers}
+                    mapOptionFn={(customer: CustomersResource) => ({
+                      value: customer.id.toString(),
+                      label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                    })}
+                    description={
+                      isInvoiced
+                        ? "Ya existe una factura emitida, no se puede modificar"
+                        : (workOrder?.advances?.length ?? 0) > 0
+                          ? "Ya se registraron avances de pago, no se puede modificar"
+                          : "Cliente a quien se le emitirá la factura de esta OT"
+                    }
+                    perPage={10}
+                    debounceMs={500}
+                    disabled={
+                      isInvoiced ||
+                      invoiceToMutation.isPending ||
+                      (workOrder?.advances?.length ?? 0) > 0
+                    }
+                    defaultOption={invoiceToDefaultOption}
+                    onValueChange={(value) => {
+                      invoiceToMutation.mutate(value ? Number(value) : null);
+                    }}
+                    allowClear={false}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  className="aspect-square shrink-0"
+                  onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+                  tooltip="Agregar nuevo cliente"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </FormProvider>
+          </div>
 
           {/* Info del cliente seleccionado */}
           {workOrder?.invoice_to && (

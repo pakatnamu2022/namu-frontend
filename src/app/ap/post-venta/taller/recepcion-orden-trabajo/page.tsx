@@ -40,6 +40,7 @@ export default function WorkOrderReceptionPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>(
     getCurrentDayOfMonth(currentDate),
   );
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -62,11 +63,14 @@ export default function WorkOrderReceptionPage() {
         dateFrom && dateTo
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
-      status_id: [
-        WORK_ORDER_STATUS_ID.RECEPCIONADO,
-        WORK_ORDER_STATUS_ID.EN_TRABAJO,
-        WORK_ORDER_STATUS_ID.TERMINADO,
-      ],
+      status_id:
+        statusFilter === "all"
+          ? [
+              WORK_ORDER_STATUS_ID.RECEPCIONADO,
+              WORK_ORDER_STATUS_ID.EN_TRABAJO,
+              WORK_ORDER_STATUS_ID.TERMINADO,
+            ]
+          : [Number(statusFilter)],
       sort: "estimated_delivery_date",
       direction: "asc",
     },
@@ -105,6 +109,8 @@ export default function WorkOrderReceptionPage() {
           setDateFrom={handleDateFromChange}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
         />
       </WorkOrderTable>
 

@@ -588,6 +588,99 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         </Card>
       )}
 
+      {/* Vehicle Photos */}
+      {(inspection.photo_optional_1_url || inspection.photo_optional_2_url) && (
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
+            <ImageIcon className="h-5 w-5 text-gray-600" />
+            Fotos del Vehículo (Adicionales)
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {inspection.photo_optional_1_url && (
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm font-medium text-gray-700">
+                  Vista Adicional 1
+                </p>
+                <div className="relative h-48 sm:h-64 bg-gray-100 rounded-lg overflow-hidden group">
+                  <img
+                    src={inspection.photo_optional_1_url}
+                    alt="Vista frontal del vehículo"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="flex items-center justify-center h-full text-gray-400">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="text-xs ml-2">Error al cargar imagen</p>
+                          </div>
+                        `;
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8"
+                    onClick={() =>
+                      window.open(inspection.photo_optional_1_url, "_blank")
+                    }
+                    title="Ver imagen en nueva pestaña"
+                  >
+                    <Expand className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {inspection.photo_optional_2_url && (
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm font-medium text-gray-700">
+                  Vista Adicional 2
+                </p>
+                <div className="relative h-48 sm:h-64 bg-gray-100 rounded-lg overflow-hidden group">
+                  <img
+                    src={inspection.photo_optional_2_url}
+                    alt="Vista lateral derecha del vehículo"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="flex items-center justify-center h-full text-gray-400">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="text-xs ml-2">Error al cargar imagen</p>
+                          </div>
+                        `;
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8"
+                    onClick={() =>
+                      window.open(inspection.photo_optional_2_url, "_blank")
+                    }
+                    title="Ver imagen en nueva pestaña"
+                  >
+                    <Expand className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
       {/* Checklist by Category */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {Object.entries(groupedItems).map(([category, items]) => (

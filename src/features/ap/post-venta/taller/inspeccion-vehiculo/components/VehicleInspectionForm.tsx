@@ -509,6 +509,42 @@ export const VehicleInspectionForm = ({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="photo_optional_1"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Opcional 1"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_optional_2"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Opcional 2"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </GroupFormSection>
 
         {/* Marcador de Daños */}
