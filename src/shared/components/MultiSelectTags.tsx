@@ -68,7 +68,7 @@ export function MultiSelectTags<T extends MultiSelectTagsItem>({
 
         // Obtener los objetos completos basados en los IDs seleccionados
         const selectedItems = options.filter((item) =>
-          selectedIds.includes(item.id)
+          selectedIds.includes(item.id),
         );
 
         const handleRemove = (itemId: number) => {
@@ -115,10 +115,10 @@ export function MultiSelectTags<T extends MultiSelectTagsItem>({
                   ))}
                 </TagsTrigger>
                 <TagsContent
-                onWheel={(e) => e.stopPropagation()}
-                onWheelCapture={(e) => e.stopPropagation()}
-                onTouchMove={(e) => e.stopPropagation()}
-              >
+                  onWheel={(e) => e.stopPropagation()}
+                  onWheelCapture={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                >
                   <TagsInput placeholder={searchPlaceholder} />
                   <TagsList>
                     <TagsEmpty>{emptyMessage}</TagsEmpty>
