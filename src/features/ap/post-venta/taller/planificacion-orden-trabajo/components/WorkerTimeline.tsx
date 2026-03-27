@@ -17,7 +17,7 @@ import {
   WORK_SCHEDULE,
   minutesToTimelinePosition,
 } from "../lib/workOrderPlanning.constants";
-import { format, parseISO, isSameDay, addHours } from "date-fns";
+import { format, parseISO, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   Clock,
@@ -257,6 +257,51 @@ export function WorkerTimeline({
     AFTERNOON_END,
   } = WORK_SCHEDULE;
 
+  // Suma horas de trabajo reales a una fecha, saltando el almuerzo.
+  // Ej: 11:00 + 3h = 17:24 (no 14:00), porque salta 13:00-14:24
+  const addWorkHours = (start: Date, hours: number): Date => {
+    let remainingMinutes = Math.round(hours * 60);
+    let currentMinutes = start.getHours() * 60 + start.getMinutes();
+
+    // Si empieza en almuerzo, avanzar al inicio de la tarde
+    if (
+      currentMinutes >= LUNCH_START &&
+      currentMinutes < WORK_SCHEDULE.LUNCH_END
+    ) {
+      currentMinutes = WORK_SCHEDULE.LUNCH_END;
+    }
+
+    while (remainingMinutes > 0) {
+      if (currentMinutes < LUNCH_START) {
+        // Estamos en la mañana
+        const minutesUntilLunch = LUNCH_START - currentMinutes;
+        if (remainingMinutes <= minutesUntilLunch) {
+          currentMinutes += remainingMinutes;
+          remainingMinutes = 0;
+        } else {
+          remainingMinutes -= minutesUntilLunch;
+          currentMinutes = WORK_SCHEDULE.LUNCH_END; // saltar almuerzo
+        }
+      } else {
+        // Estamos en la tarde o más allá
+        currentMinutes += remainingMinutes;
+        remainingMinutes = 0;
+      }
+    }
+
+    // Si cayó en el almuerzo, mover al inicio de la tarde
+    if (
+      currentMinutes > LUNCH_START &&
+      currentMinutes < WORK_SCHEDULE.LUNCH_END
+    ) {
+      currentMinutes = WORK_SCHEDULE.LUNCH_END;
+    }
+
+    const result = new Date(start);
+    result.setHours(Math.floor(currentMinutes / 60), currentMinutes % 60, 0, 0);
+    return result;
+  };
+
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
@@ -358,7 +403,6 @@ export function WorkerTimeline({
     startTime: Date,
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
-    const endTime = addHours(startTime, estimatedHours);
     const startHour = startTime.getHours();
     const startMin = startTime.getMinutes();
     const startTotalMin = startHour * 60 + startMin;
@@ -372,13 +416,7 @@ export function WorkerTimeline({
       }
     }
 
-    // Verificar que no cruce el almuerzo
-    const endTotalMinForLunch = endTime.getHours() * 60 + endTime.getMinutes();
-    if (startTotalMin < LUNCH_START && endTotalMinForLunch > LUNCH_START) {
-      return false; // Cruza el inicio del almuerzo
-    }
-
-    // Verificar que el inicio esté dentro del horario laboral
+    // Verificar que el inicio esté dentro del horario laboral (no en almuerzo)
     const startInMorning =
       startTotalMin >= MORNING_START && startTotalMin < MORNING_END;
     const startInAfternoon =
@@ -388,8 +426,8 @@ export function WorkerTimeline({
       return false;
     }
 
-    // Verificar conflictos con tareas existentes (solo con la parte dentro del día)
-    const endTimeForConflict = endTime;
+    // Verificar conflictos con tareas existentes usando el fin real (saltando almuerzo)
+    const endTimeForConflict = addWorkHours(startTime, estimatedHours);
     return !workerPlannings.some((p) => {
       if (!p.planned_start_datetime || !p.planned_end_datetime) return false;
       const planStart = parseISO(p.planned_start_datetime);
@@ -404,7 +442,7 @@ export function WorkerTimeline({
 
   // Calcula cuántas horas se derraman al día siguiente (overflow)
   const getOverflowHours = (startTime: Date, hours: number): number => {
-    const endTime = addHours(startTime, hours);
+    const endTime = addWorkHours(startTime, hours);
     const endTotalMin = endTime.getHours() * 60 + endTime.getMinutes();
     // Si la hora de fin es menor que la de inicio en minutos absolutos,
     // significa que pasó la medianoche (edge case extremo), lo ignoramos.
@@ -920,7 +958,7 @@ export function WorkerTimeline({
                     >
                       {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
                       {format(
-                        addHours(selectedTime.time, estimatedHours),
+                        addWorkHours(selectedTime.time, estimatedHours),
                         "HH:mm",
                         {
                           locale: es,
@@ -1249,7 +1287,7 @@ export function WorkerTimeline({
                         left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
                         width: `${
                           calculatePositionFromDate(
-                            addHours(hoveredSlot.time, estimatedHours),
+                            addWorkHours(hoveredSlot.time, estimatedHours),
                           ) - calculatePositionFromDate(hoveredSlot.time)
                         }%`,
                       }}
@@ -1264,7 +1302,10 @@ export function WorkerTimeline({
                     const startMin =
                       selectedTime.time.getHours() * 60 +
                       selectedTime.time.getMinutes();
-                    const endTime = addHours(selectedTime.time, estimatedHours);
+                    const endTime = addWorkHours(
+                      selectedTime.time,
+                      estimatedHours,
+                    );
                     const endMin =
                       endTime.getHours() * 60 + endTime.getMinutes();
                     const crossesLunch =

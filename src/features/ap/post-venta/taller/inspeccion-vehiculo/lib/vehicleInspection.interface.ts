@@ -67,6 +67,8 @@ export interface VehicleInspectionResource {
   photo_back_url: string;
   photo_left_url: string;
   photo_right_url: string;
+  photo_optional_1_url: string;
+  photo_optional_2_url: string;
   damages?: VehicleInspectionDamageResource[];
   // Cancellation fields
   is_cancelled?: boolean;
@@ -134,6 +136,8 @@ export interface VehicleInspectionRequest {
   photo_back?: File | null;
   photo_left?: File | null;
   photo_right?: File | null;
+  photo_optional_1?: File | null;
+  photo_optional_2?: File | null;
 }
 
 export interface VehicleInspectionDamageRequest {

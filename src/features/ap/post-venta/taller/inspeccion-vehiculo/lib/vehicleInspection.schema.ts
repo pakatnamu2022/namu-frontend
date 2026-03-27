@@ -81,6 +81,8 @@ export const vehicleInspectionSchemaCreate = z.object({
   photo_back: z.instanceof(File, { message: "Foto trasera es requerida" }),
   photo_left: z.instanceof(File, { message: "Foto izquierda es requerida" }),
   photo_right: z.instanceof(File, { message: "Foto derecha es requerida" }),
+  photo_optional_1: z.instanceof(File).optional().nullable(),
+  photo_optional_2: z.instanceof(File).optional().nullable(),
 });
 
 export const vehicleInspectionSchemaUpdate =

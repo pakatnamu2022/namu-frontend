@@ -617,7 +617,6 @@ export default function ProductDetailsSection({
                 useQueryHook={useInventory}
                 additionalParams={{
                   warehouse_id: warehouseId?.toString() ?? "",
-                  available_quantity: 0,
                 }}
                 mapOptionFn={(inventory: InventoryResource) => ({
                   label: () => (

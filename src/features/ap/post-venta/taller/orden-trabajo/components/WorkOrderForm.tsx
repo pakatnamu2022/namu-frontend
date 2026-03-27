@@ -682,6 +682,9 @@ export const WorkOrderForm = ({
             label="Fecha y Hora Estimada de Entrega"
             control={form.control}
             placeholder="Seleccione fecha y hora"
+            disabledRange={{
+              before: new Date(), // No permitir fechas pasadas
+            }}
           />
 
           <FormSwitch
