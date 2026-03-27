@@ -7,8 +7,12 @@ import {
 } from "./reportByPeriods.interface";
 
 const REPORT_BY_PERIODS_ENDPOINT =
-  "/gp/gh/performanceEvaluation/personResult/report-by-periods";
+  "/gp/gh/performanceEvaluation/personResult/report-by-evaluations";
 const REPORT_BY_PERIODS_EXPORT_ENDPOINT = `${REPORT_BY_PERIODS_ENDPOINT}/export`;
+const REPORT_BY_PERIODS_LEGACY_ENDPOINT =
+  "/gp/gh/performanceEvaluation/personResult/report-by-periods";
+const REPORT_BY_PERIODS_LEGACY_EXPORT_ENDPOINT =
+  `${REPORT_BY_PERIODS_LEGACY_ENDPOINT}/export`;
 
 function normalizeResponse(data: unknown): ReportByPeriodsResponse {
   if (Array.isArray(data)) {
@@ -37,8 +41,16 @@ function normalizeResponse(data: unknown): ReportByPeriodsResponse {
 export async function getReportByPeriods(
   payload: ReportByPeriodsRequest,
 ): Promise<ReportByPeriodsResponse> {
-  const { data } = await api.post<unknown>(REPORT_BY_PERIODS_ENDPOINT, payload);
-  return normalizeResponse(data);
+  try {
+    const { data } = await api.post<unknown>(REPORT_BY_PERIODS_ENDPOINT, payload);
+    return normalizeResponse(data);
+  } catch {
+    const { data } = await api.post<unknown>(
+      REPORT_BY_PERIODS_LEGACY_ENDPOINT,
+      payload,
+    );
+    return normalizeResponse(data);
+  }
 }
 
 export async function exportReportByPeriods(
@@ -46,8 +58,15 @@ export async function exportReportByPeriods(
     selected_person_ids: number[];
   },
 ): Promise<Blob> {
-  const { data } = await api.post(REPORT_BY_PERIODS_EXPORT_ENDPOINT, payload, {
-    responseType: "blob",
-  });
-  return data;
+  try {
+    const { data } = await api.post(REPORT_BY_PERIODS_EXPORT_ENDPOINT, payload, {
+      responseType: "blob",
+    });
+    return data;
+  } catch {
+    const { data } = await api.post(REPORT_BY_PERIODS_LEGACY_EXPORT_ENDPOINT, payload, {
+      responseType: "blob",
+    });
+    return data;
+  }
 }
