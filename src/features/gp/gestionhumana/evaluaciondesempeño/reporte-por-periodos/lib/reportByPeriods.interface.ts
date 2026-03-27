@@ -10,7 +10,7 @@ export interface ReportByPeriodsFilters {
 }
 
 export interface ReportByPeriodsRequest {
-  periodos_id: number[];
+  evaluaciones_id: number[];
   filters: {
     sede_id: number | null;
     area_id: number | null;

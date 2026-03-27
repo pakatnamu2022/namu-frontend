@@ -8,7 +8,7 @@ import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import TitleComponent from "@/shared/components/TitleComponent";
-import { useAllPeriods } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.hook";
+import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -26,12 +26,12 @@ import {
 const BASE_COLUMNS = ["apellido", "nombre", "dni", "cargo", "categoria"];
 
 function buildRequestPayload(
-  periodIds: number[],
+  evaluationIds: number[],
   page?: number,
   perPage?: number,
 ): ReportByPeriodsRequest {
   return {
-    periodos_id: periodIds,
+    evaluaciones_id: evaluationIds,
     filters: {
       sede_id: null,
       area_id: null,
@@ -62,29 +62,30 @@ function readableHeader(columnKey: string): string {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function getPeriodColumnHeader(
+function getEvaluationColumnHeader(
   columnKey: string,
-  periodNameById: Map<number, string>,
+  evaluationNameById: Map<number, string>,
 ): string {
-  const match = columnKey.match(/^periodo_(\d+)_(porcentaje|texto)$/);
+  const match = columnKey.match(/^evaluacion_(\d+)_(porcentaje|texto)$/);
   if (!match) return readableHeader(columnKey);
 
-  const periodId = Number(match[1]);
+  const evaluationId = Number(match[1]);
   const metric = match[2];
-  const periodName = periodNameById.get(periodId) ?? `Período ${periodId}`;
+  const evaluationName =
+    evaluationNameById.get(evaluationId) ?? `Evaluación ${evaluationId}`;
 
   return metric === "porcentaje"
-    ? `${periodName} - %`
-    : `${periodName} - Resultado`;
+    ? `${evaluationName} - %`
+    : `${evaluationName} - Resultado`;
 }
 
 export default function ReportByPeriodsPage() {
-  const periodForm = useForm<{ periodos_id: number[] }>({
+  const evaluationForm = useForm<{ evaluaciones_id: number[] }>({
     defaultValues: {
-      periodos_id: [],
+      evaluaciones_id: [],
     },
   });
-  const periodIds = periodForm.watch("periodos_id") ?? [];
+  const evaluationIds = evaluationForm.watch("evaluaciones_id") ?? [];
 
   const [rows, setRows] = useState<ReportByPeriodsRow[]>([]);
   const [isLoadingRows, setIsLoadingRows] = useState(false);
@@ -96,25 +97,32 @@ export default function ReportByPeriodsPage() {
   const [lastPage, setLastPage] = useState(1);
   const [totalRows, setTotalRows] = useState(0);
 
-  const { data: periodsData, isLoading: isLoadingPeriods } = useAllPeriods();
+  const { data: evaluationsData, isLoading: isLoadingEvaluations } =
+    useAllEvaluations();
 
-  const periodNameById = useMemo(() => {
+  const evaluationNameById = useMemo(() => {
     const map = new Map<number, string>();
-    (periodsData ?? []).forEach((period) => map.set(period.id, period.name));
+    (evaluationsData ?? []).forEach((evaluation) =>
+      map.set(evaluation.id, evaluation.name),
+    );
     return map;
-  }, [periodsData]);
+  }, [evaluationsData]);
 
   const fetchReport = async (
     targetPage: number = page,
     targetPerPage: number = perPage,
   ) => {
-    if (periodIds.length === 0) {
+    if (evaluationIds.length === 0) {
       return;
     }
 
     setIsLoadingRows(true);
     try {
-      const payload = buildRequestPayload(periodIds, targetPage, targetPerPage);
+      const payload = buildRequestPayload(
+        evaluationIds,
+        targetPage,
+        targetPerPage,
+      );
       const response = await getReportByPeriods(payload);
 
       setRows(response.rows);
@@ -123,7 +131,7 @@ export default function ReportByPeriodsPage() {
       setPage(response.currentPage);
       setHasSearched(true);
     } catch (_error) {
-      errorToast("No se pudo cargar el reporte por períodos.");
+      errorToast("No se pudo cargar el reporte por evaluaciones.");
     } finally {
       setIsLoadingRows(false);
     }
@@ -135,7 +143,7 @@ export default function ReportByPeriodsPage() {
   };
 
   const handleClear = () => {
-    periodForm.reset({ periodos_id: [] });
+    evaluationForm.reset({ evaluaciones_id: [] });
     setRows([]);
     setHasSearched(false);
     setTotalRows(0);
@@ -144,17 +152,17 @@ export default function ReportByPeriodsPage() {
   };
 
   const handleExport = async () => {
-    if (periodIds.length === 0) return;
+    if (evaluationIds.length === 0) return;
 
     setIsExporting(true);
     try {
       const payload = {
-        ...buildRequestPayload(periodIds),
+        ...buildRequestPayload(evaluationIds),
         selected_person_ids: [],
       };
 
       const blob = await exportReportByPeriods(payload);
-      downloadBlob(blob, "reporte-evaluacion-por-periodos.xlsx");
+      downloadBlob(blob, "reporte-evaluacion-por-evaluaciones.xlsx");
       successToast("Exportación completada");
     } catch (_error) {
       errorToast("No se pudo exportar el reporte.");
@@ -164,21 +172,21 @@ export default function ReportByPeriodsPage() {
   };
 
   const dynamicColumnKeys = useMemo(() => {
-    if (periodIds.length > 0) {
-      return periodIds.flatMap((periodId) => [
-        `periodo_${periodId}_porcentaje`,
-        `periodo_${periodId}_texto`,
+    if (evaluationIds.length > 0) {
+      return evaluationIds.flatMap((evaluationId) => [
+        `evaluacion_${evaluationId}_porcentaje`,
+        `evaluacion_${evaluationId}_texto`,
       ]);
     }
 
     const keys = new Set<string>();
     rows.forEach((row) => {
       Object.keys(row).forEach((key) => {
-        if (key.startsWith("periodo_")) keys.add(key);
+        if (key.startsWith("evaluacion_")) keys.add(key);
       });
     });
     return Array.from(keys);
-  }, [periodIds, rows]);
+  }, [evaluationIds, rows]);
 
   const columns = useMemo<ColumnDef<ReportByPeriodsRow>[]>(() => {
     const baseColumns: ColumnDef<ReportByPeriodsRow>[] = BASE_COLUMNS.map(
@@ -195,7 +203,7 @@ export default function ReportByPeriodsPage() {
     const periodColumns: ColumnDef<ReportByPeriodsRow>[] =
       dynamicColumnKeys.map((key) => ({
         accessorKey: key,
-        header: getPeriodColumnHeader(key, periodNameById),
+        header: getEvaluationColumnHeader(key, evaluationNameById),
         cell: ({ row }) => {
           const value = row.original[key];
           return (
@@ -209,13 +217,13 @@ export default function ReportByPeriodsPage() {
       }));
 
     return [...baseColumns, ...periodColumns];
-  }, [dynamicColumnKeys, periodNameById]);
+  }, [dynamicColumnKeys, evaluationNameById]);
 
   return (
     <div className="space-y-4">
       <HeaderTableWrapper>
         <TitleComponent
-          title="Reporte de Evaluación por Períodos"
+          title="Reporte de Evaluación por Evaluaciones"
           subtitle="Filtra, revisa resultados y exporta a Excel"
           icon="FileSpreadsheet"
         />
@@ -223,19 +231,19 @@ export default function ReportByPeriodsPage() {
 
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="w-full md:max-w-xl">
-          <Form {...periodForm}>
+          <Form {...evaluationForm}>
             <form>
               <MultiSelectTags
-                control={periodForm.control}
-                name="periodos_id"
-                placeholder="Selecciona períodos"
-                searchPlaceholder="Buscar período..."
-                options={periodsData ?? []}
+                control={evaluationForm.control}
+                name="evaluaciones_id"
+                placeholder="Selecciona evaluaciones"
+                searchPlaceholder="Buscar evaluación..."
+                options={evaluationsData ?? []}
                 getDisplayValue={(item) => item.name}
                 getSecondaryText={(item) =>
                   `${item.start_date} - ${item.end_date}`
                 }
-                disabled={isLoadingPeriods}
+                disabled={isLoadingEvaluations}
                 required
               />
             </form>
@@ -250,7 +258,7 @@ export default function ReportByPeriodsPage() {
           <Button
             type="button"
             onClick={handleSearch}
-            disabled={isLoadingRows || periodIds.length === 0}
+            disabled={isLoadingRows || evaluationIds.length === 0}
           >
             {isLoadingRows ? (
               <>
@@ -267,7 +275,7 @@ export default function ReportByPeriodsPage() {
           <Button
             type="button"
             onClick={handleExport}
-            disabled={periodIds.length === 0 || isExporting}
+            disabled={evaluationIds.length === 0 || isExporting}
             className="min-w-[180px]"
           >
             {isExporting ? (
@@ -291,7 +299,7 @@ export default function ReportByPeriodsPage() {
 
       {hasSearched && !isLoadingRows && rows.length === 0 && (
         <p className="text-sm text-muted-foreground px-1">
-          No se encontraron registros para los períodos seleccionados.
+          No se encontraron registros para las evaluaciones seleccionadas.
         </p>
       )}
 
