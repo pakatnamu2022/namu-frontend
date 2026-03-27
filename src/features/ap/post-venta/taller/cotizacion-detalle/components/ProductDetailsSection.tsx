@@ -312,7 +312,7 @@ export default function ProductDetailsSection({
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
     null,
   );
-  const [isCopied, setIsCopied] = useState(false);
+  const [copiedCodeKey, setCopiedCodeKey] = useState<string | null>(null);
 
   const form = useForm({
     resolver: zodResolver(productDetailSchema),
@@ -340,10 +340,14 @@ export default function ProductDetailsSection({
 
   const { data: productData } = useProductById(Number(selectedProductId) || 0);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      successToast("Código copiado al portapapeles");
-    });
+  const handleCopyCode = async (code: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeKey(key);
+      setTimeout(() => setCopiedCodeKey(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -839,17 +843,12 @@ export default function ProductDetailsSection({
                           variant="ghost"
                           size="icon"
                           className="h-5 w-5 hover:bg-blue-100"
-                          onClick={() => {
-                            navigator.clipboard
-                              .writeText(productData.code)
-                              .then(() => {
-                                setIsCopied(true);
-                                setTimeout(() => setIsCopied(false), 2000);
-                              });
-                          }}
+                          onClick={() =>
+                            handleCopyCode(productData.code, "stock-code")
+                          }
                           tooltip="Copiar código"
                         >
-                          {isCopied ? (
+                          {copiedCodeKey === "stock-code" ? (
                             <Check className="h-3 w-3 text-green-600" />
                           ) : (
                             <Copy className="h-3 w-3 text-primary" />
@@ -1192,26 +1191,58 @@ export default function ProductDetailsSection({
                     {/* Vista Desktop */}
                     <div className="hidden md:grid grid-cols-20 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
                       <div className="col-span-4">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {detail.description}
+                        </p>
                         {detail.product?.code && (
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                              {detail.product.code}
+                            <span className="text-xs font-mono text-blue-800 px-2 py-0.5 rounded">
+                              Cód: {detail.product.code}
                             </span>
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                               onClick={() =>
-                                copyToClipboard(detail.product?.code || "")
+                                handleCopyCode(
+                                  detail.product?.code || "",
+                                  `detail-${detail.id}-code`,
+                                )
                               }
                             >
-                              <Copy className="h-3 w-3" />
+                              {copiedCodeKey === `detail-${detail.id}-code` ? (
+                                <Check className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
                             </Button>
                           </div>
                         )}
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {detail.description}
-                        </p>
+                        {detail.product?.dyn_code && (
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-mono text-blue-800 px-2 py-0.5 rounded">
+                              Cód Dyn: {detail.product.dyn_code}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              onClick={() =>
+                                handleCopyCode(
+                                  detail.product?.dyn_code || "",
+                                  `detail-${detail.id}-dyn-code`,
+                                )
+                              }
+                            >
+                              {copiedCodeKey ===
+                              `detail-${detail.id}-dyn-code` ? (
+                                <Check className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
                         {detail.observations && (
                           <p className="text-xs text-gray-500 truncate mt-0.5">
                             {detail.observations}
@@ -1405,10 +1436,18 @@ export default function ProductDetailsSection({
                                 size="icon"
                                 className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                 onClick={() =>
-                                  copyToClipboard(detail.product?.code || "")
+                                  handleCopyCode(
+                                    detail.product?.code || "",
+                                    `mobile-detail-${detail.id}-code`,
+                                  )
                                 }
                               >
-                                <Copy className="h-3 w-3" />
+                                {copiedCodeKey ===
+                                `mobile-detail-${detail.id}-code` ? (
+                                  <Check className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
                               </Button>
                             </div>
                           )}
