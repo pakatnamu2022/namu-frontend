@@ -485,9 +485,22 @@ export function WorkerTimeline({
       const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
       if (lastEndTotalMin >= AFTERNOON_END) return;
 
+      // Si el último bloque termina justo al inicio del almuerzo (13:00),
+      // saltar al fin del almuerzo (14:24) para no quedar bloqueado
+      let effectiveStart = lastEnd;
+      if (lastEndTotalMin === LUNCH_START) {
+        effectiveStart = new Date(lastEnd);
+        effectiveStart.setHours(
+          Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+          WORK_SCHEDULE.LUNCH_END % 60,
+          0,
+          0,
+        );
+      }
+
       // Tiene bloques: el inicio siempre es el fin del último bloque
-      if (isSlotAvailable(lastEnd, workerPlannings)) {
-        setSelectedTime({ time: lastEnd, workerId });
+      if (isSlotAvailable(effectiveStart, workerPlannings)) {
+        setSelectedTime({ time: effectiveStart, workerId });
       }
     } else {
       // Sin bloques: libre desde hora actual
@@ -566,9 +579,22 @@ export function WorkerTimeline({
         return;
       }
 
-      // Tiene bloques: preview fijo al fin del último bloque
-      if (isSlotAvailable(lastEnd, workerPlannings)) {
-        setHoveredSlot({ time: lastEnd, workerId });
+      // Si el último bloque termina justo al inicio del almuerzo (13:00),
+      // saltar al fin del almuerzo (14:24) para no quedar bloqueado
+      let effectiveStart = lastEnd;
+      if (lastEndTotalMin === LUNCH_START) {
+        effectiveStart = new Date(lastEnd);
+        effectiveStart.setHours(
+          Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+          WORK_SCHEDULE.LUNCH_END % 60,
+          0,
+          0,
+        );
+      }
+
+      // Tiene bloques: preview fijo al fin del último bloque (o fin de almuerzo)
+      if (isSlotAvailable(effectiveStart, workerPlannings)) {
+        setHoveredSlot({ time: effectiveStart, workerId });
       } else {
         setHoveredSlot(null);
       }
