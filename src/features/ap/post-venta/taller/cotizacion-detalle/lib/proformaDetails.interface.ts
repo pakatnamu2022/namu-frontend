@@ -43,6 +43,7 @@ export interface OrderQuotationDetailsRequest {
   discount_percentage: number;
   total_amount: number;
   observations?: string;
+  supply_type?: string;
 }
 
 export interface getOrderQuotationDetailsProps {

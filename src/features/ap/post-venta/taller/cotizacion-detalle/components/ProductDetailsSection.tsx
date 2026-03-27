@@ -139,6 +139,8 @@ export default function ProductDetailsSection({
       ap_quantity: 1,
       ap_unit_price: 0,
       ap_discount: 0,
+      ap_description: "",
+      ap_supply_type: "",
     },
   });
 
@@ -154,14 +156,23 @@ export default function ProductDetailsSection({
       const price = parseFloat(item.sale_price);
       setApMinSalePrice(price);
       apForm.setValue("ap_unit_price", price);
+      apForm.setValue("ap_description", item.product?.name || "");
     } else {
       setApMinSalePrice(0);
       apForm.setValue("ap_unit_price", 0);
+      apForm.setValue("ap_description", "");
     }
   };
 
   const handleApSubmit = apForm.handleSubmit(async (data) => {
     if (apIsPriceBelowMin) return;
+    if (!data.ap_supply_type) {
+      apForm.setError("ap_supply_type", {
+        type: "manual",
+        message: "El tipo de abastecimiento es requerido",
+      });
+      return;
+    }
     try {
       setIsApSaving(true);
       const subtotal = data.ap_quantity * data.ap_unit_price;
@@ -170,7 +181,7 @@ export default function ProductDetailsSection({
         order_quotation_id: quotationId,
         item_type: ITEM_TYPE_PRODUCT,
         product_id: Number(data.ap_product_id),
-        description: "",
+        description: data.ap_description,
         quantity: data.ap_quantity,
         unit_measure: "UND",
         retail_price_external: undefined,
@@ -180,10 +191,18 @@ export default function ProductDetailsSection({
         discount_percentage: data.ap_discount,
         total_amount,
         observations: "",
+        supply_type: data.ap_supply_type,
       });
       successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
       setApMinSalePrice(0);
-      apForm.reset();
+      apForm.reset({
+        ap_product_id: "",
+        ap_quantity: 1,
+        ap_unit_price: 0,
+        ap_discount: 0,
+        ap_description: "",
+        ap_supply_type: "",
+      });
       await onRefresh();
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";
@@ -528,9 +547,40 @@ export default function ProductDetailsSection({
             <Switch
               id="mode-switch"
               checked={mode === "AP"}
-              onCheckedChange={(checked) =>
-                setMode(checked ? "AP" : "DEALER_PORTAL")
-              }
+              onCheckedChange={(checked) => {
+                const newMode = checked ? "AP" : "DEALER_PORTAL";
+                setMode(newMode);
+                if (newMode === "AP") {
+                  apForm.reset({
+                    ap_product_id: "",
+                    ap_quantity: 1,
+                    ap_unit_price: 0,
+                    ap_discount: 0,
+                    ap_description: "",
+                    ap_supply_type: "",
+                  });
+                  setApMinSalePrice(0);
+                } else {
+                  form.reset({
+                    order_quotation_id: quotationId,
+                    item_type: ITEM_TYPE_PRODUCT,
+                    product_id: "",
+                    description: "",
+                    quantity: 1,
+                    unit_measure: "UND",
+                    retail_price_external: undefined,
+                    freight_commission: 1.05,
+                    exchange_rate: exchangeRate || 0,
+                    unit_price: 0,
+                    discount_percentage: 0,
+                    total_amount: 0,
+                    observations: "",
+                    supply_type: "",
+                  });
+                  setExternalPriceText("");
+                  setStockData(null);
+                }
+              }}
             />
             <Label
               htmlFor="mode-switch"
@@ -637,6 +687,25 @@ export default function ProductDetailsSection({
                     Math.min(val, maxDiscountPercentage),
                   );
                 }}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="hidden">
+                <FormInput
+                  name="ap_description"
+                  label="Descripción"
+                  placeholder="Descripción del producto"
+                  control={apForm.control}
+                />
+              </div>
+
+              <FormSelect
+                control={apForm.control}
+                name="ap_supply_type"
+                options={onSelectSupplyType}
+                label="Tipo de Abastecimiento"
+                placeholder="Seleccionar un tipo"
               />
             </div>
 
