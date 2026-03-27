@@ -154,7 +154,9 @@ export default function VehicleInspectionPage() {
     // Daños y otros campos
     formData.append(
       "inspection_date",
-      data.inspection_date ? format(data.inspection_date, "yyyy-MM-dd") : "",
+      data.inspection_date
+        ? format(new Date(data.inspection_date), "yyyy-MM-dd HH:mm:ss")
+        : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);

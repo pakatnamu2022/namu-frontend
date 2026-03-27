@@ -295,29 +295,72 @@ export function InvoiceDetailSheet({
                     <tr key={item.id || index} className="border-b">
                       <td className="py-2 px-3 text-sm">{index + 1}</td>
                       <td className="py-2 px-3 text-sm">
-                        <div className="flex items-center gap-1">
-                          <span>{item.product_code || "N/A"}</span>
+                        <div className="space-y-1">
                           {item.product_code && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="h-5 w-5 p-0 hover:bg-slate-200"
-                              onClick={() =>
-                                handleCopyCode(
-                                  item.product_code,
-                                  "product_code",
-                                  index,
-                                )
-                              }
-                            >
-                              {copiedIndex === index &&
-                              copiedField === "product_code" ? (
-                                <Check className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <Copy className="h-3 w-3" />
-                              )}
-                            </Button>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-medium text-muted-foreground">
+                                Cód:
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-xs py-0 px-1.5"
+                              >
+                                {item.product_code}
+                              </Badge>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-4 w-4 p-0 hover:bg-slate-200"
+                                onClick={() =>
+                                  handleCopyCode(
+                                    item.product_code,
+                                    "product_code",
+                                    index,
+                                  )
+                                }
+                              >
+                                {copiedIndex === index &&
+                                copiedField === "product_code" ? (
+                                  <Check className="h-2.5 w-2.5 text-green-600" />
+                                ) : (
+                                  <Copy className="h-2.5 w-2.5" />
+                                )}
+                              </Button>
+                            </div>
+                          )}
+                          {item.product_dyn_code && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-medium text-muted-foreground">
+                                Dyn:
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-xs py-0 px-1.5"
+                              >
+                                {item.product_dyn_code}
+                              </Badge>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-4 w-4 p-0 hover:bg-slate-200"
+                                onClick={() =>
+                                  handleCopyCode(
+                                    item.product_dyn_code,
+                                    "product_code_dyn",
+                                    index,
+                                  )
+                                }
+                              >
+                                {copiedIndex === index &&
+                                copiedField === "product_code_dyn" ? (
+                                  <Check className="h-2.5 w-2.5 text-green-600" />
+                                ) : (
+                                  <Copy className="h-2.5 w-2.5" />
+                                )}
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </td>

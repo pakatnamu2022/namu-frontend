@@ -36,7 +36,7 @@ export interface WarehouseStockDetail {
 export interface ProductResource {
   id: number;
   code: string;
-  dyn_code?: string;
+  dyn_code: string;
   name: string;
   description?: string;
   product_category_id: number;

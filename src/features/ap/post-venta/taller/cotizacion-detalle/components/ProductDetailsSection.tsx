@@ -1196,7 +1196,7 @@ export default function ProductDetailsSection({
                         </p>
                         {detail.product?.code && (
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono text-blue-800 px-2 py-0.5 rounded">
+                            <span className="text-xs font-mono px-2 py-0.5 rounded">
                               Cód: {detail.product.code}
                             </span>
                             <Button
@@ -1220,7 +1220,7 @@ export default function ProductDetailsSection({
                         )}
                         {detail.product?.dyn_code && (
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono text-blue-800 px-2 py-0.5 rounded">
+                            <span className="text-xs font-mono px-2 py-0.5 rounded">
                               Cód Dyn: {detail.product.dyn_code}
                             </span>
                             <Button

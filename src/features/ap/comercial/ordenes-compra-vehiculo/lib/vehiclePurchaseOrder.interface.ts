@@ -24,6 +24,7 @@ export interface PurchaseOrderItem {
   unit_measurement_id?: number;
   product_code: string;
   product_name: string;
+  product_dyn_code: string;
   description: string;
   unit_price: string | number;
   quantity: number;
