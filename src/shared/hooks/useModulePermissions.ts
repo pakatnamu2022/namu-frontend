@@ -188,6 +188,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "CheckCircle",
     description: "Permite confirmar la anulación de una recepción",
   },
+  {
+    value: "addSparePartsOT",
+    label: "Agregar Repuestos OT",
+    icon: "Plus",
+    description: "Permite agregar repuestos a una orden de trabajo",
+  },
 ];
 
 /**
@@ -252,5 +258,6 @@ export function useModulePermissions(moduleCode: string) {
     canConfirmCancellationReception: hasModulePermission(
       "confirmCancellationReception",
     ),
+    canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
   };
 }
