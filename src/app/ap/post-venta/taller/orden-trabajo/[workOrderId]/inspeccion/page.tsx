@@ -19,7 +19,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import { DataCard } from "@/components/DataCard";
-import { Car, FileText, Gauge, Wrench } from "lucide-react";
+import { Car, FileText, Gauge, User, Wrench } from "lucide-react";
 import { format } from "date-fns";
 
 export default function VehicleInspectionPage() {
@@ -326,6 +326,18 @@ export default function VehicleInspectionPage() {
               label: "Kilometraje",
               icon: Gauge,
               value: workOrder.mileage ? `${workOrder.mileage} km` : "—",
+            },
+            {
+              key: "owner_name",
+              label: "Propietario",
+              icon: User,
+              value: workOrder.vehicle.owner!.full_name || "N/A",
+            },
+            {
+              key: "full_contact_name",
+              label: "Contacto",
+              icon: User,
+              value: workOrder.full_contact_name || "N/A",
             },
           ]}
           sections={workOrderSections}

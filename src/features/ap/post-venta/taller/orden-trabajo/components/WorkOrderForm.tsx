@@ -653,6 +653,37 @@ export const WorkOrderForm = ({
                   value: selectedVehicle.engine_number || "—",
                 },
               ]}
+              sections={
+                selectedVehicle.owner
+                  ? [
+                      {
+                        key: "owner",
+                        title: "Propietario",
+                        icon: User,
+                        fields: [
+                          {
+                            key: "owner_name",
+                            label: "Nombre",
+                            icon: User,
+                            value: selectedVehicle.owner.full_name || "N/A",
+                          },
+                          {
+                            key: "owner_document",
+                            label: "Documento",
+                            icon: FileText,
+                            value: selectedVehicle.owner.num_doc || "N/A",
+                          },
+                          {
+                            key: "owner_phone",
+                            label: "Teléfono",
+                            icon: User,
+                            value: selectedVehicle.owner.phone || "N/A",
+                          },
+                        ],
+                      },
+                    ]
+                  : undefined
+              }
             />
           )}
         </GroupFormSection>

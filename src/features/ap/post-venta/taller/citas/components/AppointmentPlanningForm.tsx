@@ -12,7 +12,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader, Calendar, Car, User, ExternalLink } from "lucide-react";
+import {
+  Loader,
+  Calendar,
+  Car,
+  User,
+  ExternalLink,
+  FileText,
+  Gauge,
+} from "lucide-react";
 import {
   AppointmentPlanningSchema,
   appointmentPlanningSchemaCreate,
@@ -28,7 +36,6 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import AppointmentTimeSlotPicker from "./AppointmentTimeSlotPicker";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Card } from "@/components/ui/card";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -45,6 +52,7 @@ import {
   useDniValidation,
   useRucValidation,
 } from "@/shared/hooks/useDocumentValidation";
+import { DataCard } from "@/components/DataCard";
 
 interface AppointmentPlanningFormProps {
   defaultValues: Partial<AppointmentPlanningSchema>;
@@ -405,88 +413,85 @@ export const AppointmentPlanningForm = ({
             {/* Información del Vehículo Seleccionado */}
             {selectedVehicle && (
               <div className="col-span-1 md:col-span-3">
-                <Card className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Car className="h-5 w-5 text-primary" />
-                    <h4 className="font-semibold text-gray-800">
-                      Información del Vehículo
-                    </h4>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-xs text-gray-500">VIN</p>
-                      <p className="font-semibold text-sm">
-                        {selectedVehicle.vin || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Marca</p>
-                      <p className="font-semibold text-sm">
-                        {selectedVehicle.model?.brand || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Modelo</p>
-                      <p className="font-semibold text-sm truncate">
-                        {selectedVehicle.model?.version || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Año</p>
-                      <p className="font-semibold text-sm">
-                        {selectedVehicle.year || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Color</p>
-                      <p className="font-semibold text-sm">
-                        {selectedVehicle.vehicle_color || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Motor</p>
-                      <p className="font-semibold text-sm">
-                        {selectedVehicle.engine_type || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">N° Motor</p>
-                      <p className="font-semibold text-sm">
-                        {selectedVehicle.engine_number || "N/A"}
-                      </p>
-                    </div>
-                    {selectedVehicle.owner !== null && (
-                      <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <User className="h-4 w-4 text-primary" />
-                          <p className="text-xs font-semibold text-gray-700">
-                            Propietario
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                          <div>
-                            <p className="text-xs text-gray-500">Nombre</p>
-                            <p className="font-medium text-sm">
-                              {selectedVehicle.owner.full_name}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Documento</p>
-                            <p className="font-medium text-sm">
-                              {selectedVehicle.owner.num_doc}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Teléfono</p>
-                            <p className="font-medium text-sm">
-                              {selectedVehicle.owner.phone || "N/A"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Card>
+                <DataCard
+                  title="INFORMACIÓN DEL VEHÍCULO"
+                  columns={3}
+                  fields={[
+                    {
+                      key: "vin",
+                      label: "VIN",
+                      icon: FileText,
+                      value: selectedVehicle.vin || "N/A",
+                    },
+                    {
+                      key: "brand",
+                      label: "Marca",
+                      icon: Car,
+                      value: selectedVehicle.model?.brand || "N/A",
+                    },
+                    {
+                      key: "model",
+                      label: "Modelo",
+                      icon: FileText,
+                      value: selectedVehicle.model?.version || "N/A",
+                    },
+                    {
+                      key: "year",
+                      label: "Año",
+                      icon: Calendar,
+                      value: selectedVehicle.year || "N/A",
+                    },
+                    {
+                      key: "color",
+                      label: "Color",
+                      icon: Car,
+                      value: selectedVehicle.vehicle_color || "N/A",
+                    },
+                    {
+                      key: "engine_type",
+                      label: "Motor",
+                      icon: Gauge,
+                      value: selectedVehicle.engine_type || "N/A",
+                    },
+                    {
+                      key: "engine_number",
+                      label: "N° Motor",
+                      icon: FileText,
+                      value: selectedVehicle.engine_number || "N/A",
+                    },
+                  ]}
+                  sections={
+                    selectedVehicle.owner
+                      ? [
+                          {
+                            key: "owner",
+                            title: "Propietario",
+                            icon: User,
+                            fields: [
+                              {
+                                key: "owner_name",
+                                label: "Nombre",
+                                icon: User,
+                                value: selectedVehicle.owner.full_name || "N/A",
+                              },
+                              {
+                                key: "owner_document",
+                                label: "Documento",
+                                icon: FileText,
+                                value: selectedVehicle.owner.num_doc || "N/A",
+                              },
+                              {
+                                key: "owner_phone",
+                                label: "Teléfono",
+                                icon: User,
+                                value: selectedVehicle.owner.phone || "N/A",
+                              },
+                            ],
+                          },
+                        ]
+                      : undefined
+                  }
+                />
               </div>
             )}
 
@@ -549,7 +554,8 @@ export const AppointmentPlanningForm = ({
                         Fecha y Hora de Entrega
                       </h4>
                     </div>
-                    {!form.watch("date_appointment") || !form.watch("time_appointment") ? (
+                    {!form.watch("date_appointment") ||
+                    !form.watch("time_appointment") ? (
                       <p className="text-sm text-red-500 font-medium mb-4">
                         Primero debes seleccionar la Fecha y Hora de la Cita.
                       </p>
@@ -582,9 +588,17 @@ export const AppointmentPlanningForm = ({
                   <Button
                     type="button"
                     onClick={() => setShowDeliveryTimePicker(true)}
-                    disabled={!form.watch("date_appointment") || !form.watch("time_appointment")}
+                    disabled={
+                      !form.watch("date_appointment") ||
+                      !form.watch("time_appointment")
+                    }
                     className="w-full lg:w-auto lg:ml-4 bg-red-600 hover:bg-red-700 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                    tooltip={!form.watch("date_appointment") || !form.watch("time_appointment") ? "Primero selecciona la Fecha y Hora de la Cita" : undefined}
+                    tooltip={
+                      !form.watch("date_appointment") ||
+                      !form.watch("time_appointment")
+                        ? "Primero selecciona la Fecha y Hora de la Cita"
+                        : undefined
+                    }
                   >
                     <Calendar className="h-4 w-4 mr-2" />
                     <span className="whitespace-nowrap">
