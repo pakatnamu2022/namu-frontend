@@ -3,12 +3,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { TimePickerForm } from "@/shared/components/TimePickerForm";
 import { generateDelivery } from "../lib/workOrder.actions";
 import { errorToast, successToast } from "@/core/core.function";
+import { SignaturePad } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/SignaturePad";
 
 const DAY_LABELS: { value: number; short: string; long: string }[] = [
   { value: 1, short: "L", long: "Lunes" },
@@ -25,6 +32,7 @@ const deliverySchema = z
     actual_delivery_date: z.string().min(1, "La fecha de entrega es requerida"),
     time_start: z.string().regex(/^\d{2}:\d{2}$/, "Formato inválido (HH:mm)"),
     time_end: z.string().regex(/^\d{2}:\d{2}$/, "Formato inválido (HH:mm)"),
+    signature_delivery: z.string().min(1, "La firma del cliente es requerida"),
   })
   .refine((v) => v.time_start < v.time_end, {
     message: "La hora fin debe ser mayor a la hora inicio",
@@ -55,6 +63,7 @@ export function WorkOrderDeliverySheet({
       actual_delivery_date: "",
       time_start: "08:00",
       time_end: "10:00",
+      signature_delivery: "",
     },
   });
 
@@ -79,15 +88,19 @@ export function WorkOrderDeliverySheet({
     }
 
     try {
-      await generateDelivery(workOrderId, {
-        actual_delivery_date:
-          values.actual_delivery_date.replace("T", " ") + ":00",
-        follow_ups: selectedDays.map((day) => ({
-          days: day,
-          time_start: values.time_start,
-          time_end: values.time_end,
-        })),
+      const formData = new FormData();
+      formData.append(
+        "actual_delivery_date",
+        values.actual_delivery_date.replace("T", " ") + ":00",
+      );
+      selectedDays.forEach((day, index) => {
+        formData.append(`follow_ups[${index}][days]`, String(day));
+        formData.append(`follow_ups[${index}][time_start]`, values.time_start);
+        formData.append(`follow_ups[${index}][time_end]`, values.time_end);
       });
+      formData.append("signature_delivery", values.signature_delivery);
+
+      await generateDelivery(workOrderId, formData);
       successToast("Entrega generada exitosamente");
       handleClose();
       onSuccess?.();
@@ -104,7 +117,7 @@ export function WorkOrderDeliverySheet({
       onClose={handleClose}
       title="Entrega de Vehículo"
       icon="Car"
-      size="lg"
+      size="3xl"
     >
       <Form {...form}>
         <form
@@ -163,6 +176,25 @@ export function WorkOrderDeliverySheet({
               />
             </div>
           </div>
+
+          <FormField
+            control={form.control}
+            name="signature_delivery"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SignaturePad
+                    label="Firma del Cliente"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={form.formState.isSubmitting}
+                    required
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <Button
             type="submit"

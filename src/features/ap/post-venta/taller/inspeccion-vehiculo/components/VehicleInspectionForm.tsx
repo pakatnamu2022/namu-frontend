@@ -7,6 +7,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
   Loader,
@@ -41,6 +42,8 @@ interface VehicleInspectionFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   dateOrderWork?: Date;
+  ownerName?: string;
+  contactName?: string;
 }
 
 // Niveles de combustible
@@ -68,6 +71,8 @@ export const VehicleInspectionForm = ({
   mode = "create",
   onCancel,
   dateOrderWork = undefined,
+  ownerName,
+  contactName,
 }: VehicleInspectionFormProps) => {
   const workDetailFields = [
     "oil_change",
@@ -581,6 +586,54 @@ export const VehicleInspectionForm = ({
           color="primary"
           cols={{ sm: 1 }}
         >
+          {/* Switch de firmante */}
+          <div className="flex flex-col gap-3">
+            <FormField
+              control={form.control}
+              name="signer_type"
+              render={({ field }) => {
+                const isContact = field.value === "CONTACT";
+                const signerName = isContact
+                  ? (contactName || "Sin contacto")
+                  : (ownerName || "Sin propietario");
+                return (
+                  <FormItem>
+                    <div className="flex flex-row items-center justify-between rounded-md border shadow-xs bg-background px-4 py-3 gap-4">
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-sm font-medium leading-tight">
+                          ¿Quién firma?
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-tight">
+                          {isContact ? "Contacto" : "Propietario"}
+                        </p>
+                        <p className="text-base font-semibold text-foreground leading-snug mt-0.5">
+                          {signerName}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-sm font-medium ${!isContact ? "text-primary" : "text-muted-foreground"}`}>
+                          Propietario
+                        </span>
+                        <FormControl>
+                          <Switch
+                            checked={isContact}
+                            onCheckedChange={(checked) =>
+                              field.onChange(checked ? "CONTACT" : "OWNER")
+                            }
+                            disabled={isSubmitting}
+                          />
+                        </FormControl>
+                        <span className={`text-sm font-medium ${isContact ? "text-primary" : "text-muted-foreground"}`}>
+                          Contacto
+                        </span>
+                      </div>
+                    </div>
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="customer_signature"

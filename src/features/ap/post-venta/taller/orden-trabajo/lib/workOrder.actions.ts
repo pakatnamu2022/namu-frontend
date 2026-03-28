@@ -202,14 +202,12 @@ export async function generateInternalNote(
 
 export async function generateDelivery(
   id: number,
-  data: {
-    actual_delivery_date: string;
-    follow_ups: { days: number; time_start: string; time_end: string }[];
-  },
+  data: FormData,
 ): Promise<WorkOrderResource> {
   const response = await api.post<WorkOrderResource>(
     `${ENDPOINT}/${id}/generate-delivery`,
     data,
+    { headers: { "Content-Type": "multipart/form-data" } },
   );
   return response.data;
 }

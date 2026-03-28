@@ -8,9 +8,12 @@ import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { AppointmentSelectionTable } from "./AppointmentSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { errorToast, getMonday, getSunday } from "@/core/core.function";
+import {
+  errorToast,
+  formatDate,
+  getMonday,
+  getSunday,
+} from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
 
 interface AppointmentSelectionModalProps {
@@ -37,7 +40,7 @@ export const AppointmentSelectionModal = ({
     getSunday(currentDate),
   );
 
-  const formatDate = (date: Date | undefined) => {
+  const formatDateFilter = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
@@ -59,7 +62,7 @@ export const AppointmentSelectionModal = ({
     search,
     date_appointment:
       dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
+        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
         : undefined,
     sede_id: sedeId,
   });
@@ -96,16 +99,11 @@ export const AppointmentSelectionModal = ({
         if (!date) return "-";
 
         try {
-          const formattedDate = format(
-            new Date(date + "T00:00:00"),
-            "dd/MM/yyyy",
-            { locale: es },
-          );
           return (
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-sm">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="font-medium">{formattedDate}</span>
+                <span className="font-medium">{formatDate(date)}</span>
               </div>
               {time && (
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground">

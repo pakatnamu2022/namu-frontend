@@ -62,6 +62,11 @@ export interface VehicleInspectionResource {
   inspected_by_name: string;
   inspection_date: string | Date;
   customer_signature_url: string;
+  signed_by: {
+    signer_type: string;
+    name: string;
+    num_doc: string;
+  };
   washed: boolean;
   photo_front_url: string;
   photo_back_url: string;

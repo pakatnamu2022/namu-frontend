@@ -164,6 +164,40 @@ export default function VehicleDamageMarker({
           }}
           onClick={handleImageClick}
         >
+          {/* Etiquetas de orientación - pointer-events-none para no interferir con los clics */}
+          <div className="absolute inset-0 pointer-events-none select-none">
+            {/* FRONTAL - arriba centro */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2">
+              <span className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide">
+                FRONTAL
+              </span>
+            </div>
+            {/* TRASERA - abajo centro */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+              <span className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide">
+                TRASERA
+              </span>
+            </div>
+            {/* LATERAL IZQUIERDA - izquierda medio */}
+            <div className="absolute left-2 top-1/2 -translate-y-1/2">
+              <span
+                className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide"
+                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+              >
+                LATERAL IZQ.
+              </span>
+            </div>
+            {/* LATERAL DERECHA - derecha medio */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <span
+                className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide"
+                style={{ writingMode: "vertical-rl" }}
+              >
+                LATERAL DER.
+              </span>
+            </div>
+          </div>
+
           {/* Marcadores de daños */}
           {damages.map((damage, index) => (
             <div

@@ -162,6 +162,7 @@ export default function VehicleInspectionPage() {
     formData.append("oil_level", data.oil_level);
     formData.append("mileage", String(data.mileage));
     formData.append("customer_signature", data.customer_signature);
+    formData.append("signer_type", data.signer_type ?? "OWNER");
 
     // Agregar daños y sus fotos
     if (data.damages && data.damages.length > 0) {
@@ -256,6 +257,7 @@ export default function VehicleInspectionPage() {
     oil_level: "",
     mileage: workOrder.mileage ? Number(workOrder.mileage) : undefined,
     damages: [],
+    signer_type: "OWNER",
   };
 
   const workOrderSections = (workOrder.items || []).map((item, index) => ({
@@ -353,6 +355,8 @@ export default function VehicleInspectionPage() {
         dateOrderWork={
           workOrder.opening_date ? new Date(workOrder.opening_date) : undefined
         }
+        ownerName={workOrder.vehicle.owner?.full_name}
+        contactName={workOrder.full_contact_name}
       />
     </FormWrapper>
   );

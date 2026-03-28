@@ -577,6 +577,19 @@ export const WorkOrderForm = ({
               }
               onValueChange={(_value, item) => {
                 setSelectedVehicle(item || null);
+
+                if (item?.owner?.full_name) {
+                  form.setValue("full_contact_name", item.owner.full_name, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
+                if (item?.owner?.phone) {
+                  form.setValue("phone_contact", item.owner.phone, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
               }}
               disabled={
                 (watchedHasAppointment && Boolean(watchedAppointmentId)) ||

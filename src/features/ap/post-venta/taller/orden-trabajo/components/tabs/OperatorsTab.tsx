@@ -143,13 +143,13 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
                                 planning.progress_percentage >= 100
                                   ? "bg-green-500"
                                   : planning.progress_percentage >= 50
-                                  ? "bg-blue-500"
-                                  : "bg-orange-500"
+                                    ? "bg-blue-500"
+                                    : "bg-orange-500"
                               }`}
                               style={{
                                 width: `${Math.min(
                                   planning.progress_percentage,
-                                  100
+                                  100,
                                 )}%`,
                               }}
                             />
