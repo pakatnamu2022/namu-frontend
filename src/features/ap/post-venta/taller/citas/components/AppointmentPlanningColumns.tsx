@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Download, Calendar, Clock, FileText } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { downloadAppointmentPlanningPdf } from "../lib/appointmentPlanning.actions";
-import { errorToast, successToast } from "@/core/core.function";
+import { errorToast, formatDate, successToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
@@ -64,16 +62,11 @@ export const appointmentPlanningColumns = ({
       if (!date) return "-";
 
       try {
-        const formattedDate = format(
-          new Date(date + "T00:00:00"),
-          "dd/MM/yyyy",
-          { locale: es },
-        );
         return (
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-sm">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="font-medium">{formattedDate}</span>
+              <span className="font-medium">{formatDate(date)}</span>
             </div>
             {time && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -98,16 +91,11 @@ export const appointmentPlanningColumns = ({
       if (!date) return "-";
 
       try {
-        const formattedDate = format(
-          new Date(date + "T00:00:00"),
-          "dd/MM/yyyy",
-          { locale: es },
-        );
         return (
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-sm">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="font-medium">{formattedDate}</span>
+              <span className="font-medium">{formatDate(date)}</span>
             </div>
             {time && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">

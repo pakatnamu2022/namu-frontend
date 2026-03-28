@@ -105,9 +105,10 @@ export default function ManageWorkOrderCajaPage() {
       await downloadPreLiquidationPdf(workOrder.id);
       successToast("PDF descargado exitosamente");
     } catch (error: any) {
+      console.log(error);
       errorToast(
         error?.response?.data?.message ||
-          "Error al descargar el PDF de la preliquidación",
+          "La orden de trabajo no tiene un destinatario de factura asignado.",
       );
     } finally {
       setIsDownloading(false);

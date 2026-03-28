@@ -182,6 +182,15 @@ export default function ManageQuotationPage() {
               </p>
             </div>
 
+            <div className="mt-4 space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Moneda
+              </p>
+              <p className="text-base font-medium text-foreground">
+                {quotation.type_currency.name || "N/A"}
+              </p>
+            </div>
+
             <div className="mt-5 grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">

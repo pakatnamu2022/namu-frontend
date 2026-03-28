@@ -494,7 +494,7 @@ export default function ReceptionsProductsCards({
                                   }
                                 >
                                   <Tag className="size-3 mr-1" />
-                                  {detail.product.code}
+                                  Cód: {detail.product.code}
                                 </Badge>
                                 <Button
                                   type="button"
@@ -510,6 +510,39 @@ export default function ReceptionsProductsCards({
                                 >
                                   {copiedCode ===
                                   `product-${reception.id}-${idx}` ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
+                            )}
+
+                            {detail.product?.dyn_code && (
+                              <div className="flex items-center gap-1">
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isSingleCard ? "text-xs" : "text-[10px]"
+                                  }
+                                >
+                                  <Tag className="size-3 mr-1" />
+                                  Cód Dyn: {detail.product.dyn_code}
+                                </Badge>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-5 w-5 p-0 hover:bg-slate-200"
+                                  onClick={() =>
+                                    handleCopyCode(
+                                      detail.product!.dyn_code,
+                                      `product-dyn-${reception.id}-${idx}`,
+                                    )
+                                  }
+                                >
+                                  {copiedCode ===
+                                  `product-dyn-${reception.id}-${idx}` ? (
                                     <Check className="h-3 w-3 text-green-600" />
                                   ) : (
                                     <Copy className="h-3 w-3" />

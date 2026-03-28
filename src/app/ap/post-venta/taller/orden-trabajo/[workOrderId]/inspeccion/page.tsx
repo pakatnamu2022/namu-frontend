@@ -19,7 +19,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import { DataCard } from "@/components/DataCard";
-import { Car, FileText, Gauge, Wrench } from "lucide-react";
+import { Car, FileText, Gauge, User, Wrench } from "lucide-react";
 import { format } from "date-fns";
 
 export default function VehicleInspectionPage() {
@@ -154,12 +154,15 @@ export default function VehicleInspectionPage() {
     // Daños y otros campos
     formData.append(
       "inspection_date",
-      data.inspection_date ? format(data.inspection_date, "yyyy-MM-dd") : "",
+      data.inspection_date
+        ? format(new Date(data.inspection_date), "yyyy-MM-dd HH:mm:ss")
+        : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
     formData.append("mileage", String(data.mileage));
     formData.append("customer_signature", data.customer_signature);
+    formData.append("signer_type", data.signer_type ?? "OWNER");
 
     // Agregar daños y sus fotos
     if (data.damages && data.damages.length > 0) {
@@ -254,6 +257,7 @@ export default function VehicleInspectionPage() {
     oil_level: "",
     mileage: workOrder.mileage ? Number(workOrder.mileage) : undefined,
     damages: [],
+    signer_type: "OWNER",
   };
 
   const workOrderSections = (workOrder.items || []).map((item, index) => ({
@@ -325,6 +329,18 @@ export default function VehicleInspectionPage() {
               icon: Gauge,
               value: workOrder.mileage ? `${workOrder.mileage} km` : "—",
             },
+            {
+              key: "owner_name",
+              label: "Propietario",
+              icon: User,
+              value: workOrder.vehicle.owner!.full_name || "N/A",
+            },
+            {
+              key: "full_contact_name",
+              label: "Contacto",
+              icon: User,
+              value: workOrder.full_contact_name || "N/A",
+            },
           ]}
           sections={workOrderSections}
         />
@@ -339,6 +355,8 @@ export default function VehicleInspectionPage() {
         dateOrderWork={
           workOrder.opening_date ? new Date(workOrder.opening_date) : undefined
         }
+        ownerName={workOrder.vehicle.owner?.full_name}
+        contactName={workOrder.full_contact_name}
       />
     </FormWrapper>
   );

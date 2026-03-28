@@ -32,7 +32,12 @@ import {
   confirmCancellation,
 } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
 import { useState } from "react";
-import { errorToast, formatDateTime, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  formatDate,
+  formatDateTime,
+  successToast,
+} from "@/core/core.function";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -1154,10 +1159,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 <p className="text-sm font-medium text-gray-700">
                   Firma del Cliente
                 </p>
+                <p className="text-sm font-medium text-gray-700">
+                  {inspection.signed_by.name}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {new Date(inspection.inspection_date).toLocaleDateString(
-                    "es-PE",
-                  )}
+                  {formatDate(inspection.inspection_date)}
                 </p>
               </div>
             </div>

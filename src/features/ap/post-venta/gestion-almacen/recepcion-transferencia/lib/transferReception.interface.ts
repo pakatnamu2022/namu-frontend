@@ -169,13 +169,7 @@ export interface TransferReceptionResource {
     observation_notes?: string | null;
     created_at: string;
     updated_at: string;
-    product: {
-      id: number;
-      code: string;
-      name: string;
-      description: string;
-      unit_type?: string | null;
-    };
+    product: ProductResource;
     quantity_accepted: number;
     has_observations: boolean;
     observation_percentage: number;

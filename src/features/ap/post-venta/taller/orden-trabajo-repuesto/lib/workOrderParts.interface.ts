@@ -14,6 +14,7 @@ export interface WorkOrderPartsResource {
   product_id: string;
   product_name: string;
   product_code?: string;
+  product_dyn_code: string;
   warehouse_id: string;
   warehouse_name: string;
   quantity_used: number;

@@ -77,15 +77,15 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const [selectedWarehouseForAdd, setSelectedWarehouseForAdd] =
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [copiedPartId, setCopiedPartId] = useState<number | null>(null);
+  const [copiedCodeKey, setCopiedCodeKey] = useState<string | null>(null);
   const { ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
 
-  const handleCopyCode = async (code: string, partId: number) => {
+  const handleCopyCode = async (code: string, key: string) => {
     try {
       await navigator.clipboard.writeText(code);
-      setCopiedPartId(partId);
-      setTimeout(() => setCopiedPartId(null), 2000);
+      setCopiedCodeKey(key);
+      setTimeout(() => setCopiedCodeKey(null), 2000);
     } catch (err) {
       console.error("Error al copiar:", err);
     }
@@ -549,12 +549,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                     onClick={() =>
                                       handleCopyCode(
                                         detail.product.code,
-                                        detail.id,
+                                        `quotation-${detail.id}-code`,
                                       )
                                     }
                                     tooltip="Copiar código"
                                   >
-                                    {copiedPartId === detail.id ? (
+                                    {copiedCodeKey ===
+                                    `quotation-${detail.id}-code` ? (
                                       <Check className="h-3 w-3 text-green-600" />
                                     ) : (
                                       <Copy className="h-3 w-3 text-primary" />
@@ -731,7 +732,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       {part.product_code && (
                         <div className="flex items-center gap-1 mt-0.5">
                           <span className="text-xs text-muted-foreground">
-                            {part.product_code}
+                            Cód: {part.product_code}
                           </span>
                           <Button
                             type="button"
@@ -740,10 +741,40 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             className="h-5 w-5 p-0 hover:bg-slate-200"
                             tooltip="Copiar código"
                             onClick={() =>
-                              handleCopyCode(part.product_code!, part.id)
+                              handleCopyCode(
+                                part.product_code!,
+                                `part-${part.id}-code`,
+                              )
                             }
                           >
-                            {copiedPartId === part.id ? (
+                            {copiedCodeKey === `part-${part.id}-code` ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+
+                      {part.product_dyn_code && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <span className="text-xs text-muted-foreground">
+                            Cód Dyn: {part.product_dyn_code}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            tooltip="Copiar código"
+                            onClick={() =>
+                              handleCopyCode(
+                                part.product_dyn_code!,
+                                `part-${part.id}-dyn-code`,
+                              )
+                            }
+                          >
+                            {copiedCodeKey === `part-${part.id}-dyn-code` ? (
                               <Check className="h-3 w-3 text-green-600" />
                             ) : (
                               <Copy className="h-3 w-3" />

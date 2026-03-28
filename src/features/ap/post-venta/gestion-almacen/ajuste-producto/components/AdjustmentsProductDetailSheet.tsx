@@ -176,7 +176,12 @@ export function AdjustmentsProductDetailSheet({
                           </span>
                           {item.product?.code && (
                             <span className="text-xs text-muted-foreground">
-                              Código: {item.product.code}
+                              Cód: {item.product.code}
+                            </span>
+                          )}
+                          {item.product?.dyn_code && (
+                            <span className="text-xs text-muted-foreground">
+                              Cód Dyn: {item.product.dyn_code}
                             </span>
                           )}
                           {item.product?.brand_name && (

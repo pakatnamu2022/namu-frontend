@@ -406,7 +406,7 @@ export function SupplierOrderViewSheet({
                           </span>
                           <div className="flex items-center gap-1">
                             <span className="text-xs text-muted-foreground">
-                              Código: {item.product?.code || "N/A"}
+                              Cód: {item.product?.code || "N/A"}
                             </span>
                             {item.product?.code && (
                               <Button
@@ -426,6 +426,35 @@ export function SupplierOrderViewSheet({
                               >
                                 {copiedIndex === index &&
                                 copiedField === "product_code" ? (
+                                  <Check className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground">
+                              Cód Dyn: {item.product?.dyn_code || "N/A"}
+                            </span>
+                            {item.product?.dyn_code && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-5 w-5 p-0 hover:bg-slate-200"
+                                onClick={() => {
+                                  if (item.product?.dyn_code) {
+                                    handleCopyCode(
+                                      item.product.dyn_code,
+                                      "product_dyn_code",
+                                      index,
+                                    );
+                                  }
+                                }}
+                              >
+                                {copiedIndex === index &&
+                                copiedField === "product_dyn_code" ? (
                                   <Check className="h-3 w-3 text-green-600" />
                                 ) : (
                                   <Copy className="h-3 w-3" />

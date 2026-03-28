@@ -132,7 +132,7 @@ export default function OrderQuotationForm({
               value: type.id.toString(),
               label: type.name,
             }))}
-            label="Moneda (Cotizar repuestos)"
+            label="Moneda"
             placeholder="Seleccionar moneda"
             required
           />
@@ -320,7 +320,7 @@ export default function OrderQuotationForm({
                   ]
                 : undefined
             }
-          /> 
+          />
         )}
 
         <FormSwitch
