@@ -11,7 +11,7 @@ import {
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import {
@@ -29,11 +29,13 @@ import WorkOrderActionsFilters, {
 } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderActionsFilters";
 import { Button } from "@/components/ui/button";
 import { Receipt } from "lucide-react";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [activeView, setActiveView] = useState<WorkOrderCajaView>("OT");
   const [page, setPage] = useState(1);
+  const [sedeId, setSedeId] = useState<string>("");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -52,6 +54,13 @@ export default function WorkOrderCajaPage() {
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined;
   };
+
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  const effectiveSedeId =
+    sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);
@@ -75,6 +84,7 @@ export default function WorkOrderCajaPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    sede_id: effectiveSedeId || undefined,
   };
 
   const { data: dataOT, isLoading: isLoadingOT } = useGetWorkOrder({
@@ -92,8 +102,10 @@ export default function WorkOrderCajaPage() {
       //   WORK_ORDER_STATUS_ID.TERMINADO,
       //   WORK_ORDER_STATUS_ID.CERRADO,
       // ],
+      sede_id: effectiveSedeId || undefined,
+      items$typePlanning$type_document: "PAYMENT_RECEIPTS",
     },
-    enabled: activeView === "OT",
+    enabled: activeView === "OT" && !!effectiveSedeId,
   });
 
   const { data: dataPending, isLoading: isLoadingPending } =
@@ -141,7 +153,7 @@ export default function WorkOrderCajaPage() {
     router(`${ABSOLUTE_ROUTE}/factura-directa?ids=${selectedIds.join(",")}`);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -190,6 +202,9 @@ export default function WorkOrderCajaPage() {
           setDateFrom={handleDateFromChange}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          sedes={mySedes}
+          sedeId={effectiveSedeId}
+          setSedeId={setSedeId}
         />
       </WorkOrderTable>
 

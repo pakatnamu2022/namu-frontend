@@ -85,6 +85,9 @@ export default function UpdateWorkOrderPage() {
         | "AMARILLO"
         | "VERDE"
         | undefined,
+      num_doc_contact: data.num_doc_contact || "",
+      full_contact_name: data.full_contact_name || "",
+      phone_contact: data.phone_contact || "",
     };
   }
 

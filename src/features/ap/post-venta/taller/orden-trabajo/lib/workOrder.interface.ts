@@ -57,6 +57,7 @@ export interface WorkOrderResource {
   tax_amount: number;
   final_amount: number;
   is_delivery: boolean;
+  num_doc_contact: string;
   full_contact_name: string;
   phone_contact: string;
 

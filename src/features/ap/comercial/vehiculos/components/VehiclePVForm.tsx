@@ -41,6 +41,8 @@ import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-v
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useCustomers } from "../../clientes/lib/customers.hook";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
+import CustomerModal from "../../clientes/components/CustomerModal";
+import { CUSTOMERS } from "../../clientes/lib/customers.constants";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
@@ -54,7 +56,6 @@ interface VehiclePVFormProps {
   mode?: "create" | "update";
   vehicleData?: VehicleResource; // Datos completos del vehículo cuando se edita
   onCancel?: () => void;
-  routeAdd: string; // Ruta para agregar un nuevo vehículo, se usará en el botón de agregar modelo
 }
 
 export const VehiclePVForm = ({
@@ -64,11 +65,12 @@ export const VehiclePVForm = ({
   mode = "create",
   vehicleData,
   onCancel,
-  routeAdd,
 }: VehiclePVFormProps) => {
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [issuccessfulResponse, setIsSuccessfulResponse] = useState(false);
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate,
@@ -116,9 +118,11 @@ export const VehiclePVForm = ({
       const plateInfo = plateData.data;
       form.setValue("vin", plateInfo.vin);
       form.setValue("engine_number", plateInfo.engine_number);
+      setIsSuccessfulResponse(true);
     } else {
       form.setValue("vin", "");
       form.setValue("engine_number", "");
+      setIsSuccessfulResponse(false);
     }
   }, [plateData, form, isFirstLoad]);
 
@@ -209,6 +213,7 @@ export const VehiclePVForm = ({
             label="VIN"
             placeholder="Ej: 1HGBH41AX1N109189"
             control={form.control}
+            disabled={issuccessfulResponse}
           />
 
           <FormInput
@@ -224,6 +229,7 @@ export const VehiclePVForm = ({
             label="Número de Motor"
             placeholder="Ej: ENG32345XYZA"
             control={form.control}
+            disabled={issuccessfulResponse}
           />
 
           <FormSelectAsync
@@ -353,7 +359,7 @@ export const VehiclePVForm = ({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(routeAdd, "_blank")}
+              onClick={() => setIsCustomerModalOpen(true)}
               tooltip="Agregar nuevo cliente"
             >
               <Plus className="h-4 w-4" />
@@ -385,10 +391,7 @@ export const VehiclePVForm = ({
             Cancelar
           </Button>
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
+          <Button type="submit" disabled={isSubmitting}>
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
@@ -423,6 +426,20 @@ export const VehiclePVForm = ({
         }}
         title="Agregar Nuevo Modelo VN"
         mode="create"
+      />
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            queryClient.invalidateQueries({ queryKey: [CUSTOMERS.QUERY_KEY] });
+            form.setValue("customer_id", newCustomer.id.toString(), {
+              shouldValidate: true,
+            });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
       />
     </Form>
   );

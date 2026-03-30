@@ -60,6 +60,9 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { DataCard } from "@/components/DataCard";
+import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -160,6 +163,7 @@ export const WorkOrderForm = ({
   const watchedAppointmentId = form.watch("appointment_planning_id");
   const watchedHasInspection = form.watch("has_inspection");
   const watchedInspectionId = form.watch("vehicle_inspection_id");
+  const watchedNumDocContact = form.watch("num_doc_contact");
   const watchedItems = useWatch({
     control: form.control,
     name: "items",
@@ -171,6 +175,28 @@ export const WorkOrderForm = ({
         .filter((id): id is string => Boolean(id)),
     [watchedItems],
   );
+
+  const isValidLength =
+    watchedNumDocContact && watchedNumDocContact.length === 8;
+
+  // Hooks de validación condicional
+  const {
+    data: dniData,
+    isLoading: isDniLoading,
+    error: dniError,
+  } = useDniValidation(watchedNumDocContact, Boolean(isValidLength));
+
+  // Efecto para auto-completar campos cuando se obtienen datos válidos
+  useEffect(() => {
+    if (dniData?.data && dniData.success && dniData.data.valid) {
+      const dniInfo = dniData.data;
+      form.setValue("full_contact_name", dniInfo.names, {
+        shouldValidate: true,
+      });
+    } else {
+      form.setValue("full_contact_name", "", { shouldValidate: true });
+    }
+  }, [form, dniData]);
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
@@ -188,6 +214,10 @@ export const WorkOrderForm = ({
       }
       if (selectedAppointment.sede_id) {
         form.setValue("sede_id", selectedAppointment.sede_id.toString());
+      }
+
+      if (selectedAppointment.num_doc_client) {
+        form.setValue("num_doc_contact", selectedAppointment.num_doc_client);
       }
 
       if (selectedAppointment.full_name_client) {
@@ -578,6 +608,13 @@ export const WorkOrderForm = ({
               onValueChange={(_value, item) => {
                 setSelectedVehicle(item || null);
 
+                if (item?.owner?.num_doc) {
+                  form.setValue("num_doc_contact", item.owner.num_doc, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
+
                 if (item?.owner?.full_name) {
                   form.setValue("full_contact_name", item.owner.full_name, {
                     shouldDirty: true,
@@ -888,13 +925,42 @@ export const WorkOrderForm = ({
           title="Persona de Contacto"
           icon={User}
           color="gray"
-          cols={{ sm: 2 }}
+          cols={{ sm: 3 }}
         >
+          <FormInput
+            name="num_doc_contact"
+            label={
+              <>
+                <span>DNI de Contacto</span>
+                <DocumentValidationStatus
+                  shouldValidate={true}
+                  documentNumber={watchedNumDocContact!}
+                  expectedDigits={8}
+                  isValidating={isDniLoading}
+                  leftPosition=""
+                />
+              </>
+            }
+            labelClassName="w-full justify-between gap-2"
+            placeholder="Número de documento"
+            maxLength={8}
+            control={form.control}
+            addonEnd={
+              <ValidationIndicator
+                show={!!watchedNumDocContact}
+                isValidating={isDniLoading}
+                isValid={dniData?.success && !!dniData.data}
+                hasError={!!dniError || (dniData && !dniData.success)}
+                positioned={false}
+              />
+            }
+          />
           <FormInput
             name="full_contact_name"
             label="Nombre Completo"
             placeholder="Ingrese el nombre del contacto"
             control={form.control}
+            disabled={dniData?.success && dniData.data?.valid}
           />
           <FormInput
             name="phone_contact"

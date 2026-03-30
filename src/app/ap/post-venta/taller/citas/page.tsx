@@ -79,14 +79,17 @@ export default function AppointmentPlanningPage() {
   }, [mySedes]);
 
   const { data, isLoading, refetch } = useAppointmentPlanning({
-    page,
-    search,
-    per_page,
-    created_at:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-    sede_id: sedeId || undefined,
+    params: {
+      page,
+      search,
+      per_page,
+      created_at:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      sede_id: sedeId || undefined,
+    },
+    enabled: !!sedeId,
   });
 
   const handleDelete = async () => {

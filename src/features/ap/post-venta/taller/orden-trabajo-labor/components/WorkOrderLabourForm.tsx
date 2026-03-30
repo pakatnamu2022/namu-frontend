@@ -67,7 +67,7 @@ export default function WorkOrderLabourForm({
       ...workOrderItems.map((item) => ({
         label: item.description,
         value: item.description,
-        description: item.type_planning_name,
+        description: item.type_planning.description,
       })),
       { label: "Materiales", value: "Materiales", description: "" },
     ];
