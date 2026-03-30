@@ -1160,7 +1160,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   Firma del Cliente
                 </p>
                 <p className="text-sm font-medium text-gray-700">
-                  {inspection.signed_by.name}
+                  {inspection.signed_by.name} - {inspection.signed_by.num_doc}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   {formatDate(inspection.inspection_date)}

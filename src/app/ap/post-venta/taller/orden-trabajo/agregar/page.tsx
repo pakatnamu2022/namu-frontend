@@ -62,6 +62,9 @@ export default function AddWorkOrderPage() {
           diagnosis_date: "",
           observations: "",
           has_appointment: fromAppointment,
+          num_doc_contact: "",
+          full_contact_name: "",
+          phone_contact: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

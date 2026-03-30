@@ -10,10 +10,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Loader, X } from "lucide-react";
+import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
+  BUSINESS_PARTNERS,
   EMPRESA_AP,
   TIPO_LEADS,
   VALIDATABLE_DOCUMENT,
@@ -34,6 +35,12 @@ import {
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import {
+  NUM_DIGITS_CE,
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -92,9 +99,13 @@ export const StoreVisitsForm = ({
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
   const validationType = VALIDATABLE_DOCUMENT.TYPE_MAP[documentTypeId!] || null;
-  const expectedDigits = selectedDocumentType?.code
-    ? Number(selectedDocumentType.code)
-    : 0;
+  const DIGITS_MAP: Record<string, number> = {
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID]: NUM_DIGITS_DNI,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID]: NUM_DIGITS_RUC,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_CE_ID]: NUM_DIGITS_CE,
+    // si hay CE, agregar aquí
+  };
+  const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
 
@@ -275,23 +286,16 @@ export const StoreVisitsForm = ({
               e.target.value = e.target.value.replace(/\D/g, "");
             }}
             addonEnd={
-              shouldValidate &&
-              documentNumber && (
-                <div>
-                  {isValidatingDocument && (
-                    <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
-                  )}
-                  {validationData?.success && validationData.data && (
-                    <Check className="text-green-500" />
-                  )}
-                  {(validationError ||
-                    (validationData &&
-                      !validationData.data &&
-                      validationData?.source !== "database")) && (
-                    <X className="text-red-500" />
-                  )}
-                </div>
-              )
+              <ValidationIndicator
+                show={!!documentNumber}
+                isValidating={isValidatingDocument}
+                isValid={validationData?.success && !!validationData.data}
+                hasError={
+                  !!validationError ||
+                  (validationData && !validationData.success)
+                }
+                positioned={false}
+              />
             }
           />
 
@@ -362,8 +366,6 @@ export const StoreVisitsForm = ({
             placeholder="Ej: 987635542"
             maxLength={9}
           />
-
-
         </div>
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE}>

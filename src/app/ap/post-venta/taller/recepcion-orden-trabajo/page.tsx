@@ -10,7 +10,7 @@ import {
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import {
   WORK_ORDER_STATUS_ID,
@@ -23,12 +23,14 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import { workOrderReceptionColumns } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderReceptionColumns";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function WorkOrderReceptionPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const { ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER_RECEPCION;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -45,6 +47,13 @@ export default function WorkOrderReceptionPage() {
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  const effectiveSedeId =
+    sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);
@@ -73,14 +82,16 @@ export default function WorkOrderReceptionPage() {
           : [Number(statusFilter)],
       sort: "estimated_delivery_date",
       direction: "asc",
+      sede_id: effectiveSedeId || undefined,
     },
+    enabled: !!effectiveSedeId,
   });
 
   const handleManage = (id: number) => {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -111,6 +122,9 @@ export default function WorkOrderReceptionPage() {
           setDateTo={setDateTo}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          sedes={mySedes}
+          sedeId={effectiveSedeId}
+          setSedeId={setSedeId}
         />
       </WorkOrderTable>
 

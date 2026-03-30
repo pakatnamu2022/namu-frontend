@@ -29,6 +29,7 @@ const workOrderSchemaBase = z.object({
   items: z
     .array(workOrderItemSchema)
     .min(1, "Debe agregar al menos un trabajo"),
+  num_doc_contact: z.string().optional(),
   full_contact_name: z.string().optional(),
   phone_contact: z
     .string()

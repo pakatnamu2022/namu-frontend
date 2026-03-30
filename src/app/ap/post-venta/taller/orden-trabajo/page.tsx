@@ -14,7 +14,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
@@ -30,12 +30,16 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 
 export default function WorkOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
+  const [typePlanningId, setTypePlanningId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [internalNoteId, setInternalNoteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = WORKER_ORDER;
@@ -54,12 +58,23 @@ export default function WorkOrderPage() {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
+    useAllTypesPlanning();
+
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
-  }, [dateFrom, dateTo]);
+
+    if (mySedes.length > 0 && !sedeId) {
+      setSedeId(mySedes[0].id.toString());
+    }
+  }, [dateFrom, dateTo, mySedes, sedeId]);
 
   const { data, isLoading, refetch } = useGetWorkOrder({
     params: {
@@ -70,7 +85,10 @@ export default function WorkOrderPage() {
         dateFrom && dateTo
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
+      sede_id: sedeId || undefined,
+      items$typePlanning$id: typePlanningId || undefined,
     },
+    enabled: !!sedeId,
   });
 
   const handleDelete = async () => {
@@ -114,7 +132,8 @@ export default function WorkOrderPage() {
     router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes || isLoadingTypesPlanning)
+    return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -148,6 +167,12 @@ export default function WorkOrderPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          sedes={mySedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
+          typesPlanning={typesPlanning}
+          typePlanningId={typePlanningId}
+          setTypePlanningId={setTypePlanningId}
         />
       </WorkOrderTable>
 

@@ -23,7 +23,6 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { VehicleSchema } from "@/features/ap/comercial/vehiculos/lib/vehicles.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useVehicleById } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
-import { CUSTOMERS_RP } from "@/features/ap/comercial/clientes/lib/customers.constants";
 
 export default function UpdateVehicleRepuestoPage() {
   const { id } = useParams();
@@ -93,7 +92,6 @@ export default function UpdateVehicleRepuestoPage() {
         mode="update"
         vehicleData={vehicle}
         onCancel={() => router(ABSOLUTE_ROUTE!)}
-        routeAdd={CUSTOMERS_RP.ROUTE_ADD}
       />
     </FormWrapper>
   );

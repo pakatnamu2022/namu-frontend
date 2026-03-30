@@ -17,7 +17,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CustomersRpForm } from "@/features/ap/post-venta/repuestos/clientes-repuestos/components/CustomersRpForm";
+import { CustomersPvForm } from "@/features/ap/post-venta/taller/clientes-post-venta/components/CustomersPvForm";
 
 export default function AddCustomersRpPage() {
   const router = useNavigate();
@@ -38,7 +38,7 @@ export default function AddCustomersRpPage() {
       // Redirect based on redirect_to param
       if (redirectTo === "opportunities") {
         router(
-          `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`
+          `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`,
         );
       } else {
         router(ABSOLUTE_ROUTE!);
@@ -64,7 +64,7 @@ export default function AddCustomersRpPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <CustomersRpForm
+      <CustomersPvForm
         defaultValues={{
           first_name: "",
           middle_name: "",

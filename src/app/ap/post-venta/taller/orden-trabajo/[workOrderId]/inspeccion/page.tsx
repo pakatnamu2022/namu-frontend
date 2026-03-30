@@ -270,7 +270,7 @@ export default function VehicleInspectionPage() {
         key: `planning-${item.id ?? index}`,
         label: "Planificación",
         icon: Wrench,
-        value: item.type_planning_name || "—",
+        value: item.type_planning.description || "—",
       },
       {
         key: `operation-${item.id ?? index}`,

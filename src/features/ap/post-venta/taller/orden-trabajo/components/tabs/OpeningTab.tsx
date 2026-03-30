@@ -30,7 +30,8 @@ import { downloadOrderReceiptPdf } from "../../../inspeccion-vehiculo/lib/vehicl
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -45,6 +46,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { MODEL } = WORKER_ORDER_ITEM;
 
@@ -243,7 +245,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                           variant="outline"
                           className="text-xs whitespace-nowrap"
                         >
-                          {item.type_planning_name}
+                          {item.type_planning.description}
                         </Badge>
                       </td>
                       <td className="py-3 px-3 sm:px-4">
@@ -336,7 +338,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                   variant="outline"
                   size="icon-lg"
                   className="aspect-square shrink-0"
-                  onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+                  onClick={() => setIsCustomerModalOpen(true)}
                   tooltip="Agregar nuevo cliente"
                 >
                   <Plus className="h-4 w-4" />
@@ -402,6 +404,17 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
           onCancel={handleCancel}
         />
       </GeneralSheet>
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            queryClient.invalidateQueries({ queryKey: [CUSTOMERS.QUERY_KEY] });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
+      />
 
       {/* Delete Confirmation Drawer */}
       <SimpleDeleteDialog

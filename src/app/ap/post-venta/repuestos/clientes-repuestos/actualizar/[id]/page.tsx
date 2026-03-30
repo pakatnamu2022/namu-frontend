@@ -20,8 +20,8 @@ import {
 } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CustomersRpForm } from "@/features/ap/post-venta/repuestos/clientes-repuestos/components/CustomersRpForm";
 import { CustomersRpSchema } from "@/features/ap/post-venta/repuestos/clientes-repuestos/lib/customers-rp.schema";
+import { CustomersPvForm } from "@/features/ap/post-venta/taller/clientes-post-venta/components/CustomersPvForm";
 
 export default function UpdateCustomersRpPage() {
   const { id } = useParams();
@@ -56,7 +56,7 @@ export default function UpdateCustomersRpPage() {
   };
 
   function mapCustomersToForm(
-    data: CustomersResource
+    data: CustomersResource,
   ): Partial<CustomersRpSchema> {
     return {
       first_name: data.first_name,
@@ -102,7 +102,7 @@ export default function UpdateCustomersRpPage() {
         mode="edit"
         icon={currentView.icon}
       />
-      <CustomersRpForm
+      <CustomersPvForm
         defaultValues={mapCustomersToForm(Customers)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

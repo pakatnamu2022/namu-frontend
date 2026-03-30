@@ -61,6 +61,7 @@ export const CustomersPvForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  onCancel,
 }: CustomersPvFormProps) => {
   const router = useNavigate();
 
@@ -679,7 +680,8 @@ export const CustomersPvForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(ABSOLUTE_ROUTE!);
+              if (onCancel) onCancel();
+              else router(ABSOLUTE_ROUTE!);
             }}
           />
 

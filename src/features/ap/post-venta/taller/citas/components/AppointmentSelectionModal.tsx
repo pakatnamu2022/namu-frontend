@@ -56,15 +56,18 @@ export const AppointmentSelectionModal = ({
   }, [dateFrom, dateTo]);
 
   const { data, isLoading } = useAppointmentPlanning({
-    page,
-    per_page,
-    is_taken: 0,
-    search,
-    date_appointment:
-      dateFrom && dateTo
-        ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
-        : undefined,
-    sede_id: sedeId,
+    params: {
+      page,
+      per_page,
+      is_taken: 0,
+      search,
+      date_appointment:
+        dateFrom && dateTo
+          ? [formatDateFilter(dateFrom), formatDateFilter(dateTo)]
+          : undefined,
+      sede_id: sedeId || undefined,
+    },
+    enabled: !!sedeId,
   });
 
   const handleRowClick = (appointment: AppointmentPlanningResource) => {

@@ -42,7 +42,7 @@ export function WorkOrderActionCell({
 }: WorkOrderActionCellProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
-  const { id, is_inspection_completed, status, is_delivery } = row;
+  const { id, is_inspection_completed, status, is_delivery, items } = row;
   const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
   const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
   const isDelivery = is_delivery;
@@ -61,17 +61,20 @@ export function WorkOrderActionCell({
 
   return (
     <div className="flex items-center gap-2">
-      {permissions.canReceive && !is_inspection_completed && !isClosed && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-7"
-          onClick={() => onInspect(id)}
-          tooltip="Recepción de Vehículo"
-        >
-          <ClipboardCheck className="size-5" />
-        </Button>
-      )}
+      {permissions.canReceive &&
+        !is_inspection_completed &&
+        !isClosed &&
+        items[0].type_planning.validate_receipt && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onInspect(id)}
+            tooltip="Recepción de Vehículo"
+          >
+            <ClipboardCheck className="size-5" />
+          </Button>
+        )}
 
       {permissions.canManage && (
         <Button
@@ -83,22 +86,6 @@ export function WorkOrderActionCell({
         >
           <Settings className="size-5" />
         </Button>
-      )}
-
-      {permissions.canUpdate && isOpen && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-7"
-          tooltip="Editar"
-          onClick={() => onUpdate(id)}
-        >
-          <Pencil className="size-5" />
-        </Button>
-      )}
-
-      {permissions.canDelete && isOpen && (
-        <DeleteButton onClick={() => onDelete(id)} />
       )}
 
       {isClosed && (
@@ -130,7 +117,7 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {!isClosed && (
+      {!isClosed && items[0].type_planning.type_document === "INTERNA" && (
         <Button
           variant="outline"
           size="icon"
@@ -140,6 +127,22 @@ export function WorkOrderActionCell({
         >
           <BookMarked className="size-5" />
         </Button>
+      )}
+
+      {permissions.canUpdate && isOpen && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Editar"
+          onClick={() => onUpdate(id)}
+        >
+          <Pencil className="size-5" />
+        </Button>
+      )}
+
+      {permissions.canDelete && isOpen && (
+        <DeleteButton onClick={() => onDelete(id)} />
       )}
 
       <WorkOrderDeliverySheet

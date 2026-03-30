@@ -447,7 +447,7 @@ export function ExceptionalCaseSheet({
                             variant="outline"
                             className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
                           >
-                            {item.type_planning_name}
+                            {item.type_planning.description}
                           </Badge>
                           <Badge
                             variant="outline"
