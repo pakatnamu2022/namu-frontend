@@ -39,6 +39,7 @@ export default function SearchInput({
       value={inputValue}
       onChange={(e) => setInputValue(e.target.value)}
       addonStart={<Search size="16" />}
+      required
     />
   );
 }
