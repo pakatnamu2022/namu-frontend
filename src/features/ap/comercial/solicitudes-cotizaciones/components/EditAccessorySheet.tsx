@@ -5,6 +5,7 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { FormInput } from "@/shared/components/FormInput";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ApprovedAccessoryRow } from "./ApprovedAccessoriesTable";
 
 interface EditAccessorySheetProps {
@@ -72,6 +73,11 @@ export function EditAccessorySheet({
     handleClose();
   };
 
+  const availableAccessories =
+    form.type === "OBSEQUIO"
+      ? accessories.filter((acc) => acc.type_operation_id === CM_COMERCIAL_ID)
+      : accessories;
+
   const selectedAccessory = accessories.find((acc) => acc.id === form.accessory_id);
 
   return (
@@ -87,9 +93,19 @@ export function EditAccessorySheet({
         <SearchableSelect
           label="Tipo"
           value={form.type}
-          onChange={(value) =>
-            setForm({ ...form, type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO" })
-          }
+          onChange={(value) => {
+            const newType = value as "ACCESORIO_ADICIONAL" | "OBSEQUIO";
+            const selectedAcc = accessories.find((acc) => acc.id === form.accessory_id);
+            const resetId =
+              newType === "OBSEQUIO" &&
+              selectedAcc &&
+              selectedAcc.type_operation_id !== CM_COMERCIAL_ID;
+            setForm({
+              ...form,
+              type: newType,
+              accessory_id: resetId ? 0 : form.accessory_id,
+            });
+          }}
           options={[
             { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
             { label: "Obsequio", value: "OBSEQUIO" },
@@ -107,7 +123,7 @@ export function EditAccessorySheet({
               setForm({ ...form, accessory_id: parseInt(value) });
               setErrors({ ...errors, accessory_id: false });
             }}
-            options={accessories.map((accessory) => ({
+            options={availableAccessories.map((accessory) => ({
               label: `${accessory.code} - ${accessory.description}`,
               value: accessory.id.toString(),
             }))}
