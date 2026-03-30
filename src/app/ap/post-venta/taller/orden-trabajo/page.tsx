@@ -60,6 +60,7 @@ export default function WorkOrderPage() {
 
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: true,
   });
 
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =

@@ -50,6 +50,7 @@ export default function WorkOrderReceptionPage() {
 
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: true,
   });
 
   const effectiveSedeId =
