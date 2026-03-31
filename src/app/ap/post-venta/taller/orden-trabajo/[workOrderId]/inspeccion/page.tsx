@@ -357,6 +357,7 @@ export default function VehicleInspectionPage() {
         }
         ownerName={workOrder.vehicle.owner?.full_name}
         contactName={workOrder.full_contact_name}
+        ownerDocumentTypeId={String(workOrder.vehicle.owner?.document_type_id)}
       />
     </FormWrapper>
   );

@@ -382,19 +382,6 @@ export default function ProductDetailsSection({
     }
   }, [productData, form]);
 
-  // Sync externalPriceText when form value is set externally (e.g. loading an existing detail)
-  useEffect(() => {
-    if (
-      retailPriceExternal != null &&
-      parseFloat(externalPriceText) !== retailPriceExternal
-    ) {
-      setExternalPriceText(
-        retailPriceExternal === 0 ? "" : String(retailPriceExternal),
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [retailPriceExternal]);
-
   // Fetch stock por almacén cuando se selecciona un producto
   useEffect(() => {
     const fetchStock = async () => {
@@ -480,6 +467,7 @@ export default function ProductDetailsSection({
         observations: "",
         supply_type: "",
       });
+      setExternalPriceText("");
       await onRefresh();
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";

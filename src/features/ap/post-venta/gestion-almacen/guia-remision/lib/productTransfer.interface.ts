@@ -74,4 +74,5 @@ export interface ProductTransferDetailRequest {
 
 export interface getProductTransferProps {
   params?: Record<string, any>;
+  enable?: boolean;
 }

@@ -38,12 +38,15 @@ import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-de
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import BackButton from "@/shared/components/BackButton";
 import TitleComponent from "@/shared/components/TitleComponent";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 export default function RequestDiscountOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const { id } = useParams();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   // Hooks para obtener datos
   const { data: quotation, isLoading } = useOrderQuotationById(Number(id));
@@ -171,10 +174,22 @@ export default function RequestDiscountOrderQuotationMesonPage() {
     }
   };
 
+  // Calcular descuento máximo permitido (para formulario y modal)
+  const globalApprovedRequest = discountRequests.find(
+    (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+  );
+
+  const maxDiscountAllowed = globalApprovedRequest
+    ? Number(globalApprovedRequest.requested_discount_percentage)
+    : (user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT);
+
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
       : Number(selectedDetail?.total_amount || 0);
+
+  // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
+  const maxDiscountForModal = maxDiscountAllowed;
 
   return (
     <FormWrapper>
@@ -489,6 +504,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         currencySymbol={currencySymbol}
         existingRequest={editingRequest ?? undefined}
         itemType="PRODUCT"
+        maxDiscount={maxDiscountForModal}
       />
 
       {deleteId !== null && (
