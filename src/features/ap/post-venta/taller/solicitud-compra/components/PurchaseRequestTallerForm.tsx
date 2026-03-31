@@ -163,7 +163,7 @@ export default function PurchaseRequestTallerForm({
       const productDetails = quotation.details.filter(
         (detail) =>
           detail.item_type === ITEM_TYPE_PRODUCT &&
-          (detail.supply_type === "LIMA" ||
+          (detail.supply_type === "CENTRAL" ||
             detail.supply_type === "IMPORTACION"),
       );
 

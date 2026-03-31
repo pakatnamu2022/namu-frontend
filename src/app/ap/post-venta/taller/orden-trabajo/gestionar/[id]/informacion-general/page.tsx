@@ -115,6 +115,18 @@ export default function GeneralInformationPage() {
                 {workOrder.vehicle.model.brand || "N/A"}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-gray-600">Propietario</p>
+              <p className="font-semibold">
+                {workOrder.vehicle.owner?.full_name || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Num. Doc. Propietario</p>
+              <p className="font-semibold">
+                {workOrder.vehicle.owner?.num_doc || "N/A"}
+              </p>
+            </div>
           </div>
         </Card>
 

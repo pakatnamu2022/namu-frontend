@@ -16,7 +16,7 @@ export const purchaseRequestSchemaCreate = z.object({
   requested_date: requiredDate("Fecha solicitada es requerida"),
   observations: z.string().optional(),
   has_appointment: z.boolean().optional(),
-  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION", "LOCAL"]),
+  supply_type: z.enum(["STOCK", "CENTRAL", "IMPORTACION", "LOCAL"]),
   area_id: z.number().optional(),
   details: z
     .array(purchaseRequestDetailSchema)

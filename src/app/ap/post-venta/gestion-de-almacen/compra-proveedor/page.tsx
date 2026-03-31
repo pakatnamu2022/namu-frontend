@@ -72,14 +72,17 @@ export default function SupplierOrderPage() {
   }, [dateFrom, dateTo]);
 
   const { data, isLoading, refetch } = useSupplierOrder({
-    page,
-    search,
-    per_page,
-    order_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-    sede_id: sedeId || undefined,
+    params: {
+      page,
+      search,
+      per_page,
+      order_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      sede_id: sedeId || undefined,
+    },
+    enable: !!sedeId,
   });
 
   const handleDelete = async () => {

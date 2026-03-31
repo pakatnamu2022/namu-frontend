@@ -1,4 +1,5 @@
 import { useForm, useWatch } from "react-hook-form";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -23,6 +24,7 @@ import {
   vehicleInspectionSchemaCreate,
   vehicleInspectionSchemaUpdate,
 } from "../lib/vehicleInspection.schema";
+import { BUSINESS_PARTNERS } from "@/core/core.constants";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
 import VehicleDamageMarker from "./VehicleDamageMarker";
@@ -44,6 +46,7 @@ interface VehicleInspectionFormProps {
   dateOrderWork?: Date;
   ownerName?: string;
   contactName?: string;
+  ownerDocumentTypeId?: string;
 }
 
 // Niveles de combustible
@@ -73,7 +76,18 @@ export const VehicleInspectionForm = ({
   dateOrderWork = undefined,
   ownerName,
   contactName,
+  ownerDocumentTypeId,
 }: VehicleInspectionFormProps) => {
+  const isOwnerNatural =
+    ownerDocumentTypeId === BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID;
+
+  // Si el propietario no es persona natural, forzar signer_type a CONTACT
+  useEffect(() => {
+    if (!isOwnerNatural) {
+      form.setValue("signer_type", "CONTACT");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwnerNatural]);
   const workDetailFields = [
     "oil_change",
     "check_level_lights",
@@ -592,7 +606,9 @@ export const VehicleInspectionForm = ({
               control={form.control}
               name="signer_type"
               render={({ field }) => {
-                const isContact = field.value === "CONTACT";
+                // Si el propietario no es persona natural (DNI), forzar contacto
+                const forcedContact = !isOwnerNatural;
+                const isContact = forcedContact || field.value === "CONTACT";
                 const signerName = isContact
                   ? (contactName || "Sin contacto")
                   : (ownerName || "Sin propietario");
@@ -605,6 +621,11 @@ export const VehicleInspectionForm = ({
                         </p>
                         <p className="text-xs text-muted-foreground leading-tight">
                           {isContact ? "Contacto" : "Propietario"}
+                          {forcedContact && (
+                            <span className="ml-1 text-amber-600">
+                              (el propietario es empresa, solo puede firmar el contacto)
+                            </span>
+                          )}
                         </p>
                         <p className="text-base font-semibold text-foreground leading-snug mt-0.5">
                           {signerName}
@@ -620,7 +641,7 @@ export const VehicleInspectionForm = ({
                             onCheckedChange={(checked) =>
                               field.onChange(checked ? "CONTACT" : "OWNER")
                             }
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || forcedContact}
                           />
                         </FormControl>
                         <span className={`text-sm font-medium ${isContact ? "text-primary" : "text-muted-foreground"}`}>

@@ -10,14 +10,16 @@ import {
   getSupplierOrder,
   pendingProductsById,
 } from "./supplierOrder.actions.ts";
+import { getProductTransferProps } from "../../guia-remision/lib/productTransfer.interface.ts";
 
 const { QUERY_KEY } = SUPPLIER_ORDER;
 
-export const useSupplierOrder = (params?: Record<string, any>) => {
+export const useSupplierOrder = (params?: getProductTransferProps) => {
   return useQuery<SupplierOrderResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getSupplierOrder({ params }),
     refetchOnWindowFocus: false,
+    enabled: !!params?.enable,
   });
 };
 

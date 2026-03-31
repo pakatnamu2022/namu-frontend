@@ -24,7 +24,7 @@ export interface PurchaseRequestResource {
   supplier_order_numbers: [];
   created_at: string;
   updated_at: string;
-  supply_type: "STOCK" | "LIMA" | "IMPORTACION";
+  supply_type: "STOCK" | "CENTRAL" | "IMPORTACION";
   requested_by: string;
   details?: PurchaseRequestDetailResource[];
   warehouse: WarehouseResource;

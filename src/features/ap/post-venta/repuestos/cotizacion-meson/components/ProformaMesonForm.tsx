@@ -74,7 +74,7 @@ import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
-  { label: "Lima", value: "LIMA" },
+  { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
 ];
 
@@ -259,7 +259,7 @@ function ProductDetailItem({
                             </div>
                           )}
                         </div>
-                        {/* <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
+                        <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
                           <div>
                             <div className="text-gray-500">Últ. compra</div>
                             <div className="font-semibold text-gray-700">
@@ -284,7 +284,7 @@ function ProductDetailItem({
                                 "0.00"}
                             </div>
                           </div>
-                        </div> */}
+                        </div>
                       </div>
                     ))}
                   </div>

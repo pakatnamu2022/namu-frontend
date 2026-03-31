@@ -67,7 +67,7 @@ export const DiscountRequestModal = ({
   // La solicitud debe ser MAYOR al descuento que el usuario ya tiene permitido
   const defaultPct = existingRequest
     ? Number(existingRequest.requested_discount_percentage)
-    : maxDiscount + 1;
+    : Math.min(maxDiscount + 1, 100);
 
   const form = useForm<DiscountRequestSchema>({
     resolver: zodResolver(discountRequestSchema),
@@ -88,7 +88,7 @@ export const DiscountRequestModal = ({
     if (!open) return;
     const pct = existingRequest
       ? Number(existingRequest.requested_discount_percentage)
-      : maxDiscount + 1;
+      : Math.min(maxDiscount + 1, 100);
     form.reset({
       type,
       requested_discount_percentage: pct,
@@ -117,6 +117,7 @@ export const DiscountRequestModal = ({
   });
 
   const pct = Number(discountPercentage || 0);
+  const shouldValidateRequestedDiscount = maxDiscount < 100;
   const computedDiscountMonto = parseFloat(
     ((baseAmount * pct) / 100).toFixed(2),
   );
@@ -213,18 +214,20 @@ export const DiscountRequestModal = ({
                 addonEnd={<span className="text-xs font-medium">%</span>}
                 required
               />
-              {pct <= maxDiscount && (
+              {shouldValidateRequestedDiscount && pct <= maxDiscount && (
                 <p className="text-xs text-destructive font-medium">
                   El descuento solicitado debe ser mayor al{" "}
                   {maxDiscount.toFixed(2)}% que ya tienes permitido.
                 </p>
               )}
-              <p className="text-xs text-muted-foreground">
-                Debe superar tu límite actual de{" "}
-                <span className="font-semibold text-foreground">
-                  {maxDiscount.toFixed(2)}%
-                </span>
-              </p>
+              {shouldValidateRequestedDiscount && (
+                <p className="text-xs text-muted-foreground">
+                  Debe superar tu límite actual de{" "}
+                  <span className="font-semibold text-foreground">
+                    {maxDiscount.toFixed(2)}%
+                  </span>
+                </p>
+              )}
             </div>
 
             {/* Monto — solo referencia visual, calculado del porcentaje */}
@@ -267,7 +270,13 @@ export const DiscountRequestModal = ({
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending || pct <= maxDiscount}>
+              <Button
+                type="submit"
+                disabled={
+                  isPending ||
+                  (shouldValidateRequestedDiscount && pct <= maxDiscount)
+                }
+              >
                 {isPending && <Loader className="mr-2 h-4 w-4 animate-spin" />}
                 {isPending
                   ? "Guardando..."

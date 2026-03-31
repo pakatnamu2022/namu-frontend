@@ -47,13 +47,12 @@ import { FormInput } from "@/shared/components/FormInput.tsx";
 import { PendingPurchaseRequestsList } from "./PendingPurchaseRequestsList.tsx";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePurchaseRequestsDetailsPending } from "../../../taller/solicitud-compra/lib/purchaseRequest.hook.ts";
 import { rejectPurchaseRequestDetail } from "../../../taller/solicitud-compra/lib/purchaseRequest.actions.ts";
 
 const SUPPLY_TYPE_OPTIONS = [
   { label: "Local", value: "LOCAL" },
-  { label: "Lima", value: "LIMA" },
+  { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
 ];
 
@@ -96,10 +95,13 @@ export const SupplierOrderForm = ({
   });
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      is_physical_warehouse: 1,
-      sede_id: form.watch("sede_id") || undefined,
-    });
+    useAllWarehouse(
+      {
+        is_physical_warehouse: 1,
+        sede_id: form.watch("sede_id") || undefined,
+      },
+      !!form.watch("sede_id"),
+    );
 
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
@@ -116,7 +118,6 @@ export const SupplierOrderForm = ({
   const [productRequestMap, setProductRequestMap] = useState<
     Record<string, number[]>
   >({});
-  const [isRequestListVisible, setIsRequestListVisible] = useState(true);
   const [openRejectedAlert, setOpenRejectedAlert] = useState(false);
   const [pendingDiscardRequest, setPendingDiscardRequest] = useState<any>(null);
   // Mapa de defaultOptions por product_id (para producto y unidad de medida)
@@ -176,9 +177,14 @@ export const SupplierOrderForm = ({
     data: purcheseRequestDetailsPending,
     isLoading: isLoadingPurcheseRequestDetailsPending,
     refetch: refetchPurchaseRequests,
-  } = usePurchaseRequestsDetailsPending({
-    warehouse_id: selectedWarehouseId ? Number(selectedWarehouseId) : undefined,
-  });
+  } = usePurchaseRequestsDetailsPending(
+    {
+      warehouse_id: selectedWarehouseId
+        ? Number(selectedWarehouseId)
+        : undefined,
+    },
+    !!selectedWarehouseId,
+  );
 
   // Función para consultar el tipo de cambio
   const fetchExchangeRate = async (currencyId: string, date: Date) => {
@@ -463,54 +469,20 @@ export const SupplierOrderForm = ({
           onSubmit={form.handleSubmit(handleSubmit)}
           className="space-y-6 w-full py-2"
         >
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 relative">
-            {/* Lista lateral de solicitudes de compra */}
-            {((availablePurchaseRequests.length > 0 && mode === "create") ||
-              (isLoadingPurcheseRequestDetailsPending &&
-                selectedWarehouseId &&
-                mode === "create")) && (
-              <>
-                {/* Botón toggle para mostrar/ocultar la lista */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsRequestListVisible(!isRequestListVisible)}
-                  className="absolute left-[-35px] top-0 z-10 h-8 w-8 p-0 rounded-full shadow-md hidden lg:block"
-                >
-                  {isRequestListVisible ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
+          {mode === "create" && selectedWarehouseId && (
+            <div className="flex justify-end">
+              <PendingPurchaseRequestsList
+                requests={availablePurchaseRequests}
+                isLoading={isLoadingPurcheseRequestDetailsPending}
+                onAdd={handleAddFromRequest}
+                onDiscard={handleDiscardFromRequest}
+              />
+            </div>
+          )}
 
-                {/* Lista de solicitudes */}
-                {isRequestListVisible && (
-                  <div className="xl:col-span-3 order-last xl:order-first">
-                    <PendingPurchaseRequestsList
-                      requests={availablePurchaseRequests}
-                      isLoading={isLoadingPurcheseRequestDetailsPending}
-                      onAdd={handleAddFromRequest}
-                      onDiscard={handleDiscardFromRequest}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-
+          <div className="grid grid-cols-1 gap-6 relative">
             {/* Contenido principal del formulario */}
-            <div
-              className={
-                ((availablePurchaseRequests.length > 0 && mode === "create") ||
-                  (isLoadingPurcheseRequestDetailsPending &&
-                    selectedWarehouseId &&
-                    mode === "create")) &&
-                isRequestListVisible
-                  ? "xl:col-span-9"
-                  : "xl:col-span-12"
-              }
-            >
+            <div className="col-span-full">
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Sección 1: Información del Pedido */}
                 <GroupFormSection
