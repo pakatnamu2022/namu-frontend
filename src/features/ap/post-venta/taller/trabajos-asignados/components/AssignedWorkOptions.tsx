@@ -10,6 +10,7 @@ interface AssignedWorkOptionsProps {
   workers: WorkerResource[];
   workerId: string;
   setWorkerId: (value: string) => void;
+  isWorkerLocked: boolean;
   sedes: SedeResource[];
   sedeId: string;
   setSedeId: (value: string) => void;
@@ -21,6 +22,7 @@ export default function AssignedWorkOptions({
   workers,
   workerId,
   setWorkerId,
+  isWorkerLocked,
   sedes,
   sedeId,
   setSedeId,
@@ -42,6 +44,7 @@ export default function AssignedWorkOptions({
         placeholder="Filtrar por trabajador"
         className="min-w-72"
         classNameOption="text-xs"
+        disabled={isWorkerLocked}
       />
       <SearchableSelect
         options={sedes.map((item) => ({
