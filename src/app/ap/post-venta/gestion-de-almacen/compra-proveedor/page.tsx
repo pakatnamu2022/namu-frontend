@@ -82,7 +82,7 @@ export default function SupplierOrderPage() {
           : undefined,
       sede_id: sedeId || undefined,
     },
-    enable: !!sedeId,
+    enabled: !!sedeId,
   });
 
   const handleDelete = async () => {

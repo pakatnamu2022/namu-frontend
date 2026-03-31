@@ -42,11 +42,15 @@ export const useWorkerById = (id: number) => {
   });
 };
 
-export const useAllWorkers = (params?: Record<string, any>) => {
+export const useAllWorkers = (
+  params?: Record<string, any>,
+  enabled: boolean = true,
+) => {
   return useQuery<WorkerResource[]>({
     queryKey: [QUERY_KEY + "All", params],
     queryFn: () => getAllWorkers({ params }),
     refetchOnWindowFocus: false,
+    enabled,
   });
 };
 

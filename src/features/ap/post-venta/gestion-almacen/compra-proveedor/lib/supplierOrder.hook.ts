@@ -19,7 +19,7 @@ export const useSupplierOrder = (params?: getProductTransferProps) => {
     queryKey: [QUERY_KEY, params],
     queryFn: () => getSupplierOrder({ params }),
     refetchOnWindowFocus: false,
-    enabled: !!params?.enable,
+    enabled: !!params?.enabled,
   });
 };
 

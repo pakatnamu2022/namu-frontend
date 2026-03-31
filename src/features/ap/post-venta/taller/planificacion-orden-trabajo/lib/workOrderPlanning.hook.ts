@@ -16,16 +16,20 @@ import {
   WorkOrderPlanningSessionRequest,
   PauseWorkRequest,
   WorkOrderPlanningResponse,
+  getWorkOrderPlanningSessionProps,
 } from "./workOrderPlanning.interface";
 import { WORK_ORDER_PLANNING } from "./workOrderPlanning.constants";
 
 const { QUERY_KEY } = WORK_ORDER_PLANNING;
 
-export const useGetWorkOrderPlanning = (params?: Record<string, any>) => {
+export const useGetWorkOrderPlanning = (
+  params?: getWorkOrderPlanningSessionProps,
+) => {
   return useQuery<WorkOrderPlanningResponse>({
     queryKey: [QUERY_KEY, params],
-    queryFn: () => getWorkOrderPlanning({ params }),
+    queryFn: () => getWorkOrderPlanning(params),
     refetchOnWindowFocus: false,
+    enabled: !!params?.enabled,
   });
 };
 

@@ -2,6 +2,7 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { errorToast, successToast } from "@/core/core.function";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -32,6 +33,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function AssignedWorkPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { user } = useAuthStore();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -53,6 +55,7 @@ export default function AssignedWorkPage() {
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: true,
   });
 
   // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
@@ -68,19 +71,36 @@ export default function AssignedWorkPage() {
     setPage(1);
   }, [search, per_page, workerId, sedeId]);
 
-  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
-    cargo_id: POSITION_TYPE.OPERATORS,
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-    sede_id: sedeId || undefined,
-  });
+  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers(
+    {
+      cargo_id: POSITION_TYPE.OPERATORS,
+      status_id: STATUS_WORKER.ACTIVE,
+      sede$empresa_id: EMPRESA_AP.id,
+      sede_id: sedeId || undefined,
+    },
+    !!sedeId,
+  ); // Solo cargar trabajadores si hay una sede seleccionada
+
+  // Si el partner_id del usuario coincide con algún worker, pre-seleccionar y bloquear el select
+  const matchedWorker = workers.find((w) => w.id === user?.partner_id);
+  const isWorkerLocked = !!matchedWorker;
+
+  useEffect(() => {
+    if (isWorkerLocked && matchedWorker) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWorkerId(matchedWorker.id.toString());
+    }
+  }, [isWorkerLocked, matchedWorker]);
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
-    page,
-    search,
-    per_page,
-    worker_id: workerId,
-    workOrder$sede_id: sedeId,
+    params: {
+      page,
+      search,
+      per_page,
+      worker_id: workerId,
+      workOrder$sede_id: sedeId,
+    },
+    enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
   });
 
   const handleViewWork = (work: WorkOrderPlanningResource) => {
@@ -181,6 +201,7 @@ export default function AssignedWorkPage() {
           workers={workers}
           workerId={workerId}
           setWorkerId={setWorkerId}
+          isWorkerLocked={isWorkerLocked}
           sedes={mySedes}
           sedeId={sedeId}
           setSedeId={setSedeId}

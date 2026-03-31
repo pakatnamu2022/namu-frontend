@@ -73,6 +73,7 @@ export default function PlanningPage() {
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: true,
   });
 
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORK_ORDER_PLANNING;
@@ -101,11 +102,14 @@ export default function PlanningPage() {
   });
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
-    page,
-    search,
-    per_page,
-    worker_id: workerId,
-    ...(sedeId && { sede_id: sedeId }),
+    params: {
+      page,
+      search,
+      per_page,
+      worker_id: workerId,
+      ...(sedeId && { sede_id: sedeId }),
+    },
+    enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
   });
 
   const updateMutation = useUpdateWorkOrderPlanning();

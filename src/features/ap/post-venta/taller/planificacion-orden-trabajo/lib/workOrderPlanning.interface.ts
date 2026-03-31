@@ -59,6 +59,11 @@ export interface PauseWorkRequest {
   pause_reason?: string;
 }
 
+export interface getWorkOrderPlanningSessionProps {
+  params?: Record<string, any>;
+  enabled?: boolean;
+}
+
 export type PlanningStatus =
   | "planned"
   | "in_progress"
@@ -112,11 +117,11 @@ export const PLANNING_STATUS_COLORS: Record<
 // Visual states derived from planning data (not backend states)
 // Used across WorkerTimeline and AssignedWorkColumns
 export type PlanningVisualState =
-  | "planned"       // status === "planned", sin sesiones pausadas
-  | "paused"        // status === "in_progress" + sesión pausada (sin sesión activa)
-  | "in_progress"   // status === "in_progress" + sesión activa
-  | "overtime"      // status === "in_progress" + sesión activa + tiempo excedido
-  | "completed";    // status === "completed"
+  | "planned" // status === "planned", sin sesiones pausadas
+  | "paused" // status === "in_progress" + sesión pausada (sin sesión activa)
+  | "in_progress" // status === "in_progress" + sesión activa
+  | "overtime" // status === "in_progress" + sesión activa + tiempo excedido
+  | "completed"; // status === "completed"
 
 export const PLANNING_VISUAL_STATE_COLORS: Record<
   PlanningVisualState,
@@ -165,10 +170,15 @@ export const PLANNING_VISUAL_STATE_LABELS: Record<PlanningVisualState, string> =
  */
 export function getPlanningVisualState(
   planning: WorkOrderPlanningResource,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): PlanningVisualState {
-  const { status, has_active_session, sessions, planned_start_datetime, estimated_hours } =
-    planning;
+  const {
+    status,
+    has_active_session,
+    sessions,
+    planned_start_datetime,
+    estimated_hours,
+  } = planning;
 
   if (status === "completed") return "completed";
   if (status === "planned") return "planned";
@@ -186,7 +196,7 @@ export function getPlanningVisualState(
       if (planned_start_datetime && estimated_hours) {
         const start = new Date(planned_start_datetime);
         const expectedEnd = new Date(
-          start.getTime() + estimated_hours * 60 * 60 * 1000
+          start.getTime() + estimated_hours * 60 * 60 * 1000,
         );
         if (now > expectedEnd) return "overtime";
       }
@@ -214,7 +224,8 @@ export function getPlanningActions(planning: WorkOrderPlanningResource): {
 
   return {
     showStart: status === "planned" && !hasPausedSession,
-    showContinue: hasPausedSession && status === "in_progress" && !has_active_session,
+    showContinue:
+      hasPausedSession && status === "in_progress" && !has_active_session,
     showPauseAndComplete: status === "in_progress" && has_active_session,
   };
 }
