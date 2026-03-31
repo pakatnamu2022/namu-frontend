@@ -84,7 +84,7 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
   { label: "Local", value: "LOCAL" },
-  { label: "Lima", value: "LIMA" },
+  { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
 ];
 

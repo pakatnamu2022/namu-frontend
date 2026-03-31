@@ -41,7 +41,7 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
   expiration_date: requiredDate("Fecha de expiración es requerida"),
   collection_date: requiredDate("Fecha de recojo es requerida"),
   observations: z.string().min(0).max(500).optional(),
-  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
+  supply_type: z.enum(["STOCK", "CENTRAL", "IMPORTACION"]),
 
   // Array de detalles de productos
   details: z

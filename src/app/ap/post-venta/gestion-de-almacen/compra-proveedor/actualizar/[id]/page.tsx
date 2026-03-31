@@ -58,7 +58,7 @@ export default function UpdateSupplierOrderPage() {
   };
 
   function mapSupplierOrderToForm(
-    data: SupplierOrderResource
+    data: SupplierOrderResource,
   ): Partial<SupplierOrderSchema> {
     return {
       order_number: data.order_number,
@@ -69,7 +69,7 @@ export default function UpdateSupplierOrderPage() {
       order_date: data.order_date
         ? new Date(data.order_date + "T00:00:00")
         : "",
-      supply_type: data.supply_type as "STOCK" | "LIMA" | "IMPORTACION",
+      supply_type: data.supply_type as "STOCK" | "CENTRAL" | "IMPORTACION",
       details:
         data.details?.map((item) => ({
           product_id: String(item.product_id),

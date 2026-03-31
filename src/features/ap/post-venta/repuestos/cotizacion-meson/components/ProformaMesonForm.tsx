@@ -74,7 +74,7 @@ import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
-  { label: "Lima", value: "LIMA" },
+  { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
 ];
 

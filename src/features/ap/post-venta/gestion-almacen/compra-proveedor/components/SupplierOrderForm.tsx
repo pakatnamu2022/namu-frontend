@@ -52,7 +52,7 @@ import { rejectPurchaseRequestDetail } from "../../../taller/solicitud-compra/li
 
 const SUPPLY_TYPE_OPTIONS = [
   { label: "Local", value: "LOCAL" },
-  { label: "Lima", value: "LIMA" },
+  { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
 ];
 

@@ -48,7 +48,7 @@ import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.
 
 const onSelectSupplyType = [
   { label: "Local", value: "LOCAL" },
-  { label: "Lima", value: "LIMA" },
+  { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
 ];
 

@@ -59,7 +59,7 @@ export const ORDER_QUOTATION_CAJA: ModelComplete<OrderQuotationResource> = {
 
 export const SUPPLY_TYPE = {
   STOCK: "REPUESTO",
-  LIMA: "LIMA",
+  CENTRAL: "CENTRAL",
   IMPORTACION: "IMPORTACION",
 };
 
