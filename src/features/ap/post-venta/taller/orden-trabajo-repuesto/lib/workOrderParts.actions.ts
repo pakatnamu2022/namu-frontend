@@ -102,9 +102,11 @@ export async function assignPartToTechnician(
 
 export async function getAssignmentsByWorkOrder(
   workOrderId: number,
+  workerId: number,
 ): Promise<WorkOrderPartAssignmentsResponse> {
   const { data } = await api.get<WorkOrderPartAssignmentsResponse>(
     `${ENDPOINT}/work-order/${workOrderId}/assignments`,
+    { params: { delivered_to: workerId } },
   );
   return data;
 }

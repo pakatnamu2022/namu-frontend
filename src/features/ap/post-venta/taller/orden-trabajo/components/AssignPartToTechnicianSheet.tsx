@@ -74,6 +74,14 @@ export function AssignPartToTechnicianSheet({
     enabled: open,
   });
 
+  const totalDelivered = workOrderPartsDeliveries.reduce(
+    (sum, delivery) => sum + Number(delivery.delivered_quantity || 0),
+    0,
+  );
+  const maxAllowedQuantity = part?.quantity_used ?? 0;
+  const remainingQuantity = Math.max(maxAllowedQuantity - totalDelivered, 0);
+  const canAssignMore = !!part && remainingQuantity > 0;
+
   const mutation = useMutation({
     mutationFn: (values: AssignFormValues) =>
       assignPartToTechnician(part!.id, {
@@ -109,164 +117,176 @@ export function AssignPartToTechnicianSheet({
       isLoading={isLoadingWorkers}
     >
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-          className="space-y-4 pt-2"
-        >
-          {part && (
-            <p className="text-sm text-muted-foreground">
-              Repuesto:{" "}
-              <span className="font-medium text-foreground">
-                {part.product_name}
-              </span>
-            </p>
-          )}
+        {canAssignMore ? (
+          <form
+            onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+            className="space-y-4 pt-2"
+          >
+            {part && (
+              <p className="text-sm text-muted-foreground">
+                Repuesto:{" "}
+                <span className="font-medium text-foreground">
+                  {part.product_name}
+                </span>
+              </p>
+            )}
 
-          <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <PackageCheck className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-medium">Entregas registradas</h3>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {workOrderPartsDeliveries.length} registro(s)
-              </span>
+            <FormSelect
+              control={form.control}
+              name="delivered_to"
+              label="Técnico"
+              placeholder="Seleccione un técnico"
+              options={planningWorkers.map((w) => ({
+                value: w.worker_id.toString(),
+                label: w.worker_name,
+              }))}
+            />
+
+            <FormInput
+              control={form.control}
+              name="delivered_quantity"
+              label="Cantidad a entregar"
+              type="number"
+              min={0.01}
+              step={0.01}
+              max={remainingQuantity}
+              description={
+                part
+                  ? `Máximo permitido: ${part.quantity_used} | Restante: ${remainingQuantity}`
+                  : undefined
+              }
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Asignando...
+                  </>
+                ) : (
+                  "Asignar"
+                )}
+              </Button>
             </div>
+          </form>
+        ) : (
+          <div className="pt-2">
+            <p className="text-sm text-muted-foreground">
+              La cantidad maxima permitida para este repuesto ya fue entregada.
+            </p>
+          </div>
+        )}
 
-            {isLoadingWorkOrderPartsDeliveries ? (
-              <p className="text-sm text-muted-foreground">
-                Cargando entregas...
-              </p>
-            ) : workOrderPartsDeliveries.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Aún no hay entregas registradas para este repuesto.
-              </p>
-            ) : (
-              <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-                {workOrderPartsDeliveries.map((delivery) => (
-                  <div
-                    key={delivery.id}
-                    className={`rounded-lg border p-4 transition-colors ${
-                      delivery.is_received
-                        ? "bg-muted/40 opacity-80"
-                        : "hover:border-muted-foreground/40"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <PackageCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+        <div className="space-y-3 rounded-lg border bg-muted/20 p-4 mt-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <PackageCheck className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium">Entregas registradas</h3>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {workOrderPartsDeliveries.length} registro(s)
+            </span>
+          </div>
 
-                      <div className="flex-1 space-y-1.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm font-medium">
-                            {delivery.delivered_to_name}
-                          </p>
-                          {delivery.is_received ? (
-                            <Badge
-                              variant="outline"
-                              className="border-green-200 bg-green-50 text-xs text-green-700"
-                            >
-                              Recibido
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="outline"
-                              className="border-yellow-200 bg-yellow-50 text-xs text-yellow-700"
-                            >
-                              Pendiente
-                            </Badge>
-                          )}
-                        </div>
+          {isLoadingWorkOrderPartsDeliveries ? (
+            <p className="text-sm text-muted-foreground">
+              Cargando entregas...
+            </p>
+          ) : workOrderPartsDeliveries.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aún no hay entregas registradas para este repuesto.
+            </p>
+          ) : (
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+              {workOrderPartsDeliveries.map((delivery) => (
+                <div
+                  key={delivery.id}
+                  className={`rounded-lg border p-4 transition-colors ${
+                    delivery.is_received
+                      ? "bg-muted/40 opacity-80"
+                      : "hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <PackageCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
 
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                          <span>
-                            Cantidad:{" "}
-                            <span className="font-medium text-foreground">
-                              {delivery.delivered_quantity}
-                            </span>
-                          </span>
-                          <span>
-                            Entregado por:{" "}
-                            <span className="text-foreground">
-                              {delivery.delivered_by_name}
-                            </span>
-                          </span>
-                          <span>
-                            Fecha:{" "}
-                            <span className="text-foreground">
-                              {format(
-                                parseISO(delivery.delivered_date),
-                                "dd/MM/yyyy HH:mm",
-                                { locale: es },
-                              )}
-                            </span>
-                          </span>
-                          <span>
-                            Técnico:{" "}
-                            <span className="text-foreground">
-                              {delivery.delivered_to_name}
-                            </span>
-                          </span>
-                        </div>
+                    <div className="flex-1 space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium">
+                          {delivery.delivered_to_name}
+                        </p>
+                        {delivery.is_received ? (
+                          <Badge
+                            variant="outline"
+                            className="border-green-200 bg-green-50 text-xs text-green-700"
+                          >
+                            Recibido
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="border-yellow-200 bg-yellow-50 text-xs text-yellow-700"
+                          >
+                            Pendiente
+                          </Badge>
+                        )}
+                      </div>
 
-                        {delivery.is_received && delivery.received_date && (
-                          <p className="text-xs text-green-700">
-                            Recibido el{" "}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <span>
+                          Cantidad:{" "}
+                          <span className="font-medium text-foreground">
+                            {delivery.delivered_quantity}
+                          </span>
+                        </span>
+                        <span>
+                          Entregado por:{" "}
+                          <span className="text-foreground">
+                            {delivery.delivered_by_name}
+                          </span>
+                        </span>
+                        <span>
+                          Fecha:{" "}
+                          <span className="text-foreground">
                             {format(
-                              parseISO(delivery.received_date),
+                              parseISO(delivery.delivered_date),
                               "dd/MM/yyyy HH:mm",
                               { locale: es },
                             )}
-                            {delivery.received_by_name
-                              ? ` por ${delivery.received_by_name}`
-                              : ""}
-                          </p>
-                        )}
+                          </span>
+                        </span>
+                        <span>
+                          Técnico:{" "}
+                          <span className="text-foreground">
+                            {delivery.delivered_to_name}
+                          </span>
+                        </span>
                       </div>
+
+                      {delivery.is_received && delivery.received_date && (
+                        <p className="text-xs text-green-700">
+                          Recibido el{" "}
+                          {format(
+                            parseISO(delivery.received_date),
+                            "dd/MM/yyyy HH:mm",
+                            { locale: es },
+                          )}
+                          {delivery.received_by_name
+                            ? ` por ${delivery.received_by_name}`
+                            : ""}
+                        </p>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <FormSelect
-            control={form.control}
-            name="delivered_to"
-            label="Técnico"
-            placeholder="Seleccione un técnico"
-            options={planningWorkers.map((w) => ({
-              value: w.worker_id.toString(),
-              label: w.worker_name,
-            }))}
-          />
-
-          <FormInput
-            control={form.control}
-            name="delivered_quantity"
-            label="Cantidad a entregar"
-            type="number"
-            min={0.01}
-            step={0.01}
-            max={part?.quantity_used ?? undefined}
-            description={part ? `Máximo: ${part.quantity_used}` : undefined}
-          />
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Asignando...
-                </>
-              ) : (
-                "Asignar"
-              )}
-            </Button>
-          </div>
-        </form>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Form>
     </GeneralSheet>
   );

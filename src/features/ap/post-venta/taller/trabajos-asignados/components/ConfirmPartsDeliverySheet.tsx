@@ -35,8 +35,9 @@ export function ConfirmPartsDeliverySheet({
   const workOrderId = planning?.work_order_id;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["workOrderPartAssignments", workOrderId],
-    queryFn: () => getAssignmentsByWorkOrder(workOrderId!),
+    queryKey: ["workOrderPartAssignments", workOrderId, planning?.worker_id],
+    queryFn: () =>
+      getAssignmentsByWorkOrder(workOrderId!, Number(planning?.worker_id)),
     enabled: open && !!workOrderId,
   });
 
