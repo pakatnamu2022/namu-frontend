@@ -113,7 +113,7 @@ export function AssignPartToTechnicianSheet({
       onClose={handleClose}
       title="Asignar repuesto a técnico"
       icon="UserCheck"
-      size="lg"
+      size="2xl"
       isLoading={isLoadingWorkers}
     >
       <Form {...form}>
@@ -212,7 +212,7 @@ export function AssignPartToTechnicianSheet({
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <PackageCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                    <PackageCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
 
                     <div className="flex-1 space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
@@ -222,7 +222,7 @@ export function AssignPartToTechnicianSheet({
                         {delivery.is_received ? (
                           <Badge
                             variant="outline"
-                            className="border-green-200 bg-green-50 text-xs text-green-700"
+                            className="border-blue-200 bg-blue-50 text-xs text-primary"
                           >
                             Recibido
                           </Badge>
@@ -268,17 +268,37 @@ export function AssignPartToTechnicianSheet({
                       </div>
 
                       {delivery.is_received && delivery.received_date && (
-                        <p className="text-xs text-green-700">
-                          Recibido el{" "}
-                          {format(
-                            parseISO(delivery.received_date),
-                            "dd/MM/yyyy HH:mm",
-                            { locale: es },
+                        <div className="space-y-2">
+                          <p className="text-xs text-primary">
+                            Recibido el{" "}
+                            {format(
+                              parseISO(delivery.received_date),
+                              "dd/MM/yyyy HH:mm",
+                              { locale: es },
+                            )}
+                            {delivery.received_by_name
+                              ? ` por ${delivery.received_by_name}`
+                              : ""}
+                          </p>
+
+                          {delivery.received_signature_url ? (
+                            <div className="rounded-md border bg-background p-2">
+                              <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                Firma de recepción
+                              </p>
+                              <img
+                                src={delivery.received_signature_url}
+                                alt="Firma de recepción"
+                                className="h-20 w-full max-w-[260px] rounded border bg-white object-contain"
+                                loading="lazy"
+                              />
+                            </div>
+                          ) : (
+                            <p className="text-[11px] text-muted-foreground">
+                              Sin firma registrada.
+                            </p>
                           )}
-                          {delivery.received_by_name
-                            ? ` por ${delivery.received_by_name}`
-                            : ""}
-                        </p>
+                        </div>
                       )}
                     </div>
                   </div>
