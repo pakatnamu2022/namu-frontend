@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ButtonGroup as ButtonGroupPrimitive } from "@/components/ui/button-group";
 
 export interface ButtonGroupOption<T extends string = string> {
   value: T;
@@ -22,8 +23,8 @@ export function ButtonGroup<T extends string = string>({
   disabled,
 }: ButtonGroupProps<T>) {
   return (
-    <div className="flex rounded-md border overflow-hidden">
-      {options.map((option, index) => (
+    <ButtonGroupPrimitive>
+      {options.map((option) => (
         <Button
           key={option.value}
           type="button"
@@ -31,15 +32,11 @@ export function ButtonGroup<T extends string = string>({
           size="sm"
           disabled={disabled}
           onClick={() => onChange(option.value)}
-          className={[
-            "rounded-none h-9 px-4 gap-2",
-            index < options.length - 1 ? "border-r" : "",
-          ].join(" ")}
         >
           {option.icon}
           {option.label}
         </Button>
       ))}
-    </div>
+    </ButtonGroupPrimitive>
   );
 }

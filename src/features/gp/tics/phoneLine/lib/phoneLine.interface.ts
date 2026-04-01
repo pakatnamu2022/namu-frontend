@@ -36,8 +36,11 @@ export interface PhoneLineWorkerResource {
   phone_line_id: number;
   worker_id: number;
   worker_name: string;
+  equipo_id?: number | null;
+  equipo_nombre?: string | null;
   assigned_at: string;
   unassigned_at?: string;
+  active: boolean;
   observacion_unassign?: string;
 }
 

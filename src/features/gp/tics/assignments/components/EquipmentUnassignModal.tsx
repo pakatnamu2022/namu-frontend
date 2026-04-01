@@ -3,12 +3,12 @@
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { GeneralModal } from "@/shared/components/GeneralModal";
-import { FormInput } from "@/shared/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { unassignEquipment } from "@/features/gp/tics/equipment/lib/equipment.actions";
 import { errorToast, successToast } from "@/core/core.function";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface Props {
   open: boolean;
@@ -68,7 +68,10 @@ export default function EquipmentUnassignModal({
       icon="PackageOpen"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit((v) => mutate(v))} className="space-y-4 p-2">
+        <form
+          onSubmit={form.handleSubmit((v) => mutate(v))}
+          className="space-y-4 p-2"
+        >
           <DatePickerFormField
             name="fecha"
             label="Fecha de devolución"
@@ -77,11 +80,12 @@ export default function EquipmentUnassignModal({
             placeholder="Selecciona la fecha"
           />
 
-          <FormInput
+          <FormTextArea
             name="observacion_unassign"
             label="Observación"
             placeholder="Motivo de la devolución (opcional)"
             control={form.control}
+            uppercase
           />
 
           <div className="flex justify-end gap-2">

@@ -3,9 +3,15 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { EquipmentAssignmentResource } from "../lib/assignments.interface";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, PackageOpen } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  PackageOpen,
+  FileCheck,
+  FileX,
+} from "lucide-react";
 import ExportButtons from "@/shared/components/ExportButtons";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type EquipmentAssignmentColumn = ColumnDef<EquipmentAssignmentResource>;
 
@@ -60,12 +66,12 @@ export const equipmentAssignmentColumns = (
     cell: ({ row }) => {
       const isActive = !row.original.unassigned_at;
       return (
-        <Badge variant="outline" className="gap-2">
-          {isActive ? (
-            <CheckCircle className="size-3.5 text-primary" />
-          ) : (
-            <XCircle className="size-3.5 text-muted-foreground" />
-          )}
+        <Badge
+          variant="default"
+          className="gap-2"
+          icon={isActive ? CheckCircle : XCircle}
+          color={isActive ? "green" : "red"}
+        >
           {isActive ? "Activo" : "Devuelto"}
         </Badge>
       );
@@ -85,25 +91,30 @@ export const equipmentAssignmentColumns = (
       return (
         <div className="flex items-center gap-1">
           {isActive && (
-            <Button
-              size="icon-sm"
+            <ButtonAction
               variant="outline"
-              color="rose"
+              color="orange"
               onClick={() => onUnassign(row.original)}
-              title="Desasignar equipo"
-            >
-              <PackageOpen className="size-3.5" />
-            </Button>
+              tooltip="Desasignar equipo"
+              icon={PackageOpen}
+            />
           )}
           <ExportButtons
             variant="separate-icon"
-            pdfEndpoint={
-              isActive
-                ? `gp/tics/equipmentAssigment/${id}/pdf/assignment`
-                : `gp/tics/equipmentAssigment/${id}/pdf/unassignment`
-            }
-            pdfFileName={isActive ? "acta-asignacion.pdf" : "acta-devolucion.pdf"}
+            pdfEndpoint={`gp/tics/equipmentAssigment/${id}/pdf/assignment`}
+            pdfFileName="acta-asignacion.pdf"
+            pdfColor="blue"
+            pdfIcon={FileCheck}
           />
+          {!isActive && (
+            <ExportButtons
+              variant="separate-icon"
+              pdfEndpoint={`gp/tics/equipmentAssigment/${id}/pdf/unassignment`}
+              pdfFileName="acta-devolucion.pdf"
+              pdfColor="red"
+              pdfIcon={FileX}
+            />
+          )}
         </div>
       );
     },

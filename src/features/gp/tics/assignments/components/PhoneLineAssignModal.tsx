@@ -8,6 +8,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { usePhoneLines } from "@/features/gp/tics/phoneLine/lib/phoneLine.hook";
+import { useEquipments } from "@/features/gp/tics/equipment/lib/equipment.hook";
 import { assignPhoneLine } from "../lib/assignments.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { PhoneLineAssignFormValues } from "../lib/assignments.interface";
@@ -18,9 +19,13 @@ interface Props {
   onSuccess: () => void;
 }
 
-export default function PhoneLineAssignModal({ open, onClose, onSuccess }: Props) {
+export default function PhoneLineAssignModal({
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
   const form = useForm<PhoneLineAssignFormValues>({
-    defaultValues: { phone_line_id: "", worker_id: "" },
+    defaultValues: { phone_line_id: "", worker_id: "", equipo_id: "" },
   });
 
   const { mutate, isPending } = useMutation({
@@ -28,6 +33,7 @@ export default function PhoneLineAssignModal({ open, onClose, onSuccess }: Props
       assignPhoneLine({
         phone_line_id: Number(values.phone_line_id),
         worker_id: Number(values.worker_id),
+        ...(values.equipo_id ? { equipo_id: Number(values.equipo_id) } : {}),
       }),
     onSuccess: () => {
       successToast("Línea telefónica asignada correctamente.");
@@ -36,9 +42,9 @@ export default function PhoneLineAssignModal({ open, onClose, onSuccess }: Props
       onClose();
     },
     onError: (error: any) => {
-      errorToast(
-        error?.response?.data?.message || "Error al asignar la línea.",
-      );
+      const message =
+        error?.response?.data?.message || "Error al asignar la línea.";
+      errorToast(message);
     },
   });
 
@@ -73,6 +79,9 @@ export default function PhoneLineAssignModal({ open, onClose, onSuccess }: Props
               value: item.id.toString(),
               description: item.company,
             })}
+            additionalParams={{
+              isAssigned: 0,
+            }}
             perPage={10}
             debounceMs={500}
             required
@@ -92,6 +101,26 @@ export default function PhoneLineAssignModal({ open, onClose, onSuccess }: Props
             debounceMs={500}
             required
           />
+
+          <FormSelectAsync
+            name="equipo_id"
+            label="Equipo asociado"
+            placeholder="Selecciona un equipo (opcional)"
+            control={form.control}
+            useQueryHook={useEquipments}
+            mapOptionFn={(item) => ({
+              label: item.equipo,
+              value: item.id.toString(),
+              description: item.marca_modelo,
+            })}
+            perPage={10}
+            debounceMs={500}
+          />
+
+          <p className="text-xs text-muted-foreground">
+            Si este trabajador ya tuvo una línea asignada antes, deberás
+            seleccionar el equipo.
+          </p>
 
           <div className="flex justify-end gap-2">
             <Button

@@ -36,6 +36,18 @@ export const phoneLineAssignmentColumns = (
     ),
   },
   {
+    accessorKey: "equipo_nombre",
+    header: "Equipo",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null | undefined;
+      return value ? (
+        <span className="text-sm">{value}</span>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
+      );
+    },
+  },
+  {
     accessorKey: "assigned_at",
     header: "Fecha asignación",
     cell: ({ getValue }) => formatDate(getValue() as string),
@@ -51,12 +63,12 @@ export const phoneLineAssignmentColumns = (
     cell: ({ row }) => {
       const isActive = !row.original.unassigned_at;
       return (
-        <Badge variant="outline" className="gap-2">
-          {isActive ? (
-            <CheckCircle className="size-3.5 text-primary" />
-          ) : (
-            <XCircle className="size-3.5 text-muted-foreground" />
-          )}
+        <Badge
+          variant="outline"
+          className="gap-2"
+          icon={isActive ? CheckCircle : XCircle}
+          color={isActive ? "green" : "red"}
+        >
           {isActive ? "Activo" : "Devuelto"}
         </Badge>
       );

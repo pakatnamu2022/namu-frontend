@@ -25,6 +25,7 @@ export interface PhoneLineAssignmentListResponse {
 export interface PhoneLineAssignmentRequest {
   phone_line_id: number;
   worker_id: number;
+  equipo_id?: number;
 }
 
 export interface BulkEquipmentAssignFormValues {
@@ -40,6 +41,7 @@ export interface BulkEquipmentAssignFormValues {
 export interface PhoneLineAssignFormValues {
   phone_line_id: string;
   worker_id: string;
+  equipo_id: string;
 }
 
 export interface PhoneLineUnassignRequest {
