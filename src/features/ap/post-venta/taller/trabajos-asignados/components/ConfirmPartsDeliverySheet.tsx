@@ -149,7 +149,7 @@ export function ConfirmPartsDeliverySheet({
                           className="mt-0.5"
                         />
                       ) : (
-                        <PackageCheck className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                        <PackageCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       )}
 
                       <div className="flex-1 space-y-1.5">
@@ -160,7 +160,7 @@ export function ConfirmPartsDeliverySheet({
                           {assignment.is_received ? (
                             <Badge
                               variant="outline"
-                              className="bg-green-50 text-green-700 border-green-200 text-xs"
+                              className="bg-blue-50 text-primary border-blue-200 text-xs"
                             >
                               Recibido
                             </Badge>
@@ -218,15 +218,35 @@ export function ConfirmPartsDeliverySheet({
                         </div>
 
                         {assignment.is_received && assignment.received_date && (
-                          <p className="text-xs text-green-700">
-                            Recibido el{" "}
-                            {format(
-                              parseISO(assignment.received_date),
-                              "dd/MM/yyyy HH:mm",
-                              { locale: es },
-                            )}{" "}
-                            por {assignment.received_by?.name}
-                          </p>
+                          <div className="space-y-2">
+                            <p className="text-xs text-blue-700">
+                              Recibido el{" "}
+                              {format(
+                                parseISO(assignment.received_date),
+                                "dd/MM/yyyy HH:mm",
+                                { locale: es },
+                              )}{" "}
+                              por {assignment.received_by?.name}
+                            </p>
+
+                            {assignment.received_signature_url ? (
+                              <div className="rounded-md border bg-background p-2">
+                                <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                                  Firma de recepción
+                                </p>
+                                <img
+                                  src={assignment.received_signature_url}
+                                  alt="Firma de recepción"
+                                  className="h-20 w-full max-w-[260px] rounded border bg-white object-contain"
+                                  loading="lazy"
+                                />
+                              </div>
+                            ) : (
+                              <p className="text-[11px] text-muted-foreground">
+                                Sin firma registrada.
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -261,7 +281,7 @@ export function ConfirmPartsDeliverySheet({
             )}
 
             {pendingAssignments.length === 0 && assignments.length > 0 && (
-              <p className="text-center text-green-700 text-sm py-4">
+              <p className="text-center text-blue-700 text-sm py-4">
                 Todos los repuestos han sido confirmados.
               </p>
             )}
