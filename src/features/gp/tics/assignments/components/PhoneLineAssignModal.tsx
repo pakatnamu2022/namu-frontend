@@ -4,85 +4,80 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import { FormInput } from "@/shared/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { assignEquipment } from "../lib/equipment.actions";
+import { usePhoneLines } from "@/features/gp/tics/phoneLine/lib/phoneLine.hook";
+import { assignPhoneLine } from "../lib/assignments.actions";
 import { errorToast, successToast } from "@/core/core.function";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { PhoneLineAssignFormValues } from "../lib/assignments.interface";
 
 interface Props {
   open: boolean;
-  equipmentId: number;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-interface AssignFormValues {
-  worker_id: string;
-  fecha: string;
-  observacion: string;
-}
-
-export default function EquipmentAssignModal({
-  open,
-  equipmentId,
-  onClose,
-  onSuccess,
-}: Props) {
-  const form = useForm<AssignFormValues>({
-    defaultValues: {
-      worker_id: "",
-      fecha: new Date().toISOString().split("T")[0],
-      observacion: "",
-    },
+export default function PhoneLineAssignModal({ open, onClose, onSuccess }: Props) {
+  const form = useForm<PhoneLineAssignFormValues>({
+    defaultValues: { phone_line_id: "", worker_id: "" },
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (values: AssignFormValues) =>
-      assignEquipment({
-        persona_id: Number(values.worker_id),
-        fecha: new Date(values.fecha).toISOString().split("T")[0],
-        observacion: values.observacion,
-        items: [
-          {
-            equipo_id: equipmentId,
-            observacion: values.observacion,
-          },
-        ],
+    mutationFn: (values: PhoneLineAssignFormValues) =>
+      assignPhoneLine({
+        phone_line_id: Number(values.phone_line_id),
+        worker_id: Number(values.worker_id),
       }),
     onSuccess: () => {
-      successToast("Equipo asignado correctamente.");
+      successToast("Línea telefónica asignada correctamente.");
       form.reset();
       onSuccess();
       onClose();
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || "Error al asignar el equipo.",
+        error?.response?.data?.message || "Error al asignar la línea.",
       );
     },
   });
 
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
+
   const handleSubmit = form.handleSubmit((values) => {
-    if (!values.worker_id) return;
+    if (!values.phone_line_id || !values.worker_id) return;
     mutate(values);
   });
 
   return (
     <GeneralModal
       open={open}
-      onClose={() => {
-        form.reset();
-        onClose();
-      }}
-      title="Asignar equipo"
-      subtitle="Selecciona el trabajador para asignar este equipo"
-      icon="UserPlus"
+      onClose={handleClose}
+      title="Asignar línea telefónica"
+      subtitle="Selecciona la línea y el trabajador a asignar"
+      icon="Phone"
     >
       <Form {...form}>
         <form onSubmit={handleSubmit} className="space-y-4 p-2">
+          <FormSelectAsync
+            name="phone_line_id"
+            label="Línea telefónica"
+            placeholder="Selecciona una línea"
+            control={form.control}
+            useQueryHook={usePhoneLines}
+            mapOptionFn={(item) => ({
+              label: item.line_number,
+              value: item.id.toString(),
+              description: item.company,
+            })}
+            perPage={10}
+            debounceMs={500}
+            required
+          />
+
           <FormSelectAsync
             name="worker_id"
             label="Trabajador"
@@ -95,27 +90,14 @@ export default function EquipmentAssignModal({
             })}
             perPage={10}
             debounceMs={500}
+            required
           />
 
-          <DatePickerFormField
-            name="fecha"
-            label="Fecha de asignación"
-            control={form.control}
-            dateFormat="dd/MM/yyyy"
-            placeholder="Selecciona la fecha de asignación"
-          />
-
-          <FormInput
-            name="observacion"
-            label="Observación"
-            placeholder="Observación (opcional)"
-            control={form.control}
-          />
           <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isPending}
             >
               Cancelar

@@ -70,3 +70,8 @@ export async function deleteView(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function duplicateView(id: number): Promise<ViewResource> {
+  const response = await api.post<ViewResource>(`${ENDPOINT}/${id}/duplicate`);
+  return response.data;
+}

@@ -38,6 +38,7 @@ export interface PhoneLineWorkerResource {
   worker_name: string;
   assigned_at: string;
   unassigned_at?: string;
+  observacion_unassign?: string;
 }
 
 export interface PhoneLineRequest {
