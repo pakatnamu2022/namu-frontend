@@ -49,3 +49,61 @@ export interface StoreBulkFromQuotationRequest {
   group_number: number;
   quotation_detail_ids: number[];
 }
+
+export interface WorkOrderPartDeliveryResource {
+  id: number;
+  work_order_part_id: number;
+  delivered_to: number;
+  delivered_to_name: string;
+  delivered_quantity: number;
+  delivered_date: string;
+  delivered_by: number;
+  delivered_by_name: string;
+  is_received: boolean;
+  received_date: string | null;
+  received_signature_url: string | null;
+  received_by: number | null;
+  received_by_name: string | null;
+}
+
+export interface WorkOrderPartAssignment {
+  delivery_id: number;
+  work_order_part_id: number;
+  product: {
+    id: number;
+    code: string;
+    name: string;
+  };
+  warehouse: {
+    id: number;
+    name: string;
+  };
+  technician: {
+    id: number;
+    name: string;
+    worker_id: number;
+  };
+  delivered_quantity: string;
+  delivered_date: string;
+  delivered_by: {
+    id: number;
+    name: string;
+  };
+  is_received: boolean;
+  received_date: string | null;
+  received_by: {
+    id: number;
+    name: string;
+  } | null;
+  received_signature_url: string | null;
+}
+
+export interface WorkOrderPartAssignmentsResponse {
+  work_order_id: number;
+  total_assignments: number;
+  assignments: WorkOrderPartAssignment[];
+}
+
+export interface ConfirmPartsDeliveryRequest {
+  delivery_ids: number[];
+}

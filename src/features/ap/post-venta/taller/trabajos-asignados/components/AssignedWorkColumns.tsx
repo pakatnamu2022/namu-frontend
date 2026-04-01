@@ -22,6 +22,7 @@ import {
   Pause,
   Play,
   User,
+  PackageCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,6 +40,7 @@ interface AssignedWorkColumnsProps {
   onContinue?: (planning: WorkOrderPlanningResource) => void;
   onPause?: (planning: WorkOrderPlanningResource) => void;
   onComplete?: (planning: WorkOrderPlanningResource) => void;
+  onConfirmPartsDelivery?: (planning: WorkOrderPlanningResource) => void;
 }
 
 export const assignedWorkColumns = ({
@@ -47,6 +49,7 @@ export const assignedWorkColumns = ({
   onContinue,
   onPause,
   onComplete,
+  onConfirmPartsDelivery,
 }: AssignedWorkColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
   {
     accessorKey: "work_order_correlative",
@@ -192,14 +195,30 @@ export const assignedWorkColumns = ({
             size="icon"
             className="size-7"
             onClick={() => onView?.(planning)}
+            tooltip="Ver detalles del trabajo"
           >
             <Eye className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onConfirmPartsDelivery?.(planning)}
+            tooltip="Confirmar entrega de repuestos"
+          >
+            <PackageCheck className="h-4 w-4 text-blue-600" />
           </Button>
 
           {(showStart || showContinue || showPauseAndComplete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="size-7">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Acciones"
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

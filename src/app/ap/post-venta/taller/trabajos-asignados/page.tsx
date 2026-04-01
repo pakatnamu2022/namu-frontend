@@ -21,6 +21,7 @@ import AssignedWorkTable from "@/features/ap/post-venta/taller/trabajos-asignado
 import AssignedWorkOptions from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkOptions";
 import { AssignedWorkDetail } from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkDetail";
 import { PauseWorkSheet } from "@/features/ap/post-venta/taller/trabajos-asignados/components/PauseWorkSheet";
+import { ConfirmPartsDeliverySheet } from "@/features/ap/post-venta/taller/trabajos-asignados/components/ConfirmPartsDeliverySheet";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
@@ -48,6 +49,7 @@ export default function AssignedWorkPage() {
   const [openStartAlert, setOpenStartAlert] = useState(false);
   const [openContinueAlert, setOpenContinueAlert] = useState(false);
   const [openCompleteAlert, setOpenCompleteAlert] = useState(false);
+  const [openConfirmPartsSheet, setOpenConfirmPartsSheet] = useState(false);
   const { ROUTE } = WORK_ORDER_PLANNING_SESSION;
   const startSession = useStartSession();
   const pauseWork = usePauseWork();
@@ -123,6 +125,10 @@ export default function AssignedWorkPage() {
     setActionWork(work);
     setOpenCompleteAlert(true);
   };
+  const handleConfirmPartsDelivery = (work: WorkOrderPlanningResource) => {
+    setActionWork(work);
+    setOpenConfirmPartsSheet(true);
+  };
 
   const handleStartConfirm = async () => {
     if (!actionWork) return;
@@ -192,6 +198,7 @@ export default function AssignedWorkPage() {
           onContinue: handleContinueWork,
           onPause: handlePauseWork,
           onComplete: handleCompleteWork,
+          onConfirmPartsDelivery: handleConfirmPartsDelivery,
         })}
         data={data?.data || []}
       >
@@ -261,6 +268,16 @@ export default function AssignedWorkPage() {
         cancelText="No"
         variant="default"
         icon="success"
+      />
+
+      {/* Sheet para Confirmar entrega de repuestos */}
+      <ConfirmPartsDeliverySheet
+        open={openConfirmPartsSheet}
+        onClose={() => {
+          setOpenConfirmPartsSheet(false);
+          setActionWork(null);
+        }}
+        planning={actionWork}
       />
 
       {/* Sheet para Pausar */}
