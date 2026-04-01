@@ -14,6 +14,7 @@ import {
   Percent,
   Copy,
   Check,
+  UserCheck,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ import {
   storeBulkFromQuotation,
   deleteWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
+import { AssignPartToTechnicianSheet } from "../AssignPartToTechnicianSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
@@ -89,6 +91,23 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     } catch (err) {
       console.error("Error al copiar:", err);
     }
+  };
+
+  // Sheet asignar repuesto a técnico
+  const [assignSheetOpen, setAssignSheetOpen] = useState(false);
+  const [assignPart, setAssignPart] = useState<{
+    id: number;
+    quantity_used: number;
+    product_name: string;
+  } | null>(null);
+
+  const handleOpenAssignSheet = (part: {
+    id: number;
+    quantity_used: number;
+    product_name: string;
+  }) => {
+    setAssignPart(part);
+    setAssignSheetOpen(true);
   };
 
   // Modal de descuento
@@ -907,6 +926,15 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             ) : null}
                           </>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenAssignSheet(part)}
+                          className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          tooltip="Asignar a técnico"
+                        >
+                          <UserCheck className="h-4 w-4" />
+                        </Button>
                         {!globalRequest && !partialRequest && (
                           <Button
                             variant="ghost"
@@ -951,6 +979,17 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           onConfirm={handleDelete}
         />
       )}
+
+      {/* Sheet Asignar Repuesto a Técnico */}
+      <AssignPartToTechnicianSheet
+        open={assignSheetOpen}
+        onClose={() => {
+          setAssignSheetOpen(false);
+          setAssignPart(null);
+        }}
+        workOrderId={workOrderId}
+        part={assignPart}
+      />
 
       {/* Modal Solicitar Descuento */}
       <DiscountRequestWorkOrderModal
