@@ -48,3 +48,11 @@ export interface PhoneLineUnassignRequest {
   unassigned_at: string;
   observacion_unassign: string;
 }
+
+export interface LinkEquipmentRequest {
+  equipo_id: number | null;
+}
+
+export interface LinkPhoneLineRequest {
+  phone_line_id: number | null;
+}

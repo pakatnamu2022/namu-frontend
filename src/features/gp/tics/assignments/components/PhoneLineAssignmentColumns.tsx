@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { PhoneLineWorkerResource } from "../lib/assignments.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, PhoneOff } from "lucide-react";
+import { CheckCircle, XCircle, PhoneOff, FileCheck, FileX, Link2 } from "lucide-react";
 import ExportButtons from "@/shared/components/ExportButtons";
 
 export type PhoneLineAssignmentColumn = ColumnDef<PhoneLineWorkerResource>;
@@ -20,6 +20,7 @@ const formatDate = (date?: string) =>
 
 export const phoneLineAssignmentColumns = (
   onUnassign: (row: PhoneLineWorkerResource) => void,
+  onLinkEquipment: (row: PhoneLineWorkerResource) => void,
 ): PhoneLineAssignmentColumn[] => [
   {
     accessorKey: "worker_name",
@@ -29,10 +30,10 @@ export const phoneLineAssignmentColumns = (
     ),
   },
   {
-    accessorKey: "phone_line_id",
-    header: "ID Línea",
+    accessorKey: "phone_line",
+    header: "Línea",
     cell: ({ getValue }) => (
-      <Badge variant="outline">#{getValue() as number}</Badge>
+      <Badge variant="outline">{getValue() as number}</Badge>
     ),
   },
   {
@@ -86,6 +87,17 @@ export const phoneLineAssignmentColumns = (
             <Button
               size="icon-sm"
               variant="outline"
+              color="violet"
+              onClick={() => onLinkEquipment(row.original)}
+              title="Vincular equipo"
+            >
+              <Link2 className="size-3.5" />
+            </Button>
+          )}
+          {isActive && (
+            <Button
+              size="icon-sm"
+              variant="outline"
               color="rose"
               onClick={() => onUnassign(row.original)}
               title="Desasignar línea"
@@ -93,17 +105,25 @@ export const phoneLineAssignmentColumns = (
               <PhoneOff className="size-3.5" />
             </Button>
           )}
+
           <ExportButtons
             variant="separate-icon"
-            pdfEndpoint={
-              isActive
-                ? `gp/tics/phoneLineWorker/${id}/pdf/assignment`
-                : `gp/tics/phoneLineWorker/${id}/pdf/unassignment`
-            }
-            pdfFileName={
-              isActive ? "acta-asignacion.pdf" : "acta-desasignacion.pdf"
-            }
+            pdfEndpoint={`gp/tics/phoneLineWorker/${id}/pdf/assignment`}
+            pdfFileName="acta-asignacion.pdf"
+            pdfColor="blue"
+            pdfVariant="outline"
+            pdfIcon={FileCheck}
           />
+          {!isActive && (
+            <ExportButtons
+              variant="separate-icon"
+              pdfEndpoint={`gp/tics/phoneLineWorker/${id}/pdf/unassignment`}
+              pdfFileName="acta-devolucion.pdf"
+              pdfColor="red"
+              pdfVariant="outline"
+              pdfIcon={FileX}
+            />
+          )}
         </div>
       );
     },

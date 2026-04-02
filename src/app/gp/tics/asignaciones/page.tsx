@@ -22,6 +22,8 @@ import BulkEquipmentAssignModal from "@/features/gp/tics/assignments/components/
 import PhoneLineAssignModal from "@/features/gp/tics/assignments/components/PhoneLineAssignModal";
 import PhoneLineUnassignModal from "@/features/gp/tics/assignments/components/PhoneLineUnassignModal";
 import EquipmentUnassignModal from "@/features/gp/tics/assignments/components/EquipmentUnassignModal";
+import PhoneLineLinkEquipmentModal from "@/features/gp/tics/assignments/components/PhoneLineLinkEquipmentModal";
+import EquipmentLinkPhoneLineModal from "@/features/gp/tics/assignments/components/EquipmentLinkPhoneLineModal";
 import {
   PhoneLineWorkerResource,
   EquipmentAssignmentResource,
@@ -38,6 +40,10 @@ export default function AssignmentsPage() {
   const [selectedPhoneLine, setSelectedPhoneLine] = useState<PhoneLineWorkerResource | null>(null);
   const [equipmentUnassignOpen, setEquipmentUnassignOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentAssignmentResource | null>(null);
+  const [linkEquipmentOpen, setLinkEquipmentOpen] = useState(false);
+  const [selectedPhoneLineForLink, setSelectedPhoneLineForLink] = useState<PhoneLineWorkerResource | null>(null);
+  const [linkPhoneLineOpen, setLinkPhoneLineOpen] = useState(false);
+  const [selectedEquipmentForLink, setSelectedEquipmentForLink] = useState<EquipmentAssignmentResource | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -97,10 +103,16 @@ export default function AssignmentsPage() {
       {type === "equipment" ? (
         <AssignmentsTable
           isLoading={isLoading}
-          columns={equipmentAssignmentColumns((row) => {
-            setSelectedEquipment(row);
-            setEquipmentUnassignOpen(true);
-          })}
+          columns={equipmentAssignmentColumns(
+            (row) => {
+              setSelectedEquipment(row);
+              setEquipmentUnassignOpen(true);
+            },
+            (row) => {
+              setSelectedEquipmentForLink(row);
+              setLinkPhoneLineOpen(true);
+            },
+          )}
           data={equipmentQuery.data?.data ?? []}
         >
           <AssignmentsOptions search={search} setSearch={setSearch} />
@@ -108,10 +120,16 @@ export default function AssignmentsPage() {
       ) : (
         <AssignmentsTable
           isLoading={isLoading}
-          columns={phoneLineAssignmentColumns((row) => {
-            setSelectedPhoneLine(row);
-            setUnassignOpen(true);
-          })}
+          columns={phoneLineAssignmentColumns(
+            (row) => {
+              setSelectedPhoneLine(row);
+              setUnassignOpen(true);
+            },
+            (row) => {
+              setSelectedPhoneLineForLink(row);
+              setLinkEquipmentOpen(true);
+            },
+          )}
           data={phoneLineQuery.data?.data ?? []}
         >
           <AssignmentsOptions search={search} setSearch={setSearch} />
@@ -162,6 +180,30 @@ export default function AssignmentsPage() {
           onClose={() => {
             setUnassignOpen(false);
             setSelectedPhoneLine(null);
+          }}
+          onSuccess={handleSuccess}
+        />
+      )}
+
+      {selectedPhoneLineForLink && (
+        <PhoneLineLinkEquipmentModal
+          open={linkEquipmentOpen}
+          assignment={selectedPhoneLineForLink}
+          onClose={() => {
+            setLinkEquipmentOpen(false);
+            setSelectedPhoneLineForLink(null);
+          }}
+          onSuccess={handleSuccess}
+        />
+      )}
+
+      {selectedEquipmentForLink && (
+        <EquipmentLinkPhoneLineModal
+          open={linkPhoneLineOpen}
+          assignment={selectedEquipmentForLink}
+          onClose={() => {
+            setLinkPhoneLineOpen(false);
+            setSelectedEquipmentForLink(null);
           }}
           onSuccess={handleSuccess}
         />

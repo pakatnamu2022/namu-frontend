@@ -28,7 +28,7 @@ export function ButtonGroup<T extends string = string>({
         <Button
           key={option.value}
           type="button"
-          variant={value === option.value ? "default" : "ghost"}
+          color={value === option.value ? "primary" : "muted"}
           size="sm"
           disabled={disabled}
           onClick={() => onChange(option.value)}

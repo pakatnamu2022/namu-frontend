@@ -33,6 +33,7 @@ export interface ActiveAssignment {
 
 export interface PhoneLineWorkerResource {
   id: number;
+  phone_line: string;
   phone_line_id: number;
   worker_id: number;
   worker_name: string;

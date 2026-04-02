@@ -25,7 +25,11 @@ const TYPE_OPTIONS = [
   },
 ];
 
-export default function AssignmentsActions({ type, onTypeChange, onAdd }: Props) {
+export default function AssignmentsActions({
+  type,
+  onTypeChange,
+  onAdd,
+}: Props) {
   return (
     <ActionsWrapper>
       <ButtonGroup

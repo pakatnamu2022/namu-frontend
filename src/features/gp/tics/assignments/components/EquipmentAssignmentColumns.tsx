@@ -9,6 +9,7 @@ import {
   PackageOpen,
   FileCheck,
   FileX,
+  Link2,
 } from "lucide-react";
 import ExportButtons from "@/shared/components/ExportButtons";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -26,6 +27,7 @@ const formatDate = (date?: string) =>
 
 export const equipmentAssignmentColumns = (
   onUnassign: (row: EquipmentAssignmentResource) => void,
+  onLinkPhoneLine: (row: EquipmentAssignmentResource) => void,
 ): EquipmentAssignmentColumn[] => [
   {
     accessorKey: "worker_name",
@@ -47,6 +49,18 @@ export const equipmentAssignmentColumns = (
             </Badge>
           ))}
         </div>
+      );
+    },
+  },
+  {
+    id: "linea",
+    header: "Línea",
+    cell: ({ row }) => {
+      const number = row.original.phone_line_number;
+      return number ? (
+        <Badge variant="outline">{number}</Badge>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
       );
     },
   },
@@ -93,6 +107,15 @@ export const equipmentAssignmentColumns = (
           {isActive && (
             <ButtonAction
               variant="outline"
+              color="violet"
+              onClick={() => onLinkPhoneLine(row.original)}
+              tooltip="Vincular línea telefónica"
+              icon={Link2}
+            />
+          )}
+          {isActive && (
+            <ButtonAction
+              variant="outline"
               color="orange"
               onClick={() => onUnassign(row.original)}
               tooltip="Desasignar equipo"
@@ -104,6 +127,7 @@ export const equipmentAssignmentColumns = (
             pdfEndpoint={`gp/tics/equipmentAssigment/${id}/pdf/assignment`}
             pdfFileName="acta-asignacion.pdf"
             pdfColor="blue"
+            pdfVariant="outline"
             pdfIcon={FileCheck}
           />
           {!isActive && (
@@ -112,6 +136,7 @@ export const equipmentAssignmentColumns = (
               pdfEndpoint={`gp/tics/equipmentAssigment/${id}/pdf/unassignment`}
               pdfFileName="acta-devolucion.pdf"
               pdfColor="red"
+              pdfVariant="outline"
               pdfIcon={FileX}
             />
           )}

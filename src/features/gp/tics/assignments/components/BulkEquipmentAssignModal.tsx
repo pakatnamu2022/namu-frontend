@@ -2,6 +2,7 @@
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormInput } from "@/shared/components/FormInput";
@@ -9,6 +10,14 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { useEquipments } from "@/features/gp/tics/equipment/lib/equipment.hook";
@@ -16,14 +25,13 @@ import { bulkAssignEquipment } from "../lib/assignments.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { BulkEquipmentAssignFormValues } from "../lib/assignments.interface";
+import { is } from "date-fns/locale";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
-
-const emptyItem = { equipo_id: "", observacion: "" };
 
 export default function BulkEquipmentAssignModal({
   open,
@@ -35,7 +43,7 @@ export default function BulkEquipmentAssignModal({
       worker_id: "",
       fecha: new Date().toISOString().split("T")[0],
       observacion: "",
-      items: [emptyItem],
+      items: [],
     },
   });
 
@@ -43,6 +51,15 @@ export default function BulkEquipmentAssignModal({
     control: form.control,
     name: "items",
   });
+
+  // Staging mini-form for adding a single item
+  const stagingForm = useForm<{ equipo_id: string; observacion: string }>({
+    defaultValues: { equipo_id: "", observacion: "" },
+  });
+
+  // Label lookup map: equipo_id -> display label
+  const labelMapRef = useRef<Map<string, string>>(new Map());
+  const [stagingLabel, setStagingLabel] = useState("");
 
   const { mutate, isPending } = useMutation({
     mutationFn: (values: BulkEquipmentAssignFormValues) =>
@@ -57,7 +74,10 @@ export default function BulkEquipmentAssignModal({
       }),
     onSuccess: () => {
       successToast("Equipos asignados correctamente.");
-      form.reset({ ...form.formState.defaultValues, items: [emptyItem] });
+      form.reset({ ...form.formState.defaultValues, items: [] });
+      stagingForm.reset();
+      labelMapRef.current.clear();
+      setStagingLabel("");
       onSuccess();
       onClose();
     },
@@ -69,15 +89,30 @@ export default function BulkEquipmentAssignModal({
   });
 
   const handleClose = () => {
-    form.reset({ worker_id: "", fecha: new Date().toISOString().split("T")[0], observacion: "", items: [emptyItem] });
+    form.reset({
+      worker_id: "",
+      fecha: new Date().toISOString().split("T")[0],
+      observacion: "",
+      items: [],
+    });
+    stagingForm.reset();
+    labelMapRef.current.clear();
+    setStagingLabel("");
     onClose();
   };
 
   const handleSubmit = form.handleSubmit((values) => {
     if (!values.worker_id) return;
-    const validItems = values.items.filter((i) => i.equipo_id !== "");
-    if (validItems.length === 0) return;
-    mutate({ ...values, items: validItems });
+    if (values.items.length === 0) return;
+    mutate(values);
+  });
+
+  const handleAddItem = stagingForm.handleSubmit((staging) => {
+    if (!staging.equipo_id) return;
+    labelMapRef.current.set(staging.equipo_id, stagingLabel);
+    append({ equipo_id: staging.equipo_id, observacion: staging.observacion });
+    stagingForm.reset({ equipo_id: "", observacion: "" });
+    setStagingLabel("");
   });
 
   return (
@@ -87,6 +122,7 @@ export default function BulkEquipmentAssignModal({
       title="Asignación masiva de equipos"
       subtitle="Selecciona el trabajador y los equipos a asignar"
       icon="UserPlus"
+      size="2xl"
     >
       <Form {...form}>
         <form onSubmit={handleSubmit} className="space-y-4 p-2">
@@ -122,71 +158,113 @@ export default function BulkEquipmentAssignModal({
 
           <Separator />
 
+          {/* Mini-form para agregar un equipo */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                Equipos ({fields.length})
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => append(emptyItem)}
-                disabled={isPending}
-              >
-                <Plus className="size-4 mr-1" />
-                Agregar equipo
-              </Button>
-            </div>
+            <span className="text-sm font-medium">
+              Equipos ({fields.length})
+            </span>
 
-            <ScrollArea className="max-h-64 pr-2">
-              <div className="space-y-3">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="rounded-md border p-3 space-y-2 bg-muted/30"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Equipo {index + 1}
-                      </span>
-                      {fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-6 text-destructive hover:text-destructive"
-                          onClick={() => remove(index)}
-                          disabled={isPending}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                    <FormSelectAsync
-                      name={`items.${index}.equipo_id`}
-                      placeholder="Selecciona un equipo"
-                      control={form.control}
-                      useQueryHook={useEquipments}
-                      mapOptionFn={(item) => ({
-                        label: `${item.equipo} - ${item.serie}`,
-                        value: item.id.toString(),
-                        description: item.tipo_equipo,
-                      })}
-                      additionalParams={{ status_id: 28 }}
-                      perPage={10}
-                      debounceMs={500}
-                      required
-                    />
-                    <FormInput
-                      name={`items.${index}.observacion`}
-                      placeholder="Observación del equipo (opcional)"
-                      control={form.control}
-                    />
-                  </div>
-                ))}
+            <Form {...stagingForm}>
+              <div className="flex gap-2 items-end rounded-md border p-3 bg-muted/20">
+                <div className="flex-1 min-w-0">
+                  <FormSelectAsync
+                    name="equipo_id"
+                    label="Equipo"
+                    placeholder="Selecciona un equipo"
+                    control={stagingForm.control}
+                    useQueryHook={useEquipments}
+                    mapOptionFn={(item) => ({
+                      label: `${item.equipo} - ${item.serie}`,
+                      value: item.id.toString(),
+                      description: item.tipo_equipo,
+                    })}
+                    additionalParams={{ status_id: 28, isAssigned: 0 }}
+                    perPage={10}
+                    debounceMs={500}
+                    onValueChange={(_val, item) => {
+                      if (item) {
+                        setStagingLabel(`${item.equipo} - ${item.serie}`);
+                      } else {
+                        setStagingLabel("");
+                      }
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <FormInput
+                    name="observacion"
+                    label="Observación"
+                    placeholder="Observación del equipo (opcional)"
+                    control={stagingForm.control}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mb-0.5 shrink-0"
+                  onClick={handleAddItem}
+                  disabled={isPending}
+                >
+                  <Plus className="size-4 mr-1" />
+                  Agregar
+                </Button>
               </div>
-            </ScrollArea>
+            </Form>
+
+            {/* Tabla de equipos agregados */}
+            {fields.length > 0 && (
+              <ScrollArea className="max-h-56 rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-10 h-9 px-3">#</TableHead>
+                      <TableHead className="h-9 px-3">Equipo</TableHead>
+                      <TableHead className="h-9 px-3">Observación</TableHead>
+                      <TableHead className="w-10 h-9 px-3" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.map((field, index) => (
+                      <TableRow key={field.id}>
+                        <TableCell className="py-2 px-3 text-muted-foreground text-xs">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell className="py-2 px-3 text-xs font-medium max-w-[180px] truncate">
+                          {labelMapRef.current.get(field.equipo_id) ||
+                            field.equipo_id}
+                        </TableCell>
+                        <TableCell className="py-2 px-3 text-xs text-muted-foreground max-w-40 truncate">
+                          {field.observacion || (
+                            <span className="italic">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-2 px-3">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-6 text-destructive hover:text-destructive"
+                            onClick={() => remove(index)}
+                            disabled={isPending}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            )}
+
+            {fields.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4 border rounded-md border-dashed">
+                Aún no se han agregado equipos. Usa el formulario de arriba para
+                añadir.
+              </p>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
@@ -198,8 +276,10 @@ export default function BulkEquipmentAssignModal({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Asignando..." : `Asignar ${fields.length > 1 ? `(${fields.length} equipos)` : "equipo"}`}
+            <Button type="submit" disabled={isPending || fields.length === 0}>
+              {isPending
+                ? "Asignando..."
+                : `Asignar${fields.length > 0 ? ` (${fields.length} ${fields.length === 1 ? "equipo" : "equipos"})` : ""}`}
             </Button>
           </div>
         </form>
