@@ -25,7 +25,6 @@ import { bulkAssignEquipment } from "../lib/assignments.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { BulkEquipmentAssignFormValues } from "../lib/assignments.interface";
-import { is } from "date-fns/locale";
 
 interface Props {
   open: boolean;
