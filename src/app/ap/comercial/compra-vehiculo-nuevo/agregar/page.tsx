@@ -17,7 +17,6 @@ import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-v
 import { storeVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { VehiclePurchaseOrderSchema } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.schema";
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
-import { format } from "date-fns";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
 import { useControlUnitsById } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
@@ -55,8 +54,8 @@ export default function AddVehiclePurchaseOrderPage() {
   const handleSubmit = (data: VehiclePurchaseOrderSchema): void => {
     mutate({
       ...data,
-      emission_date: format(data.emission_date, "yyyy-MM-dd"),
-      due_date: data.due_date ? format(data.due_date, "yyyy-MM-dd") : undefined,
+      emission_date: toLocalDateString(data.emission_date),
+      due_date: data.due_date ? toLocalDateString(data.due_date) : undefined,
       year: Number(data.year),
       subtotal: Number(data.subtotal),
       igv: Number(data.igv),

@@ -4,7 +4,12 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  successToast,
+  toLocalDateString,
+} from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
@@ -15,7 +20,6 @@ import {
 import { VehiclePurchaseOrderSchema } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.schema";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface";
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
-import { format } from "date-fns";
 import { useEffect } from "react";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
@@ -70,8 +74,8 @@ export default function ResendVehiclePurchaseOrderPage() {
   const handleSubmit = (data: VehiclePurchaseOrderSchema): void => {
     mutate({
       ...data,
-      emission_date: format(data.emission_date, "yyyy-MM-dd"),
-      due_date: data.due_date ? format(data.due_date, "yyyy-MM-dd") : undefined,
+      emission_date: toLocalDateString(data.emission_date),
+      due_date: data.due_date ? toLocalDateString(data.due_date) : undefined,
       year: Number(data.year),
       subtotal: Number(data.subtotal),
       igv: Number(data.igv),
