@@ -525,7 +525,7 @@ export const VehiclePurchaseOrderForm = ({
                   useQueryHook={usePurchaseRequestQuote}
                   mapOptionFn={(quotation: PurchaseRequestQuoteResource) => ({
                     value: quotation.id.toString(),
-                    label: `${quotation.correlative} - ${quotation.holder}`,
+                    label: `COT-${quotation.correlative} - ${quotation.holder}`,
                     description: quotation.ap_model_vn || "Sin modelo",
                   })}
                   additionalParams={{
