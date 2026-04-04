@@ -14,7 +14,6 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { CheckIcon } from "lucide-react";
 import {
   Tags,
@@ -39,8 +38,10 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { useAllAssignSalesSeries } from "../../asignar-serie-venta/lib/assignSalesSeries.hook";
 import { VouchersResource } from "../lib/userSeriesAssignment.interface";
-import { useAllUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
+import { useUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import { USER_SERIES_ASSIGNMENT } from "../lib/userSeriesAssignment.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 
 interface UserSeriesAssignmentFormProps {
   defaultValues: Partial<UserSeriesAssignmentSchema>;
@@ -68,23 +69,10 @@ export const UserSeriesAssignmentForm = ({
   });
   const { ABSOLUTE_ROUTE } = USER_SERIES_ASSIGNMENT;
 
-  const { data: users = [], isLoading: isLoadingUsers } = useAllUsers({
-    person$cargo_id: [
-      ...POSITION_TYPE.BOX_OFFICE,
-      ...POSITION_TYPE.SALES_COORDINATOR,
-      ...POSITION_TYPE.TICS,
-      ...POSITION_TYPE.PDI,
-      ...POSITION_TYPE.WAREHOUSE,
-      ...POSITION_TYPE.REPUESTOS,
-    ],
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-  });
-
   const { data: vouchers = [], isLoading: isLoadingVouchers } =
     useAllAssignSalesSeries();
 
-  if (isLoadingVouchers || isLoadingUsers) {
+  if (isLoadingVouchers) {
     return <FormSkeleton />;
   }
 
@@ -103,14 +91,27 @@ export const UserSeriesAssignmentForm = ({
         className="space-y-4 w-full"
       >
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <FormSelect
+          <FormSelectAsync
             name="worker_id"
             label="Trabajador"
             placeholder="Selecciona un trabajador"
-            options={users.map((worker) => ({
-              label: worker.name,
-              value: worker.id.toString(),
-            }))}
+            useQueryHook={useUsers}
+            mapOptionFn={(user: UserResource) => ({
+              label: user.name,
+              value: user.id.toString(),
+            })}
+            additionalParams={{
+              person$cargo_id: [
+                ...POSITION_TYPE.BOX_OFFICE,
+                ...POSITION_TYPE.SALES_COORDINATOR,
+                ...POSITION_TYPE.TICS,
+                ...POSITION_TYPE.PDI,
+                ...POSITION_TYPE.WAREHOUSE,
+                ...POSITION_TYPE.REPUESTOS,
+              ],
+              status_id: STATUS_WORKER.ACTIVE,
+              person$sede$empresa_id: EMPRESA_AP.id,
+            }}
             control={form.control}
             disabled={mode === "update"}
           />
