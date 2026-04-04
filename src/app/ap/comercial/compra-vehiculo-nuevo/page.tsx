@@ -28,7 +28,7 @@ export default function VehiclePurchaseOrderPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [sedeId, setSedeId] = useState("all");
+  const [sedeId, setSedeId] = useState("");
   const [warehouseId, setWarehouseId] = useState("all");
   const [supplierId, setSupplierId] = useState("all");
   const [year, setYear] = useState("all");
@@ -92,7 +92,7 @@ export default function VehiclePurchaseOrderPage() {
     page,
     search,
     per_page,
-    sede_id: sedeId !== "all" ? sedeId : undefined,
+    sede_id: sedeId || undefined,
     warehouse_id: warehouseId !== "all" ? warehouseId : undefined,
     supplier_id: supplierId !== "all" ? supplierId : undefined,
     year: year !== "all" ? year : undefined,

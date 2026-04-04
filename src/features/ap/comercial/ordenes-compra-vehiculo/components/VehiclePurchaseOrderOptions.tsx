@@ -1,12 +1,12 @@
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import ResponsiveFilters from "@/shared/components/ResponsiveFilters";
-import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import { useAllVehicleStatus } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Option } from "@/core/core.interface";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 interface Props {
   search: string;
@@ -30,14 +30,14 @@ interface Props {
 export default function VehiclePurchaseOrderOptions({
   search,
   setSearch,
-  sedeId = "all",
+  sedeId = "",
   setSedeId,
   modelId = "all",
   setModelId,
   statusId = "all",
   setStatusId,
 }: Props) {
-  const { data: sedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
+  const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
   const { data: models = [] } = useAllModelsVn();
   const { data: statuses = [] } = useAllVehicleStatus();
 
@@ -69,6 +69,18 @@ export default function VehiclePurchaseOrderOptions({
     ],
     [statuses]
   );
+
+  useEffect(() => {
+    if (sedes.length === 0) return;
+
+    const selectedSedeExists = sedes.some(
+      (sede) => sede.id.toString() === sedeId,
+    );
+
+    if (!selectedSedeExists) {
+      setSedeId(sedes[0].id.toString());
+    }
+  }, [sedes, sedeId, setSedeId]);
 
   return (
     <ResponsiveFilters
