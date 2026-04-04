@@ -48,7 +48,7 @@ export default function VehiclePurchaseOrderOptions({
         label: sede.abreviatura,
       })),
     ],
-    [sedes]
+    [sedes],
   );
   const modelOptions = useMemo<Option[]>(
     () => [
@@ -57,7 +57,7 @@ export default function VehiclePurchaseOrderOptions({
         label: model.version,
       })),
     ],
-    [models]
+    [models],
   );
 
   const statusOptions = useMemo<Option[]>(
@@ -67,7 +67,7 @@ export default function VehiclePurchaseOrderOptions({
         label: status.description,
       })),
     ],
-    [statuses]
+    [statuses],
   );
 
   useEffect(() => {
