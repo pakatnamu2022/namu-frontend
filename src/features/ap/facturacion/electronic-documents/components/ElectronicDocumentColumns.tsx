@@ -344,6 +344,10 @@ export const electronicDocumentColumns = ({
       },
     },
     {
+      accessorKey: "internal_note",
+      header: "Comentario",
+    },
+    {
       id: "actions",
       header: "Acciones",
       cell: ({ row }) => {

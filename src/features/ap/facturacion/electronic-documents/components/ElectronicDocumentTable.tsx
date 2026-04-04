@@ -34,6 +34,7 @@ export default function ElectronicDocumentTable({
           is_accounted: true,
           is_annulled: false,
           area_id: false,
+          internal_note: false,
           actions: true,
         }}
       >
