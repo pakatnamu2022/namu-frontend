@@ -71,8 +71,8 @@ export default function SupplierOrderPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = useSupplierOrder({
-    params: {
+  const { data, isLoading, refetch } = useSupplierOrder(
+    {
       page,
       search,
       per_page,
@@ -82,8 +82,8 @@ export default function SupplierOrderPage() {
           : undefined,
       sede_id: sedeId || undefined,
     },
-    enabled: !!sedeId,
-  });
+    { enabled: !!sedeId },
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
