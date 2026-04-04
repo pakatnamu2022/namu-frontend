@@ -211,6 +211,32 @@ export const getTodayLocalDateString = () => {
  * Úsalo como defaultValue para DatePickerFormField y al enviar fechas al backend.
  */
 export const toLocalDateString = (date: Date | string): string => {
+  if (typeof date === "string") {
+    const raw = date.trim();
+
+    // Si ya viene como fecha local YYYY-MM-DD, retornarla tal cual
+    // para evitar desplazamientos por timezone al pasar por new Date(...).
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      return raw;
+    }
+
+    const parsed = parseISO(raw.includes(" ") ? raw.replace(" ", "T") : raw);
+    if (isValid(parsed)) {
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, "0");
+      const day = String(parsed.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    const parsedYmd = parse(raw, "yyyy-MM-dd", new Date());
+    if (isValid(parsedYmd)) {
+      const year = parsedYmd.getFullYear();
+      const month = String(parsedYmd.getMonth() + 1).padStart(2, "0");
+      const day = String(parsedYmd.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+  }
+
   const d = typeof date === "string" ? new Date(date) : date;
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
