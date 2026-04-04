@@ -36,14 +36,14 @@ export async function getAllPerDiemRequest({
 }
 
 export async function findPerDiemRequestById(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.get<PerDiemRequestResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storePerDiemRequest(
-  data: PerDiemRequestRequest
+  data: PerDiemRequestRequest,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(ENDPOINT, data);
   return response.data;
@@ -51,17 +51,17 @@ export async function storePerDiemRequest(
 
 export async function updatePerDiemRequest(
   id: number,
-  data: any
+  data: any,
 ): Promise<PerDiemRequestResource> {
   const response = await api.put<PerDiemRequestResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deletePerDiemRequest(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
@@ -75,14 +75,14 @@ export async function getMyPerDiemRequests({
   };
   const { data } = await api.get<PerDiemRequestResponse>(
     `${ENDPOINT}/my-requests`,
-    config
+    config,
   );
   return data;
 }
 
 export async function storeExpense(
   requestId: number,
-  expenseData: FormData
+  expenseData: FormData,
 ): Promise<any> {
   const response = await api.post(
     `${ENDPOINT}/${requestId}/expenses`,
@@ -91,14 +91,14 @@ export async function storeExpense(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 }
 
 export async function updateExpense(
   expenseId: number,
-  expenseData: FormData
+  expenseData: FormData,
 ): Promise<any> {
   const response = await api.post(
     `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}`,
@@ -107,17 +107,17 @@ export async function updateExpense(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 }
 
 export async function deleteExpense(
   requestId: number,
-  expenseId: number
+  expenseId: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(
-    `${ENDPOINT}/${requestId}/expenses/${expenseId}`
+    `${ENDPOINT}/${requestId}/expenses/${expenseId}`,
   );
   return data;
 }
@@ -130,18 +130,18 @@ export async function getPendingApprovals({
   };
   const { data } = await api.get<PerDiemRequestResponse>(
     `${ENDPOINT}/pending-approvals`,
-    config
+    config,
   );
   return data;
 }
 
 export async function reviewPerDiemRequest(
   id: number,
-  reviewData: ReviewPerDiemRequestRequest
+  reviewData: ReviewPerDiemRequestRequest,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
     `${ENDPOINT}/${id}/review`,
-    reviewData
+    reviewData,
   );
   return response.data;
 }
@@ -162,7 +162,7 @@ export async function downloadExpenseTotalPdf(id: number): Promise<void> {
 }
 
 export async function downloadContributorExpenseDetailsPdf(
-  id: number
+  id: number,
 ): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/expense-detail-pdf`, {
     responseType: "blob",
@@ -184,7 +184,7 @@ export async function generateMobilityPayrollPdf(id: number): Promise<void> {
       `${ENDPOINT}/${id}/generate-mobility-payroll-pdf`,
       {
         responseType: "blob",
-      }
+      },
     );
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -212,7 +212,7 @@ export async function expenseTotalWithEvidencePdf(id: number): Promise<void> {
       `${ENDPOINT}/${id}/expense-total-with-evidence-pdf`,
       {
         responseType: "blob",
-      }
+      },
     );
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -235,46 +235,46 @@ export async function expenseTotalWithEvidencePdf(id: number): Promise<void> {
 }
 
 export async function confirmPerDiemRequest(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/confirm`
+    `${ENDPOINT}/${id}/confirm`,
   );
   return response.data;
 }
 
 export async function confirmProgressPerDiemRequest(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/confirm-progress`
+    `${ENDPOINT}/${id}/confirm-progress`,
   );
   return response.data;
 }
 
 export async function validateExpense(
-  expenseId: number
+  expenseId: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
-    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/validate`
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/validate`,
   );
   return data;
 }
 
 export async function rejectExpense(
   expenseId: number,
-  rejection_reason: string
+  rejection_reason: string,
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
     `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/reject`,
-    { rejection_reason }
+    { rejection_reason },
   );
   return data;
 }
 
 export async function uploadDepositFile(
   id: number,
-  file: File
+  file: File,
 ): Promise<PerDiemRequestResource> {
   const formData = new FormData();
   formData.append("voucher", file);
@@ -286,7 +286,7 @@ export async function uploadDepositFile(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 }
@@ -294,7 +294,7 @@ export async function uploadDepositFile(
 export async function uploadDepositFiles(
   id: number,
   files: File[],
-  descriptions: string[]
+  descriptions: string[],
 ): Promise<PerDiemRequestResource> {
   const formData = new FormData();
 
@@ -319,47 +319,47 @@ export async function uploadDepositFiles(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 }
 
 export async function cancelPerDiemRequest(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/cancel`
+    `${ENDPOINT}/${id}/cancel`,
   );
   return response.data;
 }
 
 export async function startSettlement(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/start-settlement`
+    `${ENDPOINT}/${id}/start-settlement`,
   );
   return response.data;
 }
 
 export async function approveSettlement(
   id: number,
-  comments?: string
+  comments?: string,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
     `${ENDPOINT}/${id}/approve-settlement`,
-    { comments }
+    { comments },
   );
   return response.data;
 }
 
 export async function rejectSettlement(
   id: number,
-  rejection_reason: string
+  rejection_reason: string,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
     `${ENDPOINT}/${id}/reject-settlement`,
-    { rejection_reason }
+    { rejection_reason },
   );
   return response.data;
 }
@@ -372,27 +372,27 @@ export async function getPendingSettlements({
   };
   const { data } = await api.get<PerDiemRequestResponse>(
     `${ENDPOINT}/pending-settlements`,
-    config
+    config,
   );
   return data;
 }
 
 export async function completeSettlement(
   id: number,
-  comments?: string
+  comments?: string,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
     `${ENDPOINT}/${id}/complete-settlement`,
-    { comments }
+    { comments },
   );
   return response.data;
 }
 
 export async function resetApprovals(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/reset-approvals`
+    `${ENDPOINT}/${id}/reset-approvals`,
   );
   return response.data;
 }
@@ -404,30 +404,30 @@ export async function resendPerDiemRequestEmails(
     send_to_employee: boolean;
     send_to_boss: boolean;
     send_to_accounting: boolean;
-  }
+  },
 ): Promise<GeneralResponse> {
   const response = await api.post<GeneralResponse>(
     `${ENDPOINT}/${id}/resend-emails`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deleteDepositFile(
   requestId: number,
-  fileId: number
+  fileId: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(
-    `${ENDPOINT}/${requestId}/eliminar-deposito/${fileId}`
+    `${ENDPOINT}/${requestId}/eliminar-deposito/${fileId}`,
   );
   return data;
 }
 
 export async function regenerateBudgets(
-  id: number
+  id: number,
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/regenerate-budgets`
+    `${ENDPOINT}/${id}/regenerate-budgets`,
   );
   return response.data;
 }

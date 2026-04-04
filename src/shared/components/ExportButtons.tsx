@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { api } from "@/core/api";
 import { promiseToast } from "@/core/core.function";
-import { Sheet, FileDown } from "lucide-react";
+import { Sheet, FileDown, type LucideIcon } from "lucide-react";
 
 type ButtonVariant =
   | "default"
@@ -33,9 +33,11 @@ interface ExportButtonsProps {
   excelVariant?: ButtonVariant;
   excelColor?: ButtonColors;
   excelButtonText?: string;
+  excelIcon?: LucideIcon;
   pdfVariant?: ButtonVariant;
   pdfColor?: ButtonColors;
   pdfButtonText?: string;
+  pdfIcon?: LucideIcon;
 }
 
 export default function ExportButtons({
@@ -50,10 +52,12 @@ export default function ExportButtons({
   variant = "grouped",
   excelVariant = "default",
   excelColor = "emerald",
+  excelButtonText = "Excel",
+  excelIcon: ExcelIcon,
   pdfVariant = "default",
   pdfColor = "rose",
-  excelButtonText = "Excel",
-  pdfButtonText = "PDF"
+  pdfButtonText = "PDF",
+  pdfIcon: PdfIcon,
 }: ExportButtonsProps) {
   const handleExcelDownload = () => {
     if (onExcelDownload) {
@@ -122,6 +126,9 @@ export default function ExportButtons({
   const showExcelButton = excelEndpoint || onExcelDownload;
   const showPdfButton = pdfEndpoint || onPdfDownload;
 
+  const ExcelIconResolved = ExcelIcon ?? Sheet;
+  const PdfIconResolved = PdfIcon ?? FileDown;
+
   if (variant === "grouped") {
     return (
       <div className="flex items-center gap-1 bg-muted rounded-lg border h-fit">
@@ -135,7 +142,7 @@ export default function ExportButtons({
                 onClick={handleExcelDownload}
                 disabled={disableExcel}
               >
-                <Sheet className="h-4 w-4" />
+                <ExcelIconResolved className="h-4 w-4" />
                 {excelButtonText}
               </Button>
             </TooltipTrigger>
@@ -155,7 +162,7 @@ export default function ExportButtons({
                 onClick={handlePDFDownload}
                 disabled={disablePdf}
               >
-                <FileDown className="h-4 w-4" />
+                <PdfIconResolved className="h-4 w-4" />
                 {pdfButtonText}
               </Button>
             </TooltipTrigger>
@@ -181,7 +188,7 @@ export default function ExportButtons({
               onClick={handleExcelDownload}
               disabled={disableExcel}
             >
-              <Sheet className="h-4 w-4" />
+              <ExcelIconResolved className="h-4 w-4" />
               {variant !== "separate-icon" && excelButtonText}
             </Button>
           </TooltipTrigger>
@@ -201,7 +208,7 @@ export default function ExportButtons({
               onClick={handlePDFDownload}
               disabled={disablePdf}
             >
-              <FileDown className="h-4 w-4" />
+              <PdfIconResolved className="h-4 w-4" />
               {variant !== "separate-icon" && pdfButtonText}
             </Button>
           </TooltipTrigger>
