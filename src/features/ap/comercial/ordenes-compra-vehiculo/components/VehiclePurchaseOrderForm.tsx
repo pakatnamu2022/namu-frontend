@@ -1271,17 +1271,6 @@ export const VehiclePurchaseOrderForm = ({
             />
           </div>
         </div>
-        <pre>
-          <code>
-            {JSON.stringify(
-              {
-                formValues: form.getValues(),
-              },
-              null,
-              2,
-            )}
-          </code>
-        </pre>
       </form>
 
       <VehicleColorModal
