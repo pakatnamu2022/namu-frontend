@@ -509,6 +509,19 @@ export function ElectronicDocumentDetailSheet({
             </div>
           </>
         )}
+
+        {/* Notas Internas */}
+        {document.internal_note && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <h3 className="font-semibold">Comentario</h3>
+              <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                {document.internal_note}
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </GeneralSheet>
   );

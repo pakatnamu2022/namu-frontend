@@ -12,14 +12,10 @@ import {
 
 const { ENDPOINT } = SUPPLIER_ORDER;
 
-export async function getSupplierOrder({
-  params,
-}: getSupplierOrderProps): Promise<SupplierOrderResponse> {
-  const config: AxiosRequestConfig = {
-    params: {
-      ...params,
-    },
-  };
+export async function getSupplierOrder(
+  params?: Record<string, any>,
+): Promise<SupplierOrderResponse> {
+  const config: AxiosRequestConfig = { params };
   const { data } = await api.get<SupplierOrderResponse>(ENDPOINT, config);
   return data;
 }

@@ -117,7 +117,9 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
                 RUC: {purchaseOrder.supplier_num_doc}
               </span>
               <span className="text-xs text-gray-500">
-                Factura: {purchaseOrder.invoice_number}
+                Factura: {purchaseOrder.invoice_series}
+                {"-"}
+                {purchaseOrder.invoice_number}
               </span>
             </div>
           );

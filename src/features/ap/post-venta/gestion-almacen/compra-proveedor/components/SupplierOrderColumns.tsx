@@ -121,6 +121,7 @@ export const supplierOrderColumns = ({
   {
     accessorKey: "has_invoice",
     header: "OC Dymamic",
+    id: "oc_dynamic",
     cell: ({ getValue, row }) => {
       const isTake = getValue() as boolean;
       const invoiceNumbers = row.original.oc_dyn_numbers || [];
