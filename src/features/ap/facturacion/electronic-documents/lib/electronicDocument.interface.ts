@@ -119,6 +119,7 @@ export interface ElectronicDocumentResource {
   updated_by?: number;
   card_last4: string;
   internal_note: string;
+  is_referenced?: boolean;
   consolidation_type: "work_orders" | "simple";
   document_type?: SunatConceptsResource;
   transaction_type?: SunatConceptsResource;
