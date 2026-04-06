@@ -379,6 +379,7 @@ export const electronicDocumentColumns = ({
           document.aceptada_por_sunat &&
           document.is_accounted &&
           !document.anulado &&
+          !document.is_referenced &&
           !document.credit_note_id &&
           permissions.canCreateCreditNote;
 
@@ -390,6 +391,7 @@ export const electronicDocumentColumns = ({
           document.aceptada_por_sunat &&
           document.is_accounted &&
           !document.anulado &&
+          !document.is_referenced &&
           !document.debit_note_id &&
           !document.is_advance_payment &&
           permissions.canCreateDebitNote;
