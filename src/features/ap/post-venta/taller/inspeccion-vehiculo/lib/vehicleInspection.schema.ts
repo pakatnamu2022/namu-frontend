@@ -73,7 +73,7 @@ export const vehicleInspectionSchemaCreate = z.object({
       message: "Nivel de aceite es requerido",
     }),
   mileage: requiredNumber("Kilometraje es requerido"),
-  damages: z.array(vehicleInspectionDamageSchema).default([]),
+  damages: z.array(vehicleInspectionDamageSchema).max(10, "Máximo 10 daños permitidos").default([]),
   customer_signature: z.string().min(1, "Firma del cliente es requerida"),
   signer_type: z.enum(["OWNER", "CONTACT"]).default("OWNER"),
   washed: z.boolean().default(true),
@@ -84,6 +84,10 @@ export const vehicleInspectionSchemaCreate = z.object({
   photo_right: z.instanceof(File, { message: "Foto derecha es requerida" }),
   photo_optional_1: z.instanceof(File).optional().nullable(),
   photo_optional_2: z.instanceof(File).optional().nullable(),
+  photo_optional_3: z.instanceof(File).optional().nullable(),
+  photo_optional_4: z.instanceof(File).optional().nullable(),
+  photo_optional_5: z.instanceof(File).optional().nullable(),
+  photo_optional_6: z.instanceof(File).optional().nullable(),
 });
 
 export const vehicleInspectionSchemaUpdate =

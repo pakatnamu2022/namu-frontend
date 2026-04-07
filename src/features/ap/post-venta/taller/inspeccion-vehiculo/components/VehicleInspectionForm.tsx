@@ -564,6 +564,78 @@ export const VehicleInspectionForm = ({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="photo_optional_3"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Opcional 3"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_optional_4"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Opcional 4"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_optional_5"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Opcional 5"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_optional_6"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Opcional 6"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </GroupFormSection>
 
         {/* Marcador de Daños */}
@@ -610,8 +682,8 @@ export const VehicleInspectionForm = ({
                 const forcedContact = !isOwnerNatural;
                 const isContact = forcedContact || field.value === "CONTACT";
                 const signerName = isContact
-                  ? (contactName || "Sin contacto")
-                  : (ownerName || "Sin propietario");
+                  ? contactName || "Sin contacto"
+                  : ownerName || "Sin propietario";
                 return (
                   <FormItem>
                     <div className="flex flex-row items-center justify-between rounded-md border shadow-xs bg-background px-4 py-3 gap-4">
@@ -623,7 +695,8 @@ export const VehicleInspectionForm = ({
                           {isContact ? "Contacto" : "Propietario"}
                           {forcedContact && (
                             <span className="ml-1 text-amber-600">
-                              (el propietario es empresa, solo puede firmar el contacto)
+                              (el propietario es empresa, solo puede firmar el
+                              contacto)
                             </span>
                           )}
                         </p>
@@ -632,7 +705,9 @@ export const VehicleInspectionForm = ({
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className={`text-sm font-medium ${!isContact ? "text-primary" : "text-muted-foreground"}`}>
+                        <span
+                          className={`text-sm font-medium ${!isContact ? "text-primary" : "text-muted-foreground"}`}
+                        >
                           Propietario
                         </span>
                         <FormControl>
@@ -644,7 +719,9 @@ export const VehicleInspectionForm = ({
                             disabled={isSubmitting || forcedContact}
                           />
                         </FormControl>
-                        <span className={`text-sm font-medium ${isContact ? "text-primary" : "text-muted-foreground"}`}>
+                        <span
+                          className={`text-sm font-medium ${isContact ? "text-primary" : "text-muted-foreground"}`}
+                        >
                           Contacto
                         </span>
                       </div>
