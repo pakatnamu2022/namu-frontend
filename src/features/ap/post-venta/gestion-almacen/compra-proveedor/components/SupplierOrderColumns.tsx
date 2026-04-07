@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { Eye, Pencil, PackageCheck } from "lucide-react";
+import { Eye, Pencil, PackageCheck, Download, ShieldCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -10,6 +10,12 @@ import {
   RECEPCION_TYPE_LABELS,
   RECEPCION_STATUS_COLORS,
 } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
+import { errorToast, successToast } from "@/core/core.function";
+import {
+  approveSupplierOrder,
+  downloadSupplierOrderPdf,
+} from "../lib/supplierOrder.actions";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
 
@@ -17,6 +23,7 @@ interface Props {
   onDelete: (id: number) => void;
   onView?: (id: number) => void;
   permissions: {
+    canApprove: boolean;
     canUpdate: boolean;
     canDelete: boolean;
     canView: boolean;
@@ -38,6 +45,14 @@ export const supplierOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value && <CopyCell value={value} />;
+    },
+  },
+  {
+    accessorKey: "order_number_external",
+    header: "N° Orden Dealer Portal",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return value == null ? "-" : <CopyCell value={value} />;
     },
   },
   {
@@ -164,6 +179,28 @@ export const supplierOrderColumns = ({
     cell: ({ row }) => {
       const { id, has_receptions } = row.original;
 
+      const handleDownloadPdf = async (id: number) => {
+        try {
+          await downloadSupplierOrderPdf(id);
+          successToast(
+            `PDF descargado correctamente para la solicitud de compra`,
+          );
+        } catch {
+          errorToast("Error al descargar el PDF");
+        }
+      };
+
+      const handleApprove = async (id: number) => {
+        try {
+          await approveSupplierOrder(id);
+          successToast("Orden aprobada correctamente");
+        } catch (error: any) {
+          const errorMessage =
+            error?.response?.data?.message || "Error al aprobar la orden";
+          errorToast(errorMessage);
+        }
+      };
+
       return (
         <div className="flex items-center gap-2">
           {permissions.canView && onView && (
@@ -177,6 +214,37 @@ export const supplierOrderColumns = ({
               <Eye className="size-4" />
             </Button>
           )}
+
+          {permissions.canApprove && (
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Aprobar"
+                >
+                  <ShieldCheck className="size-4" />
+                </Button>
+              }
+              title="¿Aprobar orden de compra?"
+              description="¿Estás seguro de que deseas aprobar esta orden de compra? Esta acción no se puede deshacer."
+              confirmText="Sí, aprobar"
+              cancelText="Cancelar"
+              icon="info"
+              onConfirm={() => handleApprove(id)}
+            />
+          )}
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Descargar PDF"
+            onClick={() => handleDownloadPdf(id)}
+          >
+            <Download className="size-5" />
+          </Button>
 
           {permissions.canUpdate && (
             <Link to={`${routeReception}/${id}`}>

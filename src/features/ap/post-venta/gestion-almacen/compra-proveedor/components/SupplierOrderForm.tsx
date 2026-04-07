@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { FileText, Loader, Package, Trash2, Calculator } from "lucide-react";
+import { FileText, Loader, Package, Trash2, Calculator, Plus, X } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
@@ -118,6 +118,9 @@ export const SupplierOrderForm = ({
   const [productRequestMap, setProductRequestMap] = useState<
     Record<string, number[]>
   >({});
+  const [showOrderNumberExternal, setShowOrderNumberExternal] = useState(
+    !!defaultValues.order_number_external,
+  );
   const [openRejectedAlert, setOpenRejectedAlert] = useState(false);
   const [pendingDiscardRequest, setPendingDiscardRequest] = useState<any>(null);
   // Mapa de defaultOptions por product_id (para producto y unidad de medida)
@@ -424,6 +427,9 @@ export const SupplierOrderForm = ({
     // Transformar fechas a formato Y-m-d y números antes de enviar
     const transformedData = {
       ...data,
+      order_number_external: showOrderNumberExternal
+        ? (data.order_number_external || null)
+        : null,
       order_date:
         data.order_date instanceof Date
           ? format(data.order_date, "yyyy-MM-dd")
@@ -491,12 +497,51 @@ export const SupplierOrderForm = ({
                   className="xl:col-span-2"
                   cols={{ sm: 1, md: 2 }}
                 >
-                  <FormInput
-                    name="order_number"
-                    label="Número de Pedido"
-                    placeholder="Ingrese el número de pedido"
-                    control={form.control}
-                  />
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">
+                        N° Orden Dealer Portal{" "}
+                        <span className="text-xs text-muted-foreground font-normal">
+                          (opcional)
+                        </span>
+                      </span>
+                      {!showOrderNumberExternal ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowOrderNumberExternal(true)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" />
+                          Ingresar
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowOrderNumberExternal(false);
+                            form.setValue("order_number_external", null);
+                          }}
+                          className="text-xs text-muted-foreground hover:text-destructive hover:underline flex items-center gap-1"
+                        >
+                          <X className="w-3 h-3" />
+                          Omitir
+                        </button>
+                      )}
+                    </div>
+                    {showOrderNumberExternal && (
+                      <FormInput
+                        name="order_number_external"
+                        label=""
+                        placeholder="Ej: DP-2024-001"
+                        control={form.control}
+                      />
+                    )}
+                    {!showOrderNumberExternal && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Sin número de orden Dealer Portal
+                      </p>
+                    )}
+                  </div>
 
                   <FormSelectAsync
                     placeholder="Seleccionar Proveedor"
