@@ -60,8 +60,11 @@ export default function VehicleDamageMarker({
     return mobile && hasMediaDevices;
   }, []);
 
+  const MAX_DAMAGES = 10;
+
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
+    if (damages.length >= MAX_DAMAGES) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -132,8 +135,13 @@ export default function VehicleDamageMarker({
           </h3>
           <p className="text-sm text-gray-600 mb-4">
             Haz clic en la imagen del vehículo para marcar la ubicación de los
-            daños
+            daños (máximo {MAX_DAMAGES})
           </p>
+          {damages.length >= MAX_DAMAGES && (
+            <p className="text-sm text-red-500 mb-4">
+              Se alcanzó el límite máximo de {MAX_DAMAGES} daños.
+            </p>
+          )}
 
           {/* Leyenda de símbolos */}
           <div className="flex flex-wrap gap-3 mb-4 p-3 bg-gray-50 rounded-lg">

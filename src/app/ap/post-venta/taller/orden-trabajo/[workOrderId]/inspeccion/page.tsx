@@ -333,7 +333,7 @@ export default function VehicleInspectionPage() {
               key: "owner_name",
               label: "Propietario",
               icon: User,
-              value: workOrder.vehicle.owner!.full_name || "N/A",
+              value: workOrder.vehicle.owner?.full_name || "N/A",
             },
             {
               key: "full_contact_name",
