@@ -89,6 +89,8 @@ export const ProductTransferForm = ({
       issuer_type: defaultValues.issuer_type || "SYSTEM",
       transmitter_origin_id: defaultValues.transmitter_origin_id || "",
       receiver_destination_id: defaultValues.receiver_destination_id || "",
+      transmitter_id: defaultValues.transmitter_id || "",
+      receiver_id: defaultValues.receiver_id || "",
       details: defaultValues.details || [],
     },
     mode: "onChange",
@@ -530,6 +532,11 @@ export const ProductTransferForm = ({
                 <p>{selectedOriginEstablishment.full_address}</p>
               </div>
             )}
+            {form.formState.errors.transmitter_id && (
+              <p className="text-xs text-destructive">
+                {form.formState.errors.transmitter_id.message as string}
+              </p>
+            )}
           </div>
 
           {/* Ubicación Destino */}
@@ -571,6 +578,11 @@ export const ProductTransferForm = ({
                 </p>
                 <p>{selectedDestinationEstablishment.full_address}</p>
               </div>
+            )}
+            {form.formState.errors.receiver_id && (
+              <p className="text-xs text-destructive">
+                {form.formState.errors.receiver_id.message as string}
+              </p>
             )}
           </div>
 
@@ -1087,10 +1099,7 @@ export const ProductTransferForm = ({
             }}
           />
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
+          <Button type="submit" disabled={isSubmitting}>
             <Loader
               className={`mr-2 h-4 w-4 animate-spin ${
                 !isSubmitting ? "hidden" : ""
