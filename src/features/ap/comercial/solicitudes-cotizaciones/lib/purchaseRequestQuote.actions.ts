@@ -162,3 +162,41 @@ export async function swapVehicleInPurchaseRequestQuote(
   );
   return response.data;
 }
+
+export async function exportPurchaseRequestQuoteFile({
+  params,
+}: getPurchaseRequestQuoteProps): Promise<void> {
+  const isPDF = params?.format === "pdf";
+
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      format: isPDF ? "pdf" : "excel",
+      title: "Solicitudes",
+    },
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export`, config);
+
+  const mimeType = isPDF
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const extension = isPDF ? "pdf" : "xlsx";
+
+  const blob = new Blob([response.data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  const dateRange =
+    params?.created_at && Array.isArray(params.created_at)
+      ? `${params.created_at[0]}_${params.created_at[1]}`
+      : new Date().toISOString().split("T")[0];
+
+  link.download = `solicitudes-cotizaciones-${dateRange}.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}

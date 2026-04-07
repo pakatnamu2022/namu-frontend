@@ -43,7 +43,9 @@ export default function VehicleDeliveryPage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
-  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : undefined;
+  const formattedDateFrom = dateFrom
+    ? format(dateFrom, "yyyy-MM-dd")
+    : undefined;
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : undefined;
 
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);

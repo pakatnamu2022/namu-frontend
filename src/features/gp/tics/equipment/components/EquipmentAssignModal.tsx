@@ -58,8 +58,10 @@ export default function EquipmentAssignModal({
       onSuccess();
       onClose();
     },
-    onError: () => {
-      errorToast("Error al asignar el equipo.");
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al asignar el equipo.",
+      );
     },
   });
 

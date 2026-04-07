@@ -22,7 +22,6 @@ export const useElectronicDocuments = (params?: Record<string, any>) => {
   return useQuery<ElectronicDocumentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getElectronicDocuments(params),
-    refetchOnWindowFocus: false,
   });
 };
 

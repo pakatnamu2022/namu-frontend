@@ -44,25 +44,32 @@ export function AddAccessorySheet({
       setForm((prev) => ({ ...prev, accessory_id: initialAccessoryId }));
     }
   }, [open, initialAccessoryId]);
-  const [errors, setErrors] = useState({ accessory_id: false, quantity: false });
+  const [errors, setErrors] = useState({
+    accessory_id: false,
+    accessory_duplicate: false,
+    quantity: false,
+  });
 
   const handleClose = () => {
     setForm(EMPTY_FORM);
-    setErrors({ accessory_id: false, quantity: false });
+    setErrors({ accessory_id: false, accessory_duplicate: false, quantity: false });
     onClose();
   };
 
   const handleAdd = () => {
     const newErrors = {
       accessory_id: !form.accessory_id || form.accessory_id === 0,
+      accessory_duplicate: false,
       quantity: form.quantity <= 0,
     };
     setErrors(newErrors);
     if (newErrors.accessory_id || newErrors.quantity) return;
 
-    const duplicate = existingRows.find((row) => row.accessory_id === form.accessory_id);
+    const duplicate = existingRows.find(
+      (row) => row.accessory_id === form.accessory_id,
+    );
     if (duplicate) {
-      setErrors((prev) => ({ ...prev, accessory_id: true }));
+      setErrors((prev) => ({ ...prev, accessory_duplicate: true }));
       return;
     }
 
@@ -75,7 +82,9 @@ export function AddAccessorySheet({
       ? accessories.filter((acc) => acc.type_operation_id === CM_COMERCIAL_ID)
       : accessories;
 
-  const selectedAccessory = accessories.find((acc) => acc.id === form.accessory_id);
+  const selectedAccessory = accessories.find(
+    (acc) => acc.id === form.accessory_id,
+  );
 
   return (
     <GeneralSheet
@@ -92,7 +101,9 @@ export function AddAccessorySheet({
           value={form.type}
           onChange={(value) => {
             const newType = value as "ACCESORIO_ADICIONAL" | "OBSEQUIO";
-            const selectedAcc = accessories.find((acc) => acc.id === form.accessory_id);
+            const selectedAcc = accessories.find(
+              (acc) => acc.id === form.accessory_id,
+            );
             const resetId =
               newType === "OBSEQUIO" &&
               selectedAcc &&
@@ -118,10 +129,12 @@ export function AddAccessorySheet({
             <SearchableSelect
               buttonSize="default"
               label="Accesorio"
-              value={form.accessory_id === 0 ? "" : form.accessory_id.toString()}
+              value={
+                form.accessory_id === 0 ? "" : form.accessory_id.toString()
+              }
               onChange={(value) => {
                 setForm({ ...form, accessory_id: parseInt(value) });
-                setErrors({ ...errors, accessory_id: false });
+                setErrors({ ...errors, accessory_id: false, accessory_duplicate: false });
               }}
               options={availableAccessories.map((accessory) => ({
                 label: `${accessory.code} - ${accessory.description}`,
@@ -129,7 +142,7 @@ export function AddAccessorySheet({
                 description: accessory.type_operation,
               }))}
               placeholder="Selecciona un accesorio"
-              className={errors.accessory_id ? "border-red-500" : ""}
+              className={errors.accessory_id || errors.accessory_duplicate ? "border-red-500" : ""}
               classNameDiv="flex-1"
               withValue={false}
             />
@@ -147,7 +160,14 @@ export function AddAccessorySheet({
             )}
           </div>
           {errors.accessory_id && (
-            <p className="text-xs text-red-500 mt-1">Seleccione un accesorio válido</p>
+            <p className="text-xs text-red-500 mt-1">
+              Seleccione un accesorio válido
+            </p>
+          )}
+          {errors.accessory_duplicate && (
+            <p className="text-xs text-red-500 mt-1">
+              Este accesorio ya está asignado
+            </p>
           )}
         </div>
 
@@ -179,7 +199,10 @@ export function AddAccessorySheet({
           value={form.additional_price ?? ""}
           onChange={(e) => {
             const val = Number(e.target.value);
-            setForm({ ...form, additional_price: isNaN(val) || val < 0 ? 0 : val });
+            setForm({
+              ...form,
+              additional_price: isNaN(val) || val < 0 ? 0 : val,
+            });
           }}
           placeholder="0.00"
         />
@@ -199,17 +222,22 @@ export function AddAccessorySheet({
                   <span className="text-gray-600">Precio Unit.:</span>
                   <p className="font-medium">
                     {selectedAccessory.currency_symbol}{" "}
-                    <NumberFormat value={Number(selectedAccessory.price).toFixed(2)} />
+                    <NumberFormat
+                      value={Number(selectedAccessory.price).toFixed(2)}
+                    />
                   </p>
                 </div>
                 {(form.additional_price ?? 0) > 0 && (
                   <div className="col-span-2">
-                    <span className="text-gray-600">Precio Efectivo Unit.:</span>
+                    <span className="text-gray-600">
+                      Precio Efectivo Unit.:
+                    </span>
                     <p className="font-medium text-primary">
                       {selectedAccessory.currency_symbol}{" "}
                       <NumberFormat
                         value={(
-                          Number(selectedAccessory.price) + (form.additional_price ?? 0)
+                          Number(selectedAccessory.price) +
+                          (form.additional_price ?? 0)
                         ).toFixed(2)}
                       />
                     </p>
@@ -222,7 +250,8 @@ export function AddAccessorySheet({
                 {form.type === "OBSEQUIO" && (
                   <div className="col-span-2 mt-2 p-2 bg-green-100 border border-green-300 rounded">
                     <p className="text-xs text-green-800 font-medium">
-                      Este artículo será marcado como obsequio y no se sumará al total
+                      Este artículo será marcado como obsequio y no se sumará al
+                      total
                     </p>
                   </div>
                 )}
@@ -230,9 +259,13 @@ export function AddAccessorySheet({
             </div>
           </div>
         )}
-
         <div className="flex gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            className="flex-1"
+          >
             Cancelar
           </Button>
           <Button type="button" onClick={handleAdd} className="flex-1">

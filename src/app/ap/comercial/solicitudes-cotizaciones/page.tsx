@@ -35,6 +35,7 @@ import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cot
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
 import SwapVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/SwapVehicleModal";
 import PurchaseRequestQuoteDetailModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteDetailModal";
+import PurchaseRequestQuoteActions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteActions";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
@@ -135,6 +136,14 @@ export default function PurchaseRequestQuotePage() {
           title={currentView.descripcion}
           subtitle={currentView.descripcion}
           icon={currentView.icon}
+        />
+        <PurchaseRequestQuoteActions
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          sedeId={sedeId}
+          selectedModelId={selectedModelId}
+          selectedBrandId={selectedBrandId}
+          permissions={permissions}
         />
       </HeaderTableWrapper>
       <PurchaseRequestQuoteTable

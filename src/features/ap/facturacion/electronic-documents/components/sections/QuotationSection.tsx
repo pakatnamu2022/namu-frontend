@@ -27,7 +27,7 @@ export function QuotationSection({ form }: QuotationSectionProps) {
         useQueryHook={usePurchaseRequestQuote}
         mapOptionFn={(quote: PurchaseRequestQuoteResource) => ({
           value: quote.id.toString(),
-          label: `COT-${quote.id} - ${quote.holder} - ${quote.doc_type_currency_symbol} ${quote.sale_price}`,
+          label: `COT-${quote.correlative} - ${quote.holder} - ${quote.doc_type_currency_symbol} ${quote.sale_price}`,
         })}
         label="Cotización *"
         description="Seleccione la cotización para auto-completar los datos del vehículo y cliente"

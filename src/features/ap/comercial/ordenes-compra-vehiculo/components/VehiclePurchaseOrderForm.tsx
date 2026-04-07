@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo, useRef, useState, useEffect } from "react";
+import { addMonths, format, isValid, parse } from "date-fns";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   useModelVnById,
@@ -304,6 +305,8 @@ export const VehiclePurchaseOrderForm = ({
   const iscInput = form.watch("isc") || 0;
   const totalInput = form.watch("total") || 0;
   const quotationWatch = form.watch("quotation_id");
+  const emissionDateWatch = form.watch("emission_date");
+  const isFirstEmissionSync = useRef(true);
 
   // Watch all items to trigger recalculation on any change
   const watchedItems = useWatch({
@@ -364,6 +367,27 @@ export const VehiclePurchaseOrderForm = ({
       setSelectedQuotationId(undefined);
     }
   }, [quotationWatch]);
+
+  // Al cambiar la fecha de emisión, recalcular automáticamente el vencimiento (+1 mes).
+  useEffect(() => {
+    if (!emissionDateWatch) return;
+
+    // Evita sobrescribir el valor inicial al montar el formulario.
+    if (isFirstEmissionSync.current) {
+      isFirstEmissionSync.current = false;
+      return;
+    }
+
+    const emissionDate = parse(emissionDateWatch, "yyyy-MM-dd", new Date());
+    if (!isValid(emissionDate)) return;
+
+    const nextDueDate = format(addMonths(emissionDate, 1), "yyyy-MM-dd");
+    form.setValue("due_date", nextDueDate, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  }, [emissionDateWatch, form]);
 
   // Paso 1: Auto-completar SOLO la sede cuando se selecciona una cotización
   useEffect(() => {
@@ -525,7 +549,7 @@ export const VehiclePurchaseOrderForm = ({
                   useQueryHook={usePurchaseRequestQuote}
                   mapOptionFn={(quotation: PurchaseRequestQuoteResource) => ({
                     value: quotation.id.toString(),
-                    label: `${quotation.correlative} - ${quotation.holder}`,
+                    label: `COT-${quotation.correlative} - ${quotation.holder}`,
                     description: quotation.ap_model_vn || "Sin modelo",
                   })}
                   additionalParams={{

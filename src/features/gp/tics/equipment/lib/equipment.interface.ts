@@ -65,6 +65,8 @@ export interface EquipmentAssignmentResource {
   id: number;
   persona_id: number;
   worker_name: string;
+  phone_line_id?: number | null;
+  phone_line_number?: string | null;
   fecha: string;
   status_id: number;
   status_deleted: number;
