@@ -37,6 +37,7 @@ export interface SupplierOrderResource {
   created_by: number;
   created_by_name: string;
   order_date: string;
+  order_number_external: string;
   order_number: string;
   supply_type: string;
   net_amount: number;

@@ -61,7 +61,7 @@ export default function UpdateSupplierOrderPage() {
     data: SupplierOrderResource,
   ): Partial<SupplierOrderSchema> {
     return {
-      order_number: data.order_number,
+      order_number_external: data.order_number_external || "",
       supplier_id: String(data.supplier_id),
       sede_id: String(data.sede_id),
       warehouse_id: String(data.warehouse_id),
