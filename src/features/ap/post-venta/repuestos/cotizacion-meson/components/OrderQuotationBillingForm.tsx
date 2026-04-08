@@ -489,7 +489,10 @@ export function OrderQuotationBillingForm({
     // Total neto: total bruto de los items positivos CON IGV, menos el total exacto de anticipos.
     // Usar raw_anticipo_total (total con IGV tal como vino de advance.total) en vez de
     // subtotal*1.18 evita que el redondeo de la conversión total->subtotal genere ±0.01.
-    const raw_total_bruto = raw_gravada * (1 + porcentaje_de_igv / 100) + raw_inafecta + raw_exonerada;
+    const raw_total_bruto =
+      raw_gravada * (1 + porcentaje_de_igv / 100) +
+      raw_inafecta +
+      raw_exonerada;
     const total = round2(raw_total_bruto - raw_anticipo_total);
 
     return {
