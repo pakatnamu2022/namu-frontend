@@ -74,6 +74,10 @@ export interface VehicleInspectionResource {
   photo_right_url: string;
   photo_optional_1_url: string;
   photo_optional_2_url: string;
+  photo_optional_3_url: string;
+  photo_optional_4_url: string;
+  photo_optional_5_url: string;
+  photo_optional_6_url: string;
   damages?: VehicleInspectionDamageResource[];
   // Cancellation fields
   is_cancelled?: boolean;
@@ -162,6 +166,7 @@ export const DAMAGE_TYPES = {
   SCRATCH: "RALLADURA",
   DENT: "ABOLLADURA",
   BODY_DAMAGE: "DAÑOS DE CARROCERÍA",
+  HEADLIGHT_DAMAGE: "DAÑOS EN FAROS",
 } as const;
 
 export type DamageType = (typeof DAMAGE_TYPES)[keyof typeof DAMAGE_TYPES];
@@ -171,6 +176,7 @@ export const DAMAGE_SYMBOLS = {
   [DAMAGE_TYPES.SCRATCH]: "▲",
   [DAMAGE_TYPES.DENT]: "⭕",
   [DAMAGE_TYPES.BODY_DAMAGE]: "🏁",
+  [DAMAGE_TYPES.HEADLIGHT_DAMAGE]: "💡",
 } as const;
 
 export const DAMAGE_COLORS = {
@@ -178,4 +184,5 @@ export const DAMAGE_COLORS = {
   [DAMAGE_TYPES.SCRATCH]: "#f59e0b",
   [DAMAGE_TYPES.DENT]: "#252850",
   [DAMAGE_TYPES.BODY_DAMAGE]: "#1A388B",
+  [DAMAGE_TYPES.HEADLIGHT_DAMAGE]: "#16a34a",
 } as const;

@@ -433,6 +433,9 @@ export function OrderQuotationBillingForm({
     let raw_exonerada = 0;
     let raw_gratuita = 0;
     let raw_anticipo_subtotal = 0;
+    // Acumulamos también el total CON IGV de los anticipos para restar exactamente
+    // Esto evita el error de redondeo que surge de convertir total->subtotal->igv->total
+    let raw_anticipo_total = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
@@ -443,6 +446,7 @@ export function OrderQuotationBillingForm({
         // Gravado
         if (item.anticipo_regularizacion) {
           raw_anticipo_subtotal += item.subtotal;
+          raw_anticipo_total += item.total;
         } else {
           raw_gravada += item.subtotal;
         }
@@ -450,6 +454,7 @@ export function OrderQuotationBillingForm({
         // Exonerado
         if (item.anticipo_regularizacion) {
           raw_anticipo_subtotal += item.subtotal;
+          raw_anticipo_total += item.total;
         } else {
           raw_exonerada += item.subtotal;
         }
@@ -457,6 +462,7 @@ export function OrderQuotationBillingForm({
         // Inafecto
         if (item.anticipo_regularizacion) {
           raw_anticipo_subtotal += item.subtotal;
+          raw_anticipo_total += item.total;
         } else {
           raw_inafecta += item.subtotal;
         }
@@ -476,17 +482,15 @@ export function OrderQuotationBillingForm({
     const total_gratuita = round2(raw_gratuita);
     const total_anticipo = round2(raw_anticipo_subtotal);
 
-    // IGV neto calculado sobre el subtotal neto de una sola vez
-    // Esto evita el error de 0.01 que surge de sumar IGVs redondeados individualmente
-    // y luego restar el IGV del anticipo que fue calculado de forma distinta
+    // IGV neto: se calcula sobre el subtotal neto gravado sin redondeos intermedios
     const subtotal_neto_gravado = raw_gravada - raw_anticipo_subtotal;
     const total_igv = round2(subtotal_neto_gravado * (porcentaje_de_igv / 100));
 
-    // Total neto: subtotales netos + IGV neto
-    // Para anticipos completos (subtotal_neto = 0) el total resultará exactamente 0
-    const total = round2(
-      total_gravada + total_inafecta + total_exonerada + total_igv,
-    );
+    // Total neto: total bruto de los items positivos CON IGV, menos el total exacto de anticipos.
+    // Usar raw_anticipo_total (total con IGV tal como vino de advance.total) en vez de
+    // subtotal*1.18 evita que el redondeo de la conversión total->subtotal genere ±0.01.
+    const raw_total_bruto = raw_gravada * (1 + porcentaje_de_igv / 100) + raw_inafecta + raw_exonerada;
+    const total = round2(raw_total_bruto - raw_anticipo_total);
 
     return {
       total_gravada,
