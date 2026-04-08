@@ -150,6 +150,18 @@ export default function VehicleInspectionPage() {
     if (data.photo_optional_2) {
       formData.append("photo_optional_2", data.photo_optional_2);
     }
+    if (data.photo_optional_3) {
+      formData.append("photo_optional_3", data.photo_optional_3);
+    }
+    if (data.photo_optional_4) {
+      formData.append("photo_optional_4", data.photo_optional_4);
+    }
+    if (data.photo_optional_5) {
+      formData.append("photo_optional_5", data.photo_optional_5);
+    }
+    if (data.photo_optional_6) {
+      formData.append("photo_optional_6", data.photo_optional_6);
+    }
 
     // Daños y otros campos
     formData.append(
