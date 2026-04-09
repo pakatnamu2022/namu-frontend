@@ -10,6 +10,7 @@ import {
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import {
   GeneralInfoSection,
+  HotelReservationSection,
   FinancialSummarySection,
   RequestStatusBadge,
   BudgetSection,
@@ -135,6 +136,9 @@ export default function PerDiemRequestDetailSheet({
       <div className="mt-6 space-y-6">
         {/* Información General */}
         <GeneralInfoSection request={request} />
+
+        {/* Reserva de Hotel */}
+        <HotelReservationSection request={request} />
 
         {/* Detalle de Presupuesto */}
         <BudgetSection request={request} />

@@ -20,6 +20,7 @@ import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
+  HotelReservationSection,
   ExpensesSection,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
@@ -295,6 +296,9 @@ export default function PerDiemRequestDetailPage() {
             <GeneralInfoSection request={request} />
           </div>
         </div>
+
+        {/* Reserva de Hotel */}
+        <HotelReservationSection request={request} />
 
         {/* Gastos Registrados */}
         <ExpensesSection request={request} />
