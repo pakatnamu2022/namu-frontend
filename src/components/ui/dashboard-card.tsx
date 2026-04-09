@@ -1,4 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
@@ -1236,10 +1243,6 @@ export function DashboardCard({
     variant === "default" ? colorBgMap[color][colorIntensity] : "";
   const textClass =
     variant === "default" ? colorTextMap[color][colorIntensity] : "";
-  const iconClass =
-    variant === "default"
-      ? colorIconMap[color][colorIntensity]
-      : `text-${color}-${colorIntensity}`;
   const valueClass =
     variant === "default"
       ? colorTextMap[color][colorIntensity]
@@ -1249,59 +1252,71 @@ export function DashboardCard({
       ? colorProgressMap[color][colorIntensity]
       : `bg-${color}-${colorIntensity}`;
 
+  const bgClassIcon = colorBgMap[color][colorIntensity];
+
   return (
     <Card
       className={cn(
-        "hover:shadow-lg transition-shadow",
-        variant === "default" && "border-none",
-        bgClass,
-        className
+        "overflow-hidden p-0 gap-0",
+        "@container/card",
+        variant === "outline" && "bg-linear-to-br from-muted to-background",
+        variant === "default" && ["border-none", bgClass],
+        className,
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="pb-2 pt-4 px-4">
+        <div className="flex w-full justify-between items-center">
+          <CardDescription
+            className={cn(
+              "line-clamp-1 font-semibold",
+              variant === "default" && textClass,
+            )}
+          >
+            {title}
+          </CardDescription>
+
+          {Icon && (
+            <div className={cn("p-1 rounded-md", bgClassIcon)}>
+              <Icon className="w-4 h-4 text-white" />
+            </div>
+          )}
+        </div>
+
         <CardTitle
           className={cn(
-            "text-sm font-medium",
-            variant === "default" && textClass
+            "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl mb-0",
+            valueClass,
           )}
         >
-          {title}
+          {value}
         </CardTitle>
-        {Icon && <Icon className={cn("h-4 w-4", iconClass)} />}
-      </CardHeader>
-      <CardContent>
-        <div className={cn("text-2xl font-bold", valueClass)}>{value}</div>
         {description && (
           <p
             className={cn(
-              "text-xs mb-2",
-              variant === "default" ? textClass : "text-muted-foreground"
+              "text-xs line-clamp-1",
+              variant === "default" ? textClass : "text-muted-foreground",
             )}
           >
             {description}
           </p>
         )}
-        {showProgress && (
-          <div
+      </CardHeader>
+      {showProgress && (
+        <CardFooter className="flex-col items-start gap-1.5 text-sm px-4 pb-4">
+          <Progress
+            value={progressPercentage}
             className={cn(
-              "h-2 rounded-full overflow-hidden",
+              "h-1.5",
               variant === "default"
                 ? "bg-black/10 dark:bg-white/10"
-                : "bg-gray-200 dark:bg-gray-800"
+                : "bg-gray-200 dark:bg-gray-800",
             )}
-          >
-            <div
-              className={cn(
-                "h-full transition-all duration-500",
-                progressBgClass
-              )}
-              style={{
-                width: `${progressPercentage.toFixed(1)}%`,
-              }}
-            />
-          </div>
-        )}
-      </CardContent>
+            indicatorClassName={cn(
+              variant === "default" ? "bg-white/30" : progressBgClass,
+            )}
+          />
+        </CardFooter>
+      )}
     </Card>
   );
 }
