@@ -328,8 +328,11 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 <TableRow className="bg-muted/50">
                   <TableHead className="text-left">#</TableHead>
                   <TableHead>Producto</TableHead>
-                  <TableHead className="text-center">Cantidad</TableHead>
+                  <TableHead className="text-center">
+                    Tipo de Abastecimiento
+                  </TableHead>
                   <TableHead>Notas</TableHead>
+                  <TableHead className="text-center">Cantidad</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -371,13 +374,18 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="text-sm font-semibold">
-                        {detail.quantity}
+                      <div className="text-sm text-muted-foreground">
+                        {detail.supply_type}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm text-muted-foreground">
                         {detail.notes || "Sin notas"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="text-sm font-semibold">
+                        {detail.quantity}
                       </div>
                     </TableCell>
                   </TableRow>

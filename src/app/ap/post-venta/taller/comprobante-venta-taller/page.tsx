@@ -44,11 +44,6 @@ export default function SalesReceiptsTallerPage() {
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, statusFilter, documentTypeFilter]);
-
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
@@ -58,6 +53,7 @@ export default function SalesReceiptsTallerPage() {
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
+    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;

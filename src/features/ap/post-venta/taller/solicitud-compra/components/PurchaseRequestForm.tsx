@@ -45,12 +45,10 @@ import { errorToast } from "@/core/core.function";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
-
-const onSelectSupplyType = [
-  { label: "Local", value: "LOCAL" },
-  { label: "Central", value: "CENTRAL" },
-  { label: "Importación", value: "IMPORTACION" },
-];
+import {
+  SUPPLY_TYPE_OPTIONS,
+  SUPPLY_TYPES,
+} from "../lib/purchaseRequest.constants";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -80,6 +78,7 @@ export default function PurchaseRequestForm({
         product_code: detail.product_code || "",
         quantity: Number(detail.quantity) || 1,
         notes: detail.notes || "",
+        supply_type: detail.supply_type || undefined,
       }));
       return transformed;
     }
@@ -132,6 +131,12 @@ export default function PurchaseRequestForm({
     form.setValue("details", details);
     // Validar inmediatamente después de setear
     form.trigger("details");
+    // Sincronizar supply_type de cada detalle con su FormSelect
+    details.forEach((detail, index) => {
+      if (detail.supply_type) {
+        form.setValue(`detail_supply_type_${index}` as any, detail.supply_type);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [details]);
 
@@ -153,44 +158,41 @@ export default function PurchaseRequestForm({
     }
   }, [form, hasAppointment]);
 
-  const loadQuotationDetails = useCallback(
-    async (quotationId: string) => {
-      try {
-        setIsLoadingQuotations(true);
-        const quotation = await findOrderQuotationById(Number(quotationId));
-        if (!quotation?.details) return;
+  const loadQuotationDetails = useCallback(async (quotationId: string) => {
+    try {
+      setIsLoadingQuotations(true);
+      const quotation = await findOrderQuotationById(Number(quotationId));
+      if (!quotation?.details) return;
 
-        setSelectedQuotationData(quotation);
+      setSelectedQuotationData(quotation);
 
-        const productDetails = quotation.details.filter(
-          (detail) => detail.item_type === ITEM_TYPE_PRODUCT,
-        );
+      const productDetails = quotation.details.filter(
+        (detail) =>
+          detail.item_type === ITEM_TYPE_PRODUCT &&
+          (detail.supply_type === SUPPLY_TYPES.CENTRAL ||
+            detail.supply_type === SUPPLY_TYPES.IMPORTACION),
+      );
 
-        const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
-          (detail) => ({
-            product_id: detail.product_id!.toString(),
-            product_name: detail.product?.name || "",
-            product_code: detail.product?.code || "",
-            quantity: Number(detail.quantity) || 1,
-            notes: "",
-          }),
-        );
+      const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
+        (detail) => ({
+          product_id: detail.product_id!.toString(),
+          product_name: detail.product?.name || "",
+          product_code: detail.product?.code || "",
+          quantity: Number(detail.quantity) || 1,
+          notes: "",
+          supply_type: detail.supply_type,
+        }),
+      );
 
-        setDetails(newDetails);
-
-        if (quotation.supply_type) {
-          form.setValue("supply_type", quotation.supply_type);
-        }
-      } catch (error: any) {
-        const msgError =
-          error?.response?.data?.message || "Error al cargar la cotización.";
-        errorToast(msgError);
-      } finally {
-        setIsLoadingQuotations(false);
-      }
-    },
-    [form],
-  );
+      setDetails(newDetails);
+    } catch (error: any) {
+      const msgError =
+        error?.response?.data?.message || "Error al cargar la cotización.";
+      errorToast(msgError);
+    } finally {
+      setIsLoadingQuotations(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedQuotationId) {
@@ -229,9 +231,15 @@ export default function PurchaseRequestForm({
       product_code: productData?.product.code || "",
       quantity: 1,
       notes: "",
+      supply_type: SUPPLY_TYPES.CENTRAL,
     };
 
+    const newIndex = details.length;
     setDetails([...details, newDetail]);
+    form.setValue(
+      `detail_supply_type_${newIndex}` as any,
+      SUPPLY_TYPES.CENTRAL,
+    );
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -252,6 +260,15 @@ export default function PurchaseRequestForm({
     updatedDetails[index] = {
       ...updatedDetails[index],
       notes,
+    };
+    setDetails(updatedDetails);
+  };
+
+  const handleUpdateSupplyType = (index: number, supply_type: string) => {
+    const updatedDetails = [...details];
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      supply_type,
     };
     setDetails(updatedDetails);
   };
@@ -287,7 +304,7 @@ export default function PurchaseRequestForm({
         {/* Información General */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Información General</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormSelect
               name="warehouse_id"
               label="Almacén"
@@ -308,16 +325,6 @@ export default function PurchaseRequestForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{ before: new Date() }}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="supply_type"
-              options={onSelectSupplyType}
-              label="Tipo de Abastecimiento"
-              placeholder="Seleccionar un tipo"
-              disabled={!!selectedQuotationId}
-              required
             />
           </div>
 
@@ -508,9 +515,10 @@ export default function PurchaseRequestForm({
                     {/* Cabecera de tabla - Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
                       <div className="col-span-2">Código</div>
-                      <div className="col-span-4">Producto</div>
+                      <div className="col-span-3">Producto</div>
+                      <div className="col-span-2">Tipo Abastec.</div>
                       <div className="col-span-2">Cantidad</div>
-                      <div className="col-span-3">Notas</div>
+                      <div className="col-span-2">Notas</div>
                       <div className="col-span-1"></div>
                     </div>
 
@@ -550,11 +558,30 @@ export default function PurchaseRequestForm({
                                   )}
                                 </div>
                               </div>
-                              <div className="col-span-4">
+                              <div className="col-span-3">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
                                 </p>
+                              </div>
+
+                              <div className="col-span-2">
+                                {selectedQuotationId ? (
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {detail.supply_type || "-"}
+                                  </span>
+                                ) : (
+                                  <FormSelect
+                                    name={`detail_supply_type_${index}` as any}
+                                    placeholder="Seleccionar"
+                                    options={SUPPLY_TYPE_OPTIONS}
+                                    control={form.control}
+                                    strictFilter={true}
+                                    onValueChange={(value) =>
+                                      handleUpdateSupplyType(index, value)
+                                    }
+                                  />
+                                )}
                               </div>
 
                               <div className="col-span-2">
@@ -574,7 +601,7 @@ export default function PurchaseRequestForm({
                                 />
                               </div>
 
-                              <div className="col-span-3">
+                              <div className="col-span-2">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -648,6 +675,30 @@ export default function PurchaseRequestForm({
                               </div>
 
                               <div className="space-y-2">
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Tipo Abastecimiento
+                                  </label>
+                                  {selectedQuotationId ? (
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {detail.supply_type || "-"}
+                                    </span>
+                                  ) : (
+                                    <FormSelect
+                                      name={
+                                        `detail_supply_type_${index}` as any
+                                      }
+                                      placeholder="Seleccionar"
+                                      options={SUPPLY_TYPE_OPTIONS}
+                                      control={form.control}
+                                      strictFilter={true}
+                                      onValueChange={(value) =>
+                                        handleUpdateSupplyType(index, value)
+                                      }
+                                    />
+                                  )}
+                                </div>
+
                                 <div>
                                   <label className="text-xs font-medium text-gray-700 mb-1 block">
                                     Cantidad

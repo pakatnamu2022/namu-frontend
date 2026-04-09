@@ -24,7 +24,7 @@ export interface PurchaseRequestResource {
   supplier_order_numbers: [];
   created_at: string;
   updated_at: string;
-  supply_type: "STOCK" | "CENTRAL" | "IMPORTACION";
+  supply_type: string;
   requested_by: string;
   details?: PurchaseRequestDetailResource[];
   warehouse: WarehouseResource;
@@ -43,6 +43,7 @@ export interface PurchaseRequestDetailResource {
   product_id: number;
   product_name?: string;
   quantity: number;
+  supply_type: string;
   notes: string | null;
   requested_delivery_date: string | null;
   created_at: string;

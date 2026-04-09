@@ -1,4 +1,8 @@
-import { requiredDate, requiredStringId } from "@/shared/lib/global.schema";
+import {
+  requiredDate,
+  requiredStringId,
+  requiredText,
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 // Schema para los detalles de la solicitud
@@ -8,6 +12,7 @@ export const purchaseRequestDetailSchema = z.object({
   notes: z.string().optional(),
   product_name: z.string().optional(), // Solo para UI
   product_code: z.string().optional(), // Solo para UI
+  supply_type: requiredText("Tipo de suministro es requerido"), // "LOCAL", "CENTRAL" o "IMPORTACION"
 });
 
 export const purchaseRequestSchemaCreate = z.object({
@@ -16,7 +21,6 @@ export const purchaseRequestSchemaCreate = z.object({
   requested_date: requiredDate("Fecha solicitada es requerida"),
   observations: z.string().optional(),
   has_appointment: z.boolean().optional(),
-  supply_type: z.enum(["STOCK", "CENTRAL", "IMPORTACION", "LOCAL"]),
   area_id: z.number().optional(),
   details: z
     .array(purchaseRequestDetailSchema)
@@ -27,8 +31,7 @@ export const purchaseRequestSchemaUpdate =
   purchaseRequestSchemaCreate.partial();
 
 // Schemas para el form Taller (sin supply_type)
-export const purchaseRequestTallerSchemaCreate =
-  purchaseRequestSchemaCreate.omit({ supply_type: true });
+export const purchaseRequestTallerSchemaCreate = purchaseRequestSchemaCreate;
 
 export const purchaseRequestTallerSchemaUpdate =
   purchaseRequestTallerSchemaCreate.partial();

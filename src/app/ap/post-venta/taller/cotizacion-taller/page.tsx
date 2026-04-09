@@ -58,6 +58,7 @@ export default function OrderQuotationPage() {
   // Obtener mis sedes de postventa
   const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: 1,
   });
 
   useEffect(() => {
