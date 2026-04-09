@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   CheckCircle,
   XCircle,
@@ -12,6 +11,7 @@ import {
 import { ExpenseResource } from "../lib/perDiemRequest.interface";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { validateExpense, rejectExpense } from "../lib/perDiemRequest.actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -131,43 +131,27 @@ export default function ExpenseRowActions({
   return (
     <div className="flex items-center gap-1">
       {expense.receipt_path && (
-        <Button
-          variant="outline"
-          size="icon-xs"
+        <ButtonAction
+          icon={FileText}
           onClick={() => window.open(expense.receipt_path, "_blank")}
-          title="Ver Comprobante"
-        >
-          <FileText className="h-4 w-4" />
-        </Button>
+          tooltip="Ver Comprobante"
+        />
       )}
 
       {canEdit && (
-        <Button
-          variant="outline"
-          size="icon-xs"
-          onClick={handleEdit}
-          title="Editar Gasto"
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <ButtonAction icon={Pencil} onClick={handleEdit} tooltip="Editar Gasto" />
       )}
 
       {canDelete && (
         <ConfirmationDialog
           trigger={
-            <Button
-              variant="outline"
-              size="icon-xs"
-              className="text-destructive hover:bg-red-50"
+            <ButtonAction
+              icon={deleteExpenseMutation.isPending ? Loader2 : Trash2}
+              color="red"
               disabled={deleteExpenseMutation.isPending}
-              title="Eliminar Gasto"
-            >
-              {deleteExpenseMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}
-            </Button>
+              tooltip="Eliminar Gasto"
+              className={deleteExpenseMutation.isPending ? "animate-spin" : ""}
+            />
           }
           title="¿Eliminar este gasto?"
           description={`Estás a punto de eliminar el gasto de S/ ${expense.receipt_amount.toFixed(
@@ -188,19 +172,13 @@ export default function ExpenseRowActions({
         <>
           <ConfirmationDialog
             trigger={
-              <Button
-                variant="outline"
-                size="icon-xs"
-                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+              <ButtonAction
+                icon={isLoading ? Loader2 : CheckCircle}
+                color="primary"
                 disabled={isLoading}
-                title="Validar Gasto"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle className="h-4 w-4" />
-                )}
-              </Button>
+                tooltip="Validar Gasto"
+                className={isLoading ? "animate-spin" : ""}
+              />
             }
             title="¿Validar este gasto?"
             description={`Estás a punto de validar el gasto de S/ ${expense.receipt_amount.toFixed(
@@ -218,19 +196,13 @@ export default function ExpenseRowActions({
 
           <ConfirmationDialog
             trigger={
-              <Button
-                variant="outline"
-                size="icon-xs"
-                className="text-destructive hover:bg-red-50"
+              <ButtonAction
+                icon={isLoading ? Loader2 : XCircle}
+                color="red"
                 disabled={isLoading}
-                title="Rechazar Gasto"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <XCircle className="h-4 w-4" />
-                )}
-              </Button>
+                tooltip="Rechazar Gasto"
+                className={isLoading ? "animate-spin" : ""}
+              />
             }
             title="¿Rechazar este gasto?"
             description={`Estás a punto de rechazar el gasto de S/ ${expense.receipt_amount.toFixed(
