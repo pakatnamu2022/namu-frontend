@@ -20,7 +20,6 @@ export default function BudgetSection({ request }: BudgetSectionProps) {
       icon={Receipt}
       cols={{ sm: 1 }}
       gap="gap-3"
-      className="h-full"
     >
       <div className="border rounded-md divide-y">
         {budgets.map((budget) => {

@@ -111,51 +111,48 @@ export default function PerDiemRequestDetailAdminAPPage() {
 
   return (
     <FormWrapper>
-      <div className="space-y-6">
         {/* Header */}
-        <FormWrapper>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <BackButton route={ABSOLUTE_ROUTE} size="icon" name="" />
-              <TitleComponent
-                title={request.code}
-                subtitle="Detalle de Solicitud de Viáticos"
-                icon="FileText"
-              />
-            </div>
-
-            <RequestStatusBadge status={request.status} />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <BackButton route={ABSOLUTE_ROUTE} size="icon" name="" />
+            <TitleComponent
+              title={request.code}
+              subtitle="Detalle de Solicitud de Viáticos"
+              icon="FileText"
+            />
           </div>
 
-          {!isCancelled && (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleDownloadPdf}
-                size="sm"
-                variant="outline"
-                className="gap-2"
-                disabled={isDownloading}
-              >
-                <FileDown className="h-4 w-4" />
-                {isDownloading ? "Descargando..." : "Detalle de Gastos"}
-              </Button>
-              <Button
-                onClick={handleDownloandMobilityPayrollPdf}
-                size="sm"
-                variant="outline"
-                className="gap-2 w-full sm:w-auto"
-                disabled={isDownloadingMobilityPayroll}
-              >
-                <FileDown className="h-4 w-4 shrink-0" />
-                <span className="truncate">
-                  {isDownloadingMobilityPayroll
-                    ? "Descargando..."
-                    : "Planilla de Movilidad"}
-                </span>
-              </Button>
-            </div>
-          )}
-        </FormWrapper>
+          <RequestStatusBadge status={request.status} />
+        </div>
+
+        {!isCancelled && (
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleDownloadPdf}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={isDownloading}
+            >
+              <FileDown className="h-4 w-4" />
+              {isDownloading ? "Descargando..." : "Detalle de Gastos"}
+            </Button>
+            <Button
+              onClick={handleDownloandMobilityPayrollPdf}
+              size="sm"
+              variant="outline"
+              className="gap-2 w-full sm:w-auto"
+              disabled={isDownloadingMobilityPayroll}
+            >
+              <FileDown className="h-4 w-4 shrink-0" />
+              <span className="truncate">
+                {isDownloadingMobilityPayroll
+                  ? "Descargando..."
+                  : "Planilla de Movilidad"}
+              </span>
+            </Button>
+          </div>
+        )}
 
         {/* Información General */}
         <GeneralInfoSection request={request} />
@@ -196,7 +193,6 @@ export default function PerDiemRequestDetailAdminAPPage() {
             />
           </div>
         </GroupFormSection>
-      </div>
     </FormWrapper>
   );
 }
