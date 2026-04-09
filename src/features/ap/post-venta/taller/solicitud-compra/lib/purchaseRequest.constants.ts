@@ -69,3 +69,15 @@ export const PURCHASE_REQUEST_ALMACEN: ModelComplete<PurchaseRequestResource> =
     ROUTE_ADD: `${ABSOLUTE_ROUTE_ALMACEN}/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE_ALMACEN}/actualizar`,
   };
+
+export const SUPPLY_TYPES = {
+  LOCAL: "LOCAL",
+  CENTRAL: "CENTRAL",
+  IMPORTACION: "IMPORTACION",
+} as const;
+
+export const SUPPLY_TYPE_OPTIONS = [
+  { label: "Local", value: SUPPLY_TYPES.LOCAL },
+  { label: "Central", value: SUPPLY_TYPES.CENTRAL },
+  { label: "Importación", value: SUPPLY_TYPES.IMPORTACION },
+];

@@ -15,7 +15,7 @@ import {
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
-import { STATUS_ORDER_QUOTATION, SUPPLY_TYPE } from "../lib/proforma.constants";
+import { STATUS_ORDER_QUOTATION } from "../lib/proforma.constants";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface QuotationSelectionModalProps {
@@ -57,7 +57,6 @@ export const QuotationSelectionModal = ({
     is_take: 0,
     has_invoice_generated: 1,
     sede_id: sedeId,
-    supply_type: [SUPPLY_TYPE.CENTRAL, SUPPLY_TYPE.IMPORTACION],
     status: STATUS_ORDER_QUOTATION.TO_BILL,
     area_id: AREA_MESON.toString(),
     quotation_date:

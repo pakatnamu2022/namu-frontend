@@ -105,6 +105,10 @@ export default function UpdateOrderQuotationMesonPage() {
           retail_price_external: Number(detail.retail_price_external) || 0,
           exchange_rate: Number(detail.exchange_rate) || 0,
           freight_commission: Number(detail.freight_commission) || 1.05,
+          supply_type: String(detail.supply_type) as
+            | "STOCK"
+            | "CENTRAL"
+            | "IMPORTACION",
         })) || [],
   };
 

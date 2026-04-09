@@ -36,7 +36,7 @@ export default function UpdatePurchaseRequestRepuestoPage() {
       queryKey: [QUERY_KEY, id],
       queryFn: () => findPurchaseRequestById(Number(id)),
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const { mutate, isPending } = useMutation({
@@ -60,7 +60,7 @@ export default function UpdatePurchaseRequestRepuestoPage() {
   };
 
   function mapPurchaseRequestToForm(
-    data: PurchaseRequestResource
+    data: PurchaseRequestResource,
   ): Partial<PurchaseRequestSchema> {
     return {
       ap_order_quotation_id: data.ap_order_quotation_id
@@ -72,13 +72,13 @@ export default function UpdatePurchaseRequestRepuestoPage() {
         ? new Date(data.requested_date)
         : new Date(),
       has_appointment: !!data.ap_order_quotation_id,
-      supply_type: data.supply_type,
       details: (data.details || []).map((detail) => ({
         product_id: String(detail.product_id),
         quantity: detail.quantity,
         notes: detail.notes || undefined,
         product_name: detail.product?.name || "",
         product_code: detail.product?.code || "",
+        supply_type: String(detail.supply_type),
       })),
     };
   }

@@ -516,6 +516,9 @@ function BillingSheetContent({
               <TableRow className="bg-muted/50">
                 <TableHead className="text-left">#</TableHead>
                 <TableHead>Producto</TableHead>
+                <TableHead className="text-center">
+                  Tipo Abastecimiento
+                </TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">P. Unitario</TableHead>
                 <TableHead className="text-right">% Dto.</TableHead>
@@ -559,6 +562,12 @@ function BillingSheetContent({
                         </Button>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="text-sm">{detail.supply_type || "-"}</div>
+                    <span className="text-xs text-muted-foreground">
+                      {detail.observations || ""}
+                    </span>
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="text-sm">

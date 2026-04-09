@@ -78,6 +78,10 @@ export default function PurchaseRequestTallerForm({
         product_code: detail.product_code || "",
         quantity: Number(detail.quantity) || 1,
         notes: detail.notes || "",
+        supply_type: String(detail.supply_type) as
+          | "LOCAL"
+          | "CENTRAL"
+          | "IMPORTACION",
       }));
       return transformed;
     }
@@ -174,6 +178,10 @@ export default function PurchaseRequestTallerForm({
           product_code: detail.product?.code || "",
           quantity: Number(detail.quantity) || 1,
           notes: "",
+          supply_type: String(detail.supply_type) as
+            | "LOCAL"
+            | "CENTRAL"
+            | "IMPORTACION",
         }),
       );
 
@@ -224,6 +232,7 @@ export default function PurchaseRequestTallerForm({
       product_code: productData?.product.code || "",
       quantity: 1,
       notes: "",
+      supply_type: "LOCAL",
     };
 
     setDetails([...details, newDetail]);
@@ -250,6 +259,24 @@ export default function PurchaseRequestTallerForm({
     };
     setDetails(updatedDetails);
   };
+
+  const handleUpdateSupplyType = (
+    index: number,
+    supply_type: "LOCAL" | "CENTRAL" | "IMPORTACION",
+  ) => {
+    const updatedDetails = [...details];
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      supply_type,
+    };
+    setDetails(updatedDetails);
+  };
+
+  const SUPPLY_TYPE_OPTIONS = [
+    { label: "LOCAL", value: "LOCAL" },
+    { label: "CENTRAL", value: "CENTRAL" },
+    { label: "IMPORTACION", value: "IMPORTACION" },
+  ];
 
   const handleSelectQuotation = (quotationId: string) => {
     form.setValue("ap_order_quotation_id", quotationId);
@@ -490,9 +517,10 @@ export default function PurchaseRequestTallerForm({
                     {/* Cabecera de tabla - Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
                       <div className="col-span-2">Código</div>
-                      <div className="col-span-4">Producto</div>
+                      <div className="col-span-3">Producto</div>
+                      <div className="col-span-2">Tipo Abastec.</div>
                       <div className="col-span-2">Cantidad</div>
-                      <div className="col-span-3">Notas</div>
+                      <div className="col-span-2">Notas</div>
                       <div className="col-span-1"></div>
                     </div>
 
@@ -532,11 +560,36 @@ export default function PurchaseRequestTallerForm({
                                   )}
                                 </div>
                               </div>
-                              <div className="col-span-4">
+                              <div className="col-span-3">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
                                 </p>
+                              </div>
+
+                              <div className="col-span-2">
+                                {selectedQuotationId ? (
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {detail.supply_type || "-"}
+                                  </span>
+                                ) : (
+                                  <FormSelect
+                                    name={`detail_supply_type_${index}` as any}
+                                    placeholder="Seleccionar"
+                                    options={SUPPLY_TYPE_OPTIONS}
+                                    control={form.control}
+                                    strictFilter={true}
+                                    onValueChange={(value) =>
+                                      handleUpdateSupplyType(
+                                        index,
+                                        value as
+                                          | "LOCAL"
+                                          | "CENTRAL"
+                                          | "IMPORTACION",
+                                      )
+                                    }
+                                  />
+                                )}
                               </div>
 
                               <div className="col-span-2">
@@ -556,7 +609,7 @@ export default function PurchaseRequestTallerForm({
                                 />
                               </div>
 
-                              <div className="col-span-3">
+                              <div className="col-span-2">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -630,6 +683,36 @@ export default function PurchaseRequestTallerForm({
                               </div>
 
                               <div className="space-y-2">
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Tipo Abastecimiento
+                                  </label>
+                                  {selectedQuotationId ? (
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {detail.supply_type || "-"}
+                                    </span>
+                                  ) : (
+                                    <FormSelect
+                                      name={
+                                        `detail_supply_type_${index}` as any
+                                      }
+                                      placeholder="Seleccionar"
+                                      options={SUPPLY_TYPE_OPTIONS}
+                                      control={form.control}
+                                      strictFilter={true}
+                                      onValueChange={(value) =>
+                                        handleUpdateSupplyType(
+                                          index,
+                                          value as
+                                            | "LOCAL"
+                                            | "CENTRAL"
+                                            | "IMPORTACION",
+                                        )
+                                      }
+                                    />
+                                  )}
+                                </div>
+
                                 <div>
                                   <label className="text-xs font-medium text-gray-700 mb-1 block">
                                     Cantidad

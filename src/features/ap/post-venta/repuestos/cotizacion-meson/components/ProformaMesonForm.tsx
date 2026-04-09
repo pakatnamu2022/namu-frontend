@@ -56,7 +56,7 @@ import { Warehouse, AlertCircle } from "lucide-react";
 import QuotationPartModal from "./QuotationPartModal";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { CUSTOMERS_RP } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
@@ -71,6 +71,7 @@ import {
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -464,15 +465,27 @@ function ProductDetailItem({
           </Button>
         </div>
 
-        {/* Observaciones en fila completa si existen */}
-        {form.watch(`details.${index}.observations`) && (
-          <div className="col-span-12 pt-2 border-t">
-            <p className="text-xs text-gray-500">
-              <span className="font-semibold">Obs:</span>{" "}
-              {form.watch(`details.${index}.observations`)}
-            </p>
-          </div>
-        )}
+        {/* Tipo de abastecimiento y Observaciones */}
+        <div className="col-span-7 col-start-1">
+          <FormSelect
+            name={`details.${index}.supply_type`}
+            label="Tipo de Abastecimiento"
+            placeholder="Seleccione tipo"
+            control={form.control}
+            options={onSelectSupplyType}
+            disabled={isDetailsDisabled}
+          />
+        </div>
+
+        <div className="col-span-7">
+          <FormInput
+            name={`details.${index}.observations`}
+            label="Notas"
+            control={form.control}
+            placeholder="Opcional"
+            disabled={isDetailsDisabled}
+          />
+        </div>
       </div>
 
       {/* Vista Mobile - Formato Card */}
@@ -759,25 +772,24 @@ function ProductDetailItem({
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name={`details.${index}.observations`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs">Observaciones</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  placeholder="Opcional"
-                  className="h-9"
-                  disabled={isDetailsDisabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 gap-3">
+          <FormSelect
+            name={`details.${index}.supply_type`}
+            label="Tipo de Abastecimiento"
+            placeholder="Seleccione tipo"
+            control={form.control}
+            options={onSelectSupplyType}
+            disabled={isDetailsDisabled}
+          />
+
+          <FormInput
+            name={`details.${index}.observations`}
+            label="Notas"
+            control={form.control}
+            placeholder="Opcional"
+            disabled={isDetailsDisabled}
+          />
+        </div>
       </div>
     </div>
   );
@@ -813,6 +825,7 @@ export default function ProformaMesonForm({
     null,
   );
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   const { user } = useAuthStore();
   const defaultDiscount =
@@ -851,7 +864,6 @@ export default function ProformaMesonForm({
 
   const quotationDate = form.watch("quotation_date");
   const currencyId = form.watch("currency_id");
-  const supplyType = form.watch("supply_type");
 
   // Usar useWatch para detectar cambios en details en tiempo real
   const watchedDetails = useWatch({
@@ -861,6 +873,7 @@ export default function ProformaMesonForm({
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: 1,
   });
 
   const { data: currencyTypes = [] } = useAllCurrencyTypes({
@@ -882,13 +895,6 @@ export default function ProformaMesonForm({
       form.setValue("quotation_date", new Date());
     }
   }, [form, defaultValues]);
-
-  // Setear fecha de recojo por defecto a hoy si el tipo de abastecimiento es STOCK
-  useEffect(() => {
-    if (supplyType === "STOCK" && !form.getValues("collection_date")) {
-      form.setValue("collection_date", new Date());
-    }
-  }, [supplyType, form]);
 
   // Actualizar moneda seleccionada
   useEffect(() => {
@@ -990,6 +996,7 @@ export default function ProformaMesonForm({
       retail_price_external: undefined,
       exchange_rate: exchangeRate || 0,
       freight_commission: 1.05,
+      supply_type: "STOCK",
     });
   };
 
@@ -1111,10 +1118,10 @@ export default function ProformaMesonForm({
                 variant="outline"
                 size="icon-lg"
                 className="aspect-square"
-                onClick={() => window.open(CUSTOMERS_RP.ROUTE_ADD, "_blank")}
+                onClick={() => setIsCustomerModalOpen(true)}
                 tooltip="Agregar nuevo cliente"
               >
-                <ExternalLink className="h-4 w-4" />
+                <Plus className="h-4 w-4" />
               </Button>
             </FormSelectAsync>
 
@@ -1175,15 +1182,6 @@ export default function ProformaMesonForm({
               disabled={true}
             />
 
-            <FormSelect
-              control={form.control}
-              name="supply_type"
-              options={onSelectSupplyType}
-              label="Tipo de Abastecimiento"
-              placeholder="Seleccionar un tipo"
-              required
-            />
-
             <DatePickerFormField
               control={form.control}
               name="collection_date"
@@ -1205,17 +1203,18 @@ export default function ProformaMesonForm({
 
         {/* Sección de Repuestos */}
         <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">Repuestos</h3>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <Button
                 type="button"
                 onClick={() => setIsPartModalOpen(true)}
                 size="sm"
                 variant="outline"
+                className="w-full sm:w-auto"
                 disabled={isDetailsDisabled}
               >
                 <PackagePlus className="h-4 w-4 mr-2" />
@@ -1225,6 +1224,7 @@ export default function ProformaMesonForm({
                 type="button"
                 onClick={addProduct}
                 size="sm"
+                className="w-full sm:w-auto"
                 disabled={!quotationDate || isDetailsDisabled}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -1389,6 +1389,19 @@ export default function ProformaMesonForm({
       <QuotationPartModal
         open={isPartModalOpen}
         onClose={() => setIsPartModalOpen(false)}
+      />
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            form.setValue("client_id", newCustomer.id.toString(), {
+              shouldValidate: true,
+            });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
       />
     </Form>
   );
