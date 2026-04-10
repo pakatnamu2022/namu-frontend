@@ -1,7 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { PurchaseHistoryItem } from "../lib/inventoryMovements.interface.ts";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatDate } from "@/core/core.function.ts";
 
 export type PurchaseHistoryColumns = ColumnDef<PurchaseHistoryItem>;
 
@@ -14,7 +13,7 @@ export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
       const date = getValue() as string;
       if (!date) return "-";
       try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+        return formatDate(date);
       } catch {
         return date;
       }

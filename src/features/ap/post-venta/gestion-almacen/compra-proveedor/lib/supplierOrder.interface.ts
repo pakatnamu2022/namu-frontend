@@ -44,6 +44,7 @@ export interface SupplierOrderResource {
   tax_amount: number;
   total_amount: number;
   has_receptions: boolean;
+  approved_by: number | null;
   invoice_numbers: string[];
   oc_dyn_numbers: string[];
   reception_type: "PENDING" | "PARTIAL" | "COMPLETE";

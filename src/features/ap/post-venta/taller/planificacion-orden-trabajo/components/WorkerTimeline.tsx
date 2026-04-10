@@ -71,12 +71,13 @@ import {
   OPENING_WORK_ORDER_ID,
   RECEIVED_WORK_ORDER_ID,
 } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
 
 interface WorkerTimelineProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   selectedDate: Date;
-  data: WorkOrderPlanningResource[];
+  data?: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
   selectionMode?: boolean;
   estimatedHours?: number;
@@ -99,7 +100,6 @@ export function WorkerTimeline({
   open = true,
   onOpenChange,
   selectedDate,
-  data,
   onPlanningClick,
   selectionMode = false,
   estimatedHours = 0,
@@ -108,7 +108,7 @@ export function WorkerTimeline({
   fullPage = false,
   sedeId,
   onRefresh,
-  //readOnly = false,
+  readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -309,7 +309,17 @@ export function WorkerTimeline({
     sede$empresa_id: EMPRESA_AP.id,
   });
 
-  const dayPlannings = data.filter((planning) => {
+  const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+  const { data: ownPlanningData } = useGetWorkOrderPlanning({
+    params: {
+      per_page: 500,
+      ...(sedeId && { workOrder$sede_id: sedeId }),
+      planned_date: selectedDateStr,
+    },
+    enabled: !!sedeId,
+  });
+
+  const dayPlannings = (ownPlanningData?.data ?? []).filter((planning) => {
     if (!planning.planned_start_datetime) return false;
     return isSameDay(parseISO(planning.planned_start_datetime), selectedDate);
   });
@@ -699,7 +709,7 @@ export function WorkerTimeline({
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
-          {/* {!readOnly && (
+          {!readOnly && (
             <Button
               variant="outline"
               onClick={() => setIsExceptionalCaseOpen(true)}
@@ -708,7 +718,7 @@ export function WorkerTimeline({
               <Clock className="h-4 w-4" />
               Caso Excepcional
             </Button>
-          )} */}
+          )}
         </div>
       </div>
 
