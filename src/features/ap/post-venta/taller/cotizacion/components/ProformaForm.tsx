@@ -23,8 +23,10 @@ import {
   User,
   Gauge,
   Calendar,
+  Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -32,7 +34,6 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
@@ -58,6 +59,7 @@ export default function OrderQuotationForm({
   proforma,
 }: OrderQuotationFormProps) {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(
@@ -175,10 +177,10 @@ export default function OrderQuotationForm({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              onClick={() => setIsCustomerModalOpen(true)}
               tooltip="Agregar nuevo cliente"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -355,6 +357,19 @@ export default function OrderQuotationForm({
           </Button>
         </div>
       </form>
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            form.setValue("client_id", newCustomer.id.toString(), {
+              shouldValidate: true,
+            });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
+      />
     </Form>
   );
 }

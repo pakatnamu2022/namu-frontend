@@ -22,7 +22,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { FileText, Loader, Package, Trash2, Calculator, Plus, X } from "lucide-react";
+import {
+  FileText,
+  Loader,
+  Package,
+  Trash2,
+  Calculator,
+  Plus,
+  X,
+} from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
@@ -173,8 +181,25 @@ export const SupplierOrderForm = ({
   const watchedCurrencyTypeId = formValues.type_currency_id;
   const watchedOrderDate = formValues.order_date;
 
-  // Watch para obtener el warehouse_id seleccionado
+  // Watch para obtener el warehouse_id y supply_type seleccionados
   const selectedWarehouseId = form.watch("warehouse_id");
+  const selectedSupplyType = form.watch("supply_type");
+
+  // Limpiar detalles y estados relacionados al cambiar supply_type
+  const prevSupplyTypeRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (
+      prevSupplyTypeRef.current !== undefined &&
+      prevSupplyTypeRef.current !== selectedSupplyType
+    ) {
+      form.setValue("details", []);
+      setAddedRequestDetailIds([]);
+      setProductRequestMap({});
+      setDetailDefaultOptions({});
+      productsCache.current = {};
+    }
+    prevSupplyTypeRef.current = selectedSupplyType;
+  }, [selectedSupplyType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const {
     data: purcheseRequestDetailsPending,
@@ -185,8 +210,9 @@ export const SupplierOrderForm = ({
       warehouse_id: selectedWarehouseId
         ? Number(selectedWarehouseId)
         : undefined,
+      supply_type: selectedSupplyType || undefined,
     },
-    !!selectedWarehouseId,
+    !!selectedWarehouseId && !!selectedSupplyType,
   );
 
   // Función para consultar el tipo de cambio
@@ -428,7 +454,7 @@ export const SupplierOrderForm = ({
     const transformedData = {
       ...data,
       order_number_external: showOrderNumberExternal
-        ? (data.order_number_external || null)
+        ? data.order_number_external || null
         : null,
       order_date:
         data.order_date instanceof Date
@@ -460,9 +486,10 @@ export const SupplierOrderForm = ({
   const grandTotal = netValue + igvAmount;
 
   // Filtrar solicitudes no añadidas
-  // Solo mostrar si hay almacén seleccionado
+  // Solo mostrar si hay almacén y tipo de abastecimiento seleccionado
   const availablePurchaseRequests =
     (selectedWarehouseId &&
+      selectedSupplyType &&
       purcheseRequestDetailsPending?.data?.filter(
         (detail: any) => !addedRequestDetailIds.includes(detail.id),
       )) ||
@@ -475,7 +502,7 @@ export const SupplierOrderForm = ({
           onSubmit={form.handleSubmit(handleSubmit)}
           className="space-y-6 w-full py-2"
         >
-          {mode === "create" && selectedWarehouseId && (
+          {mode === "create" && selectedWarehouseId && selectedSupplyType && (
             <div className="flex justify-end">
               <PendingPurchaseRequestsList
                 requests={availablePurchaseRequests}
