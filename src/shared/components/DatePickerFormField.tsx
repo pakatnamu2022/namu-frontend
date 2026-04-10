@@ -158,7 +158,7 @@ export function DatePickerFormField<T extends FieldValues>({
                 )}
                 disabled={disabled}
               >
-                {displayValue} <span className="truncate">{displayValue}</span>
+                <span className="truncate">{displayValue}</span>
                 <CalendarPlusIcon className="ml-2 h-4 w-4 opacity-50" />
               </Button>
             </FormControl>

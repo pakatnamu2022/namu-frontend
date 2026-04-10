@@ -14,6 +14,7 @@ import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
+  HotelReservationSection,
   RequestStatusBadge,
   BudgetSection,
   FinancialSummarySection,
@@ -152,6 +153,9 @@ export default function PerDiemRequestDetailAdminPage() {
 
         {/* Información General */}
         <GeneralInfoSection request={request} />
+
+        {/* Reserva de Hotel */}
+        <HotelReservationSection request={request} />
 
         {/* Detalle de Presupuesto */}
         <BudgetSection request={request} />

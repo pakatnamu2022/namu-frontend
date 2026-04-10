@@ -330,18 +330,24 @@ export const vehicleDeliveryColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, shipping_guide_id, sent_at, aceptada_por_sunat, checklist_status } =
-        row.original;
+      const {
+        id,
+        shipping_guide_id,
+        sent_at,
+        aceptada_por_sunat,
+        checklist_status,
+      } = row.original;
       const migrationStatus = row.original.shipping_guide?.migration_status;
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
-      const { canViewHistory, canGenerate, canChecklist, canSend, canMigrate, canDelete } =
+      const { canViewHistory, canGenerate, canSend, canMigrate, canDelete } =
         permissions;
 
       const isAcceptedBySunat = !!sent_at && aceptada_por_sunat === true;
       const isChecklistConfirmed = checklist_status === "confirmed";
       const isMigrated =
-        migrationStatus === "completed" || migrationStatus === "updated_with_nc";
+        migrationStatus === "completed" ||
+        migrationStatus === "updated_with_nc";
 
       return (
         <div className="flex items-center gap-2">
@@ -362,7 +368,6 @@ export const vehicleDeliveryColumns = ({
             icon={ClipboardList}
             color="amber"
             variant="secondary"
-            canRender={canChecklist && !isChecklistConfirmed}
           />
 
           {/* PDF del checklist: solo cuando está confirmado */}
@@ -372,7 +377,6 @@ export const vehicleDeliveryColumns = ({
             icon={Download}
             color="green"
             variant="secondary"
-            canRender={isChecklistConfirmed}
           />
 
           {/* Guía de remisión: solo cuando checklist confirmado y aún no enviada/aceptada */}
@@ -382,7 +386,11 @@ export const vehicleDeliveryColumns = ({
             icon={FileText}
             color="sky"
             variant="secondary"
-            canRender={isChecklistConfirmed && (!sent_at || aceptada_por_sunat !== true) && canGenerate}
+            canRender={
+              isChecklistConfirmed &&
+              (!sent_at || aceptada_por_sunat !== true) &&
+              canGenerate
+            }
           />
 
           {shipping_guide_id && !isAcceptedBySunat && canSend && (

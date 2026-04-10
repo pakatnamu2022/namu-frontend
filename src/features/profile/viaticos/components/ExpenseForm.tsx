@@ -247,6 +247,7 @@ export default function ExpenseForm({
               placeholder="0.00"
               control={form.control}
               required
+              uppercase
               description="Monto total del comprobante de gasto"
             />
 
@@ -268,6 +269,7 @@ export default function ExpenseForm({
                 description="Número del comprobante de gasto"
                 control={form.control}
                 required
+                uppercase
               />
             )}
 
@@ -390,6 +392,7 @@ export default function ExpenseForm({
                   control={form.control}
                   rows={3}
                   required
+                  uppercase
                 />
               </div>
             )}
