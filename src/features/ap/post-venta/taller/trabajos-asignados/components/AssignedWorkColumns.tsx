@@ -33,6 +33,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PLANNING_TYPE_LABELS } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.constants";
+import { ElapsedTimer } from "../../planificacion-orden-trabajo/components/ElapsedTimer";
 
 interface AssignedWorkColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
@@ -144,6 +145,11 @@ export const assignedWorkColumns = ({
         </div>
       );
     },
+  },
+  {
+    id: "elapsed_time",
+    header: "Tiempo Transcurrido",
+    cell: ({ row }) => <ElapsedTimer planning={row.original} />,
   },
   {
     accessorKey: "type",

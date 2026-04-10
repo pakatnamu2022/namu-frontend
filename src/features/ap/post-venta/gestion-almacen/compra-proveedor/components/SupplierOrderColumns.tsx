@@ -177,7 +177,7 @@ export const supplierOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, has_receptions } = row.original;
+      const { id, has_receptions, approved_by } = row.original;
 
       const handleDownloadPdf = async (id: number) => {
         try {
@@ -215,7 +215,7 @@ export const supplierOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canApprove && (
+          {permissions.canApprove && !approved_by && (
             <ConfirmationDialog
               trigger={
                 <Button

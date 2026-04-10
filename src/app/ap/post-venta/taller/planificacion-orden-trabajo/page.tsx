@@ -107,7 +107,7 @@ export default function PlanningPage() {
       search,
       per_page,
       worker_id: workerId,
-      ...(sedeId && { sede_id: sedeId }),
+      ...(sedeId && { workOrder$sede_id: sedeId }),
     },
     enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
   });

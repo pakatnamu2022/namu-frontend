@@ -53,7 +53,7 @@ import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
-import { FormInput } from "@/shared/components/FormInput";
+
 import { errorToast, successToast } from "@/core/core.function";
 import { useIsTablet } from "@/hooks/use-tablet";
 
@@ -88,6 +88,7 @@ export function ExceptionalCaseSheet({
       description: "",
       estimated_hours: "",
       planned_start_datetime: "",
+      planned_end_datetime: "",
       group_number: 1,
     },
     mode: "onChange",
@@ -175,6 +176,40 @@ export function ExceptionalCaseSheet({
     }
   }, [activeGroup, form]);
 
+  // Calcula las horas trabajadas excluyendo el almuerzo
+  const calculateWorkingHours = (start: string, end: string): number => {
+    const { LUNCH_START, LUNCH_END } = WORK_SCHEDULE;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const startMinutes = startDate.getHours() * 60 + startDate.getMinutes();
+    const endMinutes = endDate.getHours() * 60 + endDate.getMinutes();
+
+    let totalMinutes = endMinutes - startMinutes;
+
+    // Restar minutos de almuerzo que caigan dentro del rango
+    const lunchOverlapStart = Math.max(startMinutes, LUNCH_START);
+    const lunchOverlapEnd = Math.min(endMinutes, LUNCH_END);
+    if (lunchOverlapEnd > lunchOverlapStart) {
+      totalMinutes -= lunchOverlapEnd - lunchOverlapStart;
+    }
+
+    return Math.round((totalMinutes / 60) * 100) / 100;
+  };
+
+  // Al cambiar fecha inicio o fin, recalcular duración
+  const watchStart = form.watch("planned_start_datetime");
+  const watchEnd = form.watch("planned_end_datetime");
+
+  useEffect(() => {
+    if (watchStart && watchEnd) {
+      const hours = calculateWorkingHours(watchStart, watchEnd);
+      if (hours > 0) {
+        form.setValue("estimated_hours", String(hours));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchStart, watchEnd]);
+
   const handleClose = () => {
     form.reset();
     setSelectedWorkOrderId("");
@@ -222,10 +257,18 @@ export function ExceptionalCaseSheet({
   };
 
   const handleFormSubmit = async (data: ExceptionalCaseFormValues) => {
-    // Validar horario permitido
+    // Validar horario de inicio
     if (!validateWorkingHours(data.planned_start_datetime)) {
       errorToast(
-        "El horario seleccionado no está permitido. El horario de trabajo es de 8:00 AM a 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM).",
+        "La hora de inicio no está permitida. El horario de trabajo es de 8:00 AM a 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM).",
+      );
+      return;
+    }
+
+    // Validar horario de fin
+    if (!validateWorkingHours(data.planned_end_datetime)) {
+      errorToast(
+        "La hora de fin no está permitida. El horario de trabajo es de 8:00 AM a 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM).",
       );
       return;
     }
@@ -238,7 +281,7 @@ export function ExceptionalCaseSheet({
         estimated_hours: Number(data.estimated_hours),
         planned_start_datetime: data.planned_start_datetime,
         group_number: data.group_number,
-        type: "external", // Marcador para casos excepcionales
+        type: "external",
       });
 
       successToast("Planificación excepcional creada correctamente");
@@ -260,7 +303,7 @@ export function ExceptionalCaseSheet({
       title="Caso Excepcional"
       subtitle="Registre una planificación fuera del horario normal o para casos especiales donde el trabajador terminó antes de lo planificado."
       type={isTablet ? "tablet" : "default"}
-      className="sm:max-w-3xl"
+      className="3xl"
       icon="AlertTriangle"
     >
       <Form {...form}>
@@ -514,7 +557,7 @@ export function ExceptionalCaseSheet({
             strictFilter={true}
           />
 
-          {/* Fecha y Hora de Inicio con validación */}
+          {/* Fecha y Hora de Inicio */}
           <DateTimePickerForm
             name="planned_start_datetime"
             label="Fecha y Hora de Inicio"
@@ -523,14 +566,38 @@ export function ExceptionalCaseSheet({
             description="Horario permitido: 8:00 AM - 6:00 PM (excluyendo 1:00 PM - 2:24 PM)"
           />
 
-          {/* Duración */}
-          <FormInput
-            name="estimated_hours"
-            label="Duración del Trabajo (horas)"
-            placeholder="Ej: 2.5"
+          {/* Fecha y Hora de Fin */}
+          <DateTimePickerForm
+            name="planned_end_datetime"
+            label="Fecha y Hora de Fin"
             control={form.control}
-            type="text"
-            description="Ingrese la duración real del trabajo en horas (puede usar decimales)"
+            placeholder="Seleccione fecha y hora"
+            description="Debe ser el mismo día y dentro del horario permitido"
+          />
+
+          {/* Duración calculada (solo lectura) */}
+          <FormField
+            control={form.control}
+            name="estimated_hours"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duración del Trabajo (horas)</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    readOnly
+                    disabled
+                    className="bg-muted cursor-not-allowed"
+                    placeholder="Se calcula automáticamente"
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground">
+                  Calculado automáticamente a partir de las fechas seleccionadas,
+                  descontando el tiempo de almuerzo
+                </p>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           {/* Botones */}
