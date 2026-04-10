@@ -1044,534 +1044,542 @@ export function WorkerTimeline({
       </div>
 
       <div className="space-y-6">
-        {workerPlannings.map(({ worker, plannings }) => (
-          <div key={worker.id} className="flex items-center gap-3">
-            <div className="w-48 shrink-0">
-              <h3 className="font-semibold text-sm">{worker.name}</h3>
-              <p className="text-xs text-muted-foreground">
-                {worker.specialty}
-              </p>
-            </div>
+        {workerPlannings.map(({ worker, plannings }) => {
+          const hasExceptional = plannings.some((p) => p.type === "external");
+          return (
+            <div key={worker.id} className="flex items-center gap-3">
+              <div className="w-48 shrink-0">
+                <h3 className="font-semibold text-sm">{worker.name}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {worker.specialty}
+                </p>
+              </div>
 
-            <div className="flex-1">
-              <div
-                className={`timeline-row relative h-20 rounded border ${
-                  selectionMode ? "cursor-pointer" : ""
-                }`}
-                onClick={(e) =>
-                  selectionMode
-                    ? handleTimelineClick(e, worker.id, plannings)
-                    : undefined
-                }
-                onMouseMove={(e) =>
-                  selectionMode
-                    ? handleTimelineHover(e, worker.id, plannings)
-                    : undefined
-                }
-                onMouseLeave={() =>
-                  selectionMode ? setHoveredSlot(null) : undefined
-                }
-              >
-                {/* Área de mañana */}
+              <div className="flex-1">
                 <div
-                  className="absolute left-0 top-0 bottom-0 bg-gray-100"
-                  style={{ width: "50%" }}
-                ></div>
-
-                {/* Separador almuerzo */}
-                <div
-                  className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
-                  style={{ left: "50%", width: "10%" }}
+                  className={`timeline-row relative rounded border ${
+                    hasExceptional ? "h-32" : "h-20"
+                  } ${selectionMode ? "cursor-pointer" : ""}`}
+                  onClick={(e) =>
+                    selectionMode
+                      ? handleTimelineClick(e, worker.id, plannings)
+                      : undefined
+                  }
+                  onMouseMove={(e) =>
+                    selectionMode
+                      ? handleTimelineHover(e, worker.id, plannings)
+                      : undefined
+                  }
+                  onMouseLeave={() =>
+                    selectionMode ? setHoveredSlot(null) : undefined
+                  }
                 >
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
-                    ALMUERZO
-                  </div>
-                </div>
-
-                {/* Área de tarde */}
-                <div
-                  className="absolute top-0 bottom-0 bg-gray-100"
-                  style={{ left: "60%", width: "40%" }}
-                ></div>
-
-                {/* Zona de horas pasadas (solo si es hoy) */}
-                {nowTimelinePosition !== null && nowTimelinePosition > 0 && (
+                  {/* Área de mañana */}
                   <div
-                    className="absolute top-0 bottom-0 bg-slate-400/20 border-r-2 border-slate-400/50 z-10 pointer-events-none"
-                    style={{ left: 0, width: `${nowTimelinePosition}%` }}
-                  />
-                )}
+                    className="absolute left-0 top-0 bottom-0 bg-gray-100"
+                    style={{ width: "50%" }}
+                  ></div>
 
-                {/* Marcadores de hora */}
-                {timeMarkers.map((marker, index) => (
+                  {/* Separador almuerzo */}
                   <div
-                    key={index}
-                    className="absolute top-0 bottom-0 flex flex-col items-start z-20"
-                    style={{ left: `${marker.position}%` }}
+                    className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
+                    style={{ left: "50%", width: "10%" }}
                   >
-                    <div className="w-px h-2 bg-gray-500"></div>
-                    <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
-                      {marker.time}
-                    </span>
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
+                      ALMUERZO
+                    </div>
                   </div>
-                ))}
 
-                {/* Barras de planificación */}
-                {plannings.map((planning, index) => {
-                  const startPos = calculatePosition(
-                    planning.planned_start_datetime!,
-                  );
-                  const width = calculateWidth(planning);
-                  const isExternal = planning.type === "external";
+                  {/* Área de tarde */}
+                  <div
+                    className="absolute top-0 bottom-0 bg-gray-100"
+                    style={{ left: "60%", width: "40%" }}
+                  ></div>
 
-                  // Verificar si el planning anterior era interno y este es externo para actualizar espacio
-                  const previousPlanning =
-                    index > 0 ? plannings[index - 1] : null;
-                  const needsTopMargin =
-                    isExternal && previousPlanning?.type !== "external";
-
-                  // Calcular overtime: tiempo real excedió el planificado
-                  const hasOvertime =
-                    planning.planned_end_datetime &&
-                    planning.actual_end_datetime &&
-                    parseISO(planning.actual_end_datetime) >
-                      parseISO(planning.planned_end_datetime);
-                  const overtimeStartPos = hasOvertime
-                    ? calculatePosition(planning.planned_end_datetime!)
-                    : 0;
-                  const overtimeEndPos = hasOvertime
-                    ? calculatePosition(planning.actual_end_datetime!)
-                    : 0;
-                  const overtimeWidth = hasOvertime
-                    ? overtimeEndPos - overtimeStartPos
-                    : 0;
-
-                  return (
-                    <TooltipProvider key={planning.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className="absolute cursor-pointer"
-                            style={{
-                              left: `${startPos}%`,
-                              width: `${width}%`,
-                              top: needsTopMargin ? "calc(50% + 8px)" : "50%",
-                              transform: "translateY(-50%)",
-                            }}
-                            onClick={() => onPlanningClick?.(planning)}
-                          >
-                            {/* Barra única - color según estado visual */}
-                            <div
-                              className={`h-5 rounded border-2 ${
-                                isExternal
-                                  ? "border-amber-500 bg-amber-200"
-                                  : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
-                              }`}
-                            ></div>
-
-                            {/* Texto centrado */}
-                            <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
-                              <div className="flex items-center gap-1 px-1">
-                                <span
-                                  className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
-                                >
-                                  {planning.work_order_correlative}
-                                </span>
-                                {isExternal && (
-                                  <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
-                                    EXT
-                                  </Badge>
-                                )}
-                                {getEfficiencyIcon(planning)}
-                              </div>
-                            </div>
-
-                            {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
-                            {hasOvertime && overtimeWidth > 0 && (
-                              <div
-                                className="absolute top-0 h-5 pointer-events-none z-40"
-                                style={{
-                                  left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
-                                  width: `${(overtimeWidth / width) * 100}%`,
-                                }}
-                              >
-                                <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
-                                  <span className="text-[9px] font-bold text-white px-0.5 truncate">
-                                    +
-                                    {Math.round(
-                                      (parseISO(
-                                        planning.actual_end_datetime!,
-                                      ).getTime() -
-                                        parseISO(
-                                          planning.planned_end_datetime!,
-                                        ).getTime()) /
-                                        60000,
-                                    )}
-                                    m
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="max-w-xs bg-gray-50 text-black border border-gray-400"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold">
-                                {planning.work_order_correlative}
-                              </div>
-                              {planning.type === "external" && (
-                                <Badge className="text-[10px] bg-amber-600 text-white">
-                                  Caso Excepcional
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-sm">
-                              {planning.description}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground ">
-                                  Planificado:
-                                </span>
-                                <p>
-                                  {planning.planned_start_datetime &&
-                                    format(
-                                      parseISO(planning.planned_start_datetime),
-                                      "HH:mm",
-                                    )}{" "}
-                                  -{" "}
-                                  {planning.planned_end_datetime &&
-                                    format(
-                                      parseISO(planning.planned_end_datetime),
-                                      "HH:mm",
-                                    )}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Real:
-                                </span>
-                                <p>
-                                  {planning.actual_start_datetime
-                                    ? `${format(
-                                        parseISO(
-                                          planning.actual_start_datetime,
-                                        ),
-                                        "HH:mm",
-                                      )} - ${
-                                        planning.actual_end_datetime
-                                          ? format(
-                                              parseISO(
-                                                planning.actual_end_datetime,
-                                              ),
-                                              "HH:mm",
-                                            )
-                                          : "En curso"
-                                      }`
-                                    : "No iniciado"}
-                                </p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Estimado:
-                                </span>
-                                <p>{planning.estimated_hours || "N/A"}h</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Real:
-                                </span>
-                                <p>{planning.actual_hours}h</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Eficiencia:
-                                </span>
-                                <p className="flex items-center gap-1">
-                                  {getEfficiencyPercentage(planning)}
-                                  {getEfficiencyIcon(planning)}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge
-                              className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
-                            >
-                              {
-                                PLANNING_VISUAL_STATE_LABELS[
-                                  getPlanningVisualState(planning)
-                                ]
-                              }
-                            </Badge>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  );
-                })}
-
-                {/* Preview hover */}
-                {selectionMode &&
-                  hoveredSlot &&
-                  hoveredSlot.workerId === worker.id && (
+                  {/* Zona de horas pasadas (solo si es hoy) */}
+                  {nowTimelinePosition !== null && nowTimelinePosition > 0 && (
                     <div
-                      className="absolute top-0 h-full bg-blue-300 opacity-40 pointer-events-none border-2 border-blue-500 border-dashed z-20"
-                      style={{
-                        left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
-                        width: `${
-                          calculatePositionFromDate(
-                            addWorkHours(hoveredSlot.time, estimatedHours),
-                          ) - calculatePositionFromDate(hoveredSlot.time)
-                        }%`,
-                      }}
-                    ></div>
+                      className="absolute top-0 bottom-0 bg-slate-400/20 border-r-2 border-slate-400/50 z-10 pointer-events-none"
+                      style={{ left: 0, width: `${nowTimelinePosition}%` }}
+                    />
                   )}
 
-                {/* Selección confirmada (con resize y división por almuerzo) */}
-                {selectionMode &&
-                  selectedTime &&
-                  selectedTime.workerId === worker.id &&
-                  (() => {
-                    const startMin =
-                      selectedTime.time.getHours() * 60 +
-                      selectedTime.time.getMinutes();
-                    const endTime = addWorkHours(
-                      selectedTime.time,
-                      estimatedHours,
+                  {/* Marcadores de hora */}
+                  {timeMarkers.map((marker, index) => (
+                    <div
+                      key={index}
+                      className="absolute top-0 bottom-0 flex flex-col items-start z-20"
+                      style={{ left: `${marker.position}%` }}
+                    >
+                      <div className="w-px h-2 bg-gray-500"></div>
+                      <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
+                        {marker.time}
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* Barras de planificación */}
+                  {plannings.map((planning) => {
+                    const startPos = calculatePosition(
+                      planning.planned_start_datetime!,
                     );
-                    const endMin =
-                      endTime.getHours() * 60 + endTime.getMinutes();
-                    const crossesLunch =
-                      startMin < LUNCH_START &&
-                      endMin > WORK_SCHEDULE.LUNCH_END;
+                    const width = calculateWidth(planning);
+                    const isExternal = planning.type === "external";
 
-                    const startPos = calculatePositionFromDate(
-                      selectedTime.time,
-                    );
-                    const endPos = calculatePositionFromDate(endTime);
+                    // Calcular posición vertical: si hay excepcionales, separar en dos filas
+                    // Internos: fila superior (~30%), Externos: fila inferior (~72%)
+                    // Si no hay excepcionales: todos centrados en 50%
+                    const verticalTop = hasExceptional
+                      ? isExternal
+                        ? "72%"
+                        : "30%"
+                      : "50%";
 
-                    if (crossesLunch) {
-                      // Bloque mañana: inicio → almuerzo
-                      const lunchStartDate = new Date(selectedTime.time);
-                      lunchStartDate.setHours(
-                        Math.floor(LUNCH_START / 60),
-                        LUNCH_START % 60,
-                        0,
-                        0,
-                      );
-                      const lunchEndDate = new Date(selectedTime.time);
-                      lunchEndDate.setHours(
-                        Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
-                        WORK_SCHEDULE.LUNCH_END % 60,
-                        0,
-                        0,
-                      );
-                      const morningEndPos =
-                        calculatePositionFromDate(lunchStartDate);
-                      const afternoonStartPos =
-                        calculatePositionFromDate(lunchEndDate);
-
-                      return (
-                        <>
-                          {/* Segmento mañana */}
-                          <div
-                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
-                            style={{
-                              left: `${startPos}%`,
-                              width: `${morningEndPos - startPos}%`,
-                            }}
-                          >
-                            <div className="flex items-center justify-center h-full pointer-events-none">
-                              <span className="text-xs font-bold text-black">
-                                {format(selectedTime.time, "HH:mm")} -{" "}
-                                {format(lunchStartDate, "HH:mm")}
-                              </span>
-                            </div>
-                            {/* Botón mover */}
-                            <button
-                              className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
-                              onMouseDown={(e) => e.stopPropagation()}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTime(null);
-                                setHoveredSlot(null);
-                              }}
-                            >
-                              <MoveHorizontal className="h-3 w-3" />
-                              Mover
-                            </button>
-                          </div>
-                          {/* Segmento tarde */}
-                          <div
-                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
-                            style={{
-                              left: `${afternoonStartPos}%`,
-                              width: `${endPos - afternoonStartPos}%`,
-                              cursor: "ew-resize",
-                            }}
-                            ref={(el) => {
-                              if (el) {
-                                (el as any)._timelineEl = el.closest(
-                                  ".timeline-row",
-                                ) as HTMLDivElement;
-                              }
-                            }}
-                          >
-                            <div className="flex items-center justify-center h-full">
-                              <span className="text-xs font-bold text-black">
-                                {format(lunchEndDate, "HH:mm")} -{" "}
-                                {format(endTime, "HH:mm")}
-                              </span>
-                            </div>
-                            {/* Handle de resize */}
-                            <div
-                              className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
-                              onMouseDown={(e) => {
-                                const timelineEl = e.currentTarget.closest(
-                                  ".timeline-row",
-                                ) as HTMLDivElement;
-                                if (timelineEl)
-                                  handleResizeStart(e, timelineEl);
-                              }}
-                            >
-                              <div className="w-1 h-6 bg-primary rounded-full" />
-                            </div>
-                          </div>
-                        </>
-                      );
-                    }
-
-                    // Caso overflow: parte dentro del día (azul) + parte fuera (naranja hasta el borde)
-                    const overflowHours = getOverflowHours(
-                      selectedTime.time,
-                      estimatedHours,
-                    );
-                    const hasOverflow = overflowHours > 0;
-
-                    // endPos clampado al 100% del timeline (18:00)
-                    const clampedEndPos = Math.min(endPos, 100);
-                    // posición de las 18:00 en el timeline
-                    const afternoonEndPos = timeToPosition(18, 0);
-
-                    if (hasOverflow) {
-                      return (
-                        <>
-                          {/* Segmento dentro del horario (azul) */}
-                          <div
-                            className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
-                            style={{
-                              left: `${startPos}%`,
-                              width: `${afternoonEndPos - startPos}%`,
-                            }}
-                          >
-                            <div className="flex items-center justify-center h-full pointer-events-none">
-                              <span className="text-xs font-bold text-black">
-                                {format(selectedTime.time, "HH:mm")} - 18:00
-                              </span>
-                            </div>
-                            {/* Botón mover */}
-                            <button
-                              className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
-                              onMouseDown={(e) => e.stopPropagation()}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTime(null);
-                                setHoveredSlot(null);
-                              }}
-                            >
-                              <MoveHorizontal className="h-3 w-3" />
-                              Mover
-                            </button>
-                          </div>
-                          {/* Segmento overflow (naranja, hasta el borde del timeline) */}
-                          <div
-                            className="absolute top-0 h-full bg-orange-400 opacity-60 border-2 border-orange-600 border-dashed z-30"
-                            style={{
-                              left: `${afternoonEndPos}%`,
-                              width: `${clampedEndPos - afternoonEndPos}%`,
-                              cursor: "ew-resize",
-                            }}
-                          >
-                            <div className="flex items-center justify-center h-full pointer-events-none">
-                              <span className="text-[10px] font-bold text-orange-900 whitespace-nowrap">
-                                +{Math.round(overflowHours * 60)}min →
-                              </span>
-                            </div>
-                            {/* Handle de resize */}
-                            <div
-                              className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-orange-500/30"
-                              onMouseDown={(e) => {
-                                const timelineEl = e.currentTarget.closest(
-                                  ".timeline-row",
-                                ) as HTMLDivElement;
-                                if (timelineEl)
-                                  handleResizeStart(e, timelineEl);
-                              }}
-                            >
-                              <div className="w-1 h-6 bg-orange-600 rounded-full pointer-events-none" />
-                            </div>
-                          </div>
-                        </>
-                      );
-                    }
+                    // Calcular overtime: tiempo real excedió el planificado
+                    const hasOvertime =
+                      planning.planned_end_datetime &&
+                      planning.actual_end_datetime &&
+                      parseISO(planning.actual_end_datetime) >
+                        parseISO(planning.planned_end_datetime);
+                    const overtimeStartPos = hasOvertime
+                      ? calculatePosition(planning.planned_end_datetime!)
+                      : 0;
+                    const overtimeEndPos = hasOvertime
+                      ? calculatePosition(planning.actual_end_datetime!)
+                      : 0;
+                    const overtimeWidth = hasOvertime
+                      ? overtimeEndPos - overtimeStartPos
+                      : 0;
 
                     return (
-                      <div
-                        className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
-                        style={{
-                          left: `${startPos}%`,
-                          width: `${endPos - startPos}%`,
-                        }}
-                      >
-                        <div className="flex items-center justify-center gap-2 h-full pointer-events-none">
-                          <span className="text-xs font-bold text-black">
-                            {format(selectedTime.time, "HH:mm")} -{" "}
-                            {format(endTime, "HH:mm")}
-                          </span>
-                        </div>
-                        {/* Botón mover */}
-                        <button
-                          className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
-                          onMouseDown={(e) => e.stopPropagation()}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTime(null);
-                            setHoveredSlot(null);
-                          }}
-                        >
-                          <MoveHorizontal className="h-3 w-3" />
-                          Mover
-                        </button>
-                        {/* Handle de resize */}
-                        <div
-                          className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
-                          onMouseDown={(e) => {
-                            const timelineEl = e.currentTarget.closest(
-                              ".timeline-row",
-                            ) as HTMLDivElement;
-                            if (timelineEl) handleResizeStart(e, timelineEl);
-                          }}
-                        >
-                          <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
-                        </div>
-                      </div>
-                    );
-                  })()}
+                      <TooltipProvider key={planning.id}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className="absolute cursor-pointer"
+                              style={{
+                                left: `${startPos}%`,
+                                width: `${width}%`,
+                                top: verticalTop,
+                                transform: "translateY(-50%)",
+                              }}
+                              onClick={() => onPlanningClick?.(planning)}
+                            >
+                              {/* Barra única - color según estado visual */}
+                              <div
+                                className={`h-5 rounded border-2 ${
+                                  isExternal
+                                    ? "border-amber-500 bg-amber-200"
+                                    : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
+                                }`}
+                              ></div>
 
-                {plannings.length === 0 && !selectionMode && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm text-muted-foreground">
-                      Sin tareas asignadas
-                    </span>
-                  </div>
-                )}
+                              {/* Texto centrado */}
+                              <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
+                                <div className="flex items-center gap-1 px-1">
+                                  <span
+                                    className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
+                                  >
+                                    {planning.work_order_correlative}
+                                  </span>
+                                  {isExternal && (
+                                    <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
+                                      EXT
+                                    </Badge>
+                                  )}
+                                  {getEfficiencyIcon(planning)}
+                                </div>
+                              </div>
+
+                              {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
+                              {hasOvertime && overtimeWidth > 0 && (
+                                <div
+                                  className="absolute top-0 h-5 pointer-events-none z-40"
+                                  style={{
+                                    left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
+                                    width: `${(overtimeWidth / width) * 100}%`,
+                                  }}
+                                >
+                                  <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
+                                    <span className="text-[9px] font-bold text-white px-0.5 truncate">
+                                      +
+                                      {Math.round(
+                                        (parseISO(
+                                          planning.actual_end_datetime!,
+                                        ).getTime() -
+                                          parseISO(
+                                            planning.planned_end_datetime!,
+                                          ).getTime()) /
+                                          60000,
+                                      )}
+                                      m
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <div className="font-semibold">
+                                  {planning.work_order_correlative}
+                                </div>
+                                {planning.type === "external" && (
+                                  <Badge className="text-[10px] bg-amber-600 text-white">
+                                    Caso Excepcional
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-sm">
+                                {planning.description}
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <span className="text-muted-foreground ">
+                                    Planificado:
+                                  </span>
+                                  <p>
+                                    {planning.planned_start_datetime &&
+                                      format(
+                                        parseISO(
+                                          planning.planned_start_datetime,
+                                        ),
+                                        "HH:mm",
+                                      )}{" "}
+                                    -{" "}
+                                    {planning.planned_end_datetime &&
+                                      format(
+                                        parseISO(planning.planned_end_datetime),
+                                        "HH:mm",
+                                      )}
+                                  </p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Real:
+                                  </span>
+                                  <p>
+                                    {planning.actual_start_datetime
+                                      ? `${format(
+                                          parseISO(
+                                            planning.actual_start_datetime,
+                                          ),
+                                          "HH:mm",
+                                        )} - ${
+                                          planning.actual_end_datetime
+                                            ? format(
+                                                parseISO(
+                                                  planning.actual_end_datetime,
+                                                ),
+                                                "HH:mm",
+                                              )
+                                            : "En curso"
+                                        }`
+                                      : "No iniciado"}
+                                  </p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Estimado:
+                                  </span>
+                                  <p>{planning.estimated_hours || "N/A"}h</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Real:
+                                  </span>
+                                  <p>{planning.actual_hours}h</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Eficiencia:
+                                  </span>
+                                  <p className="flex items-center gap-1">
+                                    {getEfficiencyPercentage(planning)}
+                                    {getEfficiencyIcon(planning)}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge
+                                className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
+                              >
+                                {
+                                  PLANNING_VISUAL_STATE_LABELS[
+                                    getPlanningVisualState(planning)
+                                  ]
+                                }
+                              </Badge>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+
+                  {/* Preview hover */}
+                  {selectionMode &&
+                    hoveredSlot &&
+                    hoveredSlot.workerId === worker.id && (
+                      <div
+                        className="absolute top-0 h-full bg-blue-300 opacity-40 pointer-events-none border-2 border-blue-500 border-dashed z-20"
+                        style={{
+                          left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
+                          width: `${
+                            calculatePositionFromDate(
+                              addWorkHours(hoveredSlot.time, estimatedHours),
+                            ) - calculatePositionFromDate(hoveredSlot.time)
+                          }%`,
+                        }}
+                      ></div>
+                    )}
+
+                  {/* Selección confirmada (con resize y división por almuerzo) */}
+                  {selectionMode &&
+                    selectedTime &&
+                    selectedTime.workerId === worker.id &&
+                    (() => {
+                      const startMin =
+                        selectedTime.time.getHours() * 60 +
+                        selectedTime.time.getMinutes();
+                      const endTime = addWorkHours(
+                        selectedTime.time,
+                        estimatedHours,
+                      );
+                      const endMin =
+                        endTime.getHours() * 60 + endTime.getMinutes();
+                      const crossesLunch =
+                        startMin < LUNCH_START &&
+                        endMin > WORK_SCHEDULE.LUNCH_END;
+
+                      const startPos = calculatePositionFromDate(
+                        selectedTime.time,
+                      );
+                      const endPos = calculatePositionFromDate(endTime);
+
+                      if (crossesLunch) {
+                        // Bloque mañana: inicio → almuerzo
+                        const lunchStartDate = new Date(selectedTime.time);
+                        lunchStartDate.setHours(
+                          Math.floor(LUNCH_START / 60),
+                          LUNCH_START % 60,
+                          0,
+                          0,
+                        );
+                        const lunchEndDate = new Date(selectedTime.time);
+                        lunchEndDate.setHours(
+                          Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+                          WORK_SCHEDULE.LUNCH_END % 60,
+                          0,
+                          0,
+                        );
+                        const morningEndPos =
+                          calculatePositionFromDate(lunchStartDate);
+                        const afternoonStartPos =
+                          calculatePositionFromDate(lunchEndDate);
+
+                        return (
+                          <>
+                            {/* Segmento mañana */}
+                            <div
+                              className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                              style={{
+                                left: `${startPos}%`,
+                                width: `${morningEndPos - startPos}%`,
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full pointer-events-none">
+                                <span className="text-xs font-bold text-black">
+                                  {format(selectedTime.time, "HH:mm")} -{" "}
+                                  {format(lunchStartDate, "HH:mm")}
+                                </span>
+                              </div>
+                              {/* Botón mover */}
+                              <button
+                                className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTime(null);
+                                  setHoveredSlot(null);
+                                }}
+                              >
+                                <MoveHorizontal className="h-3 w-3" />
+                                Mover
+                              </button>
+                            </div>
+                            {/* Segmento tarde */}
+                            <div
+                              className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                              style={{
+                                left: `${afternoonStartPos}%`,
+                                width: `${endPos - afternoonStartPos}%`,
+                                cursor: "ew-resize",
+                              }}
+                              ref={(el) => {
+                                if (el) {
+                                  (el as any)._timelineEl = el.closest(
+                                    ".timeline-row",
+                                  ) as HTMLDivElement;
+                                }
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full">
+                                <span className="text-xs font-bold text-black">
+                                  {format(lunchEndDate, "HH:mm")} -{" "}
+                                  {format(endTime, "HH:mm")}
+                                </span>
+                              </div>
+                              {/* Handle de resize */}
+                              <div
+                                className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                                onMouseDown={(e) => {
+                                  const timelineEl = e.currentTarget.closest(
+                                    ".timeline-row",
+                                  ) as HTMLDivElement;
+                                  if (timelineEl)
+                                    handleResizeStart(e, timelineEl);
+                                }}
+                              >
+                                <div className="w-1 h-6 bg-primary rounded-full" />
+                              </div>
+                            </div>
+                          </>
+                        );
+                      }
+
+                      // Caso overflow: parte dentro del día (azul) + parte fuera (naranja hasta el borde)
+                      const overflowHours = getOverflowHours(
+                        selectedTime.time,
+                        estimatedHours,
+                      );
+                      const hasOverflow = overflowHours > 0;
+
+                      // endPos clampado al 100% del timeline (18:00)
+                      const clampedEndPos = Math.min(endPos, 100);
+                      // posición de las 18:00 en el timeline
+                      const afternoonEndPos = timeToPosition(18, 0);
+
+                      if (hasOverflow) {
+                        return (
+                          <>
+                            {/* Segmento dentro del horario (azul) */}
+                            <div
+                              className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                              style={{
+                                left: `${startPos}%`,
+                                width: `${afternoonEndPos - startPos}%`,
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full pointer-events-none">
+                                <span className="text-xs font-bold text-black">
+                                  {format(selectedTime.time, "HH:mm")} - 18:00
+                                </span>
+                              </div>
+                              {/* Botón mover */}
+                              <button
+                                className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTime(null);
+                                  setHoveredSlot(null);
+                                }}
+                              >
+                                <MoveHorizontal className="h-3 w-3" />
+                                Mover
+                              </button>
+                            </div>
+                            {/* Segmento overflow (naranja, hasta el borde del timeline) */}
+                            <div
+                              className="absolute top-0 h-full bg-orange-400 opacity-60 border-2 border-orange-600 border-dashed z-30"
+                              style={{
+                                left: `${afternoonEndPos}%`,
+                                width: `${clampedEndPos - afternoonEndPos}%`,
+                                cursor: "ew-resize",
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full pointer-events-none">
+                                <span className="text-[10px] font-bold text-orange-900 whitespace-nowrap">
+                                  +{Math.round(overflowHours * 60)}min →
+                                </span>
+                              </div>
+                              {/* Handle de resize */}
+                              <div
+                                className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-orange-500/30"
+                                onMouseDown={(e) => {
+                                  const timelineEl = e.currentTarget.closest(
+                                    ".timeline-row",
+                                  ) as HTMLDivElement;
+                                  if (timelineEl)
+                                    handleResizeStart(e, timelineEl);
+                                }}
+                              >
+                                <div className="w-1 h-6 bg-orange-600 rounded-full pointer-events-none" />
+                              </div>
+                            </div>
+                          </>
+                        );
+                      }
+
+                      return (
+                        <div
+                          className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                          style={{
+                            left: `${startPos}%`,
+                            width: `${endPos - startPos}%`,
+                          }}
+                        >
+                          <div className="flex items-center justify-center gap-2 h-full pointer-events-none">
+                            <span className="text-xs font-bold text-black">
+                              {format(selectedTime.time, "HH:mm")} -{" "}
+                              {format(endTime, "HH:mm")}
+                            </span>
+                          </div>
+                          {/* Botón mover */}
+                          <button
+                            className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTime(null);
+                              setHoveredSlot(null);
+                            }}
+                          >
+                            <MoveHorizontal className="h-3 w-3" />
+                            Mover
+                          </button>
+                          {/* Handle de resize */}
+                          <div
+                            className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                            onMouseDown={(e) => {
+                              const timelineEl = e.currentTarget.closest(
+                                ".timeline-row",
+                              ) as HTMLDivElement;
+                              if (timelineEl) handleResizeStart(e, timelineEl);
+                            }}
+                          >
+                            <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                  {plannings.length === 0 && !selectionMode && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm text-muted-foreground">
+                        Sin tareas asignadas
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

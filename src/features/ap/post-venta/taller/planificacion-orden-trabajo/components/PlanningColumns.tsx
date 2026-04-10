@@ -13,6 +13,7 @@ import { Clock, Calendar, User, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ElapsedTimer } from "./ElapsedTimer";
 
 export type WorkOrderPlanningColumns = ColumnDef<WorkOrderPlanningResource>;
 
@@ -125,6 +126,11 @@ export const planningColumns = ({
         </div>
       );
     },
+  },
+  {
+    id: "elapsed_time",
+    header: "Tiempo Transcurrido",
+    cell: ({ row }) => <ElapsedTimer planning={row.original} />,
   },
   {
     accessorKey: "type",
