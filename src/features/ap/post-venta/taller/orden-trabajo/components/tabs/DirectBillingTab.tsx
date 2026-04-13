@@ -233,7 +233,8 @@ export default function DirectBillingTab({
               )}
             </div>
             <span className="text-2xl font-bold text-primary">
-              S/ {totalFinalAmount.toFixed(2)}
+              {workOrders[0]?.type_currency?.symbol || "S/"}{" "}
+              {totalFinalAmount.toFixed(2)}
             </span>
           </div>
 
@@ -242,13 +243,15 @@ export default function DirectBillingTab({
               <div className="flex justify-between px-4 py-1.5">
                 <span className="text-gray-600">Mano de Obra</span>
                 <span className="font-medium">
-                  S/ {totalLaborCost.toFixed(2)}
+                  {workOrders[0]?.type_currency?.symbol || "S/"}{" "}
+                  {totalLaborCost.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between px-4 py-1.5">
                 <span className="text-gray-600">Repuestos</span>
                 <span className="font-medium">
-                  S/ {totalPartsCost.toFixed(2)}
+                  {workOrders[0]?.type_currency?.symbol || "S/"}{" "}
+                  {totalPartsCost.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -256,12 +259,16 @@ export default function DirectBillingTab({
               <div className="flex justify-between px-4 py-1.5">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">
-                  S/ {totalSubtotal.toFixed(2)}
+                  {workOrders[0]?.type_currency?.symbol || "S/"}{" "}
+                  {totalSubtotal.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between px-4 py-1.5">
                 <span className="text-gray-600">IGV (18%)</span>
-                <span className="font-medium">S/ {totalTax.toFixed(2)}</span>
+                <span className="font-medium">
+                  {workOrders[0]?.type_currency?.symbol || "S/"}{" "}
+                  {totalTax.toFixed(2)}
+                </span>
               </div>
             </div>
           </div>
