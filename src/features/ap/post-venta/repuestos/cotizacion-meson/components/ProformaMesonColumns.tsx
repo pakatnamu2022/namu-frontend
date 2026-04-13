@@ -142,10 +142,6 @@ export const orderQuotationMesonColumns = ({
     header: "Fecha de Descarte",
   },
   {
-    accessorKey: "supply_type",
-    header: "Abastecimiento",
-  },
-  {
     accessorKey: "is_fully_paid",
     header: "Pagado",
     cell: ({ getValue }) => {

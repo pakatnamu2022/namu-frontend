@@ -58,6 +58,7 @@ export default function UpdateVehicleRepuestoPage() {
     return {
       vin: data.vin,
       year: data.year,
+      year_delivery: data.year_delivery,
       plate: data.plate,
       engine_number: data.engine_number,
       ap_models_vn_id: String(data.ap_models_vn_id),

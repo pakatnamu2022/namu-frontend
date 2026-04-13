@@ -1,12 +1,5 @@
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -44,6 +37,7 @@ import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/Sig
 import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { useState } from "react";
+import { InfoSection } from "@/shared/components/InfoSection";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -360,251 +354,208 @@ function BillingSheetContent({
       <Separator />
 
       {/* Información del Cliente */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Información del Cliente</h3>
-        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-          <div className="col-span-2">
-            <p className="text-xs text-muted-foreground">Cliente</p>
-            <p className="text-sm font-semibold">
-              {orderQuotation.client?.full_name || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Documento</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.num_doc || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Teléfono</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.phone || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Email</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.email || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Dirección</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.direction || "N/A"}
-            </p>
-          </div>
-        </div>
-      </div>
+      <InfoSection
+        title="Información del Cliente"
+        fields={[
+          {
+            label: "Cliente",
+            value: orderQuotation.client?.full_name || "N/A",
+            fullWidth: true,
+          },
+          { label: "Documento", value: orderQuotation.client.num_doc || "N/A" },
+          { label: "Teléfono", value: orderQuotation.client.phone || "N/A" },
+          { label: "Email", value: orderQuotation.client.email || "N/A" },
+          {
+            label: "Dirección",
+            value: orderQuotation.client.direction || "N/A",
+          },
+        ]}
+      />
 
       {/* Información del Vehículo (solo si hay vehículo asociado) */}
       {orderQuotation.vehicle && (
         <>
           <Separator />
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg">Información del Vehículo</h3>
-            <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-              <div>
-                <p className="text-xs text-muted-foreground">Placa</p>
-                <p className="text-sm font-semibold">
-                  {orderQuotation.vehicle.plate || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">VIN</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.vin || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Marca</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.model?.brand || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Modelo</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.model?.version || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Año</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.year || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Color</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.vehicle_color || "-"}
-                </p>
-              </div>
-            </div>
-          </div>
+          <InfoSection
+            title="Información del Vehículo"
+            fields={[
+              { label: "Placa", value: orderQuotation.vehicle.plate || "-" },
+              { label: "VIN", value: orderQuotation.vehicle.vin || "-" },
+              {
+                label: "Marca",
+                value: orderQuotation.vehicle.model?.brand || "-",
+              },
+              {
+                label: "Modelo",
+                value: orderQuotation.vehicle.model?.version || "-",
+              },
+              { label: "Año", value: orderQuotation.vehicle.year || "-" },
+              {
+                label: "Color",
+                value: orderQuotation.vehicle.vehicle_color || "-",
+              },
+            ]}
+          />
         </>
       )}
 
       <Separator />
 
       {/* Información de la Cotización */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Información de la Cotización</h3>
-        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-          <div>
-            <p className="text-xs text-muted-foreground">
-              Número de Cotización
-            </p>
-            <p className="text-sm font-semibold">
-              {orderQuotation.quotation_number}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Fecha Cotización</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.quotation_date
-                ? new Date(orderQuotation.quotation_date).toLocaleDateString(
-                    "es-PE",
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    },
-                  )
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Fecha Vencimiento</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.expiration_date
-                ? new Date(orderQuotation.expiration_date).toLocaleDateString(
-                    "es-PE",
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    },
-                  )
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Moneda</p>
-            <Badge variant="outline">
-              {orderQuotation.type_currency?.name || "N/A"}
-            </Badge>
-          </div>
-          {orderQuotation.observations && (
-            <div className="col-span-2">
-              <p className="text-xs text-muted-foreground">Observaciones</p>
-              <p className="text-sm font-medium">
-                {orderQuotation.observations}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <InfoSection
+        title="Información de la Cotización"
+        fields={[
+          {
+            label: "Número de Cotización",
+            value: orderQuotation.quotation_number,
+          },
+          {
+            label: "Fecha Cotización",
+            value: orderQuotation.quotation_date
+              ? new Date(orderQuotation.quotation_date).toLocaleDateString(
+                  "es-PE",
+                  { day: "2-digit", month: "2-digit", year: "numeric" },
+                )
+              : "N/A",
+          },
+          {
+            label: "Fecha Vencimiento",
+            value: orderQuotation.expiration_date
+              ? new Date(orderQuotation.expiration_date).toLocaleDateString(
+                  "es-PE",
+                  { day: "2-digit", month: "2-digit", year: "numeric" },
+                )
+              : "N/A",
+          },
+          {
+            label: "Moneda",
+            value: (
+              <Badge variant="outline">
+                {orderQuotation.type_currency?.name || "N/A"}
+              </Badge>
+            ),
+          },
+          ...(orderQuotation.observations
+            ? [
+                {
+                  label: "Observaciones",
+                  value: orderQuotation.observations,
+                  fullWidth: true,
+                },
+              ]
+            : []),
+        ]}
+      />
 
       <Separator />
 
       {/* Detalle de Productos/Repuestos */}
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Detalle de Productos</h3>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="text-left">#</TableHead>
-                <TableHead>Producto</TableHead>
-                <TableHead className="text-center">
-                  Tipo Abastecimiento
-                </TableHead>
-                <TableHead className="text-center">Cantidad</TableHead>
-                <TableHead className="text-right">P. Unitario</TableHead>
-                <TableHead className="text-right">% Dto.</TableHead>
-                <TableHead className="text-right">Neto</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orderQuotation.details?.map((detail, index) => (
-                <TableRow key={detail.id}>
-                  <TableCell>
-                    <div className="text-sm">{index + 1}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{detail.description}</div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        Código: {detail.product?.code || "N/A"}
-                      </span>
-                      {detail.product?.code && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-5 w-5 p-0 hover:bg-slate-200"
-                          onClick={() => {
-                            if (detail.product?.code) {
-                              handleCopyCode(
-                                detail.product.code,
-                                "product_code",
-                                index,
-                              );
-                            }
-                          }}
-                        >
-                          {copiedIndex === index &&
-                          copiedField === "product_code" ? (
-                            <Check className="h-3 w-3 text-green-600" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="text-sm">{detail.supply_type || "-"}</div>
+        <DetailSheetTable
+          rows={orderQuotation.details ?? []}
+          getKey={(detail) => detail.id}
+          columns={[
+            {
+              header: "#",
+              className: "text-left",
+              render: (_, index) => <div className="text-sm">{index + 1}</div>,
+            },
+            {
+              header: "Producto",
+              render: (detail, index) => (
+                <>
+                  <div className="text-sm">{detail.description}</div>
+                  <div className="flex items-center gap-1">
                     <span className="text-xs text-muted-foreground">
-                      {detail.observations || ""}
+                      Código: {detail.product?.code || "N/A"}
                     </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="text-sm">
-                      {detail.quantity} {detail.unit_measure}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-medium">
-                      {currencySymbol}{" "}
-                      {Number(detail.unit_price).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-medium">
-                      {Number(detail.discount_percentage).toLocaleString(
-                        "es-PE",
-                        {
-                          minimumFractionDigits: 2,
-                        },
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-semibold">
-                      {currencySymbol}{" "}
-                      {Number(detail.total_amount).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+                    {detail.product?.code && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 hover:bg-slate-200"
+                        onClick={() => {
+                          if (detail.product?.code) {
+                            handleCopyCode(
+                              detail.product.code,
+                              "product_code",
+                              index,
+                            );
+                          }
+                        }}
+                      >
+                        {copiedIndex === index &&
+                        copiedField === "product_code" ? (
+                          <Check className="h-3 w-3 text-green-600" />
+                        ) : (
+                          <Copy className="h-3 w-3" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              ),
+            },
+            {
+              header: "Tipo Abastecimiento",
+              className: "text-center",
+              render: (detail) => (
+                <>
+                  <div className="text-sm">{detail.supply_type || "-"}</div>
+                  <span className="text-xs text-muted-foreground">
+                    {detail.observations || ""}
+                  </span>
+                </>
+              ),
+            },
+            {
+              header: "Cantidad",
+              className: "text-center",
+              render: (detail) => (
+                <div className="text-sm">
+                  {detail.quantity} {detail.unit_measure}
+                </div>
+              ),
+            },
+            {
+              header: "P. Unitario",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-medium">
+                  {currencySymbol}{" "}
+                  {Number(detail.unit_price).toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              ),
+            },
+            {
+              header: "% Dto.",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-medium">
+                  {Number(detail.discount_percentage).toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              ),
+            },
+            {
+              header: "Neto",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-semibold">
+                  {currencySymbol}{" "}
+                  {Number(detail.total_amount).toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              ),
+            },
+          ]}
+        />
 
         {/* Totales de la Cotización */}
         <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
@@ -688,128 +639,143 @@ function BillingSheetContent({
           </div>
         ) : (
           <>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead>Documento</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Fecha Emisión</TableHead>
-                    <TableHead>Observaciones</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="text-right">Monto</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {advances.map((doc) => {
+            <DetailSheetTable
+              rows={advances}
+              getKey={(doc) => doc.id}
+              columns={[
+                {
+                  header: "Documento",
+                  render: (doc) => (
+                    <>
+                      <div className="font-medium">
+                        {doc.serie}-{String(doc.numero).padStart(8, "0")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {doc.full_number}
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  header: "Tipo",
+                  render: (doc) => (
+                    <>
+                      <div className="text-sm">
+                        {doc.document_type?.description || "N/A"}
+                      </div>
+                      {doc.is_advance_payment && (
+                        <Badge color="secondary" className="text-xs mt-1">
+                          Anticipo
+                        </Badge>
+                      )}
+                    </>
+                  ),
+                },
+                {
+                  header: "Cliente",
+                  render: (doc) => (
+                    <>
+                      <div className="text-sm font-medium">
+                        {doc.cliente_denominacion}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {doc.cliente_numero_de_documento}
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  header: "Fecha Emisión",
+                  render: (doc) => (
+                    <div className="text-sm">
+                      {new Date(doc.fecha_de_emision).toLocaleDateString(
+                        "es-PE",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        },
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Observaciones",
+                  render: (doc) => (
+                    <div className="text-sm text-muted-foreground max-w-[200px]">
+                      {doc.observaciones || "-"}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Estado",
+                  render: (doc) => {
                     const config =
                       statusConfig[doc.status as keyof typeof statusConfig];
                     const StatusIcon = config?.icon || FileText;
-
                     return (
-                      <TableRow key={doc.id}>
-                        <TableCell>
-                          <div className="font-medium">
-                            {doc.serie}-{String(doc.numero).padStart(8, "0")}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {doc.full_number}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {doc.document_type?.description || "N/A"}
-                          </div>
-                          {doc.is_advance_payment && (
-                            <Badge color="secondary" className="text-xs mt-1">
-                              Anticipo
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm font-medium">
-                            {doc.cliente_denominacion}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {doc.cliente_numero_de_documento}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {new Date(doc.fecha_de_emision).toLocaleDateString(
-                              "es-PE",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                              },
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-muted-foreground max-w-[200px]">
-                            {doc.observaciones || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`${config?.className} flex items-center gap-1 w-fit`}
-                          >
-                            <StatusIcon className="h-3 w-3" />
-                            <span>{config?.label}</span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-semibold w-20">
-                            {currencySymbol}{" "}
-                            {doc.total.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                            })}
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <Badge
+                        variant="outline"
+                        className={`${config?.className} flex items-center gap-1 w-fit`}
+                      >
+                        <StatusIcon className="h-3 w-3" />
+                        <span>{config?.label}</span>
+                      </Badge>
                     );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Resumen de Totales */}
-            <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Cotización</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {orderQuotation.total_amount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Anticipos</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {totalAdvances.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <Separator className="my-2" />
-              <div className="flex justify-between text-base font-bold text-primary">
-                <span>Saldo Pendiente</span>
-                <span>
-                  {currencySymbol}{" "}
-                  {(orderQuotation.total_amount - totalAdvances).toLocaleString(
-                    "es-PE",
-                    {
-                      minimumFractionDigits: 2,
-                    },
-                  )}
-                </span>
-              </div>
-            </div>
+                  },
+                },
+                {
+                  header: "Monto",
+                  className: "text-right",
+                  render: (doc) => (
+                    <div className="font-semibold w-20">
+                      {currencySymbol}{" "}
+                      {doc.total.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </div>
+                  ),
+                },
+              ]}
+              footer={
+                <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Total Cotización
+                    </span>
+                    <span className="font-medium">
+                      {currencySymbol}{" "}
+                      {orderQuotation.total_amount.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Total Anticipos
+                    </span>
+                    <span className="font-medium">
+                      {currencySymbol}{" "}
+                      {totalAdvances.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between text-base font-bold text-primary">
+                    <span>Saldo Pendiente</span>
+                    <span>
+                      {currencySymbol}{" "}
+                      {(
+                        orderQuotation.total_amount - totalAdvances
+                      ).toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                </div>
+              }
+            />
           </>
         )}
       </div>
