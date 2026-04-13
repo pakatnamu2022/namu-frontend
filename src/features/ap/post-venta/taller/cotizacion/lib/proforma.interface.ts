@@ -28,6 +28,7 @@ export interface OrderQuotationResource {
   expiration_date: string;
   collection_date: string;
   observations: string | null;
+  notes: string | null;
   details: OrderQuotationDetailsResource[];
   advances: ElectronicDocumentResource[];
   client: CustomersResource;

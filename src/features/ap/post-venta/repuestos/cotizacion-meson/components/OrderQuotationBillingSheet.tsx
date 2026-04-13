@@ -38,6 +38,7 @@ import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { useState } from "react";
 import { InfoSection } from "@/shared/components/InfoSection";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -134,6 +135,7 @@ interface BillingSheetContentProps {
 }
 
 const signatureSchema = z.object({
+  notes: z.string().optional(),
   customer_signature: z.string().min(1, "La firma del cliente es requerida"),
 });
 
@@ -158,6 +160,7 @@ function BillingSheetContent({
   const form = useForm<SignatureFormData>({
     resolver: zodResolver(signatureSchema),
     defaultValues: {
+      notes: "",
       customer_signature: "",
     },
   });
@@ -857,6 +860,23 @@ function BillingSheetContent({
                           onChange={field.onChange}
                           disabled={confirmMutation.isPending}
                           required
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <FormTextArea
+                          label="Notas adicionales (opcional)"
+                          placeholder="Escribe aquí..."
+                          disabled={confirmMutation.isPending}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
