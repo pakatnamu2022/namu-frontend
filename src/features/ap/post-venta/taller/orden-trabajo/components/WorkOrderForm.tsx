@@ -16,7 +16,6 @@ import {
   FileText,
   Car,
   Building,
-  Plus,
   List,
   Search,
   ClipboardCheck,
@@ -36,18 +35,12 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { AppointmentPlanningResource } from "../../citas/lib/appointmentPlanning.interface";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
-import {
-  DEFAULT_GROUP_COLOR,
-  GROUP_COLORS,
-  WorkOrderResource,
-} from "../lib/workOrder.interface";
+import { WorkOrderResource } from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
@@ -63,10 +56,6 @@ import { DataCard } from "@/components/DataCard";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
-
-const getGroupColor = (groupNumber: number) => {
-  return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
-};
 
 const formatDateTimeLocalInput = (date: Date): string => {
   const year = date.getFullYear();
@@ -126,14 +115,24 @@ export const WorkOrderForm = ({
         (mode === "create" ? estimatedDeliveryDefault : undefined),
       has_appointment: defaultValues.has_appointment ?? false,
       has_inspection: defaultValues.has_inspection ?? false,
-      items: defaultValues.items ?? [],
+      items:
+        defaultValues.items && defaultValues.items.length > 0
+          ? defaultValues.items
+          : [
+              {
+                group_number: 1,
+                type_planning_id: "",
+                type_operation_id: "",
+                description: "-",
+              },
+            ],
       diagnosis_date:
         defaultValues.diagnosis_date || defaultValues.opening_date,
     },
     mode: "onChange",
   });
 
-  const { fields, append } = useFieldArray({
+  const { fields } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -242,16 +241,14 @@ export const WorkOrderForm = ({
         form.setValue("estimated_delivery_time", `${dateOnly}T${time}`);
       }
 
-      // Agregar item desde la cita solo si no hay items
-      if (fields.length === 0) {
-        append({
-          group_number: 1,
-          type_planning_id: selectedAppointment.type_planning_id.toString(),
-          type_operation_id:
-            selectedAppointment.type_operation_appointment_id.toString(),
-          description: selectedAppointment.description || "",
-        });
-      }
+      // Setear el item de la cita en la primera posición
+      form.setValue("items.0", {
+        group_number: 1,
+        type_planning_id: selectedAppointment.type_planning_id.toString(),
+        type_operation_id:
+          selectedAppointment.type_operation_appointment_id.toString(),
+        description: selectedAppointment.description || "",
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAppointment]);
@@ -263,10 +260,15 @@ export const WorkOrderForm = ({
       setSelectedAppointment(null);
       form.setValue("vehicle_id", "");
       setSelectedVehicle(null);
-      // Limpiar todos los items si hay alguno
-      if (fields.length > 0) {
-        form.setValue("items", []);
-      }
+      // Resetear items al item vacío por defecto
+      form.setValue("items", [
+        {
+          group_number: 1,
+          type_planning_id: "",
+          type_operation_id: "",
+          description: "-",
+        },
+      ]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedHasAppointment]);
@@ -331,15 +333,6 @@ export const WorkOrderForm = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedTypePlanningIds, typesPlanning, typesOperation]);
-
-  const handleAddItem = () => {
-    append({
-      group_number: 1,
-      type_planning_id: "",
-      type_operation_id: "",
-      description: "-",
-    });
-  };
 
   const handleSelectAppointment = (
     appointment: AppointmentPlanningResource,
@@ -801,124 +794,64 @@ export const WorkOrderForm = ({
         </GroupFormSection>
 
         {/* Items de Servicio */}
-        {mode === "create" && (
-          <GroupFormSection
-            title="Trabajos"
-            icon={List}
-            color="primary"
-            cols={{ sm: 1 }}
-          >
-            <div className="space-y-4">
-              {fields.map((field, index) => {
-                const groupNumber =
-                  form.watch(`items.${index}.group_number`) || 1;
-                const colors = getGroupColor(groupNumber);
+        <GroupFormSection
+          title="Trabajos"
+          icon={List}
+          color="primary"
+          cols={{ sm: 1 }}
+        >
+          <div className="space-y-4">
+            {fields.map((field, index) => (
+              <div key={field.id} className="grid grid-cols-1 gap-4">
+                {/* Tipo de Planificación y Tipo de Operación */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormSelect
+                    name={`items.${index}.type_planning_id`}
+                    label="Tipo de Planificación"
+                    placeholder="Seleccione tipo"
+                    options={typesPlanning.map((item) => ({
+                      label: item.description,
+                      value: item.id.toString(),
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
+                  />
 
-                return (
-                  <Card
-                    key={field.id}
-                    className="p-4 border-2 border-gray-200 bg-white hover:border-gray-300"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          className="text-white"
-                          style={{
-                            backgroundColor: colors.badge,
-                          }}
-                        >
-                          Grupo {groupNumber}
-                        </Badge>
-                        <h5 className="font-semibold text-gray-700">
-                          Trabajo #{index + 1}
-                        </h5>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      {/* Fila 1: Grupo, Tipo de Planificación y Tipo de Operación */}
-                      <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-2">
-                          <FormInput
-                            name={`items.${index}.group_number`}
-                            label="Grupo"
-                            type="number"
-                            min={1}
-                            max={20}
-                            className={`text-center ${colors.input}`}
-                            control={form.control}
-                            disabled
-                          />
-                        </div>
-
-                        <div className="col-span-5">
-                          <FormSelect
-                            name={`items.${index}.type_planning_id`}
-                            label="Tipo de Planificación"
-                            placeholder="Seleccione tipo"
-                            options={typesPlanning.map((item) => ({
-                              label: item.description,
-                              value: item.id.toString(),
-                            }))}
-                            control={form.control}
-                            strictFilter={true}
-                          />
-                        </div>
-
-                        <div className="col-span-5">
-                          <FormSelect
-                            name={`items.${index}.type_operation_id`}
-                            label="Tipo de Operación"
-                            placeholder="Seleccione operación"
-                            options={typesOperation.map((item) => ({
-                              label: item.description,
-                              value: item.id.toString(),
-                            }))}
-                            control={form.control}
-                            strictFilter={true}
-                            onValueChange={(value) => {
-                              const found = typesOperation.find(
-                                (p) => p.id.toString() === value,
-                              );
-                              if (found) {
-                                form.setValue(
-                                  `items.${index}.description`,
-                                  found.description,
-                                );
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Fila 2: Descripción */}
-                      <FormTextArea
-                        name={`items.${index}.description`}
-                        label="Descripción del Trabajo"
-                        placeholder="Ingrese la descripción del trabajo..."
-                        control={form.control}
-                      />
-                    </div>
-                  </Card>
-                );
-              })}
-
-              {fields.length === 0 && (
-                <div className="space-y-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddItem}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar Trabajo
-                  </Button>
+                  <FormSelect
+                    name={`items.${index}.type_operation_id`}
+                    label="Tipo de Operación"
+                    placeholder="Seleccione operación"
+                    options={typesOperation.map((item) => ({
+                      label: item.description,
+                      value: item.id.toString(),
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
+                    onValueChange={(value) => {
+                      const found = typesOperation.find(
+                        (p) => p.id.toString() === value,
+                      );
+                      if (found) {
+                        form.setValue(
+                          `items.${index}.description`,
+                          found.description,
+                        );
+                      }
+                    }}
+                  />
                 </div>
-              )}
-            </div>
-          </GroupFormSection>
-        )}
+
+                {/* Descripción */}
+                <FormTextArea
+                  name={`items.${index}.description`}
+                  label="Descripción del Trabajo"
+                  placeholder="Ingrese la descripción del trabajo..."
+                  control={form.control}
+                />
+              </div>
+            ))}
+          </div>
+        </GroupFormSection>
 
         {/* Persona de Contacto */}
         <GroupFormSection

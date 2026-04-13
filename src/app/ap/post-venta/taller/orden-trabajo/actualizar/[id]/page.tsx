@@ -88,6 +88,12 @@ export default function UpdateWorkOrderPage() {
       num_doc_contact: data.num_doc_contact || "",
       full_contact_name: data.full_contact_name || "",
       phone_contact: data.phone_contact || "",
+      items: (data.items ?? []).map((item) => ({
+        group_number: item.group_number ?? 1,
+        type_planning_id: String(item.type_planning_id),
+        type_operation_id: String(item.type_operation_id),
+        description: item.description || "",
+      })),
     };
   }
 
