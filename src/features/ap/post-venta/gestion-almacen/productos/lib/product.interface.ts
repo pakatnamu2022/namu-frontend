@@ -58,9 +58,9 @@ export interface ProductResource {
 
   // Nested relations (when included)
   warehouse_stocks?: WarehouseStockDetail[];
-  category?: ProductCategoryResource;
-  brand?: BrandsResource;
-  unit_measurement?: UnitMeasurementResource;
+  category: ProductCategoryResource;
+  brand: BrandsResource;
+  unit_measurement: UnitMeasurementResource;
 }
 
 export interface WarehouseStock {

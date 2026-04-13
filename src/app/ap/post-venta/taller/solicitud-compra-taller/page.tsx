@@ -27,6 +27,8 @@ import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-co
 import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions.ts";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook.ts";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
+import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
 
 export default function PurchaseRequestPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -35,6 +37,10 @@ export default function PurchaseRequestPVPage() {
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [selectedPurchaseRequestId, setSelectedPurchaseRequestId] = useState<
+    number | null
+  >(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_TALLER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -97,6 +103,16 @@ export default function PurchaseRequestPVPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
+  const handleViewDetail = (purchaseRequest: PurchaseRequestResource) => {
+    setSelectedPurchaseRequestId(purchaseRequest.id);
+    setIsDetailSheetOpen(true);
+  };
+
+  const handleCloseDetailSheet = () => {
+    setIsDetailSheetOpen(false);
+    setSelectedPurchaseRequestId(null);
+  };
+
   if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -120,6 +136,7 @@ export default function PurchaseRequestPVPage() {
         columns={purchaseRequestColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
+          onViewDetail: handleViewDetail,
           permissions,
         })}
         data={data?.data || []}
@@ -153,6 +170,13 @@ export default function PurchaseRequestPVPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PurchaseRequestDetailSheet
+        purchaseRequestId={selectedPurchaseRequestId}
+        open={isDetailSheetOpen}
+        onClose={handleCloseDetailSheet}
+        onRefresh={refetch}
+      />
     </div>
   );
 }

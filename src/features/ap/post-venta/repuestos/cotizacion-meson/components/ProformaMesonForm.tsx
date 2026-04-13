@@ -29,8 +29,12 @@ import {
   ExternalLink,
   Copy,
   Check,
+  User,
+  Car,
+  FileText,
+  Calendar,
+  Gauge,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import {
   DEFAULT_APPROVED_DISCOUNT,
@@ -58,7 +62,10 @@ import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hoo
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
-import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import {
+  useVehicles,
+  useVehicleById,
+} from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -72,6 +79,7 @@ import {
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { DataCard } from "@/components/DataCard";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -819,6 +827,7 @@ export default function ProformaMesonForm({
   approvedDiscountRequests = [],
 }: ProformaMesonFormProps) {
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
@@ -864,6 +873,7 @@ export default function ProformaMesonForm({
 
   const quotationDate = form.watch("quotation_date");
   const currencyId = form.watch("currency_id");
+  const vehicleId = form.watch("vehicle_id");
 
   // Usar useWatch para detectar cambios en details en tiempo real
   const watchedDetails = useWatch({
@@ -879,6 +889,12 @@ export default function ProformaMesonForm({
   const { data: currencyTypes = [] } = useAllCurrencyTypes({
     enable_after_sales: STATUS_ACTIVE,
   });
+
+  const { data: vehicleById } = useVehicleById(Number(vehicleId) || 0);
+
+  useEffect(() => {
+    setSelectedVehicle(vehicleById ?? null);
+  }, [vehicleById]);
 
   // Setear primera sede por defecto
   useEffect(() => {
@@ -1063,308 +1079,383 @@ export default function ProformaMesonForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Información de la Cotización */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            Información de la Cotización
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FormSelect
-              name="sede_id"
-              label="Sede"
-              placeholder="Selecciona una sede"
-              options={mySedes.map((item) => ({
-                label: item.abreviatura,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              required
-            />
-
-            <FormSelect
-              control={form.control}
-              name="currency_id"
-              options={currencyTypes.map((type) => ({
-                value: type.id.toString(),
-                label: type.name,
-              }))}
-              label="Moneda"
-              placeholder="Seleccionar moneda"
-              required
-            />
-
-            <FormSelectAsync
-              placeholder="Seleccionar cliente"
-              control={form.control}
-              label={"Cliente"}
-              name="client_id"
-              useQueryHook={useCustomers}
-              mapOptionFn={(item: CustomersResource) => ({
-                value: item.id.toString(),
-                label: `${item.full_name}`,
-              })}
-              perPage={10}
-              debounceMs={500}
-              defaultOption={
-                clientData
-                  ? {
-                      value: clientData.id.toString(),
-                      label: `${clientData.full_name}`,
-                    }
-                  : undefined
-              }
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-lg"
-                className="aspect-square"
-                onClick={() => setIsCustomerModalOpen(true)}
-                tooltip="Agregar nuevo cliente"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </FormSelectAsync>
-
-            <FormSelectAsync
-              placeholder="Seleccionar vehículo"
-              control={form.control}
-              label={"Vehículo"}
-              name="vehicle_id"
-              useQueryHook={useVehicles}
-              mapOptionFn={(item: VehicleResource) => ({
-                value: item.id.toString(),
-                label: item.plate
-                  ? `${item.plate} - ${item.vin || ""}`
-                  : item.vin || "-",
-              })}
-              perPage={10}
-              debounceMs={500}
-              defaultOption={
-                vehicleData
-                  ? {
-                      value: vehicleData.id.toString(),
-                      label: vehicleData.plate
-                        ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
-                        : vehicleData.vin || "-",
-                    }
-                  : undefined
-              }
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-lg"
-                className="aspect-square"
-                onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
-                tooltip="Agregar nuevo vehículo"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </FormSelectAsync>
-
-            <DatePickerFormField
-              control={form.control}
-              name="quotation_date"
-              label="Fecha de Apertura"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-              disabled
-            />
-
-            <DatePickerFormField
-              control={form.control}
-              name="expiration_date"
-              label="Fecha de Vencimiento"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-              disabled={true}
-            />
-
-            <DatePickerFormField
-              control={form.control}
-              name="collection_date"
-              label="Fecha de Recojo"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-            />
-          </div>
-
-          <FormTextArea
-            name="observations"
-            label="Observaciones"
-            placeholder="Notas adicionales sobre la cotización..."
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <FormSelect
+            name="sede_id"
+            label="Sede"
+            placeholder="Selecciona una sede"
+            options={mySedes.map((item) => ({
+              label: item.abreviatura,
+              value: item.id.toString(),
+            }))}
             control={form.control}
-            rows={3}
+            required
           />
-        </Card>
+
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda"
+            placeholder="Seleccionar moneda"
+            required
+          />
+
+          <FormSelectAsync
+            placeholder="Seleccionar cliente"
+            control={form.control}
+            label={"Cliente"}
+            name="client_id"
+            useQueryHook={useCustomers}
+            mapOptionFn={(item: CustomersResource) => ({
+              value: item.id.toString(),
+              label: `${item.full_name}`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              clientData
+                ? {
+                    value: clientData.id.toString(),
+                    label: `${clientData.full_name}`,
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => setIsCustomerModalOpen(true)}
+              tooltip="Agregar nuevo cliente"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
+
+          <FormSelectAsync
+            placeholder="Seleccionar vehículo"
+            control={form.control}
+            label={"Vehículo"}
+            name="vehicle_id"
+            useQueryHook={useVehicles}
+            mapOptionFn={(item: VehicleResource) => ({
+              value: item.id.toString(),
+              label: item.plate
+                ? `${item.plate} - ${item.vin || ""}`
+                : item.vin || "-",
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              vehicleData
+                ? {
+                    value: vehicleData.id.toString(),
+                    label: vehicleData.plate
+                      ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
+                      : vehicleData.vin || "-",
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
+              tooltip="Agregar nuevo vehículo"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
+
+          <DatePickerFormField
+            control={form.control}
+            name="quotation_date"
+            label="Fecha de Apertura"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabled
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="expiration_date"
+            label="Fecha de Vencimiento"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabled={true}
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="collection_date"
+            label="Fecha Estimada de Recojo"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabledRange={form.watch("quotation_date") ? { before: new Date(form.watch("quotation_date")) } : undefined}
+          />
+        </div>
+
+        <FormTextArea
+          name="observations"
+          label="Observaciones"
+          placeholder="Notas adicionales sobre la cotización..."
+          control={form.control}
+          rows={3}
+        />
+
+        {/* Información del Vehículo Seleccionado */}
+        {selectedVehicle && (
+          <DataCard
+            title="INFORMACIÓN DEL VEHÍCULO"
+            columns={3}
+            fields={[
+              {
+                key: "vin",
+                label: "VIN",
+                icon: FileText,
+                value: selectedVehicle.vin || "N/A",
+              },
+              {
+                key: "brand",
+                label: "Marca",
+                icon: Car,
+                value: selectedVehicle.model?.brand || "N/A",
+              },
+              {
+                key: "model",
+                label: "Modelo",
+                icon: FileText,
+                value: selectedVehicle.model?.version || "N/A",
+              },
+              {
+                key: "year",
+                label: "Año",
+                icon: Calendar,
+                value: selectedVehicle.year || "N/A",
+              },
+              {
+                key: "color",
+                label: "Color",
+                icon: Car,
+                value: selectedVehicle.vehicle_color || "N/A",
+              },
+              {
+                key: "engine_type",
+                label: "Motor",
+                icon: Gauge,
+                value: selectedVehicle.engine_type || "N/A",
+              },
+              {
+                key: "engine_number",
+                label: "N° Motor",
+                icon: FileText,
+                value: selectedVehicle.engine_number || "N/A",
+              },
+            ]}
+            sections={
+              selectedVehicle.owner
+                ? [
+                    {
+                      key: "owner",
+                      title: "Propietario",
+                      icon: User,
+                      fields: [
+                        {
+                          key: "owner_name",
+                          label: "Nombre",
+                          icon: User,
+                          value: selectedVehicle.owner.full_name || "N/A",
+                        },
+                        {
+                          key: "owner_document",
+                          label: "Documento",
+                          icon: FileText,
+                          value: selectedVehicle.owner.num_doc || "N/A",
+                        },
+                        {
+                          key: "owner_phone",
+                          label: "Teléfono",
+                          icon: User,
+                          value: selectedVehicle.owner.phone || "N/A",
+                        },
+                      ],
+                    },
+                  ]
+                : undefined
+            }
+          />
+        )}
 
         {/* Sección de Repuestos */}
-        <Card className="p-6">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Repuestos</h3>
+
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Package className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">Repuestos</h3>
+          </div>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <Button
+              type="button"
+              onClick={() => setIsPartModalOpen(true)}
+              size="sm"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={isDetailsDisabled}
+            >
+              <PackagePlus className="h-4 w-4 mr-2" />
+              Crear Repuesto
+            </Button>
+            <Button
+              type="button"
+              onClick={addProduct}
+              size="sm"
+              className="w-full sm:w-auto"
+              disabled={!quotationDate || isDetailsDisabled}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar Repuesto
+            </Button>
+          </div>
+        </div>
+
+        {/* Mensaje de tipo de cambio */}
+        {quotationDate && (
+          <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-4">
+            <p className="text-xs text-primary">
+              <span className="font-semibold">Comisión de flete:</span> 1.05
+            </p>
+            {isLoadingExchangeRate ? (
+              <p className="text-xs text-primary">
+                <span className="font-semibold">Tipo de cambio:</span>{" "}
+                Cargando...
+              </p>
+            ) : exchangeRate ? (
+              <p className="text-xs text-primary">
+                <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
+                {exchangeRate.toFixed(4)}
+              </p>
+            ) : (
+              <p className="text-xs text-red-600">
+                <span className="font-semibold">Tipo de cambio:</span> No
+                disponible
+              </p>
+            )}
+          </div>
+        )}
+
+        {fields.length === 0 ? (
+          <div className="text-center py-8 border rounded-lg bg-gray-50">
+            <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-600">No hay repuestos agregados</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Selecciona una fecha de cotización y haz clic en "Agregar
+              Repuesto"
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Cabecera de tabla - Solo Desktop */}
+            <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
+              <div className="col-span-4">Repuesto</div>
+              <div className="col-span-1 text-center">Cant.</div>
+              <div className="col-span-2 text-center">P. Ext. ($)</div>
+              <div className="col-span-2 text-center">
+                P. Unit. ({selectedCurrency?.symbol || "S/."})
+              </div>
+              <div className="col-span-2 text-center">Dcto %</div>
+              <div className="col-span-2 text-center">
+                Total ({selectedCurrency?.symbol || "S/."})
+              </div>
+              <div className="col-span-1 text-center">Acción</div>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-              <Button
-                type="button"
-                onClick={() => setIsPartModalOpen(true)}
-                size="sm"
-                variant="outline"
-                className="w-full sm:w-auto"
-                disabled={isDetailsDisabled}
-              >
-                <PackagePlus className="h-4 w-4 mr-2" />
-                Crear Repuesto
-              </Button>
-              <Button
-                type="button"
-                onClick={addProduct}
-                size="sm"
-                className="w-full sm:w-auto"
-                disabled={!quotationDate || isDetailsDisabled}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Repuesto
-              </Button>
+
+            {/* Items */}
+            <div className="space-y-2">
+              {fields.map((field, index) => {
+                // Buscar el detalle original para obtener el defaultOption del producto
+                const originalDetail = quotationData?.details?.filter(
+                  (d) => d.item_type === ITEM_TYPE_PRODUCT,
+                )[index];
+                const defaultProductOption = originalDetail?.product
+                  ? {
+                      value: originalDetail.product.id.toString(),
+                      label: `${originalDetail.product.code} - ${originalDetail.product.name}`,
+                    }
+                  : undefined;
+
+                // Resolver descuento aprobado: GLOBAL aplica a todos, PARTIAL por detail_id
+                const globalApproved = approvedDiscountRequests.find(
+                  (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+                );
+                const partialApproved = originalDetail
+                  ? approvedDiscountRequests.find(
+                      (r) =>
+                        r.type === TYPE_PARTIAL &&
+                        r.status === STATUS_APPROVED &&
+                        r.ap_order_quotation_detail_id === originalDetail.id,
+                    )
+                  : undefined;
+                const approvedDiscount = globalApproved
+                  ? Number(globalApproved.requested_discount_percentage)
+                  : partialApproved
+                    ? Number(partialApproved.requested_discount_percentage)
+                    : undefined;
+
+                return (
+                  <ProductDetailItem
+                    key={field.id}
+                    index={index}
+                    form={form}
+                    onRemove={() => remove(index)}
+                    selectedCurrency={selectedCurrency}
+                    stockData={stockData}
+                    defaultProductOption={defaultProductOption}
+                    detailId={originalDetail?.id}
+                    approvedDiscount={approvedDiscount}
+                    defaultDiscount={defaultDiscount}
+                    isDetailsDisabled={isDetailsDisabled}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Total General */}
+            <div className="flex justify-end pt-4 border-t">
+              <div className="text-right space-y-1">
+                <div className="flex justify-between gap-8">
+                  <p className="text-sm text-gray-600">Subtotal:</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatCurrency(getTotalGeneral())}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-8">
+                  <p className="text-sm text-gray-600">IGV (18%):</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatCurrency(getTotalGeneral() * IGV.RATE)}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-8 pt-1 border-t">
+                  <p className="text-sm font-semibold text-gray-700">
+                    Total General:
+                  </p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(getTotalGeneral() * IGV.FACTOR)}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Mensaje de tipo de cambio */}
-          {quotationDate && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-4">
-              <p className="text-xs text-primary">
-                <span className="font-semibold">Comisión de flete:</span> 1.05
-              </p>
-              {isLoadingExchangeRate ? (
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Tipo de cambio:</span>{" "}
-                  Cargando...
-                </p>
-              ) : exchangeRate ? (
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
-                  {exchangeRate.toFixed(4)}
-                </p>
-              ) : (
-                <p className="text-xs text-red-600">
-                  <span className="font-semibold">Tipo de cambio:</span> No
-                  disponible
-                </p>
-              )}
-            </div>
-          )}
-
-          {fields.length === 0 ? (
-            <div className="text-center py-8 border rounded-lg bg-gray-50">
-              <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">
-                No hay repuestos agregados
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Selecciona una fecha de cotización y haz clic en "Agregar
-                Repuesto"
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {/* Cabecera de tabla - Solo Desktop */}
-              <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
-                <div className="col-span-4">Repuesto</div>
-                <div className="col-span-1 text-center">Cant.</div>
-                <div className="col-span-2 text-center">P. Ext. ($)</div>
-                <div className="col-span-2 text-center">
-                  P. Unit. ({selectedCurrency?.symbol || "S/."})
-                </div>
-                <div className="col-span-2 text-center">Dcto %</div>
-                <div className="col-span-2 text-center">
-                  Total ({selectedCurrency?.symbol || "S/."})
-                </div>
-                <div className="col-span-1 text-center">Acción</div>
-              </div>
-
-              {/* Items */}
-              <div className="space-y-2">
-                {fields.map((field, index) => {
-                  // Buscar el detalle original para obtener el defaultOption del producto
-                  const originalDetail = quotationData?.details?.filter(
-                    (d) => d.item_type === ITEM_TYPE_PRODUCT,
-                  )[index];
-                  const defaultProductOption = originalDetail?.product
-                    ? {
-                        value: originalDetail.product.id.toString(),
-                        label: `${originalDetail.product.code} - ${originalDetail.product.name}`,
-                      }
-                    : undefined;
-
-                  // Resolver descuento aprobado: GLOBAL aplica a todos, PARTIAL por detail_id
-                  const globalApproved = approvedDiscountRequests.find(
-                    (r) =>
-                      r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
-                  );
-                  const partialApproved = originalDetail
-                    ? approvedDiscountRequests.find(
-                        (r) =>
-                          r.type === TYPE_PARTIAL &&
-                          r.status === STATUS_APPROVED &&
-                          r.ap_order_quotation_detail_id === originalDetail.id,
-                      )
-                    : undefined;
-                  const approvedDiscount = globalApproved
-                    ? Number(globalApproved.requested_discount_percentage)
-                    : partialApproved
-                      ? Number(partialApproved.requested_discount_percentage)
-                      : undefined;
-
-                  return (
-                    <ProductDetailItem
-                      key={field.id}
-                      index={index}
-                      form={form}
-                      onRemove={() => remove(index)}
-                      selectedCurrency={selectedCurrency}
-                      stockData={stockData}
-                      defaultProductOption={defaultProductOption}
-                      detailId={originalDetail?.id}
-                      approvedDiscount={approvedDiscount}
-                      defaultDiscount={defaultDiscount}
-                      isDetailsDisabled={isDetailsDisabled}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Total General */}
-              <div className="flex justify-end pt-4 border-t">
-                <div className="text-right space-y-1">
-                  <div className="flex justify-between gap-8">
-                    <p className="text-sm text-gray-600">Subtotal:</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {formatCurrency(getTotalGeneral())}
-                    </p>
-                  </div>
-                  <div className="flex justify-between gap-8">
-                    <p className="text-sm text-gray-600">IGV (18%):</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {formatCurrency(getTotalGeneral() * IGV.RATE)}
-                    </p>
-                  </div>
-                  <div className="flex justify-between gap-8 pt-1 border-t">
-                    <p className="text-sm font-semibold text-gray-700">
-                      Total General:
-                    </p>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatCurrency(getTotalGeneral() * IGV.FACTOR)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </Card>
+        )}
 
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>

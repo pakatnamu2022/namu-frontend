@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { Loader2 } from "lucide-react";
 import { findProductById } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { InfoSection } from "@/shared/components/InfoSection";
 
 interface Props {
   productId: number | null;
@@ -55,7 +56,7 @@ export default function ProductDetailSheet({
         </div>
       ) : product ? (
         <>
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6 px-6">
             {/* Estado */}
             <div>
               <Badge color={getStatusConfig(product.status).color}>
@@ -64,50 +65,45 @@ export default function ProductDetailSheet({
             </div>
 
             {/* Información General */}
-            <div>
-              <h3 className="text-lg font-semibold mb-3">
-                Información General
-              </h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Código</p>
-                  <p className="font-medium">{product.code}</p>
-                </div>
-                {product.dyn_code && (
-                  <div>
-                    <p className="text-muted-foreground">Código DYN</p>
-                    <p className="font-medium">{product.dyn_code}</p>
-                  </div>
-                )}
-                {product.description && (
-                  <div className="col-span-2">
-                    <p className="text-muted-foreground">Descripción</p>
-                    <p className="font-medium">{product.description}</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <InfoSection
+              title="Información General"
+              fields={[
+                { label: "Código", value: product.code },
+                { label: "Código DYN", value: product.dyn_code },
+                ...(product.description
+                  ? [
+                      {
+                        label: "Descripción",
+                        value: product.description,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
 
             <Separator />
 
             {/* Categorización */}
-            <div>
-              <h3 className="text-lg font-semibold mb-3">Categorización</h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                {product.category && (
-                  <div>
-                    <p className="text-muted-foreground">Categoría</p>
-                    <p className="font-medium">
-                      {product.category.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {product.category.code}
-                    </p>
-                  </div>
-                )}
-                {product.brand && (
-                  <div>
-                    <p className="text-muted-foreground">Marca</p>
+            <InfoSection
+              title="Categorización"
+              fields={[
+                {
+                  label: "Categoría",
+                  value: (
+                    <div>
+                      <p className="font-medium">
+                        {product.category.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {product.category.code}
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  label: "Marca",
+                  value: (
                     <div className="flex items-center gap-2">
                       {product.brand.logo_min && (
                         <img
@@ -123,29 +119,27 @@ export default function ProductDetailSheet({
                         </p>
                       </div>
                     </div>
-                  </div>
-                )}
-                {product.unit_measurement && (
-                  <div>
-                    <p className="text-muted-foreground">Unidad de Medida</p>
-                    <p className="font-medium">
-                      {product.unit_measurement.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {product.unit_measurement.dyn_code}
-                    </p>
-                  </div>
-                )}
-                {product.warranty_months !== undefined && (
-                  <div>
-                    <p className="text-muted-foreground">Garantía</p>
-                    <p className="font-medium">
-                      {product.warranty_months} meses
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+                  ),
+                },
+                {
+                  label: "Unidad de Medida",
+                  value: (
+                    <div>
+                      <p className="font-medium">
+                        {product.unit_measurement.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {product.unit_measurement.dyn_code}
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  label: "Garantía",
+                  value: `${product.warranty_months ?? 0} meses`,
+                },
+              ]}
+            />
 
             <Separator />
 
