@@ -1,3 +1,4 @@
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
@@ -128,12 +129,14 @@ interface WarehouseStock {
   minimum_stock: number;
   maximum_stock: number;
   last_purchase_price: number;
+  days_without_movement: number;
   public_sale_price: number;
   minimum_sale_price: number;
   stock_status: "NORMAL" | "LOW_STOCK" | "OUT_OF_STOCK" | "OVER_STOCK";
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   last_movement_date: string;
+  currency: CurrencyTypesResource;
 }
 
 export interface InventoryResponse {

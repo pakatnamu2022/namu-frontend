@@ -13,9 +13,11 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onApprove: (id: number) => void;
+  onDuplicate: (id: number) => void;
   onSendNotification: (id: number) => void;
   permissions: {
     canApprove: boolean;
+    canDuplicate: boolean;
     canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
@@ -47,6 +49,7 @@ export const orderQuotationColumns = ({
   onManage,
   onDelete,
   onApprove,
+  onDuplicate,
   onSendNotification,
   permissions,
 }: Props): OrderQuotationColumns[] => [
@@ -219,6 +222,7 @@ export const orderQuotationColumns = ({
         onManage={onManage}
         onSendNotification={onSendNotification}
         onApprove={onApprove}
+        onDuplicate={onDuplicate}
         onUpdate={onUpdate}
         onDelete={onDelete}
       />

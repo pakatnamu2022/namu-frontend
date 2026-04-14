@@ -26,6 +26,7 @@ import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/comp
 import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions.tsx";
 import {
   deleteOrderQuotation,
+  duplicateOrderQuotation,
   sendNotificationManagement,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
@@ -113,6 +114,17 @@ export default function OrderQuotationPage() {
     router(`${ABSOLUTE_ROUTE}/aprobar/${id}`);
   };
 
+  const handleDuplicate = async (id: number) => {
+    try {
+      await duplicateOrderQuotation(id);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "create", msg));
+    }
+  };
+
   const handleSendNotification = async (id: number) => {
     try {
       await sendNotificationManagement(id);
@@ -150,6 +162,7 @@ export default function OrderQuotationPage() {
           onUpdate: handleUpdate,
           onManage: handleManage,
           onApprove: handleApprove,
+          onDuplicate: handleDuplicate,
           onSendNotification: handleSendNotification,
           permissions,
         })}

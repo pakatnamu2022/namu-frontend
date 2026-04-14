@@ -122,7 +122,7 @@ export default function GeneralInformationPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm text-gray-600">Estado</p>
               <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">

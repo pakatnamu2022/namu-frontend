@@ -1,29 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import {
-  Pencil,
-  Download,
-  Eye,
-  PackageOpen,
-  XCircle,
-  Percent,
-} from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { errorToast, successToast } from "@/core/core.function";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
-import { useState } from "react";
-import { DiscardQuotationModal } from "./DiscardQuotationModal";
 import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
+import { ProformaMesonActionsCell } from "./ProformaMesonActionsCell";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
@@ -201,141 +182,17 @@ export const orderQuotationMesonColumns = ({
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => {
-      const {
-        id,
-        has_invoice_generated,
-        is_fully_paid,
-        output_generation_warehouse,
-        status,
-      } = row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [showDiscardModal, setShowDiscardModal] = useState(false);
-
-      const isDiscarded = status === "Descartado";
-
-      const isForInvoicing = status === "Por Facturar";
-
-      const handleDownloadPdf = async (withCode: boolean) => {
-        try {
-          await downloadOrderQuotationRepuestoPdf(id, withCode);
-          successToast(
-            `PDF descargado correctamente ${
-              withCode ? "con código" : "sin código"
-            }`,
-          );
-        } catch {
-          errorToast("Error al descargar el PDF");
-        }
-      };
-
-      return (
-        <>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onViewBilling(row.original)}
-              tooltip="Ver Información"
-            >
-              <Eye className="size-5" />
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Descargar PDF"
-                >
-                  <Download className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleDownloadPdf(true)}>
-                  <Download className="size-4 mr-2" />
-                  PDF con código
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDownloadPdf(false)}>
-                  <Download className="size-4 mr-2" />
-                  PDF sin código
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {!isDiscarded && is_fully_paid && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip={
-                  output_generation_warehouse
-                    ? "Ver Entrega"
-                    : "Generar Entrega"
-                }
-                onClick={() => onViewDelivery(row.original)}
-              >
-                <PackageOpen className="size-5" />
-              </Button>
-            )}
-
-            {!isDiscarded && !has_invoice_generated && !isForInvoicing && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                tooltip="Solicitar Descuento"
-                onClick={() => onRequestDiscount(id)}
-              >
-                <Percent className="size-5" />
-              </Button>
-            )}
-
-            {!isDiscarded && !has_invoice_generated && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                tooltip="Descartar Cotización"
-                onClick={() => setShowDiscardModal(true)}
-              >
-                <XCircle className="size-5" />
-              </Button>
-            )}
-
-            {!isDiscarded &&
-              !isForInvoicing &&
-              permissions.canUpdate &&
-              !has_invoice_generated && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Editar"
-                  onClick={() => onUpdate(id)}
-                >
-                  <Pencil className="size-5" />
-                </Button>
-              )}
-
-            {!isDiscarded &&
-              !isForInvoicing &&
-              permissions.canDelete &&
-              !has_invoice_generated && (
-                <DeleteButton onClick={() => onDelete(id)} />
-              )}
-          </div>
-
-          <DiscardQuotationModal
-            open={showDiscardModal}
-            onClose={() => setShowDiscardModal(false)}
-            quotationId={id}
-            onSuccess={onRefresh}
-          />
-        </>
-      );
-    },
+    cell: ({ row }) => (
+      <ProformaMesonActionsCell
+        row={row.original}
+        permissions={permissions}
+        onViewBilling={onViewBilling}
+        onViewDelivery={onViewDelivery}
+        onRequestDiscount={onRequestDiscount}
+        onRefresh={onRefresh!}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+      />
+    ),
   },
 ];

@@ -100,6 +100,15 @@ export async function deleteOrderQuotation(
   return data;
 }
 
+export async function duplicateOrderQuotation(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/duplicate`,
+  );
+  return response.data;
+}
+
 export async function downloadOrderQuotationPdf(
   id: number,
   show_codes: boolean,
