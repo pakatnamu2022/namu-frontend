@@ -272,7 +272,7 @@ function ProductDetailItem({
                           <div>
                             <div className="text-gray-500">Últ. compra</div>
                             <div className="font-semibold text-gray-700">
-                              ${" "}
+                              {warehouse.currency.symbol || "S/."}{" "}
                               {warehouse.last_purchase_price?.toFixed(2) ||
                                 "0.00"}
                             </div>
@@ -280,7 +280,7 @@ function ProductDetailItem({
                           <div>
                             <div className="text-gray-500">P. público</div>
                             <div className="font-semibold text-gray-700">
-                              ${" "}
+                              {warehouse.currency.symbol || "S/."}{" "}
                               {warehouse.public_sale_price?.toFixed(2) ||
                                 "0.00"}
                             </div>
@@ -288,7 +288,7 @@ function ProductDetailItem({
                           <div>
                             <div className="text-gray-500">P. mín</div>
                             <div className="font-semibold text-gray-700">
-                              ${" "}
+                              {warehouse.currency.symbol || "S/."}{" "}
                               {warehouse.minimum_sale_price?.toFixed(2) ||
                                 "0.00"}
                             </div>
@@ -612,21 +612,21 @@ function ProductDetailItem({
                       <div>
                         <div className="text-gray-500">Últ. compra</div>
                         <div className="font-medium">
-                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.currency.symbol || "S/."}{" "}
                           {warehouse.last_purchase_price?.toFixed(2) || "0.00"}
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-500">P. público</div>
                         <div className="font-medium">
-                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.currency.symbol || "S/."}{" "}
                           {warehouse.public_sale_price?.toFixed(2) || "0.00"}
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-500">P. mín</div>
                         <div className="font-medium">
-                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.currency.symbol || "S/."}{" "}
                           {warehouse.minimum_sale_price?.toFixed(2) || "0.00"}
                         </div>
                       </div>

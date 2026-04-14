@@ -1,3 +1,4 @@
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
@@ -135,6 +136,7 @@ interface WarehouseStock {
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   last_movement_date: string;
+  currency: CurrencyTypesResource;
 }
 
 export interface InventoryResponse {
