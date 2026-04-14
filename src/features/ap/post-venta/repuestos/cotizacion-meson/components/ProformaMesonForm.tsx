@@ -268,7 +268,7 @@ function ProductDetailItem({
                             </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
+                        <div className="grid grid-cols-4 gap-1 text-[10px] pt-1 border-t border-gray-200">
                           <div>
                             <div className="text-gray-500">Últ. compra</div>
                             <div className="font-semibold text-gray-700">
@@ -291,6 +291,12 @@ function ProductDetailItem({
                               ${" "}
                               {warehouse.minimum_sale_price?.toFixed(2) ||
                                 "0.00"}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">Sin mov.</div>
+                            <div className="font-semibold text-gray-700">
+                              {warehouse.days_without_movement} días
                             </div>
                           </div>
                         </div>
@@ -602,7 +608,7 @@ function ProductDetailItem({
                         </Badge>
                       )}
                     </div>
-                    <div className="grid grid-cols-3 gap-1 text-[10px] text-gray-600">
+                    <div className="grid grid-cols-4 gap-1 text-[10px] text-gray-600">
                       <div>
                         <div className="text-gray-500">Últ. compra</div>
                         <div className="font-medium">
@@ -622,6 +628,12 @@ function ProductDetailItem({
                         <div className="font-medium">
                           {selectedCurrency?.symbol || "S/"}{" "}
                           {warehouse.minimum_sale_price?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Sin mov.</div>
+                        <div className="font-medium">
+                          {warehouse.days_without_movement} días
                         </div>
                       </div>
                     </div>
@@ -1201,7 +1213,11 @@ export default function ProformaMesonForm({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={form.watch("quotation_date") ? { before: new Date(form.watch("quotation_date")) } : undefined}
+            disabledRange={
+              form.watch("quotation_date")
+                ? { before: new Date(form.watch("quotation_date")) }
+                : undefined
+            }
           />
         </div>
 

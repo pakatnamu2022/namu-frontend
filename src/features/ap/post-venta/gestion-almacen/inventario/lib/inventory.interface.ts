@@ -128,6 +128,7 @@ interface WarehouseStock {
   minimum_stock: number;
   maximum_stock: number;
   last_purchase_price: number;
+  days_without_movement: number;
   public_sale_price: number;
   minimum_sale_price: number;
   stock_status: "NORMAL" | "LOW_STOCK" | "OUT_OF_STOCK" | "OVER_STOCK";

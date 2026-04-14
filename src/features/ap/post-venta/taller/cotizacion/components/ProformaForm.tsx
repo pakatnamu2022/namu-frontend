@@ -94,7 +94,7 @@ export default function OrderQuotationForm({
 
   useEffect(() => {
     if (quotationDate) {
-      const quotationDateObj = new Date(quotationDate);
+      const quotationDateObj = new Date(String(quotationDate));
       const expirationDateObj = new Date(quotationDateObj);
       expirationDateObj.setDate(quotationDateObj.getDate() + 7);
       form.setValue("expiration_date", expirationDateObj);
@@ -114,8 +114,7 @@ export default function OrderQuotationForm({
     }
   }, [mode, mySedes, form]);
 
-  if (isLoadingMySedes || isLoadingCurrencyTypes)
-    return <FormSkeleton />;
+  if (isLoadingMySedes || isLoadingCurrencyTypes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
@@ -223,6 +222,7 @@ export default function OrderQuotationForm({
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
             disabledRange={{ before: new Date() }}
+            disabled={true}
           />
 
           <DatePickerFormField
