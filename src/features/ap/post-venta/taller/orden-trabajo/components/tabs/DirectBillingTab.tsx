@@ -39,6 +39,13 @@ export default function DirectBillingTab({
 
   const { data: workOrders = [], isLoading } = useWorkOrdersByIds(workOrderIds);
 
+  // Detecta el tipo de planificación predominante de las OTs cargadas
+  const typePlanningId = useMemo(() => {
+    if (workOrders.length === 0) return undefined;
+    const id = workOrders[0]?.items?.[0]?.type_planning?.id;
+    return id ? Number(id) : undefined;
+  }, [workOrders]);
+
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
     type: [
       SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
@@ -287,6 +294,7 @@ export default function DirectBillingTab({
         igvTypes={igvTypes}
         authorizedSeries={authorizedSeries}
         checkbooks={checkbooks}
+        typePlanningId={typePlanningId}
       />
     </div>
   );

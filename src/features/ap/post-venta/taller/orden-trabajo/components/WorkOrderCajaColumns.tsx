@@ -1,11 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Settings } from "lucide-react";
+import { Settings, StickyNote } from "lucide-react";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
+import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -18,12 +20,14 @@ interface Props {
     canDelete: boolean;
   };
   showCheckbox?: boolean;
+  showActions?: boolean;
 }
 
 export const workOrderCajaColumns = ({
   onManage,
   permissions,
   showCheckbox = false,
+  showActions = true,
 }: Props): WorkOrderColumns[] => [
   ...(showCheckbox
     ? ([
@@ -124,27 +128,16 @@ export const workOrderCajaColumns = ({
     },
   },
   {
-    accessorKey: "is_guarantee",
-    header: "Garantía",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
+    accessorKey: "type_currency.name",
+    header: "Moneda",
   },
   {
-    accessorKey: "is_recall",
-    header: "Recall",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
+    accessorKey: "final_amount",
+    header: "Total Monto",
+    cell: ({ getValue, row }) => {
+      const amount = getValue() as number;
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
+      return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
   },
   {
@@ -160,30 +153,62 @@ export const workOrderCajaColumns = ({
     },
   },
   {
-    accessorKey: "status.description",
-    header: "Estado",
+    id: "type_planning",
+    accessorKey: "items",
+    header: "Tipo de Planificación",
+    cell: ({ getValue }) => {
+      const items = getValue() as WorkOrderItemResource[];
+      const type_planning = items[0]?.type_planning.description || "-";
+      return type_planning;
+    },
   },
   {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const { id } = row.original;
-
+    accessorKey: "status.description",
+    header: "Estado",
+    cell: ({ getValue, row }) => {
+      const description = getValue() as string;
+      const internalNote = row.original.internal_note;
+      const color = WORK_ORDER_STATUS_COLORS[description] ?? "gray";
       return (
-        <div className="flex items-center gap-2">
-          {permissions.canManage && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Gestionar"
-              onClick={() => onManage(id)}
-            >
-              <Settings className="size-5" />
-            </Button>
+        <div className="flex flex-col gap-1">
+          <Badge variant="outline" color={color}>
+            {description}
+          </Badge>
+          {internalNote && (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground font-medium pl-1">
+              <StickyNote className="size-3" />
+              {internalNote.number}
+            </span>
           )}
         </div>
       );
     },
   },
+  ...(showActions
+    ? ([
+        {
+          id: "actions",
+          header: "Acciones",
+          cell: ({ row }) => {
+            const { id } = row.original;
+
+            return (
+              <div className="flex items-center gap-2">
+                {permissions.canManage && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-7"
+                    tooltip="Gestionar"
+                    onClick={() => onManage(id)}
+                  >
+                    <Settings className="size-5" />
+                  </Button>
+                )}
+              </div>
+            );
+          },
+        },
+      ] as WorkOrderColumns[])
+    : []),
 ];
