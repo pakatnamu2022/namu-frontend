@@ -89,6 +89,19 @@ export const workOrderColumns = ({
     },
   },
   {
+    accessorKey: "type_currency.name",
+    header: "Moneda",
+  },
+  {
+    accessorKey: "final_amount",
+    header: "Total Monto",
+    cell: ({ getValue, row }) => {
+      const amount = getValue() as number;
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
+      return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
+    },
+  },
+  {
     accessorKey: "actual_delivery_date",
     header: "Fecha Real Entrega",
     cell: ({ getValue }) => {

@@ -39,13 +39,17 @@ import {
   getAllWorkOrderParts,
   storeBulkFromQuotation,
   deleteWorkOrderParts,
+  updateWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
+import { EditableCell } from "@/shared/components/EditableCell";
 import { AssignPartToTechnicianSheet } from "../AssignPartToTechnicianSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ITEM_TYPE_PRODUCT } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
 import WorkOrderPartsForm from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/components/WorkOrderPartsForm";
@@ -72,6 +76,9 @@ interface PartsTabProps {
 export default function PartsTab({ workOrderId }: PartsTabProps) {
   const queryClient = useQueryClient();
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
+  const { user } = useAuthStore();
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
   const [selectedWarehouseForBulk, setSelectedWarehouseForBulk] =
     useState<string>("");
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
@@ -233,6 +240,66 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       errorToast(msg || "Error al eliminar el repuesto");
     },
   });
+
+  const updatePartMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      updateWorkOrderParts(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar el repuesto");
+    },
+  });
+
+  const handleUnitPriceChange = (part: any, newValue: any) => {
+    updatePartMutation.mutate({
+      id: part.id,
+      data: {
+        work_order_id: part.work_order_id,
+        group_number: part.group_number,
+        product_id: part.product_id,
+        warehouse_id: part.warehouse_id,
+        quantity_used: part.quantity_used,
+        unit_price: Number(newValue),
+        discount_percentage: part.discount_percentage,
+      },
+    });
+  };
+
+  const handleQuantityUsedChange = (part: any, newValue: any) => {
+    updatePartMutation.mutate({
+      id: part.id,
+      data: {
+        work_order_id: part.work_order_id,
+        group_number: part.group_number,
+        product_id: part.product_id,
+        warehouse_id: part.warehouse_id,
+        quantity_used: Number(newValue),
+        unit_price: part.unit_price ? Number(part.unit_price) : undefined,
+        discount_percentage: part.discount_percentage,
+      },
+    });
+  };
+
+  const handleDiscountPercentageChange = (part: any, newValue: any) => {
+    updatePartMutation.mutate({
+      id: part.id,
+      data: {
+        work_order_id: part.work_order_id,
+        group_number: part.group_number,
+        product_id: part.product_id,
+        warehouse_id: part.warehouse_id,
+        quantity_used: part.quantity_used,
+        unit_price: part.unit_price ? Number(part.unit_price) : undefined,
+        discount_percentage: Number(newValue),
+      },
+    });
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -412,6 +479,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             }
             onSuccess={() => setShowAddForm(false)}
             onCancel={() => setShowAddForm(false)}
+            maxDiscountPercentage={maxDiscountPercentage}
           />
         </Card>
       )}
@@ -729,11 +797,19 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             )}
           </div>
 
+          {filteredParts[0]?.warehouse_name && (
+            <p className="text-sm text-muted-foreground mb-3">
+              Almacén:{" "}
+              <span className="font-medium text-foreground">
+                {filteredParts[0].warehouse_name}
+              </span>
+            </p>
+          )}
+
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Repuesto</TableHead>
-                <TableHead>Almacén</TableHead>
                 <TableHead>Registrado por</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">Precio Unit.</TableHead>
@@ -806,22 +882,30 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     </TableCell>
                     <TableCell>
                       <p className="text-sm text-gray-600">
-                        {part.warehouse_name}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-gray-600">
                         {part.registered_by_name}
                       </p>
                     </TableCell>
                     <TableCell className="text-center">
-                      {part.quantity_used}
+                      <div className="flex justify-center">
+                        <EditableCell
+                          id={part.id}
+                          value={part.quantity_used}
+                          onUpdate={(_, v) => handleQuantityUsedChange(part, v)}
+                          widthClass="w-20"
+                          min={0}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {part.unit_price
-                        ? Number(part.unit_price).toFixed(2)
-                        : "0.00"}
+                      <div className="flex justify-end">
+                        <EditableCell
+                          id={part.id}
+                          value={part.unit_price ?? "0"}
+                          onUpdate={(_, v) => handleUnitPriceChange(part, v)}
+                          widthClass="w-24"
+                          min={0}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="text-right font-semibold">
                       {workOrder?.type_currency?.symbol || "S/"}{" "}
@@ -829,8 +913,22 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                         ? Number(part.total_cost).toFixed(2)
                         : "0.00"}
                     </TableCell>
-                    <TableCell className="text-right text-orange-600">
-                      -{part.discount_percentage}%
+                    <TableCell className="text-right">
+                      <div className="flex justify-end items-center gap-0.5">
+                        <EditableCell
+                          id={part.id}
+                          value={Number(part.discount_percentage ?? 0).toFixed(
+                            2,
+                          )}
+                          onUpdate={(_, v) =>
+                            handleDiscountPercentageChange(part, v)
+                          }
+                          widthClass="w-20"
+                          min={0}
+                          max={maxDiscountPercentage}
+                        />
+                        <span className="text-orange-600 text-sm">%</span>
+                      </div>
                     </TableCell>
                     <TableCell className="text-right font-semibold">
                       {workOrder?.type_currency?.symbol || "S/"}{" "}

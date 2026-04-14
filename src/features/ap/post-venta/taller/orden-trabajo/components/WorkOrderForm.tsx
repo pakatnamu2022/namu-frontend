@@ -56,6 +56,7 @@ import { DataCard } from "@/components/DataCard";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
+import { formatDate } from "@/core/core.function";
 
 const formatDateTimeLocalInput = (date: Date): string => {
   const year = date.getFullYear();
@@ -369,18 +370,13 @@ export const WorkOrderForm = ({
   const getSelectedAppointmentLabel = () => {
     if (!watchedAppointmentId || !selectedAppointment) return null;
 
-    return `${selectedAppointment.full_name_client} - ${selectedAppointment.date_appointment} ${selectedAppointment.time_appointment}`;
+    return `${selectedAppointment.full_name_client} - ${formatDate(selectedAppointment.date_appointment)} ${selectedAppointment.time_appointment}`;
   };
 
   const getSelectedInspectionLabel = () => {
     if (!watchedInspectionId || !selectedInspection) return null;
 
-    const dateStr =
-      typeof selectedInspection.inspection_date === "string"
-        ? selectedInspection.inspection_date
-        : selectedInspection.inspection_date?.toISOString().split("T")[0];
-
-    return `${selectedInspection.vehicle_plate || "S/N"} - ${dateStr || "Sin fecha"}`;
+    return `${selectedInspection.vehicle_plate || "S/N"} - ${formatDate(selectedInspection.inspection_date) || "Sin fecha"}`;
   };
 
   if (isLoading) return <FormSkeleton />;
@@ -527,12 +523,7 @@ export const WorkOrderForm = ({
                   key: "date",
                   label: "Fecha Recepción",
                   icon: Calendar,
-                  value:
-                    (typeof selectedInspection.inspection_date === "string"
-                      ? selectedInspection.inspection_date
-                      : selectedInspection.inspection_date
-                          ?.toISOString()
-                          .split("T")[0]) || "—",
+                  value: formatDate(selectedInspection.inspection_date) || "—",
                 },
                 {
                   key: "mileage",

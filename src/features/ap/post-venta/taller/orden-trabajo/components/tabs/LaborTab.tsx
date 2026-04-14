@@ -55,6 +55,8 @@ import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-co
 import { errorToast, successToast } from "@/core/core.function";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 
 interface LaborTabProps {
   workOrderId: number;
@@ -64,6 +66,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const [showForm, setShowForm] = useState(false);
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const { user } = useAuthStore();
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
   const [addingFromQuotationId, setAddingFromQuotationId] = useState<
     number | null
   >(null);
@@ -139,6 +144,21 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         time_spent: String(newValue),
         hourly_rate: labour.hourly_rate,
         discount_percentage: labour.discount_percentage,
+        work_order_id: labour.work_order_id,
+        worker_id: labour.worker_id,
+        group_number: labour.group_number,
+      },
+    });
+  };
+
+  const handleDiscountPercentageChange = (labour: any, newValue: any) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: labour.time_spent,
+        hourly_rate: labour.hourly_rate,
+        discount_percentage: String(newValue),
         work_order_id: labour.work_order_id,
         worker_id: labour.worker_id,
         group_number: labour.group_number,
@@ -483,6 +503,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               "S/"
             }
             costManHours={workOrder?.cost_man_hours || 0}
+            maxDiscountPercentage={maxDiscountPercentage}
           />
         </Card>
       )}
@@ -665,8 +686,22 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                         {workOrder?.type_currency?.symbol || "S/"}{" "}
                         {labour.total_cost}
                       </TableCell>
-                      <TableCell className="text-right text-orange-600">
-                        -{labour.discount_percentage}%
+                      <TableCell className="text-right">
+                        <div className="flex justify-end items-center gap-0.5">
+                          <EditableCell
+                            id={labour.id}
+                            value={Number(
+                              labour.discount_percentage ?? 0,
+                            ).toFixed(2)}
+                            onUpdate={(_, v) =>
+                              handleDiscountPercentageChange(labour, v)
+                            }
+                            widthClass="w-20"
+                            min={0}
+                            max={maxDiscountPercentage}
+                          />
+                          <span className="text-orange-600 text-sm">%</span>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         {workOrder?.type_currency?.symbol || "S/"}{" "}
