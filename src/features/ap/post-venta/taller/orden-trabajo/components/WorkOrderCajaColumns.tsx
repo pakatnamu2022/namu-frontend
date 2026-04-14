@@ -18,12 +18,14 @@ interface Props {
     canDelete: boolean;
   };
   showCheckbox?: boolean;
+  showActions?: boolean;
 }
 
 export const workOrderCajaColumns = ({
   onManage,
   permissions,
   showCheckbox = false,
+  showActions = true,
 }: Props): WorkOrderColumns[] => [
   ...(showCheckbox
     ? ([
@@ -163,27 +165,31 @@ export const workOrderCajaColumns = ({
     accessorKey: "status.description",
     header: "Estado",
   },
-  {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const { id } = row.original;
+  ...(showActions
+    ? ([
+        {
+          id: "actions",
+          header: "Acciones",
+          cell: ({ row }) => {
+            const { id } = row.original;
 
-      return (
-        <div className="flex items-center gap-2">
-          {permissions.canManage && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Gestionar"
-              onClick={() => onManage(id)}
-            >
-              <Settings className="size-5" />
-            </Button>
-          )}
-        </div>
-      );
-    },
-  },
+            return (
+              <div className="flex items-center gap-2">
+                {permissions.canManage && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-7"
+                    tooltip="Gestionar"
+                    onClick={() => onManage(id)}
+                  >
+                    <Settings className="size-5" />
+                  </Button>
+                )}
+              </div>
+            );
+          },
+        },
+      ] as WorkOrderColumns[])
+    : []),
 ];

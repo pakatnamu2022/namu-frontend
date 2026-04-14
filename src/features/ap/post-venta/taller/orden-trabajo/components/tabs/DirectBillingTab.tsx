@@ -175,7 +175,8 @@ export default function DirectBillingTab({
   });
 
   const handleSubmit = (data: ElectronicDocumentSchemaType) => {
-    createInvoiceMutation.mutate(data);
+    console.log("Datos a enviar para crear factura:", data);
+    // createInvoiceMutation.mutate(data);
   };
 
   const handleCancel = () => {

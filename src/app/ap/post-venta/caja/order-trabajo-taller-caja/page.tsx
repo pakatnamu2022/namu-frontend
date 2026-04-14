@@ -187,6 +187,7 @@ export default function WorkOrderCajaPage() {
           onManage: handleManage,
           permissions,
           showCheckbox: activeView === "PENDING",
+          showActions: activeView === "OT",
         })}
         data={currentData?.data || []}
         enableRowSelection={activeView === "PENDING"}
