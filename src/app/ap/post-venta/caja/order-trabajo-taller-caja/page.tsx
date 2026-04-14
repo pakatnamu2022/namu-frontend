@@ -30,6 +30,8 @@ import WorkOrderActionsFilters, {
 import { Button } from "@/components/ui/button";
 import { Receipt } from "lucide-react";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
+import { BILLING_TYPE_PLANNING_IDS } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -39,6 +41,7 @@ export default function WorkOrderCajaPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [typePlanningId, setTypePlanningId] = useState<string>("");
   const { ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -60,6 +63,21 @@ export default function WorkOrderCajaPage() {
     has_workshop: true,
   });
 
+  const { data: allTypesPlanning = [], isLoading: isLoadingTypesPlanning } =
+    useAllTypesPlanning();
+
+  const isBillingView = activeView === "PENDING" || activeView === "INVOICED";
+
+  const billingTypesPlanning = allTypesPlanning.filter((t) =>
+    BILLING_TYPE_PLANNING_IDS.includes(t.id),
+  );
+
+  // Valor efectivo: en vistas de facturación usa el seleccionado o el primero disponible;
+  // en otras vistas no aplica el filtro.
+  const effectiveTypePlanningId = isBillingView
+    ? typePlanningId || (billingTypesPlanning[0]?.id.toString() ?? "")
+    : "";
+
   const effectiveSedeId =
     sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
 
@@ -75,6 +93,7 @@ export default function WorkOrderCajaPage() {
     setActiveView(view);
     setPage(1);
     setRowSelection({});
+    setTypePlanningId("");
   };
 
   const commonParams = {
@@ -97,14 +116,9 @@ export default function WorkOrderCajaPage() {
         dateFrom && dateTo
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
-      // status_id: [
-      //   WORK_ORDER_STATUS_ID.RECEPCIONADO,
-      //   WORK_ORDER_STATUS_ID.EN_TRABAJO,
-      //   WORK_ORDER_STATUS_ID.TERMINADO,
-      //   WORK_ORDER_STATUS_ID.CERRADO,
-      // ],
       sede_id: effectiveSedeId || undefined,
       items$typePlanning$type_document: "PAYMENT_RECEIPTS",
+      items$typePlanning$id: typePlanningId || undefined,
     },
     enabled: activeView === "OT" && !!effectiveSedeId,
   });
@@ -114,8 +128,9 @@ export default function WorkOrderCajaPage() {
       params: {
         ...commonParams,
         internal_note_status: "pending",
+        items$typePlanning$id: effectiveTypePlanningId || undefined,
       },
-      enabled: activeView === "PENDING",
+      enabled: activeView === "PENDING" && !!effectiveTypePlanningId,
     });
 
   const { data: dataInvoiced, isLoading: isLoadingInvoiced } =
@@ -123,8 +138,9 @@ export default function WorkOrderCajaPage() {
       params: {
         ...commonParams,
         internal_note_status: "invoiced",
+        items$typePlanning$id: effectiveTypePlanningId || undefined,
       },
-      enabled: activeView === "INVOICED",
+      enabled: activeView === "INVOICED" && !!effectiveTypePlanningId,
     });
 
   const currentData =
@@ -154,7 +170,8 @@ export default function WorkOrderCajaPage() {
     router(`${ABSOLUTE_ROUTE}/factura-directa?ids=${selectedIds.join(",")}`);
   };
 
-  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes || isLoadingTypesPlanning)
+    return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -207,6 +224,17 @@ export default function WorkOrderCajaPage() {
           sedes={mySedes}
           sedeId={effectiveSedeId}
           setSedeId={setSedeId}
+          typesPlanning={
+            isBillingView ? billingTypesPlanning : allTypesPlanning
+          }
+          typePlanningId={
+            isBillingView ? effectiveTypePlanningId : typePlanningId
+          }
+          setTypePlanningId={(id) => {
+            setTypePlanningId(id);
+            if (isBillingView) setRowSelection({});
+          }}
+          allowClearTypePlanning={!isBillingView}
         />
       </WorkOrderTable>
 

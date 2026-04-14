@@ -34,6 +34,7 @@ interface Props {
   typesPlanning?: TypesPlanningResource[];
   typePlanningId?: string;
   setTypePlanningId?: (value: string) => void;
+  allowClearTypePlanning?: boolean;
 }
 
 export default function WorkOrderOptions({
@@ -51,6 +52,7 @@ export default function WorkOrderOptions({
   typesPlanning = [],
   typePlanningId,
   setTypePlanningId,
+  allowClearTypePlanning = true,
 }: Props) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -82,7 +84,7 @@ export default function WorkOrderOptions({
           placeholder="Filtrar por tipo de planificación"
           className="min-w-72"
           classNameOption="text-xs"
-          allowClear
+          allowClear={allowClearTypePlanning}
         />
       )}
       <DatePicker
