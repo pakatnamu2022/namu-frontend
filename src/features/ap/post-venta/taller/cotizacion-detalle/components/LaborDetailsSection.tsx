@@ -388,14 +388,15 @@ export default function LaborDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-2 lg:col-span-1 flex items-end">
+            <div className="sm:col-span-2 lg:col-span-1 flex items-center">
               <Button
                 type="submit"
                 disabled={isSaving}
-                className="h-9 w-full"
+                className="h-9 w-full lg:h-10 lg:rounded-md lg:px-3 lg:font-semibold lg:shadow-sm"
                 size="sm"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
+                <span className="hidden lg:inline text-xs">Agregar</span>
               </Button>
             </div>
           </div>

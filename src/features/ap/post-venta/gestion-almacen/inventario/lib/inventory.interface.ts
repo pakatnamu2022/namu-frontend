@@ -109,7 +109,7 @@ export interface StockByProductIdsResponse {
   data: ProductStock[];
 }
 
-interface ProductStock {
+export interface ProductStock {
   product_id: number;
   product_name: string | null;
   product_code: string | null;
