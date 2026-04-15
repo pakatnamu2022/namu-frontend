@@ -19,6 +19,9 @@ export interface PurchaseRequestResource {
   advisor_notified: boolean;
   notified_at: string | null;
   observations: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: string | null;
+  approved: boolean;
   status: string;
   status_color?: string;
   supplier_order_numbers: [];

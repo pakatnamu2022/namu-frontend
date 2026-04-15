@@ -96,11 +96,38 @@ export async function deletePurchaseRequest(
   return data;
 }
 
+export async function approvePurchaseRequest(
+  id: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.put<GeneralResponse>(
+    `${ENDPOINT}/${id}/approve`,
+  );
+  return data;
+}
+
+export async function cancelPurchaseRequest(
+  id: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.put<GeneralResponse>(
+    `${ENDPOINT}/${id}/cancel`,
+  );
+  return data;
+}
+
 export async function rejectPurchaseRequestDetail(
   id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.patch<GeneralResponse>(
     `${ENDPOINT}/details/${id}/reject`,
+  );
+  return data;
+}
+
+export async function notifyManagersPurchaseRequest(
+  id: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${id}/notify-managers`,
   );
   return data;
 }
