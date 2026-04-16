@@ -126,6 +126,7 @@ export default function PurchaseRequestPVPage() {
     if (!notifyId) return;
     try {
       await notifyManagersPurchaseRequest(notifyId);
+      await refetch();
       successToast("Notificación enviada a jefatura correctamente.");
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";

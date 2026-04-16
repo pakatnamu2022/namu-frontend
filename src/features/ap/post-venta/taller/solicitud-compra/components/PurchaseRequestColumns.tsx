@@ -224,16 +224,12 @@ export const purchaseRequestColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const {
-        id,
-        ap_order_quotation_id,
-        supplier_order_numbers,
-        status,
-        approved,
-      } = row.original;
+      const { id, ap_order_quotation_id, status, approved } = row.original;
 
       const hasQuotation = ap_order_quotation_id !== null;
       const isLockedStatus = approved || status === "cancelled";
+      const hideOptions =
+        !hasQuotation && !isLockedStatus && status === "pending";
 
       const handleDownloadPdf = async (id: number) => {
         try {
@@ -270,52 +266,43 @@ export const purchaseRequestColumns = ({
             <Download className="size-5" />
           </Button>
 
-          {!hasQuotation &&
-            !isLockedStatus &&
-            onNotifyManagers &&
-            status === "pending" && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 text-blue-500 hover:text-blue-600"
-                tooltip="Notificar a Jefatura"
-                onClick={() => onNotifyManagers(id)}
-              >
-                <BellRing className="size-5" />
-              </Button>
-            )}
+          {hideOptions && onNotifyManagers && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7 text-blue-500 hover:text-blue-600"
+              tooltip="Notificar a Jefatura"
+              onClick={() => onNotifyManagers(id)}
+            >
+              <BellRing className="size-5" />
+            </Button>
+          )}
 
-          {!hasQuotation &&
-            onApprove &&
-            !isLockedStatus &&
-            status === "pending" && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 text-green-600 hover:text-green-700"
-                tooltip="Aprobar"
-                onClick={() => onApprove(id)}
-              >
-                <CheckCircle className="size-5" />
-              </Button>
-            )}
+          {hideOptions && onApprove && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7 text-green-600 hover:text-green-700"
+              tooltip="Aprobar"
+              onClick={() => onApprove(id)}
+            >
+              <CheckCircle className="size-5" />
+            </Button>
+          )}
 
-          {!hasQuotation &&
-            onCancel &&
-            !isLockedStatus &&
-            status === "pending" && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 text-red-500 hover:text-red-600"
-                tooltip="Cancelar"
-                onClick={() => onCancel(id)}
-              >
-                <XCircle className="size-5" />
-              </Button>
-            )}
+          {hideOptions && onCancel && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7 text-red-500 hover:text-red-600"
+              tooltip="Cancelar"
+              onClick={() => onCancel(id)}
+            >
+              <XCircle className="size-5" />
+            </Button>
+          )}
 
-          {permissions.canUpdate && !hasQuotation && !isLockedStatus && (
+          {permissions.canUpdate && hideOptions && (
             <Button
               variant="outline"
               size="icon"
@@ -327,13 +314,9 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete &&
-            !isLockedStatus &&
-            (!supplier_order_numbers ||
-              (Array.isArray(supplier_order_numbers) &&
-                supplier_order_numbers.length === 0)) && (
-              <DeleteButton onClick={() => onDelete(id)} />
-            )}
+          {permissions.canDelete && hideOptions && (
+            <DeleteButton onClick={() => onDelete(id)} />
+          )}
         </div>
       );
     },
