@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Check,
   Copy,
+  ShieldCheck,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -449,6 +450,58 @@ function BillingSheetContent({
             : []),
         ]}
       />
+
+      <Separator />
+
+      {/* Confirmación virtual */}
+      {orderQuotation.confirmed_at && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-green-600" />
+            <h3 className="font-semibold text-lg">Confirmación Virtual</h3>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2 text-sm">
+            {orderQuotation.confirmation_metadata?.confirmed_by_name && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Confirmado por</span>
+                <span className="font-medium">
+                  {orderQuotation.confirmation_metadata.confirmed_by_name}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Fecha</span>
+              <span className="font-medium">
+                {new Date(orderQuotation.confirmed_at).toLocaleString("es-PE")}
+              </span>
+            </div>
+            {orderQuotation.confirmation_channel && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Canal</span>
+                <span className="font-medium capitalize">
+                  {orderQuotation.confirmation_channel}
+                </span>
+              </div>
+            )}
+            {orderQuotation.confirmation_metadata?.notes && (
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground shrink-0">Notas</span>
+                <span className="font-medium text-right">
+                  {orderQuotation.confirmation_metadata.notes}
+                </span>
+              </div>
+            )}
+            {orderQuotation.confirmation_ip && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">IP</span>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {orderQuotation.confirmation_ip}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <Separator />
 

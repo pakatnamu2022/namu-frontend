@@ -1,5 +1,11 @@
 import { api } from "@/core/api";
-import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
+import {
+  ConfirmByTokenData,
+  ConfirmByTokenResponse,
+  OrderQuotationResource,
+  PublicQuotationByTokenResponse,
+  SendVirtualConfirmationResponse,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationMesonWithProductsSchema } from "./quotationMeson.schema";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { format } from "date-fns";
@@ -84,6 +90,55 @@ export async function deliverInventoryOutput(
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}/delivery-info`,
     data,
+  );
+  return response.data;
+}
+
+// ─── Confirmación Virtual ────────────────────────────────────────────────────
+
+export async function sendVirtualConfirmation(
+  id: number,
+): Promise<SendVirtualConfirmationResponse> {
+  const response = await api.post<SendVirtualConfirmationResponse>(
+    `${ENDPOINT}/${id}/send-virtual-confirmation`,
+  );
+  return response.data;
+}
+
+export async function regenerateConfirmationToken(
+  id: number,
+): Promise<SendVirtualConfirmationResponse> {
+  const response = await api.post<SendVirtualConfirmationResponse>(
+    `${ENDPOINT}/${id}/regenerate-token`,
+  );
+  return response.data;
+}
+
+// ─── Endpoints Públicos (sin autenticación) ──────────────────────────────────
+
+import axios from "axios";
+import { MILLA_GP_BASEPATH } from "@/core/api";
+
+const publicApi = axios.create({
+  baseURL: MILLA_GP_BASEPATH + "/api",
+});
+
+export async function getPublicQuotationByToken(
+  token: string,
+): Promise<PublicQuotationByTokenResponse> {
+  const response = await publicApi.get(
+    `/public/quotation-confirmation/${token}`,
+  );
+  return response.data;
+}
+
+export async function confirmQuotationByToken(
+  token: string,
+  data?: ConfirmByTokenData,
+): Promise<ConfirmByTokenResponse> {
+  const response = await publicApi.post(
+    `/public/quotation-confirmation/${token}`,
+    data || {},
   );
   return response.data;
 }
