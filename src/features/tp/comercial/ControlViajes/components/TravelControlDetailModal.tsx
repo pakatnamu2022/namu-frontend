@@ -426,7 +426,7 @@ export function TravelControlDetailModal({
       setValue(field, sanitizedValue, { shouldValidate: true });
     };
 
-  const isDriver = userComplete?.position?.toUpperCase() === 'CONDUCTOR DE TRACTO CAMION';
+  const isDriver = (userComplete?.position?.toUpperCase() === 'CONDUCTOR DE TRACTO CAMION') || (userComplete?.position?.toUpperCase() === 'INSTRUCTOR DE FLOTA');
   const isComercial = (userComplete?.role?.toUpperCase() === 'COMERCIAL Y FACTURACION TP') || (userComplete?.position.toUpperCase() === 'ASISTENTE DE OPERACIONES');
   const canStart = localTrip?.status === 'pending' && 
                     initialKmValue && 
