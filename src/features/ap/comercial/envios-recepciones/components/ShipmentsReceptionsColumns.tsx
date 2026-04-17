@@ -49,6 +49,7 @@ interface Props {
   onCancel: (id: number) => void;
   onMigrate?: (id: number) => void;
   onGeneratePDI: (ap_vehicle_id: number) => void;
+  onGenerateInstAccessories: (ap_vehicle_id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -119,6 +120,7 @@ export const ShipmentsReceptionsColumns = ({
   onCancel,
   onMigrate,
   onGeneratePDI,
+  onGenerateInstAccessories,
   permissions,
 }: Props): ShipmentsReceptionsColumns[] => [
   {
@@ -634,6 +636,22 @@ export const ShipmentsReceptionsColumns = ({
               }
             >
               <BookCheck className="size-4" />
+            </Button>
+          )}
+
+          {/*Generamos la OT de instalación de accesorios tomando el ap_vehicle_id*/}
+          {ap_vehicle_id && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
+              onClick={() =>
+                ap_vehicle_id &&
+                onGenerateInstAccessories(Number(ap_vehicle_id))
+              }
+            >
+              <PackageCheck className="size-4" />
             </Button>
           )}
         </div>
