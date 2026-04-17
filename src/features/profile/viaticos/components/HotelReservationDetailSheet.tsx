@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Receipt,
   Pencil,
+  Unlock,
 } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import GeneralSheet from "@/shared/components/GeneralSheet";
@@ -19,8 +20,21 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
 import { PER_DIEM_REQUEST_AP } from "../lib/perDiemRequest.constants";
+import { useReleaseHotelReservation } from "../lib/hotelReservation.hook";
+import { toast } from "sonner";
 
 interface HotelReservationDetailSheetProps {
   hotelReservation: HotelReservationResource | null;
@@ -39,6 +53,21 @@ export default function HotelReservationDetailSheet({
 }: HotelReservationDetailSheetProps) {
   const navigate = useNavigate();
   const { ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_AP } = PER_DIEM_REQUEST_AP;
+
+  const { mutate: releaseReservation, isPending: isReleasing } =
+    useReleaseHotelReservation(
+      hotelReservation?.id ?? 0,
+      requestId ?? 0,
+      {
+        onSuccess: () => {
+          toast.success("Reserva liberada exitosamente");
+          onOpenChange(false);
+        },
+        onError: () => {
+          toast.error("Error al liberar la reserva");
+        },
+      },
+    );
 
   if (!hotelReservation) return null;
 
@@ -84,17 +113,51 @@ export default function HotelReservationDetailSheet({
               </Badge>
             )}
           </div>
-          {requestId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleEdit}
-              className="gap-2"
-            >
-              <Pencil className="h-4 w-4" />
-              Editar Reserva
-            </Button>
-          )}
+          <div className="flex gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 text-destructive border-destructive hover:bg-destructive/10"
+                  disabled={isReleasing}
+                >
+                  <Unlock className="h-4 w-4" />
+                  Liberar Reserva
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Liberar reserva de hotel?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción eliminará la reserva y su gasto vinculado, permitiendo
+                    que la solicitud pueda cancelarse. Esta acción no se puede deshacer.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => releaseReservation()}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Liberar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {requestId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEdit}
+                className="gap-2"
+              >
+                <Pencil className="h-4 w-4" />
+                Editar Reserva
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="space-y-6">
