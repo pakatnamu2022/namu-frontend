@@ -80,6 +80,7 @@ export interface PurchaseRequestQuoteResource {
   accessories: AccessoryResource[];
   sede_id: number;
   sede: string;
+  down_payment?: number;
   created_at: string;
   updated_at: string;
   ap_vehicle?: VehicleResource;
@@ -101,6 +102,7 @@ export interface PurchaseRequestQuoteRequest {
   ap_models_vn_id?: string;
   ap_vehicle_id?: string;
   doc_type_currency_id: string;
+  down_payment?: number;
 }
 
 export interface ConceptDiscountBondResource {

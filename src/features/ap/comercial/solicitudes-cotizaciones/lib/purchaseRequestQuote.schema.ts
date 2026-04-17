@@ -34,6 +34,17 @@ const purchaseRequestQuoteSchemaBase = z.object({
   ),
   doc_type_currency_id: requiredStringId("Moneda es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
+  down_payment: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        const num = parseFloat(val);
+        return !isNaN(num) && num >= 0;
+      },
+      { message: "El monto a cuenta debe ser un número mayor o igual a 0" },
+    ),
   quote_deadline: z
     .string()
     .min(1, "La fecha de vencimiento es requerida")

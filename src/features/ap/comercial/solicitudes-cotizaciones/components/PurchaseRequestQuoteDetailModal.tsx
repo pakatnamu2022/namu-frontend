@@ -155,6 +155,17 @@ export default function PurchaseRequestQuoteDetailModal({
                 />
               </p>
             </div>
+            {quote.down_payment != null && (
+              <div>
+                <p className="text-xs text-muted-foreground">Monto a Cuenta</p>
+                <p className="font-medium text-blue-600 text-xl">
+                  <NumberFormat
+                    value={Number(quote.down_payment)}
+                    prefix={quote.doc_type_currency_symbol}
+                  />
+                </p>
+              </div>
+            )}
           </GroupFormSection>
 
           {/* Información del Titular/Cliente */}

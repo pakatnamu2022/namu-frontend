@@ -95,6 +95,20 @@ export async function findHotelReservationById(
 }
 
 /**
+ * Libera una reserva de hotel, eliminando la reserva y su gasto vinculado
+ * para permitir que la solicitud pueda cancelarse
+ * @param reservationId - ID de la reserva a liberar
+ */
+export async function releaseHotelReservation(
+  reservationId: number,
+): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>(
+    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}/release`,
+  );
+  return data;
+}
+
+/**
  * Actualiza una reserva de hotel existente
  * @param reservationId - ID de la reserva a actualizar
  * @param formData - FormData con los datos actualizados
