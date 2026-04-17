@@ -11,8 +11,6 @@ import {
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
 import { errorToast, formatDate, successToast } from "@/core/core.function";
 import { downloadPurchaseRequestPdf } from "../lib/purchaseRequest.actions";
@@ -60,7 +58,7 @@ export const purchaseRequestColumns = ({
       const date = getValue() as string;
       if (!date) return "-";
       try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+        return formatDate(date);
       } catch {
         return date;
       }

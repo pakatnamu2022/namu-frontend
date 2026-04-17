@@ -36,7 +36,12 @@ import { Button } from "@/components/ui/button";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/SignaturePad";
 import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  formatDate,
+  formatDateTime,
+  successToast,
+} from "@/core/core.function";
 import { useState } from "react";
 import { InfoSection } from "@/shared/components/InfoSection";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -325,17 +330,8 @@ function BillingSheetContent({
                       Fecha de Descarte
                     </p>
                     <p className="text-sm font-medium">
-                      {(orderQuotation as any).discarded_at
-                        ? new Date(
-                            (orderQuotation as any).discarded_at,
-                          ).toLocaleDateString("es-PE", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "N/A"}
+                      {formatDateTime((orderQuotation as any).discarded_at) ??
+                        "N/A"}
                     </p>
                   </div>
                 </div>
@@ -416,19 +412,13 @@ function BillingSheetContent({
           {
             label: "Fecha Cotización",
             value: orderQuotation.quotation_date
-              ? new Date(orderQuotation.quotation_date).toLocaleDateString(
-                  "es-PE",
-                  { day: "2-digit", month: "2-digit", year: "numeric" },
-                )
+              ? formatDate(orderQuotation.quotation_date)
               : "N/A",
           },
           {
             label: "Fecha Vencimiento",
             value: orderQuotation.expiration_date
-              ? new Date(orderQuotation.expiration_date).toLocaleDateString(
-                  "es-PE",
-                  { day: "2-digit", month: "2-digit", year: "numeric" },
-                )
+              ? formatDate(orderQuotation.expiration_date)
               : "N/A",
           },
           {
@@ -472,7 +462,7 @@ function BillingSheetContent({
             <div className="flex justify-between">
               <span className="text-muted-foreground">Fecha</span>
               <span className="font-medium">
-                {new Date(orderQuotation.confirmed_at).toLocaleString("es-PE")}
+                {formatDate(orderQuotation.confirmed_at)}
               </span>
             </div>
             {orderQuotation.confirmation_channel && (
@@ -744,14 +734,7 @@ function BillingSheetContent({
                   header: "Fecha Emisión",
                   render: (doc) => (
                     <div className="text-sm">
-                      {new Date(doc.fecha_de_emision).toLocaleDateString(
-                        "es-PE",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        },
-                      )}
+                      {formatDate(doc.fecha_de_emision)}
                     </div>
                   ),
                 },
