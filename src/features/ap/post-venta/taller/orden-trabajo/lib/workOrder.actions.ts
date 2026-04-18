@@ -220,3 +220,14 @@ export async function generatePDIForVehicle(
   );
   return response.data;
 }
+
+export async function changeCurrency(
+  id: number,
+  currencyId: number,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/change-currency`,
+    { currency_id: currencyId },
+  );
+  return response.data;
+}

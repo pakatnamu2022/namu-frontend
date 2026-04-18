@@ -52,6 +52,7 @@ export default function AddVehiclePVPage() {
           vin: "",
           plate: "",
           year: undefined,
+          year_delivery: undefined,
           engine_number: "",
           ap_models_vn_id: "",
           vehicle_color_id: "",

@@ -1,12 +1,8 @@
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DetailSheetTable,
+  type DetailSheetTableColumn,
+} from "@/shared/components/DetailSheetTable";
 import { Separator } from "@/components/ui/separator";
 import { FileText, Loader2, PenLine, IdCard } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -150,62 +146,74 @@ function DeliverySheetContent({
       {/* Detalle de Repuestos */}
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Repuestos a Entregar</h3>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="text-left">Código</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead className="text-center">Cantidad</TableHead>
-                <TableHead className="text-right">P. Unitario</TableHead>
-                <TableHead className="text-right">Neto</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orderQuotation.details?.map((detail) => (
-                <TableRow key={detail.id}>
-                  <TableCell>
-                    <div className="text-sm">{detail.product!.code}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{detail.description}</div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="text-sm">
-                      {detail.quantity} {detail.unit_measure}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-medium">
-                      {currencySymbol}{" "}
-                      {Number(detail.unit_price).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-semibold">
-                      {currencySymbol}{" "}
-                      {Number(detail.total_amount).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex justify-end text-base font-bold text-primary bg-muted/30 p-3 rounded-lg">
-          <span className="mr-4">Total:</span>
-          <span>
-            {currencySymbol}{" "}
-            {orderQuotation.total_amount.toLocaleString("es-PE", {
-              minimumFractionDigits: 2,
-            })}
-          </span>
-        </div>
+        <DetailSheetTable
+          rows={orderQuotation.details ?? []}
+          getKey={(detail) => detail.id}
+          emptyMessage="No hay repuestos asociados a esta cotización"
+          footer={
+            <div className="flex justify-end text-base font-bold text-primary bg-muted/30 p-3 rounded-lg">
+              <span className="mr-4">Total:</span>
+              <span>
+                {currencySymbol}{" "}
+                {orderQuotation.total_amount.toLocaleString("es-PE", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+          }
+          columns={
+            [
+              {
+                header: "Código",
+                className: "text-left",
+                render: (detail) => (
+                  <div className="text-sm">{detail.product!.code}</div>
+                ),
+              },
+              {
+                header: "Descripción",
+                render: (detail) => (
+                  <div className="text-sm">{detail.description}</div>
+                ),
+              },
+              {
+                header: "Cantidad",
+                className: "text-center",
+                render: (detail) => (
+                  <div className="text-sm">
+                    {detail.quantity} {detail.unit_measure}
+                  </div>
+                ),
+              },
+              {
+                header: "P. Unitario",
+                className: "text-right",
+                render: (detail) => (
+                  <div className="text-sm font-medium">
+                    {currencySymbol}{" "}
+                    {Number(detail.unit_price).toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </div>
+                ),
+              },
+              {
+                header: "Neto",
+                className: "text-right",
+                render: (detail) => (
+                  <div className="text-sm font-semibold">
+                    {currencySymbol}{" "}
+                    {Number(detail.total_amount).toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </div>
+                ),
+              },
+            ] satisfies DetailSheetTableColumn<
+              NonNullable<typeof orderQuotation.details>[0]
+            >[]
+          }
+        />
       </div>
 
       <Separator />

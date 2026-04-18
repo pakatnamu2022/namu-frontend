@@ -88,7 +88,7 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {isClosed && (
+      {isClosed && items[0].type_planning.type_document !== "INTERNA" && (
         <Button
           variant="outline"
           size="icon"
@@ -105,17 +105,19 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {isClosed && !isDelivery && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-7"
-          tooltip="Entrega de Vehículo"
-          onClick={() => setIsDeliveryOpen(true)}
-        >
-          <CarFront className="size-5" />
-        </Button>
-      )}
+      {isClosed &&
+        !isDelivery &&
+        items[0].type_planning.type_document !== "INTERNA" && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Entrega de Vehículo"
+            onClick={() => setIsDeliveryOpen(true)}
+          >
+            <CarFront className="size-5" />
+          </Button>
+        )}
 
       {!isClosed && items[0].type_planning.type_document === "INTERNA" && (
         <Button

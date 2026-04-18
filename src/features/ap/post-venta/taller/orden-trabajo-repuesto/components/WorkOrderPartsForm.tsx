@@ -14,9 +14,6 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormInput } from "@/shared/components/FormInput";
-import { useAuthStore } from "@/features/auth/lib/auth.store";
-import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
-
 interface WorkOrderPartsFormProps {
   workOrderId: number;
   groupNumber: number;
@@ -26,6 +23,7 @@ interface WorkOrderPartsFormProps {
   currencySymbol?: string;
   onSuccess: () => void;
   onCancel: () => void;
+  maxDiscountPercentage: number;
 }
 
 interface AddPartFormValues {
@@ -55,11 +53,9 @@ export default function WorkOrderPartsForm({
   currencySymbol = "S/",
   onSuccess,
   onCancel,
+  maxDiscountPercentage,
 }: WorkOrderPartsFormProps) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
-  const maxDiscountPercentage =
-    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
 
   const [minSalePrice, setMinSalePrice] = useState(0);
 

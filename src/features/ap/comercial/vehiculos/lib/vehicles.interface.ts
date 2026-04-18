@@ -23,6 +23,7 @@ export interface VehicleResource {
   vin: string;
   plate: string;
   year: number;
+  year_delivery: number;
   engine_number: string;
   ap_models_vn_id: number;
   vehicle_color_id: number;

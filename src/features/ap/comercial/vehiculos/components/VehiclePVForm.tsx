@@ -217,19 +217,27 @@ export const VehiclePVForm = ({
           />
 
           <FormInput
+            name="engine_number"
+            label="Número de Motor"
+            placeholder="Ej: ENG32345XYZA"
+            control={form.control}
+            disabled={issuccessfulResponse}
+          />
+
+          <FormInput
             name="year"
-            label="Año"
+            label="Año Fabricación"
             placeholder="Ej: 2025"
             control={form.control}
             type="number"
           />
 
           <FormInput
-            name="engine_number"
-            label="Número de Motor"
-            placeholder="Ej: ENG32345XYZA"
+            name="year_delivery"
+            label="Año de Entrega"
+            placeholder="Ej: 2025"
             control={form.control}
-            disabled={issuccessfulResponse}
+            type="number"
           />
 
           <FormSelectAsync

@@ -18,7 +18,7 @@ export default function TravelControlOptions({
     setSearch,
     status,
     setStatus,
-    userPosition="CONDUCTOR DE TRACTO CAMION",
+    userPosition = "CONDUCTOR DE TRACTO CAMION",
 }: TravelControlOptionsProps){
 
     const getFilteredOptions = () =>{

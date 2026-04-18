@@ -11,7 +11,7 @@ import {
 } from "../lib/proforma.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import {
-  useAllVehicles,
+  useVehicleById,
   useVehicles,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -77,8 +77,7 @@ export default function OrderQuotationForm({
   const quotationDate = form.watch("quotation_date");
   const vehicleId = form.watch("vehicle_id");
 
-  const { data: vehicles = [], isLoading: isLoadingVehicles } =
-    useAllVehicles();
+  const { data: vehicleById } = useVehicleById(Number(vehicleId) || 0);
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -90,17 +89,12 @@ export default function OrderQuotationForm({
     });
 
   useEffect(() => {
-    if (vehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find((v) => v.id.toString() === vehicleId);
-      setSelectedVehicle(vehicle || null);
-    } else {
-      setSelectedVehicle(null);
-    }
-  }, [vehicleId, vehicles]);
+    setSelectedVehicle(vehicleById ?? null);
+  }, [vehicleById]);
 
   useEffect(() => {
     if (quotationDate) {
-      const quotationDateObj = new Date(quotationDate);
+      const quotationDateObj = new Date(String(quotationDate));
       const expirationDateObj = new Date(quotationDateObj);
       expirationDateObj.setDate(quotationDateObj.getDate() + 7);
       form.setValue("expiration_date", expirationDateObj);
@@ -120,8 +114,7 @@ export default function OrderQuotationForm({
     }
   }, [mode, mySedes, form]);
 
-  if (isLoadingVehicles || isLoadingMySedes || isLoadingCurrencyTypes)
-    return <FormSkeleton />;
+  if (isLoadingMySedes || isLoadingCurrencyTypes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
@@ -229,6 +222,7 @@ export default function OrderQuotationForm({
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
             disabledRange={{ before: new Date() }}
+            disabled={true}
           />
 
           <DatePickerFormField

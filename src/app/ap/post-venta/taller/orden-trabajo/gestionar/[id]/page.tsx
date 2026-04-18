@@ -167,14 +167,24 @@ export default function ManageWorkOrderPage() {
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 flex flex-col items-end">
-                <span className="text-xs text-gray-500 mb-1">Estado</span>
-                {/* <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap">
-                  {workOrder.status.description}
-                </span> */}
-                <Badge variant="outline" color={color}>
-                  {workOrder.status.description}
-                </Badge>
+              <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-end gap-2 sm:gap-3">
+                {workOrder.type_currency && (
+                  <div className="text-left sm:text-right">
+                    <p className="text-xs sm:text-sm text-gray-600">Moneda</p>
+                    <span className="inline-flex max-w-full items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                      <span className="truncate">
+                        {workOrder.type_currency.symbol} —{" "}
+                        {workOrder.type_currency.name}
+                      </span>
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-col items-start sm:items-end">
+                  <span className="text-xs text-gray-500 mb-1">Estado</span>
+                  <Badge variant="outline" color={color}>
+                    {workOrder.status.description}
+                  </Badge>
+                </div>
               </div>
             </div>
 

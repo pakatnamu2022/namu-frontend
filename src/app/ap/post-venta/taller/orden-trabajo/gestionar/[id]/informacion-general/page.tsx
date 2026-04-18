@@ -1,8 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
 import {
   ArrowLeft,
   Building2,
@@ -19,16 +21,31 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import {
+  findWorkOrderById,
+  changeCurrency,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import { getAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.actions";
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { useParams, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatDateTime } from "@/core/core.function";
+import { Form } from "@/components/ui/form";
+import {
+  errorToast,
+  formatDate,
+  formatDateTime,
+  successToast,
+} from "@/core/core.function";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 export default function GeneralInformationPage() {
   const params = useParams();
   const router = useNavigate();
   const id = Number(params.id);
+  const queryClient = useQueryClient();
+  const currencyForm = useForm<{ currency_id: string }>({
+    defaultValues: { currency_id: "" },
+  });
 
   // Fetch work order data
   const { data: workOrder, isLoading } = useQuery({
@@ -36,6 +53,38 @@ export default function GeneralInformationPage() {
     queryFn: () => findWorkOrderById(id),
     enabled: !!id,
   });
+
+  // Fetch currency types
+  const { data: currencies = [] } = useQuery({
+    queryKey: ["currencyTypes"],
+    queryFn: () => getAllCurrencyTypes({ params: {} }),
+  });
+
+  // Mutation to change currency
+  const { mutate: handleChangeCurrency, isPending: isChangingCurrency } =
+    useMutation({
+      mutationFn: (currencyId: number) => changeCurrency(id, currencyId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["workOrder", id] });
+        successToast("Moneda actualizada correctamente");
+      },
+      onError: (error: any) => {
+        currencyForm.setValue(
+          "currency_id",
+          String(workOrder?.currency_id ?? ""),
+          { shouldDirty: false },
+        );
+        errorToast(
+          error?.response?.data?.message || "Error al actualizar la moneda",
+        );
+      },
+    });
+
+  useEffect(() => {
+    currencyForm.setValue("currency_id", String(workOrder?.currency_id ?? ""), {
+      shouldDirty: false,
+    });
+  }, [workOrder?.currency_id, currencyForm]);
 
   // Fetch appointment data if exists
   const { data: appointment, isLoading: isLoadingAppointment } = useQuery({
@@ -73,7 +122,7 @@ export default function GeneralInformationPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm text-gray-600">Estado</p>
               <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
@@ -479,11 +528,49 @@ export default function GeneralInformationPage() {
             </div>
             <div className="flex items-start gap-2">
               <CircleDollarSign className="h-5 w-5 text-gray-500 mt-0.5" />
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-600">Moneda</p>
-                <p className="font-semibold">
-                  {workOrder.type_currency.name || "N/A"}
-                </p>
+                <div className="mt-2 rounded-lg border bg-gray-50/70 px-3 py-2">
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Moneda actual</p>
+                      <p className="font-semibold text-gray-900">
+                        {workOrder.type_currency?.symbol || "S/"}{" "}
+                        {workOrder.type_currency?.name || "N/A"}
+                      </p>
+                    </div>
+                    <Form {...currencyForm}>
+                      <FormSelect
+                        name="currency_id"
+                        control={currencyForm.control}
+                        placeholder="Seleccionar moneda"
+                        options={currencies.map((c) => ({
+                          value: String(c.id),
+                          label: `${c.symbol} - ${c.name}`,
+                        }))}
+                        onValueChange={(value) => {
+                          const parsedCurrencyId = Number(value);
+
+                          if (
+                            !parsedCurrencyId ||
+                            parsedCurrencyId === Number(workOrder.currency_id)
+                          ) {
+                            return;
+                          }
+
+                          handleChangeCurrency(parsedCurrencyId);
+                        }}
+                        disabled={isChangingCurrency || currencies.length === 0}
+                        className="h-9 w-full sm:w-60 rounded-md border-gray-300 bg-white text-sm font-medium shadow-sm"
+                      />
+                    </Form>
+                  </div>
+                  {isChangingCurrency && (
+                    <p className="mt-2 text-xs text-blue-600">
+                      Actualizando moneda...
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-start gap-2">
@@ -638,7 +725,8 @@ export default function GeneralInformationPage() {
                             {labour.worker_full_name || "—"}
                           </td>
                           <td className="py-2 px-3 text-right">
-                            S/ {parseFloat(labour.hourly_rate).toFixed(2)}
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(labour.hourly_rate).toFixed(2)}
                           </td>
                           <td className="py-2 px-3 text-right">
                             {parseFloat(
@@ -647,7 +735,8 @@ export default function GeneralInformationPage() {
                             %
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            S/ {parseFloat(labour.total_cost).toFixed(2)}
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(labour.total_cost).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -661,7 +750,7 @@ export default function GeneralInformationPage() {
                           Total Mano de Obra:
                         </td>
                         <td className="py-2 px-3 text-right font-bold text-green-700">
-                          S/{" "}
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.labours
                             .reduce(
                               (acc, l) => acc + parseFloat(l.total_cost),
@@ -732,10 +821,12 @@ export default function GeneralInformationPage() {
                             {part.quantity_used}
                           </td>
                           <td className="py-2 px-3 text-right">
-                            S/ {parseFloat(part.unit_price ?? "0").toFixed(2)}
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(part.unit_price ?? "0").toFixed(2)}
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            S/ {parseFloat(part.net_amount ?? "0").toFixed(2)}
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(part.net_amount ?? "0").toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -749,7 +840,7 @@ export default function GeneralInformationPage() {
                           Total Repuestos:
                         </td>
                         <td className="py-2 px-3 text-right font-bold text-green-700">
-                          S/{" "}
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.parts
                             .reduce(
                               (acc, p) => acc + parseFloat(p.net_amount ?? "0"),

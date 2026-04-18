@@ -274,7 +274,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       // Validar que el anticipo no sea mayor al total de la orden
       if (totalAnticipo > totalOrdenTrabajo) {
         errorToast(
-          `El monto del anticipo (S/ ${totalAnticipo.toFixed(2)}) no puede ser mayor al total de la orden (S/ ${totalOrdenTrabajo.toFixed(2)})`,
+          `El monto del anticipo (${workOrder?.type_currency?.symbol || "S/"} ${totalAnticipo.toFixed(2)}) no puede ser mayor al total de la orden (${workOrder?.type_currency?.symbol || "S/"} ${totalOrdenTrabajo.toFixed(2)})`,
         );
         return;
       }
@@ -282,7 +282,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       // Validar que el anticipo no sea mayor al saldo pendiente
       if (totalAnticipo > saldoPendiente) {
         errorToast(
-          `El monto del anticipo (S/ ${totalAnticipo.toFixed(2)}) no puede ser mayor al saldo pendiente (S/ ${saldoPendiente.toFixed(2)})`,
+          `El monto del anticipo (${workOrder?.type_currency?.symbol || "S/"} ${totalAnticipo.toFixed(2)}) no puede ser mayor al saldo pendiente (${workOrder?.type_currency?.symbol || "S/"} ${saldoPendiente.toFixed(2)})`,
         );
         return;
       }
@@ -362,7 +362,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-bold text-primary">
-                    S/ {paymentSummary.payment_summary.total_amount.toFixed(2)}
+                    {workOrder?.type_currency?.symbol || "S/"}{" "}
+                    {paymentSummary.payment_summary.total_amount.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -374,13 +375,15 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Mano de Obra</span>
                     <span className="font-medium">
-                      S/ {paymentSummary.payment_summary.labour_cost.toFixed(2)}
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {paymentSummary.payment_summary.labour_cost.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Repuestos</span>
                     <span className="font-medium">
-                      S/ {paymentSummary.payment_summary.parts_cost.toFixed(2)}
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {paymentSummary.payment_summary.parts_cost.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -390,14 +393,15 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
-                      S/ {paymentSummary.payment_summary.total_cost.toFixed(2)}
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {paymentSummary.payment_summary.total_cost.toFixed(2)}
                     </span>
                   </div>
                   {paymentSummary.payment_summary.discount_amount > 0 && (
                     <div className="flex justify-between px-4 py-1.5">
                       <span className="text-green-700">Descuento</span>
                       <span className="font-medium text-green-700">
-                        - S/{" "}
+                        - {workOrder?.type_currency?.symbol || "S/"}{" "}
                         {paymentSummary.payment_summary.discount_amount.toFixed(
                           2,
                         )}
@@ -407,7 +411,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">IGV (18%)</span>
                     <span className="font-medium">
-                      S/ {paymentSummary.payment_summary.tax_amount.toFixed(2)}
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {paymentSummary.payment_summary.tax_amount.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -508,7 +513,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                       />
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>
-                          S/{" "}
+                          {workOrder?.type_currency?.symbol || "S/"}{" "}
                           {advances
                             .reduce(
                               (sum, advance) => sum + Number(advance.total),
@@ -517,7 +522,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                             .toFixed(2)}
                         </span>
                         <span>
-                          S/{" "}
+                          {workOrder?.type_currency?.symbol || "S/"}{" "}
                           {paymentSummary
                             ? paymentSummary.payment_summary.total_amount.toFixed(
                                 2,
@@ -571,7 +576,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-primary">
-                              S/ {Number(advance.total).toFixed(2)}
+                              {workOrder?.type_currency?.symbol || "S/"}{" "}
+                              {Number(advance.total).toFixed(2)}
                             </p>
                           </div>
                         </div>

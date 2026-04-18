@@ -27,3 +27,13 @@ export const TYPE_PLANNING: ModelComplete<TypesPlanningResource> = {
     status: true,
   },
 };
+
+export const INTERNAL_WORKSHOP = 7;
+export const DERCO_WARRANTY = 9;
+export const ODEBRECHT_MAINTENANCE = 13;
+
+export const BILLING_TYPE_PLANNING_IDS = [
+  INTERNAL_WORKSHOP,
+  DERCO_WARRANTY,
+  ODEBRECHT_MAINTENANCE,
+];

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import { MessageSquare } from "lucide-react";
 import {
   ElectronicDocumentSchema,
   ElectronicDocumentItemSchema,
@@ -560,6 +561,18 @@ export function OrderQuotationBillingForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {quotation.notes && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900">
+            <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                Nota de pago del cliente
+              </p>
+              <p className="mt-0.5 text-sm leading-snug">{quotation.notes}</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Formulario - 2/3 del ancho */}
           <div className="lg:col-span-2 space-y-6">

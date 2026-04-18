@@ -85,7 +85,11 @@ export const vehicleColumns = ({
   },
   {
     accessorKey: "year",
-    header: "Año",
+    header: "Año Fabricación",
+  },
+  {
+    accessorKey: "year_delivery",
+    header: "Año de Entrega",
   },
   {
     accessorKey: "engine_number",
