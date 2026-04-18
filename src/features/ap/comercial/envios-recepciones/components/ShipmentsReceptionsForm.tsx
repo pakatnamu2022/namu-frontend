@@ -59,7 +59,9 @@ import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-gene
 import { ImageUploadField } from "@/shared/components/ImageUploadField";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
-import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
+import { useVehicles } from "../../vehiculos/lib/vehicles.hook";
+import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
@@ -238,17 +240,6 @@ export const ShipmentsReceptionsForm = ({
   // Si NO es COMPRA: is_received = 1 (vehículos ya recibidos en piso)
   const vehiclesIsReceived =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ? 0 : 1;
-
-  const { data: vehiclesVn = [], isLoading: isLoadingVehicles } =
-    useAllVehicles({
-      warehouse$sede_id: watchSedeTransmitterId
-        ? Number(watchSedeTransmitterId)
-        : undefined,
-      warehouse$is_received: vehiclesIsReceived,
-      warehouse$ap_class_article_id: watchArticleClassId,
-      model$class_id: watchArticleClassId,
-      is_received: 0,
-    });
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
@@ -622,40 +613,10 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchArticleClassId]);
 
-  // Limpiar el vehículo seleccionado cuando cambia la sede o el motivo de traslado
+  // Limpiar el vehículo seleccionado cuando cambia la sede, motivo de traslado o clase de artículo
   useEffect(() => {
-    const currentVehicleId = form.getValues("ap_vehicle_id");
-
-    if (currentVehicleId && vehiclesVn.length > 0) {
-      const vehicleExists = vehiclesVn.some(
-        (v) => v.id.toString() === currentVehicleId,
-      );
-
-      if (!vehicleExists) {
-        form.setValue("ap_vehicle_id", "", {
-          shouldValidate: false,
-        });
-      }
-    } else if (
-      currentVehicleId &&
-      !isLoadingVehicles &&
-      vehiclesVn.length === 0
-    ) {
-      // Si ya no hay vehículos disponibles, limpiar la selección
-      form.setValue("ap_vehicle_id", "", {
-        shouldValidate: false,
-      });
-    }
-  }, [
-    watchSedeTransmitterId,
-    watchTransferReasonId,
-    vehiclesVn,
-    isLoadingVehicles,
-  ]);
-
-  const selectedVIN = vehiclesVn.find(
-    (v) => v.id.toString() === form.getValues("ap_vehicle_id"),
-  );
+    form.setValue("ap_vehicle_id", "", { shouldValidate: false });
+  }, [watchSedeTransmitterId, watchTransferReasonId, watchArticleClassId]);
 
   // En consignación: limpiar la serie cuando cambia la sede
   useEffect(() => {
@@ -672,11 +633,11 @@ export const ShipmentsReceptionsForm = ({
       ? series.filter((s) => s.sede_id.toString() === watchSedeTransmitterId)
       : series;
 
-  useEffect(() => {
-    if (selectedVIN?.model.net_weight !== undefined) {
-      form.setValue("total_weight", String(selectedVIN.model.net_weight));
+  const handleVehicleChange = (_value: string, item?: VehicleResource) => {
+    if (item?.model?.net_weight !== undefined) {
+      form.setValue("total_weight", String(item.model.net_weight));
     }
-  }, [selectedVIN]);
+  };
 
   // Manejar sede destino cuando cambia el motivo de traslado
   useEffect(() => {
@@ -887,26 +848,36 @@ export const ShipmentsReceptionsForm = ({
           )}
 
           {isConsignment ? (
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <FormSelect
-                  key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
-                  name="ap_vehicle_id"
-                  label="Vehículo"
-                  placeholder="Selecciona vehículo"
-                  options={vehiclesVn.map((item) => ({
-                    label: item.vin ?? "",
-                    value: item.id.toString(),
-                    description:
-                      item.sede_name_warehouse + " - " + item.warehouse_name ||
-                      "",
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                  withValue={false}
-                  disabled={!watchSedeTransmitterId || isLoadingVehicles}
-                />
-              </div>
+            <FormSelectAsync
+              key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}-${watchArticleClassId}`}
+              name="ap_vehicle_id"
+              label="Vehículo"
+              placeholder="Selecciona vehículo"
+              control={form.control}
+              useQueryHook={useVehicles}
+              mapOptionFn={(item: VehicleResource) => ({
+                value: item.id.toString(),
+                label: item.vin ?? "",
+                description:
+                  (item.sede_name_warehouse ?? "") +
+                  " - " +
+                  (item.warehouse_name ?? ""),
+              })}
+              additionalParams={{
+                warehouse$sede_id: watchSedeTransmitterId
+                  ? Number(watchSedeTransmitterId)
+                  : undefined,
+                warehouse$is_received: vehiclesIsReceived,
+                warehouse$ap_class_article_id: watchArticleClassId || undefined,
+                model$class_id: watchArticleClassId || undefined,
+                is_received: 0,
+              }}
+              disabled={!watchSedeTransmitterId || !watchArticleClassId}
+              onValueChange={handleVehicleChange}
+              withValue={false}
+              perPage={20}
+              debounceMs={400}
+            >
               <div className="flex items-end">
                 <Button
                   type="button"
@@ -923,23 +894,37 @@ export const ShipmentsReceptionsForm = ({
                   <Plus />
                 </Button>
               </div>
-            </div>
+            </FormSelectAsync>
           ) : (
-            <FormSelect
-              key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
+            <FormSelectAsync
+              key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}-${watchArticleClassId}`}
               name="ap_vehicle_id"
               label="Vehículo"
               placeholder="Selecciona vehículo"
-              options={vehiclesVn.map((item) => ({
-                label: item.vin ?? "",
-                value: item.id.toString(),
-                description:
-                  item.sede_name_warehouse + " - " + item.warehouse_name || "",
-              }))}
               control={form.control}
-              strictFilter={true}
+              useQueryHook={useVehicles}
+              mapOptionFn={(item: VehicleResource) => ({
+                value: item.id.toString(),
+                label: item.vin ?? "",
+                description:
+                  (item.sede_name_warehouse ?? "") +
+                  " - " +
+                  (item.warehouse_name ?? ""),
+              })}
+              additionalParams={{
+                warehouse$sede_id: watchSedeTransmitterId
+                  ? Number(watchSedeTransmitterId)
+                  : undefined,
+                warehouse$is_received: vehiclesIsReceived,
+                warehouse$ap_class_article_id: watchArticleClassId || undefined,
+                model$class_id: watchArticleClassId || undefined,
+                is_received: 0,
+              }}
+              disabled={!watchSedeTransmitterId || !watchArticleClassId}
+              onValueChange={handleVehicleChange}
               withValue={false}
-              disabled={!watchSedeTransmitterId || isLoadingVehicles}
+              perPage={20}
+              debounceMs={400}
             />
           )}
 

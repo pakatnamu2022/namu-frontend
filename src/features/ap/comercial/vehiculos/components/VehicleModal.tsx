@@ -27,11 +27,12 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { useEffect } from "react";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CLASS_ARTICLE_ID } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
 
 // Schema para vehículos comerciales
 const vehicleComercialSchema = z.object({
   sede_id: z.string().min(1, "La sede es requerida"),
-  plate: z  
+  plate: z
     .string()
     .optional()
     .refine(
@@ -223,6 +224,9 @@ export default function VehicleModal({
                 value: item.id.toString(),
                 label: `${item.code} - ${item.version}`,
               })}
+              additionalParams={{
+                class_id: CLASS_ARTICLE_ID.M_VEH_NUE,
+              }}
               perPage={10}
               debounceMs={500}
             />
