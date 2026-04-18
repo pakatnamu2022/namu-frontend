@@ -657,6 +657,21 @@ export const ShipmentsReceptionsForm = ({
     (v) => v.id.toString() === form.getValues("ap_vehicle_id"),
   );
 
+  // En consignación: limpiar la serie cuando cambia la sede
+  useEffect(() => {
+    if (!isConsignment) return;
+    if (mode === "update" && isFirstLoad) return;
+    const currentSeriesId = form.getValues("document_series_id");
+    if (currentSeriesId) {
+      form.setValue("document_series_id", "", { shouldValidate: false });
+    }
+  }, [watchSedeTransmitterId]);
+
+  const filteredSeries =
+    isConsignment && watchSedeTransmitterId
+      ? series.filter((s) => s.sede_id.toString() === watchSedeTransmitterId)
+      : series;
+
   useEffect(() => {
     if (selectedVIN?.model.net_weight !== undefined) {
       form.setValue("total_weight", String(selectedVIN.model.net_weight));
@@ -797,41 +812,6 @@ export const ShipmentsReceptionsForm = ({
             strictFilter={true}
           />
 
-          {/* Serie - Condicional según Tipo de Emisor */}
-          {watchIssuerType === "PROVEEDOR" ? (
-            <FormInput
-              control={form.control}
-              name="series"
-              label="Serie"
-              placeholder="Ej: T001"
-              maxLength={4}
-              uppercase
-            />
-          ) : (
-            <FormSelect
-              name="document_series_id"
-              label="Serie"
-              placeholder="Selecciona serie"
-              options={series.map((item) => ({
-                label: item.series + " " + item.sede,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={watchIssuerType !== "SYSTEM"}
-            />
-          )}
-
-          {/* Correlativo - Condicional según Tipo de Emisor */}
-          {watchIssuerType === "PROVEEDOR" && (
-            <FormInput
-              control={form.control}
-              name="correlative"
-              label="Correlativo"
-              placeholder="Ej: 00001234"
-            />
-          )}
-
           {vehiclesIsReceived ? (
             <FormSelect
               key={`sede-transmitter-${watchArticleClassId}`}
@@ -868,6 +848,44 @@ export const ShipmentsReceptionsForm = ({
               />
             )}
 
+          {/* Serie - Condicional según Tipo de Emisor */}
+          {watchIssuerType === "PROVEEDOR" ? (
+            <FormInput
+              control={form.control}
+              name="series"
+              label="Serie"
+              placeholder="Ej: T001"
+              maxLength={4}
+              uppercase
+            />
+          ) : (
+            <FormSelect
+              name="document_series_id"
+              label="Serie"
+              placeholder="Selecciona serie"
+              options={filteredSeries.map((item) => ({
+                label: item.series + " " + item.sede,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={
+                watchIssuerType !== "SYSTEM" ||
+                (isConsignment && !watchSedeTransmitterId)
+              }
+            />
+          )}
+
+          {/* Correlativo - Condicional según Tipo de Emisor */}
+          {watchIssuerType === "PROVEEDOR" && (
+            <FormInput
+              control={form.control}
+              name="correlative"
+              label="Correlativo"
+              placeholder="Ej: 00001234"
+            />
+          )}
+
           {isConsignment ? (
             <div className="flex gap-2">
               <div className="flex-1">
@@ -895,7 +913,12 @@ export const ShipmentsReceptionsForm = ({
                   variant="outline"
                   size="icon"
                   onClick={() => setIsVehicleModalOpen(true)}
-                  tooltip="Agregar nuevo vehículo comercial"
+                  tooltip={
+                    !watchSedeTransmitterId
+                      ? "Selecciona una sede primero"
+                      : "Agregar nuevo vehículo comercial"
+                  }
+                  disabled={!watchSedeTransmitterId}
                 >
                   <Plus />
                 </Button>
@@ -1341,19 +1364,19 @@ export const ShipmentsReceptionsForm = ({
           }}
           sede_id={form.watch("sede_receiver_id")}
         />
-
-        {isConsignment && (
-          <VehicleModal
-            open={isVehicleModalOpen}
-            onClose={() => {
-              setIsVehicleModalOpen(false);
-              queryClient.invalidateQueries({ queryKey: [VEHICLES.QUERY_KEY] });
-            }}
-            title="Agregar Vehículo Comercial"
-            typeOperationId={CM_COMERCIAL_ID}
-          />
-        )}
       </form>
+      {isConsignment && (
+        <VehicleModal
+          open={isVehicleModalOpen}
+          onClose={() => {
+            setIsVehicleModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: [VEHICLES.QUERY_KEY] });
+          }}
+          title="Agregar Vehículo Comercial"
+          typeOperationId={CM_COMERCIAL_ID}
+          sedeId={watchSedeTransmitterId || undefined}
+        />
+      )}
     </Form>
   );
 };
