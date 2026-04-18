@@ -13,7 +13,7 @@ export const vehicleSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Placa es requerida",
     }),
-  vin: requiredText("El VIN es requerido", 17, 17),
+  vin: requiredText("El VIN es requerido", 17, 20),
   year: requiredNumber("El año es requerido", 1886),
   engine_number: requiredText("El número de motor es requerido", 1, 30),
   ap_models_vn_id: requiredStringId("El modelo es requerido"),

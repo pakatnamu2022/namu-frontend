@@ -670,7 +670,8 @@ export const VehiclePurchaseOrderForm = ({
                 name="vin"
                 uppercase={true}
                 label="VIN"
-                maxLength={17}
+                minLength={17}
+                maxLength={20}
                 placeholder="Ej: 1HGBH41AX1N109186"
                 onChange={(e) => {
                   const value = e.target.value.toUpperCase();

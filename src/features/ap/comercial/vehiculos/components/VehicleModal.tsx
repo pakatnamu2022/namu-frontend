@@ -39,7 +39,10 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 const vehicleComercialSchema = z.object({
   sede_id: z.string().min(1, "La sede es requerida"),
   plate: z.string().length(6, "La placa debe tener 6 caracteres"),
-  vin: z.string().length(17, "El VIN debe tener 17 caracteres"),
+  vin: z
+    .string()
+    .min(17, "El VIN debe tener al menos 17 caracteres")
+    .max(20, "El VIN no puede tener más de 20 caracteres"),
   year: z
     .number()
     .min(1900)
@@ -193,7 +196,8 @@ export default function VehicleModal({
                   <FormControl>
                     <Input
                       placeholder="Ej: 1HGBH41AX1N109189"
-                      maxLength={17}
+                      minLength={17}
+                      maxLength={20}
                       {...field}
                       className="uppercase"
                       onChange={(e) =>

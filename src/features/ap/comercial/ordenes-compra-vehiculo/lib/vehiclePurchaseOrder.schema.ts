@@ -79,7 +79,7 @@ const vehiclePurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
   // Vehicle information - REQUERIDOS cuando isVehiclePurchase = true
   vin: z
     .string()
-    .max(17, "El VIN no puede tener más de 17 caracteres")
+    .max(20, "El VIN no puede tener más de 20 caracteres")
     .refine((value) => value.trim() !== "", {
       message: "VIN es requerido",
     }),
@@ -129,7 +129,8 @@ const genericPurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
   // Vehicle information - OPCIONALES cuando isVehiclePurchase = false
   vin: z
     .string()
-    .max(17, "El VIN no puede tener más de 17 caracteres")
+    .min(17, "El VIN debe tener al menos 17 caracteres")
+    .max(20, "El VIN no puede tener más de 20 caracteres")
     .optional()
     .or(z.literal("")),
   year: z
