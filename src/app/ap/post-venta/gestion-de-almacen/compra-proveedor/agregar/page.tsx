@@ -52,7 +52,6 @@ export default function AddSupplierOrderPage() {
       <SupplierOrderForm
         defaultValues={{
           supplier_id: "",
-          sede_id: "",
           warehouse_id: "",
           type_currency_id: CURRENCY_TYPE_IDS.DOLLARS,
           order_date: getTodayLocalDateString(),
