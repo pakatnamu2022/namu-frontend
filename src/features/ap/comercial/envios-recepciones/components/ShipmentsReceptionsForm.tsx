@@ -1360,6 +1360,7 @@ export const ShipmentsReceptionsForm = ({
           title="Agregar Vehículo Comercial"
           typeOperationId={CM_COMERCIAL_ID}
           sedeId={watchSedeTransmitterId || undefined}
+          classArticleId={watchArticleClassId || undefined}
         />
       )}
     </Form>

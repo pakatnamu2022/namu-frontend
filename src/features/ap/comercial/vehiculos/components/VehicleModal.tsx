@@ -62,6 +62,7 @@ interface VehicleModalProps {
   title?: string;
   typeOperationId?: number;
   sedeId?: string;
+  classArticleId?: string;
 }
 
 export default function VehicleModal({
@@ -70,6 +71,7 @@ export default function VehicleModal({
   title = "Agregar Vehículo Comercial",
   typeOperationId = CM_COMERCIAL_ID,
   sedeId,
+  classArticleId,
 }: VehicleModalProps) {
   const queryClient = useQueryClient();
   const { MODEL, ICON } = VEHICLES;
@@ -225,7 +227,7 @@ export default function VehicleModal({
                 label: `${item.code} - ${item.version}`,
               })}
               additionalParams={{
-                class_id: CLASS_ARTICLE_ID.M_VEH_NUE,
+                class_id: classArticleId ?? CLASS_ARTICLE_ID.M_VEH_NUE,
               }}
               perPage={10}
               debounceMs={500}
