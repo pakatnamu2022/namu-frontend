@@ -1,14 +1,20 @@
 import { format } from "date-fns";
-import { Hotel, Phone, MapPin, Moon, CalendarCheck, FileText } from "lucide-react";
+import { Hotel, Phone, MapPin, Moon, CalendarCheck, FileText, Unlock } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import type { PerDiemRequestResource } from "../../lib/perDiemRequest.interface";
 
 interface HotelReservationSectionProps {
   request: PerDiemRequestResource;
+  onRelease?: () => void;
+  isReleasing?: boolean;
 }
 
 export default function HotelReservationSection({
   request,
+  onRelease,
+  isReleasing = false,
 }: HotelReservationSectionProps) {
   if (!request.hotel_reservation) return null;
 
@@ -99,6 +105,34 @@ export default function HotelReservationSection({
           </div>
         </div>
       )}
+
+      {/* Acción: Liberar hotel */}
+      {onRelease &&
+        !hr.attended &&
+        (request.status === "in_progress" || request.status === "approved") && (
+          <div className="md:col-span-3 flex justify-end pt-2 border-t border-muted">
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                  disabled={isReleasing}
+                >
+                  <Unlock className="h-4 w-4 shrink-0" />
+                  <span>{isReleasing ? "Liberando..." : "Liberar hotel"}</span>
+                </Button>
+              }
+              title="¿Liberar reserva de hotel?"
+              description={`Esta acción eliminará la reserva de hotel "${hr.hotel_name}" y su gasto vinculado. Una vez liberada, la solicitud podrá ser cancelada. Esta acción no se puede deshacer.`}
+              confirmText="Sí, liberar hotel"
+              cancelText="No, mantener"
+              onConfirm={onRelease}
+              variant="destructive"
+              icon="warning"
+            />
+          </div>
+        )}
     </GroupFormSection>
   );
 }

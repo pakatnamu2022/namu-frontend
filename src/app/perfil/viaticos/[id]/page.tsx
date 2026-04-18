@@ -16,6 +16,7 @@ import {
   downloadContributorExpenseDetailsPdf,
   generateMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import { useReleaseHotelReservation } from "@/features/profile/viaticos/lib/hotelReservation.hook";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
@@ -121,6 +122,21 @@ export default function PerDiemRequestDetailPage() {
     startSettlementMutation.mutate(Number(id));
   };
 
+  const releaseHotelMutation = useReleaseHotelReservation(
+    request?.hotel_reservation?.id ?? 0,
+    id ?? "",
+    {
+      onSuccess: () => {
+        successToast("Reserva de hotel liberada correctamente. La solicitud ya puede ser cancelada.");
+      },
+      onError: (error: any) => {
+        errorToast(
+          error?.response?.data?.message ?? "Error al liberar la reserva de hotel"
+        );
+      },
+    },
+  );
+
   // Verificar si se puede cancelar la solicitud
   const canCancelRequest = () => {
     if (!request) return false;
@@ -128,13 +144,13 @@ export default function PerDiemRequestDetailPage() {
     // No se puede cancelar si ya está en progreso
     if (request.status === PER_DIEM_STATUS.IN_PROGRESS) return false;
 
-    // No se puede cancelar si ya tiene una reserva de hotel
-    if (request.hotel_reservation) return false;
-
     // Solo se puede cancelar si está aprobada
-    if (request.status === PER_DIEM_STATUS.APPROVED) return true;
+    if (request.status !== PER_DIEM_STATUS.APPROVED) return false;
 
-    return false;
+    // Si tiene hotel activo (no atendido), debe liberarse primero
+    if (request.hotel_reservation && !request.hotel_reservation.attended) return false;
+
+    return true;
   };
 
   if (isLoading) {
@@ -298,7 +314,11 @@ export default function PerDiemRequestDetailPage() {
         </div>
 
         {/* Reserva de Hotel */}
-        <HotelReservationSection request={request} />
+        <HotelReservationSection
+          request={request}
+          onRelease={() => releaseHotelMutation.mutate()}
+          isReleasing={releaseHotelMutation.isPending}
+        />
 
         {/* Gastos Registrados */}
         <ExpensesSection request={request} />

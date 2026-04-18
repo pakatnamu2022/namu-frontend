@@ -714,6 +714,7 @@ export const PurchaseRequestQuoteForm = ({
       base_selling_price: round2(totals.salePrice),
       sale_price: round2(totals.salePrice + totals.accessoriesTotal),
       doc_sale_price: round2(finalTotal),
+      down_payment: data.down_payment ? parseFloat(data.down_payment) : undefined,
     };
 
     onSubmit(finalData);
@@ -853,6 +854,14 @@ export const PurchaseRequestQuoteForm = ({
                 disabledRange={
                   { before: new Date() } // Solo permitir fechas futuras
                 }
+              />
+
+              <FormInput
+                control={form.control}
+                name="down_payment"
+                label="Monto a Cuenta"
+                type="text"
+                placeholder="Ingrese monto a cuenta del cliente"
               />
             </GroupFormSection>
 
