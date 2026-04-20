@@ -50,6 +50,11 @@ export interface OrderQuotationResource {
   customer_signature_delivery_url: string | null;
   delivery_document_number: string | null;
   has_management_discount: boolean;
+  //Confirmacion virtual
+  confirmed_at: string | null;
+  confirmation_channel: string | null;
+  confirmation_ip: string | null;
+  confirmation_metadata: Record<string, any> | null;
   //Opcionales
   has_sufficient_stock: boolean;
   cost_man_hours: number;
@@ -70,4 +75,43 @@ export interface OrderQuotationRequest {
 
 export interface getOrderQuotationProps {
   params?: Record<string, any>;
+}
+
+// ─── Confirmación Virtual ────────────────────────────────────────────────────
+
+export interface SendVirtualConfirmationResponse {
+  success: boolean;
+  message: string;
+  confirmation_link: string;
+  sent_to: string;
+  expires_at: string;
+  quotation: OrderQuotationResource;
+}
+
+export interface PublicQuotationByTokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    already_confirmed: boolean;
+    confirmed_at: string;
+    confirmation_channel: string;
+    quotation: OrderQuotationResource | null;
+  };
+}
+
+export interface ConfirmByTokenData {
+  notes?: string;
+  confirmed_by_name?: string;
+}
+
+export interface ConfirmByTokenResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    id: number;
+    quotation_number: string;
+    confirmed_at: string;
+    confirmation_channel: string;
+    status: string;
+  };
 }

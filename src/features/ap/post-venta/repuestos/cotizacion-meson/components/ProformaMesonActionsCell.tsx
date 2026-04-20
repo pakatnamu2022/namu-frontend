@@ -3,6 +3,7 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import {
   Download,
   Eye,
+  Link2,
   Loader2,
   PackageOpen,
   Pencil,
@@ -20,6 +21,8 @@ import { errorToast, successToast } from "@/core/core.function";
 import { useState } from "react";
 import { downloadOrderQuotationPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { DiscardQuotationModal } from "./DiscardQuotationModal";
+import { sendVirtualConfirmation } from "../lib/quotationMeson.actions";
+import { VirtualConfirmationDialog } from "./VirtualConfirmationDialog";
 
 interface ActionsCellProps {
   row: OrderQuotationResource;
@@ -56,6 +59,33 @@ export const ProformaMesonActionsCell = ({
   const isForInvoicing = status === "Por Facturar";
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isSendingLink, setIsSendingLink] = useState(false);
+  const [virtualConfirmationData, setVirtualConfirmationData] = useState<{
+    confirmationLink: string;
+    sentTo: string;
+    expiresAt: string;
+  } | null>(null);
+
+  const handleSendVirtualLink = async () => {
+    setIsSendingLink(true);
+    try {
+      const result = await sendVirtualConfirmation(id);
+      if (result.success) {
+        setVirtualConfirmationData({
+          confirmationLink: result.confirmation_link,
+          sentTo: result.sent_to,
+          expiresAt: result.expires_at,
+        });
+        successToast("Link de confirmación enviado al cliente");
+      }
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al enviar el link de confirmación",
+      );
+    } finally {
+      setIsSendingLink(false);
+    }
+  };
 
   const handleDownloadPdf = async (withCode: boolean) => {
     setIsDownloadingPdf(true);
@@ -130,6 +160,23 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
+        {!isDiscarded && !isForInvoicing && !has_invoice_generated && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+            tooltip="Enviar Link de Confirmación Virtual"
+            onClick={handleSendVirtualLink}
+            disabled={isSendingLink}
+          >
+            {isSendingLink ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Link2 className="size-4" />
+            )}
+          </Button>
+        )}
+
         {!isDiscarded && !has_invoice_generated && !isForInvoicing && (
           <Button
             variant="outline"
@@ -183,6 +230,17 @@ export const ProformaMesonActionsCell = ({
         quotationId={id}
         onSuccess={onRefresh}
       />
+
+      {virtualConfirmationData && (
+        <VirtualConfirmationDialog
+          open={true}
+          onClose={() => setVirtualConfirmationData(null)}
+          confirmationLink={virtualConfirmationData.confirmationLink}
+          sentTo={virtualConfirmationData.sentTo}
+          expiresAt={virtualConfirmationData.expiresAt}
+          quotationId={id}
+        />
+      )}
     </>
   );
 };

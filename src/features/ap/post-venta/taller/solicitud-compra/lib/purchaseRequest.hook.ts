@@ -24,6 +24,7 @@ export const usePurchaseRequests = (params?: Record<string, any>) => {
     queryKey: [QUERY_KEY, params],
     queryFn: () => getPurchaseRequests({ params }),
     refetchOnWindowFocus: false,
+    enabled: params?.warehouse_id != null,
   });
 };
 

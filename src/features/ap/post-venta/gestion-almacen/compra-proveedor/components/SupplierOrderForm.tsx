@@ -34,15 +34,14 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
-import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { useEffect, useState, useRef } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
-import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
-import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
+import { IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { api } from "@/core/api.ts";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
@@ -98,18 +97,8 @@ export const SupplierOrderForm = ({
     name: "details",
   });
 
-  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
-    company: EMPRESA_AP.id,
-  });
-
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse(
-      {
-        is_physical_warehouse: 1,
-        sede_id: form.watch("sede_id") || undefined,
-      },
-      !!form.watch("sede_id"),
-    );
+    useMyPhysicalWarehouse();
 
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
@@ -283,13 +272,6 @@ export const SupplierOrderForm = ({
     }
   }, [watchedCurrencyTypeId, watchedOrderDate]);
 
-  // Setear la primera sede por defecto cuando se carguen las sedes
-  useEffect(() => {
-    if (mySedes.length > 0 && !form.getValues("sede_id")) {
-      form.setValue("sede_id", mySedes[0].id.toString());
-    }
-  }, [mySedes, form]);
-
   // Setear el primer almacén por defecto cuando se carguen los almacenes
   useEffect(() => {
     if (warehouses.length > 0 && !form.getValues("warehouse_id")) {
@@ -297,7 +279,19 @@ export const SupplierOrderForm = ({
     }
   }, [warehouses, form]);
 
-  if (isLoadingCurrencyTypes || isLoadingMySedes) {
+  // Sincronizar sede_id desde el almacén seleccionado
+  useEffect(() => {
+    if (selectedWarehouseId && warehouses.length > 0) {
+      const selected = warehouses.find(
+        (w) => w.id.toString() === selectedWarehouseId,
+      );
+      if (selected) {
+        form.setValue("sede_id" as any, selected.sede_id.toString());
+      }
+    }
+  }, [selectedWarehouseId, warehouses, form]);
+
+  if (isLoadingCurrencyTypes || isLoadingWarehouses) {
     return <FormSkeleton />;
   }
 
@@ -450,9 +444,13 @@ export const SupplierOrderForm = ({
   };
 
   const handleSubmit = (data: any) => {
+    const selectedWarehouse = warehouses.find(
+      (w) => w.id.toString() === selectedWarehouseId,
+    );
     // Transformar fechas a formato Y-m-d y números antes de enviar
     const transformedData = {
       ...data,
+      sede_id: selectedWarehouse?.sede_id?.toString(),
       order_number_external: showOrderNumberExternal
         ? data.order_number_external || null
         : null,
@@ -605,17 +603,6 @@ export const SupplierOrderForm = ({
                   />
 
                   <FormSelect
-                    name="sede_id"
-                    label="Sede"
-                    placeholder="Selecciona una sede"
-                    options={mySedes.map((item) => ({
-                      label: item.abreviatura,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                  />
-
-                  <FormSelect
                     name="warehouse_id"
                     label="Almacén"
                     placeholder="Selecciona un almacén"
@@ -625,7 +612,7 @@ export const SupplierOrderForm = ({
                       value: warehouse.id.toString(),
                     }))}
                     control={form.control}
-                    disabled={!form.watch("sede_id") || isLoadingWarehouses}
+                    disabled={isLoadingWarehouses}
                   />
 
                   <FormSelect

@@ -13,11 +13,15 @@ export const purchaseRequestDetailSchema = z.object({
   product_name: z.string().optional(), // Solo para UI
   product_code: z.string().optional(), // Solo para UI
   supply_type: requiredText("Tipo de suministro es requerido"), // "LOCAL", "CENTRAL" o "IMPORTACION"
+  unit_price: z.number().min(0).optional(),
+  discount_percentage: z.number().min(0).max(100).optional(),
+  total_amount: z.number().min(0).optional(),
 });
 
 export const purchaseRequestSchemaCreate = z.object({
   ap_order_quotation_id: z.string().optional(),
   warehouse_id: requiredStringId("Almacén es requerido"),
+  currency_id: requiredStringId("Moneda es requerida"),
   requested_date: requiredDate("Fecha solicitada es requerida"),
   observations: z.string().optional(),
   has_appointment: z.boolean().optional(),

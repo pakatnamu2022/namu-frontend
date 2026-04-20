@@ -18,6 +18,7 @@ import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants";
 import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm";
 import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddWarehousePurchaseRequestPage() {
   const router = useNavigate();
@@ -55,6 +56,7 @@ export default function AddWarehousePurchaseRequestPage() {
           requested_date: getTodayLocalDateString(),
           observations: "",
           area_id: AREA_POSTVENTA,
+          currency_id: CURRENCY_TYPE_IDS.SOLES,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

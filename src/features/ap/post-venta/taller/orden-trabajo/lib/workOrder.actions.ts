@@ -221,6 +221,15 @@ export async function generatePDIForVehicle(
   return response.data;
 }
 
+export async function generateInstAccessoriesForVehicle(
+  id: number, // ID del vehículo
+): Promise<GenerateWorkOrderResponse> {
+  const response = await api.post<GenerateWorkOrderResponse>(
+    `${ENDPOINT}/generate-inst-accessories/${id}`,
+  );
+  return response.data;
+}
+
 export async function changeCurrency(
   id: number,
   currencyId: number,
