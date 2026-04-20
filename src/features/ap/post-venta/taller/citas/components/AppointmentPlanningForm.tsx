@@ -209,11 +209,11 @@ export const AppointmentPlanningForm = ({
       const selectedOperation = typesOperations.find(
         (op) => op.id.toString() === watchTypeOperationId,
       );
-      if (selectedOperation) {
+      if (selectedOperation && mode === "create") {
         form.setValue("description", selectedOperation.description);
       }
     }
-  }, [watchTypeOperationId, typesOperations, form, isFirstLoad]);
+  }, [watchTypeOperationId, typesOperations, form, isFirstLoad, mode]);
 
   // Normalizar formato de hora a HH:mm
   const normalizeTime = (time: string): string => {
