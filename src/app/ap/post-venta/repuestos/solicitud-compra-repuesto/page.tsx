@@ -41,7 +41,7 @@ export default function PurchaseRequestRepuestoPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [warehouseId, setWarehouseId] = useState<string>("");
+  const [warehouseId, setWarehouseId] = useState<string | null>(null);
   const [approveId, setApproveId] = useState<number | null>(null);
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [notifyId, setNotifyId] = useState<number | null>(null);
@@ -203,7 +203,7 @@ export default function PurchaseRequestRepuestoPage() {
           dateTo={dateTo}
           setDateTo={setDateTo}
           warehouses={warehouses}
-          warehouseId={warehouseId}
+          warehouseId={warehouseId ?? ""}
           setWarehouseId={setWarehouseId}
         />
       </PurchaseRequestTable>

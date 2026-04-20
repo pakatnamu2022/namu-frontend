@@ -36,6 +36,19 @@ export const PendingPurchaseRequestsList = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
+  const formatCurrency = (amount: number | string | null, symbol?: string) => {
+    const parsedAmount =
+      typeof amount === "string" ? Number.parseFloat(amount) : amount;
+    const safeAmount =
+      typeof parsedAmount === "number" && Number.isFinite(parsedAmount)
+        ? parsedAmount
+        : 0;
+    return `${symbol ?? "$"}${safeAmount.toLocaleString("es-PE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   const filtered = search.trim()
     ? requests.filter((d) => {
         const q = search.toLowerCase();
@@ -140,6 +153,30 @@ export const PendingPurchaseRequestsList = ({
                               Asesor:{" "}
                               <span className="font-medium text-foreground">
                                 {detail.requested_name}
+                              </span>
+                            </span>
+                            <span>
+                              Costo Unit.:{" "}
+                              <span className="font-medium text-foreground">
+                                {formatCurrency(
+                                  detail.unit_price,
+                                  detail.currency_symbol,
+                                )}
+                              </span>
+                            </span>
+                            <span>
+                              Desc.:{" "}
+                              <span className="font-medium text-foreground">
+                                {detail.discount_percentage}%
+                              </span>
+                            </span>
+                            <span>
+                              Total:{" "}
+                              <span className="font-medium text-foreground">
+                                {formatCurrency(
+                                  detail.total_amount,
+                                  detail.currency_symbol,
+                                )}
                               </span>
                             </span>
                           </div>

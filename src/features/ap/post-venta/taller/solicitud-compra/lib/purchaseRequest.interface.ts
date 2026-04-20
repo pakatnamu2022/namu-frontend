@@ -2,6 +2,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 
 export interface PurchaseRequestResponse {
   data: PurchaseRequestResource[];
@@ -15,6 +16,7 @@ export interface PurchaseRequestResource {
   ap_order_quotation_id: number | null;
   purchase_order_id: number | null;
   warehouse_id: number;
+  currency_id: number;
   requested_date: string;
   advisor_notified: boolean;
   notified_at: string | null;
@@ -31,6 +33,7 @@ export interface PurchaseRequestResource {
   requested_by: string;
   details?: PurchaseRequestDetailResource[];
   warehouse: WarehouseResource;
+  currency: CurrencyTypesResource;
   ap_order_quotation?: OrderQuotationResource;
 }
 
@@ -46,6 +49,9 @@ export interface PurchaseRequestDetailResource {
   product_id: number;
   product_name?: string;
   quantity: number;
+  unit_price: number;
+  discount_percentage: number;
+  total_amount: number;
   supply_type: string;
   notes: string | null;
   requested_delivery_date: string | null;
@@ -54,6 +60,7 @@ export interface PurchaseRequestDetailResource {
   product_code?: string;
   request_number?: string;
   requested_name?: string;
+  currency_symbol?: string;
   product?: ProductResource;
 }
 

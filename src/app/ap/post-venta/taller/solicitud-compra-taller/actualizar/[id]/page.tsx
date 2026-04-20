@@ -66,6 +66,7 @@ export default function UpdatePurchaseRequestPVPage() {
         ? String(data.ap_order_quotation_id)
         : undefined,
       warehouse_id: String(data.warehouse_id),
+      currency_id: String(data.currency_id),
       observations: data.observations || "",
       requested_date: data.requested_date
         ? new Date(data.requested_date)
@@ -74,6 +75,9 @@ export default function UpdatePurchaseRequestPVPage() {
       details: (data.details || []).map((detail) => ({
         product_id: String(detail.product_id),
         quantity: detail.quantity,
+        unit_price: detail.unit_price,
+        discount_percentage: detail.discount_percentage,
+        total_amount: detail.total_amount,
         notes: detail.notes || undefined,
         product_name: detail.product?.name || "",
         product_code: detail.product?.code || "",
