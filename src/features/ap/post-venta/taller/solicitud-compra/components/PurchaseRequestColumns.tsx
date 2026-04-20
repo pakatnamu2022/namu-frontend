@@ -228,6 +228,7 @@ export const purchaseRequestColumns = ({
       const isLockedStatus = approved || status === "cancelled";
       const hideOptions =
         !hasQuotation && !isLockedStatus && status === "pending";
+      const hideOptionsDelete = !isLockedStatus && status === "pending";
 
       const handleDownloadPdf = async (id: number) => {
         try {
@@ -312,7 +313,7 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && hideOptions && (
+          {permissions.canDelete && hideOptionsDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>
