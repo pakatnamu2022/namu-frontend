@@ -61,10 +61,6 @@ export default function AppointmentPlanningPage() {
     company: EMPRESA_AP.id,
   });
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
-
   const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
     cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
@@ -77,6 +73,10 @@ export default function AppointmentPlanningPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mySedes]);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
 
   const { data, isLoading, refetch } = useAppointmentPlanning({
     params: {
