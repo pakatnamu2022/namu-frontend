@@ -3,19 +3,15 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, TrendingUp, Clock } from "lucide-react";
-import {
-  DEFAULT_GROUP_COLOR,
-  GROUP_COLORS,
-} from "../../lib/workOrder.interface";
 import { useGetConsolidatedPlanning } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import {
   PLANNING_STATUS_COLORS,
   PLANNING_STATUS_LABELS,
 } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 
-const getGroupColor = (groupNumber: number) => {
-  return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
-};
+// const getGroupColor = (groupNumber: number) => {
+//   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
+// };
 
 interface OperatorsTabProps {
   workOrderId: number;
@@ -45,7 +41,7 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
           <div className="mb-4">
             <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              Resumen de Planificación por Grupo
+              Resumen de Planificación
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">
               Progreso consolidado de los trabajos asignados
@@ -56,16 +52,16 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="min-w-20 px-4 py-3 text-left text-sm font-medium text-gray-700">
+                  {/* <th className="min-w-20 px-4 py-3 text-left text-sm font-medium text-gray-700">
                     Grupo
-                  </th>
+                  </th> */}
                   <th className="min-w-[200px] px-4 py-3 text-left text-sm font-medium text-gray-700">
                     Descripción
                   </th>
                   <th className="text-center min-w-[100px] px-4 py-3 text-sm font-medium text-gray-700">
                     <div className="flex flex-col items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      <span>Est. Total</span>
+                      <span>Estimado Total</span>
                     </div>
                   </th>
                   <th className="text-center min-w-[100px] px-4 py-3 text-sm font-medium text-gray-700">
@@ -93,20 +89,20 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
               </thead>
               <tbody>
                 {consolidatedPlanning.map((planning) => {
-                  const colors = getGroupColor(Number(planning.group_number));
+                  // const colors = getGroupColor(Number(planning.group_number));
                   return (
                     <tr
                       key={`${planning.group_number}-${planning.description}`}
                       className="border-b hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 py-3">
+                      {/* <td className="px-4 py-3">
                         <Badge
                           className="text-white"
                           style={{ backgroundColor: colors.badge }}
                         >
                           Grupo {planning.group_number}
                         </Badge>
-                      </td>
+                      </td> */}
                       <td className="px-4 py-3">
                         <div className="max-w-xs">
                           <p className="text-sm font-medium text-gray-900 line-clamp-2">

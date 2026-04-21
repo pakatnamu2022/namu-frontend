@@ -11,10 +11,6 @@ import {
   findWorkOrderById,
   updateInvoiceTo,
 } from "../../lib/workOrder.actions";
-import {
-  DEFAULT_GROUP_COLOR,
-  GROUP_COLORS,
-} from "../../lib/workOrder.interface";
 import WorkOrderItemForm from "../../../orden-trabajo-item/components/WorkOrderItemForm";
 import { deleteWorkOrderItem } from "../../../orden-trabajo-item/lib/workOrderItem.actions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
@@ -33,9 +29,9 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 
-const getGroupColor = (groupNumber: number) => {
-  return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
-};
+// const getGroupColor = (groupNumber: number) => {
+//   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
+// };
 
 interface OpeningTabProps {
   workOrderId: number;
@@ -207,9 +203,9 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
             <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
+                  {/* <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
                     Grupo
-                  </th>
+                  </th> */}
                   <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
                     Planificación
                   </th>
@@ -226,20 +222,20 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
               </thead>
               <tbody>
                 {items.map((item) => {
-                  const colors = getGroupColor(item.group_number);
+                  // const colors = getGroupColor(item.group_number);
                   return (
                     <tr
                       key={item.id}
                       className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
                     >
-                      <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                      {/* <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
                         <Badge
                           className="text-white text-xs"
                           style={{ backgroundColor: colors.badge }}
                         >
                           Grupo {item.group_number}
                         </Badge>
-                      </td>
+                      </td> */}
                       <td className="py-3 px-3 sm:px-4">
                         <Badge
                           variant="outline"

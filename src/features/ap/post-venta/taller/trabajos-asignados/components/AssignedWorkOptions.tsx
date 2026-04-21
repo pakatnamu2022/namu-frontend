@@ -1,6 +1,7 @@
 "use client";
 import { type WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
@@ -14,6 +15,10 @@ interface AssignedWorkOptionsProps {
   sedes: SedeResource[];
   sedeId: string;
   setSedeId: (value: string) => void;
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
 }
 
 export default function AssignedWorkOptions({
@@ -26,6 +31,10 @@ export default function AssignedWorkOptions({
   sedes,
   sedeId,
   setSedeId,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
 }: AssignedWorkOptionsProps) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -57,6 +66,15 @@ export default function AssignedWorkOptions({
         className="min-w-72"
         classNameOption="text-xs"
         allowClear={false}
+      />
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
       />
     </div>
   );

@@ -3,7 +3,12 @@
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+  successToast,
+} from "@/core/core.function";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
@@ -51,6 +56,13 @@ export default function AssignedWorkPage() {
   const [openCompleteAlert, setOpenCompleteAlert] = useState(false);
   const [openConfirmPartsSheet, setOpenConfirmPartsSheet] = useState(false);
   const { ROUTE } = WORK_ORDER_PLANNING_SESSION;
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getCurrentDayOfMonth(currentDate),
+  );
   const startSession = useStartSession();
   const pauseWork = usePauseWork();
   const completeWork = useCompleteWork(); // Reutilizando la mutación de inicio para completar (ajustar según sea necesario)
@@ -83,6 +95,10 @@ export default function AssignedWorkPage() {
     !!sedeId,
   ); // Solo cargar trabajadores si hay una sede seleccionada
 
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
+
   // Si el partner_id del usuario coincide con algún worker, pre-seleccionar y bloquear el select
   const matchedWorker = workers.find((w) => w.id === user?.partner_id);
   const isWorkerLocked = !!matchedWorker;
@@ -101,6 +117,10 @@ export default function AssignedWorkPage() {
       per_page,
       worker_id: workerId,
       workOrder$sede_id: sedeId,
+      planned_start_datetime:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
     },
     enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
   });
@@ -212,6 +232,10 @@ export default function AssignedWorkPage() {
           sedes={mySedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
         />
       </AssignedWorkTable>
       <DataTablePagination
