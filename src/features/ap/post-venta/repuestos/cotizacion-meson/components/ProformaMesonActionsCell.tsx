@@ -48,13 +48,7 @@ export const ProformaMesonActionsCell = ({
   onUpdate,
   onDelete,
 }: ActionsCellProps) => {
-  const {
-    id,
-    is_fully_paid,
-    output_generation_warehouse,
-    status,
-    has_invoice_generated,
-  } = row;
+  const { id, is_fully_paid, status, has_invoice_generated } = row;
   const isDiscarded = status === "Descartado";
   const isForInvoicing = status === "Por Facturar";
   const [showDiscardModal, setShowDiscardModal] = useState(false);
@@ -80,7 +74,8 @@ export const ProformaMesonActionsCell = ({
       }
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al enviar el link de confirmación",
+        error?.response?.data?.message ||
+          "Error al enviar el link de confirmación",
       );
     } finally {
       setIsSendingLink(false);
@@ -151,9 +146,7 @@ export const ProformaMesonActionsCell = ({
             variant="outline"
             size="icon"
             className="size-7"
-            tooltip={
-              output_generation_warehouse ? "Ver Entrega" : "Generar Entrega"
-            }
+            tooltip="Ver / Generar Entrega"
             onClick={() => onViewDelivery(row)}
           >
             <PackageOpen className="size-5" />
