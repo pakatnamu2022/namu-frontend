@@ -209,9 +209,10 @@ export default function InvoiceForm({
         const total = round2(subtotal + igvAmount);
 
         invoiceItems.push({
+          product_id: part.product_id.toString(),
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
           unidad_de_medida: "NIU", // Bienes
-          codigo: part.id.toString(),
+          codigo: part.product_code,
           descripcion: part.product_name,
           cantidad: cantidad,
           valor_unitario: valor_unitario,

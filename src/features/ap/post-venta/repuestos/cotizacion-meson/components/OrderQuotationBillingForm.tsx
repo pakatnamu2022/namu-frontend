@@ -332,6 +332,7 @@ export function OrderQuotationBillingForm({
             const total = round2(subtotal + igvAmount); // Total CON IGV
 
             return {
+              product_id: detail.product?.id?.toString() || "",
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
               unidad_de_medida: "NIU",
               codigo:
