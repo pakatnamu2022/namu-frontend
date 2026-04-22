@@ -1,7 +1,7 @@
 import SearchInput from "@/shared/components/SearchInput.tsx";
-import DatePicker from "@/shared/components/DatePicker.tsx";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface.ts";
 import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 interface SupplierOrderOptionsProps {
   search: string;
@@ -45,19 +45,14 @@ export default function SupplierOrderOptions({
         classNameOption="text-xs"
         allowClear={false}
       />
-      <DatePicker
-        value={dateFrom}
-        onChange={setDateFrom}
-        placeholder="Fecha Desde"
-        showClearButton={false}
-        captionLayout="dropdown"
-      />
-      <DatePicker
-        value={dateTo}
-        onChange={setDateTo}
-        placeholder="Fecha Hasta"
-        showClearButton={false}
-        captionLayout="dropdown"
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
       />
     </div>
   );

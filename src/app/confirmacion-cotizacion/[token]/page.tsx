@@ -19,6 +19,7 @@ import {
   getPublicQuotationByToken,
   confirmQuotationByToken,
 } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.actions";
+import { IGV } from "@/core/core.constants";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 
 type PageState =
@@ -376,6 +377,17 @@ export default function ConfirmacionCotizacionPage() {
                     </span>
                   </div>
                 )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    IGV ({(IGV.RATE * 100).toFixed(0)}%)
+                  </span>
+                  <span>
+                    {quotation.type_currency.symbol}{" "}
+                    {quotation.tax_amount != null
+                      ? Number(quotation.tax_amount).toFixed(2)
+                      : (Number(quotation.op_gravada) * IGV.RATE).toFixed(2)}
+                  </span>
+                </div>
                 <Separator className="my-1" />
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
