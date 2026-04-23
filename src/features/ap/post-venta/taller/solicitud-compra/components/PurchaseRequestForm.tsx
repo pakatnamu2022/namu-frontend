@@ -284,6 +284,7 @@ export default function PurchaseRequestForm({
       quantity: 1,
       notes: "",
       supply_type: SUPPLY_TYPES.CENTRAL,
+      discount_percentage: 0,
     };
 
     const newIndex = details.length;
