@@ -76,14 +76,8 @@ export function DateRangePickerFormField<T extends FieldValues>({
           name={nameTo}
           render={({ field: fieldTo }) => {
             const dateRange: DateRange = {
-              from: toDateOrUndefined(
-                typeof fieldFrom.value === "string"
-                  ? fieldFrom.value
-                  : undefined,
-              ),
-              to: toDateOrUndefined(
-                typeof fieldTo.value === "string" ? fieldTo.value : undefined,
-              ),
+              from: toDateOrUndefined(fieldFrom.value),
+              to: toDateOrUndefined(fieldTo.value),
             };
 
             const displayValue =

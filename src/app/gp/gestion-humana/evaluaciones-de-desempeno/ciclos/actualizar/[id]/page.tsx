@@ -3,7 +3,7 @@
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { errorToast, successToast } from "@/core/core.function";
+import { errorToast, successToast, toLocalDateString } from "@/core/core.function";
 import {
   findCycleById,
   updateCycle,
@@ -13,7 +13,7 @@ import { CycleResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import { CycleForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CycleForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { format, parse } from "date-fns";
+import { parse } from "date-fns";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { useAllPeriods } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.hook";
@@ -53,11 +53,9 @@ export default function UpdateCyclePage() {
   const handleSubmit = (data: CycleSchema) => {
     mutate({
       ...data,
-      start_date: format(data.start_date, "yyyy-MM-dd"),
-      end_date: format(data.end_date, "yyyy-MM-dd"),
-      cut_off_date: format(data.cut_off_date, "yyyy-MM-dd"),
-      // start_date_objectives: format(data.start_date_objectives, "yyyy-MM-dd"),
-      // end_date_objectives: format(data.end_date_objectives, "yyyy-MM-dd"),
+      start_date: toLocalDateString(data.start_date as any),
+      end_date: toLocalDateString(data.end_date as any),
+      cut_off_date: toLocalDateString(data.cut_off_date as any),
     } as any);
   };
 

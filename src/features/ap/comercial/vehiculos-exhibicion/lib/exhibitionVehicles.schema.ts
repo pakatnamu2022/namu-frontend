@@ -4,8 +4,8 @@ import { z } from "zod";
 const vehicleDataSchema = z.object({
   vin: z
     .string()
-    .min(17, "El VIN debe tener 17 caracteres")
-    .max(17, "El VIN debe tener 17 caracteres"),
+    .min(17, "El VIN debe tener al menos 17 caracteres")
+    .max(20, "El VIN debe tener 20 caracteres"),
   year: z
     .number()
     .min(1900, "El año debe ser mayor a 1900")
