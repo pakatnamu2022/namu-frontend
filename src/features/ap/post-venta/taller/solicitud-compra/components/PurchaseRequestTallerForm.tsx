@@ -48,7 +48,11 @@ import { QuotationSelectionTallerModal } from "../../cotizacion/components/Quota
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { STATUS_ACTIVE } from "@/core/core.constants";
+import { IGV, STATUS_ACTIVE } from "@/core/core.constants";
+import {
+  SUPPLY_TYPE_OPTIONS,
+  SUPPLY_TYPES,
+} from "../lib/purchaseRequest.constants";
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
   onSubmit: (data: any) => void;
@@ -71,7 +75,6 @@ export default function PurchaseRequestTallerForm({
   area_id = AREA_TALLER,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
-    // Transformar los detalles del backend al formato esperado
     if (defaultValues.details && defaultValues.details.length > 0) {
       const transformed = defaultValues.details.map((detail: any) => ({
         product_id: detail.product_id?.toString() || "",
@@ -79,10 +82,19 @@ export default function PurchaseRequestTallerForm({
         product_code: detail.product_code || "",
         quantity: Number(detail.quantity) || 1,
         notes: detail.notes || "",
-        supply_type: String(detail.supply_type) as
-          | "LOCAL"
-          | "CENTRAL"
-          | "IMPORTACION",
+        supply_type: detail.supply_type || undefined,
+        unit_price:
+          detail.unit_price !== undefined
+            ? Number(detail.unit_price)
+            : undefined,
+        discount_percentage:
+          detail.discount_percentage !== undefined
+            ? Number(detail.discount_percentage)
+            : undefined,
+        total_amount:
+          detail.total_amount !== undefined
+            ? Number(detail.total_amount)
+            : undefined,
       }));
       return transformed;
     }
@@ -94,6 +106,9 @@ export default function PurchaseRequestTallerForm({
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState<{
+    symbol: string;
+  } | null>(null);
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -125,6 +140,7 @@ export default function PurchaseRequestTallerForm({
   const selectedWarehouseId = form.watch("warehouse_id");
   const hasAppointment = form.watch("has_appointment");
   const selectedQuotationId = form.watch("ap_order_quotation_id");
+  const currencyId = form.watch("currency_id");
 
   const selectedWarehouse = warehouses.find(
     (w) => w.id.toString() === selectedWarehouseId,
@@ -138,8 +154,12 @@ export default function PurchaseRequestTallerForm({
   // Sincronizar details con el formulario
   useEffect(() => {
     form.setValue("details", details);
-    // Validar inmediatamente después de setear
     form.trigger("details");
+    details.forEach((detail, index) => {
+      if (detail.supply_type) {
+        form.setValue(`detail_supply_type_${index}` as any, detail.supply_type);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [details]);
 
@@ -161,44 +181,71 @@ export default function PurchaseRequestTallerForm({
     }
   }, [form, hasAppointment]);
 
-  const loadQuotationDetails = useCallback(async (quotationId: string) => {
-    try {
-      setIsLoadingQuotations(true);
-      const quotation = await findOrderQuotationById(Number(quotationId));
-      if (!quotation?.details) return;
-
-      setSelectedQuotationData(quotation);
-
-      const productDetails = quotation.details.filter(
-        (detail) =>
-          detail.item_type === ITEM_TYPE_PRODUCT &&
-          (detail.supply_type === "CENTRAL" ||
-            detail.supply_type === "IMPORTACION"),
+  useEffect(() => {
+    if (currencyId && currencyTypes.length > 0) {
+      const currency = currencyTypes.find(
+        (c) => c.id.toString() === currencyId,
       );
-
-      const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
-        (detail) => ({
-          product_id: detail.product_id!.toString(),
-          product_name: detail.product?.name || "",
-          product_code: detail.product?.code || "",
-          quantity: Number(detail.quantity) || 1,
-          notes: "",
-          supply_type: String(detail.supply_type) as
-            | "LOCAL"
-            | "CENTRAL"
-            | "IMPORTACION",
-        }),
-      );
-
-      setDetails(newDetails);
-    } catch (error: any) {
-      const msgError =
-        error?.response?.data?.message || "Error al cargar la cotización.";
-      errorToast(msgError);
-    } finally {
-      setIsLoadingQuotations(false);
+      setSelectedCurrency(currency || null);
     }
-  }, []);
+  }, [currencyId, currencyTypes]);
+
+  const loadQuotationDetails = useCallback(
+    async (quotationId: string) => {
+      try {
+        setIsLoadingQuotations(true);
+        const quotation = await findOrderQuotationById(Number(quotationId));
+        if (!quotation?.details) return;
+
+        setSelectedQuotationData(quotation);
+
+        if (quotation.currency_id) {
+          form.setValue("currency_id", quotation.currency_id.toString(), {
+            shouldValidate: true,
+          });
+        }
+
+        const productDetails = quotation.details.filter(
+          (detail) =>
+            detail.item_type === ITEM_TYPE_PRODUCT &&
+            (detail.supply_type === SUPPLY_TYPES.CENTRAL ||
+              detail.supply_type === SUPPLY_TYPES.IMPORTACION),
+        );
+
+        const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
+          (detail) => ({
+            product_id: detail.product_id!.toString(),
+            product_name: detail.product?.name || "",
+            product_code: detail.product?.code || "",
+            quantity: Number(detail.quantity) || 1,
+            notes: "",
+            supply_type: detail.supply_type,
+            unit_price:
+              detail.unit_price !== undefined
+                ? Number(detail.unit_price)
+                : undefined,
+            discount_percentage:
+              detail.discount_percentage !== undefined
+                ? Number(detail.discount_percentage)
+                : undefined,
+            total_amount:
+              detail.total_amount !== undefined
+                ? Number(detail.total_amount)
+                : undefined,
+          }),
+        );
+
+        setDetails(newDetails);
+      } catch (error: any) {
+        const msgError =
+          error?.response?.data?.message || "Error al cargar la cotización.";
+        errorToast(msgError);
+      } finally {
+        setIsLoadingQuotations(false);
+      }
+    },
+    [form],
+  );
 
   useEffect(() => {
     if (selectedQuotationId) {
@@ -237,10 +284,15 @@ export default function PurchaseRequestTallerForm({
       product_code: productData?.product.code || "",
       quantity: 1,
       notes: "",
-      supply_type: "LOCAL",
+      supply_type: SUPPLY_TYPES.CENTRAL,
     };
 
+    const newIndex = details.length;
     setDetails([...details, newDetail]);
+    form.setValue(
+      `detail_supply_type_${newIndex}` as any,
+      SUPPLY_TYPES.CENTRAL,
+    );
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -249,9 +301,16 @@ export default function PurchaseRequestTallerForm({
 
   const handleUpdateQuantity = (index: number, quantity: number) => {
     const updatedDetails = [...details];
+    const qty = quantity > 0 ? quantity : 1;
+    const unitPrice = updatedDetails[index].unit_price ?? 0;
+    const discount = updatedDetails[index].discount_percentage ?? 0;
     updatedDetails[index] = {
       ...updatedDetails[index],
-      quantity: quantity > 0 ? quantity : 1,
+      quantity: qty,
+      total_amount:
+        unitPrice > 0
+          ? unitPrice * qty * (1 - discount / 100)
+          : updatedDetails[index].total_amount,
     };
     setDetails(updatedDetails);
   };
@@ -265,10 +324,7 @@ export default function PurchaseRequestTallerForm({
     setDetails(updatedDetails);
   };
 
-  const handleUpdateSupplyType = (
-    index: number,
-    supply_type: "LOCAL" | "CENTRAL" | "IMPORTACION",
-  ) => {
+  const handleUpdateSupplyType = (index: number, supply_type: string) => {
     const updatedDetails = [...details];
     updatedDetails[index] = {
       ...updatedDetails[index],
@@ -277,11 +333,32 @@ export default function PurchaseRequestTallerForm({
     setDetails(updatedDetails);
   };
 
-  const SUPPLY_TYPE_OPTIONS = [
-    { label: "LOCAL", value: "LOCAL" },
-    { label: "CENTRAL", value: "CENTRAL" },
-    { label: "IMPORTACION", value: "IMPORTACION" },
-  ];
+  const handleUpdateUnitPrice = (index: number, unit_price: number) => {
+    const updatedDetails = [...details];
+    const discount = updatedDetails[index].discount_percentage ?? 0;
+    const qty = updatedDetails[index].quantity;
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      unit_price,
+      total_amount: unit_price * qty * (1 - discount / 100),
+    };
+    setDetails(updatedDetails);
+  };
+
+  const handleUpdateDiscountPercentage = (
+    index: number,
+    discount_percentage: number,
+  ) => {
+    const updatedDetails = [...details];
+    const unitPrice = updatedDetails[index].unit_price ?? 0;
+    const qty = updatedDetails[index].quantity;
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      discount_percentage,
+      total_amount: unitPrice * qty * (1 - discount_percentage / 100),
+    };
+    setDetails(updatedDetails);
+  };
 
   const handleSelectQuotation = (quotationId: string) => {
     form.setValue("ap_order_quotation_id", quotationId);
@@ -532,13 +609,15 @@ export default function PurchaseRequestTallerForm({
                 ) : (
                   <div className="border rounded-lg overflow-hidden">
                     {/* Cabecera de tabla - Desktop */}
-                    <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
+                    <div className="hidden md:grid grid-cols-12 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
                       <div className="col-span-2">Código</div>
-                      <div className="col-span-3">Producto</div>
+                      <div className="col-span-2">Producto</div>
                       <div className="col-span-2">Tipo Abastec.</div>
-                      <div className="col-span-2">Cantidad</div>
+                      <div className="col-span-1">Cantidad</div>
+                      <div className="col-span-1">P. Unit.</div>
+                      <div className="col-span-1">Desc. %</div>
+                      <div className="col-span-1">Total</div>
                       <div className="col-span-2">Notas</div>
-                      <div className="col-span-1"></div>
                     </div>
 
                     {/* Items */}
@@ -547,7 +626,7 @@ export default function PurchaseRequestTallerForm({
                         return (
                           <div key={index}>
                             {/* Vista Desktop */}
-                            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                            <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
                               <div className="col-span-2">
                                 <div className="flex items-center gap-1">
                                   <p className="text-sm font-medium text-gray-900 truncate">
@@ -577,7 +656,8 @@ export default function PurchaseRequestTallerForm({
                                   )}
                                 </div>
                               </div>
-                              <div className="col-span-3">
+
+                              <div className="col-span-2">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
@@ -597,19 +677,13 @@ export default function PurchaseRequestTallerForm({
                                     control={form.control}
                                     strictFilter={true}
                                     onValueChange={(value) =>
-                                      handleUpdateSupplyType(
-                                        index,
-                                        value as
-                                          | "LOCAL"
-                                          | "CENTRAL"
-                                          | "IMPORTACION",
-                                      )
+                                      handleUpdateSupplyType(index, value)
                                     }
                                   />
                                 )}
                               </div>
 
-                              <div className="col-span-2">
+                              <div className="col-span-1">
                                 <Input
                                   type="number"
                                   min="0.01"
@@ -626,7 +700,58 @@ export default function PurchaseRequestTallerForm({
                                 />
                               </div>
 
-                              <div className="col-span-2">
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={detail.unit_price ?? ""}
+                                  onChange={(e) =>
+                                    handleUpdateUnitPrice(
+                                      index,
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  placeholder="0.00"
+                                  className="h-9 text-sm"
+                                  disabled={!!selectedQuotationId}
+                                />
+                              </div>
+
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  step="0.01"
+                                  value={detail.discount_percentage ?? ""}
+                                  onChange={(e) =>
+                                    handleUpdateDiscountPercentage(
+                                      index,
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  placeholder="0"
+                                  className="h-9 text-sm"
+                                  readOnly
+                                />
+                              </div>
+
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  value={
+                                    detail.total_amount !== undefined
+                                      ? Number(detail.total_amount).toFixed(2)
+                                      : ""
+                                  }
+                                  readOnly
+                                  placeholder="0.00"
+                                  className="h-9 text-sm bg-gray-50"
+                                />
+                              </div>
+
+                              <div className="col-span-2 flex items-center gap-1">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -636,14 +761,11 @@ export default function PurchaseRequestTallerForm({
                                   placeholder="Notas opcionales..."
                                   className="h-9 text-sm"
                                 />
-                              </div>
-
-                              <div className="col-span-1 flex justify-end">
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
                                   onClick={() => handleRemoveProduct(index)}
                                   disabled={!!selectedQuotationId}
                                 >
@@ -718,13 +840,7 @@ export default function PurchaseRequestTallerForm({
                                       control={form.control}
                                       strictFilter={true}
                                       onValueChange={(value) =>
-                                        handleUpdateSupplyType(
-                                          index,
-                                          value as
-                                            | "LOCAL"
-                                            | "CENTRAL"
-                                            | "IMPORTACION",
-                                        )
+                                        handleUpdateSupplyType(index, value)
                                       }
                                     />
                                   )}
@@ -747,6 +863,67 @@ export default function PurchaseRequestTallerForm({
                                     }
                                     className="h-9 text-sm w-full"
                                     disabled={!!selectedQuotationId}
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                      Precio Unit.
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="0.01"
+                                      value={detail.unit_price ?? ""}
+                                      onChange={(e) =>
+                                        handleUpdateUnitPrice(
+                                          index,
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      className="h-9 text-sm w-full"
+                                      disabled={!!selectedQuotationId}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                      Descuento %
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.01"
+                                      value={detail.discount_percentage ?? ""}
+                                      onChange={(e) =>
+                                        handleUpdateDiscountPercentage(
+                                          index,
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                      placeholder="0"
+                                      className="h-9 text-sm w-full"
+                                      disabled={!!selectedQuotationId}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Total
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    value={
+                                      detail.total_amount !== undefined
+                                        ? Number(detail.total_amount).toFixed(2)
+                                        : ""
+                                    }
+                                    readOnly
+                                    placeholder="0.00"
+                                    className="h-9 text-sm w-full bg-gray-50"
                                   />
                                 </div>
 
@@ -777,6 +954,47 @@ export default function PurchaseRequestTallerForm({
           )}
 
           <FormMessage>{form.formState.errors.details?.message}</FormMessage>
+
+          {/* Resumen de Totales */}
+          {details.some((d) => d.total_amount !== undefined) && (
+            <div className="flex justify-end pt-4 border-t mt-4">
+              <div className="text-right space-y-1">
+                {(() => {
+                  const subtotal = details.reduce(
+                    (sum, d) => sum + (d.total_amount ?? 0),
+                    0,
+                  );
+                  return (
+                    <>
+                      <div className="flex justify-between gap-8">
+                        <p className="text-sm text-gray-600">Subtotal:</p>
+                        <p className="text-sm font-medium text-gray-800">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {subtotal.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex justify-between gap-8">
+                        <p className="text-sm text-gray-600">IGV (18%):</p>
+                        <p className="text-sm font-medium text-gray-800">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {(subtotal * IGV.RATE).toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex justify-between gap-8 pt-1 border-t">
+                        <p className="text-sm font-semibold text-gray-700">
+                          Total General:
+                        </p>
+                        <p className="text-2xl font-bold text-primary">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {(subtotal * IGV.FACTOR).toFixed(2)}
+                        </p>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </GroupFormSection>
 
         <div className="flex justify-end gap-2 pt-4">
