@@ -22,7 +22,6 @@ export const useAllVehicles = (params?: Record<string, any>) => {
   return useQuery<VehicleResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAllVehicles({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
