@@ -68,7 +68,7 @@ export const CycleForm = ({
   );
 
   useEffect(() => {
-    if (startDate) {
+    if (startDate && mode === "create") {
       setValue("cut_off_date", startDate);
     }
   }, [startDate]);
