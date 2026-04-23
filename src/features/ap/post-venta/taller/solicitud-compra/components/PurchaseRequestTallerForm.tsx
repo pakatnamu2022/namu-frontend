@@ -47,7 +47,8 @@ import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.
 import { QuotationSelectionTallerModal } from "../../cotizacion/components/QuotationSelectionTallerModal";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
   onSubmit: (data: any) => void;
@@ -97,6 +98,10 @@ export default function PurchaseRequestTallerForm({
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();
+
+  const { data: currencyTypes = [] } = useAllCurrencyTypes({
+    enable_after_sales: STATUS_ACTIVE,
+  });
 
   const form = useForm({
     resolver: zodResolver(
@@ -312,7 +317,7 @@ export default function PurchaseRequestTallerForm({
           icon={Info}
           cols={{ sm: 1 }}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <FormSelect
               name="warehouse_id"
               label="Almacén"
@@ -323,6 +328,18 @@ export default function PurchaseRequestTallerForm({
               }))}
               control={form.control}
               strictFilter={true}
+            />
+
+            <FormSelect
+              control={form.control}
+              name="currency_id"
+              options={currencyTypes.map((type) => ({
+                value: type.id.toString(),
+                label: type.name,
+              }))}
+              label="Moneda"
+              placeholder="Seleccionar moneda"
+              required
             />
 
             <DatePickerFormField
