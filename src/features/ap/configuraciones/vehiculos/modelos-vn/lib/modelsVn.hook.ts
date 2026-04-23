@@ -15,7 +15,6 @@ export const useModelsVn = (params?: Record<string, any>) => {
   return useQuery<ModelsVnResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getModelsVn({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 

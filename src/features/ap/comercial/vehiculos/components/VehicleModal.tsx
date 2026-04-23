@@ -12,19 +12,12 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { FormInput } from "@/shared/components/FormInput";
 import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
@@ -34,12 +27,22 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { useEffect } from "react";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CLASS_ARTICLE_ID } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
 
 // Schema para vehículos comerciales
 const vehicleComercialSchema = z.object({
   sede_id: z.string().min(1, "La sede es requerida"),
-  plate: z.string().length(6, "La placa debe tener 6 caracteres"),
-  vin: z.string().length(17, "El VIN debe tener 17 caracteres"),
+  plate: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.length === 6,
+      "La placa debe tener 6 caracteres",
+    ),
+  vin: z
+    .string()
+    .min(17, "El VIN debe tener al menos 17 caracteres")
+    .max(20, "El VIN no puede tener más de 20 caracteres"),
   year: z
     .number()
     .min(1900)
@@ -58,6 +61,8 @@ interface VehicleModalProps {
   onClose: () => void;
   title?: string;
   typeOperationId?: number;
+  sedeId?: string;
+  classArticleId?: string;
 }
 
 export default function VehicleModal({
@@ -65,6 +70,8 @@ export default function VehicleModal({
   onClose,
   title = "Agregar Vehículo Comercial",
   typeOperationId = CM_COMERCIAL_ID,
+  sedeId,
+  classArticleId,
 }: VehicleModalProps) {
   const queryClient = useQueryClient();
   const { MODEL, ICON } = VEHICLES;
@@ -72,7 +79,7 @@ export default function VehicleModal({
   const form = useForm<VehicleComercialSchema>({
     resolver: zodResolver(vehicleComercialSchema),
     defaultValues: {
-      sede_id: "",
+      sede_id: sedeId ?? "",
       plate: "",
       vin: "",
       year: new Date().getFullYear(),
@@ -103,14 +110,22 @@ export default function VehicleModal({
     }
   }, [warehouses, form]);
 
-  // Auto-seleccionar primera sede por defecto
+  // Sincronizar sede_id cuando el prop sedeId cambia
   useEffect(() => {
+    if (sedeId && form.getValues("sede_id") !== sedeId) {
+      form.setValue("sede_id", sedeId, { shouldValidate: true });
+    }
+  }, [sedeId]);
+
+  // Auto-seleccionar primera sede por defecto (solo si no viene fijada por prop)
+  useEffect(() => {
+    if (sedeId) return;
     if (mySedes.length > 0 && !form.getValues("sede_id")) {
       form.setValue("sede_id", mySedes[0].id.toString(), {
         shouldValidate: true,
       });
     }
-  }, [mySedes, form]);
+  }, [mySedes, form, sedeId]);
 
   const { mutate: createVehicle, isPending: isCreating } = useMutation({
     mutationFn: storeVehicle,
@@ -160,90 +175,45 @@ export default function VehicleModal({
               }))}
               control={form.control}
               strictFilter={true}
+              disabled={!!sedeId}
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="plate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Placa</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: ABC123"
-                      {...field}
-                      maxLength={6}
-                      className="uppercase"
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Placa"
+              placeholder="Ej: ABC123"
+              maxLength={6}
+              uppercase
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="vin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>VIN</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: 1HGBH41AX1N109189"
-                      maxLength={17}
-                      {...field}
-                      className="uppercase"
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="VIN"
+              placeholder="Ej: 1HGBH41AX1N109189"
+              minLength={17}
+              maxLength={20}
+              uppercase
+              required
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="year"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Año</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Ej: 2025"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Año"
+              placeholder="Ej: 2025"
+              type="number"
+              required
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="engine_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de Motor</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: ENG32345XYZA"
-                      {...field}
-                      className="uppercase"
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Número de Motor"
+              placeholder="Ej: ENG32345XYZA"
+              uppercase
+              required
             />
 
             <FormSelectAsync
@@ -256,6 +226,9 @@ export default function VehicleModal({
                 value: item.id.toString(),
                 label: `${item.code} - ${item.version}`,
               })}
+              additionalParams={{
+                class_id: classArticleId ?? CLASS_ARTICLE_ID.M_VEH_NUE,
+              }}
               perPage={10}
               debounceMs={500}
             />
