@@ -138,6 +138,7 @@ export interface ElectronicDocumentItem {
   account_plan_id?: number;
   unidad_de_medida: string;
   codigo?: string;
+  product_id?: string;
   codigo_producto_sunat?: string;
   descripcion: string;
   cantidad: number;

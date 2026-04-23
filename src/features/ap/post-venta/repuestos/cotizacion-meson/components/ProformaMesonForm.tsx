@@ -57,6 +57,7 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { Warehouse, AlertCircle } from "lucide-react";
+import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import QuotationPartModal from "./QuotationPartModal";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
@@ -191,141 +192,10 @@ function ProductDetailItem({
         {/* Tarjeta de stock expandida - se extiende hasta antes del botón eliminar */}
         {currentProductStock && productId && (
           <div className="col-span-14 row-start-2 col-start-1">
-            <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <div className="flex items-center gap-1.5">
-                  <Warehouse className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-semibold text-primary">
-                    Stock Disponible
-                  </span>
-                </div>
-                {productData?.brand_name && (
-                  <span className="text-xs text-primary">
-                    Marca:{" "}
-                    <span className="font-medium">
-                      {productData.brand_name}
-                    </span>
-                  </span>
-                )}
-                {productData?.code && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-primary">
-                      Cod:{" "}
-                      <span className="font-medium">{productData.code}</span>
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 hover:bg-blue-100"
-                      onClick={() => copyToClipboard(productData.code)}
-                      tooltip="Copiar código"
-                    >
-                      {isCopied ? (
-                        <Check className="h-3 w-3 text-green-600" />
-                      ) : (
-                        <Copy className="h-3 w-3 text-primary" />
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </div>
-              {currentProductStock.warehouses.length > 0 ? (
-                <div className="space-y-2">
-                  {/* Grid responsive para los almacenes */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    {currentProductStock.warehouses.map((warehouse) => (
-                      <div
-                        key={warehouse.warehouse_id}
-                        className="bg-white p-2 rounded border border-blue-100 space-y-1"
-                      >
-                        <div className="flex items-start justify-between">
-                          <span className="font-semibold text-gray-800 text-xs">
-                            {warehouse.warehouse_name}
-                          </span>
-                          {warehouse.is_out_of_stock && (
-                            <Badge
-                              color="destructive"
-                              className="text-xs py-0 px-1 h-4"
-                            >
-                              Sin Stock
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex gap-3 text-xs">
-                          <div>
-                            <span className="text-gray-500">Disp:</span>
-                            <span className="ml-1 text-green-600 font-bold">
-                              {warehouse.available_quantity}
-                            </span>
-                          </div>
-                          {warehouse.quantity_in_transit > 0 && (
-                            <div>
-                              <span className="text-gray-500">Trán:</span>
-                              <span className="ml-1 text-primary font-bold">
-                                {warehouse.quantity_in_transit}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-4 gap-1 text-[10px] pt-1 border-t border-gray-200">
-                          <div>
-                            <div className="text-gray-500">Últ. compra</div>
-                            <div className="font-semibold text-gray-700">
-                              {warehouse.currency.symbol || "S/."}{" "}
-                              {warehouse.last_purchase_price?.toFixed(2) ||
-                                "0.00"}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">P. público</div>
-                            <div className="font-semibold text-gray-700">
-                              {warehouse.currency.symbol || "S/."}{" "}
-                              {warehouse.public_sale_price?.toFixed(2) ||
-                                "0.00"}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">P. mín</div>
-                            <div className="font-semibold text-gray-700">
-                              {warehouse.currency.symbol || "S/."}{" "}
-                              {warehouse.minimum_sale_price?.toFixed(2) ||
-                                "0.00"}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">Sin mov.</div>
-                            <div className="font-semibold text-gray-700">
-                              {warehouse.days_without_movement} días
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Total al final */}
-                  <div className="pt-1.5 border-t border-blue-300 text-xs font-semibold text-gray-700 flex items-center justify-between">
-                    <span>
-                      Total:{" "}
-                      <span className="text-green-600 text-sm">
-                        {currentProductStock.total_available_quantity}
-                      </span>{" "}
-                      disponibles
-                    </span>
-                    {currentProductStock.warehouses.length > 1 && (
-                      <Badge color="secondary" className="text-xs">
-                        {currentProductStock.warehouses.length} almacenes
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 text-xs text-gray-500 bg-white p-2 rounded">
-                  <AlertCircle className="h-3 w-3" />
-                  <span>Sin stock disponible</span>
-                </div>
-              )}
-            </div>
+            <StockWarehousesCard
+              stock={currentProductStock}
+              productInfo={productData}
+            />
           </div>
         )}
 

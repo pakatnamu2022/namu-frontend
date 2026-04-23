@@ -15,7 +15,6 @@ const supplierOrderDetailItemSchema = z.object({
 const supplierOrderSchemaBase = z.object({
   order_number_external: z.string().nullable().optional(),
   supplier_id: requiredStringId("Proveedor es requerido"),
-  sede_id: requiredStringId("Sede es requerida"),
   warehouse_id: requiredStringId("Almacén es requerido"),
   type_currency_id: requiredStringId("Tipo de moneda es requerida"),
   order_date: requiredDate("Fecha de pedido es requerida"),

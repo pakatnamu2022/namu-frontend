@@ -1,4 +1,4 @@
-import DatePicker from "@/shared/components/DatePicker.tsx";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 
 interface Props {
@@ -25,19 +25,14 @@ export default function AdjustmentsProductOptions({
         onChange={setSearch}
         placeholder="Buscar ajuste de producto..."
       />
-      <DatePicker
-        value={dateFrom}
-        onChange={setDateFrom}
-        placeholder="Fecha Desde"
-        showClearButton={false}
-        captionLayout="dropdown"
-      />
-      <DatePicker
-        value={dateTo}
-        onChange={setDateTo}
-        placeholder="Fecha Hasta"
-        showClearButton={false}
-        captionLayout="dropdown"
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
       />
     </div>
   );

@@ -40,7 +40,10 @@ import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
 import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { generatePDIForVehicle } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import {
+  generatePDIForVehicle,
+  generateInstAccessoriesForVehicle,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -62,6 +65,10 @@ export default function ShipmentsReceptionsPage() {
   const [generatePDIVehicleId, setGeneratePDIVehicleId] = useState<
     number | null
   >(null);
+  const [
+    generateInstAccessoriesVehicleId,
+    setGenerateInstAccessoriesVehicleId,
+  ] = useState<number | null>(null);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentsReceptionsResource | null>(null);
   const { MODEL, ROUTE } = SHIPMENTS_RECEPTIONS;
@@ -163,6 +170,17 @@ export default function ShipmentsReceptionsPage() {
     },
   });
 
+  const generateInstAccessoriesMutation = useMutation({
+    mutationFn: (vehicleId: number) =>
+      generateInstAccessoriesForVehicle(vehicleId),
+    onSuccess: () =>
+      successToast("OT de instalación de accesorios generada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al generar OT de instalación de accesorios: ${msg}`);
+    },
+  });
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -193,6 +211,7 @@ export default function ShipmentsReceptionsPage() {
           onCancel: setCancelId,
           onMigrate: (id) => migrateMutation.mutate(id),
           onGeneratePDI: setGeneratePDIVehicleId,
+          onGenerateInstAccessories: setGenerateInstAccessoriesVehicleId,
           permissions,
         })}
         data={data?.data || []}
@@ -276,6 +295,30 @@ export default function ShipmentsReceptionsPage() {
           variant="default"
           icon="warning"
           isLoading={generatePDIMutation.isPending}
+        />
+      )}
+
+      {generateInstAccessoriesVehicleId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) =>
+            !open && setGenerateInstAccessoriesVehicleId(null)
+          }
+          onConfirm={() => {
+            generateInstAccessoriesMutation.mutate(
+              generateInstAccessoriesVehicleId,
+              {
+                onSettled: () => setGenerateInstAccessoriesVehicleId(null),
+              },
+            );
+          }}
+          title="Generar OT de Instalación de Accesorios"
+          description="¿Está seguro de que desea generar una Orden de Trabajo de instalación de accesorios para el vehículo asociado?"
+          confirmText="Sí, generar"
+          cancelText="Cancelar"
+          variant="default"
+          icon="warning"
+          isLoading={generateInstAccessoriesMutation.isPending}
         />
       )}
 

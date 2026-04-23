@@ -1,4 +1,3 @@
-import DatePicker from "@/shared/components/DatePicker";
 import SearchInput from "@/shared/components/SearchInput";
 import {
   Select,
@@ -11,6 +10,7 @@ import { WORK_ORDER_STATUS_ID } from "../lib/workOrder.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.interface";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
@@ -87,19 +87,14 @@ export default function WorkOrderOptions({
           allowClear={allowClearTypePlanning}
         />
       )}
-      <DatePicker
-        value={dateFrom}
-        onChange={setDateFrom}
-        placeholder="Fecha Desde"
-        showClearButton={false}
-        captionLayout="dropdown"
-      />
-      <DatePicker
-        value={dateTo}
-        onChange={setDateTo}
-        placeholder="Fecha Hasta"
-        showClearButton={false}
-        captionLayout="dropdown"
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
       />
       {setStatusFilter !== undefined && (
         <Select value={statusFilter ?? "all"} onValueChange={setStatusFilter}>

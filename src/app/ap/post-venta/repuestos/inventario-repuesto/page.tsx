@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import InventoryOptions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryOptions";
-import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import InventoryTable from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryTable";
@@ -18,7 +18,6 @@ import { inventoryColumns } from "@/features/ap/post-venta/gestion-almacen/inven
 import InventoryActions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import type { SortingState } from "@tanstack/react-table";
-import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function InventoryRepuestoPage() {
   const router = useNavigate();
@@ -33,13 +32,7 @@ export default function InventoryRepuestoPage() {
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehousesByCompany({
-      my: 1,
-      is_received: 1,
-      empresa_id: EMPRESA_AP.id,
-      type_operation_id: CM_POSTVENTA_ID,
-      only_physical: 1,
-    });
+    useMyPhysicalWarehouse();
 
   // Setear automáticamente el primer almacén cuando se carguen
   useEffect(() => {

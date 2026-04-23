@@ -63,7 +63,6 @@ export default function UpdateSupplierOrderPage() {
     return {
       order_number_external: data.order_number_external || "",
       supplier_id: String(data.supplier_id),
-      sede_id: String(data.sede_id),
       warehouse_id: String(data.warehouse_id),
       type_currency_id: String(data.type_currency_id),
       order_date: data.order_date

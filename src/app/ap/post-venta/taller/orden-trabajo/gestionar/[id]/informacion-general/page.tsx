@@ -198,15 +198,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Cita</p>
                   <p className="font-semibold">
-                    {new Date(appointment.date_appointment).toLocaleDateString(
-                      "es-PE",
-                      {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      },
-                    )}
+                    {formatDate(appointment.date_appointment)}
                   </p>
                 </div>
               </div>
@@ -224,14 +216,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Entrega</p>
                   <p className="font-semibold">
-                    {new Date(appointment.delivery_date).toLocaleDateString(
-                      "es-PE",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      },
-                    )}
+                    {formatDate(appointment.delivery_date)}
                   </p>
                 </div>
               </div>
@@ -332,13 +317,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Cotización</p>
                   <p className="font-semibold">
-                    {new Date(
-                      workOrder.order_quotation.quotation_date,
-                    ).toLocaleDateString("es-PE", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatDate(workOrder.order_quotation.quotation_date)}
                   </p>
                 </div>
               </div>
@@ -347,13 +326,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Expiración</p>
                   <p className="font-semibold">
-                    {new Date(
-                      workOrder.order_quotation.expiration_date,
-                    ).toLocaleDateString("es-PE", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatDate(workOrder.order_quotation.expiration_date)}
                   </p>
                 </div>
               </div>

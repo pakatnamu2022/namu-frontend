@@ -10,11 +10,6 @@ import {
   RECEPCION_TYPE_LABELS,
   RECEPCION_STATUS_COLORS,
 } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
-import { errorToast, successToast } from "@/core/core.function";
-import {
-  approveSupplierOrder,
-  downloadSupplierOrderPdf,
-} from "../lib/supplierOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
@@ -22,6 +17,8 @@ export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
 interface Props {
   onDelete: (id: number) => void;
   onView?: (id: number) => void;
+  onApprove: (id: number) => void;
+  onDownloadPdf: (id: number) => void;
   permissions: {
     canApprove: boolean;
     canUpdate: boolean;
@@ -35,6 +32,8 @@ interface Props {
 export const supplierOrderColumns = ({
   onDelete,
   onView,
+  onApprove,
+  onDownloadPdf,
   permissions,
   routeUpdate,
   routeReception,
@@ -179,28 +178,6 @@ export const supplierOrderColumns = ({
     cell: ({ row }) => {
       const { id, has_receptions, approved_by } = row.original;
 
-      const handleDownloadPdf = async (id: number) => {
-        try {
-          await downloadSupplierOrderPdf(id);
-          successToast(
-            `PDF descargado correctamente para la solicitud de compra`,
-          );
-        } catch {
-          errorToast("Error al descargar el PDF");
-        }
-      };
-
-      const handleApprove = async (id: number) => {
-        try {
-          await approveSupplierOrder(id);
-          successToast("Orden aprobada correctamente");
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.message || "Error al aprobar la orden";
-          errorToast(errorMessage);
-        }
-      };
-
       return (
         <div className="flex items-center gap-2">
           {permissions.canView && onView && (
@@ -232,7 +209,7 @@ export const supplierOrderColumns = ({
               confirmText="Sí, aprobar"
               cancelText="Cancelar"
               icon="info"
-              onConfirm={() => handleApprove(id)}
+              onConfirm={() => onApprove(id)}
             />
           )}
 
@@ -241,7 +218,7 @@ export const supplierOrderColumns = ({
             size="icon"
             className="size-7"
             tooltip="Descargar PDF"
-            onClick={() => handleDownloadPdf(id)}
+            onClick={() => onDownloadPdf(id)}
           >
             <Download className="size-5" />
           </Button>

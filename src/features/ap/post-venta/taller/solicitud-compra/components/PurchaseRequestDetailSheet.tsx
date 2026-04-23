@@ -160,6 +160,15 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
               ? formatDate(purchaseRequest.created_at)
               : "N/A",
           },
+          ...(purchaseRequest.currency
+            ? [
+                {
+                  label: "Moneda",
+                  value: purchaseRequest.currency.name,
+                  fullWidth: true,
+                },
+              ]
+            : []),
           ...(purchaseRequest.observations
             ? [
                 {
@@ -341,18 +350,45 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 ),
               },
               {
+                header: "Cantidad",
+                className: "text-center",
+                render: (detail) => (
+                  <div className="text-sm font-semibold">{detail.quantity}</div>
+                ),
+              },
+              {
+                header: "Precio Unitario",
+                className: "text-center",
+                render: (detail) => (
+                  <div className="text-sm font-semibold">
+                    {detail.unit_price}
+                  </div>
+                ),
+              },
+              {
+                header: "% Descuento",
+                className: "text-center",
+                render: (detail) => (
+                  <div className="text-sm font-semibold">
+                    {detail.discount_percentage}
+                  </div>
+                ),
+              },
+              {
+                header: "Precio Total",
+                className: "text-center",
+                render: (detail) => (
+                  <div className="text-sm font-semibold">
+                    {detail.total_amount}
+                  </div>
+                ),
+              },
+              {
                 header: "Notas",
                 render: (detail) => (
                   <div className="text-sm text-muted-foreground">
                     {detail.notes || "Sin notas"}
                   </div>
-                ),
-              },
-              {
-                header: "Cantidad",
-                className: "text-center",
-                render: (detail) => (
-                  <div className="text-sm font-semibold">{detail.quantity}</div>
                 ),
               },
             ] satisfies DetailSheetTableColumn<(typeof details)[0]>[]

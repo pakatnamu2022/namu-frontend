@@ -122,6 +122,7 @@ import TPComercialLayout from "./app/tp/comercial-tp/layout";
 // ============================================================================
 import LoginPage from "./app/page";
 import NotFoundPage from "./app/not-found";
+import ConfirmacionCotizacionPage from "./app/confirmacion-cotizacion/[token]/page";
 import CompaniesPage from "./app/companies/page.tsx";
 import ModulesCompanyPage from "./app/modules/[company]/page.tsx";
 import ModulesCompanyModulePage from "./app/modules/[company]/[module]/page.tsx";
@@ -473,6 +474,10 @@ function App() {
           {/* PUBLIC ROUTES */}
           {/* ============================================================ */}
           <Route path="/" element={<LoginPage />} />
+          <Route
+            path="/confirmacion-cotizacion/:token"
+            element={<ConfirmacionCotizacionPage />}
+          />
 
           {/* ============================================================ */}
           {/* PROTECTED ROUTES */}

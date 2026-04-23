@@ -25,6 +25,7 @@ export const ElectronicDocumentItemSchema = z.object({
   igv: z.number(),
   total: z.number(),
   account_plan_id: requiredStringId("Plan contable requerido"),
+  product_id: z.string().optional(),
   anticipo_regularizacion: z.boolean().optional(),
   anticipo_documento_serie: z.string().max(4, "Máximo 4 caracteres").optional(),
   anticipo_documento_numero: z.number().optional(),
