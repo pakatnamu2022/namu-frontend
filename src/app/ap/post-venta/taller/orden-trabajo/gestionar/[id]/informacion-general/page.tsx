@@ -883,7 +883,7 @@ export default function GeneralInformationPage() {
                             {adv.cliente_denominacion}
                           </td>
                           <td className="py-2 px-3 text-gray-600">
-                            {adv.fecha_de_emision}
+                            {formatDate(adv.fecha_de_emision)}
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             S/ {adv.total.toFixed(2)}

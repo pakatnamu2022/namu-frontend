@@ -45,7 +45,6 @@ import { FormTextArea } from "@/shared/components/FormTextArea";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 import { QuotationSelectionTallerModal } from "../../cotizacion/components/QuotationSelectionTallerModal";
-import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { IGV, STATUS_ACTIVE } from "@/core/core.constants";
@@ -61,7 +60,6 @@ interface PurchaseRequestFormProps {
   onCancel?: () => void;
   showQuotationOption?: boolean;
   allowCreateProduct?: boolean;
-  area_id?: number;
 }
 
 export default function PurchaseRequestTallerForm({
@@ -72,7 +70,6 @@ export default function PurchaseRequestTallerForm({
   onCancel,
   showQuotationOption = true,
   allowCreateProduct = false,
-  area_id = AREA_TALLER,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     if (defaultValues.details && defaultValues.details.length > 0) {
@@ -129,7 +126,6 @@ export default function PurchaseRequestTallerForm({
       requested_date: new Date(),
       observations: "",
       has_appointment: false,
-      area_id,
       ...defaultValues,
       // Usar los details ya transformados
       details: details,
@@ -285,6 +281,7 @@ export default function PurchaseRequestTallerForm({
       quantity: 1,
       notes: "",
       supply_type: SUPPLY_TYPES.CENTRAL,
+      discount_percentage: 0,
     };
 
     const newIndex = details.length;
