@@ -71,7 +71,10 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { ITEM_TYPE_PRODUCT } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
+import {
+  ITEM_TYPE_PRODUCT,
+  onSelectSupplyType,
+} from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import {
   STATUS_APPROVED,
@@ -81,12 +84,6 @@ import {
 import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { DataCard } from "@/components/DataCard";
-
-const onSelectSupplyType = [
-  { label: "Stock", value: "STOCK" },
-  { label: "Central", value: "CENTRAL" },
-  { label: "Importación", value: "IMPORTACION" },
-];
 
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
@@ -208,8 +205,7 @@ function ProductDetailItem({
                 <FormControl>
                   <Input
                     type="number"
-                    min="0.01"
-                    step="0.01"
+                    min="1"
                     placeholder="Cant."
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
@@ -540,8 +536,7 @@ function ProductDetailItem({
                 <FormControl>
                   <Input
                     type="number"
-                    min="0.01"
-                    step="0.01"
+                    min="1"
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     className="h-9"
@@ -946,7 +941,11 @@ export default function ProformaMesonForm({
 
   const formatCurrency = (amount: number) => {
     const symbol = selectedCurrency?.symbol || "S/.";
-    return `${symbol} ${amount.toFixed(2)}`;
+    const formattedAmount = new Intl.NumberFormat("es-PE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    return `${symbol} ${formattedAmount}`;
   };
 
   const getTotalGeneral = () => {
