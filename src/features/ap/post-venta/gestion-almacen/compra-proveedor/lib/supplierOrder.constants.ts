@@ -31,3 +31,10 @@ export const RECEPCION_TYPE_LABELS: Record<string, string> = {
   COMPLETE: "COMPLETO",
   PENDING: "PENDIENTE",
 };
+
+export const supplyTypeOptions = [
+  { label: "Local", value: "LOCAL" },
+  { label: "Central", value: "CENTRAL" },
+  { label: "Importación", value: "IMPORTACION" },
+];
+

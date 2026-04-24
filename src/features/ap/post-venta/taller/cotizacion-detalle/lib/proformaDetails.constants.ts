@@ -21,3 +21,11 @@ export const ORDER_QUOTATION_DETAILS: ModelComplete<OrderQuotationDetailsResourc
 
 export const ITEM_TYPE_PRODUCT = "PRODUCT";
 export const ITEM_TYPE_LABOR = "LABOR";
+
+export const onSelectSupplyType = [
+  { label: "Stock", value: "STOCK" },
+  { label: "Translado", value: "TRASLADO" },
+  { label: "Local", value: "LOCAL" },
+  { label: "Central", value: "CENTRAL" },
+  { label: "Importación", value: "IMPORTACION" },
+];

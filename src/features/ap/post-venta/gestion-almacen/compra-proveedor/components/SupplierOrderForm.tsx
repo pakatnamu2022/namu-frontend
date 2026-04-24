@@ -53,15 +53,10 @@ import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { PendingPurchaseRequestsList } from "./PendingPurchaseRequestsList.tsx";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
-import { toast } from "sonner";
 import { usePurchaseRequestsDetailsPending } from "../../../taller/solicitud-compra/lib/purchaseRequest.hook.ts";
 import { rejectPurchaseRequestDetail } from "../../../taller/solicitud-compra/lib/purchaseRequest.actions.ts";
-
-const SUPPLY_TYPE_OPTIONS = [
-  { label: "Local", value: "LOCAL" },
-  { label: "Central", value: "CENTRAL" },
-  { label: "Importación", value: "IMPORTACION" },
-];
+import { errorToast, successToast } from "@/core/core.function.ts";
+import { supplyTypeOptions } from "../lib/supplierOrder.constants.ts";
 
 interface SupplierOrderFormProps {
   defaultValues: Partial<SupplierOrderSchema>;
@@ -427,12 +422,12 @@ export const SupplierOrderForm = ({
       // Llamar al endpoint para rechazar la solicitud de compra
       await rejectPurchaseRequestDetail(pendingDiscardRequest.id);
 
-      toast.success("Solicitud descartada correctamente");
+      successToast("Solicitud descartada correctamente");
 
       // Refrescar la lista de solicitudes pendientes
       await refetchPurchaseRequests();
     } catch (error: any) {
-      toast.error(
+      errorToast(
         error.response?.data?.message ||
           "Error al descartar la solicitud de compra",
       );
@@ -637,7 +632,7 @@ export const SupplierOrderForm = ({
                     name="supply_type"
                     label="Tipo de Abastecimiento"
                     placeholder="Seleccionar Tipo"
-                    options={SUPPLY_TYPE_OPTIONS}
+                    options={supplyTypeOptions}
                     control={form.control}
                   />
                 </GroupFormSection>
@@ -904,8 +899,7 @@ export const SupplierOrderForm = ({
                                         <FormControl>
                                           <Input
                                             type="number"
-                                            min="0.01"
-                                            step="0.01"
+                                            min="1"
                                             placeholder="1"
                                             className="text-center"
                                             value={field.value ?? ""}
@@ -958,7 +952,7 @@ export const SupplierOrderForm = ({
                                           <Input
                                             type="number"
                                             min="0"
-                                            step="0.0001"
+                                            step="0.1"
                                             placeholder="0.00"
                                             className="text-end"
                                             value={field.value ?? ""}

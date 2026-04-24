@@ -33,6 +33,7 @@ import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
   ITEM_TYPE_PRODUCT,
+  onSelectSupplyType,
   ORDER_QUOTATION_DETAILS,
 } from "../lib/proformaDetails.constants";
 import {
@@ -79,13 +80,6 @@ import {
 } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
-
-const onSelectSupplyType = [
-  { label: "Stock", value: "STOCK" },
-  { label: "Local", value: "LOCAL" },
-  { label: "Central", value: "CENTRAL" },
-  { label: "Importación", value: "IMPORTACION" },
-];
 
 interface ProductDetailsSectionProps {
   quotationId: number;
@@ -886,7 +880,6 @@ export default function ProductDetailsSection({
                 placeholder="Ej: Observaciones adicionales"
               />
             </div>
-
 
             <div className="sm:col-span-2 lg:col-span-1 flex items-end">
               <Button
