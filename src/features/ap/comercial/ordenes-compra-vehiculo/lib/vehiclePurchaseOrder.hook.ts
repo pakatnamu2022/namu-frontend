@@ -30,11 +30,12 @@ export const useAllVehiclePurchaseOrder = (params?: Record<string, any>) => {
   });
 };
 
-export const useVehiclePurchaseOrderById = (id: number) => {
+export const useVehiclePurchaseOrderById = (id: number, enabled = true) => {
   return useQuery<VehiclePurchaseOrderResource>({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findVehiclePurchaseOrderById(id),
     refetchOnWindowFocus: false,
+    enabled,
   });
 };
 
