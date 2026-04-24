@@ -24,7 +24,6 @@ export default function FinancialSummarySection({
     budget_spent,
     total_company,
     extra_spent,
-    balance_to_return,
     total_spent_all,
   } = request;
 
@@ -94,19 +93,17 @@ export default function FinancialSummarySection({
         />
       )}
 
-      {/* Saldo a devolver — solo si hay */}
-      {balance_to_return > 0 && (
-        <DashboardCard
-          title="Saldo a Devolver"
-          value={`S/ ${balance_to_return.toFixed(2)}`}
-          description="Diferencia entre presupuesto y gasto"
-          icon={ArrowDownCircle}
-          variant="outline"
-          color="emerald"
-          colorIntensity="600"
-          className="gap-0"
-        />
-      )}
+      {/* Gasto del colaborador */}
+      <DashboardCard
+        title="Gasto del Colaborador"
+        value={`S/ ${request.total_employee.toFixed(2)}`}
+        description="Lo que el colaborador asumió"
+        icon={ArrowDownCircle}
+        variant="outline"
+        color="violet"
+        colorIntensity="600"
+        className="gap-0"
+      />
 
       {/* Total general */}
       <DashboardCard
