@@ -115,6 +115,7 @@ export const VehicleDeliveryForm = ({
       warehouse$sede_id: watchSedeId ? Number(watchSedeId) : undefined,
       warehouse$is_received: 1,
       warehouse$article_class_id: watchArticleClassId,
+      has_delivery_guide: 0,
     });
 
   // Obtener el vehículo seleccionado
@@ -322,7 +323,9 @@ export const VehicleDeliveryForm = ({
                     </div>
                     <span
                       className="text-[10px] px-2.5 py-1 rounded-full bg-white/10 text-white/80 font-semibold border border-white/20 uppercase tracking-wide"
-                      style={{ borderColor: debtInfo.vehicle.status_color + "60" }}
+                      style={{
+                        borderColor: debtInfo.vehicle.status_color + "60",
+                      }}
                     >
                       {debtInfo.vehicle.vehicle_status}
                     </span>
@@ -339,14 +342,37 @@ export const VehicleDeliveryForm = ({
                       cols={{ sm: 2, md: 2 }}
                       gap="gap-x-4 gap-y-3"
                     >
-                      <InfoItem label="VIN" value={debtInfo.vehicle.vin} span={2} />
-                      <InfoItem label="Placa" value={debtInfo.vehicle.plate ?? "—"} />
+                      <InfoItem
+                        label="VIN"
+                        value={debtInfo.vehicle.vin}
+                        span={2}
+                      />
+                      <InfoItem
+                        label="Placa"
+                        value={debtInfo.vehicle.plate ?? "—"}
+                      />
                       <InfoItem label="Año" value={debtInfo.vehicle.year} />
-                      <InfoItem label="Color" value={debtInfo.vehicle.vehicle_color} />
-                      <InfoItem label="Tipo Motor" value={debtInfo.vehicle.engine_type} />
-                      <InfoItem label="N° Motor" value={debtInfo.vehicle.engine_number} span={2} />
-                      <InfoItem label="Sede" value={debtInfo.vehicle.sede_name_warehouse ?? "—"} />
-                      <InfoItem label="Almacén" value={debtInfo.vehicle.warehouse_name ?? "—"} />
+                      <InfoItem
+                        label="Color"
+                        value={debtInfo.vehicle.vehicle_color}
+                      />
+                      <InfoItem
+                        label="Tipo Motor"
+                        value={debtInfo.vehicle.engine_type}
+                      />
+                      <InfoItem
+                        label="N° Motor"
+                        value={debtInfo.vehicle.engine_number}
+                        span={2}
+                      />
+                      <InfoItem
+                        label="Sede"
+                        value={debtInfo.vehicle.sede_name_warehouse ?? "—"}
+                      />
+                      <InfoItem
+                        label="Almacén"
+                        value={debtInfo.vehicle.warehouse_name ?? "—"}
+                      />
                     </GroupFormSection>
 
                     <GroupFormSection
@@ -358,15 +384,24 @@ export const VehicleDeliveryForm = ({
                     >
                       <div className="flex items-start gap-2">
                         <Hash className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
-                        <InfoItem label="N° Documento" value={debtInfo.client.num_doc} />
+                        <InfoItem
+                          label="N° Documento"
+                          value={debtInfo.client.num_doc}
+                        />
                       </div>
                       <div className="flex items-start gap-2">
                         <User className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
-                        <InfoItem label="Razón Social / Nombre" value={debtInfo.client.full_name} />
+                        <InfoItem
+                          label="Razón Social / Nombre"
+                          value={debtInfo.client.full_name}
+                        />
                       </div>
                       <div className="flex items-start gap-2">
                         <MapPin className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
-                        <InfoItem label="Dirección" value={debtInfo.client.direction} />
+                        <InfoItem
+                          label="Dirección"
+                          value={debtInfo.client.direction}
+                        />
                       </div>
                       <div className="flex items-start gap-2">
                         <Mail className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0" />
@@ -388,21 +423,66 @@ export const VehicleDeliveryForm = ({
                       </span>
                     }
                   >
-                    <InfoItem label="Marca" value={debtInfo.vehicle.model.brand} />
-                    <InfoItem label="Familia" value={debtInfo.vehicle.model.family} />
-                    <InfoItem label="Clase" value={debtInfo.vehicle.model.class} />
-                    <InfoItem label="Año Modelo" value={debtInfo.vehicle.model.model_year} />
-                    <InfoItem label="Tipo Vehículo" value={debtInfo.vehicle.model.vehicle_type} />
-                    <InfoItem label="Carrocería" value={debtInfo.vehicle.model.body_type} />
-                    <InfoItem label="Tracción" value={debtInfo.vehicle.model.traction_type} />
-                    <InfoItem label="Transmisión" value={debtInfo.vehicle.model.transmission} />
-                    <InfoItem label="Combustible" value={debtInfo.vehicle.model.fuel} />
-                    <InfoItem label="Potencia" value={debtInfo.vehicle.model.power} />
-                    <InfoItem label="Cilindros" value={debtInfo.vehicle.model.cylinders_number} />
-                    <InfoItem label="Pasajeros" value={debtInfo.vehicle.model.passengers_number} />
-                    <InfoItem label="Ruedas" value={debtInfo.vehicle.model.wheels_number} />
-                    <InfoItem label="Peso Neto" value={`${debtInfo.vehicle.model.net_weight} kg`} />
-                    <InfoItem label="Peso Bruto" value={`${debtInfo.vehicle.model.gross_weight} kg`} />
+                    <InfoItem
+                      label="Marca"
+                      value={debtInfo.vehicle.model.brand}
+                    />
+                    <InfoItem
+                      label="Familia"
+                      value={debtInfo.vehicle.model.family}
+                    />
+                    <InfoItem
+                      label="Clase"
+                      value={debtInfo.vehicle.model.class}
+                    />
+                    <InfoItem
+                      label="Año Modelo"
+                      value={debtInfo.vehicle.model.model_year}
+                    />
+                    <InfoItem
+                      label="Tipo Vehículo"
+                      value={debtInfo.vehicle.model.vehicle_type}
+                    />
+                    <InfoItem
+                      label="Carrocería"
+                      value={debtInfo.vehicle.model.body_type}
+                    />
+                    <InfoItem
+                      label="Tracción"
+                      value={debtInfo.vehicle.model.traction_type}
+                    />
+                    <InfoItem
+                      label="Transmisión"
+                      value={debtInfo.vehicle.model.transmission}
+                    />
+                    <InfoItem
+                      label="Combustible"
+                      value={debtInfo.vehicle.model.fuel}
+                    />
+                    <InfoItem
+                      label="Potencia"
+                      value={debtInfo.vehicle.model.power}
+                    />
+                    <InfoItem
+                      label="Cilindros"
+                      value={debtInfo.vehicle.model.cylinders_number}
+                    />
+                    <InfoItem
+                      label="Pasajeros"
+                      value={debtInfo.vehicle.model.passengers_number}
+                    />
+                    <InfoItem
+                      label="Ruedas"
+                      value={debtInfo.vehicle.model.wheels_number}
+                    />
+                    <InfoItem
+                      label="Peso Neto"
+                      value={`${debtInfo.vehicle.model.net_weight} kg`}
+                    />
+                    <InfoItem
+                      label="Peso Bruto"
+                      value={`${debtInfo.vehicle.model.gross_weight} kg`}
+                    />
                   </GroupFormSection>
 
                   {/* Row 3: Resumen financiero */}
@@ -446,7 +526,13 @@ export const VehicleDeliveryForm = ({
                       <table className="w-full text-sm">
                         <thead className="bg-muted/60">
                           <tr>
-                            {["Documento", "Tipo", "Fecha", "Moneda", "Total"].map((h) => (
+                            {[
+                              "Documento",
+                              "Tipo",
+                              "Fecha",
+                              "Moneda",
+                              "Total",
+                            ].map((h) => (
                               <th
                                 key={h}
                                 className="text-left px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wide"
@@ -458,7 +544,10 @@ export const VehicleDeliveryForm = ({
                         </thead>
                         <tbody className="divide-y divide-border">
                           {debtInfo.facturas.map((factura) => (
-                            <tr key={factura.id} className="hover:bg-muted/30 transition-colors">
+                            <tr
+                              key={factura.id}
+                              className="hover:bg-muted/30 transition-colors"
+                            >
                               <td className="px-3 py-2.5 font-bold text-foreground text-xs">
                                 {factura.document_number}
                               </td>
@@ -550,16 +639,20 @@ export const VehicleDeliveryForm = ({
                     </div>
                     <span className="text-[10px] bg-muted text-muted-foreground font-semibold px-2.5 py-1 rounded-full">
                       {debtInfo.documents_summary.total_facturas} Factura
-                      {debtInfo.documents_summary.total_facturas !== 1 ? "s" : ""}
+                      {debtInfo.documents_summary.total_facturas !== 1
+                        ? "s"
+                        : ""}
                     </span>
                     {debtInfo.documents_summary.total_notas_credito > 0 && (
                       <span className="text-[10px] bg-green-100 text-green-700 font-semibold px-2.5 py-1 rounded-full">
-                        {debtInfo.documents_summary.total_notas_credito} N. Crédito
+                        {debtInfo.documents_summary.total_notas_credito} N.
+                        Crédito
                       </span>
                     )}
                     {debtInfo.documents_summary.total_notas_debito > 0 && (
                       <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-2.5 py-1 rounded-full">
-                        {debtInfo.documents_summary.total_notas_debito} N. Débito
+                        {debtInfo.documents_summary.total_notas_debito} N.
+                        Débito
                       </span>
                     )}
                     <span className="ml-auto text-[10px] text-muted-foreground">
