@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderDetailView from "./VehiclePurchaseOrderDetailView";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { useVehiclePurchaseOrderById } from "../lib/vehiclePurchaseOrder.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface VehiclePurchaseOrderDetailButtonProps {
   purchaseOrder: VehiclePurchaseOrderResource;
@@ -15,6 +17,11 @@ export default function VehiclePurchaseOrderDetailButton({
   purchaseOrder,
 }: VehiclePurchaseOrderDetailButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const { data, isLoading } = useVehiclePurchaseOrderById(
+    purchaseOrder.id,
+    isOpen,
+  );
 
   return (
     <>
@@ -36,7 +43,11 @@ export default function VehiclePurchaseOrderDetailButton({
         subtitle="Información completa de la orden de compra incluyendo datos del vehículo, factura, items y resumen financiero."
         size="5xl"
       >
-        <VehiclePurchaseOrderDetailView purchaseOrder={purchaseOrder} />
+        {isLoading || !data ? (
+          <FormSkeleton />
+        ) : (
+          <VehiclePurchaseOrderDetailView purchaseOrder={data} />
+        )}
       </GeneralSheet>
     </>
   );
