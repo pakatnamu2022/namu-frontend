@@ -280,7 +280,7 @@ export const ShippingGuideForm = ({
               name="plate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Placa del Vehículo</FormLabel>
+                  <FormLabel>Placa del Vehículo <span className="text-muted-foreground font-normal">(Opcional)</span></FormLabel>
                   <FormControl>
                     <InputOTP
                       maxLength={6}
