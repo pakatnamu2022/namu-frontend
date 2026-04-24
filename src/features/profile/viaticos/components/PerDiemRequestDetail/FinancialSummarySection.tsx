@@ -1,4 +1,11 @@
-import { Wallet, TrendingUp } from "lucide-react";
+import {
+  Wallet,
+  TrendingUp,
+  Building2,
+  PlaneTakeoff,
+  ArrowDownCircle,
+  ReceiptText,
+} from "lucide-react";
 import type { PerDiemRequestResource } from "../../lib/perDiemRequest.interface";
 import { cn } from "@/lib/utils";
 import { DashboardCard } from "@/components/ui/dashboard-card";
@@ -12,73 +19,98 @@ export default function FinancialSummarySection({
   request,
   mode = "page",
 }: FinancialSummarySectionProps) {
-  // Calcular gastos de la empresa (is_company_expense = true)
-  // Estos NO tienen límite, solo se muestran como información
-  const companyExpenses = request.expenses
-    ? request.expenses.filter((expense) => expense.is_company_expense)
-    : [];
+  const {
+    total_budget,
+    budget_spent,
+    total_company,
+    extra_spent,
+    total_spent_all,
+  } = request;
 
-  const totalSpentByCompany = companyExpenses.reduce(
-    (sum, expense) => sum + expense.company_amount,
-    0,
-  );
-
-  // Calcular gastos del colaborador (is_company_expense = false)
-  // Estos SÍ se comparan contra el presupuesto total
-  const employeeExpenses = request.expenses
-    ? request.expenses.filter((expense) => !expense.is_company_expense)
-    : [];
-
-  const totalSpentByEmployee = employeeExpenses.reduce(
-    (sum, expense) => sum + expense.company_amount,
-    0,
-  );
-
-  const employeeSpentPercentage =
-    (totalSpentByEmployee / request.total_budget) * 100;
-
-  // Total general (empresa + colaborador)
-  const totalGeneral = totalSpentByCompany + totalSpentByEmployee;
-
-  const employeeProgressColor = employeeSpentPercentage > 90 ? "red" : "orange";
+  const budgetPct = total_budget > 0 ? (budget_spent / total_budget) * 100 : 0;
+  const budgetColor =
+    budgetPct > 90 ? "red" : budgetPct > 70 ? "orange" : "emerald";
 
   return (
     <div
       className={cn(
-        "grid grid-cols-1 md:grid-cols-2 gap-4",
-        mode === "sheet" ? "lg:grid-cols-2" : "lg:grid-cols-3",
+        "grid grid-cols-1 sm:grid-cols-2 gap-4",
+        mode === "page" ? "lg:grid-cols-3" : "lg:grid-cols-2",
       )}
     >
+      {/* Presupuesto asignado */}
       <DashboardCard
-        title="Gastos de Empresa"
-        value={`S/ ${totalSpentByCompany.toFixed(2)}`}
-        description={`${companyExpenses.length} ${companyExpenses.length === 1 ? "gasto" : "gastos"}`}
-        icon={TrendingUp}
+        title="Presupuesto Asignado"
+        value={`S/ ${total_budget.toFixed(2)}`}
+        description="Monto aprobado para el viático"
+        icon={Wallet}
         variant="outline"
         color="blue"
         colorIntensity="600"
         className="gap-0"
       />
 
+      {/* Gastado del presupuesto */}
       <DashboardCard
-        title="Gastos del Colaborador"
-        value={`S/ ${totalSpentByEmployee.toFixed(2)}`}
-        description={`${employeeSpentPercentage.toFixed(1)}% del presupuesto`}
+        title="Gastado del Presupuesto"
+        value={`S/ ${budget_spent.toFixed(2)}`}
+        description={`${budgetPct.toFixed(1)}% del presupuesto utilizado`}
         icon={TrendingUp}
         variant="outline"
-        color={employeeProgressColor}
+        color={budgetColor}
         colorIntensity="600"
         showProgress
-        progressValue={employeeSpentPercentage}
+        progressValue={budgetPct}
         progressMax={100}
         className="gap-0"
       />
 
+      {/* Gastos complementarios (pasajes, alojamiento) — solo si hay */}
+      {extra_spent > 0 && (
+        <DashboardCard
+          title="Gastos Complementarios"
+          value={`S/ ${extra_spent.toFixed(2)}`}
+          description="Pasajes, alojamiento y similares"
+          icon={PlaneTakeoff}
+          variant="outline"
+          color="slate"
+          colorIntensity="600"
+          className="gap-0"
+        />
+      )}
+
+      {/* Gastos de empresa — solo si hay */}
+      {total_company > 0 && (
+        <DashboardCard
+          title="Gastos de Empresa"
+          value={`S/ ${total_company.toFixed(2)}`}
+          description="Pagados directamente por la empresa"
+          icon={Building2}
+          variant="outline"
+          color="blue"
+          colorIntensity="600"
+          className="gap-0"
+        />
+      )}
+
+      {/* Gasto del colaborador */}
+      <DashboardCard
+        title="Gasto del Colaborador"
+        value={`S/ ${request.total_employee.toFixed(2)}`}
+        description="Lo que el colaborador asumió"
+        icon={ArrowDownCircle}
+        variant="outline"
+        color="violet"
+        colorIntensity="600"
+        className="gap-0"
+      />
+
+      {/* Total general */}
       <DashboardCard
         title="Total General"
-        value={`S/ ${totalGeneral.toFixed(2)}`}
-        description="Empresa + Colaborador"
-        icon={Wallet}
+        value={`S/ ${total_spent_all.toFixed(2)}`}
+        description="Presupuesto + complementarios + empresa"
+        icon={ReceiptText}
         variant="outline"
         className="gap-0"
       />

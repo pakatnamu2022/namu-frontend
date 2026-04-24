@@ -156,7 +156,12 @@ export interface PerDiemRequestResource {
   settlement_date?: string;
   settlement_status?: PerDiemSettlementStatus;
   total_spent: number;
+  total_employee: number;
+  total_company: number;
   balance_to_return: number;
+  budget_spent: number;
+  total_spent_all: number;
+  extra_spent: number;
   notes?: string;
   days_without_settlement: number;
   with_active: boolean;
