@@ -89,7 +89,6 @@ export default function PhoneLinePage() {
         columns={phoneLineColumns({
           onDelete: setDeleteId,
           onToggleStatus: handleToggleStatus,
-          onAssign: setAssignId,
           onHistory: setHistoryId,
         })}
         data={data?.data || []}
