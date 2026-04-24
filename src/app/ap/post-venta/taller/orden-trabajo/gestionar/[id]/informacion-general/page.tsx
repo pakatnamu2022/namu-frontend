@@ -729,7 +729,10 @@ export default function GeneralInformationPage() {
                               (acc, l) => acc + parseFloat(l.total_cost),
                               0,
                             )
-                            .toFixed(2)}
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                         </td>
                         <td />
                       </tr>
@@ -819,12 +822,79 @@ export default function GeneralInformationPage() {
                               (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
                               0,
                             )
-                            .toFixed(2)}
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                         </td>
                         <td />
                       </tr>
                     </tfoot>
                   </table>
+                </div>
+              </div>
+            )}
+
+            {/* Resumen total */}
+            {((workOrder.labours && workOrder.labours.length > 0) ||
+              (workOrder.parts && workOrder.parts.length > 0)) && (
+              <div className="mt-6 pt-4 border-t-2 border-gray-200">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                  Resumen
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Total Mano de Obra
+                    </p>
+                    <p className="text-base font-bold text-green-700">
+                      {workOrder.type_currency?.symbol || "S/"}{" "}
+                      {(workOrder.labours ?? [])
+                        .reduce((acc, l) => acc + parseFloat(l.total_cost), 0)
+                        .toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Total Repuestos
+                    </p>
+                    <p className="text-base font-bold text-green-700">
+                      {workOrder.type_currency?.symbol || "S/"}{" "}
+                      {(workOrder.parts ?? [])
+                        .reduce(
+                          (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                          0,
+                        )
+                        .toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                    </p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-lg border-2 border-primary">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Total General
+                    </p>
+                    <p className="text-lg font-bold text-primary">
+                      {workOrder.type_currency?.symbol || "S/"}{" "}
+                      {(
+                        (workOrder.labours ?? []).reduce(
+                          (acc, l) => acc + parseFloat(l.total_cost),
+                          0,
+                        ) +
+                        (workOrder.parts ?? []).reduce(
+                          (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                          0,
+                        )
+                      ).toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

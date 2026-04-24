@@ -967,14 +967,14 @@ export default function PurchaseRequestTallerForm({
                         <p className="text-sm text-gray-600">Subtotal:</p>
                         <p className="text-sm font-medium text-gray-800">
                           {selectedCurrency?.symbol || "S/"}{" "}
-                          {subtotal.toFixed(2)}
+                          {subtotal.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                       <div className="flex justify-between gap-8">
                         <p className="text-sm text-gray-600">IGV (18%):</p>
                         <p className="text-sm font-medium text-gray-800">
                           {selectedCurrency?.symbol || "S/"}{" "}
-                          {(subtotal * IGV.RATE).toFixed(2)}
+                          {(subtotal * IGV.RATE).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                       <div className="flex justify-between gap-8 pt-1 border-t">
@@ -983,7 +983,7 @@ export default function PurchaseRequestTallerForm({
                         </p>
                         <p className="text-2xl font-bold text-primary">
                           {selectedCurrency?.symbol || "S/"}{" "}
-                          {(subtotal * IGV.FACTOR).toFixed(2)}
+                          {(subtotal * IGV.FACTOR).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                     </>
