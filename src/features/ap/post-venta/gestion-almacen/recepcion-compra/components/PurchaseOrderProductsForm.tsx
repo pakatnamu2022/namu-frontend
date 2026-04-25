@@ -11,6 +11,7 @@ import {
   FormItem,
   FormControl,
   FormMessage,
+  FormLabel,
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -355,19 +356,30 @@ export const PurchaseOrderProductsForm = ({
               }
             ></FormSelectAsync>
 
-            <FormInput
-              control={form.control}
-              name="invoice_series"
-              label="Serie Factura"
-              placeholder="Ej: F001"
-            />
+            <div className="md:col-start-2">
+              <FormLabel className="text-xs md:text-sm mb-1 leading-none h-fit">
+                Nro Factura
+              </FormLabel>
+              <div className="grid grid-cols-[7rem_auto_minmax(0,1fr)] items-start gap-1">
+                <FormInput
+                  control={form.control}
+                  name="invoice_series"
+                  placeholder="F001"
+                  className="text-center font-mono"
+                />
 
-            <FormInput
-              control={form.control}
-              name="invoice_number"
-              label="Núm. Factura"
-              placeholder="Ej: 00012345"
-            />
+                <span className="h-7 md:h-8 flex items-center justify-center text-muted-foreground font-mono">
+                  -
+                </span>
+
+                <FormInput
+                  control={form.control}
+                  name="invoice_number"
+                  placeholder="00012345"
+                  className="text-center font-mono"
+                />
+              </div>
+            </div>
 
             <DatePickerFormField
               control={form.control}
@@ -394,7 +406,10 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{
-                before: watchedEmissionDate instanceof Date ? watchedEmissionDate : new Date(),
+                before:
+                  watchedEmissionDate instanceof Date
+                    ? watchedEmissionDate
+                    : new Date(),
               }}
               disabled={true}
             />

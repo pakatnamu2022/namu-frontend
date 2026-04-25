@@ -18,8 +18,9 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ORDER_QUOTATION_CAJA } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -45,7 +46,10 @@ export default function BillOrderQuotationCajaPage() {
       serie: "",
       numero: "",
       sunat_concept_transaction_type_id: "",
-      client_id: quotation?.vehicle?.owner?.id?.toString() || "",
+      client_id:
+        quotation?.invoice_to_client?.id?.toString() ||
+        quotation?.vehicle?.owner?.id?.toString() ||
+        "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       sunat_concept_currency_id: "",
       tipo_de_cambio: 1,
@@ -177,12 +181,33 @@ export default function BillOrderQuotationCajaPage() {
         />
       </div>
 
-      <OrderQuotationBillingForm
-        form={form}
-        onSubmit={onSubmit}
-        isPending={isPending}
-        quotation={quotation}
-      />
+      {!quotation.invoice_to_client && (
+        <Card className="border border-amber-300 bg-amber-50">
+          <CardContent className="pt-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-amber-800">
+                  No se puede facturar esta cotización
+                </p>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  No se ha asignado un cliente para facturar. Asigne un cliente
+                  en el detalle de la cotización y vuelva a intentar.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {quotation.invoice_to_client && (
+        <OrderQuotationBillingForm
+          form={form}
+          onSubmit={onSubmit}
+          isPending={isPending}
+          quotation={quotation}
+        />
+      )}
     </div>
   );
 }

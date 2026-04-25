@@ -113,12 +113,12 @@ export function OrderQuotationDocumentInfoSection({
           shouldValidate: false,
         });
       }
-    } else if (defaultCustomer && !clientId) {
+    } else if (defaultCustomer) {
       form.setValue("client_id", defaultCustomer.id.toString(), {
         shouldValidate: false,
       });
     }
-  }, [defaultCustomer, clientId, form, lockedClientId]);
+  }, [defaultCustomer?.id, lockedClientId, form]);
 
   // Forzar el switch a true (anticipo) cuando no hay stock suficiente
   // Forzar el switch a false (venta interna) cuando el saldo pendiente es 0
@@ -255,7 +255,7 @@ export function OrderQuotationDocumentInfoSection({
             }
             perPage={10}
             debounceMs={500}
-            disabled={!!lockedClientId}
+            disabled={true}
             defaultOption={defaultOption}
             onValueChange={(_, customer) => {
               // Actualizar el estado con el cliente seleccionado

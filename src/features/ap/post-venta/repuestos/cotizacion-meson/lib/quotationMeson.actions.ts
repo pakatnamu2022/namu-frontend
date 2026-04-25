@@ -142,3 +142,14 @@ export async function confirmQuotationByToken(
   );
   return response.data;
 }
+
+export async function updateOrderQuotationInvoiceTo(
+  id: number,
+  invoiceToId: number | null,
+): Promise<OrderQuotationResource> {
+  const response = await api.patch<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/invoice-to`,
+    { invoice_to: invoiceToId },
+  );
+  return response.data;
+}
