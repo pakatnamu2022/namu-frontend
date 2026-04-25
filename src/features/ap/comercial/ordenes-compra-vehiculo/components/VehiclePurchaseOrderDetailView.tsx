@@ -2,7 +2,14 @@
 
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Car, FileText, Package, Info } from "lucide-react";
+import {
+  Car,
+  FileText,
+  Package,
+  Info,
+  ClipboardList,
+  TrendingUp,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -13,6 +20,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format, parse } from "date-fns";
+import { cn } from "@/lib/utils";
+
+const fmt = (value: number) =>
+  new Intl.NumberFormat("es-PE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 
 interface VehiclePurchaseOrderDetailViewProps {
   purchaseOrder: VehiclePurchaseOrderResource;
@@ -23,6 +37,46 @@ export default function VehiclePurchaseOrderDetailView({
 }: VehiclePurchaseOrderDetailViewProps) {
   const hasVehicle = !!purchaseOrder.vehicle;
   const hasItems = purchaseOrder.items && purchaseOrder.items.length > 0;
+  const { quotation } = purchaseOrder;
+
+  // Margin calculation
+  let purchaseCost = 0;
+  let normalizedSaleBase = 0;
+  let normalizedSaleNet = 0;
+  let marginCurrency = purchaseOrder.currency_code;
+
+  if (quotation) {
+    purchaseCost = Number(purchaseOrder.total);
+    const saleBase = Number(quotation.base_selling_price);
+    const saleNet = Number(quotation.sale_price);
+    const exchangeRate = Number(quotation.exchange_rate) || 1;
+    const sameCurrency =
+      purchaseOrder.currency_code === quotation.type_currency;
+
+    const normalize = (amount: number): number => {
+      if (sameCurrency) return amount;
+      if (
+        purchaseOrder.currency_code === "USD" &&
+        quotation.type_currency === "PEN"
+      )
+        return amount / exchangeRate;
+      if (
+        purchaseOrder.currency_code === "PEN" &&
+        quotation.type_currency === "USD"
+      )
+        return amount * exchangeRate;
+      return amount;
+    };
+
+    normalizedSaleBase = normalize(saleBase);
+    normalizedSaleNet = normalize(saleNet);
+  }
+
+  const marginBase = normalizedSaleBase - purchaseCost;
+  const marginNet = normalizedSaleNet - purchaseCost;
+  const marginBasePct =
+    purchaseCost > 0 ? (marginBase / purchaseCost) * 100 : 0;
+  const marginNetPct = purchaseCost > 0 ? (marginNet / purchaseCost) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -79,7 +133,7 @@ export default function VehiclePurchaseOrderDetailView({
         )}
       </GroupFormSection>
 
-      {/* Información del Vehículo - Solo si existe */}
+      {/* Información del Vehículo */}
       {hasVehicle && purchaseOrder.vehicle && (
         <GroupFormSection
           title="Información del Vehículo"
@@ -252,20 +306,10 @@ export default function VehiclePurchaseOrderDetailView({
                         {item.product_name || item.description}
                         {item.product_code || ""}
                       </TableCell>
-                      <TableCell>
-                        {new Intl.NumberFormat("es-PE", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(itemPrice)}
-                      </TableCell>
+                      <TableCell>{fmt(itemPrice)}</TableCell>
                       <TableCell>{itemQty}</TableCell>
                       <TableCell>
-                        <span className="font-medium">
-                          {new Intl.NumberFormat("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(itemSubtotal)}
-                        </span>
+                        <span className="font-medium">{fmt(itemSubtotal)}</span>
                       </TableCell>
                       <TableCell>
                         {item.is_vehicle ? (
@@ -287,73 +331,217 @@ export default function VehiclePurchaseOrderDetailView({
         </GroupFormSection>
       )}
 
-      {/* Resumen Financiero */}
-      {/* <GroupFormSection
-        title="Resumen Financiero"
-        icon={Calculator}
-        cols={{ sm: 1, md: 2 }}
-      >
-        <div className="col-span-full space-y-3">
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">Subtotal:</span>
-            <span className="font-medium">
-              {purchaseOrder.currency_code}{" "}
-              {new Intl.NumberFormat("es-PE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(Number(purchaseOrder.subtotal))}
-            </span>
+      {/* Cotización de Referencia */}
+      {quotation && (
+        <GroupFormSection
+          title="Cotización de Referencia"
+          color="blue"
+          icon={ClipboardList}
+          cols={{ sm: 1, md: 2, lg: 4 }}
+        >
+          <div>
+            <p className="text-xs text-muted-foreground">Nro. Cotización</p>
+            <p className="font-medium font-mono">{quotation.correlative}</p>
           </div>
-
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">IGV:</span>
-            <span className="font-medium">
-              {purchaseOrder.currency_code}{" "}
-              {new Intl.NumberFormat("es-PE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(Number(purchaseOrder.igv))}
-            </span>
+          <div>
+            <p className="text-xs text-muted-foreground">Titular</p>
+            <p className="font-medium">{quotation.holder}</p>
+            <p className="text-xs text-muted-foreground">
+              {quotation.holder_document_number}
+            </p>
           </div>
-
-          {Number(purchaseOrder.isc) > 0 && (
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm text-muted-foreground">ISC:</span>
-              <span className="font-medium">
-                {purchaseOrder.currency_code}{" "}
-                {new Intl.NumberFormat("es-PE", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(Number(purchaseOrder.isc))}
-              </span>
+          <div>
+            <p className="text-xs text-muted-foreground">Asesor</p>
+            <p className="font-medium">{quotation.advisor_name}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Modelo</p>
+            <p className="font-medium">{quotation.ap_model_vn}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Color</p>
+            <p className="font-medium">{quotation.vehicle_color}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Moneda Cotización</p>
+            <p className="font-medium">
+              {quotation.type_currency} / T.C. {quotation.exchange_rate}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Precio Base</p>
+            <p className="font-medium font-mono">
+              {quotation.type_currency_symbol}{" "}
+              {fmt(Number(quotation.base_selling_price))}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Precio de Venta</p>
+            <p className="font-medium font-mono">
+              {quotation.type_currency_symbol}{" "}
+              {fmt(Number(quotation.sale_price))}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {quotation.doc_type_currency_symbol}{" "}
+              {fmt(Number(quotation.doc_sale_price))}
+            </p>
+          </div>
+          <div className="col-span-full">
+            <p className="text-xs text-muted-foreground">Estado</p>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {!!quotation.is_approved ? (
+                <Badge className="border-0 text-xs">Aprobada</Badge>
+              ) : (
+                <Badge color="secondary" className="border-0 text-xs">
+                  Sin aprobar
+                </Badge>
+              )}
+              {!!quotation.is_invoiced && (
+                <Badge color="default" className="border-0 text-xs">
+                  Facturada
+                </Badge>
+              )}
+              {quotation.is_paid && (
+                <Badge color="default" className="border-0 text-xs">
+                  Pagada
+                </Badge>
+              )}
+            </div>
+          </div>
+          {quotation.warranty_years > 0 && (
+            <div>
+              <p className="text-xs text-muted-foreground">Garantía</p>
+              <p className="font-medium">
+                {quotation.warranty_years} año(s) / {quotation.warranty_km} km
+              </p>
             </div>
           )}
+        </GroupFormSection>
+      )}
 
-          {Number(purchaseOrder.discount) > 0 && (
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm text-muted-foreground">Descuento:</span>
-              <span className="font-medium text-destructive">
-                - {purchaseOrder.currency_code}{" "}
-                {new Intl.NumberFormat("es-PE", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(Number(purchaseOrder.discount))}
-              </span>
-            </div>
-          )}
+      {/* Análisis de Margen */}
+      {quotation && (
+        <GroupFormSection
+          title="Análisis de Margen Máximo"
+          color="emerald"
+          icon={TrendingUp}
+          cols={{ sm: 1 }}
+        >
+          <div className="col-span-full overflow-x-auto">
+            <Table className="text-sm [&_td]:py-1.5 [&_th]:py-1.5">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Concepto</TableHead>
+                  <TableHead className="text-right">Importe</TableHead>
+                  <TableHead className="text-right">Moneda</TableHead>
+                  <TableHead className="text-right">Margen</TableHead>
+                  <TableHead className="text-right">%</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="text-muted-foreground">
+                    Costo de Compra
+                    <span className="block text-xs text-muted-foreground/60">
+                      {purchaseOrder.supplier}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {fmt(purchaseCost)}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {purchaseOrder.currency_code}
+                  </TableCell>
+                  <TableCell />
+                  <TableCell />
+                </TableRow>
 
-          <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
-            <span className="font-semibold">Total:</span>
-            <span className="font-bold text-lg text-primary">
-              {purchaseOrder.currency_code}{" "}
-              {new Intl.NumberFormat("es-PE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(Number(purchaseOrder.total))}
-            </span>
+                <TableRow>
+                  <TableCell className="text-muted-foreground">
+                    Precio Base Venta
+                    <span className="block text-xs text-muted-foreground/60">
+                      Sin descuentos de cotización
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {fmt(Number(quotation.base_selling_price))}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {quotation.type_currency}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right font-mono",
+                      marginBase >= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-destructive",
+                    )}
+                  >
+                    {marginBase >= 0 ? "+" : ""}
+                    {fmt(marginBase)}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right",
+                      marginBase >= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-destructive",
+                    )}
+                  >
+                    {marginBasePct >= 0 ? "+" : ""}
+                    {marginBasePct.toFixed(2)}%
+                  </TableCell>
+                </TableRow>
+
+                <TableRow className="border-t-2 font-semibold">
+                  <TableCell>
+                    Precio Neto Venta
+                    <span className="block text-xs font-normal text-muted-foreground/60">
+                      Con descuentos de cotización
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {fmt(Number(quotation.sale_price))}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {quotation.type_currency}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right font-mono",
+                      marginNet >= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-destructive",
+                    )}
+                  >
+                    {marginNet >= 0 ? "+" : ""}
+                    {fmt(marginNet)}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right",
+                      marginNet >= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-destructive",
+                    )}
+                  >
+                    {marginNetPct >= 0 ? "+" : ""}
+                    {marginNetPct.toFixed(2)}%
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+
+            {purchaseOrder.currency_code !== quotation.type_currency && (
+              <p className="text-xs text-muted-foreground mt-2 px-1">
+                * Margen normalizado a {marginCurrency} · T.C.{" "}
+                {quotation.exchange_rate} ({quotation.type_currency}/
+                {purchaseOrder.currency_code})
+              </p>
+            )}
           </div>
-        </div>
-      </GroupFormSection> */}
+        </GroupFormSection>
+      )}
     </div>
   );
 }

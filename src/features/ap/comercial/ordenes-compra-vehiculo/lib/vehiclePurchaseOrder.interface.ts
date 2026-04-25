@@ -2,6 +2,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { ClassArticleResource } from "../../../configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
+import { PurchaseRequestQuoteResource } from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 
 export interface VehiclePurchaseOrderResponse {
   data: VehiclePurchaseOrderResource[];
@@ -123,6 +124,7 @@ export interface VehiclePurchaseOrderResource {
   vehicleMovement?: VehiclePurchaseOrderMovement;
   movements?: VehiclePurchaseOrderMovement[];
   creator: UserResource;
+  quotation?: PurchaseRequestQuoteResource;
 }
 
 export interface VehiclePurchaseOrderRequest {
