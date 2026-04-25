@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Settings, StickyNote } from "lucide-react";
+import {  StickyNote, Receipt } from "lucide-react";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -12,19 +12,20 @@ import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderIte
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
 interface Props {
-  onManage: (id: number) => void;
+  onBill?: (id: number) => void;
   permissions: {
     canReceive: boolean;
     canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canBill?: boolean;
   };
   showCheckbox?: boolean;
   showActions?: boolean;
 }
 
 export const workOrderCajaColumns = ({
-  onManage,
+  onBill,
   permissions,
   showCheckbox = false,
   showActions = true,
@@ -194,15 +195,15 @@ export const workOrderCajaColumns = ({
 
             return (
               <div className="flex items-center gap-2">
-                {permissions.canManage && (
+                {permissions.canBill && onBill && (
                   <Button
                     variant="outline"
                     size="icon"
                     className="size-7"
-                    tooltip="Gestionar"
-                    onClick={() => onManage(id)}
+                    tooltip="Facturar"
+                    onClick={() => onBill(id)}
                   >
-                    <Settings className="size-5" />
+                    <Receipt className="size-5" />
                   </Button>
                 )}
               </div>

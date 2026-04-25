@@ -157,8 +157,8 @@ export default function WorkOrderCajaPage() {
         ? isLoadingPending
         : isLoadingInvoiced;
 
-  const handleManage = (id: number) => {
-    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
+  const handleBill = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
   };
 
   const selectedIds = Object.keys(rowSelection).filter(
@@ -201,7 +201,7 @@ export default function WorkOrderCajaPage() {
       <WorkOrderTable
         isLoading={currentIsLoading}
         columns={workOrderCajaColumns({
-          onManage: handleManage,
+          onBill: handleBill,
           permissions,
           showCheckbox: activeView === "PENDING",
           showActions: activeView === "OT",
