@@ -329,6 +329,7 @@ import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caj
 import DirectInvoicePage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx";
 import BillWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/facturar/[id]/page.tsx";
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
+import AdoptionDashboardPage from "./app/gp/gestion-del-sistema/adoption-dashboard/page";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
 import AddUserPage from "./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx";
@@ -1682,6 +1683,12 @@ function App() {
               <Route
                 path="vistas/permisos/:id"
                 element={<ViewPermissionsPage />}
+              />
+
+              {/* Dashboard Adopción ERP */}
+              <Route
+                path="dashboard-seguimiento"
+                element={<AdoptionDashboardPage />}
               />
             </Route>
 
