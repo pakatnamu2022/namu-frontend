@@ -12,6 +12,8 @@ interface ElectronicDocumentItemColumnsProps {
   isAdvancePayment?: boolean;
   showActions?: boolean;
   canRemoveItem?: boolean;
+  allowEditLastItemDescription?: boolean;
+  totalItems?: number;
 }
 
 export const getElectronicDocumentItemColumns = ({
@@ -21,6 +23,8 @@ export const getElectronicDocumentItemColumns = ({
   isAdvancePayment = false,
   showActions = true,
   canRemoveItem = false,
+  allowEditLastItemDescription = false,
+  totalItems = 0,
 }: ElectronicDocumentItemColumnsProps): ColumnDef<
   ElectronicDocumentItemSchema & { index: number }
 >[] => [
@@ -235,6 +239,40 @@ export const getElectronicDocumentItemColumns = ({
                       onClick={() => onEdit(row.original.index)}
                       className="size-8"
                       title="Editar"
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                  )}
+                </div>
+              );
+            },
+            size: 100,
+          } as ColumnDef<ElectronicDocumentItemSchema & { index: number }>,
+        ]
+      : allowEditLastItemDescription
+      ? [
+          {
+            id: "actions",
+            header: () => <div className="text-center">Acciones</div>,
+            cell: ({
+              row,
+            }: {
+              row: {
+                original: ElectronicDocumentItemSchema & { index: number };
+              };
+            }) => {
+              const isLastItem = row.original.index === totalItems - 1;
+              if (!isLastItem) return null;
+              return (
+                <div className="text-center flex gap-1 justify-center">
+                  {onEdit && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onEdit(row.original.index)}
+                      className="size-8"
+                      title="Editar descripción"
                     >
                       <Pencil className="size-4" />
                     </Button>

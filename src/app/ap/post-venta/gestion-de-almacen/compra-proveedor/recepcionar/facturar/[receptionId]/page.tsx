@@ -17,7 +17,7 @@ import {
 import { useState } from "react";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
 import { Card, CardContent } from "@/components/ui/card.tsx";
-import { FileText, Package, TruckIcon } from "lucide-react";
+import { Package, TruckIcon } from "lucide-react";
 import { useReceptionById } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.hook.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { IGV } from "@/core/core.constants";
@@ -174,46 +174,6 @@ export default function InvoiceReceptionPage() {
           )}
         </div>
       </div>
-
-      {/* Información del Proveedor de la Orden */}
-      {reception.purchase_order && (
-        <div className="rounded-lg border bg-card p-5 lg:m-4">
-          <div className="flex items-center gap-2 mb-5 pb-3 border-b">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">
-              Información del Proveedor
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium">
-                Proveedor
-              </p>
-              <p className="text-sm font-semibold text-foreground">
-                {reception.purchase_order.supplier}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium">RUC</p>
-              <p className="text-sm font-semibold text-foreground">
-                {reception.purchase_order.supplier_num_doc}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium">Sede</p>
-              <Badge variant="outline">{reception.purchase_order.sede}</Badge>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium">
-                Moneda
-              </p>
-              <Badge variant="outline">
-                {reception.purchase_order.currency_code}
-              </Badge>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Formulario de Orden de Compra */}
       <PurchaseOrderProductsForm

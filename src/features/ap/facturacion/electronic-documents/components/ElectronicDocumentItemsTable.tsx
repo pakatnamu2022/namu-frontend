@@ -12,6 +12,7 @@ interface ElectronicDocumentItemsTableProps {
   isAdvancePayment?: boolean;
   showActions?: boolean;
   canRemoveItem?: boolean;
+  allowEditLastItemDescription?: boolean;
 }
 
 export function ElectronicDocumentItemsTable({
@@ -22,6 +23,7 @@ export function ElectronicDocumentItemsTable({
   isAdvancePayment = false,
   showActions = true,
   canRemoveItem = false,
+  allowEditLastItemDescription = false,
 }: ElectronicDocumentItemsTableProps) {
   // Agregar índice a cada item para el manejo de eliminación
   const itemsWithIndex = items.map((item, index) => ({ ...item, index }));
@@ -33,6 +35,8 @@ export function ElectronicDocumentItemsTable({
     isAdvancePayment,
     showActions,
     canRemoveItem,
+    allowEditLastItemDescription,
+    totalItems: items.length,
   });
 
   return (

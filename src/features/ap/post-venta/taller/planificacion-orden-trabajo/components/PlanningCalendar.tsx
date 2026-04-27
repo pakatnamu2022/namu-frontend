@@ -230,7 +230,7 @@ export function PlanningCalendar({
                               {planning.worker_name}
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              OT: {planning.work_order_correlative}
+                              {planning.work_order_correlative}
                             </p>
                           </div>
                           <div>

@@ -217,28 +217,30 @@ export function FormInput({
 
         return (
           <FormItem className="flex flex-col justify-between">
-            <FormLabel
-              className={cn(
-                "flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground",
-                labelClassName,
-              )}
-            >
-              {label}
-              {required && <RequiredField />}
-              {tooltip && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge
-                      color="tertiary"
-                      className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
-                    >
-                      ?
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>{tooltip}</TooltipContent>
-                </Tooltip>
-              )}
-            </FormLabel>
+            {(label || required || tooltip) && (
+              <FormLabel
+                className={cn(
+                  "flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground",
+                  labelClassName,
+                )}
+              >
+                {label}
+                {required && <RequiredField />}
+                {tooltip && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        color="tertiary"
+                        className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
+                      >
+                        ?
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>{tooltip}</TooltipContent>
+                  </Tooltip>
+                )}
+              </FormLabel>
+            )}
             <div className="flex flex-col gap-2 items-center">
               <div className="relative w-full">
                 {addonStart && (

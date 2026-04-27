@@ -19,7 +19,7 @@ import {
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { useState } from "react";
-import { downloadOrderQuotationPdf } from "../../../taller/cotizacion/lib/proforma.actions";
+import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { DiscardQuotationModal } from "./DiscardQuotationModal";
 import { sendVirtualConfirmation } from "../lib/quotationMeson.actions";
 import { VirtualConfirmationDialog } from "./VirtualConfirmationDialog";
@@ -85,7 +85,7 @@ export const ProformaMesonActionsCell = ({
   const handleDownloadPdf = async (withCode: boolean) => {
     setIsDownloadingPdf(true);
     try {
-      await downloadOrderQuotationPdf(id, withCode);
+      await downloadOrderQuotationRepuestoPdf(id, withCode);
       successToast("PDF descargado correctamente");
     } catch {
       errorToast("Error al descargar el PDF");

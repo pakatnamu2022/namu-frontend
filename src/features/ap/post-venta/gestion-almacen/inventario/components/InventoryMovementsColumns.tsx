@@ -213,7 +213,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           return (
             <div className="flex flex-col text-sm">
               <span className="font-medium">
-                OT: {workOrderPart.work_order_correlative}
+                {workOrderPart.work_order_correlative}
               </span>
               <span className="text-xs text-gray-500">
                 Requerimiento de taller

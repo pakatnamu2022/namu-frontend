@@ -55,6 +55,9 @@ export interface OrderQuotationResource {
   confirmation_channel: string | null;
   confirmation_ip: string | null;
   confirmation_metadata: Record<string, any> | null;
+  //Facturación
+  invoice_to: number | null;
+  invoice_to_client: CustomersResource | null;
   //Opcionales
   has_sufficient_stock: boolean;
   cost_man_hours: number;

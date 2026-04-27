@@ -25,6 +25,7 @@ import {
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { IGV } from "@/core/core.constants";
 
 interface DirectBillingTabProps {
   workOrderIds: number[];
@@ -37,7 +38,18 @@ export default function DirectBillingTab({
   const navigate = useNavigate();
   const { QUERY_KEY } = WORKER_ORDER;
 
-  const { data: workOrders = [], isLoading } = useWorkOrdersByIds(workOrderIds);
+  const {
+    data: workOrders = [],
+    isLoading,
+    isError,
+  } = useWorkOrdersByIds(workOrderIds);
+
+  useEffect(() => {
+    if (isError) {
+      errorToast("Todas las órdenes deben tener la misma moneda");
+      navigate(-1);
+    }
+  }, [isError, navigate]);
 
   // Detecta el tipo de planificación predominante de las OTs cargadas
   const typePlanningId = useMemo(() => {
@@ -201,10 +213,8 @@ export default function DirectBillingTab({
   }
 
   // Resumen de costos combinado de todas las OTs
-  const totalFinalAmount = workOrders.reduce(
-    (sum, wo) => sum + Number(wo.final_amount || 0),
-    0,
-  );
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
   const totalLaborCost = workOrders.reduce(
     (sum, wo) => sum + Number(wo.total_labor_cost || 0),
     0,
@@ -213,14 +223,10 @@ export default function DirectBillingTab({
     (sum, wo) => sum + Number(wo.total_parts_cost || 0),
     0,
   );
-  const totalSubtotal = workOrders.reduce(
-    (sum, wo) => sum + Number(wo.subtotal || 0),
-    0,
-  );
-  const totalTax = workOrders.reduce(
-    (sum, wo) => sum + Number(wo.tax_amount || 0),
-    0,
-  );
+  // total_labor_cost y total_parts_cost son ya la base sin IGV
+  const totalSubtotal = round2(totalLaborCost + totalPartsCost);
+  const totalTax = round2(totalSubtotal * IGV.RATE);
+  const totalFinalAmount = round2(totalSubtotal + totalTax);
 
   return (
     <div className="space-y-6">
@@ -241,7 +247,7 @@ export default function DirectBillingTab({
             </div>
             <span className="text-2xl font-bold text-primary">
               {workOrders[0]?.type_currency?.symbol || "S/"}{" "}
-              {totalFinalAmount.toFixed(2)}
+              {totalFinalAmount.toLocaleString("es-PE")}
             </span>
           </div>
 
