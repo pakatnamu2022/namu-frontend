@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -60,17 +60,6 @@ export function DocumentInfoOtherSalesSection({
       form.setValue("client_id", loadedCustomer.id.toString());
     }
   }, [loadedCustomer, form, selectedCustomer?.id, onCustomerChange]);
-
-  // Filtrar series según is_advance_payment
-  const filteredSeries = useMemo(() => {
-    if (isAdvancePayment) {
-      // Si es anticipo, mostrar solo series con is_advance: true
-      return authorizedSeries.filter((series) => series.is_advance === true);
-    } else {
-      // Si no es anticipo, mostrar solo series con is_advance: false
-      return authorizedSeries.filter((series) => series.is_advance === false);
-    }
-  }, [authorizedSeries, isAdvancePayment]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -210,7 +199,7 @@ export function DocumentInfoOtherSalesSection({
       <FormSelect
         control={form.control}
         name="serie"
-        options={filteredSeries.map((series) => ({
+        options={authorizedSeries.map((series) => ({
           value: series.id.toString(),
           label: `${series.series} - ${series.sede || ""}`,
         }))}

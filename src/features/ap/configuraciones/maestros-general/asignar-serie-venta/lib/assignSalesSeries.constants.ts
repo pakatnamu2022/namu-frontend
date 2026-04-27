@@ -26,7 +26,6 @@ export const ASSIGN_SALES_SERIES: ModelComplete<AssignSalesSeriesResource> = {
     sede_id: 0,
     status: true,
     type: "SALE",
-    is_advance: false,
   },
 };
 
