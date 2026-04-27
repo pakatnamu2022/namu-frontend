@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { FileUp, RefreshCw, Download, Sheet, FileText } from "lucide-react";
+import { FileUp, RefreshCw, Download } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useState } from "react";
 import ManageLeadsModal from "./ManageLeadsModal";
 import ManageLeadsRefreshSheet from "./ManageLeadsRefreshSheet";
 import { ImportedLeadResource } from "../lib/manageLeads.interface";
-import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadManageLeadsFile } from "../lib/manageLeads.actions";
+import ExportButtons from "@/shared/components/ExportButtons";
 
 interface Props {
   dateFrom?: Date;
@@ -90,35 +90,13 @@ export default function ManageLeadsActions({
     <ActionsWrapper>
       <div className="flex items-center gap-2">
         {permissions.canExport && (
-          <div className="flex items-center gap-1 bg-gray-50 rounded-lg border">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  tooltip="Excel"
-                  className="p-0 hover:bg-green-700/5 hover:text-green-700 transition-colors"
-                  onClick={handleExcelDownload}
-                >
-                  <Sheet className="size-4" /> Excel
-                </Button>
-              </TooltipTrigger>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  tooltip="PDF"
-                  className="p-0 hover:bg-red-700/5 hover:text-red-700 transition-colors"
-                  onClick={handlePDFDownload}
-                >
-                  <FileText className="size-4" /> PDF
-                </Button>
-              </TooltipTrigger>
-            </Tooltip>
-          </div>
+          <ExportButtons
+            onExcelDownload={handleExcelDownload}
+            onPdfDownload={handlePDFDownload}
+            disableExcel={!dateFrom || !dateTo}
+            disablePdf={!dateFrom || !dateTo}
+            variant="grouped"
+          />
         )}
       </div>
       <Button size="sm" variant="outline" onClick={handleDownloadTemplate}>
