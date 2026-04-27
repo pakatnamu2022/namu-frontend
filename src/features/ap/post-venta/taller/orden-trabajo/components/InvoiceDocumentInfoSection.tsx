@@ -86,17 +86,6 @@ export function InvoiceDocumentInfoSection({
     return true;
   });
 
-  // Filtrar series según is_advance_payment
-  const filteredSeries = useMemo(() => {
-    if (isAdvancePayment) {
-      // Si es anticipo, mostrar solo series con is_advance: true
-      return authorizedSeries.filter((series) => series.is_advance === true);
-    } else {
-      // Si no es anticipo, mostrar solo series con is_advance: false
-      return authorizedSeries.filter((series) => series.is_advance === false);
-    }
-  }, [authorizedSeries, isAdvancePayment]);
-
   // Validar y limpiar tipo de documento cuando cambia el cliente
   useEffect(() => {
     if (!selectedCustomer) return;
@@ -125,7 +114,7 @@ export function InvoiceDocumentInfoSection({
 
     // Si hay una serie seleccionada, verificar si sigue siendo válida
     if (currentSerieId) {
-      const isValid = filteredSeries.some(
+      const isValid = authorizedSeries.some(
         (series) => series.id.toString() === currentSerieId,
       );
 
@@ -134,7 +123,7 @@ export function InvoiceDocumentInfoSection({
         form.setValue("serie", "");
       }
     }
-  }, [isAdvancePayment, filteredSeries, form]);
+  }, [isAdvancePayment, authorizedSeries, form]);
 
   return (
     <>
@@ -278,7 +267,7 @@ export function InvoiceDocumentInfoSection({
         <FormSelect
           control={form.control}
           name="serie"
-          options={filteredSeries.map((series) => ({
+          options={authorizedSeries.map((series) => ({
             value: series.id.toString(),
             label: `${series.series} - ${series.sede || ""}`,
           }))}

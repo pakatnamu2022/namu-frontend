@@ -91,17 +91,6 @@ export function OrderQuotationDocumentInfoSection({
     return undefined;
   }, [defaultCustomer, lockedClientId, lockedClientName, lockedClientDoc]);
 
-  // Filtrar series según is_advance_payment
-  const filteredSeries = useMemo(() => {
-    if (isAdvancePayment) {
-      // Si es anticipo, mostrar solo series con is_advance: true
-      return authorizedSeries.filter((series) => series.is_advance === true);
-    } else {
-      // Si no es anticipo, mostrar solo series con is_advance: false
-      return authorizedSeries.filter((series) => series.is_advance === false);
-    }
-  }, [authorizedSeries, isAdvancePayment]);
-
   // Setear el cliente por defecto cuando se monta el componente
   useEffect(() => {
     // Si hay un cliente bloqueado desde los anticipos, tiene prioridad ABSOLUTA
@@ -197,7 +186,7 @@ export function OrderQuotationDocumentInfoSection({
 
     // Si hay una serie seleccionada, verificar si sigue siendo válida
     if (currentSerieId) {
-      const isValid = filteredSeries.some(
+      const isValid = authorizedSeries.some(
         (series) => series.id.toString() === currentSerieId,
       );
 
@@ -206,7 +195,7 @@ export function OrderQuotationDocumentInfoSection({
         form.setValue("serie", "");
       }
     }
-  }, [isEdit, isAdvancePayment, filteredSeries, form]);
+  }, [isEdit, isAdvancePayment, authorizedSeries, form]);
 
   return (
     <>
@@ -360,7 +349,7 @@ export function OrderQuotationDocumentInfoSection({
         <FormSelect
           control={form.control}
           name="serie"
-          options={filteredSeries.map((series) => ({
+          options={authorizedSeries.map((series) => ({
             value: series.id.toString(),
             label: `${series.series} - ${series.sede || ""}`,
           }))}

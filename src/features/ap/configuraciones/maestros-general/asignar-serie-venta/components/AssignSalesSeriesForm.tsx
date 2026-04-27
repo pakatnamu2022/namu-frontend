@@ -5,15 +5,7 @@ import {
 } from "../lib/assignSalesSeries.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
@@ -24,7 +16,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllVoucherTypes } from "../../tipos-comprobante/lib/voucherTypes.hook";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import { ASSIGN_SALES_SERIES } from "../lib/assignSalesSeries.constants";
-import { FormSwitch } from "@/shared/components/FormSwitch";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface AssignSalesSeriesFormProps {
   defaultValues: Partial<AssignSalesSeriesSchema>;
@@ -43,7 +35,7 @@ export const AssignSalesSeriesForm = ({
     resolver: zodResolver(
       mode === "create"
         ? assignSalesSeriesSchemaCreate
-        : (assignSalesSeriesSchemaUpdate as any)
+        : (assignSalesSeriesSchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -66,37 +58,24 @@ export const AssignSalesSeriesForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
             name="series"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Serie</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: BV75" {...field} maxLength={4} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Serie"
+            placeholder="Ej: BV75"
             control={form.control}
-            name="correlative_start"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Correlativo Inicial</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            maxLength={4}
           />
+
+          <FormInput
+            name="correlative_start"
+            label="Correlativo Inicial"
+            placeholder="Ej: 1"
+            control={form.control}
+            type="number"
+          />
+
           <FormSelect
             name="type_receipt_id"
             label="Tipo de Comprobante"
@@ -107,6 +86,7 @@ export const AssignSalesSeriesForm = ({
             }))}
             control={form.control}
           />
+
           <FormSelect
             name="type_operation_id"
             label="Tipo de Operación"
@@ -117,6 +97,7 @@ export const AssignSalesSeriesForm = ({
             }))}
             control={form.control}
           />
+
           <FormSelect
             name="sede_id"
             label="Sede"
@@ -127,6 +108,7 @@ export const AssignSalesSeriesForm = ({
             }))}
             control={form.control}
           />
+
           <FormSelect
             name="type"
             label="Tipo"
@@ -134,15 +116,9 @@ export const AssignSalesSeriesForm = ({
             options={[
               { label: "VENTA", value: "SALE" },
               { label: "COMPRA", value: "PURCHASE" },
+              { label: "GUÍAS", value: "GUIDES" },
               { label: "OTROS", value: "OTHERS" },
             ]}
-            control={form.control}
-          />
-          <FormSwitch
-            name="is_advance"
-            label="¿Es para un anticipo?"
-            text={form.watch("is_advance") ? "Sí, es para anticipo" : "No"}
-            description="Indica si esta serie se utilizará para documentos de anticipo"
             control={form.control}
           />
         </div>
