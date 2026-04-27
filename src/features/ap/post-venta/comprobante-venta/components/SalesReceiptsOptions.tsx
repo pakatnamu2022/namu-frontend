@@ -20,8 +20,8 @@ interface Props {
 }
 
 const CONSOLIDATION_TYPE_OPTIONS = [
-  { value: "work_orders", label: "Órdenes de trabajo" },
-  { value: "simple", label: "Simple" },
+  { value: "work_orders", label: "Masiva" },
+  { value: "simple", label: "Directa" },
 ];
 
 export default function SalesReceiptsOptions({
@@ -61,7 +61,7 @@ export default function SalesReceiptsOptions({
         <SearchableSelect
           onChange={setStatusFilter}
           value={statusFilter}
-          className="md:min-w-44"
+          className="min-w-44"
           placeholder="Seleccionar Estado"
           options={DOCUMENT_STATUS.map((status) => ({
             value: status.value,
@@ -74,7 +74,7 @@ export default function SalesReceiptsOptions({
         <SearchableSelect
           onChange={setDocumentTypeFilter}
           value={documentTypeFilter}
-          className="md:min-w-64"
+          className="min-w-64"
           placeholder="Seleccionar Tipo de Documento"
           options={documentTypes.map((type) => ({
             value: type.id.toString(),
@@ -87,7 +87,7 @@ export default function SalesReceiptsOptions({
         <SearchableSelect
           onChange={setConsolidationType}
           value={consolidationType ?? ""}
-          className="md:min-w-44"
+          className="min-w-24"
           placeholder="Tipo de consolidación"
           options={CONSOLIDATION_TYPE_OPTIONS}
         />
