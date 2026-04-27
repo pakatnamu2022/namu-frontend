@@ -26,6 +26,9 @@ interface Props {
   onCancel?: (id: number) => void;
   onNotifyManagers?: (id: number) => void;
   permissions: {
+    canNotify: boolean;
+    canApprove: boolean;
+    canReject: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -265,7 +268,7 @@ export const purchaseRequestColumns = ({
             <Download className="size-5" />
           </Button>
 
-          {hideOptions && onNotifyManagers && (
+          {permissions.canNotify && hideOptions && onNotifyManagers && (
             <Button
               variant="outline"
               size="icon"
@@ -277,7 +280,7 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {hideOptions && onApprove && (
+          {permissions.canApprove && hideOptions && onApprove && (
             <Button
               variant="outline"
               size="icon"
@@ -289,12 +292,12 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {hideOptions && onCancel && (
+          {permissions.canReject && hideOptions && onCancel && (
             <Button
               variant="outline"
               size="icon"
               className="size-7 text-red-500 hover:text-red-600"
-              tooltip="Cancelar"
+              tooltip="Rechazar"
               onClick={() => onCancel(id)}
             >
               <XCircle className="size-5" />

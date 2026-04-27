@@ -51,6 +51,7 @@ export interface SuppliersResource {
   company_id: number;
   origin: null;
   supplier_tax_class_type?: string;
+  supplier_tax_class_type_igv?: number;
   tax_class_type?: string;
   type_road: null;
   type_person: string;

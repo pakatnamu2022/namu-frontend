@@ -194,6 +194,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Plus",
     description: "Permite agregar repuestos a una orden de trabajo",
   },
+  {
+    value: "notify",
+    label: "Notificar",
+    icon: "Bell",
+    description: "Permite enviar notificaciones relacionadas al módulo",
+  },
 ];
 
 /**
@@ -259,5 +265,6 @@ export function useModulePermissions(moduleCode: string) {
       "confirmCancellationReception",
     ),
     canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
+    canNotify: hasModulePermission("notify"),
   };
 }

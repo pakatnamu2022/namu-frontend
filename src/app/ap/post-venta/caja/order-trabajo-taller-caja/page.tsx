@@ -31,7 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Receipt } from "lucide-react";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
-import { BILLING_TYPE_PLANNING_IDS } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -42,6 +42,7 @@ export default function WorkOrderCajaPage() {
   const [search, setSearch] = useState("");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [typePlanningId, setTypePlanningId] = useState<string>("");
+  const [typeCurrencyId, setTypeCurrencyId] = useState<string>("");
   const { ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -66,10 +67,13 @@ export default function WorkOrderCajaPage() {
   const { data: allTypesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
+  const { data: allTypesCurrency = [], isLoading: isLoadingTypesCurrency } =
+    useAllCurrencyTypes();
+
   const isBillingView = activeView === "PENDING" || activeView === "INVOICED";
 
-  const billingTypesPlanning = allTypesPlanning.filter((t) =>
-    BILLING_TYPE_PLANNING_IDS.includes(t.id),
+  const billingTypesPlanning = allTypesPlanning.filter(
+    (t) => t.type_document === "INTERNA",
   );
 
   // Valor efectivo: en vistas de facturación usa el seleccionado o el primero disponible;
@@ -80,6 +84,9 @@ export default function WorkOrderCajaPage() {
 
   const effectiveSedeId =
     sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
+
+  const efecctiveTypeCurrencyId =
+    typeCurrencyId || (allTypesCurrency[0]?.id.toString() ?? "");
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);
@@ -105,6 +112,7 @@ export default function WorkOrderCajaPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
     sede_id: effectiveSedeId || undefined,
+    currency_id: efecctiveTypeCurrencyId || undefined,
   };
 
   const { data: dataOT, isLoading: isLoadingOT } = useGetWorkOrder({
@@ -117,6 +125,7 @@ export default function WorkOrderCajaPage() {
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
       sede_id: effectiveSedeId || undefined,
+      currency_id: efecctiveTypeCurrencyId || undefined,
       items$typePlanning$type_document: "PAYMENT_RECEIPTS",
       items$typePlanning$id: typePlanningId || undefined,
     },
@@ -157,8 +166,8 @@ export default function WorkOrderCajaPage() {
         ? isLoadingPending
         : isLoadingInvoiced;
 
-  const handleManage = (id: number) => {
-    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
+  const handleBill = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
   };
 
   const selectedIds = Object.keys(rowSelection).filter(
@@ -170,7 +179,12 @@ export default function WorkOrderCajaPage() {
     router(`${ABSOLUTE_ROUTE}/factura-directa?ids=${selectedIds.join(",")}`);
   };
 
-  if (isLoadingModule || isLoadingSedes || isLoadingTypesPlanning)
+  if (
+    isLoadingModule ||
+    isLoadingSedes ||
+    isLoadingTypesPlanning ||
+    isLoadingTypesCurrency
+  )
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -201,7 +215,7 @@ export default function WorkOrderCajaPage() {
       <WorkOrderTable
         isLoading={currentIsLoading}
         columns={workOrderCajaColumns({
-          onManage: handleManage,
+          onBill: handleBill,
           permissions,
           showCheckbox: activeView === "PENDING",
           showActions: activeView === "OT",
@@ -234,6 +248,9 @@ export default function WorkOrderCajaPage() {
             setTypePlanningId(id);
             if (isBillingView) setRowSelection({});
           }}
+          typesCurrency={allTypesCurrency}
+          typeCurrencyId={efecctiveTypeCurrencyId}
+          setTypeCurrencyId={setTypeCurrencyId}
           allowClearTypePlanning={!isBillingView}
         />
       </WorkOrderTable>

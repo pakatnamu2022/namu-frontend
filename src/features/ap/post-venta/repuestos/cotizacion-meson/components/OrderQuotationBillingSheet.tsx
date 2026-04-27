@@ -18,11 +18,12 @@ import {
   Check,
   Copy,
   ShieldCheck,
+  Plus,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
 import type { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -35,16 +36,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/SignaturePad";
-import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
+import {
+  confirmOrderQuotation,
+  updateOrderQuotationInvoiceTo,
+} from "../lib/quotationMeson.actions";
 import {
   errorToast,
   formatDate,
   formatDateTime,
   successToast,
 } from "@/core/core.function";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { InfoSection } from "@/shared/components/InfoSection";
 import { FormTextArea } from "@/shared/components/FormTextArea";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -159,15 +168,58 @@ function BillingSheetContent({
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   // Verificar si debe mostrar la sección de firma
   const shouldShowSignature = orderQuotation.status === "Aperturado";
+
+  const isInvoiced = orderQuotation.status === "Facturado";
 
   const form = useForm<SignatureFormData>({
     resolver: zodResolver(signatureSchema),
     defaultValues: {
       notes: "",
       customer_signature: "",
+    },
+  });
+
+  // Formulario para "Facturar a"
+  const invoiceToForm = useForm<{ invoice_to_id: string }>({
+    defaultValues: { invoice_to_id: "" },
+  });
+
+  const invoiceToDefaultOption = useMemo(() => {
+    if (orderQuotation.invoice_to) {
+      return {
+        value: orderQuotation.invoice_to.toString(),
+        label: `${orderQuotation.invoice_to_client?.full_name} - ${orderQuotation.invoice_to_client?.num_doc || "S/N"}`,
+      };
+    }
+    return undefined;
+  }, [orderQuotation.invoice_to, orderQuotation.invoice_to_client]);
+
+  useEffect(() => {
+    if (invoiceToDefaultOption) {
+      invoiceToForm.setValue("invoice_to_id", invoiceToDefaultOption.value);
+    }
+  }, [invoiceToDefaultOption, invoiceToForm]);
+
+  const invoiceToMutation = useMutation({
+    mutationFn: (customerId: number | null) =>
+      updateOrderQuotationInvoiceTo(orderQuotation.id, customerId),
+    onSuccess: () => {
+      successToast("Cliente de facturación actualizado");
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", orderQuotation.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["useOrderQuotations"] });
+      onRefresh?.();
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al actualizar el cliente de facturación",
+      );
     },
   });
 
@@ -868,6 +920,111 @@ function BillingSheetContent({
           </div>
         </>
       )}
+
+      {/* Facturar a */}
+      <Separator />
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">
+              Facturar a
+            </h4>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {isInvoiced
+                ? "Cliente de facturación establecido"
+                : "Selecciona el cliente para la factura"}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="w-full">
+            <FormProvider {...invoiceToForm}>
+              <div className="flex w-full items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <FormSelectAsync
+                    name="invoice_to_id"
+                    label="Cliente de facturación"
+                    placeholder="Seleccionar cliente"
+                    control={invoiceToForm.control}
+                    useQueryHook={useCustomers}
+                    mapOptionFn={(customer: CustomersResource) => ({
+                      value: customer.id.toString(),
+                      label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                    })}
+                    description={
+                      isInvoiced
+                        ? "Ya existe una factura emitida, no se puede modificar"
+                        : hasAdvances
+                          ? "Ya se registraron avances de pago, no se puede modificar"
+                          : "Cliente a quien se le emitirá la factura de esta cotización"
+                    }
+                    perPage={10}
+                    debounceMs={500}
+                    disabled={
+                      isInvoiced || invoiceToMutation.isPending || hasAdvances
+                    }
+                    defaultOption={invoiceToDefaultOption}
+                    onValueChange={(value) => {
+                      invoiceToMutation.mutate(value ? Number(value) : null);
+                    }}
+                    allowClear={false}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  className="aspect-square shrink-0"
+                  onClick={() => setIsCustomerModalOpen(true)}
+                  tooltip="Agregar nuevo cliente"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </FormProvider>
+          </div>
+
+          {orderQuotation.invoice_to && (
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+              <div className="flex-1 grid grid-cols-1 gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Nombre
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {orderQuotation.invoice_to_client?.full_name || "—"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Documento
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
+                    {orderQuotation.invoice_to_client?.num_doc || "S/N"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            queryClient.invalidateQueries({ queryKey: [CUSTOMERS.QUERY_KEY] });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
+      />
 
       {/* Sección de Firma del Cliente */}
       {shouldShowSignature && (

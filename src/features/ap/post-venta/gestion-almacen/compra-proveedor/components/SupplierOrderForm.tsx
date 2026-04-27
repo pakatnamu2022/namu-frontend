@@ -35,13 +35,13 @@ import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
-import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
-import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
+import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
+import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { useEffect, useState, useRef } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
-import { IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
+import { STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { api } from "@/core/api.ts";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
@@ -110,6 +110,12 @@ export const SupplierOrderForm = ({
   const [productRequestMap, setProductRequestMap] = useState<
     Record<string, number[]>
   >({});
+  // Mapa de último precio de referencia (unit_price) por product_id desde solicitudes pendientes
+  const [productRefPriceMap, setProductRefPriceMap] = useState<
+    Record<string, number>
+  >({});
+  const [selectedSupplier, setSelectedSupplier] =
+    useState<SuppliersResource | null>(null);
   const [showOrderNumberExternal, setShowOrderNumberExternal] = useState(
     !!defaultValues.order_number_external,
   );
@@ -125,8 +131,8 @@ export const SupplierOrderForm = ({
       }
     >
   >({});
-  // Cache de productos completos para acceder a sus datos
-  const productsCache = useRef<Record<string, ProductResource>>({});
+  // Cache de inventario por producto para acceder a sus datos
+  const productsCache = useRef<Record<string, InventoryResource>>({});
 
   // Inicializar defaultOptions desde SupplierOrderData al editar
   useEffect(() => {
@@ -179,6 +185,7 @@ export const SupplierOrderForm = ({
       form.setValue("details", []);
       setAddedRequestDetailIds([]);
       setProductRequestMap({});
+      setProductRefPriceMap({});
       setDetailDefaultOptions({});
       productsCache.current = {};
     }
@@ -321,6 +328,13 @@ export const SupplierOrderForm = ({
         delete newMap[productId];
         return newMap;
       });
+
+      // Limpiar el precio de referencia de este producto
+      setProductRefPriceMap((prev) => {
+        const newMap = { ...prev };
+        delete newMap[productId];
+        return newMap;
+      });
     }
 
     // Eliminar el item del formulario
@@ -382,6 +396,14 @@ export const SupplierOrderForm = ({
       setProductRequestMap((prev) => ({
         ...prev,
         [productId]: [requestDetail.id],
+      }));
+    }
+
+    // Guardar el precio de referencia del producto (Costo Unit. de la solicitud)
+    if (requestDetail.unit_price != null) {
+      setProductRefPriceMap((prev) => ({
+        ...prev,
+        [productId]: Number(requestDetail.unit_price),
       }));
     }
 
@@ -472,10 +494,10 @@ export const SupplierOrderForm = ({
     0,
   );
 
-  // Calcular IGV sobre el valor neto
-  const igvAmount = netValue * IGV.RATE; // 18% del valor neto
-
-  // Calcular el importe total (valor neto + IGV)
+  // IGV según el proveedor seleccionado (0 = sin IGV, 18 = con IGV)
+  const supplierIgvRate = selectedSupplier?.supplier_tax_class_type_igv ?? 18;
+  const applyIgv = supplierIgvRate !== 0;
+  const igvAmount = applyIgv ? netValue * (supplierIgvRate / 100) : 0;
   const grandTotal = netValue + igvAmount;
 
   // Filtrar solicitudes no añadidas
@@ -585,6 +607,9 @@ export const SupplierOrderForm = ({
                           }
                         : undefined
                     }
+                    onValueChange={(_value, item) =>
+                      setSelectedSupplier(item ?? null)
+                    }
                   />
 
                   <DatePickerFormField
@@ -645,10 +670,24 @@ export const SupplierOrderForm = ({
                   cols={{ sm: 1, md: 1 }}
                 >
                   <div className="space-y-3">
-                    <div className="text-xs text-muted-foreground bg-blue-50 p-2 rounded-md mb-3">
-                      El total se calculará automáticamente según los productos
-                      agregados.
-                    </div>
+                    {/* Info tributaria del proveedor */}
+                    {selectedSupplier?.supplier_tax_class_type && (
+                      <div className="flex flex-col gap-1 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                        <span className="text-xs font-medium text-amber-800">
+                          Clase tributaria
+                        </span>
+                        <span className="text-xs text-amber-700">
+                          {selectedSupplier.supplier_tax_class_type}
+                        </span>
+                        <span
+                          className={`text-xs font-semibold mt-0.5 ${applyIgv ? "text-orange-600" : "text-green-600"}`}
+                        >
+                          {applyIgv
+                            ? `Afecto a IGV (${supplierIgvRate}%)`
+                            : "Sin IGV (Exonerado)"}
+                        </span>
+                      </div>
+                    )}
 
                     {/* Desglose de IGV */}
                     <div className="space-y-2 border rounded-md p-3 bg-slate-50/50">
@@ -664,17 +703,20 @@ export const SupplierOrderForm = ({
                         </span>
                       </div>
 
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">
-                          IGV (18%):
-                        </span>
-                        <span className="font-medium">
-                          {currencyTypes.find(
-                            (ct) => ct.id.toString() === watchedCurrencyTypeId,
-                          )?.symbol || "S/."}{" "}
-                          {(igvAmount || 0).toFixed(2)}
-                        </span>
-                      </div>
+                      {applyIgv && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground">
+                            IGV ({supplierIgvRate}%):
+                          </span>
+                          <span className="font-medium">
+                            {currencyTypes.find(
+                              (ct) =>
+                                ct.id.toString() === watchedCurrencyTypeId,
+                            )?.symbol || "S/."}{" "}
+                            {(igvAmount || 0).toFixed(2)}
+                          </span>
+                        </div>
+                      )}
 
                       <div className="border-t pt-2 mt-2"></div>
 
@@ -785,6 +827,16 @@ export const SupplierOrderForm = ({
                             const rowDefaults = currentProductId
                               ? detailDefaultOptions[currentProductId]
                               : undefined;
+                            const refPrice = currentProductId
+                              ? productRefPriceMap[currentProductId]
+                              : undefined;
+                            const itemQuantity =
+                              Number(form.watch(`details.${index}.quantity`)) ||
+                              0;
+                            const refTotal =
+                              refPrice != null && itemQuantity > 0
+                                ? refPrice * itemQuantity
+                                : undefined;
 
                             return (
                               <TableRow key={field.id}>
@@ -800,75 +852,80 @@ export const SupplierOrderForm = ({
                                     name={`details.${index}.product_id`}
                                     placeholder="Buscar producto..."
                                     control={form.control}
-                                    useQueryHook={useProduct}
-                                    mapOptionFn={(product: ProductResource) => {
-                                      // Cachear el producto cuando se mapea
+                                    useQueryHook={useInventory}
+                                    additionalParams={{
+                                      warehouse_id: selectedWarehouseId,
+                                    }}
+                                    mapOptionFn={(
+                                      inventory: InventoryResource,
+                                    ) => {
                                       productsCache.current[
-                                        product.id.toString()
-                                      ] = product;
+                                        inventory.product_id.toString()
+                                      ] = inventory;
                                       return {
-                                        value: product.id.toString(),
-                                        label: `${product.name} - ${product.code}`,
+                                        value: inventory.product_id.toString(),
+                                        label: () => (
+                                          <div className="flex items-center justify-between gap-2 w-full">
+                                            <span className="font-medium truncate">
+                                              {inventory.product.code} -{" "}
+                                              {inventory.product.name}
+                                            </span>
+                                            <span
+                                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                                inventory.available_quantity > 0
+                                                  ? "bg-green-100 text-green-700"
+                                                  : "bg-red-100 text-red-700"
+                                              }`}
+                                            >
+                                              Stock:{" "}
+                                              {inventory.available_quantity}
+                                            </span>
+                                          </div>
+                                        ),
                                       };
                                     }}
                                     perPage={10}
                                     debounceMs={500}
                                     defaultOption={rowDefaults?.product}
                                     onValueChange={(value) => {
-                                      // Buscar el producto en el cache
-                                      const selectedProduct =
+                                      const selectedInventory =
                                         productsCache.current[value];
 
-                                      // Setear el unit_measurement_id del producto seleccionado
                                       if (
-                                        selectedProduct?.unit_measurement_id
+                                        selectedInventory?.product
+                                          ?.unit_measurement_id
                                       ) {
-                                        const productId =
-                                          selectedProduct.id.toString();
+                                        const productId = value;
                                         const unitId =
-                                          selectedProduct.unit_measurement_id.toString();
+                                          selectedInventory.product.unit_measurement_id.toString();
 
-                                        // Actualizar el form value
                                         form.setValue(
                                           `details.${index}.unit_measurement_id`,
                                           unitId,
                                         );
 
-                                        // Determinar el label de la unidad de medida desde diferentes fuentes
-                                        let unitLabel = "";
-                                        if (
-                                          selectedProduct.unit_measurement
-                                            ?.description
-                                        ) {
-                                          unitLabel =
-                                            selectedProduct.unit_measurement
-                                              .description;
-                                        } else if (
-                                          selectedProduct.unit_measurement_name
-                                        ) {
-                                          unitLabel =
-                                            selectedProduct.unit_measurement_name;
-                                        }
+                                        const unitLabel =
+                                          selectedInventory.product
+                                            .unit_measurement?.description ||
+                                          selectedInventory.product
+                                            .unit_measurement_name ||
+                                          "";
 
-                                        // Actualizar defaultOptions para que se muestre la unidad de medida
-                                        setDetailDefaultOptions((prev) => {
-                                          const updated = {
-                                            ...prev,
-                                            [productId]: {
-                                              product: {
-                                                value: productId,
-                                                label: `${selectedProduct.name} - ${selectedProduct.code}`,
-                                              },
-                                              unit: unitLabel
-                                                ? {
-                                                    value: unitId,
-                                                    label: unitLabel,
-                                                  }
-                                                : prev[productId]?.unit,
+                                        setDetailDefaultOptions((prev) => ({
+                                          ...prev,
+                                          [productId]: {
+                                            product: {
+                                              value: productId,
+                                              label: `${selectedInventory.product.name} - ${selectedInventory.product.code}`,
                                             },
-                                          };
-                                          return updated;
-                                        });
+                                            unit: unitLabel
+                                              ? {
+                                                  value: unitId,
+                                                  label: unitLabel,
+                                                }
+                                              : prev[productId]?.unit,
+                                          },
+                                        }));
                                       }
                                     }}
                                   />
@@ -941,6 +998,11 @@ export const SupplierOrderForm = ({
                                   <div className="text-sm font-medium bg-muted/50 px-3 py-2 rounded-md">
                                     {unitPrice.toFixed(4).replace(/\.?0+$/, "")}
                                   </div>
+                                  {refPrice != null && (
+                                    <div className="text-xs text-slate-400 text-end mt-0.5 px-1">
+                                      Ref: {refPrice.toFixed(2)}
+                                    </div>
+                                  )}
                                 </TableCell>
                                 <TableCell className="align-middle p-1.5">
                                   <FormField
@@ -989,6 +1051,11 @@ export const SupplierOrderForm = ({
                                       </FormItem>
                                     )}
                                   />
+                                  {refTotal != null && (
+                                    <div className="text-xs text-slate-400 text-end mt-0.5 px-1">
+                                      Ref: {refTotal.toFixed(2)}
+                                    </div>
+                                  )}
                                 </TableCell>
                                 {watchedCurrencyTypeId &&
                                   watchedCurrencyTypeId !==

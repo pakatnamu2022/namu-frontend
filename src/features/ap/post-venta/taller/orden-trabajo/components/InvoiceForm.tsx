@@ -424,6 +424,7 @@ export default function InvoiceForm({
               isAdvancePayment={isAdvancePayment}
               isFromQuotation={true}
               showActions={isAdvancePayment}
+              allowEditLastItemDescription={true}
             />
             {/* Configuración Adicional */}
             <AdditionalConfigSection
@@ -432,6 +433,7 @@ export default function InvoiceForm({
               isModuleCommercial={false}
               showCardLast4={true}
               showInternalNote={true}
+              showOrdenCompraServicio={true}
             />
           </div>
 

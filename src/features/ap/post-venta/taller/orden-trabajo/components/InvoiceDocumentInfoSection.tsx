@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { FileText } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -23,6 +23,7 @@ interface InvoiceDocumentInfoSectionProps {
   defaultCustomer?: CustomersResource;
   isAdvancePayment: boolean;
   isInvalidWithQuote?: boolean;
+  isMassiveBilling?: boolean;
 }
 
 export function InvoiceDocumentInfoSection({
@@ -34,6 +35,7 @@ export function InvoiceDocumentInfoSection({
   defaultCustomer,
   isAdvancePayment,
   isInvalidWithQuote = false,
+  isMassiveBilling = false,
 }: InvoiceDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -135,123 +137,174 @@ export function InvoiceDocumentInfoSection({
   }, [isAdvancePayment, filteredSeries, form]);
 
   return (
-    <GroupFormSection
-      title="Información del Documento"
-      icon={FileText}
-      color="primary"
-      cols={{ sm: 1, md: 3 }}
-    >
-      <div className="md:col-span-3">
-        <FormSelectAsync
-          name="client_id"
-          label="Cliente *"
-          placeholder="Seleccionar cliente"
-          control={form.control}
-          useQueryHook={useCustomers}
-          mapOptionFn={(customer) => ({
-            value: customer.id.toString(),
-            label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-          })}
-          description="Cliente asignado desde la OT (puede modificarlo si lo desea)"
-          perPage={10}
-          debounceMs={500}
-          disabled={true}
-          defaultOption={defaultOption}
-          onValueChange={(_, customer) => {
-            // Actualizar el estado con el cliente seleccionado
-            if (customer) {
-              setSelectedCustomer(customer as CustomersResource);
-            } else {
-              setSelectedCustomer(undefined);
-            }
-          }}
-        />
+    <>
+      <div
+        className={`mb-6 rounded-lg border p-4 ${
+          isInvalidWithQuote
+            ? "border-rose-200 bg-rose-50/70"
+            : "border-emerald-200 bg-emerald-50/70"
+        }`}
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className={`mt-0.5 rounded-full p-1.5 ${
+              isInvalidWithQuote
+                ? "bg-rose-100 text-rose-700"
+                : "bg-emerald-100 text-emerald-700"
+            }`}
+          >
+            {isInvalidWithQuote ? (
+              <AlertCircle className="h-4 w-4 shrink-0" />
+            ) : (
+              <CheckCircle className="h-4 w-4 shrink-0" />
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <p
+              className={`text-sm font-semibold ${
+                isInvalidWithQuote ? "text-rose-800" : "text-emerald-800"
+              }`}
+            >
+              {isInvalidWithQuote
+                ? "Cotización con diferencias"
+                : "Ítems validados correctamente"}
+            </p>
+            <p
+              className={`text-sm leading-relaxed ${
+                isInvalidWithQuote ? "text-rose-700" : "text-emerald-700"
+              }`}
+            >
+              {isInvalidWithQuote
+                ? "La cotización asociada no tiene todos los ítems de mano de obra o repuestos cargados en la orden de trabajo. Por esta razón, solo se permite registrar un anticipo."
+                : "Los ítems de mano de obra y repuestos se cargaron correctamente en la orden de trabajo. Puede continuar con una venta directa o registrar un anticipo."}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <FormSelect
-        control={form.control}
-        name="sunat_concept_document_type_id"
-        options={filteredDocumentTypes.map((type) => ({
-          value: type.id.toString(),
-          label: type.description,
-        }))}
-        label="Tipo de Comprobante"
-        description="Seleccione el tipo de comprobante electrónico"
-        placeholder="Seleccionar tipo de comprobante"
-        required
-      />
+      <GroupFormSection
+        title="Información del Documento"
+        icon={FileText}
+        color="primary"
+        cols={{ sm: 1, md: 3 }}
+      >
+        <div className="md:col-span-3">
+          <FormSelectAsync
+            name="client_id"
+            label="Cliente *"
+            placeholder="Seleccionar cliente"
+            control={form.control}
+            useQueryHook={useCustomers}
+            mapOptionFn={(customer) => ({
+              value: customer.id.toString(),
+              label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+            })}
+            description="Cliente asignado desde la OT (puede modificarlo si lo desea)"
+            perPage={10}
+            debounceMs={500}
+            disabled={true}
+            defaultOption={defaultOption}
+            onValueChange={(_, customer) => {
+              // Actualizar el estado con el cliente seleccionado
+              if (customer) {
+                setSelectedCustomer(customer as CustomersResource);
+              } else {
+                setSelectedCustomer(undefined);
+              }
+            }}
+          />
+        </div>
 
-      {/* Switch de Anticipo */}
-      <FormSwitch
-        control={form.control}
-        name="is_advance_payment"
-        label="Tipo de Operación"
-        text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
-        description={
-          isInvalidWithQuote
-            ? "Solo se permiten anticipos (cotización con diferencias)"
-            : isAdvancePayment
-              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-              : "Tipo de operación: Venta Interna (código 01)"
-        }
-        disabled={isInvalidWithQuote}
-      />
+        <FormSelect
+          control={form.control}
+          name="sunat_concept_document_type_id"
+          options={filteredDocumentTypes.map((type) => ({
+            value: type.id.toString(),
+            label: type.description,
+          }))}
+          label="Tipo de Comprobante"
+          description="Seleccione el tipo de comprobante electrónico"
+          placeholder="Seleccionar tipo de comprobante"
+          required
+        />
 
-      <FormSelect
-        control={form.control}
-        name="sunat_concept_currency_id"
-        options={currencyTypes.map((type) => ({
-          value: type.id.toString(),
-          label: type.description,
-        }))}
-        label="Moneda"
-        description="Seleccione la moneda del documento"
-        placeholder="Seleccionar moneda"
-        required
-        disabled
-      />
+        {/* Switch de Anticipo */}
+        <FormSwitch
+          control={form.control}
+          name="is_advance_payment"
+          label="Tipo de Operación"
+          text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
+          description={
+            isInvalidWithQuote
+              ? "Solo se permiten anticipos (cotización con diferencias)"
+              : isAdvancePayment
+                ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                : "Tipo de operación: Venta Interna (código 01)"
+          }
+          disabled={isInvalidWithQuote || isMassiveBilling}
+        />
 
-      <DatePickerFormField
-        control={form.control}
-        name="fecha_de_emision"
-        label="Fecha de Emisión *"
-        placeholder="Seleccione fecha"
-        description="Seleccione la fecha de emisión del documento"
-        disabledRange={{
-          before: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          after: new Date(),
-        }}
-      />
+        <FormSelect
+          control={form.control}
+          name="sunat_concept_currency_id"
+          options={currencyTypes.map((type) => ({
+            value: type.id.toString(),
+            label: type.description,
+          }))}
+          label="Moneda"
+          description="Seleccione la moneda del documento"
+          placeholder="Seleccionar moneda"
+          required
+          disabled
+        />
 
-      <FormSelect
-        control={form.control}
-        name="serie"
-        options={filteredSeries.map((series) => ({
-          value: series.id.toString(),
-          label: `${series.series} - ${series.sede || ""}`,
-        }))}
-        label="Serie"
-        description={
-          isAdvancePayment
-            ? "Series autorizadas para anticipos"
-            : "Series autorizadas para su usuario"
-        }
-        placeholder="Seleccionar serie"
-        required
-      />
+        <DatePickerFormField
+          control={form.control}
+          name="fecha_de_emision"
+          label="Fecha de Emisión *"
+          placeholder="Seleccione fecha"
+          description="Seleccione la fecha de emisión del documento"
+          disabledRange={{
+            before: new Date(
+              new Date().getFullYear(),
+              new Date().getMonth(),
+              1,
+            ),
+            after: new Date(),
+          }}
+        />
 
-      <FormInput
-        control={form.control}
-        name="numero"
-        label="Número"
-        placeholder="Auto-generado"
-        description={
-          isEdit
-            ? "El correlativo no se puede modificar"
-            : "Se genera automáticamente"
-        }
-        disabled
-      />
-    </GroupFormSection>
+        <FormSelect
+          control={form.control}
+          name="serie"
+          options={filteredSeries.map((series) => ({
+            value: series.id.toString(),
+            label: `${series.series} - ${series.sede || ""}`,
+          }))}
+          label="Serie"
+          description={
+            isAdvancePayment
+              ? "Series autorizadas para anticipos"
+              : "Series autorizadas para su usuario"
+          }
+          placeholder="Seleccionar serie"
+          required
+        />
+
+        <FormInput
+          control={form.control}
+          name="numero"
+          label="Número"
+          placeholder="Auto-generado"
+          description={
+            isEdit
+              ? "El correlativo no se puede modificar"
+              : "Se genera automáticamente"
+          }
+          disabled
+        />
+      </GroupFormSection>
+    </>
   );
 }

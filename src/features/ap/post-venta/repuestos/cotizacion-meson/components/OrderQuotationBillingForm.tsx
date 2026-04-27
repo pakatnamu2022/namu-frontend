@@ -596,7 +596,7 @@ export function OrderQuotationBillingForm({
               isAdvancePayment={isAdvancePayment}
               currencyTypes={currencyTypes}
               isFromQuotation={true}
-              defaultCustomer={quotation.client}
+              defaultCustomer={quotation.invoice_to_client ?? quotation.client}
               hasSufficientStock={quotation.has_sufficient_stock}
               pendingBalance={pendingBalance}
               lockedClientId={lockedClientId}
@@ -616,6 +616,7 @@ export function OrderQuotationBillingForm({
               }
               isFromQuotation={true}
               showActions={false}
+              allowEditLastItemDescription={true}
             />
 
             {/* Configuración Adicional */}
@@ -625,6 +626,7 @@ export function OrderQuotationBillingForm({
               isModuleCommercial={false}
               showCardLast4={true}
               showInternalNote={true}
+              showOrdenCompraServicio={true}
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}

@@ -33,6 +33,7 @@ interface ItemsSectionProps {
   useQuotation?: boolean;
   isDetraction?: boolean;
   minRetentionPrice?: number;
+  allowEditLastItemDescription?: boolean;
 }
 
 export function ItemsSection({
@@ -47,6 +48,7 @@ export function ItemsSection({
   useQuotation = false,
   isDetraction = false,
   minRetentionPrice,
+  allowEditLastItemDescription = false,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
     is_detraction: isDetraction ? 1 : 0,
@@ -222,13 +224,30 @@ export function ItemsSection({
   };
 
   const updateItem = () => {
-    if (
-      editingIndex === null ||
-      !newItem.descripcion ||
-      newItem.precio_unitario <= 0 ||
-      !newItem.account_plan_id
-    )
+    if (editingIndex === null || !newItem.descripcion) return;
+
+    // En modo edición de solo descripción, solo actualizamos ese campo (no aplica en anticipo)
+    if (allowEditLastItemDescription && !isAdvancePayment) {
+      const updatedItems = [...items];
+      updatedItems[editingIndex] = {
+        ...updatedItems[editingIndex],
+        descripcion: newItem.descripcion,
+      };
+      form.setValue("items", updatedItems, { shouldValidate: true });
+      setIsSheetOpen(false);
+      setNewItem({
+        unidad_de_medida: "NIU",
+        descripcion: "",
+        cantidad: 1,
+        precio_unitario: 0,
+        descuento: 0,
+        account_plan_id: "",
+      });
+      setEditingIndex(null);
       return;
+    }
+
+    if (newItem.precio_unitario <= 0 || !newItem.account_plan_id) return;
 
     const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
     const descuento = newItem.descuento || 0;
@@ -363,6 +382,7 @@ export function ItemsSection({
           isAdvancePayment={isAdvancePayment}
           showActions={showActions}
           canRemoveItem={!useQuotation}
+          allowEditLastItemDescription={allowEditLastItemDescription}
         />
       </GroupFormSection>
 
@@ -392,113 +412,121 @@ export function ItemsSection({
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <SearchableSelect
-                label="Unidad de Medida *"
-                onChange={(value) =>
-                  setNewItem({ ...newItem, unidad_de_medida: value })
-                }
-                value={newItem.unidad_de_medida}
-                options={UNIT_MEASURES.map((unit) => ({
-                  value: unit.value,
-                  label: unit.label,
-                }))}
-                className="w-full!"
-                buttonSize="default"
-              />
-            </div>
+            {!(
+              allowEditLastItemDescription &&
+              editingIndex !== null &&
+              !isAdvancePayment
+            ) && (
+              <>
+                <div className="flex flex-col gap-2">
+                  <SearchableSelect
+                    label="Unidad de Medida *"
+                    onChange={(value) =>
+                      setNewItem({ ...newItem, unidad_de_medida: value })
+                    }
+                    value={newItem.unidad_de_medida}
+                    options={UNIT_MEASURES.map((unit) => ({
+                      value: unit.value,
+                      label: unit.label,
+                    }))}
+                    className="w-full!"
+                    buttonSize="default"
+                  />
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <SearchableSelect
-                label="Plan de Cuenta Contable *"
-                onChange={(value) =>
-                  setNewItem({ ...newItem, account_plan_id: value })
-                }
-                value={newItem.account_plan_id}
-                options={
-                  accountPlans?.map((plan) => ({
-                    value: plan.id.toString(),
-                    label: `${plan.account} - ${plan.description}`,
-                  })) || []
-                }
-                className="w-full!"
-                buttonSize="default"
-                disabled={isFromQuotation}
-              />
-            </div>
+                <div className="flex flex-col gap-2">
+                  <SearchableSelect
+                    label="Plan de Cuenta Contable *"
+                    onChange={(value) =>
+                      setNewItem({ ...newItem, account_plan_id: value })
+                    }
+                    value={newItem.account_plan_id}
+                    options={
+                      accountPlans?.map((plan) => ({
+                        value: plan.id.toString(),
+                        label: `${plan.account} - ${plan.description}`,
+                      })) || []
+                    }
+                    className="w-full!"
+                    buttonSize="default"
+                    disabled={isFromQuotation}
+                  />
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="item-quantity">Cantidad *</Label>
-              <Input
-                id="item-quantity"
-                type="number"
-                min="0"
-                step="0.01"
-                value={newItem.cantidad}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    cantidad: parseFloat(e.target.value) || 1,
-                  })
-                }
-                disabled={isFromQuotation}
-              />
-            </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="item-quantity">Cantidad *</Label>
+                  <Input
+                    id="item-quantity"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItem.cantidad}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        cantidad: parseFloat(e.target.value) || 1,
+                      })
+                    }
+                    disabled={isFromQuotation}
+                  />
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <FormInput
-                name="item-price"
-                label="Precio Unitario (Con IGV)"
-                placeholder="Ej: 580.00"
-                type="number"
-                min="0"
-                step="0.01"
-                value={newItem.precio_unitario}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    precio_unitario: parseFloat(e.target.value) || 0,
-                  })
-                }
-                disabled={isFromQuotation && !isAdvancePayment}
-              />
-              {minRetentionPrice && (
-                <p className="text-xs text-muted-foreground">
-                  Mínimo por retención:{" "}
-                  <span className="font-medium">
-                    {currencySymbol} {minRetentionPrice.toFixed(2)}
-                  </span>{" "}
-                  (S/ 700)
-                </p>
-              )}
-            </div>
+                <div className="flex flex-col gap-2">
+                  <FormInput
+                    name="item-price"
+                    label="Precio Unitario (Con IGV)"
+                    placeholder="Ej: 580.00"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItem.precio_unitario}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        precio_unitario: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    disabled={isFromQuotation && !isAdvancePayment}
+                  />
+                  {minRetentionPrice && (
+                    <p className="text-xs text-muted-foreground">
+                      Mínimo por retención:{" "}
+                      <span className="font-medium">
+                        {currencySymbol} {minRetentionPrice.toFixed(2)}
+                      </span>{" "}
+                      (S/ 700)
+                    </p>
+                  )}
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="item-discount">
-                Descuento (Sobre Precio Unitario)
-              </Label>
-              <Input
-                id="item-discount"
-                type="number"
-                min="0"
-                step="0.01"
-                max={newItem.precio_unitario}
-                value={newItem.descuento}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    descuento: parseFloat(e.target.value) || 0,
-                  })
-                }
-                disabled={isAdvancePayment}
-              />
-              {newItem.descuento > 0 && newItem.precio_unitario > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Precio con descuento: {currencySymbol}{" "}
-                  {(newItem.precio_unitario - newItem.descuento).toFixed(2)}
-                </p>
-              )}
-            </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="item-discount">
+                    Descuento (Sobre Precio Unitario)
+                  </Label>
+                  <Input
+                    id="item-discount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    max={newItem.precio_unitario}
+                    value={newItem.descuento}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        descuento: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    disabled={isAdvancePayment}
+                  />
+                  {newItem.descuento > 0 && newItem.precio_unitario > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Precio con descuento: {currencySymbol}{" "}
+                      {(newItem.precio_unitario - newItem.descuento).toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex gap-2 pt-4 border-t">
@@ -515,9 +543,11 @@ export function ItemsSection({
               onClick={handleSaveItem}
               className="flex-1"
               disabled={
-                !newItem.descripcion ||
-                newItem.precio_unitario <= 0 ||
-                !newItem.account_plan_id
+                allowEditLastItemDescription && editingIndex !== null && !isAdvancePayment
+                  ? !newItem.descripcion
+                  : !newItem.descripcion ||
+                    newItem.precio_unitario <= 0 ||
+                    !newItem.account_plan_id
               }
             >
               {editingIndex !== null ? "Actualizar" : "Agregar"}

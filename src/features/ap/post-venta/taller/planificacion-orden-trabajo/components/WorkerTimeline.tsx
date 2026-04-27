@@ -495,11 +495,24 @@ export function WorkerTimeline({
       const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
       if (lastEndTotalMin >= AFTERNOON_END) return;
 
-      // Si el último bloque termina justo al inicio del almuerzo (13:00),
-      // saltar al fin del almuerzo (14:24) para no quedar bloqueado
+      // Si el último bloque quedó en el pasado (hora actual > fin del último bloque),
+      // partir desde la hora actual (tiempo muerto permitido)
       let effectiveStart = lastEnd;
-      if (lastEndTotalMin === LUNCH_START) {
-        effectiveStart = new Date(lastEnd);
+      if (isSameDay(selectedDate, new Date())) {
+        const now = new Date();
+        if (now > lastEnd) {
+          effectiveStart = now;
+        }
+      }
+
+      // Si el inicio cae en almuerzo, saltar al fin del almuerzo
+      const effectiveStartMin =
+        effectiveStart.getHours() * 60 + effectiveStart.getMinutes();
+      if (
+        effectiveStartMin >= LUNCH_START &&
+        effectiveStartMin < WORK_SCHEDULE.LUNCH_END
+      ) {
+        effectiveStart = new Date(effectiveStart);
         effectiveStart.setHours(
           Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
           WORK_SCHEDULE.LUNCH_END % 60,
@@ -508,7 +521,7 @@ export function WorkerTimeline({
         );
       }
 
-      // Tiene bloques: el inicio siempre es el fin del último bloque
+      // Tiene bloques: el inicio es el fin del último bloque o la hora actual (lo que sea mayor)
       if (isSlotAvailable(effectiveStart, workerPlannings)) {
         setSelectedTime({ time: effectiveStart, workerId });
       }
@@ -589,11 +602,24 @@ export function WorkerTimeline({
         return;
       }
 
-      // Si el último bloque termina justo al inicio del almuerzo (13:00),
-      // saltar al fin del almuerzo (14:24) para no quedar bloqueado
+      // Si el último bloque quedó en el pasado (hora actual > fin del último bloque),
+      // partir desde la hora actual (tiempo muerto permitido)
       let effectiveStart = lastEnd;
-      if (lastEndTotalMin === LUNCH_START) {
-        effectiveStart = new Date(lastEnd);
+      if (isSameDay(selectedDate, new Date())) {
+        const now = new Date();
+        if (now > lastEnd) {
+          effectiveStart = now;
+        }
+      }
+
+      // Si el inicio cae en almuerzo, saltar al fin del almuerzo
+      const effectiveStartMin =
+        effectiveStart.getHours() * 60 + effectiveStart.getMinutes();
+      if (
+        effectiveStartMin >= LUNCH_START &&
+        effectiveStartMin < WORK_SCHEDULE.LUNCH_END
+      ) {
+        effectiveStart = new Date(effectiveStart);
         effectiveStart.setHours(
           Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
           WORK_SCHEDULE.LUNCH_END % 60,
@@ -602,7 +628,7 @@ export function WorkerTimeline({
         );
       }
 
-      // Tiene bloques: preview fijo al fin del último bloque (o fin de almuerzo)
+      // Tiene bloques: preview fijo al fin del último bloque o la hora actual (lo que sea mayor)
       if (isSlotAvailable(effectiveStart, workerPlannings)) {
         setHoveredSlot({ time: effectiveStart, workerId });
       } else {

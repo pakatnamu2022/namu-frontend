@@ -5,6 +5,7 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormCombobox } from "@/shared/components/FormCombobox";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -142,7 +143,7 @@ export function AdditionalConfigSection({
     >
       <FormSelect
         control={form.control}
-        label="Condiciones de Pago *"
+        label="Condiciones de Pago"
         name="medio_de_pago"
         options={PAYMENT_CONDITIONS.map((o) => ({
           label: o.label,
@@ -150,38 +151,30 @@ export function AdditionalConfigSection({
         }))}
         placeholder="Seleccione una opción"
         description="Condiciones de pago del documento."
+        required
       />
       {isCredito ? (
         <>
-          {/* <FormCombobox
+          <FormCombobox
             control={form.control}
-            label="Días de Crédito *"
+            label="Días de Crédito"
             name="credit_days"
             options={CREDIT_DAYS_OPTIONS.map((o) => ({
               label: o.label,
               value: o.value,
             }))}
-            placeholder="Seleccione los días"
+            placeholder="Seleccione o escriba los días"
             description="La fecha de vencimiento se calculará automáticamente."
-            validateCreate={(val) => /^\d+$/.test(val)}
-          /> */}
-
-          <FormSelect
-            control={form.control}
-            label="Días de Crédito *"
-            name="credit_days"
-            options={CREDIT_DAYS_OPTIONS.map((o) => ({
-              label: o.label,
-              value: o.value,
-            }))}
-            placeholder="Seleccione los días"
-            description="La fecha de vencimiento se calculará automáticamente."
+            required
+            allowCreate={true}
+            validateCreate={(v) => /^\d+$/.test(v) && Number(v) > 0}
+            formatDisplay={(v) => `${v} días`}
           />
 
           {useQuotation && (
             <FormSelect
               control={form.control}
-              label="Tipo de Financiamiento *"
+              label="Tipo de Financiamiento"
               name="financing_type"
               options={filteredFinancingTypeOptions}
               placeholder="Seleccione una opción"
