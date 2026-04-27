@@ -51,7 +51,7 @@ export default function BillWorkOrderCajaPage() {
           </Button>
           <TitleComponent
             title="Facturar Orden de Trabajo"
-            subtitle={`OT: ${workOrder.correlative} - Placa: ${workOrder.vehicle_plate}`}
+            subtitle={`${workOrder.correlative} - Placa: ${workOrder.vehicle_plate}`}
           />
         </div>
 

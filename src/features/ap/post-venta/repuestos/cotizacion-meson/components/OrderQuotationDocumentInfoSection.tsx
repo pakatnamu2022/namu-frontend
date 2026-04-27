@@ -212,18 +212,46 @@ export function OrderQuotationDocumentInfoSection({
     <>
       {/* Alerta de Stock */}
       {isFromQuotation && (
-        <div className="mb-6 rounded-md border p-4 bg-blue-50/50 border-blue-200">
-          <div className="flex gap-3">
-            {hasSufficientStock ? (
-              <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            ) : (
-              <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            )}
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {hasSufficientStock
-                ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
-                : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
-            </p>
+        <div
+          className={`mb-6 rounded-lg border p-4 ${
+            hasSufficientStock
+              ? "border-emerald-200 bg-emerald-50/70"
+              : "border-rose-200 bg-rose-50/70"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`mt-0.5 rounded-full p-1.5 ${
+                hasSufficientStock
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-rose-100 text-rose-700"
+              }`}
+            >
+              {hasSufficientStock ? (
+                <CheckCircle className="h-4 w-4 shrink-0" />
+              ) : (
+                <AlertCircle className="h-4 w-4 shrink-0" />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <p
+                className={`text-sm font-semibold ${
+                  hasSufficientStock ? "text-emerald-800" : "text-rose-800"
+                }`}
+              >
+                {hasSufficientStock ? "Stock disponible" : "Stock insuficiente"}
+              </p>
+              <p
+                className={`text-sm leading-relaxed ${
+                  hasSufficientStock ? "text-emerald-700" : "text-rose-700"
+                }`}
+              >
+                {hasSufficientStock
+                  ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
+                  : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
+              </p>
+            </div>
           </div>
         </div>
       )}

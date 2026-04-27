@@ -196,6 +196,7 @@ interface FormComboboxProps {
   size?: "sm" | "default" | "lg";
   allowCreate?: boolean;
   validateCreate?: (value: string) => boolean;
+  formatDisplay?: (value: string) => string;
 }
 
 export function FormCombobox({
@@ -216,6 +217,7 @@ export function FormCombobox({
   portalContainer,
   allowCreate = true,
   validateCreate,
+  formatDisplay,
 }: FormComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -274,7 +276,9 @@ export function FormCombobox({
                   ? selected.label()
                   : selected.label
                 : field.value
-                  ? field.value
+                  ? formatDisplay
+                    ? formatDisplay(field.value)
+                    : field.value
                   : placeholder}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

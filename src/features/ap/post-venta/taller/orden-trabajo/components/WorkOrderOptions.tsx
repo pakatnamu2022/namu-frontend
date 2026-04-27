@@ -1,16 +1,10 @@
 import SearchInput from "@/shared/components/SearchInput";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { WORK_ORDER_STATUS_ID } from "../lib/workOrder.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.interface";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 
 const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
@@ -34,6 +28,9 @@ interface Props {
   typesPlanning?: TypesPlanningResource[];
   typePlanningId?: string;
   setTypePlanningId?: (value: string) => void;
+  typesCurrency?: CurrencyTypesResource[];
+  typeCurrencyId?: string;
+  setTypeCurrencyId?: (value: string) => void;
   allowClearTypePlanning?: boolean;
 }
 
@@ -52,6 +49,9 @@ export default function WorkOrderOptions({
   typesPlanning = [],
   typePlanningId,
   setTypePlanningId,
+  typesCurrency = [],
+  typeCurrencyId,
+  setTypeCurrencyId,
   allowClearTypePlanning = true,
 }: Props) {
   return (
@@ -69,7 +69,7 @@ export default function WorkOrderOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-72"
+        className="min-w-48"
         classNameOption="text-xs"
         allowClear={false}
       />
@@ -87,6 +87,20 @@ export default function WorkOrderOptions({
           allowClear={allowClearTypePlanning}
         />
       )}
+      {typesCurrency && setTypeCurrencyId && (
+        <SearchableSelect
+          options={typesCurrency?.map((item) => ({
+            value: item.id.toString(),
+            label: item.name,
+          }))}
+          value={typeCurrencyId!}
+          onChange={setTypeCurrencyId}
+          placeholder="Filtrar por tipo de moneda"
+          className="min-w-48"
+          classNameOption="text-xs"
+          allowClear={false}
+        />
+      )}
       <DateRangePickerFilter
         dateFrom={dateFrom}
         dateTo={dateTo}
@@ -97,18 +111,15 @@ export default function WorkOrderOptions({
         className="w-auto min-w-56"
       />
       {setStatusFilter !== undefined && (
-        <Select value={statusFilter ?? "all"} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40 h-8 text-sm">
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <SearchableSelect
+          options={STATUS_OPTIONS}
+          value={statusFilter!}
+          onChange={setStatusFilter}
+          placeholder="Filtrar por estado"
+          className="min-w-48"
+          classNameOption="text-xs"
+          allowClear={false}
+        />
       )}
     </div>
   );

@@ -37,7 +37,18 @@ export default function DirectBillingTab({
   const navigate = useNavigate();
   const { QUERY_KEY } = WORKER_ORDER;
 
-  const { data: workOrders = [], isLoading } = useWorkOrdersByIds(workOrderIds);
+  const {
+    data: workOrders = [],
+    isLoading,
+    isError,
+  } = useWorkOrdersByIds(workOrderIds);
+
+  useEffect(() => {
+    if (isError) {
+      errorToast("Todas las órdenes deben tener la misma moneda");
+      navigate(-1);
+    }
+  }, [isError, navigate]);
 
   // Detecta el tipo de planificación predominante de las OTs cargadas
   const typePlanningId = useMemo(() => {

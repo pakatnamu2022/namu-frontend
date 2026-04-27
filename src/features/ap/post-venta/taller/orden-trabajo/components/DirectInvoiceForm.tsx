@@ -339,6 +339,7 @@ export default function DirectInvoiceForm({
               authorizedSeries={authorizedSeries}
               defaultCustomer={defaultCustomer!}
               isAdvancePayment={false}
+              isMassiveBilling={true}
             />
 
             {isSingleItemMode ? (
@@ -419,6 +420,7 @@ export default function DirectInvoiceForm({
               isModuleCommercial={false}
               showCardLast4={true}
               showInternalNote={true}
+              showOrdenCompraServicio={true}
             />
           </div>
 

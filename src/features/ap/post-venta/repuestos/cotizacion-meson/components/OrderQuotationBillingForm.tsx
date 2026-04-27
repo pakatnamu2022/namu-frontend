@@ -616,6 +616,7 @@ export function OrderQuotationBillingForm({
               }
               isFromQuotation={true}
               showActions={false}
+              allowEditLastItemDescription={true}
             />
 
             {/* Configuración Adicional */}
@@ -625,6 +626,7 @@ export function OrderQuotationBillingForm({
               isModuleCommercial={false}
               showCardLast4={true}
               showInternalNote={true}
+              showOrdenCompraServicio={true}
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}
