@@ -163,11 +163,16 @@ export default function DirectInvoiceForm({
       (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
     );
     const round2 = (n: number) => Math.round(n * 100) / 100;
-    const totalAmount = workOrders.reduce(
-      (sum, wo) => sum + Number(wo.final_amount || 0),
-      0,
+    // total_labor_cost y total_parts_cost son ya la base sin IGV
+    const subtotal = round2(
+      workOrders.reduce(
+        (sum, wo) =>
+          sum +
+          Number(wo.total_labor_cost || 0) +
+          Number(wo.total_parts_cost || 0),
+        0,
+      ),
     );
-    const subtotal = round2(totalAmount / (1 + porcentaje_de_igv / 100));
     const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
     const item: ElectronicDocumentItemSchema = {
       account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
