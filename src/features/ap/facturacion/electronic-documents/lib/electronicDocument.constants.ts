@@ -132,4 +132,5 @@ export const CREDIT_DAYS_OPTIONS = [
   { label: "7 días", value: "7" },
   { label: "15 días", value: "15" },
   { label: "30 días", value: "30" },
+  { label: "45 días", value: "45" },
 ] as const;

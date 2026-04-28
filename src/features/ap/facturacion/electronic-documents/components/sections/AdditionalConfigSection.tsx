@@ -5,7 +5,6 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { FormCombobox } from "@/shared/components/FormCombobox";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -155,7 +154,7 @@ export function AdditionalConfigSection({
       />
       {isCredito ? (
         <>
-          <FormCombobox
+          <FormSelect
             control={form.control}
             label="Días de Crédito"
             name="credit_days"
@@ -166,9 +165,6 @@ export function AdditionalConfigSection({
             placeholder="Seleccione o escriba los días"
             description="La fecha de vencimiento se calculará automáticamente."
             required
-            allowCreate={true}
-            validateCreate={(v) => /^\d+$/.test(v) && Number(v) > 0}
-            formatDisplay={(v) => `${v} días`}
           />
 
           {useQuotation && (
