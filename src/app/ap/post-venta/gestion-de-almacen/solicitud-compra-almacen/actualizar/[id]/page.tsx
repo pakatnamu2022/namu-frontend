@@ -81,7 +81,7 @@ export default function UpdateWarehousePurchaseRequestPage() {
         notes: detail.notes || undefined,
         product_name: detail.product?.name || "",
         product_code: detail.product?.code || "",
-        supply_type: data.supply_type,
+        supply_type: String(detail.supply_type),
       })),
     };
   }

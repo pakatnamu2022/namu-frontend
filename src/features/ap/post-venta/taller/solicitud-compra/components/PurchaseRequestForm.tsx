@@ -74,26 +74,35 @@ export default function PurchaseRequestForm({
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
     if (defaultValues.details && defaultValues.details.length > 0) {
-      const transformed = defaultValues.details.map((detail: any) => ({
-        product_id: detail.product_id?.toString() || "",
-        product_name: detail.product_name || "",
-        product_code: detail.product_code || "",
-        quantity: Number(detail.quantity) || 1,
-        notes: detail.notes || "",
-        supply_type: detail.supply_type || undefined,
-        unit_price:
-          detail.unit_price !== undefined
-            ? Number(detail.unit_price)
-            : undefined,
-        discount_percentage:
-          detail.discount_percentage !== undefined
-            ? Number(detail.discount_percentage)
-            : undefined,
-        total_amount:
-          detail.total_amount !== undefined
-            ? Number(detail.total_amount)
-            : undefined,
-      }));
+      const transformed = defaultValues.details.map((detail: any) => {
+        // Verificar si supply_type es el string "null" o está vacío
+        let supplyType = detail.supply_type;
+        if (supplyType === "null" || supplyType === "" || supplyType === null) {
+          supplyType = undefined;
+        }
+
+        return {
+          product_id: detail.product_id?.toString() || "",
+          product_name: detail.product_name || "",
+          product_code: detail.product_code || "",
+          quantity: Number(detail.quantity) || 1,
+          notes: detail.notes || "",
+          supply_type: supplyType,
+          unit_price:
+            detail.unit_price !== undefined
+              ? Number(detail.unit_price)
+              : undefined,
+          discount_percentage:
+            detail.discount_percentage !== undefined
+              ? Number(detail.discount_percentage)
+              : undefined,
+          total_amount:
+            detail.total_amount !== undefined
+              ? Number(detail.total_amount)
+              : undefined,
+        };
+      });
+
       return transformed;
     }
     return [];
@@ -128,8 +137,10 @@ export default function PurchaseRequestForm({
       observations: "",
       has_appointment: false,
       ...defaultValues,
-      // Usar los details ya transformados
       details: details,
+      ...Object.fromEntries(
+        details.map((d, i) => [`detail_supply_type_${i}`, d.supply_type ?? ""]),
+      ),
     },
     mode: "onChange",
   });
@@ -151,9 +162,8 @@ export default function PurchaseRequestForm({
   // Sincronizar details con el formulario
   useEffect(() => {
     form.setValue("details", details);
-    // Validar inmediatamente después de setear
     form.trigger("details");
-    // Sincronizar supply_type de cada detalle con su FormSelect
+
     details.forEach((detail, index) => {
       if (detail.supply_type) {
         form.setValue(`detail_supply_type_${index}` as any, detail.supply_type);

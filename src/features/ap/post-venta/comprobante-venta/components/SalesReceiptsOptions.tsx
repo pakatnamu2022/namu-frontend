@@ -20,8 +20,8 @@ interface Props {
 }
 
 const CONSOLIDATION_TYPE_OPTIONS = [
-  { value: "work_orders", label: "Masiva" },
-  { value: "simple", label: "Directa" },
+  { value: "massive", label: "Masivo" },
+  { value: "simple", label: "Directo" },
 ];
 
 export default function SalesReceiptsOptions({

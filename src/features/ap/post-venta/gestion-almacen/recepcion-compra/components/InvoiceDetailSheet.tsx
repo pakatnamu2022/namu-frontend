@@ -162,7 +162,7 @@ export function InvoiceDetailSheet({
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">
-                Guía de Remisión
+                Nota de Ingreso
               </p>
               <div className="flex items-center gap-2">
                 <Badge variant="outline">{invoice.number_guide}</Badge>
