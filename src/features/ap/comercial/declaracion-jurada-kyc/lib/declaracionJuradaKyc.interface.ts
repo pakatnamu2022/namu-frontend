@@ -1,6 +1,7 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
 export type KycStatus = "PENDIENTE" | "GENERADO" | "FIRMADO";
+export type LegalReviewStatus = "PENDIENTE" | "CONFIRMADO" | "RECHAZADO";
 export type PepStatus = "SI_SOY" | "SI_HE_SIDO" | "NO_SOY" | "NO_HE_SIDO";
 export type IsPepRelative = "SI_SOY" | "NO_SOY";
 export type ThirdPepStatus = "SI_ES" | "SI_HA_SIDO" | "NO_ES" | "NO_HA_SIDO";
@@ -83,9 +84,23 @@ export interface CustomerKycDeclarationResource {
 
   declaration_date: string;
   signed_file_path: string | null;
+
+  legal_review_status: LegalReviewStatus | null;
+  legal_review_comments: string | null;
+  reviewed_by: string | null;
+  legal_review_at: string | null;
+
   created_by: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface LegalReviewRejectRequest {
+  comments: string;
+}
+
+export interface LegalReviewConfirmRequest {
+  comments?: string;
 }
 
 export interface CustomerKycDeclarationResponse {

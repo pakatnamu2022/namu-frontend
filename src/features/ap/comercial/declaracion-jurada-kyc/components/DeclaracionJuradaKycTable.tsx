@@ -30,6 +30,7 @@ export default function DeclaracionJuradaKycTable({
           beneficiary_type: true,
           purchase_request_quote_id: true,
           status: true,
+          legal_review_status: true,
         }}
       >
         {children}

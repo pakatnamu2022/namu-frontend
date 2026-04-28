@@ -1,10 +1,9 @@
 "use client";
 
-import { FormSelect } from "@/shared/components/FormSelect";
-import { useForm } from "react-hook-form";
-import { Form } from "@/components/ui/form";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 import { KYC_STATUS_OPTIONS } from "../lib/declaracionJuradaKyc.constants";
 import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface Props {
   search: string;
@@ -19,28 +18,20 @@ export default function DeclaracionJuradaKycOptions({
   status,
   setStatus,
 }: Props) {
-  const form = useForm({
-    defaultValues: { status },
-  });
-
   return (
-    <div className="flex flex-col sm:flex-row gap-2 w-full">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar por cliente o documento..."
+        placeholder="Buscar..."
       />
-      <Form {...form}>
-        <FormSelect
-          name="status"
-          label=""
-          placeholder="Todos los estados"
-          options={[{ label: "Todos", value: "" }, ...KYC_STATUS_OPTIONS]}
-          control={form.control}
-          className="sm:max-w-[180px]"
-          onValueChange={setStatus}
-        />
-      </Form>
-    </div>
+      <SearchableSelect
+        placeholder="Todos los estados"
+        options={[{ label: "Todos", value: "" }, ...KYC_STATUS_OPTIONS]}
+        className="sm:max-w-[180px]"
+        value={status}
+        onChange={setStatus}
+      />
+    </FilterWrapper>
   );
 }

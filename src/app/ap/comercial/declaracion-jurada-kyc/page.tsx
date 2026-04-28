@@ -11,13 +11,18 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { DECLARACION_JURADA_KYC } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
-import { useCustomerKycDeclarations, useDeleteCustomerKycDeclaration } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.hook";
+import {
+  useCustomerKycDeclarations,
+  useDeleteCustomerKycDeclaration,
+} from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.hook";
 import { declaracionJuradaKycColumns } from "@/features/ap/comercial/declaracion-jurada-kyc/components/DeclaracionJuradaKycColumns";
 import DeclaracionJuradaKycTable from "@/features/ap/comercial/declaracion-jurada-kyc/components/DeclaracionJuradaKycTable";
 import DeclaracionJuradaKycOptions from "@/features/ap/comercial/declaracion-jurada-kyc/components/DeclaracionJuradaKycOptions";
 import DeclaracionJuradaKycActions from "@/features/ap/comercial/declaracion-jurada-kyc/components/DeclaracionJuradaKycActions";
 import DeclaracionJuradaKycDetailSheet from "@/features/ap/comercial/declaracion-jurada-kyc/components/DeclaracionJuradaKycDetailSheet";
 import UploadSignedPdfModal from "@/features/ap/comercial/declaracion-jurada-kyc/components/UploadSignedPdfModal";
+import LegalReviewRejectModal from "@/features/ap/comercial/declaracion-jurada-kyc/components/LegalReviewRejectModal";
+import LegalReviewConfirmModal from "@/features/ap/comercial/declaracion-jurada-kyc/components/LegalReviewConfirmModal";
 import { CustomerKycDeclarationResource } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.interface";
 
 export default function DeclaracionJuradaKycPage() {
@@ -33,6 +38,10 @@ export default function DeclaracionJuradaKycPage() {
 
   const [detailId, setDetailId] = useState<number | null>(null);
   const [uploadItem, setUploadItem] =
+    useState<CustomerKycDeclarationResource | null>(null);
+  const [rejectItem, setRejectItem] =
+    useState<CustomerKycDeclarationResource | null>(null);
+  const [confirmItem, setConfirmItem] =
     useState<CustomerKycDeclarationResource | null>(null);
 
   useEffect(() => {
@@ -72,11 +81,14 @@ export default function DeclaracionJuradaKycPage() {
           onDelete: (id) => deleteDeclaration(id),
           onViewDetail: (item) => setDetailId(item.id),
           onUploadSigned: (item) => setUploadItem(item),
+          onConfirmLegalReview: (item) => setConfirmItem(item),
+          onRejectLegalReview: (item) => setRejectItem(item),
           onPdfDownloaded: () => refetch(),
           permissions: {
             canUpdate: permissions.canUpdate,
             canDelete: permissions.canDelete,
             canUploadSigned: permissions.canUpdate,
+            canLegalReview: permissions.canUpdate,
           },
         })}
         data={data?.data || []}
@@ -102,6 +114,23 @@ export default function DeclaracionJuradaKycPage() {
           open={true}
           onOpenChange={(open) => !open && setUploadItem(null)}
           declaration={uploadItem}
+          onSuccess={() => refetch()}
+        />
+      )}
+
+      {rejectItem !== null && (
+        <LegalReviewRejectModal
+          open={true}
+          onOpenChange={(open) => !open && setRejectItem(null)}
+          declaration={rejectItem}
+        />
+      )}
+
+      {confirmItem !== null && (
+        <LegalReviewConfirmModal
+          open={true}
+          onOpenChange={(open) => !open && setConfirmItem(null)}
+          declaration={confirmItem}
           onSuccess={() => refetch()}
         />
       )}

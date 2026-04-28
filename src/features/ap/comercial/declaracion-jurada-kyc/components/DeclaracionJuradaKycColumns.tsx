@@ -2,47 +2,59 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Download, Eye, Pencil, Upload } from "lucide-react";
+import {
+  Download,
+  Eye,
+  Pencil,
+  ShieldCheck,
+  ShieldX,
+  Upload,
+} from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
 import { Badge } from "@/components/ui/badge";
 import {
   KYC_STATUS_LABEL,
+  LEGAL_REVIEW_STATUS_LABEL,
+  LEGAL_REVIEW_STATUS_COLOR,
 } from "../lib/declaracionJuradaKyc.constants";
 import { errorToast, formatDate, successToast } from "@/core/core.function";
 import { downloadCustomerKycDeclarationPdf } from "../lib/declaracionJuradaKyc.actions";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type DeclaracionJuradaKycColumn =
   ColumnDef<CustomerKycDeclarationResource>;
+
+const statusColorMap: Record<string, "yellow" | "blue" | "green" | "gray"> = {
+  PENDIENTE: "yellow",
+  GENERADO: "blue",
+  FIRMADO: "green",
+};
 
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onViewDetail: (item: CustomerKycDeclarationResource) => void;
   onUploadSigned: (item: CustomerKycDeclarationResource) => void;
+  onConfirmLegalReview: (item: CustomerKycDeclarationResource) => void;
+  onRejectLegalReview: (item: CustomerKycDeclarationResource) => void;
   onPdfDownloaded?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
     canUploadSigned: boolean;
+    canLegalReview: boolean;
   };
 }
-
-const statusColorMap: Record<
-  string,
-  "yellow" | "blue" | "green" | "gray"
-> = {
-  PENDIENTE: "yellow",
-  GENERADO: "blue",
-  FIRMADO: "green",
-};
 
 export const declaracionJuradaKycColumns = ({
   onUpdate,
   onDelete,
   onViewDetail,
   onUploadSigned,
+  onConfirmLegalReview,
+  onRejectLegalReview,
   onPdfDownloaded,
   permissions,
 }: Props): DeclaracionJuradaKycColumn[] => [
@@ -117,10 +129,32 @@ export const declaracionJuradaKycColumns = ({
     header: "Estado",
     cell: ({ getValue }) => {
       const status = getValue() as string;
-      const color = statusColorMap[status] ?? "gray";
       return (
-        <Badge variant="outline" color={color}>
+        <Badge variant="outline" color={statusColorMap[status] ?? "gray"}>
           {KYC_STATUS_LABEL[status] ?? status}
+        </Badge>
+      );
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "legal_review_status",
+    header: "Revisión Legal",
+    cell: ({ getValue }) => {
+      const status = getValue() as string | null;
+      if (!status) {
+        return (
+          <Badge variant="outline" color="gray">
+            Sin revisión
+          </Badge>
+        );
+      }
+      return (
+        <Badge
+          variant="outline"
+          color={LEGAL_REVIEW_STATUS_COLOR[status] ?? "gray"}
+        >
+          {LEGAL_REVIEW_STATUS_LABEL[status] ?? status}
         </Badge>
       );
     },
@@ -130,9 +164,14 @@ export const declaracionJuradaKycColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, status, signed_file_path } = row.original;
+      const item = row.original;
+      const { id, status, signed_file_path, legal_review_status } = item;
       const isFirmado = status === "FIRMADO";
       const isAlreadySigned = signed_file_path !== null;
+      const canReview =
+        permissions.canLegalReview &&
+        isFirmado &&
+        (!legal_review_status || legal_review_status === "PENDIENTE");
 
       const handleDownloadPdf = async () => {
         try {
@@ -145,37 +184,63 @@ export const declaracionJuradaKycColumns = ({
       };
 
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
             variant="outline"
             size="icon"
             className="size-7"
             tooltip="Ver Detalle"
-            onClick={() => onViewDetail(row.original)}
+            onClick={() => onViewDetail(item)}
           >
-            <Eye className="size-5" />
+            <Eye className="size-4" />
           </Button>
 
           <Button
             variant="outline"
             size="icon"
             className="size-7"
+            color={isFirmado ? "blue" : undefined}
             tooltip="Descargar PDF"
-            onClick={handleDownloadPdf}
+            onClick={
+              isFirmado && signed_file_path
+                ? () => window.open(signed_file_path, "_blank")
+                : handleDownloadPdf
+            }
           >
-            <Download className="size-5" />
+            <Download className="size-4" />
           </Button>
 
           {permissions.canUploadSigned && !isFirmado && !isAlreadySigned && (
-            <Button
+            <ButtonAction
+              icon={Upload}
               variant="outline"
-              size="icon"
-              className="size-7 text-green-600 hover:text-green-700"
+              color="blue"
               tooltip="Subir PDF Firmado"
-              onClick={() => onUploadSigned(row.original)}
-            >
-              <Upload className="size-5" />
-            </Button>
+              onClick={() => onUploadSigned(item)}
+            />
+          )}
+
+          {canReview && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                color="green"
+                tooltip="Confirmar revisión legal"
+                onClick={() => onConfirmLegalReview(item)}
+              >
+                <ShieldCheck className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                color="red"
+                tooltip="Rechazar revisión legal"
+                onClick={() => onRejectLegalReview(item)}
+              >
+                <ShieldX className="size-4" />
+              </Button>
+            </>
           )}
 
           {permissions.canUpdate && !isAlreadySigned && (
@@ -186,7 +251,7 @@ export const declaracionJuradaKycColumns = ({
               tooltip="Editar"
               onClick={() => onUpdate(id)}
             >
-              <Pencil className="size-5" />
+              <Pencil className="size-4" />
             </Button>
           )}
 
