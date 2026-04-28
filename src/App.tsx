@@ -69,6 +69,9 @@ import ManageLeadsPage from "./app/ap/comercial/gestionar-leads/page";
 import PurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/page";
 import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/[opportunity_id]/agregar/page";
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
+import DeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/page";
+import AddDeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/agregar/page";
+import UpdateDeclaracionJuradaKycPage from "./app/ap/comercial/declaracion-jurada-kyc/actualizar/[id]/page";
 import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
 import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
 import ReportesComercialPage from "./app/ap/comercial/reportes/page";
@@ -780,6 +783,20 @@ function App() {
               <Route
                 path="solicitudes-cotizaciones/actualizar/:id"
                 element={<UpdatePurchaseRequestQuotePage />}
+              />
+
+              {/* Declaración Jurada KYC */}
+              <Route
+                path="declaraciones-juradas"
+                element={<DeclaracionJuradaKycPage />}
+              />
+              <Route
+                path="declaraciones-juradas/agregar"
+                element={<AddDeclaracionJuradaKycPage />}
+              />
+              <Route
+                path="declaraciones-juradas/actualizar/:id"
+                element={<UpdateDeclaracionJuradaKycPage />}
               />
 
               {/* Dashboard Entregas */}

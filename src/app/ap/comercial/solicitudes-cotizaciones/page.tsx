@@ -23,6 +23,7 @@ import {
 } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
+import { DECLARACION_JURADA_KYC } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { usePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import {
   approvePurchaseRequestQuote,
@@ -67,6 +68,7 @@ export default function PurchaseRequestQuotePage() {
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
   const { MODEL, ROUTE } = PURCHASE_REQUEST_QUOTE;
   const permissions = useModulePermissions(ROUTE);
+  const kycPermissions = useModulePermissions(DECLARACION_JURADA_KYC.ROUTE);
   const { canViewBranches } = permissions;
   const { data: sedesData = [] } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
@@ -155,7 +157,10 @@ export default function PurchaseRequestQuotePage() {
           onUnassignVehicle: setUnassignVehicleId,
           onSwapVehicle: setSwapVehicleQuote,
           onViewDetail: setDetailQuote,
-          permissions,
+          permissions: {
+            ...permissions,
+            canCreateKyc: kycPermissions.canCreate,
+          },
         })}
         data={data?.data || []}
       >

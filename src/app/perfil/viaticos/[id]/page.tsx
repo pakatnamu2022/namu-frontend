@@ -141,9 +141,6 @@ export default function PerDiemRequestDetailPage() {
   const canCancelRequest = () => {
     if (!request) return false;
 
-    // No se puede cancelar si ya está en progreso
-    if (request.status === PER_DIEM_STATUS.IN_PROGRESS) return false;
-
     // Solo se puede cancelar si está aprobada
     if (request.status !== PER_DIEM_STATUS.APPROVED) return false;
 
