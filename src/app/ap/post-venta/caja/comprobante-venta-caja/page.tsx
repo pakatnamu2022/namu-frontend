@@ -12,6 +12,7 @@ import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
   preCancelElectronicDocument,
+  dispatchElectronicDocumentMigration,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable.tsx";
 import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns.tsx";
@@ -128,6 +129,17 @@ export default function SalesReceiptsCajaPage() {
     return result.annulled;
   };
 
+  const migrateMutation = useMutation({
+    mutationFn: dispatchElectronicDocumentMigration,
+    onSuccess: () => {
+      successToast("Migración despachada correctamente");
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
+
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
     refetch();
@@ -159,6 +171,7 @@ export default function SalesReceiptsCajaPage() {
           onSendToSunat: handleSendToSunat,
           onAnnul: handleCancel,
           onPreCancel: handlePreCancel,
+          onMigrate: (id) => migrateMutation.mutate(id),
           permissions: {
             canUpdate,
             canAnnul,
