@@ -17,7 +17,6 @@ import { errorToast, successToast } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-import EquipmentAssignModal from "@/features/gp/tics/equipment/components/EquipmentAssignModal";
 import EquipmentHistorySheet from "@/features/gp/tics/equipment/components/EquipmentHistorySheet";
 
 export default function EquipmentPage() {
@@ -28,7 +27,6 @@ export default function EquipmentPage() {
   const [status, setStatus] = useState("all");
   const [useStatus, setUseStatus] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [assignId, setAssignId] = useState<number | null>(null);
   const [historyId, setHistoryId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -74,7 +72,6 @@ export default function EquipmentPage() {
         isLoading={isLoading}
         columns={equipmentColumns({
           onDelete: setDeleteId,
-          onAssign: setAssignId,
           onHistory: setHistoryId,
         })}
         data={data?.data || []}
@@ -94,15 +91,6 @@ export default function EquipmentPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
-        />
-      )}
-
-      {assignId !== null && (
-        <EquipmentAssignModal
-          open={true}
-          equipmentId={assignId}
-          onClose={() => setAssignId(null)}
-          onSuccess={() => refetch()}
         />
       )}
 

@@ -3,28 +3,19 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { EquipmentResource } from "../lib/equipment.interface";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  CheckCircle,
-  History,
-  Pencil,
-  Sparkles,
-  UserPlus,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, History, Pencil, Sparkles, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EQUIPMENT } from "../lib/equipment.constants";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type EquipmentColumns = ColumnDef<EquipmentResource>;
 
 export const equipmentColumns = ({
   onDelete,
-  onAssign,
   onHistory,
 }: {
   onDelete: (id: number) => void;
-  onAssign: (id: number) => void;
   onHistory: (id: number) => void;
 }): EquipmentColumns[] => [
   {
@@ -94,30 +85,11 @@ export const equipmentColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
+          <ButtonAction
+            icon={Pencil}
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-          >
-            <Pencil className="size-5" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onAssign(id)}
-          >
-            <UserPlus className="size-5" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onHistory(id)}
-          >
-            <History className="size-5" />
-          </Button>
+          />
+          <ButtonAction icon={History} onClick={() => onHistory(id)} />
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );
