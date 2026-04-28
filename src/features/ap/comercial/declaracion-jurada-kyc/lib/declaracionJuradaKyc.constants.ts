@@ -26,6 +26,21 @@ export const KYC_STATUS_LABEL: Record<string, string> = {
   FIRMADO: "Firmado",
 };
 
+export const LEGAL_REVIEW_STATUS_LABEL: Record<string, string> = {
+  PENDIENTE: "Revisión Pendiente",
+  CONFIRMADO: "Confirmado",
+  RECHAZADO: "Rechazado",
+};
+
+export const LEGAL_REVIEW_STATUS_COLOR: Record<
+  string,
+  "yellow" | "green" | "red" | "gray"
+> = {
+  PENDIENTE: "yellow",
+  CONFIRMADO: "green",
+  RECHAZADO: "red",
+};
+
 export const KYC_STATUS_OPTIONS = [
   { label: "Pendiente", value: "PENDIENTE" },
   { label: "Generado", value: "GENERADO" },

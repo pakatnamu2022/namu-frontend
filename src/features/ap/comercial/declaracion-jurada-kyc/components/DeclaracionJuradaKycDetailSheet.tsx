@@ -6,6 +6,8 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useCustomerKycDeclarationById } from "../lib/declaracionJuradaKyc.hook";
 import {
   KYC_STATUS_LABEL,
+  LEGAL_REVIEW_STATUS_LABEL,
+  LEGAL_REVIEW_STATUS_COLOR,
   BENEFICIARY_TYPE_OPTIONS,
   PEP_STATUS_OPTIONS,
 } from "../lib/declaracionJuradaKyc.constants";
@@ -15,6 +17,8 @@ import {
   Users,
   Banknote,
   FileText,
+  Scale,
+  ExternalLink,
 } from "lucide-react";
 import { formatDate } from "@/core/core.function";
 
@@ -56,7 +60,7 @@ export default function DeclaracionJuradaKycDetailSheet({
     >
       {decl && (
         <div className="space-y-4">
-          {/* Estado y cabecera */}
+          {/* Información General */}
           <GroupFormSection
             title="Información General"
             icon={FileText}
@@ -93,21 +97,79 @@ export default function DeclaracionJuradaKycDetailSheet({
             </div>
             <div className="col-span-full">
               <p className="text-xs text-muted-foreground">Propósito Relación</p>
-              <p className="font-medium">
-                {decl.purpose_relationship || "—"}
-              </p>
+              <p className="font-medium">{decl.purpose_relationship || "—"}</p>
             </div>
             {decl.signed_file_path && (
+              <div className="col-span-full flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">PDF Firmado</p>
+                  <p className="font-medium text-sm">Documento cargado</p>
+                </div>
+                <a
+                  href={decl.signed_file_path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
+                >
+                  <ExternalLink className="size-3" />
+                  Ver documento
+                </a>
+              </div>
+            )}
+          </GroupFormSection>
+
+          {/* Revisión Legal */}
+          <GroupFormSection
+            title="Revisión Legal"
+            icon={Scale}
+            color="gray"
+            cols={{ sm: 2, md: 2, xl: 4 }}
+            headerExtra={
+              decl.legal_review_status ? (
+                <Badge
+                  variant="outline"
+                  color={
+                    LEGAL_REVIEW_STATUS_COLOR[decl.legal_review_status] ?? "gray"
+                  }
+                >
+                  {LEGAL_REVIEW_STATUS_LABEL[decl.legal_review_status] ??
+                    decl.legal_review_status}
+                </Badge>
+              ) : (
+                <Badge variant="outline" color="gray">
+                  Sin revisión
+                </Badge>
+              )
+            }
+          >
+            <div>
+              <p className="text-xs text-muted-foreground">Revisado por</p>
+              <p className="font-medium">{decl.reviewed_by || "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Fecha de revisión</p>
+              <p className="font-medium">
+                {decl.legal_review_at ? formatDate(decl.legal_review_at) : "—"}
+              </p>
+            </div>
+            {decl.legal_review_comments && (
               <div className="col-span-full">
-                <p className="text-xs text-muted-foreground">PDF Firmado</p>
-                <p className="font-medium text-green-600 text-sm">
-                  ✓ Documento firmado subido
+                <p className="text-xs text-muted-foreground">Motivo de rechazo</p>
+                <p className="mt-1 rounded border border-border bg-muted/40 px-3 py-2 text-sm font-medium">
+                  {decl.legal_review_comments}
+                </p>
+              </div>
+            )}
+            {!decl.legal_review_status && (
+              <div className="col-span-full">
+                <p className="text-sm text-muted-foreground">
+                  Pendiente de revisión por el área legal.
                 </p>
               </div>
             )}
           </GroupFormSection>
 
-          {/* Datos del cliente */}
+          {/* Datos del Cliente */}
           <GroupFormSection
             title="Datos del Cliente"
             icon={User}
@@ -146,9 +208,7 @@ export default function DeclaracionJuradaKycDetailSheet({
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium text-sm break-all">
-                {decl.email || "—"}
-              </p>
+              <p className="font-medium text-sm break-all">{decl.email || "—"}</p>
             </div>
             <div className="col-span-full">
               <p className="text-xs text-muted-foreground">Dirección</p>
@@ -164,7 +224,7 @@ export default function DeclaracionJuradaKycDetailSheet({
           <GroupFormSection
             title="Situación PEP"
             icon={Shield}
-            color="amber"
+            color="gray"
             cols={{ sm: 2, md: 2, xl: 4 }}
           >
             <div>
@@ -198,9 +258,7 @@ export default function DeclaracionJuradaKycDetailSheet({
               </div>
             )}
             <div>
-              <p className="text-xs text-muted-foreground">
-                ¿Pariente de PEP?
-              </p>
+              <p className="text-xs text-muted-foreground">¿Pariente de PEP?</p>
               <p className="font-medium">
                 {decl.is_pep_relative === "SI_SOY" ? "Sí" : "No"}
               </p>
@@ -212,7 +270,7 @@ export default function DeclaracionJuradaKycDetailSheet({
             <GroupFormSection
               title="Parientes con Cargo Público"
               icon={Users}
-              color="orange"
+              color="gray"
               cols={{ sm: 1 }}
             >
               <ul className="space-y-1">
@@ -225,12 +283,12 @@ export default function DeclaracionJuradaKycDetailSheet({
             </GroupFormSection>
           )}
 
-          {/* Datos de parientes PEP */}
+          {/* Parientes PEP del Declarante */}
           {decl.pep_relative_data && decl.pep_relative_data.length > 0 && (
             <GroupFormSection
               title="Parientes PEP del Declarante"
               icon={Users}
-              color="rose"
+              color="gray"
               cols={{ sm: 1, md: 2 }}
             >
               {decl.pep_relative_data.map((rel, i) => (
@@ -247,11 +305,11 @@ export default function DeclaracionJuradaKycDetailSheet({
             </GroupFormSection>
           )}
 
-          {/* Beneficiario */}
+          {/* Beneficiario de la Operación */}
           <GroupFormSection
             title="Beneficiario de la Operación"
             icon={Banknote}
-            color="green"
+            color="gray"
             cols={{ sm: 1, md: 2, xl: 3 }}
           >
             <div>
@@ -294,9 +352,7 @@ export default function DeclaracionJuradaKycDetailSheet({
                 )}
                 {decl.third_pep_status && (
                   <div>
-                    <p className="text-xs text-muted-foreground">
-                      PEP del Tercero
-                    </p>
+                    <p className="text-xs text-muted-foreground">PEP del Tercero</p>
                     <p className="font-medium">{decl.third_pep_status}</p>
                   </div>
                 )}
@@ -315,9 +371,7 @@ export default function DeclaracionJuradaKycDetailSheet({
                   </div>
                 )}
                 <div className="col-span-full">
-                  <p className="text-xs text-muted-foreground">
-                    Origen de Fondos
-                  </p>
+                  <p className="text-xs text-muted-foreground">Origen de Fondos</p>
                   <p className="font-medium">{decl.third_funds_origin || "—"}</p>
                 </div>
               </>
@@ -357,12 +411,8 @@ export default function DeclaracionJuradaKycDetailSheet({
                   </div>
                 )}
                 <div className="col-span-full">
-                  <p className="text-xs text-muted-foreground">
-                    Origen de Fondos
-                  </p>
-                  <p className="font-medium">
-                    {decl.entity_funds_origin || "—"}
-                  </p>
+                  <p className="text-xs text-muted-foreground">Origen de Fondos</p>
+                  <p className="font-medium">{decl.entity_funds_origin || "—"}</p>
                 </div>
               </>
             )}

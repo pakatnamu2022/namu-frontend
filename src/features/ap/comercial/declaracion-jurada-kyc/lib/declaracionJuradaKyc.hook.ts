@@ -6,9 +6,11 @@ import {
   CustomerKycDeclarationResource,
 } from "./declaracionJuradaKyc.interface";
 import {
+  confirmLegalReview,
   deleteCustomerKycDeclaration,
   findCustomerKycDeclarationById,
   getCustomerKycDeclarations,
+  rejectLegalReview,
   storeCustomerKycDeclaration,
   updateCustomerKycDeclaration,
   uploadSignedKycDeclaration,
@@ -26,7 +28,6 @@ export const useCustomerKycDeclarations = (params?: Record<string, any>) => {
   return useQuery<CustomerKycDeclarationResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getCustomerKycDeclarations({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -101,6 +102,40 @@ export const useUploadSignedKycDeclaration = () => {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
       errorToast(`Error al subir el PDF firmado${msg ? `: ${msg}` : ""}`);
+    },
+  });
+};
+
+export const useConfirmLegalReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, comments }: { id: number; comments?: string }) =>
+      confirmLegalReview(id, comments ? { comments } : undefined),
+    onSuccess: () => {
+      successToast("Revisión legal confirmada correctamente");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al confirmar la revisión legal${msg ? `: ${msg}` : ""}`);
+    },
+  });
+};
+
+export const useRejectLegalReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, comments }: { id: number; comments: string }) =>
+      rejectLegalReview(id, { comments }),
+    onSuccess: () => {
+      successToast("Revisión legal rechazada");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al rechazar la revisión legal${msg ? `: ${msg}` : ""}`);
     },
   });
 };

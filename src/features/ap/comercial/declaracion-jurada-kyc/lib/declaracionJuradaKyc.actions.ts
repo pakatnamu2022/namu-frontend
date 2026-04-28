@@ -6,6 +6,8 @@ import {
   CustomerKycDeclarationRequest,
   CustomerKycDeclarationResource,
   CustomerKycDeclarationResponse,
+  LegalReviewConfirmRequest,
+  LegalReviewRejectRequest,
   getCustomerKycDeclarationProps,
 } from "./declaracionJuradaKyc.interface";
 import { DECLARACION_JURADA_KYC } from "./declaracionJuradaKyc.constants";
@@ -100,6 +102,28 @@ export async function uploadSignedKycDeclaration(
     `${ENDPOINT}/${id}/upload-signed`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data;
+}
+
+export async function confirmLegalReview(
+  id: number,
+  body?: LegalReviewConfirmRequest,
+): Promise<CustomerKycDeclarationResource> {
+  const response = await api.post<CustomerKycDeclarationResource>(
+    `${ENDPOINT}/${id}/confirm-legal-review`,
+    body,
+  );
+  return response.data;
+}
+
+export async function rejectLegalReview(
+  id: number,
+  body: LegalReviewRejectRequest,
+): Promise<CustomerKycDeclarationResource> {
+  const response = await api.post<CustomerKycDeclarationResource>(
+    `${ENDPOINT}/${id}/reject-legal-review`,
+    body,
   );
   return response.data;
 }
