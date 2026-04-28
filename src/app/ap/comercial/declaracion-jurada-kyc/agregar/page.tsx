@@ -54,7 +54,7 @@ export default function AddDeclaracionJuradaKycPage() {
         defaultValues={{
           purchase_request_quote_id: searchParams.get("quote_id") ?? "",
           business_partner_id: searchParams.get("partner_id") ?? "",
-          company_id: searchParams.get("company_id") ?? "",
+          sede_id: searchParams.get("sede_id") ?? "",
           pep_status: "NO_SOY",
           pep_collaborator_status: "NO_SOY",
           is_pep_relative: "NO_SOY",

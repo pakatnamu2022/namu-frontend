@@ -28,7 +28,7 @@ function mapToForm(
       ? String(data.purchase_request_quote_id)
       : undefined,
     business_partner_id: String(data.business_partner_id),
-    company_id: String(data.company_id),
+    sede_id: String(data.sede_id),
     occupation: data.occupation ?? "",
     fixed_phone: data.fixed_phone ?? "",
     purpose_relationship: data.purpose_relationship ?? "",

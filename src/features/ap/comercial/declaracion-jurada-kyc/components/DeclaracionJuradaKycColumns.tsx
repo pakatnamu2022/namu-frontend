@@ -152,7 +152,6 @@ export const declaracionJuradaKycColumns = ({
             className="size-7"
             tooltip="Ver Detalle"
             onClick={() => onViewDetail(row.original)}
-            disabled={isAlreadySigned}
           >
             <Eye className="size-5" />
           </Button>
