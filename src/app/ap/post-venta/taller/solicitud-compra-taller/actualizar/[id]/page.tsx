@@ -81,10 +81,7 @@ export default function UpdatePurchaseRequestPVPage() {
         notes: detail.notes || undefined,
         product_name: detail.product?.name || "",
         product_code: detail.product?.code || "",
-        supply_type: String(detail.supply_type) as
-          | "LOCAL"
-          | "CENTRAL"
-          | "IMPORTACION",
+        supply_type: String(detail.supply_type),
       })),
     };
   }
