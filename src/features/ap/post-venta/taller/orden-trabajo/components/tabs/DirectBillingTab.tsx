@@ -58,6 +58,12 @@ export default function DirectBillingTab({
     return id ? Number(id) : undefined;
   }, [workOrders]);
 
+  const sedeId = useMemo(() => {
+    if (workOrders.length === 0) return undefined;
+    const id = workOrders[0]?.sede_id;
+    return id ? Number(id) : undefined;
+  }, [workOrders]);
+
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
     type: [
       SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
@@ -123,6 +129,7 @@ export default function DirectBillingTab({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
+    sede_id: sedeId,
   });
 
   const selectedSeries = authorizedSeries.find(
