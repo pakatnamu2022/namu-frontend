@@ -21,11 +21,12 @@ interface Props {
   open: boolean;
   onClose: (newCustomer?: CustomersResource) => void;
   title: string;
+  defaultValues?: Record<string, any>;
 }
 
 const { QUERY_KEY, MODEL } = CUSTOMERS;
 
-export default function CustomerModal({ open, onClose, title }: Props) {
+export default function CustomerModal({ open, onClose, title, defaultValues }: Props) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -57,6 +58,7 @@ export default function CustomerModal({ open, onClose, title }: Props) {
           defaultValues={{
             company_id: EMPRESA_AP.id,
             type: TYPE_BUSINESS_PARTNERS.CLIENTE,
+            ...defaultValues,
           }}
           onCancel={() => onClose()}
           onSubmit={handleSubmit}

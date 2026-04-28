@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Download,
   Eye,
+  FileCheck,
   Pencil,
   ShieldCheck,
   ShieldX,
@@ -110,7 +111,7 @@ export const declaracionJuradaKycColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "purchase_request_quote_id",
+    accessorKey: "purchase_request_quote",
     header: "Cotización",
     cell: ({ getValue }) => {
       const value = getValue() as number | null;
@@ -199,16 +200,24 @@ export const declaracionJuradaKycColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            color={isFirmado ? "blue" : undefined}
-            tooltip="Descargar PDF"
-            onClick={
-              isFirmado && signed_file_path
-                ? () => window.open(signed_file_path, "_blank")
-                : handleDownloadPdf
-            }
+            tooltip="Descargar Formato"
+            onClick={handleDownloadPdf}
           >
             <Download className="size-4" />
           </Button>
+
+          {signed_file_path && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              color="blue"
+              tooltip="Descargar Firmado"
+              onClick={() => window.open(signed_file_path, "_blank")}
+            >
+              <FileCheck className="size-4" />
+            </Button>
+          )}
 
           {permissions.canUploadSigned && !isFirmado && !isAlreadySigned && (
             <ButtonAction
