@@ -35,7 +35,9 @@ interface WorkOrderBillingFormProps {
   workOrderId: number;
 }
 
-export default function WorkOrderBillingForm({ workOrderId }: WorkOrderBillingFormProps) {
+export default function WorkOrderBillingForm({
+  workOrderId,
+}: WorkOrderBillingFormProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
@@ -112,11 +114,20 @@ export default function WorkOrderBillingForm({ workOrderId }: WorkOrderBillingFo
   const selectedSeriesId = form.watch("serie");
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
 
+  // Consultar la orden de trabajo con sus items
+  const { data: workOrder, isLoading } = useQuery({
+    queryKey: ["workOrder", workOrderId],
+    queryFn: () => findWorkOrderById(workOrderId),
+  });
+
+  const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
+
   // Obtener series autorizadas según el tipo de documento
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
+    sede_id: workOrder?.sede_id,
   });
 
   const selectedSeries = authorizedSeries.find(
@@ -146,14 +157,6 @@ export default function WorkOrderBillingForm({ workOrderId }: WorkOrderBillingFo
     currency_id: selectedCurrency?.currency_type,
     sede_id: selectedSeries?.sede_id,
   });
-
-  // Consultar la orden de trabajo con sus items
-  const { data: workOrder, isLoading } = useQuery({
-    queryKey: ["workOrder", workOrderId],
-    queryFn: () => findWorkOrderById(workOrderId),
-  });
-
-  const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
   // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
   useEffect(() => {

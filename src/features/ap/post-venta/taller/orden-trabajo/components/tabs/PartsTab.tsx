@@ -651,6 +651,31 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                     )}
                                   </Button>
                                 )}
+                                <span className="font-semibold">
+                                  {detail.product?.dyn_code || "-"}
+                                </span>
+                                {detail.product?.dyn_code && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 hover:bg-blue-100"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        detail.product.dyn_code,
+                                        `quotation-${detail.id}-dyn_code`,
+                                      )
+                                    }
+                                    tooltip="Copiar código dynamics"
+                                  >
+                                    {copiedCodeKey ===
+                                    `quotation-${detail.id}-dyn_code` ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3 text-primary" />
+                                    )}
+                                  </Button>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
