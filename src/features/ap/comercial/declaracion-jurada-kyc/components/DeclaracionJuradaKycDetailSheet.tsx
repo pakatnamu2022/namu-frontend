@@ -64,7 +64,6 @@ export default function DeclaracionJuradaKycDetailSheet({
           <GroupFormSection
             title="Información General"
             icon={FileText}
-            color="gray"
             cols={{ sm: 2, md: 3, xl: 4 }}
             headerExtra={
               <Badge
@@ -78,11 +77,15 @@ export default function DeclaracionJuradaKycDetailSheet({
             <div>
               <p className="text-xs text-muted-foreground">Fecha Declaración</p>
               <p className="font-semibold">
-                {decl.declaration_date ? formatDate(decl.declaration_date) : "—"}
+                {decl.declaration_date
+                  ? formatDate(decl.declaration_date)
+                  : "—"}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Cotización vinculada</p>
+              <p className="text-xs text-muted-foreground">
+                Cotización vinculada
+              </p>
               <p className="font-medium">
                 {decl.purchase_request_quote_id ?? "Sin cotización"}
               </p>
@@ -96,7 +99,9 @@ export default function DeclaracionJuradaKycDetailSheet({
               <p className="font-medium">{decl.fixed_phone || "—"}</p>
             </div>
             <div className="col-span-full">
-              <p className="text-xs text-muted-foreground">Propósito Relación</p>
+              <p className="text-xs text-muted-foreground">
+                Propósito Relación
+              </p>
               <p className="font-medium">{decl.purpose_relationship || "—"}</p>
             </div>
             {decl.signed_file_path && (
@@ -122,23 +127,21 @@ export default function DeclaracionJuradaKycDetailSheet({
           <GroupFormSection
             title="Revisión Legal"
             icon={Scale}
-            color="gray"
             cols={{ sm: 2, md: 2, xl: 4 }}
             headerExtra={
               decl.legal_review_status ? (
                 <Badge
                   variant="outline"
                   color={
-                    LEGAL_REVIEW_STATUS_COLOR[decl.legal_review_status] ?? "gray"
+                    LEGAL_REVIEW_STATUS_COLOR[decl.legal_review_status] ??
+                    "gray"
                   }
                 >
                   {LEGAL_REVIEW_STATUS_LABEL[decl.legal_review_status] ??
                     decl.legal_review_status}
                 </Badge>
               ) : (
-                <Badge variant="outline" color="gray">
-                  Sin revisión
-                </Badge>
+                <Badge variant="outline">Sin revisión</Badge>
               )
             }
           >
@@ -154,7 +157,9 @@ export default function DeclaracionJuradaKycDetailSheet({
             </div>
             {decl.legal_review_comments && (
               <div className="col-span-full">
-                <p className="text-xs text-muted-foreground">Motivo de rechazo</p>
+                <p className="text-xs text-muted-foreground">
+                  Motivo de rechazo
+                </p>
                 <p className="mt-1 rounded border border-border bg-muted/40 px-3 py-2 text-sm font-medium">
                   {decl.legal_review_comments}
                 </p>
@@ -173,7 +178,6 @@ export default function DeclaracionJuradaKycDetailSheet({
           <GroupFormSection
             title="Datos del Cliente"
             icon={User}
-            color="gray"
             cols={{ sm: 2, md: 3, xl: 4 }}
           >
             <div className="col-span-full md:col-span-2">
@@ -208,7 +212,9 @@ export default function DeclaracionJuradaKycDetailSheet({
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium text-sm break-all">{decl.email || "—"}</p>
+              <p className="font-medium text-sm break-all">
+                {decl.email || "—"}
+              </p>
             </div>
             <div className="col-span-full">
               <p className="text-xs text-muted-foreground">Dirección</p>
@@ -224,7 +230,6 @@ export default function DeclaracionJuradaKycDetailSheet({
           <GroupFormSection
             title="Situación PEP"
             icon={Shield}
-            color="gray"
             cols={{ sm: 2, md: 2, xl: 4 }}
           >
             <div>
@@ -270,7 +275,6 @@ export default function DeclaracionJuradaKycDetailSheet({
             <GroupFormSection
               title="Parientes con Cargo Público"
               icon={Users}
-              color="gray"
               cols={{ sm: 1 }}
             >
               <ul className="space-y-1">
@@ -288,7 +292,6 @@ export default function DeclaracionJuradaKycDetailSheet({
             <GroupFormSection
               title="Parientes PEP del Declarante"
               icon={Users}
-              color="gray"
               cols={{ sm: 1, md: 2 }}
             >
               {decl.pep_relative_data.map((rel, i) => (
@@ -309,7 +312,6 @@ export default function DeclaracionJuradaKycDetailSheet({
           <GroupFormSection
             title="Beneficiario de la Operación"
             icon={Banknote}
-            color="gray"
             cols={{ sm: 1, md: 2, xl: 3 }}
           >
             <div>
@@ -344,7 +346,9 @@ export default function DeclaracionJuradaKycDetailSheet({
                 </div>
                 {decl.third_representation_type && (
                   <div>
-                    <p className="text-xs text-muted-foreground">Representación</p>
+                    <p className="text-xs text-muted-foreground">
+                      Representación
+                    </p>
                     <p className="font-medium">
                       {decl.third_representation_type}
                     </p>
@@ -352,7 +356,9 @@ export default function DeclaracionJuradaKycDetailSheet({
                 )}
                 {decl.third_pep_status && (
                   <div>
-                    <p className="text-xs text-muted-foreground">PEP del Tercero</p>
+                    <p className="text-xs text-muted-foreground">
+                      PEP del Tercero
+                    </p>
                     <p className="font-medium">{decl.third_pep_status}</p>
                   </div>
                 )}
@@ -371,8 +377,12 @@ export default function DeclaracionJuradaKycDetailSheet({
                   </div>
                 )}
                 <div className="col-span-full">
-                  <p className="text-xs text-muted-foreground">Origen de Fondos</p>
-                  <p className="font-medium">{decl.third_funds_origin || "—"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Origen de Fondos
+                  </p>
+                  <p className="font-medium">
+                    {decl.third_funds_origin || "—"}
+                  </p>
                 </div>
               </>
             )}
@@ -411,8 +421,12 @@ export default function DeclaracionJuradaKycDetailSheet({
                   </div>
                 )}
                 <div className="col-span-full">
-                  <p className="text-xs text-muted-foreground">Origen de Fondos</p>
-                  <p className="font-medium">{decl.entity_funds_origin || "—"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Origen de Fondos
+                  </p>
+                  <p className="font-medium">
+                    {decl.entity_funds_origin || "—"}
+                  </p>
                 </div>
               </>
             )}
