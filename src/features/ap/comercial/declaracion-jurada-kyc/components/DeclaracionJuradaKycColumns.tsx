@@ -130,8 +130,9 @@ export const declaracionJuradaKycColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, status } = row.original;
+      const { id, status, signed_file_path } = row.original;
       const isFirmado = status === "FIRMADO";
+      const isAlreadySigned = signed_file_path !== null;
 
       const handleDownloadPdf = async () => {
         try {
@@ -151,6 +152,7 @@ export const declaracionJuradaKycColumns = ({
             className="size-7"
             tooltip="Ver Detalle"
             onClick={() => onViewDetail(row.original)}
+            disabled={isAlreadySigned}
           >
             <Eye className="size-5" />
           </Button>
@@ -165,7 +167,7 @@ export const declaracionJuradaKycColumns = ({
             <Download className="size-5" />
           </Button>
 
-          {permissions.canUploadSigned && !isFirmado && (
+          {permissions.canUploadSigned && !isFirmado && !isAlreadySigned && (
             <Button
               variant="outline"
               size="icon"
@@ -177,7 +179,7 @@ export const declaracionJuradaKycColumns = ({
             </Button>
           )}
 
-          {permissions.canUpdate && (
+          {permissions.canUpdate && !isAlreadySigned && (
             <Button
               variant="outline"
               size="icon"
@@ -189,7 +191,7 @@ export const declaracionJuradaKycColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && (
+          {permissions.canDelete && !isAlreadySigned && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

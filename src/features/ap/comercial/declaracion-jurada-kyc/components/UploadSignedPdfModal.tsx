@@ -1,20 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileForm } from "@/shared/components/FileForm";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useUploadSignedKycDeclaration } from "../lib/declaracionJuradaKyc.hook";
 import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
 import { errorToast } from "@/core/core.function";
-import { Upload } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -62,41 +54,15 @@ export default function UploadSignedPdfModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="rounded-full p-2 bg-green-100">
-              <Upload className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <DialogTitle>Subir PDF Firmado</DialogTitle>
-              <DialogDescription className="text-xs mt-0.5">
-                {declaration.full_name} — DJ #{declaration.id}
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-3 py-2">
-          <p className="text-sm text-muted-foreground">
-            Suba el PDF firmado por el cliente. El sistema cambiará el estado a{" "}
-            <span className="font-semibold text-green-600">FIRMADO</span>.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Solo PDF · Máx. {MAX_SIZE_MB} MB. Si ya existe un archivo firmado,
-            será reemplazado.
-          </p>
-          <FileForm
-            label="Archivo PDF Firmado"
-            accept=".pdf"
-            value={file}
-            onChange={(f) => setFile(f as File | null)}
-            disabled={isPending}
-          />
-        </div>
-
-        <DialogFooter className="gap-2">
+    <GeneralModal
+      open={open}
+      onClose={handleClose}
+      title="Subir PDF Firmado"
+      subtitle={`${declaration.full_name} — DJ #${declaration.id}`}
+      size="xl"
+      icon="Upload"
+      childrenFooter={
+        <div className="gap-2 flex">
           <Button variant="outline" onClick={handleClose} disabled={isPending}>
             Cancelar
           </Button>
@@ -105,11 +71,30 @@ export default function UploadSignedPdfModal({
             disabled={!file || isPending}
             className="gap-1"
           >
-            <Upload className="size-4" />
             {isPending ? "Subiendo..." : "Subir PDF"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      }
+    >
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          Suba el PDF firmado por el cliente. El sistema cambiará el estado a{" "}
+          <span className="font-semibold text-green-600">FIRMADO</span>.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Solo PDF · Máx. {MAX_SIZE_MB} MB. Si ya existe un archivo firmado,
+          será reemplazado.
+        </p>
+        <FileUploadWithCamera
+          label="Archivo PDF Firmado"
+          accept=".pdf"
+          value={file}
+          onChange={(f) => setFile(f)}
+          disabled={isPending}
+          showPreview={true}
+          showFileInfo={true}
+        />
+      </div>
+    </GeneralModal>
   );
 }
