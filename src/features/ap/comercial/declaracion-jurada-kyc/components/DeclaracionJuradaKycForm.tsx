@@ -1,15 +1,37 @@
 "use client";
 
+import { useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, User, Shield, Users, Banknote, FileText } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  User,
+  Shield,
+  Users,
+  Banknote,
+  FileText,
+} from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import {
+  usePurchaseRequestQuote,
+  usePurchaseRequestQuoteById,
+} from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
+import { EMPRESA_AP } from "@/core/core.constants";
 import {
   declaracionJuradaKycSchema,
   declaracionJuradaKycSchemaUpdate,
@@ -36,6 +58,14 @@ interface Props {
   clientInfo?: CustomerKycDeclarationResource | null;
 }
 
+function useCustomerByIdForAsync(id: any) {
+  return useCustomersById(Number(id) || 0);
+}
+
+function useQuoteByIdForAsync(id: any) {
+  return usePurchaseRequestQuoteById(Number(id) || 0);
+}
+
 export default function DeclaracionJuradaKycForm({
   defaultValues,
   onSubmit,
@@ -50,7 +80,7 @@ export default function DeclaracionJuradaKycForm({
       : declaracionJuradaKycSchemaUpdate;
 
   const form = useForm<DeclaracionJuradaKycSchema>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       pep_relatives: [],
       pep_relative_data: [],
@@ -60,11 +90,24 @@ export default function DeclaracionJuradaKycForm({
   });
 
   const pepStatus = useWatch({ control: form.control, name: "pep_status" });
-  const isPepRelative = useWatch({ control: form.control, name: "is_pep_relative" });
-  const beneficiaryType = useWatch({ control: form.control, name: "beneficiary_type" });
+  const isPepRelative = useWatch({
+    control: form.control,
+    name: "is_pep_relative",
+  });
+  const beneficiaryType = useWatch({
+    control: form.control,
+    name: "beneficiary_type",
+  });
 
   const pepActive = PEP_IS_ACTIVE(pepStatus ?? "");
   const showThirdBlock = beneficiaryType === "TERCERO_NATURAL";
+
+  const { data: allSedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
+  const sedeOptions = useMemo(
+    () =>
+      allSedes.map((s) => ({ value: s.id.toString(), label: s.description })),
+    [allSedes],
+  );
   const showEntityBlock =
     beneficiaryType === "PERSONA_JURIDICA" ||
     beneficiaryType === "ENTE_JURIDICO";
@@ -84,7 +127,6 @@ export default function DeclaracionJuradaKycForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
         {/* Datos del cliente (solo lectura si se carga del backend) */}
         {clientInfo && (
           <GroupFormSection
@@ -116,7 +158,11 @@ export default function DeclaracionJuradaKycForm({
             <div className="md:col-span-2 xl:col-span-2">
               <p className="text-xs text-muted-foreground">Dirección</p>
               <p className="font-medium text-sm">
-                {[clientInfo.district, clientInfo.province, clientInfo.department]
+                {[
+                  clientInfo.district,
+                  clientInfo.province,
+                  clientInfo.department,
+                ]
                   .filter(Boolean)
                   .join(", ") || "—"}
               </p>
@@ -132,7 +178,7 @@ export default function DeclaracionJuradaKycForm({
           </GroupFormSection>
         )}
 
-        {/* IDs ocultos cuando el cliente viene precargado */}
+        {/* Vinculación — visible solo cuando no hay clientInfo (no viene de editar) */}
         {!clientInfo && (
           <GroupFormSection
             title="Vinculación"
@@ -140,30 +186,47 @@ export default function DeclaracionJuradaKycForm({
             color="gray"
             cols={{ sm: 1, md: 2 }}
           >
-            <FormInput
-              control={form.control}
+            <FormSelectAsync
               name="business_partner_id"
-              label="ID Cliente (Business Partner)"
-              placeholder="Ej: 15"
-              required
-              type="number"
-            />
-            <FormInput
+              label="Cliente (Business Partner)"
+              placeholder="Buscar cliente..."
               control={form.control}
-              name="company_id"
-              label="ID Empresa"
-              placeholder="Ej: 1"
               required
-              type="number"
+              useQueryHook={useCustomers}
+              mapOptionFn={(c: CustomersResource) => ({
+                value: c.id.toString(),
+                label: c.full_name,
+              })}
+              perPage={10}
+              debounceMs={400}
+              useFindByIdHook={useCustomerByIdForAsync}
             />
-            <FormInput
+            <FormSelect
+              name="sede_id"
+              label="Sede"
+              placeholder="Seleccione sede..."
               control={form.control}
-              name="purchase_request_quote_id"
-              label="ID Cotización (opcional)"
-              placeholder="Ej: 42"
-              type="number"
-              optional
+              required
+              options={sedeOptions}
             />
+            <div className="md:col-span-2">
+              <FormSelectAsync
+                name="purchase_request_quote_id"
+                label="Cotización vinculada"
+                placeholder="Buscar por correlativo..."
+                control={form.control}
+                useQueryHook={usePurchaseRequestQuote}
+                mapOptionFn={(q: PurchaseRequestQuoteResource) => ({
+                  value: q.id.toString(),
+                  label: q.correlative,
+                  description: q.holder,
+                })}
+                perPage={10}
+                debounceMs={400}
+                useFindByIdHook={useQuoteByIdForAsync}
+                allowClear
+              />
+            </div>
           </GroupFormSection>
         )}
 
@@ -193,7 +256,6 @@ export default function DeclaracionJuradaKycForm({
             name="declaration_date"
             label="Fecha de Declaración"
             placeholder="Seleccione fecha"
-            required
           />
           <div className="md:col-span-2 xl:col-span-3">
             <FormTextArea
@@ -202,7 +264,6 @@ export default function DeclaracionJuradaKycForm({
               label="Propósito de la Relación Comercial"
               placeholder="Ej: Adquisición de vehículo para uso personal"
               rows={2}
-              optional
             />
           </div>
         </GroupFormSection>
@@ -271,9 +332,7 @@ export default function DeclaracionJuradaKycForm({
               variant="outline"
               size="sm"
               className="gap-1"
-              onClick={() =>
-                appendRelative("" as any)
-              }
+              onClick={() => appendRelative("" as any)}
             >
               <Plus className="size-3" />
               Agregar

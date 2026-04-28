@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -19,6 +19,7 @@ import DeclaracionJuradaKycForm from "@/features/ap/comercial/declaracion-jurada
 
 export default function AddDeclaracionJuradaKycPage() {
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = DECLARACION_JURADA_KYC;
 
@@ -51,8 +52,9 @@ export default function AddDeclaracionJuradaKycPage() {
       />
       <DeclaracionJuradaKycForm
         defaultValues={{
-          business_partner_id: "",
-          company_id: "",
+          purchase_request_quote_id: searchParams.get("quote_id") ?? "",
+          business_partner_id: searchParams.get("partner_id") ?? "",
+          company_id: searchParams.get("company_id") ?? "",
           pep_status: "NO_SOY",
           pep_collaborator_status: "NO_SOY",
           is_pep_relative: "NO_SOY",

@@ -9,10 +9,12 @@ import {
   Eye,
   ArrowLeftRight,
   X,
+  FileCheck,
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
+import { DECLARACION_JURADA_KYC } from "../../declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { Badge } from "@/components/ui/badge";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ExportButtons from "@/shared/components/ExportButtons";
@@ -32,6 +34,7 @@ interface Props {
     canApprove: boolean;
     canExport: boolean;
     canAssign: boolean;
+    canCreateKyc: boolean;
   };
 }
 
@@ -172,8 +175,9 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, is_approved } = row.original;
+      const { id, is_approved, holder_id, sede_id } = row.original;
       const { ROUTE_UPDATE } = PURCHASE_REQUEST_QUOTE;
+      const { ROUTE_ADD: KYC_ROUTE_ADD } = DECLARACION_JURADA_KYC;
       const isApproved = Boolean(is_approved);
       const hasVehicle = Boolean(row.original.ap_vehicle_id);
 
@@ -239,6 +243,22 @@ export const purchaseRequestQuoteColumns = ({
               onClick={() => onUnassignVehicle(id)}
             >
               <Link2Off className="size-5" />
+            </Button>
+          )}
+          {/* Generar Declaración Jurada KYC */}
+          {permissions.canCreateKyc && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Generar DJ KYC"
+              onClick={() =>
+                router(
+                  `${KYC_ROUTE_ADD}?quote_id=${id}&partner_id=${holder_id}&sede_id=${sede_id}`,
+                )
+              }
+            >
+              <FileCheck className="size-5" />
             </Button>
           )}
           {/* Edit - Only show if user has update permission */}

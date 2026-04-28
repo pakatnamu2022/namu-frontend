@@ -9,21 +9,19 @@ const pepRelativeDataSchema = z.object({
 export const declaracionJuradaKycSchema = z
   .object({
     purchase_request_quote_id: z.string().optional(),
-    business_partner_id: z
-      .string()
-      .min(1, "Cliente es requerido"),
-    company_id: z.string().min(1, "Empresa es requerida"),
+    business_partner_id: z.string().min(1, "Cliente es requerido"),
+    sede_id: z.string().min(1, "Sede es requerida"),
 
     occupation: z.string().optional(),
     fixed_phone: z.string().optional(),
     purpose_relationship: z.string().optional(),
 
     pep_status: z.enum(["SI_SOY", "SI_HE_SIDO", "NO_SOY", "NO_HE_SIDO"], {
-      errorMap: () => ({ message: "Estado PEP es requerido" }),
+      error: "Estado PEP es requerido",
     }),
     pep_collaborator_status: z.enum(
       ["SI_SOY", "SI_HE_SIDO", "NO_SOY", "NO_HE_SIDO"],
-      { errorMap: () => ({ message: "Estado PEP colaborador es requerido" }) },
+      { error: "Estado PEP colaborador es requerido" },
     ),
     pep_position: z.string().optional(),
     pep_institution: z.string().optional(),
@@ -31,13 +29,13 @@ export const declaracionJuradaKycSchema = z
     pep_spouse_name: z.string().optional(),
 
     is_pep_relative: z.enum(["SI_SOY", "NO_SOY"], {
-      errorMap: () => ({ message: "Campo pariente PEP es requerido" }),
+      error: "Campo pariente PEP es requerido",
     }),
     pep_relative_data: z.array(pepRelativeDataSchema).optional().default([]),
 
     beneficiary_type: z.enum(
       ["PROPIO", "TERCERO_NATURAL", "PERSONA_JURIDICA", "ENTE_JURIDICO"],
-      { errorMap: () => ({ message: "Tipo de beneficiario es requerido" }) },
+      { error: "Tipo de beneficiario es requerido" },
     ),
     own_funds_origin: z.string().optional(),
 
@@ -63,9 +61,7 @@ export const declaracionJuradaKycSchema = z
     entity_final_beneficiary: z.string().optional(),
 
     declaration_date: requiredDate("Fecha de declaración es requerida"),
-    status: z
-      .enum(["PENDIENTE", "GENERADO", "FIRMADO"])
-      .optional(),
+    status: z.enum(["PENDIENTE", "GENERADO", "FIRMADO"]).optional(),
   })
   .superRefine((data, ctx) => {
     const pepActive =
@@ -142,8 +138,9 @@ export const declaracionJuradaKycSchema = z
     }
   });
 
-export const declaracionJuradaKycSchemaUpdate =
-  declaracionJuradaKycSchema.partial().extend({
+export const declaracionJuradaKycSchemaUpdate = declaracionJuradaKycSchema
+  .partial()
+  .extend({
     pep_status: z
       .enum(["SI_SOY", "SI_HE_SIDO", "NO_SOY", "NO_HE_SIDO"])
       .optional(),

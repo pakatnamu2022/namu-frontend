@@ -28,7 +28,7 @@ export interface CustomerKycDeclarationResource {
   id: number;
   purchase_request_quote_id: number | null;
   business_partner_id: number;
-  company_id: number;
+  sede_id: number;
   status: KycStatus;
 
   full_name: string;
@@ -97,7 +97,7 @@ export interface CustomerKycDeclarationResponse {
 export interface CustomerKycDeclarationRequest {
   purchase_request_quote_id?: number;
   business_partner_id: string;
-  company_id: string;
+  sede_id: string;
   occupation?: string;
   fixed_phone?: string;
   purpose_relationship?: string;

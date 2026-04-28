@@ -15,7 +15,6 @@ import {
   Users,
   Banknote,
   FileText,
-  Building2,
 } from "lucide-react";
 import { formatDate } from "@/core/core.function";
 
