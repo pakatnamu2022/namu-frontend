@@ -2,8 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { TelephonePlanResource } from "../lib/telephonePlan.interface";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil } from "lucide-react";
+import { ButtonAction } from "@/shared/components/ButtonAction";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
 interface TelephonePlanColumnsProps {
   onDelete: (id: string) => void;
@@ -58,22 +59,8 @@ export const telephonePlanColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => onEdit(plan.id)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive"
-            onClick={() => onDelete(plan.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <ButtonAction icon={Pencil} onClick={() => onEdit(plan.id)} />
+          <DeleteButton onClick={() => onDelete(plan.id)} />
         </div>
       );
     },
