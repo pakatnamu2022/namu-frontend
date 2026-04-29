@@ -185,7 +185,7 @@ export default function InvoiceForm({
           unidad_de_medida: "ZZ", // Servicios
           codigo: labour.id.toString(),
           descripcion: labour.description,
-          cantidad: 1,
+          cantidad: labour.time_spent_decimal,
           valor_unitario: valor_unitario,
           precio_unitario: precio_unitario,
           subtotal: subtotal,

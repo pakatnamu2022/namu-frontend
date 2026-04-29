@@ -97,9 +97,25 @@ export async function storeConsolidatedInvoice(
   data: ElectronicDocumentSchema,
   internal_note_ids: number[],
 ): Promise<ElectronicDocumentResource> {
+  const { orden_compra_servicio_file, ...rest } = data;
+  const formData = new FormData();
+
+  Object.entries(rest).forEach(([key, value]) => {
+    appendToFormData(formData, key, value);
+  });
+
+  if (orden_compra_servicio_file instanceof File) {
+    formData.append("orden_compra_servicio_file", orden_compra_servicio_file);
+  }
+
+  internal_note_ids.forEach((id) => {
+    formData.append("internal_note_ids[]", String(id));
+  });
+
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/consolidated-invoice`,
-    { ...data, internal_note_ids },
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
   );
   return response.data;
 }
