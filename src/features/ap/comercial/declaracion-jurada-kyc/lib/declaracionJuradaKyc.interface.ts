@@ -28,6 +28,7 @@ export interface PepRelativeData {
 export interface CustomerKycDeclarationResource {
   id: number;
   purchase_request_quote_id: number | null;
+  purchase_request_quote?: string;
   business_partner_id: number;
   sede_id: number;
   status: KycStatus;

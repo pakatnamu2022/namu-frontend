@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -13,11 +13,21 @@ import {
   Users,
   Banknote,
   FileText,
+  UserPlus,
 } from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import {
+  useDniValidation,
+  useRucValidation,
+} from "@/shared/hooks/useDocumentValidation";
+import {
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import {
@@ -25,6 +35,8 @@ import {
   useCustomersById,
 } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
+import { BUSINESS_PARTNERS } from "@/core/core.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
   usePurchaseRequestQuote,
@@ -44,6 +56,7 @@ import {
   BENEFICIARY_TYPE_OPTIONS,
   THIRD_REPRESENTATION_TYPE_OPTIONS,
   ENTITY_REPRESENTATION_TYPE_OPTIONS,
+  THIRD_DOC_TYPE_OPTIONS,
   PEP_IS_ACTIVE,
 } from "../lib/declaracionJuradaKyc.constants";
 import { useWatch } from "react-hook-form";
@@ -89,6 +102,15 @@ export default function DeclaracionJuradaKycForm({
     mode: "onChange",
   });
 
+  const [isRepModalOpen, setIsRepModalOpen] = useState(false);
+
+  const handleQuoteChange = (_value: string, item?: PurchaseRequestQuoteResource) => {
+    if (item?.holder_document_number?.length === NUM_DIGITS_RUC) {
+      form.setValue("business_partner_id", "", { shouldValidate: false });
+      setIsRepModalOpen(true);
+    }
+  };
+
   const pepStatus = useWatch({ control: form.control, name: "pep_status" });
   const isPepRelative = useWatch({
     control: form.control,
@@ -98,6 +120,10 @@ export default function DeclaracionJuradaKycForm({
     control: form.control,
     name: "beneficiary_type",
   });
+
+  const thirdDocType = useWatch({ control: form.control, name: "third_doc_type" });
+  const thirdDocNumber = useWatch({ control: form.control, name: "third_doc_number" });
+  const entityRuc = useWatch({ control: form.control, name: "entity_ruc" });
 
   const pepActive = PEP_IS_ACTIVE(pepStatus ?? "");
   const showThirdBlock = beneficiaryType === "TERCERO_NATURAL";
@@ -111,6 +137,42 @@ export default function DeclaracionJuradaKycForm({
   const showEntityBlock =
     beneficiaryType === "PERSONA_JURIDICA" ||
     beneficiaryType === "ENTE_JURIDICO";
+
+  const {
+    data: thirdDniData,
+    isLoading: isThirdDniLoading,
+    error: thirdDniError,
+  } = useDniValidation(
+    thirdDocNumber ?? undefined,
+    showThirdBlock && thirdDocType === "DNI" && thirdDocNumber?.length === NUM_DIGITS_DNI,
+  );
+
+  const {
+    data: entityRucData,
+    isLoading: isEntityRucLoading,
+    error: entityRucError,
+  } = useRucValidation(
+    entityRuc ?? undefined,
+    showEntityBlock && !!entityRuc && entityRuc.length === NUM_DIGITS_RUC,
+  );
+
+  useEffect(() => {
+    if (!thirdDniData) return;
+    if (thirdDniData.success && thirdDniData.data?.valid) {
+      form.setValue("third_full_name", thirdDniData.data.names, { shouldValidate: true });
+    } else {
+      form.setValue("third_full_name", "", { shouldValidate: true });
+    }
+  }, [thirdDniData]);
+
+  useEffect(() => {
+    if (!entityRucData) return;
+    if (entityRucData.success && entityRucData.data?.valid) {
+      form.setValue("entity_name", entityRucData.data.business_name, { shouldValidate: true });
+    } else {
+      form.setValue("entity_name", "", { shouldValidate: true });
+    }
+  }, [entityRucData]);
 
   const {
     fields: relativesFields,
@@ -188,19 +250,31 @@ export default function DeclaracionJuradaKycForm({
           >
             <FormSelectAsync
               name="business_partner_id"
-              label="Cliente (Business Partner)"
-              placeholder="Buscar cliente..."
+              label="Declarante (solo DNI)"
+              placeholder="Buscar cliente con DNI..."
               control={form.control}
               required
               useQueryHook={useCustomers}
               mapOptionFn={(c: CustomersResource) => ({
                 value: c.id.toString(),
                 label: c.full_name,
+                description: `${c.document_type} ${c.num_doc}`,
               })}
               perPage={10}
               debounceMs={400}
               useFindByIdHook={useCustomerByIdForAsync}
-            />
+              additionalParams={{ document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID }}
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                title="Agregar representante legal"
+                onClick={() => setIsRepModalOpen(true)}
+              >
+                <UserPlus className="size-4" />
+              </Button>
+            </FormSelectAsync>
             <FormSelect
               name="sede_id"
               label="Sede"
@@ -225,6 +299,7 @@ export default function DeclaracionJuradaKycForm({
                 debounceMs={400}
                 useFindByIdHook={useQuoteByIdForAsync}
                 allowClear
+                onValueChange={handleQuoteChange}
               />
             </div>
           </GroupFormSection>
@@ -243,6 +318,7 @@ export default function DeclaracionJuradaKycForm({
             label="Ocupación"
             placeholder="Ej: Contador"
             optional
+            uppercase
           />
           <FormInput
             control={form.control}
@@ -250,6 +326,7 @@ export default function DeclaracionJuradaKycForm({
             label="Teléfono Fijo"
             placeholder="Ej: 074-123456"
             optional
+            uppercase
           />
           <DatePickerFormField
             control={form.control}
@@ -300,6 +377,7 @@ export default function DeclaracionJuradaKycForm({
                 label="Cargo / Posición PEP"
                 placeholder="Ej: Funcionario municipal"
                 required
+                uppercase
               />
               <FormInput
                 control={form.control}
@@ -307,6 +385,7 @@ export default function DeclaracionJuradaKycForm({
                 label="Institución PEP"
                 placeholder="Ej: Municipalidad de Chiclayo"
                 required
+                uppercase
               />
             </>
           )}
@@ -317,6 +396,7 @@ export default function DeclaracionJuradaKycForm({
             label="Nombre del cónyuge (si aplica)"
             placeholder="Ej: María García"
             optional
+            uppercase
           />
         </GroupFormSection>
 
@@ -352,6 +432,7 @@ export default function DeclaracionJuradaKycForm({
                   name={`pep_relatives.${index}` as any}
                   label={`Pariente ${index + 1}`}
                   placeholder="Nombre completo"
+                  uppercase
                 />
               </div>
               <Button
@@ -413,6 +494,7 @@ export default function DeclaracionJuradaKycForm({
                   label="Nombre del PEP"
                   placeholder="Nombre completo"
                   required
+                  uppercase
                 />
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
@@ -422,6 +504,7 @@ export default function DeclaracionJuradaKycForm({
                       label="Parentesco"
                       placeholder="Ej: Cónyuge, Padre"
                       required
+                      uppercase
                     />
                   </div>
                   <Button
@@ -477,20 +560,40 @@ export default function DeclaracionJuradaKycForm({
                 label="Nombre del Tercero"
                 placeholder="Nombre completo"
                 required
+                uppercase
+                disabled={!!thirdDniData?.success && !!thirdDniData.data?.valid}
               />
-              <FormInput
-                control={form.control}
+              <FormSelect
                 name="third_doc_type"
                 label="Tipo de Documento"
-                placeholder="Ej: DNI"
-                optional
+                placeholder="Seleccione..."
+                options={THIRD_DOC_TYPE_OPTIONS}
+                control={form.control}
               />
               <FormInput
                 control={form.control}
                 name="third_doc_number"
                 label="Número de Documento"
-                placeholder="Ej: 12345678"
+                placeholder={thirdDocType === "DNI" ? "8 dígitos" : "Ej: 12345678"}
                 optional
+                uppercase
+                maxLength={thirdDocType === "DNI" ? NUM_DIGITS_DNI : undefined}
+                onInput={
+                  thirdDocType === "DNI"
+                    ? (e: React.ChangeEvent<HTMLInputElement>) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }
+                    : undefined
+                }
+                addonEnd={
+                  <ValidationIndicator
+                    positioned={false}
+                    show={thirdDocType === "DNI" && !!thirdDocNumber}
+                    isValidating={isThirdDniLoading}
+                    isValid={!!thirdDniData?.success && !!thirdDniData.data?.valid}
+                    hasError={!!thirdDniError || (!!thirdDniData && !thirdDniData.success)}
+                  />
+                }
               />
               <FormSelect
                 name="third_representation_type"
@@ -512,6 +615,7 @@ export default function DeclaracionJuradaKycForm({
                 label="Cargo PEP del Tercero"
                 placeholder="Si aplica"
                 optional
+                uppercase
               />
               <FormInput
                 control={form.control}
@@ -519,6 +623,7 @@ export default function DeclaracionJuradaKycForm({
                 label="Institución PEP del Tercero"
                 placeholder="Si aplica"
                 optional
+                uppercase
               />
               <div className="md:col-span-2 xl:col-span-3">
                 <FormTextArea
@@ -542,6 +647,8 @@ export default function DeclaracionJuradaKycForm({
                 label="Nombre / Razón Social"
                 placeholder="Nombre de la entidad"
                 required
+                uppercase
+                disabled={!!entityRucData?.success && !!entityRucData.data?.valid}
               />
               <FormInput
                 control={form.control}
@@ -549,6 +656,19 @@ export default function DeclaracionJuradaKycForm({
                 label="RUC"
                 placeholder="Ej: 20123456789"
                 optional
+                maxLength={NUM_DIGITS_RUC}
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  e.target.value = e.target.value.replace(/\D/g, "");
+                }}
+                addonEnd={
+                  <ValidationIndicator
+                    positioned={false}
+                    show={!!entityRuc}
+                    isValidating={isEntityRucLoading}
+                    isValid={!!entityRucData?.success && !!entityRucData.data?.valid}
+                    hasError={!!entityRucError || (!!entityRucData && !entityRucData.success)}
+                  />
+                }
               />
               <FormSelect
                 name="entity_representation_type"
@@ -563,6 +683,7 @@ export default function DeclaracionJuradaKycForm({
                 label="Beneficiario Final"
                 placeholder="Nombre del beneficiario final"
                 optional
+                uppercase
               />
               <div className="md:col-span-2 xl:col-span-3">
                 <FormTextArea
@@ -591,6 +712,20 @@ export default function DeclaracionJuradaKycForm({
           </Button>
         </div>
       </form>
+
+      <CustomerModal
+        open={isRepModalOpen}
+        onClose={(newCustomer) => {
+          setIsRepModalOpen(false);
+          if (newCustomer) {
+            form.setValue("business_partner_id", newCustomer.id.toString(), {
+              shouldValidate: true,
+            });
+          }
+        }}
+        title="Agregar Representante Legal"
+        defaultValues={{ document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID }}
+      />
     </Form>
   );
 }

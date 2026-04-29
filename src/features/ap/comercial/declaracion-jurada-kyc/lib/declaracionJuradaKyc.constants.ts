@@ -88,3 +88,9 @@ export const ENTITY_REPRESENTATION_TYPE_OPTIONS = [
 
 export const PEP_IS_ACTIVE = (status: string) =>
   status === "SI_SOY" || status === "SI_HE_SIDO";
+
+export const THIRD_DOC_TYPE_OPTIONS = [
+  { label: "DNI", value: "DNI" },
+  { label: "Carné de Extranjería", value: "CE" },
+  { label: "Pasaporte", value: "PASAPORTE" },
+];
