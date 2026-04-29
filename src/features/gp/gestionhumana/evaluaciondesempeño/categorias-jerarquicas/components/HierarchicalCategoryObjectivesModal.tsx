@@ -6,6 +6,7 @@ import { Plus, X } from "lucide-react";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getErrorMessage,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -120,8 +121,8 @@ export function HierarchicalCategoryObjectivesModal({
       await invalidateQueryObjectives();
       await invalidateQuery();
     },
-    onError: () => {
-      errorToast("No se pudo actualizar el objetivo");
+    onError: (error: any) => {
+      errorToast(getErrorMessage(error) || "No se pudo actualizar el objetivo");
     },
   });
 
@@ -134,8 +135,8 @@ export function HierarchicalCategoryObjectivesModal({
       successToast(SUCCESS_MESSAGE(OBJECTIVE, "update"));
       await invalidateQuery();
     },
-    onError: () => {
-      errorToast(ERROR_MESSAGE(OBJECTIVE, "update"));
+    onError: (error: any) => {
+      errorToast(getErrorMessage(error) || ERROR_MESSAGE(OBJECTIVE, "update"));
     },
   });
 
@@ -144,8 +145,8 @@ export function HierarchicalCategoryObjectivesModal({
       await updateHierarchicalCategoryObjective(id, { goal });
       await invalidateQuery();
       successToast(SUCCESS_MESSAGE(GOAL, "update"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(GOAL, "update"));
+    } catch (error: any) {
+      errorToast(getErrorMessage(error) || ERROR_MESSAGE(GOAL, "update"));
     }
   };
 
@@ -154,8 +155,8 @@ export function HierarchicalCategoryObjectivesModal({
       await updateHierarchicalCategoryObjective(id, { weight });
       await invalidateQuery();
       successToast(SUCCESS_MESSAGE(WEIGHT, "update"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(WEIGHT, "update"));
+    } catch (error: any) {
+      errorToast(getErrorMessage(error) || ERROR_MESSAGE(WEIGHT, "update"));
     }
   };
 
@@ -167,8 +168,8 @@ export function HierarchicalCategoryObjectivesModal({
         objective_id: deleteDetailId,
       });
       successToast(SUCCESS_MESSAGE(OBJECTIVE, "delete"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(OBJECTIVE, "delete"));
+    } catch (error: any) {
+      errorToast(getErrorMessage(error) || ERROR_MESSAGE(OBJECTIVE, "delete"));
     } finally {
       await invalidateQueryObjectives();
       await invalidateQuery();
@@ -176,26 +177,38 @@ export function HierarchicalCategoryObjectivesModal({
   };
 
   const { mutate: regenerate, isPending: isRegenerating } = useMutation({
-    mutationFn: ({ categoryId, personId }: { categoryId: number; personId: number }) =>
-      regeneratePersonObjectives(categoryId, personId),
+    mutationFn: ({
+      categoryId,
+      personId,
+    }: {
+      categoryId: number;
+      personId: number;
+    }) => regeneratePersonObjectives(categoryId, personId),
     onSuccess: async () => {
       successToast("Objetivos regenerados correctamente");
       await invalidateQuery();
     },
-    onError: () => {
-      errorToast("No se pudieron regenerar los objetivos");
+    onError: (error: any) => {
+      errorToast(getErrorMessage(error) || "No se pudieron regenerar los objetivos");
     },
   });
 
   const { mutate: homogenize, isPending: isHomogenizing } = useMutation({
-    mutationFn: ({ categoryId, personId }: { categoryId: number; personId: number }) =>
-      homogeneousWeightsPerson(categoryId, personId),
+    mutationFn: ({
+      categoryId,
+      personId,
+    }: {
+      categoryId: number;
+      personId: number;
+    }) => homogeneousWeightsPerson(categoryId, personId),
     onSuccess: async () => {
       successToast("Pesos homogeneizados correctamente");
       await invalidateQuery();
     },
-    onError: () => {
-      errorToast("No se pudieron homogeneizar los pesos");
+    onError: (error: any) => {
+      errorToast(
+        getErrorMessage(error) || "No se pudieron homogeneizar los pesos",
+      );
     },
   });
 

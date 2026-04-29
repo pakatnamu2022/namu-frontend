@@ -38,11 +38,21 @@ export const CategoryObjectivePersonList = ({
           const activeObjectives = child.objectives.filter((o) => o.active);
           const activeWeightSum = activeObjectives.reduce(
             (sum, o) => sum + (o.weight ?? 0),
-            0
+            0,
           );
           const hasMissingObjectives =
             child.objectives.length < categoryObjectivesCount;
           const weightsNotEqualHundred = Math.abs(activeWeightSum - 100) > 0.01;
+          const hasZeroWeightActive = activeObjectives.some(
+            (o) => !o.weight || o.weight === 0,
+          );
+          const isNotHomogeneous = weightsNotEqualHundred || hasZeroWeightActive;
+          const difference = 100 - activeWeightSum;
+          const homogenizeLabel = isNotHomogeneous
+            ? weightsNotEqualHundred
+              ? `Homogenizar pesos · ${difference > 0 ? "+" : ""}${difference.toFixed(0)}%`
+              : "Homogenizar pesos · hay pesos en 0"
+            : "Homogenizar pesos";
 
           return (
             <div
@@ -51,7 +61,10 @@ export const CategoryObjectivePersonList = ({
             >
               <div className="flex items-center gap-3">
                 <Avatar>
-                  <AvatarImage src={child.worker.photo} alt={child.worker.name} />
+                  <AvatarImage
+                    src={child.worker.photo}
+                    alt={child.worker.name}
+                  />
                   <AvatarFallback>
                     {String(child.worker.name)?.[0] ?? "-"}
                   </AvatarFallback>
@@ -79,18 +92,19 @@ export const CategoryObjectivePersonList = ({
                       Regenerar faltantes
                     </Button>
                   )}
-                  {weightsNotEqualHundred && activeObjectives.length > 0 && (
+                  {activeObjectives.length > 0 && (
                     <Button
-                      variant="outline"
+                      variant={isNotHomogeneous ? "outline" : "ghost"}  
+                      color={isNotHomogeneous ? "amber" : "muted"}
                       size="sm"
                       disabled={isHomogenizing}
                       onClick={() =>
                         onHomogeneousWeights(categoryId, child.worker.id)
                       }
-                      title="Distribuir pesos homogéneamente"
+                      tooltip="Distribuir pesos homogéneamente"
                     >
                       <Scale className="size-4 mr-1" />
-                      Homogenizar pesos
+                      {homogenizeLabel}
                     </Button>
                   )}
                 </div>
