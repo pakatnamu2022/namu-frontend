@@ -509,6 +509,14 @@ export function OrderQuotationBillingForm({
     };
   }, [items, igvTypes, porcentaje_de_igv]);
 
+  // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
+  useEffect(() => {
+    console.log("isAdvancePayment changed:", isAdvancePayment);
+    if (isAdvancePayment) {
+      form.setValue("medio_de_pago", "contado", { shouldValidate: false });
+    }
+  }, [isAdvancePayment, form]);
+
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
     form.setValue("total_gravada", totales.total_gravada, {
@@ -628,6 +636,7 @@ export function OrderQuotationBillingForm({
               showCardLast4={true}
               showInternalNote={true}
               showOrdenCompraServicio={true}
+              isAdvancePayment={isAdvancePayment}
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}

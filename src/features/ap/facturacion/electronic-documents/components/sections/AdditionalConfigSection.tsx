@@ -24,6 +24,7 @@ interface AdditionalConfigSectionProps {
   showInternalNote?: boolean;
   showOrdenCompraServicio?: boolean;
   isEdit?: boolean;
+  isAdvancePayment?: boolean; // Nuevo prop para indicar si es un anticipo
 }
 
 export function AdditionalConfigSection({
@@ -35,6 +36,7 @@ export function AdditionalConfigSection({
   showInternalNote = false,
   showOrdenCompraServicio = false,
   isEdit = false,
+  isAdvancePayment = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
@@ -150,6 +152,7 @@ export function AdditionalConfigSection({
         }))}
         placeholder="Seleccione una opción"
         description="Condiciones de pago del documento."
+        disabled={isAdvancePayment} // Deshabilitar si es un anticipo
         required
       />
       {isCredito ? (
