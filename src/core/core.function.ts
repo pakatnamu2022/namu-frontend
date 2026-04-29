@@ -4,6 +4,10 @@ import type { Action, ModelInterface } from "./core.interface";
 import { format, parseISO, isValid, parse } from "date-fns";
 import { es } from "date-fns/locale";
 
+export const getErrorMessage = (error: any): string | undefined => {
+  return error?.response?.data?.error || error?.message;
+};
+
 export const successToast = (
   body: string,
   description: string = new Date().toLocaleString(),
