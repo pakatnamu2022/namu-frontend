@@ -185,7 +185,7 @@ export default function InvoiceForm({
           unidad_de_medida: "ZZ", // Servicios
           codigo: labour.id.toString(),
           descripcion: labour.description,
-          cantidad: 1,
+          cantidad: labour.time_spent_decimal,
           valor_unitario: valor_unitario,
           precio_unitario: precio_unitario,
           subtotal: subtotal,
@@ -367,6 +367,14 @@ export default function InvoiceForm({
     };
   }, [items, igvTypes, porcentaje_de_igv]);
 
+  // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
+  useEffect(() => {
+    console.log("isAdvancePayment changed:", isAdvancePayment);
+    if (isAdvancePayment) {
+      form.setValue("medio_de_pago", "contado", { shouldValidate: false });
+    }
+  }, [isAdvancePayment, form]);
+
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
     form.setValue("total_gravada", totales.total_gravada, {
@@ -434,6 +442,7 @@ export default function InvoiceForm({
               showCardLast4={true}
               showInternalNote={true}
               showOrdenCompraServicio={true}
+              isAdvancePayment={isAdvancePayment}
             />
           </div>
 

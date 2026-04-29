@@ -61,7 +61,7 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
                   <th className="text-center min-w-[100px] px-4 py-3 text-sm font-medium text-gray-700">
                     <div className="flex flex-col items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      <span>Estimado Total</span>
+                      <span>Programadas Total</span>
                     </div>
                   </th>
                   <th className="text-center min-w-[100px] px-4 py-3 text-sm font-medium text-gray-700">

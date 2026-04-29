@@ -28,6 +28,14 @@ export const TYPE_PLANNING: ModelComplete<TypesPlanningResource> = {
   },
 };
 
-export const INTERNAL_WORKSHOP = 7;
-export const DERCO_WARRANTY = 9;
-export const ODEBRECHT_MAINTENANCE = 13;
+export const INTERNAL_WORKSHOP_ID = 7;
+export const DERCO_WARRANTY_ID = 9;
+export const ODEBRECHT_MAINTENANCE_ID = 13;
+export const INTERNAL_VN_ID = 8;
+export const DIAGNOSIS_ID = 2;
+
+export const OT_UNBILLED_IDS = [
+  INTERNAL_WORKSHOP_ID,
+  INTERNAL_VN_ID,
+  DIAGNOSIS_ID,
+];

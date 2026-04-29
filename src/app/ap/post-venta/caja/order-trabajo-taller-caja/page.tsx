@@ -32,6 +32,7 @@ import { Receipt } from "lucide-react";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { OT_UNBILLED_IDS } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -73,7 +74,7 @@ export default function WorkOrderCajaPage() {
   const isBillingView = activeView === "PENDING" || activeView === "INVOICED";
 
   const billingTypesPlanning = allTypesPlanning.filter(
-    (t) => t.type_document === "INTERNA",
+    (t) => t.type_document === "INTERNA" && !OT_UNBILLED_IDS.includes(t.id),
   );
 
   // Valor efectivo: en vistas de facturación usa el seleccionado o el primero disponible;

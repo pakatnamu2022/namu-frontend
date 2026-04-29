@@ -10,6 +10,7 @@ export interface WorkOrderLabourResource {
   id: number;
   description: string;
   time_spent: string;
+  time_spent_decimal: number;
   hourly_rate: string;
   discount_percentage?: string;
   total_cost: string;

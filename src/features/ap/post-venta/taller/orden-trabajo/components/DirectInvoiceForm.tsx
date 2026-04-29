@@ -27,9 +27,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
 import {
-  DERCO_WARRANTY,
-  INTERNAL_WORKSHOP,
-  ODEBRECHT_MAINTENANCE,
+  DERCO_WARRANTY_ID,
+  INTERNAL_WORKSHOP_ID,
+  ODEBRECHT_MAINTENANCE_ID,
 } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 
 interface DirectInvoiceFormProps {
@@ -52,7 +52,7 @@ function buildDefaultSingleItemDescription(
   workOrders: WorkOrderResource[],
   emisionDate: string,
 ): string {
-  if (typePlanningId === ODEBRECHT_MAINTENANCE) {
+  if (typePlanningId === ODEBRECHT_MAINTENANCE_ID) {
     const plates = workOrders
       .map((wo) => wo.vehicle_plate)
       .filter(Boolean)
@@ -61,7 +61,7 @@ function buildDefaultSingleItemDescription(
     const vehicleLabel = count === 1 ? "1 VEHÍCULO" : `${count} VEHÍCULOS`;
     return `MANTENIMIENTO DE ${vehicleLabel} - PLACAS: ${plates}\nBOLETÍN DE MEDICIÓN 58- PERÍODO: 23-FEB-26 - 22-MAR-26 - MES\nREFERENCIA MAR-26 SC-ADM-032-21-AUT-OPOS // CODIGO 020\nTASA 12%`;
   }
-  if (typePlanningId === DERCO_WARRANTY) {
+  if (typePlanningId === DERCO_WARRANTY_ID) {
     const fecha = emisionDate
       ? new Date(emisionDate + "T00:00:00").toLocaleDateString("es-PE", {
           day: "2-digit",
@@ -71,7 +71,7 @@ function buildDefaultSingleItemDescription(
       : "DD/MM/YYYY";
     return `FACTURACIÓN DE GARANTÍAS TÉCNICAS DEL ${fecha}`;
   }
-  if (typePlanningId === INTERNAL_WORKSHOP) {
+  if (typePlanningId === INTERNAL_WORKSHOP_ID) {
     const count = workOrders.length;
     const vehicleLabel = count === 1 ? "1 VEHÍCULO" : `${count} VEHÍCULOS`;
     return `SERVICIO DE TALLER INTERNO - ${vehicleLabel}`;
@@ -80,9 +80,9 @@ function buildDefaultSingleItemDescription(
 }
 
 const SINGLE_ITEM_PLANNING_IDS = [
-  ODEBRECHT_MAINTENANCE,
-  DERCO_WARRANTY,
-  INTERNAL_WORKSHOP,
+  ODEBRECHT_MAINTENANCE_ID,
+  DERCO_WARRANTY_ID,
+  INTERNAL_WORKSHOP_ID,
 ];
 
 export default function DirectInvoiceForm({
@@ -106,7 +106,7 @@ export default function DirectInvoiceForm({
     typePlanningId !== undefined &&
     SINGLE_ITEM_PLANNING_IDS.includes(typePlanningId);
 
-  // Estado editable del ítem único (para modos ODEBRECHT_MAINTENANCE, DERCO_WARRANTY, INTERNAL_WORKSHOP)
+  // Estado editable del ítem único (para modos ODEBRECHT_MAINTENANCE_ID, DERCO_WARRANTY_ID, INTERNAL_WORKSHOP_ID)
   const [singleItemText, setSingleItemText] = useState("");
   const [singleItemDraft, setSingleItemDraft] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -138,16 +138,16 @@ export default function DirectInvoiceForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workOrderIdsKey, isSingleItemMode, typePlanningId]);
 
-  // Cuando cambia la fecha de emisión en modo DERCO_WARRANTY, actualizar el texto por defecto
+  // Cuando cambia la fecha de emisión en modo DERCO_WARRANTY_ID, actualizar el texto por defecto
   // solo si el usuario no lo ha editado manualmente todavía
   const prevEmisionDate = useRef(emisionDate);
   useEffect(() => {
-    if (typePlanningId !== DERCO_WARRANTY) return;
+    if (typePlanningId !== DERCO_WARRANTY_ID) return;
     if (prevEmisionDate.current === emisionDate) return;
     prevEmisionDate.current = emisionDate;
     if (!singleItemInitialized.current) return;
     const text = buildDefaultSingleItemDescription(
-      DERCO_WARRANTY,
+      DERCO_WARRANTY_ID,
       workOrders,
       emisionDate,
     );

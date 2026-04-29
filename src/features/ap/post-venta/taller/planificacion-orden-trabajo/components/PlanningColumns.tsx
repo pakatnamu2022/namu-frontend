@@ -84,7 +84,7 @@ export const planningColumns = ({
   },
   {
     accessorKey: "estimated_hours",
-    header: "Hrs Est.",
+    header: "Hrs Programadas",
     cell: ({ row }) => {
       const hours = row.original.estimated_hours;
       return (

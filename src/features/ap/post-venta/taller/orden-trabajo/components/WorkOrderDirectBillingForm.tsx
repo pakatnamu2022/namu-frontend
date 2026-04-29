@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Receipt } from "lucide-react";
-import { useWorkOrdersByIds } from "../../lib/workOrder.hook";
+import { useWorkOrdersByIds } from "../lib/workOrder.hook";
 import {
   ElectronicDocumentSchema,
   ElectronicDocumentSchema as ElectronicDocumentSchemaType,
@@ -17,13 +17,13 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { storeConsolidatedInvoice } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import DirectInvoiceForm from "../DirectInvoiceForm";
+import DirectInvoiceForm from "./DirectInvoiceForm";
 import { errorToast, successToast } from "@/core/core.function";
 import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_TRANSACTIONS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { IGV } from "@/core/core.constants";
 
@@ -31,7 +31,7 @@ interface DirectBillingTabProps {
   workOrderIds: number[];
 }
 
-export default function DirectBillingTab({
+export default function WorkOrderDirectBillingForm({
   workOrderIds,
 }: DirectBillingTabProps) {
   const queryClient = useQueryClient();
@@ -47,7 +47,7 @@ export default function DirectBillingTab({
   useEffect(() => {
     if (isError) {
       errorToast("Todas las órdenes deben tener la misma moneda");
-      navigate(-1);
+      navigate("/ap/post-venta/caja/orden-trabajo-taller-caja");
     }
   }, [isError, navigate]);
 
@@ -206,6 +206,7 @@ export default function DirectBillingTab({
 
   const handleCancel = () => {
     form.reset();
+    navigate("/ap/post-venta/caja/orden-trabajo-taller-caja");
   };
 
   if (isLoading) {

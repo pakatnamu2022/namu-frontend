@@ -10,7 +10,6 @@ import {
   Wrench,
   ClipboardCheck,
   FolderOpen,
-  Receipt,
   UserCog,
   Package,
   FileText,
@@ -31,7 +30,6 @@ import {
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
-import BillingTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/BillingTab";
 import OperatorsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OperatorsTab";
 import PartsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/PartsTab";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
@@ -298,16 +296,6 @@ export default function ManageWorkOrderPage() {
                     </TabsTrigger>
                   </>
                 )}
-                {permissions.canBill && (
-                  <TabsTrigger
-                    value="billing"
-                    className="flex items-center gap-2 whitespace-nowrap"
-                  >
-                    <Receipt className="h-4 w-4 shrink-0" />
-                    <span className="hidden sm:inline">Facturación</span>
-                    <span className="sm:hidden">Factura</span>
-                  </TabsTrigger>
-                )}
               </TabsList>
             </div>
 
@@ -330,10 +318,6 @@ export default function ManageWorkOrderPage() {
 
               <TabsContent value="parts" className="space-y-4">
                 <PartsTab workOrderId={workOrder.id} />
-              </TabsContent>
-
-              <TabsContent value="billing" className="space-y-4">
-                <BillingTab workOrderId={workOrder.id} />
               </TabsContent>
             </div>
           </Tabs>
