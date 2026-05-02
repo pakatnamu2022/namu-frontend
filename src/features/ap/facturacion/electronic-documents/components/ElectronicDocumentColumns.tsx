@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import {
   FileText,
   Send,
@@ -15,6 +15,7 @@ import {
   ArrowRightLeft,
   BookCheck,
   BookX,
+  LucideIcon,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -56,55 +57,6 @@ export const electronicDocumentColumns = ({
   // Determinar la ruta según el módulo
 
   return [
-    {
-      accessorKey: "status",
-      header: "Estado",
-      cell: ({ getValue }) => {
-        const value = getValue() as string;
-        const statusConfig = {
-          draft: {
-            label: "Borrador",
-            icon: FileText,
-            className: "bg-gray-100 text-gray-700 border-gray-300",
-          },
-          sent: {
-            label: "Enviado",
-            icon: Send,
-            className: "bg-blue-100 text-blue-700 border-blue-300",
-          },
-          accepted: {
-            label: "Aceptado",
-            icon: CheckCircle,
-            className: "bg-green-100 text-green-700 border-green-300",
-          },
-          rejected: {
-            label: "Rechazado",
-            icon: XCircle,
-            className: "bg-red-100 text-red-700 border-red-300",
-          },
-          cancelled: {
-            label: "Anulado",
-            icon: Ban,
-            className: "bg-orange-100 text-orange-700 border-orange-300",
-          },
-        };
-
-        const config =
-          statusConfig[value as keyof typeof statusConfig] ||
-          statusConfig.draft;
-        const Icon = config.icon;
-
-        return (
-          <Badge
-            variant="outline"
-            className={`${config.className} flex items-center gap-1 w-fit`}
-            icon={Icon}
-          >
-            <span>{config.label}</span>
-          </Badge>
-        );
-      },
-    },
     {
       accessorKey: "documentType",
       header: "Tipo",
@@ -204,8 +156,61 @@ export const electronicDocumentColumns = ({
       },
     },
     {
+      accessorKey: "status",
+      header: "Estado",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        const statusConfig: Record<
+          string,
+          { label: string; icon: LucideIcon; color: BadgeColor }
+        > = {
+          draft: {
+            label: "Borrador",
+            icon: FileText,
+            color: "gray",
+          },
+          sent: {
+            label: "Enviado",
+            icon: Send,
+            color: "blue",
+          },
+          accepted: {
+            label: "Aceptado",
+            icon: CheckCircle,
+            color: "green",
+          },
+          rejected: {
+            label: "Rechazado",
+            icon: XCircle,
+            color: "red",
+          },
+          cancelled: {
+            label: "Anulado",
+            icon: Ban,
+            color: "orange",
+          },
+        };
+
+        const config =
+          statusConfig[value as keyof typeof statusConfig] ||
+          statusConfig.draft;
+        const Icon = config.icon;
+
+        return (
+          <Badge
+            variant="outline"
+            className={`flex items-center gap-1 w-fit`}
+            color={config.color}
+            icon={Icon}
+          >
+            <span>{config.label}</span>
+          </Badge>
+        );
+      },
+    },
+    {
       accessorKey: "aceptada_por_sunat",
-      header: "SUNAT",
+      header: "Aceptado",
       cell: ({ row }) => {
         const aceptada = row.original.aceptada_por_sunat;
         const sunat_description = row.original.sunat_description;
@@ -218,7 +223,7 @@ export const electronicDocumentColumns = ({
               tooltip={sunat_description}
               icon={CheckCircle}
             >
-              <span>Aceptado</span>
+              <span>SI</span>
             </Badge>
           );
         } else if (aceptada === false) {
@@ -229,7 +234,7 @@ export const electronicDocumentColumns = ({
               tooltip={sunat_description}
               icon={XCircle}
             >
-              <span>Rechazado</span>
+              <span>NO</span>
             </Badge>
           );
         }
@@ -246,8 +251,39 @@ export const electronicDocumentColumns = ({
       },
     },
     {
+      accessorKey: "migration_status",
+      header: "Migración",
+      cell: ({ getValue }) => {
+        return <MigrationStatusBadge migration_status={getValue() as string} />;
+      },
+    },
+    {
+      accessorKey: "is_accounted",
+      header: "Contabilizado",
+      cell: ({ row }) => {
+        const was_migrated = row.original.migration_status === "completed";
+        const value = row.original.is_accounted;
+        if (value === true) {
+          return (
+            <Badge variant="outline" color="green" icon={BookCheck}>
+              <span>SI</span>
+            </Badge>
+          );
+        }
+        return (
+          <Badge
+            color={was_migrated ? "orange" : "gray"}
+            variant="outline"
+            icon={BookX}
+          >
+            <span>{was_migrated ? "NO" : "NO"}</span>
+          </Badge>
+        );
+      },
+    },
+    {
       accessorKey: "anulado",
-      header: "Anulado SUNAT",
+      header: "Anulado",
       cell: ({ row }) => {
         const anulado = row.original.anulado;
         const status = row.original.status;
@@ -259,7 +295,7 @@ export const electronicDocumentColumns = ({
             tooltip={"Documento anulado en SUNAT"}
             icon={XCircle}
           >
-            <span>Anulado</span>
+            <span>SI</span>
           </Badge>
         ) : status === "cancelled" ? (
           <Badge
@@ -267,7 +303,7 @@ export const electronicDocumentColumns = ({
             variant="outline"
             className="text-muted-foreground"
           >
-            Pendiente
+            NO
           </Badge>
         ) : (
           <Badge
@@ -276,45 +312,15 @@ export const electronicDocumentColumns = ({
             tooltip={"Documento no anulado"}
             icon={CheckCircle}
           >
-            <span>No Anulado</span>
+            <span>NO</span>
           </Badge>
         );
       },
     },
-    {
-      accessorKey: "is_accounted",
-      header: "Contabilización",
-      cell: ({ row }) => {
-        const was_migrated = row.original.migration_status === "completed";
-        const value = row.original.is_accounted;
-        if (value === true) {
-          return (
-            <Badge variant="outline" color="green" icon={BookCheck}>
-              <span>Contabilizado</span>
-            </Badge>
-          );
-        }
-        return (
-          <Badge
-            color={was_migrated ? "orange" : "gray"}
-            variant="outline"
-            icon={BookX}
-          >
-            <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "migration_status",
-      header: "Estado Migración",
-      cell: ({ getValue }) => {
-        return <MigrationStatusBadge migration_status={getValue() as string} />;
-      },
-    },
+
     {
       accessorKey: "is_annulled",
-      header: "Anulado Dynamics",
+      header: "Anulado Dyn",
       cell: ({ getValue }) => {
         const value = getValue() as boolean | undefined;
         if (value === true) {
@@ -341,6 +347,14 @@ export const electronicDocumentColumns = ({
             {value === AREA_COMERCIAL ? "Comercial" : "Posventa"}
           </Badge>
         );
+      },
+    },
+    {
+      accessorKey: "sede",
+      header: "Sede",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return <Badge variant="outline">{value}</Badge>;
       },
     },
     {

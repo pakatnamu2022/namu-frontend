@@ -3,6 +3,7 @@ import { DOCUMENT_STATUS } from "../lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { AREA_OPTIONS } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 
 interface Props {
   search: string;
@@ -14,6 +15,9 @@ interface Props {
   documentTypeFilter: string;
   setDocumentTypeFilter: (value: string) => void;
   documentTypes: SunatConceptsResource[];
+  sedes?: SedeResource[];
+  sedeId?: string;
+  setSedeId?: (value: string) => void;
 }
 
 export default function ElectronicDocumentOptions({
@@ -26,6 +30,9 @@ export default function ElectronicDocumentOptions({
   documentTypeFilter,
   setDocumentTypeFilter,
   documentTypes = [],
+  sedes,
+  sedeId,
+  setSedeId,
 }: Props) {
   return (
     <div className="flex items-end gap-4 flex-wrap">
@@ -36,6 +43,20 @@ export default function ElectronicDocumentOptions({
           placeholder="Buscar por cliente, serie, número..."
         />
       </div>
+
+      {sedes && setSedeId && (
+        <SearchableSelect
+          options={sedes.map((item) => ({
+            value: item.id.toString(),
+            label: item.abreviatura,
+          }))}
+          value={sedeId ?? ""}
+          onChange={setSedeId}
+          placeholder="Filtrar por sede"
+          className="min-w-56"
+          classNameOption="text-xs"
+        />
+      )}
 
       {setStatusFilter && (
         <SearchableSelect
