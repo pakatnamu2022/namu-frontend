@@ -23,11 +23,13 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import ElectronicDocumentActions from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 
 export default function ElectronicDocumentsPage() {
   const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -39,14 +41,17 @@ export default function ElectronicDocumentsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, statusFilter, documentTypeFilter]);
+  }, [search, per_page, statusFilter, documentTypeFilter, sedeId]);
 
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
@@ -57,6 +62,7 @@ export default function ElectronicDocumentsPage() {
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
+    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
@@ -176,6 +182,9 @@ export default function ElectronicDocumentsPage() {
           documentTypeFilter={documentTypeFilter}
           setDocumentTypeFilter={setDocumentTypeFilter}
           documentTypes={documentTypes || []}
+          sedes={sedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </ElectronicDocumentTable>
 

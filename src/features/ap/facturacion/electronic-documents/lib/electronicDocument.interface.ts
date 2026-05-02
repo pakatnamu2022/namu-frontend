@@ -27,6 +27,7 @@ export interface ElectronicDocumentResource {
   sunat_concept_document_type_id: number;
   series_id: number;
   serie: string;
+  sede: string;
   numero: number;
   full_number: string;
   sunat_concept_transaction_type_id: number;
