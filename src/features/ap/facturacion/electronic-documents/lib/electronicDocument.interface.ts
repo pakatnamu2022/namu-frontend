@@ -120,7 +120,7 @@ export interface ElectronicDocumentResource {
   card_last4: string;
   internal_note: string;
   is_referenced?: boolean;
-  consolidation_type: "work_orders" | "simple";
+  consolidation_type: "massive" | "simple";
   document_type?: SunatConceptsResource;
   transaction_type?: SunatConceptsResource;
   identity_document_type?: SunatConceptsResource;

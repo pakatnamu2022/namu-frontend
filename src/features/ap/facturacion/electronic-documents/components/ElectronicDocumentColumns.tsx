@@ -506,7 +506,7 @@ export const electronicDocumentColumns = ({
             )}
 
             {/* Work Orders */}
-            {document.consolidation_type === "work_orders" && (
+            {document.consolidation_type === "massive" && (
               <WorkOrdersSheet documentId={document.id} />
             )}
 
