@@ -583,7 +583,7 @@ export default function DeclaracionJuradaKycForm({
                     ? (e: React.ChangeEvent<HTMLInputElement>) => {
                         e.target.value = e.target.value.replace(/\D/g, "");
                       }
-                    : undefined
+                    : undefined 
                 }
                 addonEnd={
                   <ValidationIndicator
