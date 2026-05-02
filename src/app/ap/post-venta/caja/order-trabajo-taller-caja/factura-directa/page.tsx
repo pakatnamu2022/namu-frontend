@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
-import DirectBillingTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/DirectBillingTab";
 import TitleComponent from "@/shared/components/TitleComponent";
+import WorkOrderDirectBillingForm from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderDirectBillingForm";
 
 export default function DirectInvoicePage() {
   const [searchParams] = useSearchParams();
@@ -46,7 +46,7 @@ export default function DirectInvoicePage() {
         </div>
 
         {/* Una única factura para todas las OTs */}
-        <DirectBillingTab workOrderIds={ids} />
+        <WorkOrderDirectBillingForm workOrderIds={ids} />
       </div>
     </WorkOrderProvider>
   );
