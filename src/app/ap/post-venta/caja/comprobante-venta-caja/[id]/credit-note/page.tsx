@@ -17,6 +17,7 @@ import {
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
 import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 export default function AddCreditNoteCajaPage() {
   const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
@@ -98,6 +99,7 @@ export default function AddCreditNoteCajaPage() {
         originalDocument={originalDocument}
         onSubmit={handleSubmit}
         isPending={isPending}
+        type_operation_id={CM_POSTVENTA_ID}
       />
     </FormWrapper>
   );

@@ -47,12 +47,14 @@ import { format } from "date-fns";
 import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
 import { ACP_TYPE_CREDIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { FormTextArea } from "@/shared/components/FormTextArea";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface CreditNoteFormProps {
   creditNote?: ElectronicDocumentResource;
   originalDocument: ElectronicDocumentResource;
   onSubmit: (data: CreditNoteSchema) => void;
   isPending: boolean;
+  type_operation_id?: number;
 }
 
 export function CreditNoteForm({
@@ -60,6 +62,7 @@ export function CreditNoteForm({
   originalDocument,
   onSubmit,
   isPending,
+  type_operation_id = CM_COMERCIAL_ID,
 }: CreditNoteFormProps) {
   const [nextNumber, setNextNumber] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -74,6 +77,7 @@ export function CreditNoteForm({
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: TYPE_RECEIPT_SERIES.NOTA_CREDITO,
     sede_id: originalDocument.sede_id,
+    type_operation_id,
   });
 
   const { data: allAccountingPlans = [] } = useAllAccountingAccountPlan({
