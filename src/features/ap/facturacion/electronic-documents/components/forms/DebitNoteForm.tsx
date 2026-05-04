@@ -91,6 +91,7 @@ export function DebitNoteForm({
 
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: TYPE_RECEIPT_SERIES.NOTA_DEBITO,
+    sede_id: originalDocument.sede_id,
   });
 
   const selectedCustomer = customers.find(
@@ -99,8 +100,7 @@ export function DebitNoteForm({
   const porcentaje_de_igv =
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
-  const currency =
-    originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
+  const currency = originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
 
   const form = useForm<DebitNoteSchema>({
     resolver: zodResolver(DebitNoteSchema as any),

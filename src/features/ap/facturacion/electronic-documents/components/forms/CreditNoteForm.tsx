@@ -33,8 +33,6 @@ import {
 } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
@@ -48,6 +46,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
 import { ACP_TYPE_CREDIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface CreditNoteFormProps {
   creditNote?: ElectronicDocumentResource;
@@ -74,6 +73,7 @@ export function CreditNoteForm({
 
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: TYPE_RECEIPT_SERIES.NOTA_CREDITO,
+    sede_id: originalDocument.sede_id,
   });
 
   const { data: allAccountingPlans = [] } = useAllAccountingAccountPlan({
@@ -93,7 +93,8 @@ export function CreditNoteForm({
       series: creditNote?.series_id?.toString() || "",
       observaciones: creditNote?.observaciones || "",
       discount_amount: creditNote?.items?.[0]?.total ?? undefined,
-      account_plan_id: creditNote?.items?.[0]?.account_plan_id?.toString() ?? undefined,
+      account_plan_id:
+        creditNote?.items?.[0]?.account_plan_id?.toString() ?? undefined,
       detail_ids: [],
     },
     mode: "onChange",
@@ -277,31 +278,20 @@ export function CreditNoteForm({
               )}
 
               <div className="space-y-2 col-span-2">
-                <Label>
-                  Observaciones <span className="text-red-500">*</span>
-                </Label>
-                <Textarea
+                <FormTextArea
+                  name="observaciones"
+                  control={form.control}
+                  label="Observaciones"
                   placeholder="Ej: Cliente solicitó anulación por error en pedido"
                   rows={4}
                   maxLength={250}
-                  className="resize-none"
-                  {...form.register("observaciones")}
+                  description={`${observaciones.length}/250 caracteres${
+                    observaciones.length > 0 && observaciones.length < 10
+                      ? " (mínimo 10 caracteres)"
+                      : ""
+                  }`}
+                  required
                 />
-                <div className="flex justify-between items-center text-xs text-muted-foreground">
-                  <span>
-                    {observaciones.length}/250 caracteres
-                    {observaciones.length > 0 && observaciones.length < 10 && (
-                      <span className="text-orange-600 ml-2">
-                        (mínimo 10 caracteres)
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {form.formState.errors.observaciones && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.observaciones.message}
-                  </p>
-                )}
               </div>
             </GroupFormSection>
 
