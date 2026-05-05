@@ -23,14 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import {
-  FileText,
-  Loader,
-  Package,
-  Calculator,
-  Copy,
-  Check,
-} from "lucide-react";
+import { FileText, Loader, Package, Calculator } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
@@ -59,6 +52,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -155,7 +149,6 @@ export const PurchaseOrderProductsForm = ({
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   // Watch con suscripción completa al formulario
@@ -287,16 +280,6 @@ export const PurchaseOrderProductsForm = ({
   // const handleRemoveItem = (index: number) => {
   //   remove(index);
   // };
-
-  const handleCopyCode = async (code: string, index: number) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
 
   const handleSubmit = (data: any) => {
     // Transformar fechas a formato Y-m-d antes de enviar
@@ -637,29 +620,11 @@ export const PurchaseOrderProductsForm = ({
                               />
                               {currentItem?.product_code && (
                                 <div className="flex items-center gap-2 px-2 py-1.5">
-                                  <span className="text-xs font-mono text-slate-700">
-                                    Código: {currentItem.product_code}
-                                  </span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 hover:bg-slate-200"
-                                    onClick={() => {
-                                      if (currentItem.product_code) {
-                                        handleCopyCode(
-                                          currentItem.product_code,
-                                          index,
-                                        );
-                                      }
-                                    }}
-                                  >
-                                    {copiedIndex === index ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
+                                  <CopyCell
+                                    className="text-xs font-mono text-slate-700"
+                                    value={currentItem.product_code}
+                                    label={`Cód: ${currentItem.product_code}`}
+                                  />
                                 </div>
                               )}
                             </div>

@@ -8,14 +8,12 @@ import {
   Trash2,
   Package,
   Loader2,
-  Copy,
   PackagePlus,
   Pencil,
   Tag,
   Percent,
   CheckCircle,
   XCircle,
-  Check,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -55,6 +53,7 @@ import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { EditableCell } from "@/shared/components/EditableCell";
+import { CopyCell } from "@/shared/components/CopyCell";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
@@ -1053,52 +1052,21 @@ export default function ProductDetailsSection({
                           {detail.description}
                         </p>
                         {detail.product?.code && (
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono px-2 py-0.5 rounded">
-                              Cód: {detail.product.code}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                              onClick={() =>
-                                handleCopyCode(
-                                  detail.product?.code || "",
-                                  `detail-${detail.id}-code`,
-                                )
-                              }
-                            >
-                              {copiedCodeKey === `detail-${detail.id}-code` ? (
-                                <Check className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <Copy className="h-3 w-3" />
-                              )}
-                            </Button>
+                          <div className="mb-1">
+                            <CopyCell
+                              value={detail.product.code}
+                              label={`Cód: ${detail.product.code}`}
+                              className="text-xs font-mono px-2 py-0.5 rounded"
+                            />
                           </div>
                         )}
                         {detail.product?.dyn_code && (
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono px-2 py-0.5 rounded">
-                              Cód Dyn: {detail.product.dyn_code}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                              onClick={() =>
-                                handleCopyCode(
-                                  detail.product?.dyn_code || "",
-                                  `detail-${detail.id}-dyn-code`,
-                                )
-                              }
-                            >
-                              {copiedCodeKey ===
-                              `detail-${detail.id}-dyn-code` ? (
-                                <Check className="h-3 w-3 text-green-600" />
-                              ) : (
-                                <Copy className="h-3 w-3" />
-                              )}
-                            </Button>
+                          <div className="mb-1">
+                            <CopyCell
+                              value={detail.product.dyn_code}
+                              label={`Cód Dyn: ${detail.product.dyn_code}`}
+                              className="text-xs font-mono px-2 py-0.5 rounded"
+                            />
                           </div>
                         )}
                         {detail.observations && (
@@ -1285,28 +1253,11 @@ export default function ProductDetailsSection({
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           {detail.product?.code && (
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                                {detail.product.code}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                onClick={() =>
-                                  handleCopyCode(
-                                    detail.product?.code || "",
-                                    `mobile-detail-${detail.id}-code`,
-                                  )
-                                }
-                              >
-                                {copiedCodeKey ===
-                                `mobile-detail-${detail.id}-code` ? (
-                                  <Check className="h-3 w-3 text-green-600" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </Button>
+                            <div className="mb-1">
+                              <CopyCell
+                                value={detail.product.code}
+                                className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                              />
                             </div>
                           )}
                           <p className="text-sm font-medium text-gray-900">

@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Package,
-  CheckCircle2,
-  Loader2,
-  Copy,
-  Check,
-} from "lucide-react";
+import { ArrowLeft, Package, CheckCircle2, Loader2 } from "lucide-react";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -26,6 +19,7 @@ import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/c
 import { getAllOrderQuotationDetails } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.actions.ts";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
 import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export default function AprobacionProductosPage() {
   const params = useParams();
@@ -40,8 +34,6 @@ export default function AprobacionProductosPage() {
     OrderQuotationDetailsResource[]
   >([]);
 
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [confirmChief, setConfirmChief] = useState(false);
   const [confirmManager, setConfirmManager] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -96,24 +88,6 @@ export default function AprobacionProductosPage() {
     }
   };
 
-  const handleCopyCode = async (
-    code: string,
-    field: string,
-    index?: number,
-  ) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedField(field);
-      if (index !== undefined) setCopiedIndex(index);
-      setTimeout(() => {
-        setCopiedField(null);
-        setCopiedIndex(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
-
   const formatCurrency = (amount: number) => {
     const symbol = quotation?.type_currency?.symbol || "S/.";
     return `${symbol} ${Number(amount || 0).toFixed(2)}`;
@@ -161,24 +135,10 @@ export default function AprobacionProductosPage() {
             Cotización
           </span>
           <div className="flex items-center gap-1">
-            <span className="text-sm font-bold text-gray-900">
-              {quotation.quotation_number}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-5 w-5 p-0 text-gray-400 hover:text-gray-700 hover:bg-gray-100"
-              onClick={() =>
-                handleCopyCode(quotation.quotation_number, "quotation_number")
-              }
-            >
-              {copiedField === "quotation_number" ? (
-                <Check className="h-3 w-3 text-green-600" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
-            </Button>
+            <CopyCell
+              className="text-sm font-bold text-gray-900"
+              value={quotation.quotation_number}
+            />
           </div>
         </div>
 
@@ -250,7 +210,7 @@ export default function AprobacionProductosPage() {
 
             {/* Filas */}
             <div className="divide-y">
-              {productDetails.map((detail, index) => (
+              {productDetails.map((detail) => (
                 <div key={detail.id}>
                   {/* Desktop */}
                   <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
@@ -265,29 +225,11 @@ export default function AprobacionProductosPage() {
                       )}
                       {detail.product?.code && (
                         <div className="flex items-center gap-1 mb-0.5">
-                          <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                            {detail.product.code}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-5 w-5 p-0 hover:bg-slate-200"
-                            onClick={() =>
-                              handleCopyCode(
-                                detail.product!.code,
-                                "product_code",
-                                index,
-                              )
-                            }
-                          >
-                            {copiedIndex === index &&
-                            copiedField === "product_code" ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3 text-gray-400" />
-                            )}
-                          </Button>
+                          <CopyCell
+                            className="text-xs font-mono"
+                            value={detail.product.code}
+                            label={`Cód: ${detail.product.code}`}
+                          />
                         </div>
                       )}
                     </div>
@@ -321,31 +263,11 @@ export default function AprobacionProductosPage() {
                   <div className="md:hidden px-4 py-3 space-y-1">
                     <div className="flex items-center gap-2">
                       {detail.product?.code && (
-                        <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                          {detail.product.code}
-                        </span>
-                      )}
-                      {detail.product?.code && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-5 w-5 p-0 hover:bg-slate-200"
-                          onClick={() =>
-                            handleCopyCode(
-                              detail.product!.code,
-                              "product_code_mobile",
-                              index,
-                            )
-                          }
-                        >
-                          {copiedIndex === index &&
-                          copiedField === "product_code_mobile" ? (
-                            <Check className="h-3 w-3 text-green-600" />
-                          ) : (
-                            <Copy className="h-3 w-3 text-gray-400" />
-                          )}
-                        </Button>
+                        <CopyCell
+                          className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                          value={detail.product.code}
+                          label={`Cód: ${detail.product.code}`}
+                        />
                       )}
                     </div>
                     <p className="text-sm font-medium text-gray-900">

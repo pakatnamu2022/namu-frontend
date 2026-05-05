@@ -1,16 +1,8 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useState } from "react";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  SUCCESS_MESSAGE,
-  successToast,
-} from "@/core/core.function.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import NotFound from "@/app/not-found.tsx";
@@ -23,12 +15,10 @@ import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card.tsx";
 import { TRANSFER_RECEPTION } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
-import { deleteTransferReception } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.actions.ts";
 
 export default function TransferReceptionsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE_ADD } = TRANSFER_RECEPTION;
+  const { ROUTE_ADD } = TRANSFER_RECEPTION;
   const permissions = useModulePermissions("guia-remision");
   const navigate = useNavigate();
   const { productTransferId } = useParams<{ productTransferId: string }>();
@@ -39,24 +29,10 @@ export default function TransferReceptionsPage() {
   const { data: productTransfer, isLoading: isLoadingTransfer } =
     useProductTransferById(productTransferIdNum || 0);
 
-  const { data, isLoading, refetch } = useAllTransferReceptions(
+  const { data, isLoading } = useAllTransferReceptions(
     {},
     productTransferIdNum,
   );
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await deleteTransferReception(deleteId);
-      await refetch();
-      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
-    } finally {
-      setDeleteId(null);
-    }
-  };
 
   const handleBack = () => {
     navigate("/ap/post-venta/gestion-de-almacen/guia-remision");
@@ -128,25 +104,8 @@ export default function TransferReceptionsPage() {
       <TransferReceptionsTable
         isLoading={isLoading}
         data={data!}
-        customContent={
-          <TransferReceptionsCards
-            data={data!}
-            onDelete={setDeleteId}
-            permissions={{
-              canUpdate: permissions.canUpdate,
-              canDelete: permissions.canDelete,
-            }}
-          />
-        }
+        customContent={<TransferReceptionsCards data={data!} />}
       ></TransferReceptionsTable>
-
-      {deleteId !== null && (
-        <SimpleDeleteDialog
-          open={true}
-          onOpenChange={(open) => !open && setDeleteId(null)}
-          onConfirm={handleDelete}
-        />
-      )}
     </div>
   );
 }

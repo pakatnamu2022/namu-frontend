@@ -10,50 +10,25 @@ import {
   ArrowRightLeft,
   Warehouse,
   Tag,
-  Copy,
-  Check,
   CheckCircle2,
 } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Button } from "@/components/ui/button.tsx";
 import { TransferReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.interface.ts";
 import {
   translateStatusTransfer,
   translateReasonObservation,
 } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
-import { useState } from "react";
+import { CopyCell } from "@/shared/components/CopyCell.tsx";
 
 interface TransferReceptionsCardsProps {
   data: TransferReceptionResource[];
-  onDelete: (id: number) => void;
-  permissions: {
-    canUpdate: boolean;
-    canDelete: boolean;
-  };
 }
 
 export default function TransferReceptionsCards({
   data,
-  onDelete,
-  permissions,
 }: TransferReceptionsCardsProps) {
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
-
-  const handleCopyCode = async (code: string, identifier: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCode(identifier);
-      setTimeout(() => {
-        setCopiedCode(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
-
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -130,11 +105,6 @@ export default function TransferReceptionsCards({
                   >
                     Movimiento: {movement?.movement_number || "-"}
                   </p>
-                </div>
-                <div className="flex gap-2">
-                  {permissions.canDelete && (
-                    <DeleteButton onClick={() => onDelete(reception.id)} />
-                  )}
                 </div>
               </div>
 
@@ -405,7 +375,7 @@ export default function TransferReceptionsCards({
                         isSingleCard ? "text-sm" : "text-xs"
                       }`}
                     >
-                      Productos Recepcionados ({reception.details.length})
+                      Repuestos Recepcionados ({reception.details.length})
                     </p>
                   </div>
                   <div
@@ -413,7 +383,7 @@ export default function TransferReceptionsCards({
                       isSingleCard ? "max-h-80" : "max-h-64"
                     } overflow-y-auto pr-1`}
                   >
-                    {reception.details.map((detail, idx) => (
+                    {reception.details.map((detail) => (
                       <div
                         key={detail.id}
                         className={`p-3 rounded-lg border bg-card ${
@@ -427,73 +397,37 @@ export default function TransferReceptionsCards({
                                 isSingleCard ? "text-base" : "text-sm"
                               }`}
                             >
-                              {detail.product?.name || "Producto sin nombre"}
+                              {detail.product?.name || "Repuesto sin nombre"}
                             </p>
                             <div className="flex items-center gap-2 mt-1 flex-wrap">
                               {detail.product?.code && (
-                                <div className="flex items-center gap-1">
-                                  <Badge
-                                    variant="outline"
-                                    className={
-                                      isSingleCard ? "text-xs" : "text-[10px]"
-                                    }
-                                  >
-                                    <Tag className="size-3 mr-1" />
-                                    Cód: {detail.product.code}
-                                  </Badge>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 hover:bg-slate-200"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        detail.product!.code,
-                                        `product-${reception.id}-${idx}`,
-                                      )
-                                    }
-                                  >
-                                    {copiedCode ===
-                                    `product-${reception.id}-${idx}` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
-                                </div>
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isSingleCard ? "text-xs" : "text-[10px]"
+                                  }
+                                >
+                                  <Tag className="size-3 mr-1" />
+                                  <CopyCell
+                                    value={detail.product.code}
+                                    label={`Cód: ${detail.product.code}`}
+                                  />
+                                </Badge>
                               )}
 
-                              {detail.product?.code && (
-                                <div className="flex items-center gap-1">
-                                  <Badge
-                                    variant="outline"
-                                    className={
-                                      isSingleCard ? "text-xs" : "text-[10px]"
-                                    }
-                                  >
-                                    <Tag className="size-3 mr-1" />
-                                    {detail.product.dyn_code}
-                                  </Badge>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 hover:bg-slate-200"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        detail.product!.dyn_code,
-                                        `product-dyn-${reception.id}-${idx}`,
-                                      )
-                                    }
-                                  >
-                                    {copiedCode ===
-                                    `product-dyn-${reception.id}-${idx}` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
-                                </div>
+                              {detail.product?.dyn_code && (
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isSingleCard ? "text-xs" : "text-[10px]"
+                                  }
+                                >
+                                  <Tag className="size-3 mr-1" />
+                                  <CopyCell
+                                    value={detail.product.dyn_code}
+                                    label={`Cód Dyn: ${detail.product.dyn_code}`}
+                                  />
+                                </Badge>
                               )}
                             </div>
                           </div>

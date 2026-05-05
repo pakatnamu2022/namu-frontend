@@ -30,8 +30,9 @@ import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/l
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { Card } from "@/components/ui/card.tsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge.tsx";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { OBSERVATION_REASONS } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.constants.ts";
 
@@ -112,13 +113,29 @@ export const TransferReceptionForm = ({
     }
   }, [mode, productTransferItems, fields.length, form]);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<any>(null);
+
+  const handlePreSubmit = (data: any) => {
+    setPendingData(data);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (pendingData) onSubmit(pendingData);
+    setConfirmOpen(false);
+  };
+
   if (isLoadingWarehouses) {
     return <FormSkeleton />;
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
+      <form
+        onSubmit={form.handleSubmit(handlePreSubmit)}
+        className="space-y-6 w-full"
+      >
         {/* Información de Recepción */}
         <GroupFormSection
           title="Información de Recepción"
@@ -537,19 +554,31 @@ export const TransferReceptionForm = ({
             Cancelar
           </Button>
 
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting ||
-              (mode === "create" && !form.formState.isValid) ||
-              (mode === "update" && !form.formState.isDirty)
+          <ConfirmationDialog
+            open={confirmOpen}
+            onOpenChange={setConfirmOpen}
+            title="Confirmar guardado"
+            description="Esta información será migrada a DYNAMICS. ¿Deseas continuar?"
+            confirmText="Sí, guardar"
+            cancelText="No, cancelar"
+            onConfirm={handleConfirm}
+            icon="info"
+            trigger={
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  (mode === "create" && !form.formState.isValid) ||
+                  (mode === "update" && !form.formState.isDirty)
+                }
+              >
+                <Loader
+                  className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
+                />
+                {isSubmitting ? "Guardando" : "Guardar Recepción"}
+              </Button>
             }
-          >
-            <Loader
-              className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
-            />
-            {isSubmitting ? "Guardando" : "Guardar Recepción"}
-          </Button>
+          />
         </div>
       </form>
     </Form>
