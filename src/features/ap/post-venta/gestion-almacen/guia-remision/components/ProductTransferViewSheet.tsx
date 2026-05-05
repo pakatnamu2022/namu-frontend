@@ -10,25 +10,23 @@ import {
   Download,
   QrCode,
   FileCode,
-  Truck,
-  Calendar,
-  Package,
   FileCheck,
-  ClipboardList,
   CheckCircle2,
   XCircle,
   User,
   Building2,
   CreditCard,
-  Copy,
-  Check,
-  Tag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductTransferDetailResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { findProductTransferById } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
-import { useState } from "react";
+import { InfoSection } from "@/shared/components/InfoSection";
+import { CopyCell } from "@/shared/components/CopyCell";
+import {
+  DetailSheetTable,
+  DetailSheetTableColumn,
+} from "@/shared/components/DetailSheetTable";
 
 interface ProductTransferViewSheetProps {
   open: boolean;
@@ -61,13 +59,56 @@ const getStatusBadge = (status: string) => {
   );
 };
 
+const detailColumns: DetailSheetTableColumn<ProductTransferDetailResource>[] = [
+  {
+    header: "#",
+    className: "w-10",
+    render: (_, index) => <span className="font-medium">{index + 1}</span>,
+  },
+  {
+    header: "Repuesto / Servicio",
+    render: (detail) =>
+      detail.product ? (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium text-sm">{detail.product.name}</span>
+          {detail.product.code && (
+            <CopyCell
+              value={detail.product.code}
+              label={`Cód: ${detail.product.code}`}
+              className="text-xs text-muted-foreground"
+            />
+          )}
+          {detail.product.dyn_code && (
+            <CopyCell
+              value={String(detail.product.dyn_code)}
+              label={`Cód Dyn: ${detail.product.dyn_code}`}
+              className="text-xs text-muted-foreground"
+            />
+          )}
+          {detail.notes && (
+            <span className="text-xs text-muted-foreground italic">
+              Nota: {detail.notes}
+            </span>
+          )}
+        </div>
+      ) : (
+        <span className="font-medium text-sm">
+          {detail.notes || "Servicio sin descripción"}
+        </span>
+      ),
+  },
+  {
+    header: "Cantidad",
+    className: "text-center w-24",
+    render: (detail) => <span>{Number(detail.quantity).toFixed(2)}</span>,
+  },
+];
+
 export function ProductTransferViewSheet({
   open,
   onOpenChange,
   transferId,
 }: ProductTransferViewSheetProps) {
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
-
   const { data: transferData, isLoading } = useQuery({
     queryKey: ["product-transfer-detail", transferId],
     queryFn: () => findProductTransferById(transferId),
@@ -77,18 +118,6 @@ export function ProductTransferViewSheet({
   const formatDate = (date: string | null) => {
     if (!date) return "-";
     return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
-  };
-
-  const handleCopyCode = async (code: string, identifier: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCode(identifier);
-      setTimeout(() => {
-        setCopiedCode(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
   };
 
   return (
@@ -108,55 +137,45 @@ export function ProductTransferViewSheet({
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       ) : transferData ? (
-        <div className="space-y-6 mt-6">
-          {/* Información General */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Información General</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">N° Movimiento</p>
-                <p className="font-medium">{transferData.movement_number}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Estado</p>
-                {getStatusBadge(transferData.status)}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Fecha de Movimiento
-                </p>
-                <p className="font-medium">
-                  {format(
-                    new Date(transferData.movement_date),
-                    "dd/MM/yyyy HH:mm",
-                    {
-                      locale: es,
-                    },
-                  )}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Tipo de Movimiento
-                </p>
-                <Badge variant="outline" className="capitalize">
-                  {transferData.movement_type === "TRANSFER_OUT"
-                    ? "Transferencia Salida"
-                    : transferData.movement_type}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Tipo de Ítem</p>
-                <Badge color="secondary" className="capitalize">
-                  {transferData.item_type === "SERVICIO"
-                    ? "Servicio"
-                    : "Producto"}
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
+        <div className="space-y-6 px-6">
+          {/* Información del General */}
+          <InfoSection
+            title="Información General"
+            fields={[
+              {
+                label: "N° Movimiento",
+                value: transferData.movement_number,
+              },
+              {
+                label: "Estado",
+                value: getStatusBadge(transferData.status),
+              },
+              {
+                label: "Fecha de Movimiento",
+                value: formatDate(transferData.movement_date),
+              },
+              {
+                label: "Tipo de Movimiento",
+                value: (
+                  <Badge variant="outline" className="capitalize">
+                    {transferData.movement_type === "TRANSFER_OUT"
+                      ? "Transferencia Salida"
+                      : transferData.movement_type}
+                  </Badge>
+                ),
+              },
+              {
+                label: "Tipo de Ítem",
+                value: (
+                  <Badge color="secondary" className="capitalize">
+                    {transferData.item_type === "SERVICIO"
+                      ? "Servicio"
+                      : "Repuesto"}
+                  </Badge>
+                ),
+              },
+            ]}
+          />
 
           {/* Información de Almacenes */}
           <div className="space-y-4">
@@ -184,118 +203,47 @@ export function ProductTransferViewSheet({
             </div>
           </div>
 
-          <Separator />
-
           {/* Información de la Guía de Remisión */}
           {transferData.reference && (
             <>
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <FileText className="size-5" />
-                  Información de la Guía de Remisión
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <FileCheck className="size-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Número de Documento
-                        </p>
-                        <p className="text-base font-semibold">
-                          {transferData.reference.document_number}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <FileCheck className="size-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Número de Documento Dynamics
-                        </p>
-                        <p className="text-base font-semibold">
-                          {transferData.reference.dyn_series}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <Calendar className="size-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Fecha de Emisión
-                        </p>
-                        <p className="text-base">
-                          {transferData.reference.issue_date
-                            ? format(
-                                new Date(transferData.reference.issue_date),
-                                "dd/MM/yyyy",
-                                { locale: es },
-                              )
-                            : "-"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {transferData.reference.transfer_reason_description && (
-                      <div className="flex items-start gap-2">
-                        <ClipboardList className="size-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Motivo de Traslado
-                          </p>
-                          <p className="text-base">
-                            {transferData.reference.transfer_reason_description}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    {transferData.reference.transfer_modality_description && (
-                      <div className="flex items-start gap-2">
-                        <Truck className="size-5 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Modalidad de Transporte
-                          </p>
-                          <p className="text-base">
-                            {
-                              transferData.reference
-                                .transfer_modality_description
-                            }
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-start gap-2">
-                      <Truck className="size-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Placa
-                        </p>
-                        <p className="text-base font-semibold">
-                          {transferData.reference.plate || "-"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <Package className="size-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Peso Total
-                        </p>
-                        <p className="text-base font-semibold">
-                          {transferData.reference.total_weight} kg
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <InfoSection
+                  title="Información de la Guía de Remisión"
+                  fields={[
+                    {
+                      label: "Número de Documento",
+                      value: transferData.reference.document_number,
+                    },
+                    {
+                      label: "Número de Documento Dynamics",
+                      value: transferData.reference.dyn_series,
+                    },
+                    {
+                      label: "Fecha de Emisión",
+                      value: formatDate(transferData.reference.issue_date),
+                    },
+                    {
+                      label: "Motivo de Traslado",
+                      value:
+                        transferData.reference.transfer_reason_description ||
+                        "-",
+                    },
+                    {
+                      label: "Modalidad de Transporte",
+                      value:
+                        transferData.reference.transfer_modality_description ||
+                        "-",
+                    },
+                    {
+                      label: "Placa",
+                      value: transferData.reference.plate || "-",
+                    },
+                    {
+                      label: "Peso Total",
+                      value: transferData.reference.total_weight,
+                    },
+                  ]}
+                />
 
                 {/* Información del Conductor y Transporte */}
                 {(transferData.reference.driver_name ||
@@ -375,7 +323,7 @@ export function ProductTransferViewSheet({
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <FileCheck className="size-5" />
-                      Estado SUNAT
+                      SUNAT - Estado / Documentos
                     </h3>
                     <div className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <div className="flex items-center justify-between">
@@ -410,8 +358,6 @@ export function ProductTransferViewSheet({
                       </div>
                     </div>
                   </div>
-
-                  <Separator />
                 </>
               )}
 
@@ -420,9 +366,6 @@ export function ProductTransferViewSheet({
                 transferData.reference.is_sunat_registered && (
                   <>
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">
-                        Documentos SUNAT
-                      </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {transferData.reference.enlace_del_pdf && (
                           <Link
@@ -500,137 +443,28 @@ export function ProductTransferViewSheet({
             </>
           )}
 
-          {/* Productos/Servicios Transferidos */}
+          {/* Repuestos/Servicios Transferidos */}
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">
               {transferData.item_type === "SERVICIO"
                 ? "Servicios Transferidos"
-                : "Productos Transferidos"}
+                : "Repuestos Transferidos"}
             </h3>
-            <div className="space-y-3">
-              {transferData.details.map(
-                (detail: ProductTransferDetailResource) => (
-                  <div
-                    key={detail.id}
-                    className="p-3 rounded-lg border bg-card"
-                  >
-                    <div className="flex justify-between items-start gap-3 mb-2">
-                      <div className="flex-1 min-w-0">
-                        {detail.product ? (
-                          <>
-                            <p className="font-semibold text-sm truncate">
-                              {detail.product.name}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              {detail.product.code && (
-                                <div className="flex items-center gap-1">
-                                  <Badge variant="outline" className="text-xs">
-                                    <Tag className="size-3 mr-1" />
-                                    {detail.product.code}
-                                  </Badge>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 hover:bg-slate-200"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        detail.product!.code,
-                                        `product-${detail.id}`,
-                                      )
-                                    }
-                                  >
-                                    {copiedCode === `product-${detail.id}` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
-                                </div>
-                              )}
-                              {detail.product.dyn_code && (
-                                <div className="flex items-center gap-1">
-                                  <Badge variant="outline" className="text-xs">
-                                    <Tag className="size-3 mr-1" />
-                                    Dyn: {detail.product.dyn_code}
-                                  </Badge>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 hover:bg-slate-200"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        String(detail.product!.dyn_code),
-                                        `dyn-${detail.id}`,
-                                      )
-                                    }
-                                  >
-                                    {copiedCode === `dyn-${detail.id}` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                            {detail.product.description && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {detail.product.description}
-                              </p>
-                            )}
-                          </>
-                        ) : (
-                          <p className="font-semibold text-sm">
-                            {detail.notes || "Servicio sin descripción"}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right shrink-0">
-                        <Badge color="default" className="text-xs h-6">
-                          {Number(detail.quantity).toFixed(2)}
-                        </Badge>
-                      </div>
-                    </div>
-                    {detail.notes && detail.product && (
-                      <div className="mt-2 pt-2 border-t">
-                        <p className="text-xs text-muted-foreground">
-                          Nota: {detail.notes}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ),
-              )}
-            </div>
+            <DetailSheetTable
+              rows={transferData.details}
+              columns={detailColumns}
+              getKey={(detail: ProductTransferDetailResource) => detail.id}
+              emptyMessage={
+                transferData.item_type === "SERVICIO"
+                  ? "No hay servicios en esta transferencia"
+                  : "No hay productos en esta transferencia"
+              }
+            />
           </div>
 
-          <Separator />
-
-          {/* Resumen */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Resumen</h3>
-            <div className="grid grid-cols-2 gap-4 border rounded-lg p-4 bg-muted/30">
-              <div>
-                <p className="text-sm text-muted-foreground">Total de Ítems</p>
-                <p className="font-semibold text-lg">
-                  {transferData.total_items}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Cantidad Total</p>
-                <p className="font-semibold text-lg">
-                  {parseFloat(transferData.total_quantity).toFixed(2)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Información Adicional */}
+          {/* Observaciones */}
           {transferData.notes && (
             <>
-              <Separator />
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg">Observaciones</h3>
                 <p className="text-sm border rounded-lg p-3 bg-muted/20">

@@ -4,10 +4,12 @@ import { Check, Copy } from "lucide-react";
 
 interface CopyCellProps {
   value: string;
+  /** Texto que se muestra visualmente. Si se omite, muestra `value`. */
+  label?: string;
   className?: string;
 }
 
-export function CopyCell({ value, className }: CopyCellProps) {
+export function CopyCell({ value, label, className }: CopyCellProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -22,13 +24,14 @@ export function CopyCell({ value, className }: CopyCellProps) {
 
   return (
     <div className="flex items-center gap-1">
-      <span className={className}>{value}</span>
+      <span className={className}>{label ?? value}</span>
       <Button
         type="button"
         variant="ghost"
         size="sm"
         className="h-5 w-5 p-0 hover:bg-slate-200"
         onClick={handleCopy}
+        tooltip="copiar"
       >
         {copied ? (
           <Check className="h-3 w-3 text-green-600" />

@@ -15,8 +15,6 @@ import {
   User,
   Calendar,
   MessageSquare,
-  Check,
-  Copy,
   ShieldCheck,
   Plus,
 } from "lucide-react";
@@ -54,6 +52,7 @@ import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hoo
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -166,8 +165,6 @@ function BillingSheetContent({
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   // Verificar si debe mostrar la sección de firma
@@ -244,26 +241,6 @@ function BillingSheetContent({
       );
     },
   });
-
-  const handleCopyCode = async (
-    code: string,
-    field: string,
-    index?: number,
-  ) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedField(field);
-      if (index !== undefined) {
-        setCopiedIndex(index);
-      }
-      setTimeout(() => {
-        setCopiedField(null);
-        setCopiedIndex(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
 
   const onSubmitSignature = (data: SignatureFormData) => {
     confirmMutation.mutate(data);
@@ -549,7 +526,7 @@ function BillingSheetContent({
 
       {/* Detalle de Productos/Repuestos */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Detalle de Productos</h3>
+        <h3 className="font-semibold text-lg">Detalle de Repuestos</h3>
         <DetailSheetTable
           rows={orderQuotation.details ?? []}
           getKey={(detail) => detail.id}
@@ -560,44 +537,37 @@ function BillingSheetContent({
               render: (_, index) => <div className="text-sm">{index + 1}</div>,
             },
             {
-              header: "Producto",
-              render: (detail, index) => (
+              header: "Repuesto",
+              render: (detail) => (
                 <>
                   <div className="text-sm">{detail.description}</div>
-                  <div className="flex items-center gap-1">
+                  {detail.product?.code ? (
+                    <CopyCell
+                      value={detail.product.code}
+                      label={`Cód: ${detail.product.code}`}
+                      className="text-xs text-muted-foreground"
+                    />
+                  ) : (
                     <span className="text-xs text-muted-foreground">
-                      Código: {detail.product?.code || "N/A"}
+                      Cód: N/A
                     </span>
-                    {detail.product?.code && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 hover:bg-slate-200"
-                        onClick={() => {
-                          if (detail.product?.code) {
-                            handleCopyCode(
-                              detail.product.code,
-                              "product_code",
-                              index,
-                            );
-                          }
-                        }}
-                      >
-                        {copiedIndex === index &&
-                        copiedField === "product_code" ? (
-                          <Check className="h-3 w-3 text-green-600" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
+                  )}
+                  {detail.product?.dyn_code ? (
+                    <CopyCell
+                      value={detail.product.dyn_code}
+                      label={`Cód Dyn: ${detail.product.dyn_code}`}
+                      className="text-xs text-muted-foreground"
+                    />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      Cód Dyn: N/A
+                    </span>
+                  )}
                 </>
               ),
             },
             {
-              header: "Tipo Abastecimiento",
+              header: "Tip. Abast.",
               className: "text-center",
               render: (detail) => (
                 <>
@@ -609,7 +579,7 @@ function BillingSheetContent({
               ),
             },
             {
-              header: "Cantidad",
+              header: "Cant.",
               className: "text-center",
               render: (detail) => (
                 <div className="text-sm">
@@ -618,7 +588,7 @@ function BillingSheetContent({
               ),
             },
             {
-              header: "P. Unitario",
+              header: "P. Unit.",
               className: "text-right",
               render: (detail) => (
                 <div className="text-sm font-medium">
@@ -630,7 +600,7 @@ function BillingSheetContent({
               ),
             },
             {
-              header: "% Dto.",
+              header: "% Desc.",
               className: "text-right",
               render: (detail) => (
                 <div className="text-sm font-medium">
