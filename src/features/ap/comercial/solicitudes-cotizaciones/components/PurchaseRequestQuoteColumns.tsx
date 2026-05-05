@@ -187,7 +187,7 @@ export const purchaseRequestQuoteColumns = ({
       const canSwapVehicle =
         permissions.canAssign && hasVehicle && !row.original.is_paid;
       const canEdit =
-        permissions.canUpdate && !row.original.is_invoiced && !hasVehicle;
+        permissions.canUpdate && !row.original.is_invoiced;
 
       return (
         <div className="flex items-center gap-2">
