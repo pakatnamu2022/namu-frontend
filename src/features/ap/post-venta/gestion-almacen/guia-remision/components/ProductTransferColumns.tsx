@@ -10,6 +10,8 @@ import {
   CheckCircle2,
   XCircle,
   CloudUpload,
+  BookCheck,
+  BookX,
   type LucideIcon,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
@@ -69,27 +71,46 @@ export const productTransferColumns = ({
   },
   {
     id: "nro_reference_dyn",
-    header: () => (
-      <TableHeaderWithTooltip
-        label="Nro Dynamics"
-        tooltip="Consulta si ya fue contabilizado en dynamics"
-      />
-    ),
+    header: "Serie Dyn",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference) return "-";
+
+      return (
+        <div className="flex flex-col gap-1">
+          {reference.dyn_series ? (
+            <span className="font-mono text-sm font-semibold">
+              {reference.dyn_series}
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground">-</span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: "is_accounted",
+    header: "Contabilización",
     cell: ({ row }) => {
       const { reference, reference_id } = row.original;
       if (!reference) return "-";
 
-      const dynSeries = reference.dyn_series;
-
-      if (dynSeries) {
+      if (reference.is_accounted) {
         return (
-          <Badge variant="outline" className="font-mono text-sm font-normal">
-            {dynSeries}
+          <Badge variant="outline" color="green" icon={BookCheck}>
+            <span>Contabilizado</span>
           </Badge>
         );
       }
 
-      if (!onSyncWithDynamics || !reference_id) return "-";
+      if (!onSyncWithDynamics || !reference_id) {
+        return (
+          <Badge variant="outline" color="gray" icon={BookX}>
+            <span>No Contabilizado</span>
+          </Badge>
+        );
+      }
 
       return (
         <Button

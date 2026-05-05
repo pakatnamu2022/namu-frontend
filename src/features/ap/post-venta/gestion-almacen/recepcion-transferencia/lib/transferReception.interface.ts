@@ -72,7 +72,21 @@ interface ShippingGuideResource {
   sede_transmitter_id: number;
   sede_receiver_id: number;
   transmitter_id: number;
+  transmitter_name: string;
+  transmitter_establishment: {
+    id: number;
+    code: string;
+    description: string;
+    full_address: string;
+  };
   receiver_id: number;
+  receiver_name: string;
+  receiver_establishment: {
+    id: number;
+    code: string;
+    description: string;
+    full_address: string;
+  };
   transport_company_id: number;
   ruc_transport: string;
   company_name_transport: string;

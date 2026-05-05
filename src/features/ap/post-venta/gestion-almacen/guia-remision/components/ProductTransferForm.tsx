@@ -97,7 +97,13 @@ export const ProductTransferForm = ({
   const conductorDni = form.watch("driver_doc");
   const typePersonId = form.watch("type_person_id");
   const transferType = form.watch("item_type");
+  const transferModalityId = form.watch("transfer_modality_id");
   const prevTransferTypeRef = useRef(transferType);
+
+  const isTransportPrivate =
+    transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+  const isTransportPublic =
+    transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
 
   // Estados para los modales de establecimientos
   const [isOriginModalOpen, setIsOriginModalOpen] = useState(false);
@@ -259,6 +265,25 @@ export const ProductTransferForm = ({
       }
     }
   }, [conductorDniData, isFirstLoad, form]);
+
+  // Forzar tipo de persona según modalidad de traslado
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    if (isTransportPrivate) {
+      form.setValue(
+        "type_person_id",
+        BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID,
+        { shouldValidate: true },
+      );
+    } else if (isTransportPublic) {
+      form.setValue(
+        "type_person_id",
+        BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+        { shouldValidate: true },
+      );
+    }
+  }, [transferModalityId, isFirstLoad, form, isTransportPrivate, isTransportPublic]);
 
   // UseEffect para limpiar campos cuando cambia el tipo de persona
   useEffect(() => {
@@ -597,7 +622,6 @@ export const ProductTransferForm = ({
               value: item.id.toString(),
             }))}
             control={form.control}
-            strictFilter={true}
           />
 
           <FormInput
@@ -653,6 +677,7 @@ export const ProductTransferForm = ({
               }))}
             control={form.control}
             strictFilter={true}
+            disabled={isTransportPrivate || isTransportPublic}
           />
 
           {/* Campos para Persona Natural */}
