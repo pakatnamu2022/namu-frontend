@@ -4,6 +4,8 @@ import { PerDiemPolicyResource } from "../../../gp/gestionhumana/viaticos/politi
 const ROUTE = "solicitud-viaticos";
 const ROUTE_AP = "viaticos-ap";
 const ABSOLUTE_ROUTE = `/perfil/${ROUTE}`;
+export const ABSOLUTE_ROUTE_GP = `/gp/gestion-humana/viaticos/${ROUTE}`;
+const ABSOLUTE_ROUTE_AP = `/ap/contabilidad/${ROUTE_AP}`;
 
 export const PER_DIEM_REQUEST: ModelComplete<PerDiemPolicyResource> = {
   MODEL: {
@@ -30,7 +32,7 @@ export const PER_DIEM_REQUEST_AP: ModelComplete<PerDiemPolicyResource> = {
   ENDPOINT: "gp/gestion-humana/viaticos/per-diem-requests",
   QUERY_KEY: "perDiemRequests",
   ROUTE: ROUTE_AP,
-  ABSOLUTE_ROUTE,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_AP,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };

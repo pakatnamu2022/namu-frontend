@@ -2,8 +2,7 @@ import { ModelComplete } from "@/core/core.interface.ts";
 import { TransferReceptionResource } from "./transferReception.interface.ts";
 
 const ROUTE = "recepcion";
-const ABSOLUTE_ROUTE =
-  "/ap/post-venta/gestion-de-almacen/transferencia-producto";
+const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-almacen/guia-remision";
 
 export const TRANSFER_RECEPTION: ModelComplete<TransferReceptionResource> = {
   MODEL: {
@@ -52,11 +51,11 @@ export function translateReasonObservation(reason?: string | null): string {
 /**
  * Traducciones para status
  */
-export function translateStatus(status?: string | null): string {
+export function translateStatusTransfer(status?: string | null): string {
   const translations: Record<string, string> = {
+    PENDING: "Pendiente",
     APPROVED: "Aprobado",
-    PARTIAL: "Parcial",
-    INCOMPLETE: "Incompleto",
+    REJECTED: "Rechazado",
   };
   return status ? (translations[status] ?? status) : "-";
 }

@@ -23,21 +23,14 @@ export interface UseVehicleInspectionParams {
   search?: string;
   inspection_date?: [string | undefined, string | undefined];
   is_associated?: number;
+  is_cancelled: number;
+  workOrder$sede_id: number;
 }
 
 export function useVehicleInspection(params: UseVehicleInspectionParams) {
   return useQuery({
     queryKey: [QUERY_KEY, "paginated", params],
-    queryFn: () =>
-      getVehicleInspection({
-        params: {
-          page: params.page,
-          per_page: params.per_page,
-          search: params.search,
-          inspection_date: params.inspection_date,
-          is_associated: params.is_associated,
-        },
-      }),
+    queryFn: () => getVehicleInspection({ params }),
   });
 }
 

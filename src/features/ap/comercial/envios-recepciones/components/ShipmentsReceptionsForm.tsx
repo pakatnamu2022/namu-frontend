@@ -12,9 +12,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader, Truck, Search } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Hash,
+  Info,
+  Loader,
+  Package,
+  Plus,
+  Search,
+  Trash2,
+  Truck,
+} from "lucide-react";
 import {
   ShipmentsReceptionsSchema,
   shipmentsReceptionsSchemaCreate,
@@ -31,11 +40,7 @@ import {
 } from "../lib/shipmentsReceptions.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
-import {
-  BUSINESS_PARTNERS,
-  CM_COMERCIAL_ID,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { BUSINESS_PARTNERS, EMPRESA_AP } from "@/core/core.constants";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
 import { EstablishmentSelectorModal } from "./EstablishmentSelectorModal";
@@ -54,8 +59,22 @@ import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-gene
 import { ImageUploadField } from "@/shared/components/ImageUploadField";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
-import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
+import { useVehicles } from "../../vehiculos/lib/vehicles.hook";
+import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { FormInput } from "@/shared/components/FormInput";
+import { useNextShippingGuideDocumentNumber } from "../lib/shipmentsReceptions.hook";
+import { useQueryClient } from "@tanstack/react-query";
+import VehicleModal from "../../vehiculos/components/VehicleModal";
+import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
+
+type AccessoryItem = {
+  description: string;
+  quantity: number;
+  unit: string;
+};
 
 interface ShipmentsReceptionsFormProps {
   defaultValues: Partial<ShipmentsReceptionsSchema> & {
@@ -67,6 +86,8 @@ interface ShipmentsReceptionsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   isLoadingData?: boolean;
+  isConsignment?: boolean;
+  cancelRoute?: string;
 }
 
 export const ShipmentsReceptionsForm = ({
@@ -74,9 +95,20 @@ export const ShipmentsReceptionsForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  onCancel,
+  isConsignment = false,
+  cancelRoute,
 }: ShipmentsReceptionsFormProps) => {
   const { ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
   const router = useNavigate();
+  const queryClient = useQueryClient();
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [accessories, setAccessories] = useState<AccessoryItem[]>([]);
+  const [newAccessory, setNewAccessory] = useState<AccessoryItem>({
+    description: "",
+    quantity: 1,
+    unit: "UNIDAD",
+  });
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -85,6 +117,11 @@ export const ShipmentsReceptionsForm = ({
     ) as any,
     defaultValues: {
       ...defaultValues,
+      ...(isConsignment && {
+        document_type: "GUIA_REMISION",
+        transfer_reason_id: "23",
+        issuer_type: "SYSTEM",
+      }),
     },
     mode: "onChange",
   });
@@ -116,8 +153,30 @@ export const ShipmentsReceptionsForm = ({
       }
     });
     formData.append("requires_sunat", requiresSunat ? "1" : "0");
+    if (isConsignment) {
+      formData.append("send_dynamics", "0");
+      formData.append("is_consignment", "1");
+      accessories.forEach((acc, index) => {
+        formData.append(`accessories[${index}][description]`, acc.description);
+        formData.append(
+          `accessories[${index}][quantity]`,
+          String(acc.quantity),
+        );
+        formData.append(`accessories[${index}][unit]`, acc.unit);
+      });
+    }
     onSubmit(formData);
   };
+
+  const addAccessory = () => {
+    if (!newAccessory.description.trim()) return;
+    setAccessories((prev) => [...prev, { ...newAccessory }]);
+    setNewAccessory({ description: "", quantity: 1, unit: "UNIDAD" });
+  };
+
+  const removeAccessory = (index: number) =>
+    setAccessories((prev) => prev.filter((_, i) => i !== index));
+
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const conductorDni = form.watch("driver_doc");
 
@@ -132,15 +191,6 @@ export const ShipmentsReceptionsForm = ({
     selectedDestinationEstablishment,
     setSelectedDestinationEstablishment,
   ] = useState<EstablishmentsResource | null>(null);
-
-  const {
-    data: conductorDniData,
-    isLoading: isConductorDniLoading,
-    error: conductorDniError,
-  } = useLicenseValidation(
-    conductorDni,
-    !isFirstLoad && !!conductorDni && conductorDni.length === 8,
-  );
 
   // Estados para almacenar el proveedor/cliente seleccionado
   const [selectedSupplier, setSelectedSupplier] = useState<{
@@ -161,22 +211,35 @@ export const ShipmentsReceptionsForm = ({
   const watchSedeTransmitterId = form.watch("sede_transmitter_id");
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
+  const watchTransferModalityId = form.watch("transfer_modality_id");
+  const isPrivateTransport =
+    watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+  const isPublicTransport =
+    watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
+
+  const {
+    data: conductorDniData,
+    isLoading: isConductorDniLoading,
+    error: conductorDniError,
+  } = useLicenseValidation(
+    conductorDni,
+    isPrivateTransport &&
+      !isFirstLoad &&
+      !!conductorDni &&
+      conductorDni.length === 8,
+  );
+
+  const { data: nextDocumentNumber } = useNextShippingGuideDocumentNumber(
+    mode === "create" && watchIssuerType === "SYSTEM" && watchDocumentSeriesId
+      ? Number(watchDocumentSeriesId)
+      : undefined,
+  );
 
   // Get vehicles filtrados por sede
   // Si es COMPRA: is_received = 0 (vehículos que no han sido recibidos)
   // Si NO es COMPRA: is_received = 1 (vehículos ya recibidos en piso)
   const vehiclesIsReceived =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ? 0 : 1;
-
-  const { data: vehiclesVn = [], isLoading: isLoadingVehicles } =
-    useAllVehicles({
-      warehouse$sede_id: watchSedeTransmitterId
-        ? Number(watchSedeTransmitterId)
-        : undefined,
-      warehouse$is_received: vehiclesIsReceived,
-      warehouse$ap_class_article_id: watchArticleClassId,
-      model$class_id: watchArticleClassId,
-    });
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
@@ -201,7 +264,7 @@ export const ShipmentsReceptionsForm = ({
     });
 
   // Determinar is_received para sedes según el motivo de traslado
-  // Si es COMPRA (id: 19): is_received = 0 (almacenes que no han recibido)
+  // Si es COMPRA (id: 15): is_received = 0 (almacenes que no han recibido)
   // Si NO es COMPRA: is_received = 1 (almacenes de recepción internos)
   const sedesIsReceived =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ? 0 : 1;
@@ -237,9 +300,13 @@ export const ShipmentsReceptionsForm = ({
     });
 
   // Distribuir los conceptos según el tipo
-  const reasonTransfer = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON,
-  );
+  const reasonTransfer = sunatConcepts.filter((concept) => {
+    return [
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
+    ].includes(concept.id.toString());
+  });
 
   const typeTransportation = sunatConcepts.filter(
     (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION,
@@ -426,6 +493,19 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [conductorDniData, isFirstLoad]);
 
+  // Limpiar campos al cambiar modalidad de transporte
+  useEffect(() => {
+    if (isPublicTransport) {
+      form.setValue("driver_doc", "", { shouldValidate: true });
+      form.setValue("license", "", { shouldValidate: true });
+      form.setValue("driver_name", "", { shouldValidate: true });
+      form.setValue("plate", "", { shouldValidate: true });
+    } else if (isPrivateTransport) {
+      form.setValue("transport_company_id", "", { shouldValidate: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchTransferModalityId]);
+
   // UseEffect para setear sedes cuando se selecciona una serie (Automotores)
   useEffect(() => {
     // En modo update en la primera carga, no sobrescribir valores
@@ -433,7 +513,7 @@ export const ShipmentsReceptionsForm = ({
       return;
     }
 
-    if (watchIssuerType === "NOSOTROS") {
+    if (watchIssuerType === "SYSTEM") {
       const currentTransmitterOriginId = form.getValues(
         "transmitter_origin_id",
       );
@@ -489,8 +569,8 @@ export const ShipmentsReceptionsForm = ({
         "receiver_destination_id",
       );
 
-      if (currentIssuerType !== "NOSOTROS") {
-        form.setValue("issuer_type", "NOSOTROS", {
+      if (currentIssuerType !== "SYSTEM") {
+        form.setValue("issuer_type", "SYSTEM", {
           shouldValidate: true,
         });
       }
@@ -533,54 +613,39 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchArticleClassId]);
 
-  // Limpiar el vehículo seleccionado cuando cambia la sede o el motivo de traslado
+  // Limpiar el vehículo seleccionado cuando cambia la sede, motivo de traslado o clase de artículo
   useEffect(() => {
-    const currentVehicleId = form.getValues("ap_vehicle_id");
+    form.setValue("ap_vehicle_id", "", { shouldValidate: false });
+  }, [watchSedeTransmitterId, watchTransferReasonId, watchArticleClassId]);
 
-    if (currentVehicleId && vehiclesVn.length > 0) {
-      const vehicleExists = vehiclesVn.some(
-        (v) => v.id.toString() === currentVehicleId,
-      );
-
-      if (!vehicleExists) {
-        form.setValue("ap_vehicle_id", "", {
-          shouldValidate: false,
-        });
-      }
-    } else if (
-      currentVehicleId &&
-      !isLoadingVehicles &&
-      vehiclesVn.length === 0
-    ) {
-      // Si ya no hay vehículos disponibles, limpiar la selección
-      form.setValue("ap_vehicle_id", "", {
-        shouldValidate: false,
-      });
-    }
-  }, [
-    watchSedeTransmitterId,
-    watchTransferReasonId,
-    vehiclesVn,
-    isLoadingVehicles,
-  ]);
-
-  const selectedVIN = vehiclesVn.find(
-    (v) => v.id.toString() === form.getValues("ap_vehicle_id"),
-  );
-
+  // En consignación: limpiar la serie cuando cambia la sede
   useEffect(() => {
-    if (selectedVIN?.model.net_weight !== undefined) {
-      form.setValue("total_weight", String(selectedVIN.model.net_weight));
+    if (!isConsignment) return;
+    if (mode === "update" && isFirstLoad) return;
+    const currentSeriesId = form.getValues("document_series_id");
+    if (currentSeriesId) {
+      form.setValue("document_series_id", "", { shouldValidate: false });
     }
-  }, [selectedVIN]);
+  }, [watchSedeTransmitterId]);
+
+  const filteredSeries =
+    isConsignment && watchSedeTransmitterId
+      ? series.filter((s) => s.sede_id.toString() === watchSedeTransmitterId)
+      : series;
+
+  const handleVehicleChange = (_value: string, item?: VehicleResource) => {
+    if (item?.model?.net_weight !== undefined) {
+      form.setValue("total_weight", String(item.model.net_weight));
+    }
+  };
 
   // Manejar sede destino cuando cambia el motivo de traslado
   useEffect(() => {
     if (watchTransferReasonId) {
       const currentSedeReceiver = form.getValues("sede_receiver_id");
 
-      // Si es COMPRA, setear sede destino igual a sede origen
       if (watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA) {
+        // COMPRA: sede destino = sede origen (siempre)
         if (
           watchSedeTransmitterId &&
           currentSedeReceiver !== watchSedeTransmitterId
@@ -589,15 +654,23 @@ export const ShipmentsReceptionsForm = ({
             shouldValidate: false,
           });
         }
-      }
-      // Si es OTROS, limpiar sede destino ya que no se muestra
-      else if (
-        watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
-        currentSedeReceiver
+      } else if (
+        watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS
       ) {
-        form.setValue("sede_receiver_id", "", {
-          shouldValidate: false,
-        });
+        if (isConsignment) {
+          // Consignación (OTROS): sede destino = sede origen
+          if (
+            watchSedeTransmitterId &&
+            currentSedeReceiver !== watchSedeTransmitterId
+          ) {
+            form.setValue("sede_receiver_id", watchSedeTransmitterId, {
+              shouldValidate: false,
+            });
+          }
+        } else if (currentSedeReceiver) {
+          // Envíos/Recepciones (OTROS): limpiar sede destino
+          form.setValue("sede_receiver_id", "", { shouldValidate: false });
+        }
       }
     }
   }, [watchTransferReasonId, watchSedeTransmitterId]);
@@ -616,53 +689,77 @@ export const ShipmentsReceptionsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-6 w-full"
+        className="space-y-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-3"
       >
         {/* Sección: Información del Traslado */}
         <GroupFormSection
           icon={Truck}
           title="Información del Traslado"
-          iconColor="text-gray-600 dark:text-gray-300"
-          bgColor="bg-gray-50 dark:bg-gray-800"
+          color="gray"
           cols={{
             sm: 1,
             md: 2,
-            lg: 3,
-            xl: 4,
+            "2xl": 3,
           }}
-          gap="gap-4"
+          headerExtra={
+            nextDocumentNumber ? (
+              <div className="flex items-center gap-1.5 text-xs font-mono bg-muted border border-border rounded px-2 py-0.5">
+                <Hash className="size-3 text-muted-foreground" />
+                <span className="font-semibold">
+                  {nextDocumentNumber.document_number}
+                </span>
+              </div>
+            ) : undefined
+          }
         >
-          <FormSelect
-            control={form.control}
-            name="document_type"
-            label="Tipo de Documento"
-            placeholder="Seleccione tipo"
-            options={DOCUMENT_TYPES}
-          />
+          {isConsignment && (
+            <Alert variant="info" className="col-span-full">
+              <Info className="size-4" />
+              <AlertTitle>Guía de Consignación</AlertTitle>
+              <AlertDescription>
+                El proveedor envía el vehículo sin facturarlo. Se registra la
+                recepción con checklist únicamente. La compra y el envío a
+                Dynamics se realizan posteriormente cuando se genere la Orden de
+                Compra.
+              </AlertDescription>
+            </Alert>
+          )}
 
-          <FormSelect
-            name="transfer_reason_id"
-            label="Motivo de Traslado"
-            placeholder="Selecciona motivo"
-            options={reasonTransfer.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
+          {!isConsignment && (
+            <>
+              <FormSelect
+                control={form.control}
+                name="document_type"
+                label="Tipo de Documento"
+                placeholder="Seleccione tipo"
+                options={DOCUMENT_TYPES}
+              />
 
-          <FormSelect
-            control={form.control}
-            name="issuer_type"
-            label="Tipo de Emisor"
-            placeholder="Seleccione emisor"
-            options={ISSUER_TYPES}
-            disabled={
-              watchTransferReasonId ===
-              SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
-            }
-          />
+              <FormSelect
+                name="transfer_reason_id"
+                label="Motivo de Traslado"
+                placeholder="Selecciona motivo"
+                options={reasonTransfer.map((item) => ({
+                  label: item.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
+
+              <FormSelect
+                control={form.control}
+                name="issuer_type"
+                label="Tipo de Emisor"
+                placeholder="Seleccione emisor"
+                options={ISSUER_TYPES}
+                disabled={
+                  watchTransferReasonId ===
+                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                }
+              />
+            </>
+          )}
 
           <FormSelect
             name="ap_class_article_id"
@@ -675,61 +772,6 @@ export const ShipmentsReceptionsForm = ({
             control={form.control}
             strictFilter={true}
           />
-
-          {/* Serie - Condicional según Tipo de Emisor */}
-          {watchIssuerType === "PROVEEDOR" ? (
-            <FormField
-              control={form.control}
-              name="series"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serie</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: T001"
-                      className="uppercase"
-                      maxLength={4}
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ) : (
-            <FormSelect
-              name="document_series_id"
-              label="Serie"
-              placeholder="Selecciona serie"
-              options={series.map((item) => ({
-                label: item.series + " " + item.sede,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={watchIssuerType !== "NOSOTROS"}
-            />
-          )}
-
-          {/* Correlativo - Condicional según Tipo de Emisor */}
-          {watchIssuerType === "PROVEEDOR" && (
-            <FormField
-              control={form.control}
-              name="correlative"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Correlativo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 00001234" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
 
           {vehiclesIsReceived ? (
             <FormSelect
@@ -767,22 +809,124 @@ export const ShipmentsReceptionsForm = ({
               />
             )}
 
-          <FormSelect
-            key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
-            name="ap_vehicle_id"
-            label="Vehículo VN"
-            placeholder="Selecciona vehículo"
-            options={vehiclesVn.map((item) => ({
-              label: item.vin ?? "",
-              value: item.id.toString(),
-              description:
-                item.sede_name_warehouse + " - " + item.warehouse_name || "",
-            }))}
-            control={form.control}
-            strictFilter={true}
-            withValue={false}
-            disabled={!watchSedeTransmitterId || isLoadingVehicles}
-          />
+          {/* Serie - Condicional según Tipo de Emisor */}
+          {watchIssuerType === "PROVEEDOR" ? (
+            <FormInput
+              control={form.control}
+              name="series"
+              label="Serie"
+              placeholder="Ej: T001"
+              maxLength={4}
+              uppercase
+            />
+          ) : (
+            <FormSelect
+              name="document_series_id"
+              label="Serie"
+              placeholder="Selecciona serie"
+              options={filteredSeries.map((item) => ({
+                label: item.series + " " + item.sede,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={
+                watchIssuerType !== "SYSTEM" ||
+                (isConsignment && !watchSedeTransmitterId)
+              }
+            />
+          )}
+
+          {/* Correlativo - Condicional según Tipo de Emisor */}
+          {watchIssuerType === "PROVEEDOR" && (
+            <FormInput
+              control={form.control}
+              name="correlative"
+              label="Correlativo"
+              placeholder="Ej: 00001234"
+            />
+          )}
+
+          {isConsignment ? (
+            <FormSelectAsync
+              key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}-${watchArticleClassId}`}
+              name="ap_vehicle_id"
+              label="Vehículo"
+              placeholder="Selecciona vehículo"
+              control={form.control}
+              useQueryHook={useVehicles}
+              mapOptionFn={(item: VehicleResource) => ({
+                value: item.id.toString(),
+                label: item.vin ?? "",
+                description:
+                  (item.sede_name_warehouse ?? "") +
+                  " - " +
+                  (item.warehouse_name ?? ""),
+              })}
+              additionalParams={{
+                warehouse$sede_id: watchSedeTransmitterId
+                  ? Number(watchSedeTransmitterId)
+                  : undefined,
+                warehouse$is_received: vehiclesIsReceived,
+                warehouse$ap_class_article_id: watchArticleClassId || undefined,
+                model$class_id: watchArticleClassId || undefined,
+                is_received: 0,
+              }}
+              disabled={!watchSedeTransmitterId || !watchArticleClassId}
+              onValueChange={handleVehicleChange}
+              withValue={false}
+              perPage={20}
+              debounceMs={400}
+            >
+              <div className="flex items-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setIsVehicleModalOpen(true)}
+                  tooltip={
+                    !watchSedeTransmitterId
+                      ? "Selecciona una sede primero"
+                      : "Agregar nuevo vehículo comercial"
+                  }
+                  disabled={!watchSedeTransmitterId}
+                >
+                  <Plus />
+                </Button>
+              </div>
+            </FormSelectAsync>
+          ) : (
+            <FormSelectAsync
+              key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}-${watchArticleClassId}`}
+              name="ap_vehicle_id"
+              label="Vehículo"
+              placeholder="Selecciona vehículo"
+              control={form.control}
+              useQueryHook={useVehicles}
+              mapOptionFn={(item: VehicleResource) => ({
+                value: item.id.toString(),
+                label: item.vin ?? "",
+                description:
+                  (item.sede_name_warehouse ?? "") +
+                  " - " +
+                  (item.warehouse_name ?? ""),
+              })}
+              additionalParams={{
+                warehouse$sede_id: watchSedeTransmitterId
+                  ? Number(watchSedeTransmitterId)
+                  : undefined,
+                warehouse$is_received: vehiclesIsReceived,
+                warehouse$ap_class_article_id: watchArticleClassId || undefined,
+                model$class_id: watchArticleClassId || undefined,
+                is_received: 0,
+              }}
+              disabled={!watchSedeTransmitterId || !watchArticleClassId}
+              onValueChange={handleVehicleChange}
+              withValue={false}
+              perPage={20}
+              debounceMs={400}
+            />
+          )}
 
           <FormSelect
             name="transfer_modality_id"
@@ -803,268 +947,331 @@ export const ShipmentsReceptionsForm = ({
             disabledRange={{ before: new Date() }}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="total_packages"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Núm. Bultos</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Núm. Bultos"
+            placeholder="1"
+            min={1}
+            type="number"
+            inputMode="text"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="total_weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Peso Total</FormLabel>
-                <FormControl>
-                  <Input placeholder="779.55" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Peso Total"
+            placeholder="Ingrese el peso total"
+            min={1}
+            type="number"
+            inputMode="text"
           />
+
+          {isConsignment && (
+            <div className="col-span-full space-y-2">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-muted-foreground" />
+                <FormLabel>Accesorios del vehículo</FormLabel>
+              </div>
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  <FormInput
+                    name="accessory_description"
+                    placeholder="Descripción del accesorio"
+                    value={newAccessory.description}
+                    onChange={(e) =>
+                      setNewAccessory((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    uppercase
+                  />
+                </div>
+                <FormInput
+                  name="accessory_quantity"
+                  type="number"
+                  min={1}
+                  placeholder="Cant."
+                  value={newAccessory.quantity}
+                  onChange={(e) =>
+                    setNewAccessory((prev) => ({
+                      ...prev,
+                      quantity: Number(e.target.value),
+                    }))
+                  }
+                />
+                <FormInput
+                  name="accessory_unit"
+                  placeholder="Unidad"
+                  value={newAccessory.unit}
+                  onChange={(e) =>
+                    setNewAccessory((prev) => ({
+                      ...prev,
+                      unit: e.target.value.toUpperCase(),
+                    }))
+                  }
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={addAccessory}
+                  disabled={!newAccessory.description.trim()}
+                >
+                  <Plus />
+                </Button>
+              </div>
+              <div className="rounded-md border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/50 border-b">
+                      <th className="text-left px-3 py-2 font-medium text-xs">
+                        Descripción
+                      </th>
+                      <th className="text-left px-3 py-2 font-medium text-xs w-20">
+                        Cant.
+                      </th>
+                      <th className="text-left px-3 py-2 font-medium text-xs w-28">
+                        Unidad
+                      </th>
+                      <th className="w-10" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {accessories.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="px-3 py-4 text-center text-xs text-muted-foreground italic"
+                        >
+                          Sin accesorios registrados
+                        </td>
+                      </tr>
+                    ) : (
+                      accessories.map((acc, index) => (
+                        <tr
+                          key={index}
+                          className="border-b last:border-0 hover:bg-muted/30"
+                        >
+                          <td className="px-3 py-2">{acc.description}</td>
+                          <td className="px-3 py-2">{acc.quantity}</td>
+                          <td className="px-3 py-2">{acc.unit}</td>
+                          <td className="px-3 py-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => removeAccessory(index)}
+                            >
+                              <Trash2 className="size-3.5 text-destructive" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </GroupFormSection>
 
         {/* Sección: Información del Conductor y Vehículo */}
         <GroupFormSection
           icon={Truck}
           title="Conductor y Vehículo"
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{
             sm: 1,
             md: 2,
-            lg: 3,
-            xl: 4,
           }}
-          gap="gap-4"
         >
-          {/* Ubicación Origen */}
-          <div className="space-y-2">
-            <FormSelect
-              name="transmitter_origin_id"
-              label={() => (
-                <div className="flex items-center gap-2 relative">
-                  <FormLabel>Ubicación Origen</FormLabel>
-                  {selectedSupplier && (
-                    <button
-                      type="button"
-                      onClick={() => setIsOriginModalOpen(true)}
-                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                      title="Seleccionar establecimiento"
-                    >
-                      <Search className="h-4 w-4 text-primary" />
-                    </button>
-                  )}
+          {/* Ubicación Origen y Destino */}
+          <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <FormSelect
+                name="transmitter_origin_id"
+                label={() => (
+                  <div className="flex items-center gap-2 relative">
+                    <FormLabel>Ubicación Origen</FormLabel>
+                    {selectedSupplier && (
+                      <button
+                        type="button"
+                        onClick={() => setIsOriginModalOpen(true)}
+                        className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                        title="Seleccionar establecimiento"
+                      >
+                        <Search className="h-4 w-4 text-primary" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                placeholder="Selecciona proveedor"
+                options={suppliers.map((item) => ({
+                  label: item.full_name,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+                disabled={
+                  watchTransferReasonId ===
+                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                }
+              />
+              {selectedOriginEstablishment && (
+                <div className="text-xs text-primary space-y-0.5">
+                  <p className="font-medium">
+                    {selectedOriginEstablishment.description ||
+                      selectedOriginEstablishment.code}
+                  </p>
+                  <p>{selectedOriginEstablishment.full_address}</p>
                 </div>
               )}
-              placeholder="Selecciona proveedor"
-              options={suppliers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={
-                watchTransferReasonId ===
-                SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
-              }
-            />
-            {selectedOriginEstablishment && (
-              <div className="text-xs text-primary space-y-0.5">
-                <p className="font-medium">
-                  {selectedOriginEstablishment.description ||
-                    selectedOriginEstablishment.code}
-                </p>
-                <p>{selectedOriginEstablishment.full_address}</p>
-              </div>
-            )}
-          </div>
+            </div>
 
-          {/* Ubicación Destino */}
-          <div className="space-y-2">
-            <FormSelect
-              name="receiver_destination_id"
-              label={() => (
-                <div className="flex items-center gap-2 relative">
-                  <FormLabel>Ubicación Destino</FormLabel>
-                  {selectedCustomer && (
-                    <button
-                      type="button"
-                      onClick={() => setIsDestinationModalOpen(true)}
-                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                      title="Seleccionar establecimiento"
-                    >
-                      <Search className="h-4 w-4 text-primary" />
-                    </button>
-                  )}
+            {/* Ubicación Destino */}
+            <div className="space-y-2">
+              <FormSelect
+                name="receiver_destination_id"
+                label={() => (
+                  <div className="flex items-center gap-2 relative">
+                    <FormLabel>Ubicación Destino</FormLabel>
+                    {selectedCustomer && (
+                      <button
+                        type="button"
+                        onClick={() => setIsDestinationModalOpen(true)}
+                        className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                        title="Seleccionar establecimiento"
+                      >
+                        <Search className="h-4 w-4 text-primary" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                placeholder="Selecciona cliente"
+                options={customers.map((item) => ({
+                  label: item.full_name,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+                disabled={
+                  watchTransferReasonId ===
+                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                }
+              />
+              {selectedDestinationEstablishment && (
+                <div className="text-xs text-primary space-y-0.5">
+                  <p className="font-medium">
+                    {selectedDestinationEstablishment.description ||
+                      selectedDestinationEstablishment.code}
+                  </p>
+                  <p>{selectedDestinationEstablishment.full_address}</p>
                 </div>
               )}
-              placeholder="Selecciona cliente"
-              options={customers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={
-                watchTransferReasonId ===
-                SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
-              }
-            />
-            {selectedDestinationEstablishment && (
-              <div className="text-xs text-primary space-y-0.5">
-                <p className="font-medium">
-                  {selectedDestinationEstablishment.description ||
-                    selectedDestinationEstablishment.code}
-                </p>
-                <p>{selectedDestinationEstablishment.full_address}</p>
-              </div>
-            )}
+            </div>
           </div>
 
-          <FormSelect
-            name="transport_company_id"
-            label="Empresa Transporte"
-            placeholder="Selecciona empresa"
-            options={suppliers.map((item) => ({
-              label: item.full_name,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
+          {isPublicTransport && (
+            <div className="col-span-full">
+              <FormSelect
+                name="transport_company_id"
+                label="Empresa Transporte"
+                placeholder="Selecciona empresa"
+                options={suppliers.map((item) => ({
+                  label: item.full_name,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
+            </div>
+          )}
 
-          <FormField
-            control={form.control}
-            name="driver_doc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  DNI del Conductor
-                  <DocumentValidationStatus
-                    shouldValidate={true}
-                    documentNumber={conductorDni || ""}
-                    expectedDigits={8}
-                    isValidating={isConductorDniLoading}
-                    leftPosition="right-0"
-                  />
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      placeholder="Número de documento"
-                      {...field}
-                      maxLength={8}
-                      type="number"
-                    />
-                    <ValidationIndicator
-                      show={!!conductorDni}
+          {isPrivateTransport && (
+            <>
+              <FormInput
+                control={form.control}
+                name="driver_doc"
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    DNI del Conductor
+                    <DocumentValidationStatus
+                      shouldValidate={true}
+                      documentNumber={conductorDni || ""}
+                      expectedDigits={8}
                       isValidating={isConductorDniLoading}
-                      isValid={
-                        conductorDniData?.success && !!conductorDniData.data
-                      }
-                      hasError={
-                        !!conductorDniError ||
-                        (conductorDniData && !conductorDniData.success)
-                      }
+                      leftPosition="right-0"
                     />
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="driver_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Conductor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="license"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Licencia de Conducir
-                  {conductorDniData?.success &&
-                    conductorDniData.data?.licencia?.estado && (
-                      <span className="text-xs font-normal text-primary absolute right-0">
-                        {conductorDniData.data.licencia.estado}
-                      </span>
-                    )}
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Q12345678" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="plate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Placa del Vehículo (cigueña)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: ABC-123"
-                    className="uppercase"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(e.target.value.toUpperCase())
+                }
+                placeholder="Ej: ABC-123"
+                maxLength={8}
+                addonEnd={
+                  <ValidationIndicator
+                    show={!!conductorDni}
+                    isValidating={isConductorDniLoading}
+                    isValid={
+                      conductorDniData?.success && !!conductorDniData.data
+                    }
+                    hasError={
+                      !!conductorDniError ||
+                      (conductorDniData && !conductorDniData.success)
                     }
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
+                }
+              />
 
-        {/* Sección: Observaciones */}
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notas u Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Observaciones adicionales sobre el traslado..."
-                    className="resize-none"
-                    rows={4}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+              <FormInput
+                control={form.control}
+                name="license"
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    Licencia de Conducir
+                    {conductorDniData?.success &&
+                      conductorDniData.data?.licencia?.estado && (
+                        <span className="text-xs font-normal text-primary absolute right-0">
+                          {conductorDniData.data.licencia.estado}
+                        </span>
+                      )}
+                  </div>
+                }
+                uppercase
+                placeholder="Ej: Q12345678"
+              />
 
-        {/* Sección: Imagen de la Guía */}
-        <div className="space-y-4">
+              <FormInput
+                control={form.control}
+                name="plate"
+                label="Placa del Vehículo (cigueña)"
+                placeholder="Ej: ABC-123"
+                uppercase
+              />
+            </>
+          )}
+
+          <div className="space-y-4 col-span-full">
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notas u Observaciones</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Observaciones adicionales sobre el traslado..."
+                      className="resize-none"
+                      rows={4}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <ImageUploadField
             form={form}
             name="file"
@@ -1072,43 +1279,44 @@ export const ShipmentsReceptionsForm = ({
             maxSizeInMB={5}
             required={false}
           />
-        </div>
-        {/* 
-        <pre>
-          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre> */}
+        </GroupFormSection>
 
         {/* Botones de Acción */}
-        <div className="flex gap-4 w-full justify-end">
-          <ConfirmationDialog
-            trigger={
-              <Button type="button" variant="outline">
-                Cancelar
-              </Button>
-            }
-            title="¿Cancelar registro?"
-            variant="destructive"
-            icon="warning"
-            onConfirm={() => {
-              router(ABSOLUTE_ROUTE);
-            }}
-          />
-
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
-            <Loader
-              className={`mr-2 h-4 w-4 animate-spin ${
-                !isSubmitting ? "hidden" : ""
-              }`}
+        <div className="flex flex-col gap-4 col-span-full">
+          <div className="flex gap-4 justify-end mt-auto">
+            <ConfirmationDialog
+              trigger={
+                <Button type="button" variant="outline">
+                  Cancelar
+                </Button>
+              }
+              title="¿Cancelar registro?"
+              variant="destructive"
+              icon="warning"
+              onConfirm={() => {
+                if (onCancel) onCancel();
+                else router(cancelRoute ?? ABSOLUTE_ROUTE);
+              }}
             />
-            {isSubmitting
-              ? "Guardando..."
-              : mode === "create"
-                ? "Crear Guía de Remisión"
-                : "Actualizar Guía de Remisión"}
-          </Button>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting || !form.formState.isValid}
+            >
+              <Loader
+                className={`mr-2 h-4 w-4 animate-spin ${
+                  !isSubmitting ? "hidden" : ""
+                }`}
+              />
+              {isSubmitting
+                ? "Guardando..."
+                : mode === "create"
+                  ? isConsignment
+                    ? "Crear Consignación"
+                    : "Crear Guía de Remisión"
+                  : "Actualizar Guía de Remisión"}
+            </Button>
+          </div>
         </div>
 
         {/* Modales para selección de establecimientos */}
@@ -1142,6 +1350,19 @@ export const ShipmentsReceptionsForm = ({
           sede_id={form.watch("sede_receiver_id")}
         />
       </form>
+      {isConsignment && (
+        <VehicleModal
+          open={isVehicleModalOpen}
+          onClose={() => {
+            setIsVehicleModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: [VEHICLES.QUERY_KEY] });
+          }}
+          title="Agregar Vehículo Comercial"
+          typeOperationId={CM_COMERCIAL_ID}
+          sedeId={watchSedeTransmitterId || undefined}
+          classArticleId={watchArticleClassId || undefined}
+        />
+      )}
     </Form>
   );
 };

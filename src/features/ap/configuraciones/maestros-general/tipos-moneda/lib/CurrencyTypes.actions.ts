@@ -29,6 +29,7 @@ export async function getAllCurrencyTypes({
   const config: AxiosRequestConfig = {
     params: {
       all: true, // Assuming you want to fetch all periods
+      direction: 'asc', // Assuming you want to sort in descending order
       ...params,
       status: STATUS_ACTIVE,
     },

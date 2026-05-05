@@ -1,19 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
@@ -23,6 +14,7 @@ import {
 } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -34,6 +26,8 @@ interface DocumentInfoSectionProps {
   currencyTypes: SunatConceptsResource[];
   isFromQuotation?: boolean;
   hasVehicle?: boolean;
+  pendingBalance?: number;
+  useQuotation?: boolean;
   onCustomerChange?: (customer: CustomersResource | undefined) => void;
 }
 
@@ -47,6 +41,8 @@ export function DocumentInfoSection({
   isFromQuotation = false,
   defaultCustomerId,
   hasVehicle = true,
+  pendingBalance = 0,
+  useQuotation = false,
   onCustomerChange,
 }: DocumentInfoSectionProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -65,18 +61,6 @@ export function DocumentInfoSection({
       form.setValue("client_id", loadedCustomer.id.toString());
     }
   }, [loadedCustomer, form]);
-
-  const defaultOption = useMemo(() => {
-    if (loadedCustomer) {
-      return {
-        value: loadedCustomer.id.toString(),
-        label: `${loadedCustomer.full_name} - ${
-          loadedCustomer.num_doc || "S/N"
-        }`,
-      };
-    }
-    return undefined;
-  }, [loadedCustomer]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -124,8 +108,7 @@ export function DocumentInfoSection({
     <GroupFormSection
       title="Información del Documento"
       icon={FileText}
-      iconColor="text-primary"
-      bgColor="bg-primary/5"
+      color="primary"
       cols={{ sm: 1, md: 3 }}
     >
       <div className="md:col-span-3">
@@ -144,10 +127,8 @@ export function DocumentInfoSection({
               ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
               : "Seleccione el cliente"
           }
-          perPage={10}
-          debounceMs={500}
-          disabled={isEdit}
-          defaultOption={defaultOption}
+          useFindByIdHook={useCustomersById}
+          disabled={isEdit || isFromQuotation}
           onValueChange={(_, customer) => {
             // Actualizar el estado con el cliente seleccionado
             const customerResource = customer as CustomersResource | undefined;
@@ -174,16 +155,29 @@ export function DocumentInfoSection({
         control={form.control}
         name="is_advance_payment"
         label="Tipo de Operación"
-        disabled={!isFromQuotation || !hasVehicle}
+        disabled={!isFromQuotation || !hasVehicle || pendingBalance <= 0}
         text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
         description={
           !hasVehicle && isFromQuotation
             ? "Cotización sin vehículo: Solo se permite anticipo"
-            : isAdvancePayment
-              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-              : "Tipo de operación: Venta Interna (código 01)"
+            : isFromQuotation && pendingBalance <= 0
+              ? "Saldo pendiente S/ 0: No se puede registrar anticipo"
+              : isAdvancePayment
+                ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                : "Tipo de operación: Venta Interna (código 01)"
         }
       />
+
+      {/* Switch de Detracción - solo cuando no es cotización */}
+      {!useQuotation && (
+        <FormSwitch
+          control={form.control}
+          name="detraccion"
+          label="Detracción"
+          text="Aplicar Detracción"
+          description="Se aplicará el 12% de detracción al documento"
+        />
+      )}
 
       <FormSelect
         control={form.control}
@@ -226,28 +220,19 @@ export function DocumentInfoSection({
         placeholder="Seleccionar serie"
       />
 
-      <FormField
+      <FormInput
         control={form.control}
         name="numero"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Número</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Auto-generado"
-                disabled
-                {...field}
-              />
-            </FormControl>
-            <FormDescription className="text-xs">
-              {isEdit
-                ? "El correlativo no se puede modificar"
-                : "Se genera automáticamente"}
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label="Número"
+        type="number"
+        placeholder="Auto-generado"
+        readOnly
+        optional
+        description={
+          isEdit
+            ? "El correlativo no se puede modificar"
+            : "Se genera automáticamente"
+        }
       />
     </GroupFormSection>
   );

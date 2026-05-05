@@ -55,7 +55,6 @@ export default function AddAssignSalesSeriesPage() {
           type_operation_id: "",
           sede_id: "",
           type: "SALE",
-          is_advance: false,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar, MapPin, FileText, Wallet, Hotel } from "lucide-react";
+import { Calendar, MapPin, FileText, Wallet, Hotel, ArrowDownCircle } from "lucide-react";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { getStatusConfig } from "../lib/perDiemRequest.function";
 
@@ -17,16 +17,9 @@ export default function PerDiemRequestCard({
 }: PerDiemRequestCardProps) {
   const statusConfig = getStatusConfig(request.status);
 
-  const employeeExpenses = request.expenses
-    ? request.expenses.filter((expense) => !expense.is_company_expense)
-    : [];
-
-  const totalSpentByEmployee = employeeExpenses.reduce(
-    (sum, expense) => sum + expense.company_amount,
-    0,
-  );
-
-  const spentPercentage = (totalSpentByEmployee / request.total_budget) * 100;
+  const spentPercentage = request.total_budget > 0
+    ? (request.budget_spent / request.total_budget) * 100
+    : 0;
 
   const StatusIcon = statusConfig.IconComponent;
 
@@ -107,12 +100,13 @@ export default function PerDiemRequestCard({
           </div>
         </div>
 
-        {/* Gastos con barra de progreso */}
-        <div className="pt-2.5 border-t space-y-1.5">
-          <div className="flex items-center justify-between">
+        {/* Totales */}
+        <div className="pt-2.5 border-t space-y-2">
+          {/* Presupuesto vs Gastado */}
+          <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-1.5">
               <Wallet className="w-3.5 h-3.5 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">Gastado</p>
+              <p className="text-xs text-muted-foreground">Colaborador / Presupuesto</p>
             </div>
             <p className="text-xs text-muted-foreground">
               {spentPercentage.toFixed(0)}%
@@ -121,26 +115,45 @@ export default function PerDiemRequestCard({
 
           <div className="flex items-baseline justify-between">
             <p className="font-semibold text-sm">
-              S/ {request.total_spent.toFixed(2)}
+              S/ {request.budget_spent.toFixed(2)}
             </p>
             <p className="text-xs text-muted-foreground">
               de S/ {request.total_budget.toFixed(2)}
             </p>
           </div>
 
-          {/* Barra de progreso sutil */}
           <div className="h-1 bg-muted rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-300 rounded-full ${
-                spentPercentage > 95
+                spentPercentage > 100
                   ? "bg-destructive"
                   : spentPercentage > 85
-                    ? "bg-muted-foreground/60"
+                    ? "bg-amber-500"
                     : "bg-muted-foreground/40"
               }`}
               style={{ width: `${Math.min(spentPercentage, 100)}%` }}
             />
           </div>
+
+          {/* Saldo a devolver / gasto extra */}
+          {request.extra_spent > 0 ? (
+            <div className="flex items-center justify-between text-xs pt-0.5">
+              <span className="text-muted-foreground">Gastos complementarios</span>
+              <span className="font-semibold text-muted-foreground">
+                +S/ {request.extra_spent.toFixed(2)}
+              </span>
+            </div>
+          ) : request.balance_to_return > 0 ? (
+            <div className="flex items-center justify-between text-xs pt-0.5">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <ArrowDownCircle className="w-3 h-3" />
+                <span>Saldo a devolver</span>
+              </div>
+              <span className="font-semibold text-emerald-600">
+                S/ {request.balance_to_return.toFixed(2)}
+              </span>
+            </div>
+          ) : null}
         </div>
       </CardContent>
     </Card>

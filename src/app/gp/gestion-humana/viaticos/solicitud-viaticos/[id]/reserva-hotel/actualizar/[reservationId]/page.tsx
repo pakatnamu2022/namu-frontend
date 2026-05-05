@@ -30,7 +30,7 @@ export default function UpdateHotelReservationPage() {
   const queryClient = useQueryClient();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingData, setPendingData] = useState<HotelReservationSchema | null>(
-    null
+    null,
   );
 
   // Obtener los datos de la solicitud de viáticos
@@ -51,7 +51,7 @@ export default function UpdateHotelReservationPage() {
 
   const { mutate, isPending } = useUpdateHotelReservation(
     Number(reservationId),
-    Number(id)
+    Number(id),
   );
 
   const handleSubmit = (data: HotelReservationSchema) => {
@@ -74,7 +74,7 @@ export default function UpdateHotelReservationPage() {
 
           successToast(
             "Reserva actualizada",
-            "La reserva de hotel ha sido actualizada exitosamente."
+            "La reserva de hotel ha sido actualizada exitosamente.",
           );
           setShowConfirmModal(false);
           setPendingData(null);
@@ -82,9 +82,8 @@ export default function UpdateHotelReservationPage() {
         },
         onError: (error: any) => {
           errorToast(
-            "Error al actualizar",
             error.response?.data?.message ||
-              "No se pudo actualizar la reserva. Inténtalo de nuevo."
+              "No se pudo actualizar la reserva. Inténtalo de nuevo.",
           );
         },
       });
@@ -133,7 +132,7 @@ export default function UpdateHotelReservationPage() {
         />
         <HotelReservationForm
           defaultValues={{
-            hotel_agreement_id: reservation.hotel_agreement?.id || null,
+            hotel_agreement_id: String(reservation.hotel_agreement?.id) || "",
             hotel_name: reservation.hotel_name,
             address: reservation.address,
             phone: reservation.phone,
@@ -142,6 +141,7 @@ export default function UpdateHotelReservationPage() {
             total_cost: reservation.total_cost,
             document_number: reservation.expense.receipt_number || "",
             notes: reservation.notes || "",
+            ruc: reservation.expense.ruc || "",
           }}
           onSubmit={handleSubmit}
           isSubmitting={isPending}

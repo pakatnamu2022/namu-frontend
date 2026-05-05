@@ -60,3 +60,25 @@ export interface Period {
 export interface getCyclesProps {
   params?: Record<string, any>;
 }
+
+export interface WeightsPreviewObjective {
+  id: number;
+  objective: string;
+  weight: string;
+  fixedWeight: boolean;
+}
+
+export interface WeightsPreviewPerson {
+  person_id: number;
+  person: string;
+  category_id: number;
+  category: string;
+  total_weight: number;
+  objectives: WeightsPreviewObjective[];
+}
+
+export interface WeightsPreviewResponse {
+  cycle_id: number;
+  needs_update_count: number;
+  needs_update: WeightsPreviewPerson[];
+}

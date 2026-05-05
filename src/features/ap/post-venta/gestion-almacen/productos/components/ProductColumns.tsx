@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select.tsx";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type ProductColumns = ColumnDef<ProductResource>;
 
@@ -38,12 +39,18 @@ export const productColumns = ({
     header: "Cód.",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value ? (
+        <CopyCell value={value} className="font-semibold" />
+      ) : null;
     },
   },
   {
     accessorKey: "dyn_code",
     header: "Cód. Dynamic",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value ? <CopyCell value={value} /> : null;
+    },
   },
   {
     accessorKey: "name",
@@ -114,30 +121,6 @@ export const productColumns = ({
     },
   },
   {
-    accessorKey: "sale_price",
-    header: "P. Venta",
-    cell: ({ getValue, row }) => {
-      const value = getValue();
-      const priceWithTax = row.original.price_with_tax;
-
-      if (value == null || value === "") return "S/ 0.00";
-      const numValue =
-        typeof value === "string" ? parseFloat(value) : Number(value);
-      const basePrice = isNaN(numValue) ? 0 : numValue;
-
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">S/ {basePrice.toFixed(2)}</span>
-          {priceWithTax != null && priceWithTax !== basePrice && (
-            <span className="text-xs text-muted-foreground">
-              c/IGV: S/ {priceWithTax.toFixed(2)}
-            </span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -174,7 +157,7 @@ export const productColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, status } = row.original;
+      const { id, status, has_purchase_order } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -231,7 +214,7 @@ export const productColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {permissions.canUpdate && (
+          {permissions.canUpdate && !has_purchase_order && (
             <Button
               variant="outline"
               size="icon"
@@ -257,7 +240,7 @@ export const productColumns = ({
           )}
 
           {/* Delete */}
-          {permissions.canDelete && (
+          {permissions.canDelete && !has_purchase_order && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

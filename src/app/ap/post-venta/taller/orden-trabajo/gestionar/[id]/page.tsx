@@ -10,7 +10,6 @@ import {
   Wrench,
   ClipboardCheck,
   FolderOpen,
-  Receipt,
   UserCog,
   Package,
   FileText,
@@ -24,28 +23,40 @@ import {
   updateWorkOrder,
   unlinkQuotation,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import {
+  WORK_ORDER_STATUS_COLORS,
+  WORKER_ORDER,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
-import BillingTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/BillingTab";
 import OperatorsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OperatorsTab";
 import PartsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/PartsTab";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
 import { WorkOrderQuotationSelectionModal } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderQuotationSelectionModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { successToast, errorToast } from "@/core/core.function";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { Badge } from "@/components/ui/badge";
 
 export default function ManageWorkOrderPage() {
   const params = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const id = Number(params.id);
-  const [activeTab, setActiveTab] = useState("reception");
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { ABSOLUTE_ROUTE } = WORKER_ORDER;
+  const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER;
+  const permissions = useModulePermissions(ROUTE);
+
+  // Determinar el tab inicial según los permisos
+  const initialTab = permissions.canOtOptions
+    ? "reception"
+    : permissions.canBill
+      ? "billing"
+      : "reception";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Fetch work order data
   const { data: workOrder, isLoading } = useQuery({
@@ -53,6 +64,9 @@ export default function ManageWorkOrderPage() {
     queryFn: () => findWorkOrderById(id),
     enabled: !!id,
   });
+
+  const color =
+    WORK_ORDER_STATUS_COLORS[workOrder?.status.description || ""] ?? "gray";
 
   // Mutación para adjuntar cotización
   const attachQuotationMutation = useMutation({
@@ -95,9 +109,11 @@ export default function ManageWorkOrderPage() {
       setIsDownloading(true);
       await downloadPreLiquidationPdf(workOrder.id);
       successToast("PDF descargado exitosamente");
-    } catch (error) {
-      console.error("Error al descargar PDF:", error);
-      errorToast("Error al descargar el PDF de la preliquidación");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "La orden de trabajo no tiene un destinatario de factura asignado.",
+      );
     } finally {
       setIsDownloading(false);
     }
@@ -149,11 +165,24 @@ export default function ManageWorkOrderPage() {
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 flex flex-col items-end">
-                <span className="text-xs text-gray-500 mb-1">Estado</span>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap">
-                  {workOrder.status.description}
-                </span>
+              <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-end gap-2 sm:gap-3">
+                {workOrder.type_currency && (
+                  <div className="text-left sm:text-right">
+                    <p className="text-xs sm:text-sm text-gray-600">Moneda</p>
+                    <span className="inline-flex max-w-full items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                      <span className="truncate">
+                        {workOrder.type_currency.symbol} —{" "}
+                        {workOrder.type_currency.name}
+                      </span>
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-col items-start sm:items-end">
+                  <span className="text-xs text-gray-500 mb-1">Estado</span>
+                  <Badge variant="outline" color={color}>
+                    {workOrder.status.description}
+                  </Badge>
+                </div>
               </div>
             </div>
 
@@ -227,50 +256,46 @@ export default function ManageWorkOrderPage() {
           >
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
               <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-6 gap-1">
-                <TabsTrigger
-                  value="reception"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <ClipboardCheck className="h-4 w-4 shrink-0" />
-                  <span>Recepción</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="opening"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <FolderOpen className="h-4 w-4 shrink-0" />
-                  <span>Apertura</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="operators"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <UserCog className="h-4 w-4 shrink-0" />
-                  <span>Operarios</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="labor"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Wrench className="h-4 w-4 shrink-0" />
-                  <span className="hidden md:inline">Mano de Obra</span>
-                  <span className="md:hidden">M. Obra</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="parts"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Package className="h-4 w-4 shrink-0" />
-                  <span>Repuestos</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="billing"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Receipt className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline">Facturación</span>
-                  <span className="sm:hidden">Factura</span>
-                </TabsTrigger>
+                {permissions.canOtOptions && (
+                  <>
+                    <TabsTrigger
+                      value="reception"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <ClipboardCheck className="h-4 w-4 shrink-0" />
+                      <span>Recepción</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="opening"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <FolderOpen className="h-4 w-4 shrink-0" />
+                      <span>Apertura</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="operators"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <UserCog className="h-4 w-4 shrink-0" />
+                      <span>Operarios</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="labor"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <Wrench className="h-4 w-4 shrink-0" />
+                      <span className="hidden md:inline">Mano de Obra</span>
+                      <span className="md:hidden">M. Obra</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="parts"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <Package className="h-4 w-4 shrink-0" />
+                      <span>Repuestos</span>
+                    </TabsTrigger>
+                  </>
+                )}
               </TabsList>
             </div>
 
@@ -293,10 +318,6 @@ export default function ManageWorkOrderPage() {
 
               <TabsContent value="parts" className="space-y-4">
                 <PartsTab workOrderId={workOrder.id} />
-              </TabsContent>
-
-              <TabsContent value="billing" className="space-y-4">
-                <BillingTab workOrderId={workOrder.id} />
               </TabsContent>
             </div>
           </Tabs>

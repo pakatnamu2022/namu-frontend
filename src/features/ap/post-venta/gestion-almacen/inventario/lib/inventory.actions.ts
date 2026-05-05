@@ -133,6 +133,44 @@ export const exportProductPurchaseHistory = async (
   window.URL.revokeObjectURL(url);
 };
 
+export const exportInventory = async (params: {
+  warehouse_id: number;
+  stock_type?: "all" | "with_stock" | "without_stock";
+  title?: string;
+}): Promise<void> => {
+  const config: AxiosRequestConfig = {
+    params,
+    responseType: "blob",
+  };
+
+  const response = await api.get(
+    `/ap/postVenta/productWarehouseStock/export/inventory`,
+    config,
+  );
+
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  const contentDisposition = response.headers["content-disposition"];
+  let filename = `inventario-almacen-${params.warehouse_id}.xlsx`;
+  if (contentDisposition) {
+    const match = contentDisposition.match(
+      /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+    );
+    if (match?.[1]) filename = match[1].replace(/['"]/g, "");
+  }
+
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
 export const exportProductMovementHistory = async (
   productId: number,
   warehouseId: number,

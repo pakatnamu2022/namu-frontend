@@ -26,6 +26,14 @@ export const hotelAgreementColumns = ({
   permissions,
 }: Props): HotelAgreementColumns[] => [
   {
+    accessorKey: "ruc",
+    header: "RUC",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="font-semibold">{value}</p>;
+    },
+  },
+  {
     accessorKey: "city",
     header: "Ciudad",
     cell: ({ getValue }) => {

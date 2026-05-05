@@ -394,7 +394,7 @@ export default function OpportunitiesKanbanPage() {
                   )
                 : filteredLeads.map((lead) => (
                     <CarouselItem key={lead.id} className="pl-2 basis-auto">
-                      <div className="w-72">
+                      <div className="w-80">
                         <LeadCard lead={lead} onDiscard={handleDiscardLead} />
                       </div>
                     </CarouselItem>

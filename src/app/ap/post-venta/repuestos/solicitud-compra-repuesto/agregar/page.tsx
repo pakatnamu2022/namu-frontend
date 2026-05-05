@@ -13,9 +13,11 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PURCHASE_REQUEST_REPUESTOS } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm";
 import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddPurchaseRequestRepuestoPage() {
   const router = useNavigate();
@@ -50,9 +52,10 @@ export default function AddPurchaseRequestRepuestoPage() {
       />
       <PurchaseRequestForm
         defaultValues={{
-          supply_type: "LIMA",
-          requested_date: new Date().toISOString().split("T")[0] || "",
+          requested_date: new Date(),
           observations: "",
+          area_id: AREA_MESON,
+          currency_id: CURRENCY_TYPE_IDS.SOLES,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

@@ -8,12 +8,14 @@ const purchaseRequestQuoteSchemaBase = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Tipo de documento es requerido",
     }),
-  warranty: z
-    .string()
-    .max(100)
-    .refine((value) => value.trim() !== "", {
-      message: "Garantía es requerido",
-    }),
+  warranty_years: z.coerce
+    .number()
+    .int("Debe ser un número entero")
+    .min(1, "Mínimo 1 año"),
+  warranty_km: z.coerce
+    .number()
+    .int("Debe ser un número entero")
+    .min(1, "Mínimo 1 km"),
   opportunity_id: requiredStringId("Oportunidad es requerido"),
   comment: z.string().optional().default(""),
   holder_id: requiredStringId("Titular es requerido"),
@@ -28,53 +30,78 @@ const purchaseRequestQuoteSchemaBase = z.object({
     },
     {
       message: "El precio de venta debe ser un número mayor a 1",
-    }
+    },
   ),
   doc_type_currency_id: requiredStringId("Moneda es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
+  down_payment: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        const num = parseFloat(val);
+        return !isNaN(num) && num >= 0;
+      },
+      { message: "El monto a cuenta debe ser un número mayor o igual a 0" },
+    ),
+  quote_deadline: z
+    .string()
+    .min(1, "La fecha de vencimiento es requerida")
+    .refine(
+      (value) => {
+        // Añadir T12:00:00 para comparar en hora local y evitar el problema
+        // de UTC midnight que desplaza la fecha en timezones negativos (Peru UTC-5).
+        const date = new Date(`${value}T12:00:00`);
+        return !isNaN(date.getTime()) && date > new Date();
+      },
+      {
+        message:
+          "La fecha de vencimiento debe ser una fecha válida en el futuro",
+      },
+    ),
 });
 
-export const purchaseRequestQuoteSchemaCreate =
-  purchaseRequestQuoteSchemaBase
-    .refine(
-      (data) => {
-        // Si with_vin es true, ap_vehicle_id es requerido
-        if (data.with_vin) {
-          return !!data.ap_vehicle_id && data.ap_vehicle_id.trim() !== "";
-        }
-        return true;
-      },
-      {
-        message: "Debes seleccionar un vehículo VN",
-        path: ["ap_vehicle_id"],
+export const purchaseRequestQuoteSchemaCreate = purchaseRequestQuoteSchemaBase
+  .refine(
+    (data) => {
+      // Si with_vin es true, ap_vehicle_id es requerido
+      if (data.with_vin) {
+        return !!data.ap_vehicle_id && data.ap_vehicle_id.trim() !== "";
       }
-    )
-    .refine(
-      (data) => {
-        // Si with_vin es false, ap_models_vn_id es requerido
-        if (!data.with_vin) {
-          return !!data.ap_models_vn_id && data.ap_models_vn_id.trim() !== "";
-        }
-        return true;
-      },
-      {
-        message: "Debes seleccionar un modelo VN",
-        path: ["ap_models_vn_id"],
+      return true;
+    },
+    {
+      message: "Debes seleccionar un vehículo VN",
+      path: ["ap_vehicle_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si with_vin es false, ap_models_vn_id es requerido
+      if (!data.with_vin) {
+        return !!data.ap_models_vn_id && data.ap_models_vn_id.trim() !== "";
       }
-    )
-    .refine(
-      (data) => {
-        // Si with_vin es false, vehicle_color_id es requerido
-        if (!data.with_vin) {
-          return !!data.vehicle_color_id && data.vehicle_color_id.trim() !== "";
-        }
-        return true;
-      },
-      {
-        message: "Debes seleccionar un color de vehículo",
-        path: ["vehicle_color_id"],
+      return true;
+    },
+    {
+      message: "Debes seleccionar un modelo VN",
+      path: ["ap_models_vn_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si with_vin es false, vehicle_color_id es requerido
+      if (!data.with_vin) {
+        return !!data.vehicle_color_id && data.vehicle_color_id.trim() !== "";
       }
-    );
+      return true;
+    },
+    {
+      message: "Debes seleccionar un color de vehículo",
+      path: ["vehicle_color_id"],
+    },
+  );
 
 export const purchaseRequestQuoteSchemaUpdate =
   purchaseRequestQuoteSchemaBase.partial();

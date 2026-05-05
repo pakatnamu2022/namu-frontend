@@ -1,4 +1,6 @@
-import DatePicker from "@/shared/components/DatePicker";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
 
 interface Props {
@@ -8,6 +10,9 @@ interface Props {
   setDateFrom: (date: Date | undefined) => void;
   dateTo: Date | undefined;
   setDateTo: (date: Date | undefined) => void;
+  sedes: SedeResource[];
+  sedeId: string;
+  setSedeId: (value: string) => void;
 }
 
 export default function OrderQuotationOptions({
@@ -17,6 +22,9 @@ export default function OrderQuotationOptions({
   setDateFrom,
   dateTo,
   setDateTo,
+  sedes = [],
+  sedeId,
+  setSedeId,
 }: Props) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -25,19 +33,26 @@ export default function OrderQuotationOptions({
         onChange={setSearch}
         placeholder="Buscar cotización..."
       />
-      <DatePicker
-        value={dateFrom}
-        onChange={setDateFrom}
-        placeholder="Fecha Desde"
-        showClearButton={false}
-        captionLayout="dropdown"
+      <SearchableSelect
+        options={sedes.map((item) => ({
+          value: item.id.toString(),
+          label: item.abreviatura,
+        }))}
+        value={sedeId}
+        onChange={setSedeId}
+        placeholder="Filtrar por sede"
+        className="min-w-72"
+        classNameOption="text-xs"
+        allowClear={false}
       />
-      <DatePicker
-        value={dateTo}
-        onChange={setDateTo}
-        placeholder="Fecha Hasta"
-        showClearButton={false}
-        captionLayout="dropdown"
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
       />
     </div>
   );

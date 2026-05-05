@@ -1,3 +1,4 @@
+import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface WorkOrderItemResponse {
@@ -11,7 +12,7 @@ export interface WorkOrderItemResource {
   group_number: number;
   work_order_id: string;
   type_planning_id: string;
-  type_planning_name: string;
+  type_planning: TypesPlanningResource;
   type_operation_id: string;
   type_operation_name: string;
   description: string;

@@ -8,6 +8,7 @@ import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrder
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -35,6 +36,7 @@ export interface WorkOrderResource {
   sede_name: string;
   opening_date: string;
   estimated_delivery_date: string;
+  estimated_delivery_time: string;
   actual_delivery_date: string;
   diagnosis_date: string;
   observations: string;
@@ -44,6 +46,21 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
+  cost_man_hours: number;
+  is_invalid_with_quote: boolean;
+  //Costos
+  total_labor_cost: number;
+  total_parts_cost: number;
+  subtotal: number;
+  discount_percentage: number;
+  discount_amount: number;
+  tax_amount: number;
+  final_amount: number;
+  is_delivery: boolean;
+  num_doc_contact: string;
+  full_contact_name: string;
+  phone_contact: string;
+
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];
@@ -52,6 +69,20 @@ export interface WorkOrderResource {
   parts: WorkOrderPartsResource[];
   advances: ElectronicDocumentResource[];
   status: ApMastersResource;
+  invoice_to: number | null;
+  invoice_to_client: CustomersResource | null;
+  internal_note?: InternalNoteResource;
+}
+
+export interface InternalNoteResource {
+  id: number;
+  number: string;
+  work_order_id: number;
+  created_date: string;
+  closed_date: string | null;
+  status: "pending" | "invoiced";
+  created_at: string;
+  updated_at: string;
 }
 
 export interface WorkOrderRequest {
@@ -59,7 +90,7 @@ export interface WorkOrderRequest {
   vehicle_id: string;
   sede_id: string;
   opening_date: string | Date;
-  estimated_delivery_date: string | Date;
+  estimated_delivery_time: string | Date;
   diagnosis_date: string | Date;
   observations: string;
 }
@@ -70,7 +101,8 @@ export interface WorkOrderPaymentSummary {
   payment_summary: {
     labour_cost: number;
     parts_cost: number;
-    subtotal: number;
+    total_cost: number;
+    net_amount: number;
     discount_amount: number;
     tax_amount: number;
     total_amount: number;
@@ -129,4 +161,48 @@ export const DEFAULT_GROUP_COLOR = {
 
 export interface getWorkOrderProps {
   params?: Record<string, any>;
+  enabled?: boolean;
+}
+
+export interface VehicleWorkOrderHistoryWork {
+  description: string;
+  actual_hours: number | null;
+  worker: string | null;
+  actual_start_datetime: string | null;
+  actual_end_datetime: string | null;
+  status: string;
+}
+
+export interface VehicleWorkOrderHistoryPart {
+  description: string;
+  quantity: string;
+}
+
+export interface VehicleWorkOrderHistoryItem {
+  correlative: string;
+  opening_date: string;
+  estimated_delivery_date: string | null;
+  actual_delivery_date: string | null;
+  diagnosis_date: string | null;
+  status: string;
+  sede: string;
+  advisor: string;
+  is_guarantee: boolean;
+  is_recall: boolean;
+  description_recall: string | null;
+  type_recall: string | null;
+  observations: string | null;
+  works_performed: VehicleWorkOrderHistoryWork[];
+  parts_used: VehicleWorkOrderHistoryPart[];
+}
+
+export interface VehicleWorkOrderHistoryResponse {
+  vehicle_id: number;
+  vehicle_plate: string;
+  vehicle_vin: string;
+  data: VehicleWorkOrderHistoryItem[];
+}
+
+export interface GenerateWorkOrderResponse {
+  message: string;
 }

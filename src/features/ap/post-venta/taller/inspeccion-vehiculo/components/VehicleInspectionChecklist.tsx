@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { CHECKLIST_ITEMS } from "../lib/vehicleInspection.constants";
 import { FileText, PackageCheck, Wrench, AlertCircle } from "lucide-react";
 
@@ -42,14 +41,17 @@ export default function VehicleInspectionChecklist({
     },
   };
 
-  const groupedItems = CHECKLIST_ITEMS.reduce((acc, item) => {
-    const category = item.category;
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(item);
-    return acc;
-  }, {} as Record<string, Array<(typeof CHECKLIST_ITEMS)[number]>>);
+  const groupedItems = CHECKLIST_ITEMS.reduce(
+    (acc, item) => {
+      const category = item.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    },
+    {} as Record<string, Array<(typeof CHECKLIST_ITEMS)[number]>>,
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -69,11 +71,11 @@ export default function VehicleInspectionChecklist({
               </h3>
             </div>
 
-            <div className="space-y-2 md:space-y-3">
+            <div className="space-y-2">
               {items.map((item) => (
-                <div
+                <label
                   key={item.key}
-                  className="flex items-center space-x-3 md:space-x-2 p-2 md:p-0 rounded-lg hover:bg-gray-100 md:hover:bg-transparent transition-colors"
+                  className="flex items-center gap-3 rounded-md border p-3 shadow-xs bg-background hover:bg-muted cursor-pointer transition-colors"
                 >
                   <Checkbox
                     id={item.key}
@@ -82,15 +84,11 @@ export default function VehicleInspectionChecklist({
                       onChange(item.key, checked as boolean)
                     }
                     disabled={disabled}
-                    className="h-6 w-6 md:h-4 md:w-4"
                   />
-                  <Label
-                    htmlFor={item.key}
-                    className="text-base md:text-sm font-normal cursor-pointer flex-1"
-                  >
+                  <span className="text-sm font-medium leading-tight flex-1">
                     {item.label}
-                  </Label>
-                </div>
+                  </span>
+                </label>
               ))}
             </div>
           </Card>

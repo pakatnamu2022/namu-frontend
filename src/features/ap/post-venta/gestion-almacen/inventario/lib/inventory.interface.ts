@@ -1,3 +1,5 @@
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface InventoryProductCategory {
@@ -25,14 +27,6 @@ export interface InventoryProductBrand {
   sede_id: number | null;
 }
 
-export interface InventoryProductUnitMeasurement {
-  id: number;
-  dyn_code: string;
-  nubefac_code: string;
-  description: string;
-  status: boolean;
-}
-
 export interface InventoryProduct {
   id: number;
   code: string;
@@ -48,7 +42,6 @@ export interface InventoryProduct {
   sale_price: string;
   tax_rate: string;
   is_taxable: boolean;
-  sunat_code: string | null;
   warranty_months: number;
   status: string;
   brand_name: string;
@@ -60,7 +53,7 @@ export interface InventoryProduct {
   cost_with_tax: number;
   category: InventoryProductCategory;
   brand: InventoryProductBrand;
-  unit_measurement: InventoryProductUnitMeasurement;
+  unit_measurement: UnitMeasurementResource;
 }
 
 export interface InventoryWarehouse {
@@ -98,6 +91,12 @@ export interface InventoryResource {
   last_movement_date: string;
   is_low_stock: boolean;
   is_out_of_stock: boolean;
+  //Costos
+  cost_price: string;
+  sale_price: string;
+  tax_rate: string;
+  is_taxable: boolean;
+
   stock_status: "LOW_STOCK" | "OUT_OF_STOCK" | "NORMAL";
   product: InventoryProduct;
   warehouse: InventoryWarehouse;
@@ -110,7 +109,7 @@ export interface StockByProductIdsResponse {
   data: ProductStock[];
 }
 
-interface ProductStock {
+export interface ProductStock {
   product_id: number;
   product_name: string | null;
   product_code: string | null;
@@ -129,13 +128,15 @@ interface WarehouseStock {
   available_quantity: number;
   minimum_stock: number;
   maximum_stock: number;
+  last_purchase_price: number;
+  days_without_movement: number;
+  public_sale_price: number;
+  minimum_sale_price: number;
   stock_status: "NORMAL" | "LOW_STOCK" | "OUT_OF_STOCK" | "OVER_STOCK";
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   last_movement_date: string;
-  last_purchase_price: number;
-  public_sale_price: number;
-  minimum_sale_price: number;
+  currency: CurrencyTypesResource;
 }
 
 export interface InventoryResponse {

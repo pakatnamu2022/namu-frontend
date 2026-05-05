@@ -13,7 +13,6 @@ export interface OrderQuotationResponse {
 
 export interface OrderQuotationResource {
   id: number;
-  customer: string;
   created_by_name: string;
   vehicle_id: number;
   vehicle: VehicleResource;
@@ -29,6 +28,7 @@ export interface OrderQuotationResource {
   expiration_date: string;
   collection_date: string;
   observations: string | null;
+  notes: string | null;
   details: OrderQuotationDetailsResource[];
   advances: ElectronicDocumentResource[];
   client: CustomersResource;
@@ -37,15 +37,36 @@ export interface OrderQuotationResource {
   created_at: string;
   updated_at: string;
   area_id: number | null;
-  sede_id: number | null;
+  sede_id: number;
+  warehouse_id: number;
   has_invoice_generated: boolean;
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
   status: string;
-  customer_signature: string | null;
-  has_sufficient_stock: boolean;
-  supply_type: "STOCK" | "LIMA" | "IMPORTACION";
+  supply_type: "STOCK" | "CENTRAL" | "IMPORTACION";
   exchange_rate: number;
+  chief_approval_by: string | null;
+  manager_approval_by: string | null;
+  customer_signature_delivery_url: string | null;
+  delivery_document_number: string | null;
+  has_management_discount: boolean;
+  //Confirmacion virtual
+  confirmed_at: string | null;
+  confirmation_channel: string | null;
+  confirmation_ip: string | null;
+  confirmation_metadata: Record<string, any> | null;
+  //Facturación
+  invoice_to: number | null;
+  invoice_to_client: CustomersResource | null;
+  //Opcionales
+  has_sufficient_stock: boolean;
+  cost_man_hours: number;
+  is_requested_by_management: boolean;
+}
+
+export interface ApprovalRequest {
+  chief_approval_by?: string;
+  manager_approval_by?: string;
 }
 
 export interface OrderQuotationRequest {
@@ -57,4 +78,43 @@ export interface OrderQuotationRequest {
 
 export interface getOrderQuotationProps {
   params?: Record<string, any>;
+}
+
+// ─── Confirmación Virtual ────────────────────────────────────────────────────
+
+export interface SendVirtualConfirmationResponse {
+  success: boolean;
+  message: string;
+  confirmation_link: string;
+  sent_to: string;
+  expires_at: string;
+  quotation: OrderQuotationResource;
+}
+
+export interface PublicQuotationByTokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    already_confirmed: boolean;
+    confirmed_at: string;
+    confirmation_channel: string;
+    quotation: OrderQuotationResource | null;
+  };
+}
+
+export interface ConfirmByTokenData {
+  notes?: string;
+  confirmed_by_name?: string;
+}
+
+export interface ConfirmByTokenResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    id: number;
+    quotation_number: string;
+    confirmed_at: string;
+    confirmation_channel: string;
+    status: string;
+  };
 }

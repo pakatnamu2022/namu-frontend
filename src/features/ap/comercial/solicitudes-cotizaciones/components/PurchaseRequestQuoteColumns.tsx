@@ -1,11 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil, Check, Car, Link2Off } from "lucide-react";
+import {
+  Pencil,
+  Check,
+  Car,
+  Link2Off,
+  Eye,
+  ArrowLeftRight,
+  X,
+  FileCheck,
+} from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
+import { DECLARACION_JURADA_KYC } from "../../declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { Badge } from "@/components/ui/badge";
+import { ButtonAction } from "@/shared/components/ButtonAction";
+import ExportButtons from "@/shared/components/ExportButtons";
 
 export type PurchaseRequestQuoteColumns =
   ColumnDef<PurchaseRequestQuoteResource>;
@@ -15,11 +27,14 @@ interface Props {
   onDownloadPdf: (id: number) => void;
   onAssignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onUnassignVehicle: (id: number) => void;
+  onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
+  onViewDetail: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canApprove: boolean;
     canExport: boolean;
     canAssign: boolean;
+    canCreateKyc: boolean;
   };
 }
 
@@ -28,6 +43,8 @@ export const purchaseRequestQuoteColumns = ({
   onDownloadPdf,
   onAssignVehicle,
   onUnassignVehicle,
+  onSwapVehicle,
+  onViewDetail,
   permissions,
 }: Props): PurchaseRequestQuoteColumns[] => [
   {
@@ -40,17 +57,27 @@ export const purchaseRequestQuoteColumns = ({
   },
   {
     accessorKey: "doc_type_currency",
-    header: "Moneda Facturado",
+    header: "Moneda",
   },
   {
     accessorKey: "doc_sale_price",
-    header: "Precio de Venta Facturado",
-    cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
+    header: "P. Venta",
+    cell: ({ row }) => (
+      <NumberFormat
+        prefix={row.original.doc_type_currency}
+        value={row.original.doc_sale_price as number}
+      />
+    ),
   },
   {
     accessorKey: "sale_price",
-    header: "Precio de Venta",
-    cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
+    header: "P. Venta Vehículo",
+    cell: ({ row }) => (
+      <NumberFormat
+        prefix={row.original.doc_type_currency}
+        value={row.original.sale_price}
+      />
+    ),
   },
   {
     accessorKey: "comment",
@@ -59,6 +86,10 @@ export const purchaseRequestQuoteColumns = ({
   {
     accessorKey: "holder",
     header: "Titular",
+  },
+  {
+    accessorKey: "client_name",
+    header: "Cliente",
   },
   {
     accessorKey: "consultant.name",
@@ -71,17 +102,25 @@ export const purchaseRequestQuoteColumns = ({
       const isApproved = getValue() as boolean;
       return (
         <Badge
-          color={isApproved ? "default" : "secondary"}
-          className={isApproved ? "bg-primary" : "bg-secondary"}
+          color={isApproved ? "green" : "gray"}
+          icon={isApproved ? Check : X}
         >
-          {isApproved ? "Sí" : "No"}
+          {isApproved ? "Aprobado" : "Pendiente"}
         </Badge>
       );
     },
   },
   {
-    accessorKey: "client_name",
-    header: "Cliente",
+    accessorKey: "is_paid",
+    header: "Pagado",
+    cell: ({ getValue }) => {
+      const is_paid = getValue() as boolean;
+      return (
+        <Badge color={is_paid ? "green" : "gray"} icon={is_paid ? Check : X}>
+          {is_paid ? "Pagado" : "Pendiente Pago"}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "exchange_rate",
@@ -97,8 +136,13 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
   },
   {
-    accessorKey: "warranty",
+    id: "warranty",
     header: "Garantía",
+    cell: ({ row }) => {
+      const { warranty_years, warranty_km } = row.original;
+      if (!warranty_years || !warranty_km) return "N/A";
+      return `${warranty_years} ${warranty_years === 1 ? "año" : "años"} / ${warranty_km.toLocaleString("es-PE")} km`;
+    },
   },
   {
     accessorKey: "sede",
@@ -108,13 +152,20 @@ export const purchaseRequestQuoteColumns = ({
     accessorKey: "ap_vehicle",
     header: "Vehículo Asignado",
     cell: ({ getValue }) => {
-      const vehicle = getValue() as PurchaseRequestQuoteResource["ap_vehicle"];
-      return vehicle ? (
-        <p>
-          {vehicle.model.version} - {vehicle.vin}
-        </p>
-      ) : (
-        <p className="italic text-muted-foreground">No asignado</p>
+      if (!getValue()) {
+        return (
+          <p className="text-muted-foreground uppercase text-xs">No asignado</p>
+        );
+      }
+      const vehicle = (getValue() as string)?.split(" - ");
+      const model = vehicle[0] || "";
+      const vin = vehicle[1] || "";
+
+      return (
+        <div className="flex flex-col text-xs">
+          <span>{model}</span>
+          <span className="font-semibold text-primary">{vin}</span>
+        </div>
       );
     },
   },
@@ -122,16 +173,44 @@ export const purchaseRequestQuoteColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, is_approved } = row.original;
+      const { id, is_approved, holder_id, sede_id } = row.original;
       const { ROUTE_UPDATE } = PURCHASE_REQUEST_QUOTE;
+      const { ROUTE_ADD: KYC_ROUTE_ADD } = DECLARACION_JURADA_KYC;
       const isApproved = Boolean(is_approved);
       const hasVehicle = Boolean(row.original.ap_vehicle_id);
 
+      const canAssignVehicle = permissions.canAssign && !hasVehicle;
+      const canUnassignVehicle =
+        permissions.canAssign && hasVehicle && !row.original.is_paid;
+      const canSwapVehicle =
+        permissions.canAssign && hasVehicle && !row.original.is_paid;
+      const canEdit =
+        permissions.canUpdate && !row.original.is_invoiced;
+
       return (
         <div className="flex items-center gap-2">
+          {/* PDF - Only show if user has export permission */}
+          <ExportButtons
+            variant="separate-icon"
+            pdfVariant="outline"
+            excelVariant="outline"
+            onPdfDownload={() => onDownloadPdf(id)}
+            disablePdf={!permissions.canExport}
+          />
+          {/* View Detail */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Ver Detalle"
+            onClick={() => onViewDetail(row.original.id)}
+          >
+            <Eye className="size-5" />
+          </Button>
           {/* Assign Vehicle */}
-          {permissions.canAssign && !hasVehicle && (
+          {canAssignVehicle && (
             <Button
               variant="outline"
               size="icon"
@@ -142,9 +221,20 @@ export const purchaseRequestQuoteColumns = ({
               <Car className="size-5" />
             </Button>
           )}
-
+          {/* Swap Vehicle */}
+          {canSwapVehicle && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Cambiar Vehículo"
+              onClick={() => onSwapVehicle(row.original)}
+            >
+              <ArrowLeftRight className="size-5" />
+            </Button>
+          )}
           {/* Unassign Vehicle */}
-          {permissions.canAssign && hasVehicle && (
+          {canUnassignVehicle && (
             <Button
               variant="outline"
               size="icon"
@@ -155,22 +245,24 @@ export const purchaseRequestQuoteColumns = ({
               <Link2Off className="size-5" />
             </Button>
           )}
-
-          {/* PDF - Only show if user has export permission */}
-          {permissions.canExport && (
+          {/* Generar Declaración Jurada KYC */}
+          {permissions.canCreateKyc && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              tooltip="Descargar PDF"
-              onClick={() => onDownloadPdf(id)}
+              tooltip="Generar DJ KYC"
+              onClick={() =>
+                router(
+                  `${KYC_ROUTE_ADD}?quote_id=${id}&partner_id=${holder_id}&sede_id=${sede_id}`,
+                )
+              }
             >
-              <FileText className="size-5" />
+              <FileCheck className="size-5" />
             </Button>
           )}
-
           {/* Edit - Only show if user has update permission */}
-          {permissions.canUpdate && (
+          {canEdit && (
             <Button
               variant="outline"
               size="icon"
@@ -183,18 +275,15 @@ export const purchaseRequestQuoteColumns = ({
           )}
 
           {/* Approve - Only show if user has approve permission */}
-          {permissions.canApprove && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Confirmar"
-              onClick={() => onApprove(id)}
-              disabled={isApproved}
-            >
-              <Check className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            variant="outline"
+            className="size-7"
+            tooltip="Confirmar"
+            color="emerald"
+            onClick={() => onApprove(id)}
+            canRender={!isApproved && permissions.canApprove}
+            icon={Check}
+          />
         </div>
       );
     },

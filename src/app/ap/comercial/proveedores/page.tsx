@@ -26,15 +26,16 @@ import { suppliersColumns } from "@/features/ap/comercial/proveedores/components
 import SuppliersOptions from "@/features/ap/comercial/proveedores/components/SuppliersOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { useNavigate } from "react-router-dom";
 
 export default function SuppliersPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const router = useNavigate();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = SUPPLIERS;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE, ROUTE_ADD } = SUPPLIERS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -74,11 +75,17 @@ export default function SuppliersPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <SuppliersActions permissions={permissions} />
+        <SuppliersActions
+          onAdd={() => router(ROUTE_ADD)}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
       <SuppliersTable
         isLoading={isLoading}
         columns={suppliersColumns({
+          onEstablishments: (id) =>
+            router(`${ABSOLUTE_ROUTE}/establecimientos/${id}`),
+          onUpdate: (id) => router(`${ROUTE_UPDATE}/${id}`),
           onDelete: setDeleteId,
           permissions,
         })}

@@ -12,6 +12,7 @@ interface ProgressCellProps {
   colorClass: string;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function ProgressCell({ value, total, colorClass }: ProgressCellProps) {
   const percentage = total > 0 ? (value / total) * 100 : 0;
 

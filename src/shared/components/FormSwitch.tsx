@@ -35,9 +35,9 @@ export function FormSwitch<T extends FieldValues>({
   autoHeight = false,
 }: FormSwitchProps<T>) {
   const sizeClasses = {
-    sm: "h-8 p-2 gap-2",
-    md: "h-9 p-3 gap-3",
-    lg: "h-11 p-4 gap-4",
+    sm: "h-7 p-2 gap-2",
+    md: "h-8 p-3 gap-3",
+    lg: "h-10 p-4 gap-4",
   };
 
   return (
@@ -46,13 +46,13 @@ export function FormSwitch<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          {label && <FormLabel className="h-fit flex">{label}</FormLabel>}
+          {label && <FormLabel className="h-fit flex mb-1">{label}</FormLabel>}
           <FormLabel
             className={cn(
-              "flex flex-row items-center justify-between rounded-lg border shadow-xs bg-background hover:bg-muted hover:cursor-pointer",
+              "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background hover:bg-muted hover:cursor-pointer",
               sizeClasses[size],
               className,
-              autoHeight ? "h-auto" : "h-8 md:h-10"
+              autoHeight ? "h-auto" : ""
             )}
           >
             <div className="flex flex-col gap-1 flex-1 min-w-0">

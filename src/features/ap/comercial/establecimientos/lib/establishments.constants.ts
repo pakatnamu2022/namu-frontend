@@ -5,12 +5,17 @@ import {
   CUSTOMERS_PV,
   CUSTOMERS_RP,
 } from "../../clientes/lib/customers.constants";
-import { SUPPLIERS } from "../../proveedores/lib/suppliers.constants";
+import {
+  SUPPLIERS,
+  SUPPLIER_WAREHOUSE,
+} from "../../proveedores/lib/suppliers.constants";
 
 const { ABSOLUTE_ROUTE: CUSTOMER_ABSOLUTE_ROUTE } = CUSTOMERS;
 const { ABSOLUTE_ROUTE: CUSTOMER_ABSOLUTE_ROUTE_TLL } = CUSTOMERS_PV; //PARA POST-VENTA TALLER
 const { ABSOLUTE_ROUTE: CUSTOMER_ABSOLUTE_ROUTE_RP } = CUSTOMERS_RP; //PARA POST-VENTA REPUESTOS
 const { ABSOLUTE_ROUTE: SUPPLIERS_ABSOLUTE_ROUTE } = SUPPLIERS;
+const { ABSOLUTE_ROUTE: SUPPLIER_WAREHOUSE_ABSOLUTE_ROUTE } =
+  SUPPLIER_WAREHOUSE;
 const ROUTE = "establecimientos";
 const ABSOLUTE_ROUTE = `${CUSTOMER_ABSOLUTE_ROUTE}/${ROUTE}`;
 const ABSOLUTE_ROUTE_TLL = `${CUSTOMER_ABSOLUTE_ROUTE_TLL}/${ROUTE}`; //PARA POST-VENTA TALLER
@@ -76,3 +81,22 @@ export const ESTABLISHMENTS_RP: ModelComplete<EstablishmentsResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE_RP}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_RP}/actualizar`,
 };
+
+// PARA POST-VENTA GESTIÓN DE ALMACÉN - PROVEEDOR DE ALMACÉN
+const SUPPLIER_WAREHOUSE_ESTABLISHMENTS_ROUTE = `${SUPPLIER_WAREHOUSE_ABSOLUTE_ROUTE}/${ROUTE}`;
+
+export const SUPPLIER_WAREHOUSE_ESTABLISHMENTS: ModelComplete<EstablishmentsResource> =
+  {
+    MODEL: {
+      name: "Establecimiento",
+      plural: "Establecimientos",
+      gender: true,
+    },
+    ICON: "ContactRound",
+    ENDPOINT: "/ap/commercial/businessPartnersEstablishments",
+    QUERY_KEY: "establishments",
+    ROUTE,
+    ABSOLUTE_ROUTE: SUPPLIER_WAREHOUSE_ESTABLISHMENTS_ROUTE,
+    ROUTE_ADD: `${SUPPLIER_WAREHOUSE_ESTABLISHMENTS_ROUTE}/agregar`,
+    ROUTE_UPDATE: `${SUPPLIER_WAREHOUSE_ESTABLISHMENTS_ROUTE}/actualizar`,
+  };

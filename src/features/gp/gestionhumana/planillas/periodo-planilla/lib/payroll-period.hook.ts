@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { PayrollPeriodResource, PayrollPeriodResponse } from "./payroll-period.interface";
-import { getAllPayrollPeriods, getCurrentPayrollPeriod, getPayrollPeriods } from "./payroll-period.actions";
+import { getAllPayrollPeriods, getCurrentPayrollPeriod, findPayrollPeriodById, getPayrollPeriods } from "./payroll-period.actions";
 import { PAYROLL_PERIOD } from "./payroll-period.constant";
 
 const { QUERY_KEY } = PAYROLL_PERIOD;
@@ -21,10 +21,20 @@ export const useAllPayrollPeriods = () => {
   });
 };
 
+export const useFindPayrollPeriodById = (id: number) => {
+  return useQuery<PayrollPeriodResource>({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => findPayrollPeriodById(String(id)),
+    refetchOnWindowFocus: false,
+    enabled: !!id,
+  });
+};
+
 export const useCurrentPayrollPeriod = () => {
   return useQuery<PayrollPeriodResource>({
     queryKey: [`${QUERY_KEY}-current`],
     queryFn: () => getCurrentPayrollPeriod(),
     refetchOnWindowFocus: false,
+    retry: false,
   });
 };

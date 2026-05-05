@@ -16,7 +16,6 @@ const adjustmentDetailSchema = z.object({
     .max(100, { message: "Máximo 100 caracteres" })
     .optional()
     .or(z.literal("")),
-  expiration_date: z.union([z.literal(""), z.date()]).optional(),
   notes: z
     .string()
     .max(500, { message: "Máximo 500 caracteres" })
@@ -29,11 +28,11 @@ const adjustmentSchemaBase = z.object({
     [AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN, AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT],
     {
       message: "Tipo de movimiento inválido",
-    }
+    },
   ),
   reason_in_out_id: requiredStringId("Motivo de ajuste es requerido"),
   warehouse_id: requiredStringId("Almacén es requerido"),
-  movement_date: z.union([z.literal(""), z.date()]),
+  movement_date: z.coerce.date(),
   notes: z
     .string()
     .max(1000, { message: "Máximo 1000 caracteres" })
@@ -57,7 +56,7 @@ export function validateAdjustmentFormData(data: any): AdjustmentSchema {
 }
 
 export function validateAdjustmentUpdateFormData(
-  data: any
+  data: any,
 ): Partial<AdjustmentSchema> {
   return adjustmentSchemaUpdate.parse(data);
 }

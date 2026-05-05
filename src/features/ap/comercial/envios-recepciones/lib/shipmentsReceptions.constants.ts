@@ -11,7 +11,7 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
       plural: "Guías de Remisión y Traslado",
       gender: true,
     },
-    ICON: "FileText",
+    ICON: "Package",
     ENDPOINT: "/ap/commercial/shippingGuides",
     QUERY_KEY: "shipments-receptions",
     ROUTE,
@@ -19,7 +19,6 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
     ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
-
 // Tipos de documento
 export const DOCUMENT_TYPES = [
   { value: "GUIA_REMISION", label: "Guía de Remisión" },
@@ -28,6 +27,6 @@ export const DOCUMENT_TYPES = [
 
 // Tipos de emisor
 export const ISSUER_TYPES = [
-  { value: "NOSOTROS", label: "Automotores" },
+  { value: "SYSTEM", label: "Automotores" },
   { value: "PROVEEDOR", label: "Proveedor" },
 ];

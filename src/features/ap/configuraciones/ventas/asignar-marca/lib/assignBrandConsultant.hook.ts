@@ -38,7 +38,7 @@ export const useAllWorkersBySedeAndBrand = (
     queryKey: [QUERY_KEY, idSede, idBrand],
     queryFn: () => getAllWorkersBySedeAndBrand(idSede!, idBrand!),
     refetchOnWindowFocus: false,
-    enabled: !!idSede,
+    enabled: !!idSede && !!idBrand,
   });
 };
 

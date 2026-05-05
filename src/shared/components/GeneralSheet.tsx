@@ -12,6 +12,16 @@ import {
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useIsTablet } from "@/hooks/use-tablet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import FormSkeleton from "./FormSkeleton";
 
 export interface GeneralSheetProps {
   open: boolean;
@@ -26,6 +36,7 @@ export interface GeneralSheetProps {
   icon?: keyof typeof LucideReact;
   size?: Size;
   type?: "default" | "tablet" | "mobile";
+  isLoading?: boolean;
 }
 
 type Size =
@@ -69,6 +80,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
   icon,
   size = "lg",
   type,
+  isLoading,
 }) => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -89,14 +101,16 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
 
   {
     return type === "default" ? (
-      <Drawer
-        open={open}
-        onOpenChange={(v) => !v && onClose()}
-        modal={modal}
-        direction={side}
-      >
-        <DrawerContent className={cn(sizes[size], className)}>
-          <DrawerHeader>
+      <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
+        <SheetContent
+          side={side}
+          className={cn(
+            sizes[size],
+            className,
+            "rounded-tl-xl rounded-bl-xl gap-0",
+          )}
+        >
+          <SheetHeader>
             <div className="flex items-center gap-2">
               {icon && IconComponent && (
                 <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
@@ -104,27 +118,27 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
                 </div>
               )}
               <div>
-                <DrawerTitle className={cn(!title ? "hidden" : "")}>
+                <SheetTitle className={cn(!title ? "hidden" : "")}>
                   {title}
-                </DrawerTitle>
-                <DrawerDescription
+                </SheetTitle>
+                <SheetDescription
                   className={cn(
                     "text-sm text-muted-foreground",
                     !subtitle ? "hidden" : "",
                   )}
                 >
                   {subtitle}
-                </DrawerDescription>
+                </SheetDescription>
               </div>
             </div>
-            <DrawerClose onClick={onClose} />
-          </DrawerHeader>
-          <div className="no-scrollbar overflow-y-auto py-2 px-4">
-            {children}
+            <SheetClose onClick={onClose} />
+          </SheetHeader>
+          <div className="no-scrollbar overflow-y-auto py-2 px-4 h-full">
+            {isLoading ? <FormSkeleton /> : children}
           </div>
-          <DrawerFooter>{childrenFooter}</DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+          <SheetFooter>{childrenFooter}</SheetFooter>
+        </SheetContent>
+      </Sheet>
     ) : (
       <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <DrawerContent
@@ -155,8 +169,8 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="no-scrollbar overflow-y-auto py-2 px-4">
-            {children}
+          <div className="no-scrollbar overflow-y-auto py-2 px-4 h-full">
+            {isLoading ? <FormSkeleton /> : children}
           </div>
           <DrawerFooter>{childrenFooter}</DrawerFooter>
         </DrawerContent>

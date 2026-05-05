@@ -1,4 +1,5 @@
 import { HotelReservationSchema } from "./hotelReservation.schema";
+import { toLocalDateTimeString } from "@/core/core.function";
 
 /**
  * Convierte los datos del schema de hotel reservation a FormData
@@ -25,18 +26,8 @@ export function hotelReservationSchemaToFormData(
     formData.append("document_number", data.document_number);
   }
 
-  // Convertir fechas a formato ISO
-  const checkinDate =
-    typeof data.checkin_date === "string"
-      ? new Date(data.checkin_date)
-      : data.checkin_date;
-  const checkoutDate =
-    typeof data.checkout_date === "string"
-      ? new Date(data.checkout_date)
-      : data.checkout_date;
-
-  formData.append("checkin_date", checkinDate.toISOString());
-  formData.append("checkout_date", checkoutDate.toISOString());
+  formData.append("checkin_date", toLocalDateTimeString(data.checkin_date));
+  formData.append("checkout_date", toLocalDateTimeString(data.checkout_date));
 
   // Agregar archivo solo si existe (para modo de actualización puede ser opcional)
   if (data.receipt_file) {

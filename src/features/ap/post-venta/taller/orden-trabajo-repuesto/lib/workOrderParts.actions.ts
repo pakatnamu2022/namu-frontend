@@ -7,6 +7,9 @@ import {
   WorkOrderPartsResource,
   WorkOrderPartsResponse,
   StoreBulkFromQuotationRequest,
+  WorkOrderPartAssignmentsResponse,
+  ConfirmPartsDeliveryRequest,
+  WorkOrderPartDeliveryResource,
 } from "./workOrderParts.interface";
 import { WORKER_ORDER_PARTS } from "./workOrderParts.constants";
 
@@ -36,14 +39,14 @@ export async function getAllWorkOrderParts({
 }
 
 export async function findWorkOrderPartsById(
-  id: number
+  id: number,
 ): Promise<WorkOrderPartsResource> {
   const response = await api.get<WorkOrderPartsResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeWorkOrderParts(
-  data: WorkOrderPartsRequest
+  data: WorkOrderPartsRequest,
 ): Promise<WorkOrderPartsResource> {
   const response = await api.post<WorkOrderPartsResource>(ENDPOINT, data);
   return response.data;
@@ -51,28 +54,69 @@ export async function storeWorkOrderParts(
 
 export async function updateWorkOrderParts(
   id: number,
-  data: WorkOrderPartsRequest
+  data: WorkOrderPartsRequest,
 ): Promise<WorkOrderPartsResource> {
   const response = await api.put<WorkOrderPartsResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deleteWorkOrderParts(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
 
 export async function storeBulkFromQuotation(
-  payload: StoreBulkFromQuotationRequest
+  payload: StoreBulkFromQuotationRequest,
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
     `${ENDPOINT}/store-bulk-from-quotation`,
-    payload
+    payload,
+  );
+  return data;
+}
+
+export async function getWorkOrderPartsDeliveriesById(
+  workOrderPartId: number,
+): Promise<WorkOrderPartDeliveryResource[]> {
+  const { data } = await api.get<WorkOrderPartDeliveryResource[]>(
+    `${ENDPOINT}/${workOrderPartId}/deliveries`,
+  );
+  return data;
+}
+
+export async function assignPartToTechnician(
+  id: number,
+  payload: { delivered_to: number; delivered_quantity: number },
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${id}/assign`,
+    payload,
+  );
+  return data;
+}
+
+export async function getAssignmentsByWorkOrder(
+  workOrderId: number,
+  workerId: number,
+): Promise<WorkOrderPartAssignmentsResponse> {
+  const { data } = await api.get<WorkOrderPartAssignmentsResponse>(
+    `${ENDPOINT}/work-order/${workOrderId}/assignments`,
+    { params: { delivered_to: workerId } },
+  );
+  return data;
+}
+
+export async function confirmPartsDelivery(
+  payload: ConfirmPartsDeliveryRequest,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/confirm-receipt`,
+    payload,
   );
   return data;
 }

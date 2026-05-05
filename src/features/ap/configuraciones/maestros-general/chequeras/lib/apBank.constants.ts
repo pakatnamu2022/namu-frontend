@@ -18,3 +18,8 @@ export const BANK_AP: ModelComplete<ApBankResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
+
+export const CHECKBOOKS_ID = {
+  CIX_IZIPAY_PEN_ID: 187,
+  CIX_IZIPAY_USD: 188,
+};

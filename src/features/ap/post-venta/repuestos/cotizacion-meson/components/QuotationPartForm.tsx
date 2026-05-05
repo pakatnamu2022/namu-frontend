@@ -14,10 +14,13 @@ import { useAllProductCategory } from "@/features/ap/post-venta/gestion-almacen/
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
 import { useEffect } from "react";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface QuotationPartFormProps {
   defaultValues?: Partial<ProductSchema>;
@@ -37,8 +40,6 @@ export const QuotationPartForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: [],
-      cost_price: 0,
-      sale_price: 0,
     },
     mode: "onChange",
   });
@@ -121,17 +122,39 @@ export const QuotationPartForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {/* Indicador del almacén asignado */}
+      <form
+        onSubmit={(e) => {
+          e.stopPropagation();
+          form.handleSubmit(onSubmit)(e);
+        }}
+        className="space-y-6 w-full"
+      >
+        {/* Selector o indicador de almacén */}
         {warehouses.length > 0 && (
-          <div className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-            <Warehouse className="h-4 w-4 text-slate-500" />
-            <span className="text-sm text-slate-600">
-              Almacén asignado:{" "}
-              <span className="font-medium text-slate-800">
-                {warehouses[0].dyn_code} - {warehouses[0].sede}
-              </span>
-            </span>
+          <div className="space-y-2">
+            {warehouses.length === 1 ? (
+              <div className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <Warehouse className="h-4 w-4 text-slate-500" />
+                <span className="text-sm text-slate-600">
+                  Almacén asignado:{" "}
+                  <span className="font-medium text-slate-800">
+                    {warehouses[0].dyn_code} - {warehouses[0].sede}
+                  </span>
+                </span>
+              </div>
+            ) : (
+              <FormSelect
+                name="warehouses.0.warehouse_id"
+                label="Almacén"
+                placeholder="Selecciona un almacén"
+                options={warehouses.map((warehouse) => ({
+                  label: `${warehouse.dyn_code} - ${warehouse.sede}`,
+                  value: warehouse.id.toString(),
+                }))}
+                control={form.control}
+                required
+              />
+            )}
           </div>
         )}
 
@@ -201,7 +224,7 @@ export const QuotationPartForm = ({
           />
         </div>
 
-        <FormInputText
+        <FormTextArea
           name="description"
           label="Descripción / Notas"
           placeholder="Descripción o notas del producto"

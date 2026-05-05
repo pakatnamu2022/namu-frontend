@@ -4,12 +4,11 @@ import { z } from "zod";
 const purchaseOrderProductItemSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
   quantity: z.number().min(1, { message: "La cantidad debe ser mayor a 0" }),
-  item_total: z
-    .number()
-    .min(0, { message: "El total debe ser mayor o igual a 0" }),
+  item_total: z.number().min(0.1, { message: "El total debe ser mayor a 0" }),
   unit_price: z
     .number()
     .min(0, { message: "El precio unitario debe ser mayor o igual a 0" }),
+  unit_measurement_id: z.string().optional(),
   discount: z
     .number()
     .min(0, { message: "El descuento debe ser mayor o igual a 0" })
@@ -21,6 +20,9 @@ const purchaseOrderProductItemSchema = z.object({
     .max(100, { message: "La tasa de impuesto no puede ser mayor a 100" })
     .optional(),
   notes: z.string().optional(),
+  // Campos adicionales para mostrar información del producto (no se envían al backend)
+  product_name: z.string().optional(),
+  product_code: z.string().optional(),
 });
 
 const purchaseOrderProductsSchemaBase = z.object({
@@ -36,11 +38,10 @@ const purchaseOrderProductsSchemaBase = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Número de factura es requerido",
     }),
-  ap_supplier_order_id: requiredStringId("Orden de compra es requerida"),
   supplier_id: requiredStringId("Cliente es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
-  emission_date: z.union([z.literal(""), z.date()]).optional(),
-  due_date: z.union([z.literal(""), z.date()]).optional(),
+  emission_date: z.coerce.date().optional(),
+  due_date: z.coerce.date().optional(),
   payment_terms: z.string().optional(),
   shipping_method: z.string().optional(),
   warehouse_id: z.string().optional(),
@@ -83,13 +84,13 @@ export type PurchaseOrderProductItemSchema = z.infer<
 >;
 
 export function validatePurchaseOrderProductsFormData(
-  data: any
+  data: any,
 ): PurchaseOrderProductsSchema {
   return purchaseOrderProductsSchemaCreate.parse(data);
 }
 
 export function validatePurchaseOrderProductsUpdateFormData(
-  data: any
+  data: any,
 ): Partial<PurchaseOrderProductsSchema> {
   return purchaseOrderProductsSchemaUpdate.parse(data);
 }

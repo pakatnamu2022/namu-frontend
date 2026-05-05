@@ -8,10 +8,6 @@ import {
   findPhoneLineById,
   updatePhoneLine,
 } from "@/features/gp/tics/phoneLine/lib/phoneLine.actions";
-import {
-  useAllTelephoneAccounts,
-  useAllTelephonePlans,
-} from "@/features/gp/tics/phoneLine/lib/phoneLine.hook";
 import { errorToast, successToast } from "@/core/core.function";
 import { PhoneLineResource } from "@/features/gp/tics/phoneLine/lib/phoneLine.interface";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -20,6 +16,8 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PHONE_LINE } from "@/features/gp/tics/phoneLine/lib/phoneLine.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllTelephoneAccounts } from "@/features/gp/tics/telephoneAccount/lib/telephoneAccount.hook";
+import { useAllTelephonePlans } from "@/features/gp/tics/telephonePlan/lib/telephonePlan.hook";
 
 export default function UpdatePhoneLinePage() {
   const { ABSOLUTE_ROUTE, QUERY_KEY } = PHONE_LINE;

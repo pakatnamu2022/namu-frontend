@@ -20,3 +20,7 @@ export const DOCUMENT_TYPE: ModelComplete<DocumentTypeResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: { id: 0, code: "", description: "", type: "", status: true },
 };
+
+export const NUM_DIGITS_DNI = 8;
+export const NUM_DIGITS_RUC = 11;
+export const NUM_DIGITS_CE = 12;

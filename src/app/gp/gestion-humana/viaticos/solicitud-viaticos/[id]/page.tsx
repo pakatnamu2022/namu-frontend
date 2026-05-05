@@ -2,7 +2,6 @@
 
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
@@ -15,6 +14,7 @@ import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
+  HotelReservationSection,
   RequestStatusBadge,
   BudgetSection,
   FinancialSummarySection,
@@ -27,6 +27,7 @@ import { Receipt } from "lucide-react";
 import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 import { errorToast, successToast } from "@/core/core.function";
 import AddFlightTicketModal from "@/features/profile/viaticos/components/AddFlightTicketModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
@@ -68,7 +69,7 @@ export default function PerDiemRequestDetailAdminPage() {
     } catch (error: any) {
       errorToast(
         error.response.data.message ??
-          "Error al descargar el PDF de planilla de movilidad"
+          "Error al descargar el PDF de planilla de movilidad",
       );
     } finally {
       setIsDownloadingMobilityPayroll(false);
@@ -85,18 +86,7 @@ export default function PerDiemRequestDetailAdminPage() {
   const isCancelled = request?.status === "cancelled";
 
   if (isLoading) {
-    return (
-      <FormWrapper>
-        <div className="space-y-6">
-          <Skeleton className="h-10 w-full max-w-md" />
-          <div className="space-y-4">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-96 w-full" />
-          </div>
-        </div>
-      </FormWrapper>
-    );
+    return <FormSkeleton />;
   }
 
   if (!request) {
@@ -164,11 +154,23 @@ export default function PerDiemRequestDetailAdminPage() {
         {/* Información General */}
         <GeneralInfoSection request={request} />
 
+        {/* Reserva de Hotel */}
+        <HotelReservationSection request={request} />
+
         {/* Detalle de Presupuesto */}
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        {request.settled && <DepositVoucherSection request={request} />}
+        {
+          <DepositVoucherSection
+            request={request}
+            onVoucherDeleted={() => {
+              queryClient.invalidateQueries({
+                queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+              });
+            }}
+          />
+        }
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} />
@@ -180,29 +182,6 @@ export default function PerDiemRequestDetailAdminPage() {
           cols={{ sm: 1 }}
         >
           {/* Botón para actualizar pasajes aéreos si with_active es false */}
-          {/* {!request.with_active && (
-            <div className="mb-4 flex justify-end">
-              <Button
-                onClick={() => setIsAddFlightTicketModalOpen(true)}
-                size="sm"
-                variant="outline"
-                className="gap-2"
-                disabled={
-                  (request.expenses?.filter(
-                    (e) =>
-                      e.expense_type?.code?.toLowerCase().includes("boleto") ||
-                      e.expense_type?.code?.toLowerCase().includes("aereo") ||
-                      e.expense_type?.name?.toLowerCase().includes("boleto") ||
-                      e.expense_type?.name?.toLowerCase().includes("aéreo")
-                  ).length || 0) >= 2
-                }
-              >
-                <Plane className="h-4 w-4" />
-                Agregar Pasaje Aéreo
-              </Button>
-            </div>
-          )} */}
-
           <div className="md:col-span-1">
             <ExpensesTable
               expenses={request.expenses || []}
@@ -230,7 +209,7 @@ export default function PerDiemRequestDetailAdminPage() {
                   e.expense_type?.code?.toLowerCase().includes("boleto") ||
                   e.expense_type?.code?.toLowerCase().includes("aereo") ||
                   e.expense_type?.name?.toLowerCase().includes("boleto") ||
-                  e.expense_type?.name?.toLowerCase().includes("aéreo")
+                  e.expense_type?.name?.toLowerCase().includes("aéreo"),
               ).length || 0
             }
           />

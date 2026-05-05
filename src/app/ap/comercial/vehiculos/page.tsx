@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLES } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
@@ -22,6 +22,8 @@ import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/Veh
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclesPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -29,17 +31,25 @@ export default function VehiclesPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [ap_vehicle_status_id, set_ap_vehicle_status_id] = useState<string[]>(
+    [],
+  );
   const { MODEL, ROUTE } = VEHICLES;
+  const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
-  const { data, isLoading, refetch } = useVehicles({
-    page,
-    search,
-    per_page,
-    type_operation_id: CM_COMERCIAL_ID,
-  });
+  const { data, isLoading, refetch } = useVehicles(
+    {
+      page,
+      search,
+      per_page,
+      ap_vehicle_status_id: ap_vehicle_status_id,
+      type_operation_id: CM_COMERCIAL_ID,
+    },
+    true,
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -73,11 +83,17 @@ export default function VehiclesPage() {
         isLoading={isLoading}
         columns={vehicleColumns({
           onDelete: setDeleteId,
+          permissions: permissions,
         })}
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}
       >
-        <VehicleOptions search={search} setSearch={setSearch} />
+        <VehicleOptions
+          search={search}
+          setSearch={setSearch}
+          ap_vehicle_status_id={ap_vehicle_status_id}
+          set_ap_vehicle_status_id={set_ap_vehicle_status_id}
+        />
       </VehicleTable>
 
       {deleteId !== null && (

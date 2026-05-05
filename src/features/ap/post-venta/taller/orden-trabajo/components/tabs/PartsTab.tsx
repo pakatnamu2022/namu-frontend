@@ -2,12 +2,24 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { Package, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  Package,
+  Loader2,
+  Plus,
+  Trash2,
+  Tag,
+  Pencil,
+  CheckCircle,
+  XCircle,
+  Percent,
+  Copy,
+  Check,
+  UserCheck,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form } from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -26,35 +38,47 @@ import {
 import {
   getAllWorkOrderParts,
   storeBulkFromQuotation,
-  storeWorkOrderParts,
-  updateWorkOrderParts,
   deleteWorkOrderParts,
+  updateWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
+import { EditableCell } from "@/shared/components/EditableCell";
+import { AssignPartToTechnicianSheet } from "../AssignPartToTechnicianSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
-import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
-import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import GroupSelector from "../GroupSelector";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
-import { FormInput } from "@/shared/components/FormInput";
+import { ITEM_TYPE_PRODUCT } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
+import WorkOrderPartsForm from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/components/WorkOrderPartsForm";
+import { useDiscountRequestsByWorkOrder } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.hook";
+import { DiscountRequestWorkOrderModal } from "../../../descuento-cotizacion-taller/components/DiscountRequestWorkOrderModal";
+import {
+  approveDiscountRequestWorkOrderQuotation,
+  rejectDiscountRequestWorkOrderQuotation,
+} from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.actions";
+import {
+  DISCOUNT_REQUEST_TALLER,
+  TYPE_GLOBAL,
+  TYPE_PARTIAL,
+  MODEL_PART,
+} from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.constants";
+import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.interface";
+import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface PartsTabProps {
   workOrderId: number;
 }
 
-interface AddPartFormValues {
-  product_id: string;
-  quantity_used: number;
-  unit_price: number;
-  discount_percentage: number;
-}
-
 export default function PartsTab({ workOrderId }: PartsTabProps) {
   const queryClient = useQueryClient();
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
+  const { user } = useAuthStore();
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
   const [selectedWarehouseForBulk, setSelectedWarehouseForBulk] =
     useState<string>("");
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
@@ -62,16 +86,45 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const [selectedWarehouseForAdd, setSelectedWarehouseForAdd] =
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [copiedCodeKey, setCopiedCodeKey] = useState<string | null>(null);
+  const { ROUTE } = WORKER_ORDER;
+  const permissions = useModulePermissions(ROUTE);
 
-  // Formulario para actualizar repuesto
-  const form = useForm<AddPartFormValues>({
-    defaultValues: {
-      product_id: "",
-      quantity_used: 1,
-      unit_price: 0,
-      discount_percentage: 0,
-    },
-  });
+  const handleCopyCode = async (code: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeKey(key);
+      setTimeout(() => setCopiedCodeKey(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
+
+  // Sheet asignar repuesto a técnico
+  const [assignSheetOpen, setAssignSheetOpen] = useState(false);
+  const [assignPart, setAssignPart] = useState<{
+    id: number;
+    quantity_used: number;
+    product_name: string;
+  } | null>(null);
+
+  const handleOpenAssignSheet = (part: {
+    id: number;
+    quantity_used: number;
+    product_name: string;
+  }) => {
+    setAssignPart(part);
+    setAssignSheetOpen(true);
+  };
+
+  // Modal de descuento
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(
+    TYPE_PARTIAL,
+  );
+  const [selectedPart, setSelectedPart] = useState<any | null>(null);
+  const [editingRequest, setEditingRequest] =
+    useState<DiscountRequestWorkOrderQuotationResource | null>(null);
 
   const { data: parts = [], isLoading } = useQuery({
     queryKey: ["workOrderParts", workOrderId],
@@ -80,7 +133,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     enabled: !!workOrderId,
   });
 
-  // Consultar la orden de trabajo con sus items
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery({
     queryKey: ["workOrder", workOrderId],
     queryFn: () => findWorkOrderById(workOrderId),
@@ -88,11 +140,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
-  // Obtener la cotización asociada si existe
   const associatedQuotation = workOrder?.order_quotation || null;
   const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
 
-  // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {
       const firstGroup = Math.min(...items.map((i) => i.group_number));
@@ -101,11 +151,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   }, [items, selectedGroupNumber, setSelectedGroupNumber]);
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      is_physical_warehouse: 1,
-    });
+    useAllWarehouse({ is_physical_warehouse: 1 });
 
-  // Filtrar almacenes por sede de la OT
   const filteredWarehouses = useMemo(() => {
     if (workOrder?.sede_id) {
       return warehouses.filter((w) => w.sede_id === Number(workOrder.sede_id));
@@ -113,7 +160,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     return warehouses;
   }, [warehouses, workOrder?.sede_id]);
 
-  // Auto-seleccionar almacén cuando se carga la OT
   useEffect(() => {
     if (filteredWarehouses.length > 0 && !selectedWarehouseForBulk) {
       setSelectedWarehouseForBulk(filteredWarehouses[0].id.toString());
@@ -121,13 +167,19 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredWarehouses]);
 
-  // Auto-seleccionar almacén para actualizar repuesto
   useEffect(() => {
     if (filteredWarehouses.length > 0 && !selectedWarehouseForAdd) {
       setSelectedWarehouseForAdd(filteredWarehouses[0].id.toString());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredWarehouses]);
+
+  // Solicitudes de descuento de la OT — solo las de PRODUCT
+  const { data: allDiscountRequests = [] } =
+    useDiscountRequestsByWorkOrder(workOrderId);
+  const discountRequests = allDiscountRequests.filter(
+    (r) => r.item_type === "PART",
+  );
 
   const storeBulkMutation = useMutation({
     mutationFn: (params: { warehouseId: number; groupNumber: number }) =>
@@ -143,9 +195,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       queryClient.invalidateQueries({
         queryKey: ["workOrderParts", workOrderId],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["workOrder", workOrderId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
       setSelectedProductIds([]);
     },
     onError: (error: any) => {
@@ -153,49 +203,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       errorToast(msg || "Error al insertar los repuestos desde la cotización");
     },
   });
-
-  // Mutación para actualizar un repuesto individual
-  const storePartMutation = useMutation({
-    mutationFn: (data: AddPartFormValues) =>
-      storeWorkOrderParts({
-        work_order_id: workOrderId,
-        product_id: data.product_id,
-        warehouse_id: selectedWarehouseForAdd,
-        quantity_used: data.quantity_used,
-        unit_price: data.unit_price,
-        discount_percentage: data.discount_percentage,
-        group_number: selectedGroupNumber!,
-      }),
-    onSuccess: () => {
-      successToast("Repuesto agregado exitosamente");
-      queryClient.invalidateQueries({
-        queryKey: ["workOrderParts", workOrderId],
-      });
-      form.reset({
-        product_id: "",
-        quantity_used: 1,
-        unit_price: 0,
-        discount_percentage: 0,
-      });
-      setShowAddForm(false);
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar el repuesto");
-    },
-  });
-
-  const handleSubmitPart = (data: AddPartFormValues) => {
-    if (!selectedGroupNumber) {
-      errorToast("Debe seleccionar un grupo");
-      return;
-    }
-    if (!selectedWarehouseForAdd) {
-      errorToast("Debe seleccionar un almacén");
-      return;
-    }
-    storePartMutation.mutate(data);
-  };
 
   const handleToggleProduct = (productId: number) => {
     setSelectedProductIds((prev) =>
@@ -208,7 +215,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const handleToggleAll = () => {
     if (associatedQuotation?.details) {
       const productDetails = associatedQuotation.details.filter(
-        (d: any) => d.item_type === "PRODUCT" && d.status === "pending",
+        (d: any) => d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
       );
       if (selectedProductIds.length === productDetails.length) {
         setSelectedProductIds([]);
@@ -218,37 +225,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     }
   };
 
-  const updateGroupMutation = useMutation({
-    mutationFn: ({
-      partId,
-      newGroupNumber,
-      part,
-    }: {
-      partId: number;
-      newGroupNumber: number;
-      part: any;
-    }) =>
-      updateWorkOrderParts(partId, {
-        id: part.id,
-        work_order_id: workOrderId,
-        group_number: newGroupNumber,
-        warehouse_id: part.warehouse_id,
-        product_id: part.product_id,
-        quantity_used: part.quantity_used,
-      }),
-    onSuccess: () => {
-      successToast("Grupo actualizado exitosamente");
-      queryClient.invalidateQueries({
-        queryKey: ["workOrderParts", workOrderId],
-      });
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar el grupo");
-    },
-  });
-
-  // Mutación para eliminar repuesto
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteWorkOrderParts(id),
     onSuccess: () => {
@@ -256,9 +232,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       queryClient.invalidateQueries({
         queryKey: ["workOrderParts", workOrderId],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["workOrder", workOrderId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
       setDeleteId(null);
     },
     onError: (error: any) => {
@@ -267,26 +241,180 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     },
   });
 
+  const updatePartMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      updateWorkOrderParts(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar el repuesto");
+    },
+  });
+
+  const handleUnitPriceChange = (part: any, newValue: any) => {
+    updatePartMutation.mutate({
+      id: part.id,
+      data: {
+        work_order_id: part.work_order_id,
+        group_number: part.group_number,
+        product_id: part.product_id,
+        warehouse_id: part.warehouse_id,
+        quantity_used: part.quantity_used,
+        unit_price: Number(newValue),
+        discount_percentage: part.discount_percentage,
+      },
+    });
+  };
+
+  const handleQuantityUsedChange = (part: any, newValue: any) => {
+    updatePartMutation.mutate({
+      id: part.id,
+      data: {
+        work_order_id: part.work_order_id,
+        group_number: part.group_number,
+        product_id: part.product_id,
+        warehouse_id: part.warehouse_id,
+        quantity_used: Number(newValue),
+        unit_price: part.unit_price ? Number(part.unit_price) : undefined,
+        discount_percentage: part.discount_percentage,
+      },
+    });
+  };
+
+  const handleDiscountPercentageChange = (part: any, newValue: any) => {
+    updatePartMutation.mutate({
+      id: part.id,
+      data: {
+        work_order_id: part.work_order_id,
+        group_number: part.group_number,
+        product_id: part.product_id,
+        warehouse_id: part.warehouse_id,
+        quantity_used: part.quantity_used,
+        unit_price: part.unit_price ? Number(part.unit_price) : undefined,
+        discount_percentage: Number(newValue),
+      },
+    });
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
     deleteMutation.mutate(deleteId);
   };
 
-  const handleGroupChange = (part: any, newGroupNumber: number) => {
-    updateGroupMutation.mutate({
-      partId: part.id,
-      newGroupNumber,
-      part,
-    });
-  };
-
-  // Obtener los números de grupos únicos disponibles
-  const availableGroups = useMemo(() => {
-    return Array.from(new Set(items.map((item) => item.group_number))).sort();
-  }, [items]);
-
   const filteredParts = parts.filter(
     (part) => part.group_number === selectedGroupNumber,
+  );
+
+  // --- Lógica global/partial ---
+  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
+  const hasPartialRequests = discountRequests.some(
+    (r) => r.type === TYPE_PARTIAL,
+  );
+  const hasMultipleItems = filteredParts.length > 1;
+
+  const getPartialRequest = (partId: number) =>
+    discountRequests.find(
+      (r) =>
+        r.type === TYPE_PARTIAL &&
+        r.part_labour_id === partId &&
+        r.part_labour_model === MODEL_PART,
+    );
+
+  // Total de repuestos filtrados (base para el global)
+  const globalBaseAmount = filteredParts.reduce(
+    (acc, p) => acc + parseFloat(p.net_amount || "0"),
+    0,
+  );
+
+  const handleOpenCreate = (type: "GLOBAL" | "PARTIAL", part?: any) => {
+    setEditingRequest(null);
+    setModalType(type);
+    setSelectedPart(part ?? null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (
+    request: DiscountRequestWorkOrderQuotationResource,
+    part?: any,
+  ) => {
+    setEditingRequest(request);
+    setModalType(request.type);
+    setSelectedPart(part ?? null);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedPart(null);
+    setEditingRequest(null);
+  };
+
+  const { mutate: doApprove, isPending: isApproving } = useMutation({
+    mutationFn: approveDiscountRequestWorkOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud aprobada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al aprobar la solicitud",
+      );
+    },
+  });
+
+  const { mutate: doReject, isPending: isRejecting } = useMutation({
+    mutationFn: rejectDiscountRequestWorkOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud rechazada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al rechazar la solicitud",
+      );
+    },
+  });
+
+  const renderStatusBadge = (status: string) => (
+    <Badge
+      color={
+        status === "approved"
+          ? "green"
+          : status === "rejected"
+            ? "red"
+            : "orange"
+      }
+      className="text-xs"
+    >
+      {status === "approved"
+        ? "Aprobado"
+        : status === "rejected"
+          ? "Rechazado"
+          : "Pendiente"}
+    </Badge>
   );
 
   if (isLoading || isLoadingWarehouses || isLoadingWorkOrder) {
@@ -303,23 +431,27 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   return (
     <div className="space-y-6">
       {/* Selector de Grupo */}
-      <GroupSelector
+      {/* <GroupSelector
         items={items}
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
-      />
+      /> */}
 
       {/* Botón Agregar Repuesto */}
       {!showAddForm && (
         <div className="flex justify-end">
-          <Button
-            onClick={() => setShowAddForm(true)}
-            className="gap-2"
-            disabled={items.length === 0}
-          >
-            <Plus className="h-4 w-4" />
-            Agregar Repuesto
-          </Button>
+          {permissions.canAddSparePartsOT && (
+            <Button
+              onClick={() => setShowAddForm(true)}
+              className="gap-2"
+              disabled={
+                items.length === 0 || (workOrder?.advances?.length ?? 0) > 0
+              }
+            >
+              <Plus className="h-4 w-4" />
+              Agregar Repuesto
+            </Button>
+          )}
         </div>
       )}
 
@@ -330,134 +462,37 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             <Package className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Agregar Repuesto</h3>
           </div>
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmitPart)}
-              className="space-y-4"
-            >
-              {/* Almacén (bloqueado) */}
-              <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Almacén:</span>{" "}
-                  {filteredWarehouses.find(
-                    (w) => w.id.toString() === selectedWarehouseForAdd,
-                  )?.description || "No seleccionado"}
-                </p>
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Sede:</span>{" "}
-                  {workOrder?.sede_name || "N/A"}
-                </p>
-              </div>
-
-              {/* Producto */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <FormSelectAsync
-                  name="product_id"
-                  label="Producto"
-                  placeholder="Buscar producto en el almacén..."
-                  control={form.control}
-                  useQueryHook={useInventory}
-                  additionalParams={{
-                    warehouse_id: selectedWarehouseForAdd,
-                  }}
-                  mapOptionFn={(inventory: InventoryResource) => ({
-                    label: () => (
-                      <div className="flex items-center justify-between gap-2 w-full">
-                        <span className="font-medium truncate">
-                          {inventory.product.code} - {inventory.product.name}
-                        </span>
-                        <span
-                          className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                            inventory.available_quantity > 0
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          Stock: {inventory.available_quantity}
-                        </span>
-                      </div>
-                    ),
-                    value: inventory.product_id.toString(),
-                  })}
-                  perPage={10}
-                  debounceMs={500}
-                />
-
-                <FormInput
-                  name="quantity_used"
-                  label="Cantidad"
-                  type="number"
-                  placeholder="1"
-                  control={form.control}
-                />
-              </div>
-
-              {/* Precio y Descuento */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormInput
-                  name="unit_price"
-                  label={`Precio Unitario (${associatedQuotation?.type_currency?.symbol || workOrder?.type_currency?.symbol || "S/"})`}
-                  type="number"
-                  placeholder="0.0"
-                  control={form.control}
-                />
-
-                <FormInput
-                  name="discount_percentage"
-                  label="Descuento (%)"
-                  type="number"
-                  control={form.control}
-                  placeholder="0.0"
-                />
-              </div>
-
-              {/* Botones */}
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    form.reset();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    storePartMutation.isPending || !form.watch("product_id")
-                  }
-                  className="gap-2"
-                >
-                  {storePartMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4" />
-                      Agregar
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <WorkOrderPartsForm
+            workOrderId={workOrderId}
+            groupNumber={selectedGroupNumber!}
+            warehouseId={selectedWarehouseForAdd}
+            warehouseName={
+              filteredWarehouses.find(
+                (w) => w.id.toString() === selectedWarehouseForAdd,
+              )?.description || ""
+            }
+            sedeName={workOrder?.sede_name}
+            currencySymbol={
+              associatedQuotation?.type_currency?.symbol ||
+              workOrder?.type_currency?.symbol ||
+              "S/"
+            }
+            onSuccess={() => setShowAddForm(false)}
+            onCancel={() => setShowAddForm(false)}
+            maxDiscountPercentage={maxDiscountPercentage}
+          />
         </Card>
       )}
 
-      {/* Mostrar cotización asociada */}
+      {/* Cotización asociada */}
       {hasAssociatedQuotation &&
         associatedQuotation &&
         associatedQuotation.details?.filter(
-          (d: any) => d.item_type === "PRODUCT" && d.status === "pending",
+          (d: any) =>
+            d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
         ).length > 0 && (
           <Card className="p-6">
             <div className="space-y-4">
-              {/* Header de la cotización asociada */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Package className="h-6 w-6 text-primary" />
@@ -469,7 +504,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     <p className="text-sm text-gray-600">
                       {associatedQuotation.details?.filter(
                         (d: any) =>
-                          d.item_type === "PRODUCT" && d.status === "pending",
+                          d.item_type === ITEM_TYPE_PRODUCT &&
+                          d.status === "pending",
                       ).length || 0}{" "}
                       producto(s)
                     </p>
@@ -536,7 +572,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 </div>
               </div>
 
-              {/* Tabla de productos de la cotización asociada */}
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -546,13 +581,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                           checked={
                             associatedQuotation.details?.filter(
                               (d: any) =>
-                                d.item_type === "PRODUCT" &&
+                                d.item_type === ITEM_TYPE_PRODUCT &&
                                 d.status === "pending",
                             ).length > 0 &&
                             selectedProductIds.length ===
                               associatedQuotation.details?.filter(
                                 (d: any) =>
-                                  d.item_type === "PRODUCT" &&
+                                  d.item_type === ITEM_TYPE_PRODUCT &&
                                   d.status === "pending",
                               ).length
                           }
@@ -562,6 +597,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       <TableHead>Descripción</TableHead>
                       <TableHead className="text-center">Cantidad</TableHead>
                       <TableHead className="text-right">P. Unitario</TableHead>
+                      <TableHead className="text-right">Desc.</TableHead>
                       <TableHead className="text-right">Total</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -569,7 +605,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     {associatedQuotation.details
                       ?.filter(
                         (detail: any) =>
-                          detail.item_type === "PRODUCT" &&
+                          detail.item_type === ITEM_TYPE_PRODUCT &&
                           detail.status === "pending",
                       )
                       .map((detail: any) => {
@@ -589,6 +625,58 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                               <p className="font-medium">
                                 {detail.description}
                               </p>
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold">
+                                  {detail.product?.code || "-"}
+                                </span>
+                                {detail.product?.code && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 hover:bg-blue-100"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        detail.product.code,
+                                        `quotation-${detail.id}-code`,
+                                      )
+                                    }
+                                    tooltip="Copiar código"
+                                  >
+                                    {copiedCodeKey ===
+                                    `quotation-${detail.id}-code` ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3 text-primary" />
+                                    )}
+                                  </Button>
+                                )}
+                                <span className="font-semibold">
+                                  {detail.product?.dyn_code || "-"}
+                                </span>
+                                {detail.product?.dyn_code && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 hover:bg-blue-100"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        detail.product.dyn_code,
+                                        `quotation-${detail.id}-dyn_code`,
+                                      )
+                                    }
+                                    tooltip="Copiar código dynamics"
+                                  >
+                                    {copiedCodeKey ===
+                                    `quotation-${detail.id}-dyn_code` ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3 text-primary" />
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell className="text-center">
                               {Number(detail.quantity).toFixed(2)}
@@ -597,6 +685,15 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                               <p className="text-sm">
                                 {currencySymbol}{" "}
                                 {Number(detail.unit_price || 0).toFixed(2)}
+                              </p>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <p className="text-sm text-orange-600">
+                                -
+                                {Number(
+                                  detail.discount_percentage || 0,
+                                ).toFixed(2)}{" "}
+                                %
                               </p>
                             </TableCell>
                             <TableCell className="text-right">
@@ -630,108 +727,370 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         </Card>
       ) : (
         <Card className="p-6">
+          {/* Header con botón descuento global */}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 className="text-lg font-semibold">Repuestos Registrados</h3>
+
+            {hasMultipleItems && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {globalRequest ? (
+                  <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
+                    <span className="text-muted-foreground text-xs">
+                      Desc. global:
+                    </span>
+                    <span className="font-semibold">
+                      {Number(
+                        globalRequest.requested_discount_percentage,
+                      ).toFixed(2)}
+                      %
+                    </span>
+                    {renderStatusBadge(globalRequest.status)}
+                    {globalRequest.status === "pending" && (
+                      <>
+                        {permissions.canApprove && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                tooltip="Aprobar solicitud global"
+                                disabled={isApproving}
+                              >
+                                <CheckCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Aprobar solicitud?"
+                            description="Se aprobará el descuento global para los repuestos. ¿Deseas continuar?"
+                            confirmText="Sí, aprobar"
+                            cancelText="Cancelar"
+                            icon="info"
+                            onConfirm={() => doApprove(globalRequest.id)}
+                          />
+                        )}
+                        {permissions.canEditDiscount && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7"
+                            tooltip="Editar solicitud global"
+                            onClick={() => handleOpenEdit(globalRequest)}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                        )}
+                        {permissions.canReject && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                tooltip="Rechazar solicitud global"
+                                disabled={isRejecting}
+                              >
+                                <XCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Rechazar solicitud?"
+                            description="Se rechazará el descuento global para los repuestos. ¿Deseas continuar?"
+                            confirmText="Sí, rechazar"
+                            cancelText="Cancelar"
+                            variant="destructive"
+                            icon="danger"
+                            onConfirm={() => doReject(globalRequest.id)}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  permissions.canRequest &&
+                  !hasPartialRequests && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenCreate(TYPE_GLOBAL)}
+                      className="gap-2"
+                    >
+                      <Percent className="size-4" />
+                      Desc. global
+                    </Button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
+          {filteredParts[0]?.warehouse_name && (
+            <p className="text-sm text-muted-foreground mb-3">
+              Almacén:{" "}
+              <span className="font-medium text-foreground">
+                {filteredParts[0].warehouse_name}
+              </span>
+            </p>
+          )}
+
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Producto</TableHead>
-                <TableHead>Almacén</TableHead>
+                <TableHead>Repuesto</TableHead>
                 <TableHead>Registrado por</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">Precio Unit.</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-center">Grupo</TableHead>
-                <TableHead className="text-center w-[100px]">
-                  Acciones
-                </TableHead>
+                <TableHead className="text-right">Cto. Total</TableHead>
+                <TableHead className="text-right">Desc.</TableHead>
+                <TableHead className="text-right">Cto. Neto</TableHead>
+                <TableHead className="text-center w-40">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredParts.map((part) => (
-                <TableRow key={part.id}>
-                  <TableCell>
-                    <div>
+              {filteredParts.map((part) => {
+                const partialRequest = getPartialRequest(part.id);
+                return (
+                  <TableRow key={part.id}>
+                    <TableCell>
                       <p className="font-medium">{part.product_name}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-gray-600">
-                      {part.warehouse_name}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-gray-600">
-                      {part.registered_by_name}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {part.quantity_used}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {workOrder?.type_currency?.symbol || "S/"}{" "}
-                    {part.unit_price
-                      ? Number(part.unit_price).toFixed(2)
-                      : "0.00"}
-                  </TableCell>
-                  <TableCell className="text-right font-semibold">
-                    {workOrder?.type_currency?.symbol || "S/"}{" "}
-                    {part.total_amount
-                      ? Number(part.total_amount).toFixed(2)
-                      : "0.00"}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Select
-                      value={part.group_number.toString()}
-                      onValueChange={(value) =>
-                        handleGroupChange(part, Number(value))
-                      }
-                    >
-                      <SelectTrigger className="w-[120px] mx-auto">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableGroups.map((groupNumber) => (
-                          <SelectItem
-                            key={groupNumber}
-                            value={groupNumber.toString()}
+                      {part.product_code && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <span className="text-xs text-muted-foreground">
+                            Cód: {part.product_code}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            tooltip="Copiar código"
+                            onClick={() =>
+                              handleCopyCode(
+                                part.product_code!,
+                                `part-${part.id}-code`,
+                              )
+                            }
                           >
-                            Grupo {groupNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeleteId(part.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                            {copiedCodeKey === `part-${part.id}-code` ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+
+                      {part.product_dyn_code && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <span className="text-xs text-muted-foreground">
+                            Cód Dyn: {part.product_dyn_code}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            tooltip="Copiar código"
+                            onClick={() =>
+                              handleCopyCode(
+                                part.product_dyn_code!,
+                                `part-${part.id}-dyn-code`,
+                              )
+                            }
+                          >
+                            {copiedCodeKey === `part-${part.id}-dyn-code` ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm text-gray-600">
+                        {part.registered_by_name}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex justify-center">
+                        <EditableCell
+                          id={part.id}
+                          value={part.quantity_used}
+                          onUpdate={(_, v) => handleQuantityUsedChange(part, v)}
+                          widthClass="w-20"
+                          min={0}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end">
+                        <EditableCell
+                          id={part.id}
+                          value={part.unit_price ?? "0"}
+                          onUpdate={(_, v) => handleUnitPriceChange(part, v)}
+                          widthClass="w-24"
+                          min={0}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {part.total_cost
+                        ? Number(part.total_cost).toFixed(2)
+                        : "0.00"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end items-center gap-0.5">
+                        <EditableCell
+                          id={part.id}
+                          value={Number(part.discount_percentage ?? 0).toFixed(
+                            2,
+                          )}
+                          onUpdate={(_, v) =>
+                            handleDiscountPercentageChange(part, v)
+                          }
+                          widthClass="w-20"
+                          min={0}
+                          max={maxDiscountPercentage}
+                        />
+                        <span className="text-orange-600 text-sm">%</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {part.net_amount
+                        ? Number(part.net_amount).toFixed(2)
+                        : "0.00"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {/* Descuento parcial: solo si no hay global */}
+                        {!globalRequest && (
+                          <>
+                            {partialRequest ? (
+                              <>
+                                {renderStatusBadge(partialRequest.status)}
+                                {partialRequest.status === "pending" && (
+                                  <>
+                                    {permissions.canApprove && (
+                                      <ConfirmationDialog
+                                        trigger={
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                            tooltip="Aprobar solicitud"
+                                            disabled={isApproving}
+                                          >
+                                            <CheckCircle className="h-4 w-4" />
+                                          </Button>
+                                        }
+                                        title="¿Aprobar solicitud?"
+                                        description="Se aprobará el descuento solicitado para este repuesto. ¿Deseas continuar?"
+                                        confirmText="Sí, aprobar"
+                                        cancelText="Cancelar"
+                                        icon="info"
+                                        onConfirm={() =>
+                                          doApprove(partialRequest.id)
+                                        }
+                                      />
+                                    )}
+                                    {permissions.canEditDiscount && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 p-0"
+                                        tooltip="Editar solicitud"
+                                        onClick={() =>
+                                          handleOpenEdit(partialRequest, part)
+                                        }
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </Button>
+                                    )}
+                                    {permissions.canReject && (
+                                      <ConfirmationDialog
+                                        trigger={
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            tooltip="Rechazar solicitud"
+                                            disabled={isRejecting}
+                                          >
+                                            <XCircle className="h-4 w-4" />
+                                          </Button>
+                                        }
+                                        title="¿Rechazar solicitud?"
+                                        description="Se rechazará el descuento solicitado para este repuesto. ¿Deseas continuar?"
+                                        confirmText="Sí, rechazar"
+                                        cancelText="Cancelar"
+                                        variant="destructive"
+                                        icon="danger"
+                                        onConfirm={() =>
+                                          doReject(partialRequest.id)
+                                        }
+                                      />
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            ) : permissions.canRequest ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-primary hover:text-primary hover:bg-primary/10"
+                                tooltip="Solicitar descuento parcial"
+                                onClick={() =>
+                                  handleOpenCreate(TYPE_PARTIAL, part)
+                                }
+                              >
+                                <Tag className="h-4 w-4" />
+                              </Button>
+                            ) : null}
+                          </>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenAssignSheet(part)}
+                          className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          tooltip="Asignar a técnico"
+                        >
+                          <UserCheck className="h-4 w-4" />
+                        </Button>
+                        {!globalRequest && !partialRequest && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteId(part.id)}
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
 
           {/* Total de Repuestos */}
-          {filteredParts.length > 0 && (
-            <div className="flex justify-end mt-4 pt-4 border-t">
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Total de Repuestos:</p>
-                <p className="text-xl font-bold">
-                  {workOrder?.type_currency?.symbol || "S/"}{" "}
-                  {filteredParts
-                    .reduce(
-                      (acc, part) => acc + parseFloat(part.total_amount || "0"),
-                      0,
-                    )
-                    .toFixed(2)}
-                </p>
-              </div>
+          <div className="flex justify-end mt-4 pt-4 border-t">
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Total de Repuestos:</p>
+              <p className="text-xl font-bold">
+                {workOrder?.type_currency?.symbol || "S/"}{" "}
+                {filteredParts
+                  .reduce(
+                    (acc, part) => acc + parseFloat(part.net_amount || "0"),
+                    0,
+                  )
+                  .toFixed(2)}
+              </p>
             </div>
-          )}
+          </div>
         </Card>
       )}
 
@@ -743,6 +1102,38 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           onConfirm={handleDelete}
         />
       )}
+
+      {/* Sheet Asignar Repuesto a Técnico */}
+      <AssignPartToTechnicianSheet
+        open={assignSheetOpen}
+        onClose={() => {
+          setAssignSheetOpen(false);
+          setAssignPart(null);
+        }}
+        workOrderId={workOrderId}
+        part={assignPart}
+      />
+
+      {/* Modal Solicitar Descuento */}
+      <DiscountRequestWorkOrderModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        type={modalType}
+        workOrderId={workOrderId}
+        baseAmount={
+          modalType === TYPE_GLOBAL
+            ? globalBaseAmount
+            : parseFloat(selectedPart?.total_amount || "0")
+        }
+        partLabourId={modalType === TYPE_PARTIAL ? selectedPart?.id : undefined}
+        partLabourModel={modalType === TYPE_PARTIAL ? MODEL_PART : undefined}
+        itemDescription={
+          modalType === TYPE_PARTIAL ? selectedPart?.product_name : undefined
+        }
+        currencySymbol={workOrder?.type_currency?.symbol || "S/"}
+        existingRequest={editingRequest ?? undefined}
+        itemType="PART"
+      />
     </div>
   );
 }

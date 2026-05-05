@@ -14,7 +14,7 @@ import {
   showUser,
   storeUserSedes,
 } from "./user.actions";
-import { CompanyResource } from "../../empresa/lib/company.interface";
+import { CompanyResource } from "@/features/gp/maestro-general/empresa/lib/company.interface";
 
 export const useUsers = (params?: Record<string, any>) => {
   return useQuery<UserResponse>({

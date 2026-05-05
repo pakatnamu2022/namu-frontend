@@ -1,4 +1,9 @@
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   OpportunitiesResponse,
   OpportunityResource,
@@ -42,6 +47,8 @@ import {
   OpportunityActionSchema,
   OpportunitySchema,
 } from "./opportunities.schema";
+import { FAMILIES } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.constants";
+import { FamiliesResponse } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 
 const { QUERY_KEY, MODEL } = OPPORTUNITIES;
 const { QUERY_KEY: ACTIONS_QUERY_KEY } = OPPORTUNITY_ACTIONS;
@@ -330,10 +337,10 @@ export const useActionContactTypes = () => {
   return useCommercialMasters({ type: MASTER_TYPES.ACTION_CONTACT_TYPE });
 };
 
-export const useFamilies = () => {
-  return useQuery({
-    queryKey: ["families"],
-    queryFn: getFamilies,
+export const useFamilies = (params?: Record<string, any>) => {
+  return useQuery<FamiliesResponse>({
+    queryKey: [FAMILIES.QUERY_KEY, params],
+    queryFn: () => getFamilies(params), 
     refetchOnWindowFocus: false,
   });
 };

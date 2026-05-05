@@ -131,3 +131,42 @@ export async function downloadVehicleInspectionPdf(id: number): Promise<void> {
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
 }
+
+export async function downloadOrderReceiptPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/order-receipt`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `orden-recepcion-personal-${id}.pdf`);
+
+  document.body.appendChild(link);
+  link.click();
+
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+export async function requestCancellation(
+  id: number,
+  cancellation_reason: string,
+): Promise<VehicleInspectionResource> {
+  const { data } = await api.post<VehicleInspectionResource>(
+    `${ENDPOINT}/${id}/request-cancellation`,
+    { cancellation_reason },
+  );
+  return data;
+}
+
+export async function confirmCancellation(
+  id: number,
+): Promise<VehicleInspectionResource> {
+  const { data } = await api.post<VehicleInspectionResource>(
+    `${ENDPOINT}/${id}/confirm-cancellation`,
+  );
+  return data;
+}

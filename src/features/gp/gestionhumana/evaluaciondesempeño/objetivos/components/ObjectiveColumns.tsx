@@ -4,20 +4,20 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ObjectiveResource } from "../lib/objective.interface";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, Pencil } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EditableCell } from "@/shared/components/EditableCell";
 import { Badge } from "@/components/ui/badge";
-import { OBJECTIVE } from "../lib/objective.constants";
 
 export type ObjectiveColumns = ColumnDef<ObjectiveResource>;
 
 export const objectiveColumns = ({
   onDelete,
+  onEdit,
   onUpdateGoal,
   onUpdateWeight,
 }: {
   onDelete: (id: number) => void;
+  onEdit: (objective: ObjectiveResource) => void;
   onUpdateGoal: (id: number, goal: number) => void;
   onUpdateWeight: (id: number, weight: number) => void;
 }): ObjectiveColumns[] => [
@@ -92,23 +92,19 @@ export const objectiveColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useNavigate();
-      const id = row.original.id;
-      const { ROUTE_UPDATE } = OBJECTIVE;
+      const objective = row.original;
 
       return (
         <div className="flex items-center gap-2">
-          {/* Edit */}
           <Button
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            onClick={() => onEdit(objective)}
           >
             <Pencil className="size-5" />
           </Button>
-          {/* Delete */}
-          <DeleteButton onClick={() => onDelete(id)} />
+          <DeleteButton onClick={() => onDelete(objective.id)} />
         </div>
       );
     },

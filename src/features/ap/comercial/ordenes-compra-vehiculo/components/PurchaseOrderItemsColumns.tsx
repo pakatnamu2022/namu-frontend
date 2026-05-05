@@ -24,6 +24,7 @@ interface Props {
   setValue: UseFormSetValue<any>;
   onRemove: (index: number) => void;
   isVehiclePurchase: boolean;
+  isConsignmentOrder?: boolean;
   unitMeasurements: Array<{
     id: number;
     dyn_code: string;
@@ -36,6 +37,7 @@ export const purchaseOrderItemsColumns = ({
   watch,
   onRemove,
   isVehiclePurchase,
+  isConsignmentOrder,
   unitMeasurements,
 }: Props): PurchaseOrderItemColumns[] => [
   {
@@ -45,7 +47,7 @@ export const purchaseOrderItemsColumns = ({
       const index = row.index;
       return (
         <div className="flex items-center justify-center gap-1 h-full">
-          {isVehiclePurchase && index === 0 ? (
+          {(isVehiclePurchase || isConsignmentOrder) && index === 0 ? (
             <Car className="h-4 w-4 text-primary" />
           ) : (
             <span className="text-sm font-medium">{index + 1}</span>
@@ -100,6 +102,9 @@ export const purchaseOrderItemsColumns = ({
     cell: ({ row }) => {
       const index = row.index;
 
+      const isVehicleRow = isVehiclePurchase && index === 0;
+      const priceEditable = isConsignmentOrder && index === 0;
+
       return (
         <FormInput
           control={control}
@@ -108,8 +113,8 @@ export const purchaseOrderItemsColumns = ({
           type="number"
           step="0.01"
           placeholder="0.00"
-          disabled={isVehiclePurchase && index === 0}
-          className={isVehiclePurchase && index === 0 ? "bg-muted" : ""}
+          disabled={isVehicleRow && !priceEditable}
+          className={isVehicleRow && !priceEditable ? "bg-muted" : ""}
         />
       );
     },
@@ -160,7 +165,7 @@ export const purchaseOrderItemsColumns = ({
     cell: ({ row }) => {
       const index = row.index;
 
-      if (isVehiclePurchase && index === 0) {
+      if ((isVehiclePurchase || isConsignmentOrder) && index === 0) {
         return (
           <div className="text-center">
             <span className="text-xs text-muted-foreground">-</span>
@@ -196,6 +201,7 @@ export const usePurchaseOrderItemsColumns = (props: Props) => {
       props.setValue,
       props.onRemove,
       props.isVehiclePurchase,
+      props.isConsignmentOrder,
       props.unitMeasurements,
     ]
   );

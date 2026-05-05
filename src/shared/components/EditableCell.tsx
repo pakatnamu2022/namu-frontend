@@ -42,6 +42,7 @@ export function EditableCell({
   const [initial, setInitial] = useState<string>(String(value ?? "")); // valor al entrar a actualizar
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVal(String(value ?? ""));
     setInitial(String(value ?? ""));
     setEditing(false);
@@ -66,7 +67,15 @@ export function EditableCell({
     }
 
     if (isNumber && !Number.isNaN(num)) {
-      onUpdate(id, num);
+      // Validar min/max
+      let validatedNum = num;
+      if (max !== undefined && num > max) {
+        validatedNum = max;
+      }
+      if (min !== undefined && num < min) {
+        validatedNum = min;
+      }
+      onUpdate(id, validatedNum);
     } else {
       onUpdate(id, next);
     }

@@ -9,8 +9,8 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -22,13 +22,14 @@ import { useNavigate } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
 import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
 import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
+import { OrderQuotationDeliverySheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationDeliverySheet";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function OrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -40,16 +41,20 @@ export default function OrderQuotationMesonPage() {
     number | null
   >(null);
   const [isBillingSheetOpen, setIsBillingSheetOpen] = useState(false);
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState<number | null>(
+    null,
+  );
+  const [isDeliverySheetOpen, setIsDeliverySheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
   const [sedeId, setSedeId] = useState<string>("");
 
@@ -58,11 +63,8 @@ export default function OrderQuotationMesonPage() {
   };
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
   }, [dateFrom, dateTo]);
@@ -75,13 +77,21 @@ export default function OrderQuotationMesonPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    area_id: AREA_PM_ID.MESON,
+    area_id: AREA_MESON.toString(),
     sede_id: sedeId,
   });
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: 1,
   });
+
+  useEffect(() => {
+    if (sedes.length > 0 && !sedeId) {
+      setSedeId(sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes, setSedeId]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -101,8 +111,8 @@ export default function OrderQuotationMesonPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  const handleBilling = (id: number) => {
-    router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
+  const handleRequestDiscount = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/solicitar-descuento/${id}`);
   };
 
   const handleViewBilling = (orderQuotation: { id: number }) => {
@@ -113,6 +123,16 @@ export default function OrderQuotationMesonPage() {
   const handleCloseBillingSheet = () => {
     setIsBillingSheetOpen(false);
     setSelectedOrderQuotationId(null);
+  };
+
+  const handleViewDelivery = (orderQuotation: { id: number }) => {
+    setSelectedDeliveryId(orderQuotation.id);
+    setIsDeliverySheetOpen(true);
+  };
+
+  const handleCloseDeliverySheet = () => {
+    setIsDeliverySheetOpen(false);
+    setSelectedDeliveryId(null);
   };
 
   if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
@@ -135,8 +155,9 @@ export default function OrderQuotationMesonPage() {
         columns={orderQuotationMesonColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
-          onBilling: handleBilling,
           onViewBilling: handleViewBilling,
+          onViewDelivery: handleViewDelivery,
+          onRequestDiscount: handleRequestDiscount,
           onRefresh: refetch,
           permissions,
         })}
@@ -176,6 +197,13 @@ export default function OrderQuotationMesonPage() {
         orderQuotationId={selectedOrderQuotationId}
         open={isBillingSheetOpen}
         onClose={handleCloseBillingSheet}
+        onRefresh={refetch}
+      />
+
+      <OrderQuotationDeliverySheet
+        orderQuotationId={selectedDeliveryId}
+        open={isDeliverySheetOpen}
+        onClose={handleCloseDeliverySheet}
         onRefresh={refetch}
       />
     </div>

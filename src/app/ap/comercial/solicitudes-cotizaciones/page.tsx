@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { SimpleApproveDialog } from "@/shared/components/SimpleApproveDialog";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import {
   DEFAULT_PER_PAGE,
@@ -24,6 +23,7 @@ import {
 } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
+import { DECLARACION_JURADA_KYC } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { usePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import {
   approvePurchaseRequestQuote,
@@ -34,10 +34,14 @@ import PurchaseRequestQuoteTable from "@/features/ap/comercial/solicitudes-cotiz
 import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteColumns";
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
+import SwapVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/SwapVehicleModal";
+import PurchaseRequestQuoteDetailModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteDetailModal";
+import PurchaseRequestQuoteActions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteActions";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export default function PurchaseRequestQuotePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -46,11 +50,16 @@ export default function PurchaseRequestQuotePage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("");
   const [approveId, setApproveId] = useState<number | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState<string>("");
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [assignVehicleQuote, setAssignVehicleQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
+  const [swapVehicleQuote, setSwapVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
     null,
   );
+  const [detailQuote, setDetailQuote] = useState<number | null>(null);
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
@@ -59,6 +68,7 @@ export default function PurchaseRequestQuotePage() {
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
   const { MODEL, ROUTE } = PURCHASE_REQUEST_QUOTE;
   const permissions = useModulePermissions(ROUTE);
+  const kycPermissions = useModulePermissions(DECLARACION_JURADA_KYC.ROUTE);
   const { canViewBranches } = permissions;
   const { data: sedesData = [] } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
@@ -75,6 +85,8 @@ export default function PurchaseRequestQuotePage() {
     status: STATUS_ACTIVE,
     created_to: [formattedDateFrom, formattedDateTo],
     sede_id: sedeId,
+    ap_models_vn_id: selectedModelId,
+    apModelsVn$family$brand_id: selectedBrandId,
   });
 
   const handleApprove = async () => {
@@ -127,6 +139,14 @@ export default function PurchaseRequestQuotePage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
+        <PurchaseRequestQuoteActions
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          sedeId={sedeId}
+          selectedModelId={selectedModelId}
+          selectedBrandId={selectedBrandId}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
       <PurchaseRequestQuoteTable
         isLoading={isLoading}
@@ -135,7 +155,12 @@ export default function PurchaseRequestQuotePage() {
           onDownloadPdf: handleDownloadPdf,
           onAssignVehicle: setAssignVehicleQuote,
           onUnassignVehicle: setUnassignVehicleId,
-          permissions,
+          onSwapVehicle: setSwapVehicleQuote,
+          onViewDetail: setDetailQuote,
+          permissions: {
+            ...permissions,
+            canCreateKyc: kycPermissions.canCreate,
+          },
         })}
         data={data?.data || []}
       >
@@ -152,14 +177,33 @@ export default function PurchaseRequestQuotePage() {
           setSedeId={setSedeId}
           sedes={sedesData}
           canViewBranches={canViewBranches}
+          selectedModelId={selectedModelId}
+          setSelectedModelId={setSelectedModelId}
+          selectedBrandId={selectedBrandId}
+          setSelectedBrandId={setSelectedBrandId}
         />
       </PurchaseRequestQuoteTable>
 
       {approveId !== null && (
-        <SimpleApproveDialog
+        <ConfirmationDialog
+          trigger={
+            <Button
+              variant="default"
+              size="icon-xs"
+              tooltip="Confirmar solicitud"
+            >
+              <CheckCircle className="size-4" />
+            </Button>
+          }
+          title="¿Confirmar solicitud de cotización?"
+          description="¿Está seguro de que desea confirmar esta solicitud de cotización? Esta acción actualizará el estado de aprobación."
+          confirmText="Sí, confirmar"
+          cancelText="Cancelar"
+          onConfirm={handleApprove}
+          variant="default"
+          icon="info"
           open={true}
           onOpenChange={(open) => !open && setApproveId(null)}
-          onConfirm={handleApprove}
         />
       )}
 
@@ -168,6 +212,22 @@ export default function PurchaseRequestQuotePage() {
           open={true}
           onOpenChange={(open) => !open && setAssignVehicleQuote(null)}
           quote={assignVehicleQuote}
+        />
+      )}
+
+      {swapVehicleQuote !== null && (
+        <SwapVehicleModal
+          open={true}
+          onOpenChange={(open) => !open && setSwapVehicleQuote(null)}
+          quote={swapVehicleQuote}
+        />
+      )}
+
+      {detailQuote !== null && (
+        <PurchaseRequestQuoteDetailModal
+          open={true}
+          onOpenChange={(open) => !open && setDetailQuote(null)}
+          id={detailQuote}
         />
       )}
 

@@ -32,7 +32,7 @@ export const cycleColumns = ({
       return (
         <Link
           to={`${ABSOLUTE_ROUTE}/${id}`}
-          className="font-semibold underline text-primary"
+          className="font-semibold underline text-primary dark:text-primary-foreground"
         >
           {row.original.name}
         </Link>

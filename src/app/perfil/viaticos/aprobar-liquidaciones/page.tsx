@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
@@ -31,10 +31,6 @@ export default function ApproveSettlementPage() {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { MODEL } = PER_DIEM_REQUEST;
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
 
   const { data, isLoading } = useGetPendingSettlements({
     params: {
@@ -79,7 +75,7 @@ export default function ApproveSettlementPage() {
       successToast(
         reviewAction === "approved"
           ? "Liquidación aprobada exitosamente"
-          : "Liquidación rechazada exitosamente"
+          : "Liquidación rechazada exitosamente",
       );
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";

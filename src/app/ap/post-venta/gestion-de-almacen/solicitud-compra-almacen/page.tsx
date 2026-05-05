@@ -9,8 +9,8 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -24,18 +24,27 @@ import PurchaseRequestActions from "@/features/ap/post-venta/taller/solicitud-co
 import { purchaseRequestColumns } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestColumns";
 import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTable";
 import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions";
-import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
+import {
+  approvePurchaseRequest,
+  cancelPurchaseRequest,
+  deletePurchaseRequest,
+  notifyManagersPurchaseRequest,
+} from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
 import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
 import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export default function WarehousePurchaseRequestPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [warehouseId, setWarehouseId] = useState<string>("");
+  const [warehouseId, setWarehouseId] = useState<string | null>(null);
+  const [approveId, setApproveId] = useState<number | null>(null);
+  const [cancelId, setCancelId] = useState<number | null>(null);
+  const [notifyId, setNotifyId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedPurchaseRequestId, setSelectedPurchaseRequestId] = useState<
     number | null
@@ -45,12 +54,11 @@ export default function WarehousePurchaseRequestPage() {
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
-
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const formatDate = (date: Date | undefined) => {
@@ -70,11 +78,8 @@ export default function WarehousePurchaseRequestPage() {
   }, [warehouses]);
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
   }, [dateFrom, dateTo]);
@@ -89,6 +94,48 @@ export default function WarehousePurchaseRequestPage() {
         : undefined,
     warehouse_id: warehouseId || undefined,
   });
+
+  const handleApprove = async () => {
+    if (!approveId) return;
+    try {
+      await approvePurchaseRequest(approveId);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    } finally {
+      setApproveId(null);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!cancelId) return;
+    try {
+      await cancelPurchaseRequest(cancelId);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    } finally {
+      setCancelId(null);
+    }
+  };
+
+  const handleNotifyManagers = async () => {
+    if (!notifyId) return;
+    try {
+      await notifyManagersPurchaseRequest(notifyId);
+      await refetch();
+      successToast("Notificación enviada a jefatura correctamente.");
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al enviar la notificación.");
+    } finally {
+      setNotifyId(null);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -142,6 +189,9 @@ export default function WarehousePurchaseRequestPage() {
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
           onViewDetail: handleViewDetail,
+          onApprove: setApproveId,
+          onCancel: setCancelId,
+          onNotifyManagers: setNotifyId,
           permissions,
         })}
         data={data?.data || []}
@@ -154,7 +204,7 @@ export default function WarehousePurchaseRequestPage() {
           dateTo={dateTo}
           setDateTo={setDateTo}
           warehouses={warehouses}
-          warehouseId={warehouseId}
+          warehouseId={warehouseId ?? ""}
           setWarehouseId={setWarehouseId}
         />
       </PurchaseRequestTable>
@@ -175,6 +225,43 @@ export default function WarehousePurchaseRequestPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <ConfirmationDialog
+        trigger={<span />}
+        open={approveId !== null}
+        onOpenChange={(open) => !open && setApproveId(null)}
+        title="Aprobar solicitud"
+        description="¿Estás seguro de que deseas aprobar esta solicitud de compra?"
+        confirmText="Sí, aprobar"
+        cancelText="No, cancelar"
+        icon="info"
+        onConfirm={handleApprove}
+      />
+
+      <ConfirmationDialog
+        trigger={<span />}
+        open={cancelId !== null}
+        onOpenChange={(open) => !open && setCancelId(null)}
+        title="Cancelar solicitud"
+        description="¿Estás seguro de que deseas cancelar esta solicitud de compra? Esta acción no se puede deshacer."
+        confirmText="Sí, cancelar"
+        cancelText="No, volver"
+        icon="danger"
+        variant="destructive"
+        onConfirm={handleCancel}
+      />
+
+      <ConfirmationDialog
+        trigger={<span />}
+        open={notifyId !== null}
+        onOpenChange={(open) => !open && setNotifyId(null)}
+        title="Notificar a Jefatura"
+        description="¿Deseas enviar una notificación a jefatura para esta solicitud de compra?"
+        confirmText="Sí, notificar"
+        cancelText="No, cancelar"
+        icon="info"
+        onConfirm={handleNotifyManagers}
+      />
 
       <PurchaseRequestDetailSheet
         purchaseRequestId={selectedPurchaseRequestId}

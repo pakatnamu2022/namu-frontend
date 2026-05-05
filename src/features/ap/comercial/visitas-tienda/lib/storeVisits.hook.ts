@@ -16,7 +16,6 @@ export const useStoreVisits = (params?: Record<string, any>) => {
   return useQuery<StoreVisitsResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getStoreVisits({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 

@@ -56,8 +56,6 @@ export default function AddProductPVPage() {
           brand_id: "",
           product_category_id: "",
           unit_measurement_id: "",
-          cost_price: 0,
-          sale_price: 0,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

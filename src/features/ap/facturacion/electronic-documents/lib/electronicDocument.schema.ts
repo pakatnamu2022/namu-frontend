@@ -1,5 +1,11 @@
-import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
+import { AREAS_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  optionalStringId,
+  requiredDate,
+  requiredStringId,
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
+import { PAYMENT_CONDITION_CREDIT } from "./electronicDocument.constants";
 
 // Schema para Item del Documento
 export const ElectronicDocumentItemSchema = z.object({
@@ -19,6 +25,7 @@ export const ElectronicDocumentItemSchema = z.object({
   igv: z.number(),
   total: z.number(),
   account_plan_id: requiredStringId("Plan contable requerido"),
+  product_id: z.string().optional(),
   anticipo_regularizacion: z.boolean().optional(),
   anticipo_documento_serie: z.string().max(4, "Máximo 4 caracteres").optional(),
   anticipo_documento_numero: z.number().optional(),
@@ -42,18 +49,18 @@ export const ElectronicDocumentSchema = z
   .object({
     // ===== TIPO DE DOCUMENTO Y SERIE =====
     sunat_concept_document_type_id: requiredStringId(
-      "Tipo de documento requerido"
+      "Tipo de documento requerido",
     ),
     serie: requiredStringId("Serie requerida"),
     numero: z.string().optional(),
 
     // ===== TIPO DE OPERACIÓN =====
     sunat_concept_transaction_type_id: requiredStringId(
-      "Tipo de operación requerido"
+      "Tipo de operación requerido",
     ),
 
     // ===== ORIGEN DEL DOCUMENTO =====
-    origin_module: z.enum(["comercial", "posventa"], {
+    area_id: z.enum(AREAS_ID.map(String), {
       error: "Módulo de origen requerido",
     }),
     origin_entity_type: z.string().optional(),
@@ -68,7 +75,7 @@ export const ElectronicDocumentSchema = z
     client_id: requiredStringId("Cliente requerido"),
 
     // ===== FECHAS =====
-    fecha_de_emision: z.coerce.string(),
+    fecha_de_emision: requiredDate("Fecha de emisión requerida"),
     fecha_de_vencimiento: z.string().optional(),
 
     // ===== MONEDA Y CAMBIO =====
@@ -102,7 +109,7 @@ export const ElectronicDocumentSchema = z
     // ===== DETRACCIÓN =====
     detraccion: z.boolean().optional(),
     sunat_concept_detraction_type_id: optionalStringId(
-      "Tipo de detracción inválido"
+      "Tipo de detracción inválido",
     ),
     detraccion_total: z.number().optional(),
     detraccion_porcentaje: z.number().min(0).max(100).optional(),
@@ -116,16 +123,17 @@ export const ElectronicDocumentSchema = z
       .optional(),
     documento_que_se_modifica_numero: z.number().optional(),
     sunat_concept_credit_note_type_id: optionalStringId(
-      "Tipo de nota de crédito inválido"
+      "Tipo de nota de crédito inválido",
     ),
     sunat_concept_debit_note_type_id: optionalStringId(
-      "Tipo de nota de débito inválido"
+      "Tipo de nota de débito inválido",
     ),
 
     // ===== CAMPOS OPCIONALES =====
     observaciones: z.string().max(1000, "Máximo 1000 caracteres").optional(),
-    condiciones_de_pago: z.string().min(1, "Condiciones de pago requeridas"),
-    medio_de_pago: z.string().min(1, "Medio de pago requerido"),
+    medio_de_pago: z.string().min(1, "Condiciones de pago requeridas"),
+    condiciones_de_pago: z.string().optional(),
+    credit_days: z.string().optional(),
     bank_id: optionalStringId("Chequera es inválida"),
     operation_number: z
       .string()
@@ -141,7 +149,21 @@ export const ElectronicDocumentSchema = z
       .string()
       .max(20, "Máximo 20 caracteres")
       .optional(),
+    orden_compra_servicio_file: z.instanceof(File).optional().nullable(),
     codigo_unico: z.string().max(20, "Máximo 20 caracteres").optional(),
+
+    // ===== CAMPOS DE PAGO ADICIONALES =====
+    card_last4: z
+      .string()
+      .max(4, "Máximo 4 caracteres")
+      .regex(/^\d{0,4}$/, "Solo se permiten dígitos")
+      .optional()
+      .nullable(),
+    internal_note: z
+      .string()
+      .max(255, "Máximo 255 caracteres")
+      .optional()
+      .nullable(),
 
     // ===== CONFIGURACIÓN =====
     enviar_automaticamente_a_la_sunat: z.boolean().default(false),
@@ -173,20 +195,7 @@ export const ElectronicDocumentSchema = z
       message:
         "La fecha de vencimiento debe ser posterior a la fecha de emisión",
       path: ["fecha_de_vencimiento"],
-    }
-  )
-  .refine(
-    (data) => {
-      // Validar detracción
-      if (data.detraccion && !data.sunat_concept_detraction_type_id) {
-        return false;
-      }
-      return true;
     },
-    {
-      message: "Debe especificar el tipo de detracción",
-      path: ["sunat_concept_detraction_type_id"],
-    }
   )
   .refine(
     (data) => {
@@ -205,7 +214,7 @@ export const ElectronicDocumentSchema = z
       message:
         "Debe especificar el documento que se modifica y el tipo de nota de crédito",
       path: ["sunat_concept_credit_note_type_id"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -224,7 +233,33 @@ export const ElectronicDocumentSchema = z
       message:
         "Debe especificar el documento que se modifica y el tipo de nota de débito",
       path: ["sunat_concept_debit_note_type_id"],
-    }
+    },
+  )
+  .refine(
+    (data) => {
+      // Condiciones de pago requeridas cuando es CONTADO
+      if (data.medio_de_pago !== PAYMENT_CONDITION_CREDIT) {
+        return !!data.condiciones_de_pago;
+      }
+      return true;
+    },
+    {
+      message: "Medio de pago requerido",
+      path: ["condiciones_de_pago"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Tipo de financiamiento requerido solo cuando hay cotización vinculada
+      if (data.purchase_request_quote_id) {
+        return !!data.financing_type;
+      }
+      return true;
+    },
+    {
+      message: "Tipo de financiamiento requerido",
+      path: ["financing_type"],
+    },
   );
 
 // Schema para Item de Nota de Crédito (similar a ElectronicDocumentItemSchema pero con account_plan_id opcional como number)
@@ -258,20 +293,83 @@ export const CreditNoteItemSchema = z.object({
   anticipo_documento_numero: z.number().nullable().optional(),
 });
 
+// Credit Note Type IDs (from SUNAT concepts with type=BILLING_CREDIT_NOTE_TYPE)
+export const CREDIT_NOTE_TYPE_IDS = {
+  ANULACION: 68, // Code 01 – Anulación de la operación
+  DESCUENTO_GLOBAL: 71, // Code 04 – Descuento global
+  DEVOLUCION_TOTAL: 73, // Code 06 – Devolución total
+  DEVOLUCION_ITEM: 74, // Code 07 – Devolución por ítem
+} as const;
+
 // Schema para Nota de Crédito
-export const CreditNoteSchema = z.object({
-  fecha_de_emision: z.coerce.string(),
-  sunat_concept_credit_note_type_id: requiredStringId(
-    "Tipo de nota de crédito requerido"
-  ),
-  series: requiredStringId("Serie requerida"),
-  observaciones: z
-    .string()
-    .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z.array(CreditNoteItemSchema).min(1, "Debe actualizar al menos un item"),
-});
+export const CreditNoteSchema = z
+  .object({
+    fecha_de_emision: z.coerce.string(),
+    sunat_concept_credit_note_type_id: requiredStringId(
+      "Tipo de nota de crédito requerido",
+    ),
+    series: requiredStringId("Serie requerida"),
+    observaciones: z
+      .string()
+      .min(10, "Las observaciones deben tener al menos 10 caracteres"),
+    // Type 04 – Descuento global
+    discount_amount: z.preprocess(
+      (val) =>
+        val === "" || val === null || val === undefined
+          ? undefined
+          : Number(val),
+      z.number().min(0.01, "El monto debe ser mayor a 0").optional().nullable(),
+    ),
+    account_plan_id: optionalStringId("Cuenta contable inválida"),
+    // Type 07 – Devolución por ítem
+    detail_ids: z.array(z.number().int()).optional().nullable(),
+    // Legacy fields kept for update flow
+    enviar_automaticamente_a_la_sunat: z.boolean().default(false),
+    enviar_automaticamente_al_cliente: z.boolean().default(false),
+    items: z.array(CreditNoteItemSchema).optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        Number(data.sunat_concept_credit_note_type_id) ===
+        CREDIT_NOTE_TYPE_IDS.DESCUENTO_GLOBAL
+      ) {
+        return data.discount_amount != null && data.discount_amount > 0;
+      }
+      return true;
+    },
+    {
+      message: "El monto del descuento debe ser mayor a 0",
+      path: ["discount_amount"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        Number(data.sunat_concept_credit_note_type_id) ===
+        CREDIT_NOTE_TYPE_IDS.DESCUENTO_GLOBAL
+      ) {
+        return !!data.account_plan_id;
+      }
+      return true;
+    },
+    { message: "La cuenta contable es requerida", path: ["account_plan_id"] },
+  )
+  .refine(
+    (data) => {
+      if (
+        Number(data.sunat_concept_credit_note_type_id) ===
+        CREDIT_NOTE_TYPE_IDS.DEVOLUCION_ITEM
+      ) {
+        return data.detail_ids != null && data.detail_ids.length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Debe seleccionar al menos un ítem para la devolución",
+      path: ["detail_ids"],
+    },
+  );
 
 // Schema para Item de Nota de Débito (igual a CreditNoteItemSchema)
 export const DebitNoteItemSchema = z.object({
@@ -307,15 +405,18 @@ export const DebitNoteItemSchema = z.object({
 // Schema para Nota de Débito
 export const DebitNoteSchema = z.object({
   sunat_concept_debit_note_type_id: requiredStringId(
-    "Tipo de nota de débito requerido"
+    "Tipo de nota de débito requerido",
   ),
   series: requiredStringId("Serie requerida"),
+  fecha_nota_debito: z
+    .string()
+    .min(1, "La fecha de la nota de débito es requerida"),
   observaciones: z
     .string()
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z.array(DebitNoteItemSchema).min(1, "Debe actualizar al menos un item"),
+  items: z
+    .array(DebitNoteItemSchema)
+    .min(1, "Debe actualizar al menos un item"),
 });
 
 export type ElectronicDocumentSchema = z.infer<typeof ElectronicDocumentSchema>;
@@ -330,5 +431,7 @@ export type ElectronicDocumentInstallmentSchema = z.infer<
 >;
 export type CreditNoteItemSchema = z.infer<typeof CreditNoteItemSchema>;
 export type CreditNoteSchema = z.infer<typeof CreditNoteSchema>;
+export type CreditNoteTypeId =
+  (typeof CREDIT_NOTE_TYPE_IDS)[keyof typeof CREDIT_NOTE_TYPE_IDS];
 export type DebitNoteItemSchema = z.infer<typeof DebitNoteItemSchema>;
 export type DebitNoteSchema = z.infer<typeof DebitNoteSchema>;

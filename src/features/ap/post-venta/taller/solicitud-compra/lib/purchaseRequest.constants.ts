@@ -4,8 +4,9 @@ import { PurchaseRequestResource } from "./purchaseRequest.interface";
 // Estados de solicitud de compra
 export const PURCHASE_REQUEST_STATUS = {
   pending: "Pendiente",
-  approved: "Aprobado",
-  rejected: "Rechazado",
+  ordered: "Ordenado",
+  received: "Recibido",
+  cancelled: "Cancelado",
 } as const;
 
 export type PurchaseRequestStatus = keyof typeof PURCHASE_REQUEST_STATUS;
@@ -68,3 +69,15 @@ export const PURCHASE_REQUEST_ALMACEN: ModelComplete<PurchaseRequestResource> =
     ROUTE_ADD: `${ABSOLUTE_ROUTE_ALMACEN}/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE_ALMACEN}/actualizar`,
   };
+
+export const SUPPLY_TYPES = {
+  LOCAL: "LOCAL",
+  CENTRAL: "CENTRAL",
+  IMPORTACION: "IMPORTACION",
+} as const;
+
+export const SUPPLY_TYPE_OPTIONS = [
+  { label: "Local", value: SUPPLY_TYPES.LOCAL },
+  { label: "Central", value: SUPPLY_TYPES.CENTRAL },
+  { label: "Importación", value: SUPPLY_TYPES.IMPORTACION },
+];

@@ -88,12 +88,26 @@ export async function generateOrUpdateShippingGuide(
   return data;
 }
 
-// Función para enviar a Dynamic
-export async function sendVehicleDeliveryToDynamic(
-  id: number
-): Promise<SendToNubefactResponse> {
-  const { data } = await api.post<SendToNubefactResponse>(
-    `${ENDPOINT}/${id}/send-to-dynamic`
+export interface NextShippingGuideDocumentNumber {
+  series: string;
+  correlative: string;
+  document_number: string;
+}
+
+export async function getNextShippingGuideDocumentNumber(
+  documentSeriesId: number
+): Promise<NextShippingGuideDocumentNumber> {
+  const { data } = await api.get<NextShippingGuideDocumentNumber>(
+    "/ap/commercial/shippingGuides/next-document-number",
+    { params: { document_series_id: documentSeriesId } }
   );
   return data;
+}
+
+export async function dispatchAllShippingGuides(): Promise<void> {
+  await api.post("/ap/commercial/shippingGuides/dispatch-all");
+}
+
+export async function dispatchShippingGuideMigration(id: number): Promise<void> {
+  await api.post(`/ap/commercial/shippingGuides/${id}/dispatch-migration`);
 }

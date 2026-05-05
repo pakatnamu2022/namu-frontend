@@ -7,11 +7,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { DEFAULT_PER_PAGE, MODULE_COMERCIAL } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
   preCancelElectronicDocument,
+  dispatchElectronicDocumentMigration,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
 import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns";
@@ -22,13 +23,16 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import ElectronicDocumentActions from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 
 export default function ElectronicDocumentsPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -37,24 +41,28 @@ export default function ElectronicDocumentsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, statusFilter, documentTypeFilter]);
+  }, [search, per_page, statusFilter, documentTypeFilter, sedeId]);
 
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
     search,
     status: statusFilter,
-    origin_module: MODULE_COMERCIAL,
+    area_id: [AREA_COMERCIAL],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
+    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
@@ -107,12 +115,19 @@ export default function ElectronicDocumentsPage() {
 
   const handlePreCancel = async (id: number) => {
     const result = await preCancelElectronicDocument(id);
-    if (!result.annulled) {
-      throw new Error(
-        "El documento no está anulado en Dynamics. No se puede anular en Nubefact.",
-      );
-    }
+    return result.annulled;
   };
+
+  const migrateMutation = useMutation({
+    mutationFn: dispatchElectronicDocumentMigration,
+    onSuccess: () => {
+      successToast("Migración despachada correctamente");
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
@@ -147,6 +162,7 @@ export default function ElectronicDocumentsPage() {
           onSendToSunat: handleSendToSunat,
           onAnnul: handleCancel,
           onPreCancel: handlePreCancel,
+          onMigrate: (id) => migrateMutation.mutate(id),
           permissions: {
             canUpdate,
             canAnnul,
@@ -154,7 +170,7 @@ export default function ElectronicDocumentsPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
-          module: "COMERCIAL",
+          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >
@@ -166,6 +182,9 @@ export default function ElectronicDocumentsPage() {
           documentTypeFilter={documentTypeFilter}
           setDocumentTypeFilter={setDocumentTypeFilter}
           documentTypes={documentTypes || []}
+          sedes={sedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </ElectronicDocumentTable>
 

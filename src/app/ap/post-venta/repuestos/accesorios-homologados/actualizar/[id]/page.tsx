@@ -62,7 +62,7 @@ export default function UpdateApprovedAccesoriesPage() {
   ): Partial<ApprovedAccesoriesSchema> {
     return {
       code: data.code,
-      type: data.type,
+      type_operation_id: data.type_operation_id,
       description: data.description,
       price: data.price,
       body_type_id: String(data.body_type_id),

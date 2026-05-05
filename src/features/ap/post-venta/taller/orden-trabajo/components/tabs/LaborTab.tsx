@@ -1,9 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wrench, Plus, Trash2, FileText } from "lucide-react";
+import {
+  Wrench,
+  Plus,
+  Trash2,
+  FileText,
+  Tag,
+  Pencil,
+  CheckCircle,
+  XCircle,
+  Percent,
+  Loader2,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -12,26 +24,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import WorkOrderLabourForm from "@/features/ap/post-venta/taller/orden-trabajo-labor/components/WorkOrderLabourForm";
+import { EditableCell } from "@/shared/components/EditableCell";
 import {
   useGetAllWorkOrderLabour,
   useUpdateWorkOrderLabour,
   useDeleteWorkOrderLabour,
+  useStoreWorkOrderLabour,
 } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.hook";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import GroupSelector from "../GroupSelector";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
-import { useQuery } from "@tanstack/react-query";
-import { useGetConsolidatedWorkers } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { ITEM_TYPE_LABOR } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
+import { useDiscountRequestsByWorkOrder } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.hook";
+import { DiscountRequestWorkOrderModal } from "../../../descuento-cotizacion-taller/components/DiscountRequestWorkOrderModal";
+import {
+  approveDiscountRequestWorkOrderQuotation,
+  rejectDiscountRequestWorkOrderQuotation,
+} from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.actions";
+import {
+  DISCOUNT_REQUEST_TALLER,
+  TYPE_GLOBAL,
+  TYPE_PARTIAL,
+  MODEL_LABOUR,
+} from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.constants";
+import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.interface";
+import { errorToast, successToast } from "@/core/core.function";
+import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 
 interface LaborTabProps {
   workOrderId: number;
@@ -41,12 +66,30 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const [showForm, setShowForm] = useState(false);
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const { user } = useAuthStore();
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+  const [addingFromQuotationId, setAddingFromQuotationId] = useState<
+    number | null
+  >(null);
+  const queryClient = useQueryClient();
+  const storeLabourMutation = useStoreWorkOrderLabour();
+  const { ROUTE } = WORKER_ORDER;
+  const permissions = useModulePermissions(ROUTE);
+
+  // Modal de descuento
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(
+    TYPE_PARTIAL,
+  );
+  const [selectedLabour, setSelectedLabour] = useState<any | null>(null);
+  const [editingRequest, setEditingRequest] =
+    useState<DiscountRequestWorkOrderQuotationResource | null>(null);
 
   const { data: labours = [], isLoading } = useGetAllWorkOrderLabour({
     work_order_id: workOrderId,
   });
 
-  // Consultar la orden de trabajo con sus items
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery({
     queryKey: ["workOrder", workOrderId],
     queryFn: () => findWorkOrderById(workOrderId),
@@ -54,60 +97,75 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
-  // Obtener la cotización asociada si existe
   const associatedQuotation = workOrder?.order_quotation || null;
   const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
 
-  // Filtrar items de tipo LABOR de la cotización
   const laborItems = useMemo(() => {
     if (!associatedQuotation?.details) return [];
     return associatedQuotation.details.filter(
-      (detail: any) => detail.item_type === "LABOR",
+      (detail: any) => detail.item_type === ITEM_TYPE_LABOR,
     );
   }, [associatedQuotation]);
 
-  // Obtener los números de grupos únicos disponibles
-  const availableGroups = useMemo(() => {
-    return Array.from(new Set(items.map((item) => item.group_number))).sort();
-  }, [items]);
+  // const {
+  //   data: consolidatedWorkers = [],
+  //   isLoading: isLoadingConsolidatedWorkers,
+  // } = useGetConsolidatedWorkers(workOrderId);
 
-  // Obtener operarios consolidados
-  const {
-    data: consolidatedWorkers = [],
-    isLoading: isLoadingConsolidatedWorkers,
-  } = useGetConsolidatedWorkers(workOrderId);
+  // Solicitudes de descuento de la OT — solo las de LABOUR
+  const { data: allDiscountRequests = [] } =
+    useDiscountRequestsByWorkOrder(workOrderId);
+  const discountRequests = allDiscountRequests.filter(
+    (r) => r.item_type === "LABOUR",
+  );
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
 
-  const handleGroupChange = (labour: any, newGroupNumber: number) => {
-    updateGroupMutation.mutate({
-      id: labour.id,
-      data: {
-        description: labour.description,
-        time_spent: labour.time_spent,
-        hourly_rate: labour.hourly_rate,
-        work_order_id: labour.work_order_id,
-        worker_id: Number(labour.worker_id),
-        group_number: newGroupNumber,
-      },
-    });
-  };
+  // const handleWorkerChange = (labour: any, newWorkerId: number) => {
+  //   updateGroupMutation.mutate({
+  //     id: labour.id,
+  //     data: {
+  //       description: labour.description,
+  //       time_spent: labour.time_spent,
+  //       hourly_rate: labour.hourly_rate,
+  //       discount_percentage: labour.discount_percentage,
+  //       work_order_id: labour.work_order_id,
+  //       worker_id: newWorkerId,
+  //       group_number: labour.group_number,
+  //     },
+  //   });
+  // };
 
-  const handleWorkerChange = (labour: any, newWorkerId: number) => {
+  const handleTimeSpentChange = (labour: any, newValue: any) => {
     updateGroupMutation.mutate({
       id: labour.id,
       data: {
         description: labour.description,
-        time_spent: labour.time_spent,
+        time_spent: String(newValue),
         hourly_rate: labour.hourly_rate,
+        discount_percentage: labour.discount_percentage,
         work_order_id: labour.work_order_id,
-        worker_id: newWorkerId,
+        worker_id: labour.worker_id,
         group_number: labour.group_number,
       },
     });
   };
 
-  // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
+  const handleDiscountPercentageChange = (labour: any, newValue: any) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: labour.time_spent,
+        hourly_rate: labour.hourly_rate,
+        discount_percentage: String(newValue),
+        work_order_id: labour.work_order_id,
+        worker_id: labour.worker_id,
+        group_number: labour.group_number,
+      },
+    });
+  };
+
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {
       const firstGroup = Math.min(...items.map((i) => i.group_number));
@@ -115,7 +173,6 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
     }
   }, [items, selectedGroupNumber, setSelectedGroupNumber]);
 
-  // Filtrar las manos de obra según el grupo seleccionado
   const filteredLabours = labours.filter(
     (labour) => labour.group_number === selectedGroupNumber,
   );
@@ -126,14 +183,147 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
     setShowForm(false);
   };
 
+  const handleAddFromQuotation = (item: any) => {
+    if (!selectedGroupNumber) {
+      errorToast("Debe seleccionar un grupo");
+      return;
+    }
+    setAddingFromQuotationId(item.id);
+    storeLabourMutation.mutate(
+      {
+        description: item.description,
+        time_spent: String(item.quantity),
+        hourly_rate: String(item.unit_price),
+        discount_percentage: String(item.discount_percentage ?? 0),
+        work_order_id: String(workOrderId),
+        group_number: selectedGroupNumber,
+        quotation_detail_id: item.id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["workOrder", workOrderId],
+          });
+          setAddingFromQuotationId(null);
+        },
+        onError: () => setAddingFromQuotationId(null),
+      },
+    );
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
     deleteMutation.mutate(deleteId, {
-      onSuccess: () => {
-        setDeleteId(null);
-      },
+      onSuccess: () => setDeleteId(null),
     });
   };
+
+  // --- Lógica global/partial ---
+  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
+  const hasPartialRequests = discountRequests.some(
+    (r) => r.type === TYPE_PARTIAL,
+  );
+  const hasMultipleItems = filteredLabours.length > 1;
+
+  const getPartialRequest = (labourId: number) =>
+    discountRequests.find(
+      (r) =>
+        r.type === TYPE_PARTIAL &&
+        r.part_labour_id === labourId &&
+        r.part_labour_model === MODEL_LABOUR,
+    );
+
+  // Total de las manos de obra filtradas (base para el global)
+  const globalBaseAmount = filteredLabours.reduce(
+    (acc, l) => acc + parseFloat(l.total_cost || "0"),
+    0,
+  );
+
+  const handleOpenCreate = (type: "GLOBAL" | "PARTIAL", labour?: any) => {
+    setEditingRequest(null);
+    setModalType(type);
+    setSelectedLabour(labour ?? null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (
+    request: DiscountRequestWorkOrderQuotationResource,
+    labour?: any,
+  ) => {
+    setEditingRequest(request);
+    setModalType(request.type);
+    setSelectedLabour(labour ?? null);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedLabour(null);
+    setEditingRequest(null);
+  };
+
+  const { mutate: doApprove, isPending: isApproving } = useMutation({
+    mutationFn: approveDiscountRequestWorkOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud aprobada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderLabour", "all", { work_order_id: workOrderId }],
+      });
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al aprobar la solicitud",
+      );
+    },
+  });
+
+  const { mutate: doReject, isPending: isRejecting } = useMutation({
+    mutationFn: rejectDiscountRequestWorkOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud rechazada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderLabour", "all", { work_order_id: workOrderId }],
+      });
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al rechazar la solicitud",
+      );
+    },
+  });
+
+  const renderStatusBadge = (status: string) => (
+    <Badge
+      color={
+        status === "approved"
+          ? "green"
+          : status === "rejected"
+            ? "red"
+            : "orange"
+      }
+      className="text-xs"
+    >
+      {status === "approved"
+        ? "Aprobado"
+        : status === "rejected"
+          ? "Rechazado"
+          : "Pendiente"}
+    </Badge>
+  );
 
   if (isLoading || isLoadingWorkOrder) {
     return (
@@ -149,16 +339,16 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   return (
     <div className="space-y-6">
       {/* Selector de Grupo */}
-      <GroupSelector
+      {/* <GroupSelector
         items={items}
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
-      />
+      /> */}
 
       {/* Información de Mano de Obra de la Cotización (Compacta) */}
       {hasAssociatedQuotation && laborItems.length > 0 && (
-        <Card className="p-4 bg-blue-50 border-blue-200">
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-blue-200">
+        <Card className="p-4 bg-blue-50 border-blue-200 gap-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-blue-200">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <FileText className="h-5 w-5 text-primary" />
@@ -194,30 +384,85 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               </div>
             )}
           </div>
-          <div className="space-y-1 text-sm">
-            {laborItems.map((item: any, index: number) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
-              >
-                <div className="flex items-center gap-2 flex-1">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <span className="text-gray-700 truncate">
-                    {item.description}
-                  </span>
+
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="min-w-[600px] sm:min-w-0">
+              <div className="space-y-1 text-sm">
+                <div className="flex items-center gap-3 py-2 border-b-2 border-blue-200">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="w-6 shrink-0"></span>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Descripción
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 whitespace-nowrap">
+                    <span className="text-center min-w-[60px]">Horas</span>
+                    <span className="w-3"></span>
+                    <span className="text-left min-w-20">Precio/Hora</span>
+                    <span className="text-center min-w-[60px]">Desc.</span>
+                    <span className="w-3"></span>
+                    <span className="text-left min-w-20">Total</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
-                  <span>{Number(item.quantity || 0).toFixed(2)} hrs</span>
-                  <span className="text-muted-foreground">×</span>
-                  <span>
-                    {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
-                    {Number(item.total_amount || 0).toFixed(2)}
-                  </span>
-                </div>
+
+                {laborItems.map((item: any, index: number) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
+                  >
+                    <div className="flex items-center gap-2 flex-1">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="text-gray-700 truncate">
+                        {item.description}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
+                      <span className="text-center min-w-[60px]">
+                        {Number(item.quantity || 0).toFixed(2)} hrs
+                      </span>
+                      <span className="text-muted-foreground w-3 text-center">
+                        x
+                      </span>
+                      <span className="text-left min-w-20">
+                        {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
+                        {Number(item.unit_price || 0).toFixed(2)}
+                      </span>
+                      <span className="text-center min-w-[60px]">
+                        - {Number(item.discount_percentage || 0).toFixed(2)}%
+                      </span>
+                      <span className="text-muted-foreground w-3 text-center">
+                        =
+                      </span>
+                      <span className="text-left min-w-20">
+                        {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
+                        {Number(item.total_amount || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    {item.status === "pending" && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 shrink-0 text-primary hover:text-primary hover:bg-primary/10"
+                        tooltip="Agregar mano de obra"
+                        disabled={
+                          addingFromQuotationId === item.id ||
+                          storeLabourMutation.isPending
+                        }
+                        onClick={() => handleAddFromQuotation(item)}
+                      >
+                        {addingFromQuotationId === item.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </Card>
       )}
@@ -228,7 +473,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
           <Button
             onClick={() => setShowForm(true)}
             className="gap-2"
-            disabled={items.length === 0}
+            disabled={
+              items.length === 0 || (workOrder?.advances?.length ?? 0) > 0
+            }
           >
             <Plus className="h-4 w-4" />
             Agregar Mano de Obra
@@ -255,132 +502,339 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               workOrder?.type_currency?.symbol ||
               "S/"
             }
+            costManHours={workOrder?.cost_man_hours || 0}
+            maxDiscountPercentage={maxDiscountPercentage}
           />
         </Card>
       )}
 
       {/* Labor List Table */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Mano de Obra Registrada</h3>
 
-        {filteredLabours.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No hay registros de mano de obra para este grupo
+      {filteredLabours.length === 0 ? (
+        <Card className="p-12">
+          <div className="text-center">
+            <Wrench className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No hay mano de obra en el Grupo {selectedGroupNumber}
+            </h3>
+            <p className="text-sm text-gray-600">
+              Aún no se han agregado mano de obra para este grupo.
+            </p>
           </div>
-        ) : (
+        </Card>
+      ) : (
+        <Card className="p-6">
+          {/* Header con botón descuento global */}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 className="text-lg font-semibold">Mano de Obra Registrada</h3>
+
+            {hasMultipleItems && filteredLabours.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {globalRequest ? (
+                  <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
+                    <span className="text-muted-foreground text-xs">
+                      Desc. global:
+                    </span>
+                    <span className="font-semibold">
+                      {Number(
+                        globalRequest.requested_discount_percentage,
+                      ).toFixed(2)}
+                      %
+                    </span>
+                    {renderStatusBadge(globalRequest.status)}
+                    {globalRequest.status === "pending" && (
+                      <>
+                        {permissions.canApprove && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                tooltip="Aprobar solicitud global"
+                                disabled={isApproving}
+                              >
+                                <CheckCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Aprobar solicitud?"
+                            description="Se aprobará el descuento global para la mano de obra. ¿Deseas continuar?"
+                            confirmText="Sí, aprobar"
+                            cancelText="Cancelar"
+                            icon="info"
+                            onConfirm={() => doApprove(globalRequest.id)}
+                          />
+                        )}
+                        {permissions.canEditDiscount && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7"
+                            tooltip="Editar solicitud global"
+                            onClick={() => handleOpenEdit(globalRequest)}
+                          >
+                            <Pencil className="size-4" />
+                          </Button>
+                        )}
+                        {permissions.canReject && (
+                          <ConfirmationDialog
+                            trigger={
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                tooltip="Rechazar solicitud global"
+                                disabled={isRejecting}
+                              >
+                                <XCircle className="size-4" />
+                              </Button>
+                            }
+                            title="¿Rechazar solicitud?"
+                            description="Se rechazará el descuento global para la mano de obra. ¿Deseas continuar?"
+                            confirmText="Sí, rechazar"
+                            cancelText="Cancelar"
+                            variant="destructive"
+                            icon="danger"
+                            onConfirm={() => doReject(globalRequest.id)}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  permissions.canRequest &&
+                  !hasPartialRequests && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenCreate(TYPE_GLOBAL)}
+                      className="gap-2"
+                    >
+                      <Percent className="size-4" />
+                      Desc. global
+                    </Button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Descripción</TableHead>
-                  <TableHead className="text-left">Operario</TableHead>
+                  {/* <TableHead className="text-left">Operario</TableHead> */}
                   <TableHead className="text-right">Tiempo (hrs)</TableHead>
                   <TableHead className="text-right">Tarifa/Hora</TableHead>
-                  <TableHead className="text-right">Costo Total</TableHead>
-                  <TableHead className="text-center">Grupo</TableHead>
-                  <TableHead className="text-center w-[100px]">
-                    Acciones
-                  </TableHead>
+                  <TableHead className="text-right">Cto. Total</TableHead>
+                  <TableHead className="text-right">Desc.</TableHead>
+                  <TableHead className="text-right">Cto. Neto</TableHead>
+                  <TableHead className="text-center w-40">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLabours.map((labour) => (
-                  <TableRow key={labour.id}>
-                    <TableCell className="max-w-md">
-                      <div className="line-clamp-2">{labour.description}</div>
-                    </TableCell>
-                    <TableCell className="text-left">
-                      <Select
-                        value={labour.worker_id?.toString() || ""}
-                        onValueChange={(value) =>
-                          handleWorkerChange(labour, Number(value))
-                        }
-                        disabled={isLoadingConsolidatedWorkers}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {consolidatedWorkers.map((worker) => (
-                            <SelectItem
-                              key={worker.worker_id}
-                              value={worker.worker_id.toString()}
+                {filteredLabours.map((labour) => {
+                  const partialRequest = getPartialRequest(labour.id);
+                  return (
+                    <TableRow key={labour.id}>
+                      <TableCell className="max-w-md">
+                        <div className="line-clamp-2">{labour.description}</div>
+                      </TableCell>
+                      {/* <TableCell className="text-left">
+                        <Select
+                          value={labour.worker_id?.toString() || ""}
+                          onValueChange={(value) =>
+                            handleWorkerChange(labour, Number(value))
+                          }
+                          disabled={isLoadingConsolidatedWorkers}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {consolidatedWorkers.map((worker) => (
+                              <SelectItem
+                                key={worker.worker_id}
+                                value={worker.worker_id.toString()}
+                              >
+                                {worker.worker_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell> */}
+                      <TableCell className="text-right">
+                        <div className="flex justify-end">
+                          <EditableCell
+                            id={labour.id}
+                            value={labour.time_spent}
+                            onUpdate={(_, v) =>
+                              handleTimeSpentChange(labour, v)
+                            }
+                            widthClass="w-20"
+                            min={0}
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="text-sm">
+                          {workOrder?.type_currency?.symbol || "S/"}{" "}
+                          {Number(labour.hourly_rate || 0).toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {workOrder?.type_currency?.symbol || "S/"}{" "}
+                        {labour.total_cost}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end items-center gap-0.5">
+                          <EditableCell
+                            id={labour.id}
+                            value={Number(
+                              labour.discount_percentage ?? 0,
+                            ).toFixed(2)}
+                            onUpdate={(_, v) =>
+                              handleDiscountPercentageChange(labour, v)
+                            }
+                            widthClass="w-20"
+                            min={0}
+                            max={maxDiscountPercentage}
+                          />
+                          <span className="text-orange-600 text-sm">%</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {workOrder?.type_currency?.symbol || "S/"}{" "}
+                        {labour.net_amount}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          {/* Columna de descuento parcial: solo si no hay global */}
+                          {!globalRequest && (
+                            <>
+                              {partialRequest ? (
+                                <>
+                                  {renderStatusBadge(partialRequest.status)}
+                                  {partialRequest.status === "pending" && (
+                                    <>
+                                      {permissions.canApprove && (
+                                        <ConfirmationDialog
+                                          trigger={
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-7 w-7 p-0 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                              tooltip="Aprobar solicitud"
+                                              disabled={isApproving}
+                                            >
+                                              <CheckCircle className="h-4 w-4" />
+                                            </Button>
+                                          }
+                                          title="¿Aprobar solicitud?"
+                                          description="Se aprobará el descuento solicitado para esta mano de obra. ¿Deseas continuar?"
+                                          confirmText="Sí, aprobar"
+                                          cancelText="Cancelar"
+                                          icon="info"
+                                          onConfirm={() =>
+                                            doApprove(partialRequest.id)
+                                          }
+                                        />
+                                      )}
+                                      {permissions.canEditDiscount && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 w-7 p-0"
+                                          tooltip="Editar solicitud"
+                                          onClick={() =>
+                                            handleOpenEdit(
+                                              partialRequest,
+                                              labour,
+                                            )
+                                          }
+                                        >
+                                          <Pencil className="h-4 w-4" />
+                                        </Button>
+                                      )}
+                                      {permissions.canReject && (
+                                        <ConfirmationDialog
+                                          trigger={
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                              tooltip="Rechazar solicitud"
+                                              disabled={isRejecting}
+                                            >
+                                              <XCircle className="h-4 w-4" />
+                                            </Button>
+                                          }
+                                          title="¿Rechazar solicitud?"
+                                          description="Se rechazará el descuento solicitado para esta mano de obra. ¿Deseas continuar?"
+                                          confirmText="Sí, rechazar"
+                                          cancelText="Cancelar"
+                                          variant="destructive"
+                                          icon="danger"
+                                          onConfirm={() =>
+                                            doReject(partialRequest.id)
+                                          }
+                                        />
+                                      )}
+                                    </>
+                                  )}
+                                </>
+                              ) : permissions.canRequest ? (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0 text-primary hover:text-primary hover:bg-primary/10"
+                                  tooltip="Solicitar descuento parcial"
+                                  onClick={() =>
+                                    handleOpenCreate(TYPE_PARTIAL, labour)
+                                  }
+                                >
+                                  <Tag className="h-4 w-4" />
+                                </Button>
+                              ) : null}
+                            </>
+                          )}
+                          {!globalRequest && !partialRequest && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteId(labour.id)}
+                              className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
-                              {worker.worker_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {labour.time_spent}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {labour.hourly_rate}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {labour.total_cost}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Select
-                        value={labour.group_number?.toString() || ""}
-                        onValueChange={(value) =>
-                          handleGroupChange(labour, Number(value))
-                        }
-                      >
-                        <SelectTrigger className="w-[120px] mx-auto">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableGroups.map((groupNumber) => (
-                            <SelectItem
-                              key={groupNumber}
-                              value={groupNumber.toString()}
-                            >
-                              Grupo {groupNumber}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeleteId(labour.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
 
             {/* Total */}
-            {filteredLabours.length > 0 && (
-              <div className="flex justify-end mt-4 pt-4 border-t">
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Total Mano de Obra:</p>
-                  <p className="text-xl font-bold">
-                    {workOrder?.type_currency?.symbol || "S/"}{" "}
-                    {filteredLabours
-                      .reduce(
-                        (acc, labour) =>
-                          acc + parseFloat(labour.total_cost || "0"),
-                        0,
-                      )
-                      .toFixed(2)}
-                  </p>
-                </div>
+            <div className="flex justify-end mt-4 pt-4 border-t">
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Total Mano de Obra:</p>
+                <p className="text-xl font-bold">
+                  {workOrder?.type_currency?.symbol || "S/"}{" "}
+                  {filteredLabours
+                    .reduce(
+                      (acc, labour) =>
+                        acc + parseFloat(labour.net_amount || "0"),
+                      0,
+                    )
+                    .toFixed(2)}
+                </p>
               </div>
-            )}
+            </div>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* Delete Confirmation Dialog */}
       {deleteId !== null && (
@@ -390,6 +844,29 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
           onConfirm={handleDelete}
         />
       )}
+
+      {/* Modal Solicitar Descuento */}
+      <DiscountRequestWorkOrderModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        type={modalType}
+        workOrderId={workOrderId}
+        baseAmount={
+          modalType === TYPE_GLOBAL
+            ? globalBaseAmount
+            : parseFloat(selectedLabour?.total_cost || "0")
+        }
+        partLabourId={
+          modalType === TYPE_PARTIAL ? selectedLabour?.id : undefined
+        }
+        partLabourModel={modalType === TYPE_PARTIAL ? MODEL_LABOUR : undefined}
+        itemDescription={
+          modalType === TYPE_PARTIAL ? selectedLabour?.description : undefined
+        }
+        currencySymbol={workOrder?.type_currency?.symbol || "S/"}
+        existingRequest={editingRequest ?? undefined}
+        itemType="LABOUR"
+      />
     </div>
   );
 }

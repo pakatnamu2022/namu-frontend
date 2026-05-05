@@ -71,7 +71,22 @@ export default function PlanningPage() {
     return stored || "";
   });
 
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
+    has_workshop: true,
+  });
+
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORK_ORDER_PLANNING;
+
+  // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      const firstSedeId = mySedes[0].id.toString();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSedeId(firstSedeId);
+      localStorage.setItem("planningPage_selectedSedeId", firstSedeId);
+    }
+  }, [mySedes, sedeId]);
 
   // Reiniciar página cuando cambian los filtros
   useEffect(() => {
@@ -87,11 +102,14 @@ export default function PlanningPage() {
   });
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
-    page,
-    search,
-    per_page,
-    worker_id: workerId,
-    ...(sedeId && { sede_id: sedeId }),
+    params: {
+      page,
+      search,
+      per_page,
+      worker_id: workerId,
+      ...(sedeId && { workOrder$sede_id: sedeId }),
+    },
+    enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
   });
 
   const updateMutation = useUpdateWorkOrderPlanning();
@@ -135,11 +153,9 @@ export default function PlanningPage() {
     }
   };
 
-  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
-    company: EMPRESA_AP.id,
-  });
-
-  const handleOpenCreatePlanning = () => {
+  const handleOpenCreatePlanning = (date?: Date) => {
+    const targetDate = date ?? new Date();
+    localStorage.setItem("planningPage_selectedDate", targetDate.toISOString());
     navigate(`${ABSOLUTE_ROUTE}/agregar`);
   };
 
@@ -173,8 +189,9 @@ export default function PlanningPage() {
             placeholder="Filtrar por sede"
             className="min-w-72"
             classNameOption="text-xs"
+            allowClear={false}
           />
-          <Button onClick={handleOpenCreatePlanning}>
+          <Button onClick={() => handleOpenCreatePlanning()}>
             <Plus className="h-4 w-4 mr-2" />
             Nueva Planificación
           </Button>
@@ -209,6 +226,7 @@ export default function PlanningPage() {
           <PlanningCalendar
             data={plannings}
             onPlanningClick={handleViewPlanning}
+            onNewPlanning={handleOpenCreatePlanning}
             sedeId={sedeId}
             onRefresh={refetch}
           />

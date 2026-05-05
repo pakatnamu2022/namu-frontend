@@ -47,6 +47,7 @@ export interface AppointmentPlanningRequest {
 
 export interface getAppointmentPlanningProps {
   params?: Record<string, any>;
+  enabled?: boolean;
 }
 
 // Interfaces para slots de tiempo disponibles

@@ -4,10 +4,14 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  successToast,
+  toLocalDateString,
+} from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import {
   findVehiclePurchaseOrderById,
@@ -16,9 +20,9 @@ import {
 import { VehiclePurchaseOrderSchema } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.schema";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface";
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
-import { format, parse } from "date-fns";
 import { useEffect } from "react";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function ResendVehiclePurchaseOrderPage() {
   const { id } = useParams();
@@ -46,7 +50,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   useEffect(() => {
     if (!loadingVehiclePurchaseOrder && vehiclePurchaseOrder && !canResend) {
       errorToast(
-        "Esta orden de compra no cumple con los requisitos para ser reenviada"
+        "Esta orden de compra no cumple con los requisitos para ser reenviada",
       );
       router(ABSOLUTE_ROUTE);
     }
@@ -70,8 +74,8 @@ export default function ResendVehiclePurchaseOrderPage() {
   const handleSubmit = (data: VehiclePurchaseOrderSchema): void => {
     mutate({
       ...data,
-      emission_date: format(data.emission_date, "yyyy-MM-dd"),
-      due_date: data.due_date ? format(data.due_date, "yyyy-MM-dd") : undefined,
+      emission_date: toLocalDateString(data.emission_date),
+      due_date: data.due_date ? toLocalDateString(data.due_date) : undefined,
       year: Number(data.year),
       subtotal: Number(data.subtotal),
       igv: Number(data.igv),
@@ -91,7 +95,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   };
 
   function mapVehiclePurchaseOrderToForm(
-    data: VehiclePurchaseOrderResource
+    data: VehiclePurchaseOrderResource,
   ): Partial<VehiclePurchaseOrderSchema> {
     return {
       // Vehicle - Los datos vienen dentro del objeto vehicle
@@ -120,10 +124,8 @@ export default function ResendVehiclePurchaseOrderPage() {
       // Invoice
       invoice_series: data.invoice_series || "",
       invoice_number: data.invoice_number || "",
-      emission_date: parse(data.emission_date, "yyyy-MM-dd", new Date()),
-      due_date: data.due_date
-        ? parse(data.due_date, "yyyy-MM-dd", new Date())
-        : undefined,
+      emission_date: data.emission_date ?? "",
+      due_date: data.due_date ?? "",
       subtotal: Number(data.subtotal) || 0,
       igv: Number(data.igv) || 0,
       total: Number(data.total) || 0,
@@ -162,7 +164,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   }
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title="Reenviar Orden de Compra de Vehículo"
         mode="edit"
@@ -175,6 +177,6 @@ export default function ResendVehiclePurchaseOrderPage() {
         mode="resend"
         isVehiclePurchase={true}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

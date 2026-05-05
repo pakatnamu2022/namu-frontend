@@ -65,8 +65,6 @@ export default function UpdateProductRepuestoPage() {
       brand_id: String(data.brand_id),
       ap_class_article_id: String(data.ap_class_article_id),
       unit_measurement_id: String(data.unit_measurement_id),
-      cost_price: Number(data.cost_price),
-      sale_price: Number(data.sale_price),
       warranty_months: Number(data.warranty_months),
     };
   }

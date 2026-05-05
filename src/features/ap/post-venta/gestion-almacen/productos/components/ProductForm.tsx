@@ -23,11 +23,14 @@ import { useAllProductCategory } from "@/features/ap/post-venta/gestion-almacen/
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook.ts";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
-import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants.ts";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useEffect } from "react";
 import { FormInput } from "@/shared/components/FormInput.tsx";
-import { FormInputText } from "@/shared/components/FormInputText.tsx";
+import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ProductFormProps {
   defaultValues: Partial<ProductSchema>;
@@ -51,8 +54,6 @@ export const ProductForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: defaultValues.warehouses || [],
-      cost_price: 0,
-      sale_price: 0,
     },
     mode: "onChange",
   });
@@ -140,8 +141,7 @@ export const ProductForm = ({
         <GroupFormSection
           title="Información Básica"
           icon={LibraryBig}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
         >
           <FormInput
@@ -225,8 +225,7 @@ export const ProductForm = ({
           <GroupFormSection
             title="Configuración de Almacenes"
             icon={Warehouse}
-            iconColor="text-primary"
-            bgColor="bg-blue-50"
+            color="blue"
           >
             <div className="col-span-full space-y-3">
               {fields.map((field, index) => (
@@ -343,7 +342,7 @@ export const ProductForm = ({
         )}
 
         {/* Notas */}
-        <FormInputText
+        <FormTextArea
           name="description"
           label="Descripción / Notas"
           placeholder="Descripción o notas del producto"

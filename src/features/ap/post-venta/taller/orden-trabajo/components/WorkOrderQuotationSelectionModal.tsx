@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Calendar, DollarSign } from "lucide-react";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { Calendar } from "lucide-react";
 import { useOrderQuotations } from "../../cotizacion/lib/proforma.hook";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
@@ -15,9 +10,13 @@ import { QuotationSelectionTable } from "../../cotizacion/components/QuotationSe
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast, getMonday, getSunday } from "@/core/core.function";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+} from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderQuotationSelectionModalProps {
   open: boolean;
@@ -36,21 +35,17 @@ export const WorkOrderQuotationSelectionModal = ({
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
   const [search, setSearch] = useState("");
+
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [per_page]);
 
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
@@ -61,10 +56,9 @@ export const WorkOrderQuotationSelectionModal = ({
   const { data, isLoading } = useOrderQuotations({
     page,
     per_page,
-    search,
     is_take: 0,
-    area_id: AREA_PM_ID.TALLER,
     vehicle_id: vehicleId,
+    area_id: AREA_TALLER.toString(),
     quotation_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
@@ -138,7 +132,6 @@ export const WorkOrderQuotationSelectionModal = ({
         const value = getValue() as number;
         return (
           <div className="flex items-center gap-1.5 text-sm">
-            <DollarSign className="h-3.5 w-3.5 text-green-600" />
             <span className="font-semibold text-green-700">
               S/ {value.toFixed(2)}
             </span>
@@ -149,67 +142,64 @@ export const WorkOrderQuotationSelectionModal = ({
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[75vw] xl:w-[70vw] 2xl:max-w-[1400px] h-[85vh] sm:h-[80vh] md:h-[75vh] lg:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-4 md:p-5 lg:p-6">
-        <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">
-            Seleccionar Cotización
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-2">
-          {/* Filtros */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <SearchInput
-              label="Buscar Cotización"
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar orden de trabajo..."
-            />
-            <DatePicker
-              value={dateFrom}
-              onChange={setDateFrom}
-              label="Fecha Desde"
-              placeholder="Fecha Desde"
-              showClearButton={false}
-              captionLayout="dropdown"
-            />
-            <DatePicker
-              value={dateTo}
-              onChange={setDateTo}
-              label="Fecha Hasta"
-              placeholder="Fecha Hasta"
-              showClearButton={false}
-              captionLayout="dropdown"
-            />
-          </div>
-
-          {/* Tabla */}
-          <QuotationSelectionTable
-            columns={columns}
-            data={data?.data || []}
-            isLoading={isLoading}
-            initialColumnVisibility={{
-              quotation_number: true,
-              customer: true,
-              vehicle: true,
-              quotation_date: true,
-              total_amount: true,
-            }}
-            onRowClick={handleRowClick}
+    <GeneralModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Seleccionar Cotización"
+      size="7xl"
+    >
+      <div className="space-y-4">
+        {/* Filtros */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <SearchInput
+            label="Buscar Cotización"
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar orden de trabajo..."
           />
-
-          {/* Paginación */}
-          <DataTablePagination
-            page={page}
-            totalPages={data?.meta?.last_page || 1}
-            totalData={data?.meta?.total || 0}
-            onPageChange={setPage}
-            per_page={per_page}
-            setPerPage={setPerPage}
+          <DatePicker
+            value={dateFrom}
+            onChange={setDateFrom}
+            label="Fecha Desde"
+            placeholder="Fecha Desde"
+            showClearButton={false}
+            captionLayout="dropdown"
+          />
+          <DatePicker
+            value={dateTo}
+            onChange={setDateTo}
+            label="Fecha Hasta"
+            placeholder="Fecha Hasta"
+            showClearButton={false}
+            captionLayout="dropdown"
           />
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Tabla */}
+        <QuotationSelectionTable
+          columns={columns}
+          data={data?.data || []}
+          isLoading={isLoading}
+          initialColumnVisibility={{
+            quotation_number: true,
+            customer: true,
+            vehicle: true,
+            quotation_date: true,
+            total_amount: true,
+          }}
+          onRowClick={handleRowClick}
+        />
+
+        {/* Paginación */}
+        <DataTablePagination
+          page={page}
+          totalPages={data?.meta?.last_page || 1}
+          totalData={data?.meta?.total || 0}
+          onPageChange={setPage}
+          per_page={per_page}
+          setPerPage={setPerPage}
+        />
+      </div>
+    </GeneralModal>
   );
 };

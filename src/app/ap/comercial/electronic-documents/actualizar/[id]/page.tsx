@@ -27,6 +27,7 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function UpdateElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -100,15 +101,6 @@ export default function UpdateElectronicDocumentPage() {
     [sunatConcepts],
   );
 
-  const detractionTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
-      ),
-    [sunatConcepts],
-  );
-
   const creditNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
@@ -144,11 +136,12 @@ export default function UpdateElectronicDocumentPage() {
         numero: document.numero.toString(),
         sunat_concept_transaction_type_id:
           document.sunat_concept_transaction_type_id.toString(),
-        origin_module: document.origin_module,
+        area_id: document.area_id.toString(),
         origin_entity_type: document.origin_entity_type || "",
         origin_entity_id: document.origin_entity_id?.toString() || "",
         purchase_request_quote_id:
           document.purchase_request_quote_id?.toString() || "",
+        is_advance_payment: document.is_advance_payment ?? false,
         client_id: document.client_id?.toString() || "",
         fecha_de_emision: document.fecha_de_emision || "",
         fecha_de_vencimiento: document.fecha_de_vencimiento || "",
@@ -192,6 +185,9 @@ export default function UpdateElectronicDocumentPage() {
         observaciones: document.observaciones || "" || "",
         condiciones_de_pago: document.condiciones_de_pago || "",
         medio_de_pago: document.medio_de_pago || "",
+        bank_id: document.bank?.id?.toString() || undefined,
+        operation_number: document.operation_number || undefined,
+        financing_type: document.financing_type || undefined,
         placa_vehiculo: document.placa_vehiculo || "",
         orden_compra_servicio: document.orden_compra_servicio || "",
         codigo_unico: document.codigo_unico || "",
@@ -202,22 +198,26 @@ export default function UpdateElectronicDocumentPage() {
         generado_por_contingencia: document.generado_por_contingencia ?? false,
         items:
           document.items?.map((item) => ({
+            reference_document_id:
+              item.reference_document_id?.toString() || undefined,
             account_plan_id: item.account_plan_id?.toString() || "",
             unidad_de_medida: item.unidad_de_medida || "",
             codigo: item.codigo || "",
             codigo_producto_sunat: item.codigo_producto_sunat || "",
             descripcion: item.descripcion || "",
-            cantidad: item.cantidad || 0,
-            valor_unitario: item.valor_unitario || 0,
-            precio_unitario: item.precio_unitario || 0,
-            descuento: item.descuento || 0,
-            subtotal: item.subtotal || 0,
+            cantidad: item.cantidad ?? 0,
+            valor_unitario: item.valor_unitario ?? 0,
+            precio_unitario: item.precio_unitario ?? 0,
+            descuento: item.descuento ?? undefined,
+            subtotal: item.subtotal ?? 0,
             sunat_concept_igv_type_id: item.sunat_concept_igv_type_id || 0,
-            igv: item.igv || 0,
-            total: item.total || 0,
-            anticipo_regularizacion: item.anticipo_regularizacion,
-            anticipo_documento_serie: item.anticipo_documento_serie || "",
-            anticipo_documento_numero: item.anticipo_documento_numero || 0,
+            igv: item.igv ?? 0,
+            total: item.total ?? 0,
+            anticipo_regularizacion: item.anticipo_regularizacion ?? undefined,
+            anticipo_documento_serie:
+              item.anticipo_documento_serie || undefined,
+            anticipo_documento_numero:
+              item.anticipo_documento_numero ?? undefined,
           })) || [],
         guias: document.guides?.map((guide) => ({
           guia_tipo: guide.guia_tipo,
@@ -266,6 +266,12 @@ export default function UpdateElectronicDocumentPage() {
     mutate(data);
   };
 
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -289,6 +295,7 @@ export default function UpdateElectronicDocumentPage() {
         title={currentView.descripcion}
         mode="edit"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <ElectronicDocumentForm
         form={form}
@@ -300,7 +307,6 @@ export default function UpdateElectronicDocumentPage() {
         identityDocumentTypes={identityDocumentTypes || []}
         currencyTypes={currencyTypes || []}
         igvTypes={igvTypes || []}
-        detractionTypes={detractionTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={true}

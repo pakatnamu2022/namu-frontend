@@ -5,11 +5,15 @@ import SearchInput from "@/shared/components/SearchInput";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
 import { RootObject } from "../lib/cycle.actions";
+import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
+import { useObjectives } from "../../objetivos/lib/objective.hook";
+import { ObjectiveResource } from "../../objetivos/lib/objective.interface";
+import { usePersonsInCycle } from "../lib/cycle.hook";
 
 export default function CyclePersonDetailOptions({
+  idCycle,
   search,
   setSearch,
-  persons = [],
   personId,
   setPersonId,
   positions = [],
@@ -21,10 +25,12 @@ export default function CyclePersonDetailOptions({
   chiefs = [],
   chiefDni,
   setChiefDni,
+  objectiveId,
+  setObjectiveId,
 }: {
+  idCycle: number;
   search: string;
   setSearch: (value: string) => void;
-  persons: WorkerResource[];
   personId: string | null;
   setPersonId: (value: string | null) => void;
   positions: PositionResource[];
@@ -36,6 +42,8 @@ export default function CyclePersonDetailOptions({
   chiefs: WorkerResource[];
   chiefDni: string | null;
   setChiefDni: (value: string | null) => void;
+  objectiveId: string | null;
+  setObjectiveId: (value: string | null) => void;
 }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -44,11 +52,13 @@ export default function CyclePersonDetailOptions({
         onChange={setSearch}
         placeholder="Buscar..."
       />
-      <SearchableSelect
-        options={persons.map((person) => ({
+      <SearchableSelectAsync
+        useQueryHook={usePersonsInCycle}
+        additionalParams={{ idCycle }}
+        mapOptionFn={(person: WorkerResource) => ({
           value: person.id.toString(),
           label: person.name,
-        }))}
+        })}
         value={personId?.toString() || ""}
         onChange={setPersonId}
         placeholder="Seleccionar Colaborador"
@@ -84,6 +94,20 @@ export default function CyclePersonDetailOptions({
         value={chiefDni || ""}
         onChange={setChiefDni}
         placeholder="Seleccionar Jefe"
+        classNameOption="text-xs"
+      />
+      <SearchableSelectAsync
+        useQueryHook={useObjectives}
+        mapOptionFn={(objective: ObjectiveResource) => ({
+          value: objective.id.toString(),
+          label: objective.name,
+          description: objective.description,
+        })}
+        value={objectiveId?.toString() || ""}
+        onChange={(objectiveId) =>
+          setObjectiveId && setObjectiveId(objectiveId)
+        }
+        placeholder="Seleccionar Objetivo"
         classNameOption="text-xs"
       />
     </div>

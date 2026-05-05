@@ -107,7 +107,7 @@ export default function InventoryPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <InventoryActions permissions={permissions} />
+        <InventoryActions permissions={permissions} warehouseId={warehouseId} />
       </HeaderTableWrapper>
       <InventoryTable
         isLoading={isLoading}

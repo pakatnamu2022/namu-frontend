@@ -62,14 +62,18 @@ export default function UpdateOrderQuotationPage() {
     return {
       client_id: data.client.id ? String(data.client.id) : "",
       vehicle_id: data.vehicle_id ? String(data.vehicle_id) : "",
-      quotation_date: data.quotation_date ? new Date(data.quotation_date) : "",
+      quotation_date: data.quotation_date
+        ? new Date(data.quotation_date)
+        : undefined,
       expiration_date: data.expiration_date
         ? new Date(data.expiration_date)
-        : "",
+        : undefined,
       observations: data.observations || "",
       sede_id: data.sede_id ? String(data.sede_id) : "",
       area_id: data.area_id ? String(data.area_id) : "",
       currency_id: data.currency_id ? String(data.currency_id) : "",
+      is_requested_by_management:
+        Boolean(data.is_requested_by_management) || false,
     };
   }
 

@@ -1,8 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
 import {
   ArrowLeft,
   Building2,
@@ -19,15 +21,31 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import {
+  findWorkOrderById,
+  changeCurrency,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import { getAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.actions";
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { useParams, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Form } from "@/components/ui/form";
+import {
+  errorToast,
+  formatDate,
+  formatDateTime,
+  successToast,
+} from "@/core/core.function";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 export default function GeneralInformationPage() {
   const params = useParams();
   const router = useNavigate();
   const id = Number(params.id);
+  const queryClient = useQueryClient();
+  const currencyForm = useForm<{ currency_id: string }>({
+    defaultValues: { currency_id: "" },
+  });
 
   // Fetch work order data
   const { data: workOrder, isLoading } = useQuery({
@@ -35,6 +53,38 @@ export default function GeneralInformationPage() {
     queryFn: () => findWorkOrderById(id),
     enabled: !!id,
   });
+
+  // Fetch currency types
+  const { data: currencies = [] } = useQuery({
+    queryKey: ["currencyTypes"],
+    queryFn: () => getAllCurrencyTypes({ params: {} }),
+  });
+
+  // Mutation to change currency
+  const { mutate: handleChangeCurrency, isPending: isChangingCurrency } =
+    useMutation({
+      mutationFn: (currencyId: number) => changeCurrency(id, currencyId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["workOrder", id] });
+        successToast("Moneda actualizada correctamente");
+      },
+      onError: (error: any) => {
+        currencyForm.setValue(
+          "currency_id",
+          String(workOrder?.currency_id ?? ""),
+          { shouldDirty: false },
+        );
+        errorToast(
+          error?.response?.data?.message || "Error al actualizar la moneda",
+        );
+      },
+    });
+
+  useEffect(() => {
+    currencyForm.setValue("currency_id", String(workOrder?.currency_id ?? ""), {
+      shouldDirty: false,
+    });
+  }, [workOrder?.currency_id, currencyForm]);
 
   // Fetch appointment data if exists
   const { data: appointment, isLoading: isLoadingAppointment } = useQuery({
@@ -72,11 +122,11 @@ export default function GeneralInformationPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm text-gray-600">Estado</p>
               <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                ID: {workOrder.status_id}
+                {workOrder.status.description}
               </span>
             </div>
           </div>
@@ -114,6 +164,18 @@ export default function GeneralInformationPage() {
                 {workOrder.vehicle.model.brand || "N/A"}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-gray-600">Propietario</p>
+              <p className="font-semibold">
+                {workOrder.vehicle.owner?.full_name || "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Num. Doc. Propietario</p>
+              <p className="font-semibold">
+                {workOrder.vehicle.owner?.num_doc || "N/A"}
+              </p>
+            </div>
           </div>
         </Card>
 
@@ -136,15 +198,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Cita</p>
                   <p className="font-semibold">
-                    {new Date(appointment.date_appointment).toLocaleDateString(
-                      "es-PE",
-                      {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      },
-                    )}
+                    {formatDate(appointment.date_appointment)}
                   </p>
                 </div>
               </div>
@@ -162,14 +216,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Entrega</p>
                   <p className="font-semibold">
-                    {new Date(appointment.delivery_date).toLocaleDateString(
-                      "es-PE",
-                      {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      },
-                    )}
+                    {formatDate(appointment.delivery_date)}
                   </p>
                 </div>
               </div>
@@ -270,13 +317,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Cotización</p>
                   <p className="font-semibold">
-                    {new Date(
-                      workOrder.order_quotation.quotation_date,
-                    ).toLocaleDateString("es-PE", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatDate(workOrder.order_quotation.quotation_date)}
                   </p>
                 </div>
               </div>
@@ -285,13 +326,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Fecha de Expiración</p>
                   <p className="font-semibold">
-                    {new Date(
-                      workOrder.order_quotation.expiration_date,
-                    ).toLocaleDateString("es-PE", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatDate(workOrder.order_quotation.expiration_date)}
                   </p>
                 </div>
               </div>
@@ -390,9 +425,7 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Fecha de Apertura</p>
                 <p className="font-semibold">
                   {workOrder.opening_date
-                    ? new Date(workOrder.opening_date).toLocaleDateString(
-                        "es-PE",
-                      )
+                    ? formatDate(workOrder.opening_date)
                     : "N/A"}
                 </p>
               </div>
@@ -405,9 +438,7 @@ export default function GeneralInformationPage() {
                 </p>
                 <p className="font-semibold">
                   {workOrder.estimated_delivery_date
-                    ? new Date(
-                        workOrder.estimated_delivery_date,
-                      ).toLocaleDateString("es-PE")
+                    ? formatDateTime(workOrder.estimated_delivery_date)
                     : "N/A"}
                 </p>
               </div>
@@ -418,9 +449,7 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Fecha Real de Entrega</p>
                 <p className="font-semibold">
                   {workOrder.actual_delivery_date
-                    ? new Date(
-                        workOrder.actual_delivery_date,
-                      ).toLocaleDateString("es-PE")
+                    ? formatDate(workOrder.actual_delivery_date)
                     : "- / - / -"}
                 </p>
               </div>
@@ -431,9 +460,7 @@ export default function GeneralInformationPage() {
                 <p className="text-sm text-gray-600">Fecha de Diagnóstico</p>
                 <p className="font-semibold">
                   {workOrder.diagnosis_date
-                    ? new Date(workOrder.diagnosis_date).toLocaleDateString(
-                        "es-PE",
-                      )
+                    ? formatDate(workOrder.diagnosis_date)
                     : "N/A"}
                 </p>
               </div>
@@ -448,6 +475,24 @@ export default function GeneralInformationPage() {
               </div>
             </div>
             <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Contacto</p>
+                <p className="font-semibold">
+                  {workOrder.full_contact_name || "N/A"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Teléfono de Contacto</p>
+                <p className="font-semibold">
+                  {workOrder.phone_contact || "N/A"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
               <Building2 className="h-5 w-5 text-gray-500 mt-0.5" />
               <div>
                 <p className="text-sm text-gray-600">Sede</p>
@@ -456,10 +501,62 @@ export default function GeneralInformationPage() {
             </div>
             <div className="flex items-start gap-2">
               <CircleDollarSign className="h-5 w-5 text-gray-500 mt-0.5" />
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-600">Moneda</p>
+                <div className="mt-2 rounded-lg border bg-gray-50/70 px-3 py-2">
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Moneda actual</p>
+                      <p className="font-semibold text-gray-900">
+                        {workOrder.type_currency?.symbol || "S/"}{" "}
+                        {workOrder.type_currency?.name || "N/A"}
+                      </p>
+                    </div>
+                    <Form {...currencyForm}>
+                      <FormSelect
+                        name="currency_id"
+                        control={currencyForm.control}
+                        placeholder="Seleccionar moneda"
+                        options={currencies.map((c) => ({
+                          value: String(c.id),
+                          label: `${c.symbol} - ${c.name}`,
+                        }))}
+                        onValueChange={(value) => {
+                          const parsedCurrencyId = Number(value);
+
+                          if (
+                            !parsedCurrencyId ||
+                            parsedCurrencyId === Number(workOrder.currency_id)
+                          ) {
+                            return;
+                          }
+
+                          handleChangeCurrency(parsedCurrencyId);
+                        }}
+                        disabled={isChangingCurrency || currencies.length === 0}
+                        className="h-9 w-full sm:w-60 rounded-md border-gray-300 bg-white text-sm font-medium shadow-sm"
+                      />
+                    </Form>
+                  </div>
+                  {isChangingCurrency && (
+                    <p className="mt-2 text-xs text-blue-600">
+                      Actualizando moneda...
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Cliente a Facturar</p>
                 <p className="font-semibold">
-                  {workOrder.type_currency.name || "N/A"}
+                  {workOrder.invoice_to_client?.full_name || "No vinculado"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {workOrder.invoice_to_client
+                    ? `${workOrder.invoice_to_client.document_type || "Doc"}: ${workOrder.invoice_to_client.num_doc || "S/N"}`
+                    : "Sin cliente de facturación asociado"}
                 </p>
               </div>
             </div>
@@ -471,7 +568,7 @@ export default function GeneralInformationPage() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Wrench className="h-5 w-5" />
-              Inspección del Vehículo
+              Recepción del Vehículo
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex items-start gap-2">
@@ -504,11 +601,11 @@ export default function GeneralInformationPage() {
               <div className="flex items-start gap-2">
                 <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
                 <div>
-                  <p className="text-sm text-gray-600">Fecha de Inspección</p>
+                  <p className="text-sm text-gray-600">Fecha de Recepción</p>
                   <p className="font-semibold">
-                    {new Date(
+                    {formatDateTime(
                       workOrder.vehicle_inspection.inspection_date,
-                    ).toLocaleDateString("es-PE")}
+                    )}
                   </p>
                 </div>
               </div>
@@ -535,34 +632,349 @@ export default function GeneralInformationPage() {
         )}
 
         {/* Additional Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
+          {/* Card 1 — Mano de Obra y Repuestos */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              Estado de Facturación
+            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+              <Wrench className="h-5 w-5 text-gray-500" />
+              Mano de Obra y Repuestos
             </h3>
-            <div className="flex items-center gap-3">
+
+            {/* Mano de Obra */}
+            {workOrder.labours && workOrder.labours.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Wrench className="h-4 w-4" />
+                  Mano de Obra ({workOrder.labours.length})
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Grupo
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Descripción
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Tiempo
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Técnico
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Tarifa/h
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Descuento %
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {workOrder.labours.map((labour) => (
+                        <tr
+                          key={labour.id}
+                          className="border-b border-gray-100 hover:bg-gray-50"
+                        >
+                          <td className="py-2 px-3">
+                            <span
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold"
+                              style={{ backgroundColor: "#1A388B" }}
+                            >
+                              {labour.group_number}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 font-medium">
+                            {labour.description}
+                          </td>
+                          <td className="py-2 px-3 text-gray-600">
+                            {labour.time_spent}
+                          </td>
+                          <td className="py-2 px-3 text-gray-600">
+                            {labour.worker_full_name || "—"}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(labour.hourly_rate).toFixed(2)}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {parseFloat(
+                              labour.discount_percentage ?? "0",
+                            ).toFixed(2)}
+                            %
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(labour.total_cost).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-50 border-t-2 border-gray-200">
+                        <td
+                          colSpan={6}
+                          className="py-2 px-3 text-right font-semibold text-gray-700"
+                        >
+                          Total Mano de Obra:
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.labours
+                            .reduce(
+                              (acc, l) => acc + parseFloat(l.total_cost),
+                              0,
+                            )
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td />
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Repuestos */}
+            {workOrder.parts && workOrder.parts.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Wrench className="h-4 w-4" />
+                  Repuestos ({workOrder.parts.length})
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Grupo
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Producto
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Almacén
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cant.
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          P. Unit.
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {workOrder.parts.map((part) => (
+                        <tr
+                          key={part.id}
+                          className="border-b border-gray-100 hover:bg-gray-50"
+                        >
+                          <td className="py-2 px-3">
+                            <span
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold"
+                              style={{ backgroundColor: "#1A388B" }}
+                            >
+                              {part.group_number}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 font-medium">
+                            {part.product_name}
+                          </td>
+                          <td className="py-2 px-3 text-gray-600">
+                            {part.warehouse_name}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {part.quantity_used}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(part.unit_price ?? "0").toFixed(2)}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {parseFloat(part.net_amount ?? "0").toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-50 border-t-2 border-gray-200">
+                        <td
+                          colSpan={5}
+                          className="py-2 px-3 text-right font-semibold text-gray-700"
+                        >
+                          Total Repuestos:
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.parts
+                            .reduce(
+                              (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                              0,
+                            )
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td />
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Resumen total */}
+            {((workOrder.labours && workOrder.labours.length > 0) ||
+              (workOrder.parts && workOrder.parts.length > 0)) && (
+              <div className="mt-6 pt-4 border-t-2 border-gray-200">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                  Resumen
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Total Mano de Obra
+                    </p>
+                    <p className="text-base font-bold text-green-700">
+                      {workOrder.type_currency?.symbol || "S/"}{" "}
+                      {(workOrder.labours ?? [])
+                        .reduce((acc, l) => acc + parseFloat(l.total_cost), 0)
+                        .toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Total Repuestos
+                    </p>
+                    <p className="text-base font-bold text-green-700">
+                      {workOrder.type_currency?.symbol || "S/"}{" "}
+                      {(workOrder.parts ?? [])
+                        .reduce(
+                          (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                          0,
+                        )
+                        .toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                    </p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-lg border-2 border-primary">
+                    <p className="text-xs text-gray-500 mb-1">
+                      Total General
+                    </p>
+                    <p className="text-lg font-bold text-primary">
+                      {workOrder.type_currency?.symbol || "S/"}{" "}
+                      {(
+                        (workOrder.labours ?? []).reduce(
+                          (acc, l) => acc + parseFloat(l.total_cost),
+                          0,
+                        ) +
+                        (workOrder.parts ?? []).reduce(
+                          (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                          0,
+                        )
+                      ).toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* Card 2 — Información de Facturación */}
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+              <CircleDollarSign className="h-5 w-5 text-gray-500" />
+              Información de Facturación
+            </h3>
+
+            {/* Estado */}
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-sm text-gray-600">Estado:</span>
               <Badge color={workOrder.is_invoiced ? "default" : "secondary"}>
                 {workOrder.is_invoiced ? "Facturado" : "No Facturado"}
               </Badge>
             </div>
-          </Card>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              Información Adicional
-            </h3>
-            <div className="space-y-2">
+            {/* Facturas */}
+            {workOrder.advances && workOrder.advances.length > 0 ? (
               <div>
-                <p className="text-sm text-gray-600">ID Cita</p>
-                <p className="font-semibold">
-                  {workOrder.appointment_planning_id || "N/A"}
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <CircleDollarSign className="h-4 w-4" />
+                  Facturas ({workOrder.advances.length})
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Nro. Documento
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Cliente
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          F. Emisión
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {workOrder.advances.map((adv) => (
+                        <tr
+                          key={adv.id}
+                          className="border-b border-gray-100 hover:bg-gray-50"
+                        >
+                          <td className="py-2 px-3 font-medium">
+                            {adv.full_number}
+                          </td>
+                          <td className="py-2 px-3 text-gray-600">
+                            {adv.cliente_denominacion}
+                          </td>
+                          <td className="py-2 px-3 text-gray-600">
+                            {formatDate(adv.fecha_de_emision)}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            S/ {adv.total.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <CircleDollarSign className="h-4 w-4" />
+                  Facturas
+                </h4>
+                <p className="text-sm text-gray-500 italic">
+                  Sin facturas registradas.
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-gray-600">ID Estado</p>
-                <p className="font-semibold">{workOrder.status_id || "N/A"}</p>
-              </div>
-            </div>
+            )}
           </Card>
         </div>
 

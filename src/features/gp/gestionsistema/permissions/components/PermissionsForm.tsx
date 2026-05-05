@@ -158,7 +158,7 @@ export default function PermissionsForm({ id }: { id: number }) {
 
       // If all are selected, deselect all; otherwise, select all
       const allSelected = allPermissionIds.every((id) =>
-        currentPermissions.has(id)
+        currentPermissions.has(id),
       );
 
       return {
@@ -191,7 +191,7 @@ export default function PermissionsForm({ id }: { id: number }) {
         const viewPermissions = view.permissions || [];
         if (viewPermissions.length > 0) {
           newSelectedPermissions[view.id] = new Set(
-            viewPermissions.map((p) => p.id)
+            viewPermissions.map((p) => p.id),
           );
         }
       });
@@ -221,8 +221,10 @@ export default function PermissionsForm({ id }: { id: number }) {
       });
 
       successToast("Permisos sincronizados correctamente");
-    } catch (error) {
-      errorToast("Error al sincronizar permisos. Intenta nuevamente.");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || "Error al sincronizar permisos";
+      errorToast(message);
     } finally {
       setIsSaving(false);
     }
@@ -238,7 +240,7 @@ export default function PermissionsForm({ id }: { id: number }) {
             role_id: id,
             permission_id: permissionId,
           },
-        }
+        },
       );
 
       successToast("Permiso eliminado correctamente");
@@ -254,8 +256,10 @@ export default function PermissionsForm({ id }: { id: number }) {
 
       // Refetch data to update UI
       await refetch();
-    } catch (error) {
-      errorToast("Error al eliminar el permiso");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || "Error al eliminar el permiso";
+      errorToast(message);
     }
   };
 
@@ -514,7 +518,7 @@ export default function PermissionsForm({ id }: { id: number }) {
                                   onCheckedChange={() =>
                                     handleTogglePermission(
                                       view.id,
-                                      permission.id
+                                      permission.id,
                                     )
                                   }
                                   className="mt-0.5"

@@ -27,6 +27,7 @@ export const productDetailMesonSchema = z.object({
     .number()
     .min(0, "Comisión de flete debe ser mayor o igual a 0")
     .optional(),
+  supply_type: z.enum(["STOCK", "TRASLADO", "LOCAL", "CENTRAL", "IMPORTACION"]),
 });
 
 // Schema para crear cotización con productos
@@ -34,14 +35,13 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
   // Campos de la cotización
   area_id: requiredStringId("Área es requerida"),
   client_id: requiredStringId("Cliente es requerido"),
-  vehicle_id: z.string().optional(),
+  vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
   currency_id: requiredStringId("Moneda es requerida"),
   quotation_date: requiredDate("Fecha de cotización es requerida"),
   expiration_date: requiredDate("Fecha de expiración es requerida"),
   collection_date: requiredDate("Fecha de recojo es requerida"),
   observations: z.string().min(0).max(500).optional(),
-  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
 
   // Array de detalles de productos
   details: z

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import { MessageSquare } from "lucide-react";
 import {
   ElectronicDocumentSchema,
   ElectronicDocumentItemSchema,
@@ -45,6 +46,22 @@ export function OrderQuotationBillingForm({
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
   const currencyAlreadySet = useRef<boolean>(false);
+
+  // Estado para controlar el cliente bloqueado desde anticipos
+  const [lockedClientId, setLockedClientId] = useState<number | null>(null);
+  const [lockedClientName, setLockedClientName] = useState<string>("");
+  const [lockedClientDoc, setLockedClientDoc] = useState<string>("");
+
+  // Callback para recibir los datos del cliente bloqueado
+  const handleClientIdDetected = (
+    clientId: number | null,
+    clientName?: string,
+    clientDoc?: string,
+  ) => {
+    setLockedClientId(clientId);
+    setLockedClientName(clientName || "");
+    setLockedClientDoc(clientDoc || "");
+  };
 
   // Obtener todos los conceptos SUNAT necesarios en una sola consulta
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
@@ -106,6 +123,7 @@ export function OrderQuotationBillingForm({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
+    sede_id: quotation.sede_id,
   });
 
   const selectedSeries = authorizedSeries.find(
@@ -135,6 +153,7 @@ export function OrderQuotationBillingForm({
 
   // Cambiar tipo de operación según si es anticipo o no
   useEffect(() => {
+    if (isEdit) return;
     if (transactionTypes.length === 0) return;
 
     const currentValue = form.getValues("sunat_concept_transaction_type_id");
@@ -183,10 +202,12 @@ export function OrderQuotationBillingForm({
         }
       }
     }
-  }, [isAdvancePayment, transactionTypes, quotation?.advances, form]);
+  }, [isAdvancePayment, transactionTypes, quotation?.advances, form, isEdit]);
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
+    // En modo edición los datos ya vienen del documento existente
+    if (isEdit) return;
     // Esperar a que currencyTypes esté cargado antes de procesar
     if (!quotation || currencyTypes.length === 0) return;
 
@@ -229,10 +250,12 @@ export function OrderQuotationBillingForm({
         }
       }
     }
-  }, [quotation?.id, currencyTypes, form]);
+  }, [quotation.id, currencyTypes, form, quotation, isEdit]);
 
   // Efecto para cargar items cuando cambia la cotización o isAdvancePayment
   useEffect(() => {
+    // En modo edición los items ya vienen del documento existente
+    if (isEdit) return;
     if (!quotation || igvTypes.length === 0) {
       return;
     }
@@ -310,9 +333,13 @@ export function OrderQuotationBillingForm({
             const total = round2(subtotal + igvAmount); // Total CON IGV
 
             return {
+              product_id: detail.product?.id?.toString() || "",
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
               unidad_de_medida: "NIU",
-              codigo: detail.id?.toString(),
+              codigo:
+                detail.product_id && detail.product?.code
+                  ? detail.product.code
+                  : detail.id?.toString(),
               descripcion: detail.description || "SERVICIO DE TALLER",
               cantidad: cantidad,
               valor_unitario: valor_unitario,
@@ -343,7 +370,9 @@ export function OrderQuotationBillingForm({
                 precio_unitario / (1 + porcentaje_de_igv / 100),
               );
               const subtotal = round2(valor_unitario);
-              const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+              // IGV = total - subtotal (por residuo, no por multiplicación independiente)
+              // Esto evita que round2(subtotal) + round2(igv) != total_con_igv
+              const igvAmount = round2(total_con_igv - subtotal);
 
               // Crear item de regularización en NEGATIVO
               quotationItems.push({
@@ -381,30 +410,35 @@ export function OrderQuotationBillingForm({
       }
     }
   }, [
-    quotation?.id,
-    quotation?.details,
-    quotation?.advances,
+    quotation.id,
+    quotation.details,
+    quotation.advances,
     igvTypes,
     porcentaje_de_igv,
     isAdvancePayment,
     form,
+    quotation,
+    isEdit,
   ]);
 
   // Observar items para re-calcular totales cuando cambien
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items = form.watch("items") || [];
 
   // Calcular totales
   const totales = useMemo(() => {
-    // Trabajar con precisión completa durante los cálculos, redondear solo al final
-    let total_gravada = 0;
-    let total_inafecta = 0;
-    let total_exonerada = 0;
-    let total_igv = 0;
-    let total_gratuita = 0;
-    let total_anticipo = 0;
-
-    // Función auxiliar para redondear a 2 decimales (solo al final)
+    // Función auxiliar para redondear a 2 decimales
     const round2 = (num: number) => Math.round(num * 100) / 100;
+
+    // Acumulamos subtotales sin redondeo intermedio (flotantes puros)
+    let raw_gravada = 0;
+    let raw_inafecta = 0;
+    let raw_exonerada = 0;
+    let raw_gratuita = 0;
+    let raw_anticipo_subtotal = 0;
+    // Acumulamos también el total CON IGV de los anticipos para restar exactamente
+    // Esto evita el error de redondeo que surge de convertir total->subtotal->igv->total
+    let raw_anticipo_total = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
@@ -414,49 +448,55 @@ export function OrderQuotationBillingForm({
       if (igvType?.code_nubefact === "1") {
         // Gravado
         if (item.anticipo_regularizacion) {
-          total_gravada -= item.subtotal;
-          total_igv -= item.igv; // Restar también el IGV del anticipo
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
+          raw_anticipo_total += item.total;
         } else {
-          total_gravada += item.subtotal;
-          total_igv += item.igv; // Sumar el IGV del item
+          raw_gravada += item.subtotal;
         }
       } else if (igvType?.code_nubefact === "20") {
         // Exonerado
         if (item.anticipo_regularizacion) {
-          total_exonerada += item.subtotal;
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
+          raw_anticipo_total += item.total;
         } else {
-          total_exonerada += item.subtotal;
+          raw_exonerada += item.subtotal;
         }
       } else if (igvType?.code_nubefact === "30") {
         // Inafecto
         if (item.anticipo_regularizacion) {
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
+          raw_anticipo_total += item.total;
         } else {
-          total_inafecta += item.subtotal;
+          raw_inafecta += item.subtotal;
         }
       } else if (
         igvType?.code_nubefact?.startsWith("1") ||
         igvType?.code_nubefact?.startsWith("2")
       ) {
         // Gratuito
-        total_gratuita += item.subtotal;
+        raw_gratuita += item.subtotal;
       }
     });
 
-    // Redondear solo al final para evitar errores de precisión acumulados
-    total_gravada = round2(total_gravada);
-    total_inafecta = round2(total_inafecta);
-    total_exonerada = round2(total_exonerada);
-    total_gratuita = round2(total_gratuita);
-    total_anticipo = round2(total_anticipo);
-    total_igv = round2(total_igv); // Redondear el IGV acumulado
+    // Subtotales netos (items positivos - anticipos): redondear al final
+    const total_gravada = round2(raw_gravada - raw_anticipo_subtotal);
+    const total_inafecta = round2(raw_inafecta);
+    const total_exonerada = round2(raw_exonerada);
+    const total_gratuita = round2(raw_gratuita);
+    const total_anticipo = round2(raw_anticipo_subtotal);
 
-    // Calcular total final
-    const suma_antes_redondeo =
-      total_gravada + total_inafecta + total_exonerada + total_igv;
-    const total = round2(suma_antes_redondeo);
+    // IGV neto: se calcula sobre el subtotal neto gravado sin redondeos intermedios
+    const subtotal_neto_gravado = raw_gravada - raw_anticipo_subtotal;
+    const total_igv = round2(subtotal_neto_gravado * (porcentaje_de_igv / 100));
+
+    // Total neto: total bruto de los items positivos CON IGV, menos el total exacto de anticipos.
+    // Usar raw_anticipo_total (total con IGV tal como vino de advance.total) en vez de
+    // subtotal*1.18 evita que el redondeo de la conversión total->subtotal genere ±0.01.
+    const raw_total_bruto =
+      raw_gravada * (1 + porcentaje_de_igv / 100) +
+      raw_inafecta +
+      raw_exonerada;
+    const total = round2(raw_total_bruto - raw_anticipo_total);
 
     return {
       total_gravada,
@@ -468,6 +508,14 @@ export function OrderQuotationBillingForm({
       total,
     };
   }, [items, igvTypes, porcentaje_de_igv]);
+
+  // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
+  useEffect(() => {
+    console.log("isAdvancePayment changed:", isAdvancePayment);
+    if (isAdvancePayment) {
+      form.setValue("medio_de_pago", "contado", { shouldValidate: false });
+    }
+  }, [isAdvancePayment, form]);
 
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
@@ -523,6 +571,18 @@ export function OrderQuotationBillingForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {quotation.notes && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900">
+            <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                Nota de pago del cliente
+              </p>
+              <p className="mt-0.5 text-sm leading-snug">{quotation.notes}</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Formulario - 2/3 del ancho */}
           <div className="lg:col-span-2 space-y-6">
@@ -532,6 +592,7 @@ export function OrderQuotationBillingForm({
                 quotation={quotation}
                 advances={quotation.advances}
                 currencySymbol={currencySymbol}
+                onClientIdDetected={handleClientIdDetected}
               />
             )}
 
@@ -544,9 +605,12 @@ export function OrderQuotationBillingForm({
               isAdvancePayment={isAdvancePayment}
               currencyTypes={currencyTypes}
               isFromQuotation={true}
-              defaultCustomer={quotation.client}
+              defaultCustomer={quotation.invoice_to_client ?? quotation.client}
               hasSufficientStock={quotation.has_sufficient_stock}
               pendingBalance={pendingBalance}
+              lockedClientId={lockedClientId}
+              lockedClientName={lockedClientName}
+              lockedClientDoc={lockedClientDoc}
             />
 
             {/* Agregar Items */}
@@ -561,6 +625,7 @@ export function OrderQuotationBillingForm({
               }
               isFromQuotation={true}
               showActions={false}
+              allowEditLastItemDescription={true}
             />
 
             {/* Configuración Adicional */}
@@ -568,6 +633,10 @@ export function OrderQuotationBillingForm({
               form={form}
               checkbooks={checkbooks}
               isModuleCommercial={false}
+              showCardLast4={true}
+              showInternalNote={true}
+              showOrdenCompraServicio={true}
+              isAdvancePayment={isAdvancePayment}
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}

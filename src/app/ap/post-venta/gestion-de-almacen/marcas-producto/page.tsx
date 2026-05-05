@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
@@ -21,11 +21,12 @@ import {
   deleteBrand,
   updateBrands,
 } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions.ts";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function BrandsPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -35,10 +36,6 @@ export default function BrandsPVPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = BRAND_POSTVENTA;
   const permissions = useModulePermissions(ROUTE);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
 
   const { data, isLoading, refetch } = useBrands({
     page,

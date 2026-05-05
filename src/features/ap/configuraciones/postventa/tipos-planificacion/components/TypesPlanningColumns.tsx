@@ -38,13 +38,51 @@ export const typesPlanningColumns = ({
     header: "Descripción",
   },
   {
+    accessorKey: "validate_receipt",
+    header: "Valida Recepción",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={value ? "green" : "blue"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "validate_labor",
+    header: "Valida Mano de Obra",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={value ? "green" : "blue"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "type_document",
+    header: "Tipo Documento",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+
+      const typeDocumentLabels: Record<string, string> = {
+        INTERNA: "INTERNA",
+        PAYMENT_RECEIPTS: "COMPROBANTE DE PAGO",
+      };
+
+      return typeDocumentLabels[value] || value;
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
         <Badge
-          color={value ? "default" : "secondary"}                      
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

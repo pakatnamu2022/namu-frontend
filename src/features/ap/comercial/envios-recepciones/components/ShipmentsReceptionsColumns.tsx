@@ -16,6 +16,10 @@ import {
   PackageCheck,
   Eye,
   Ban,
+  LucideIcon,
+  ArrowRightLeft,
+  BookCheck,
+  BookX,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
@@ -31,12 +35,8 @@ import {
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -47,6 +47,9 @@ interface Props {
   onMarkAsReceived: (id: number) => void;
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onCancel: (id: number) => void;
+  onMigrate?: (id: number) => void;
+  onGeneratePDI: (ap_vehicle_id: number) => void;
+  onGenerateInstAccessories: (ap_vehicle_id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -54,8 +57,6 @@ interface Props {
   };
 }
 
-// Componente para manejar la carga de imagen
-// eslint-disable-next-line react-refresh/only-export-components
 const ImagePreview = ({ fileUrl }: { fileUrl: string }) => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -110,15 +111,36 @@ const ImagePreview = ({ fileUrl }: { fileUrl: string }) => {
   );
 };
 
-export const shipmentsReceptionsColumns = ({
+export const ShipmentsReceptionsColumns = ({
   onDelete,
   onSendToNubefact,
   onQueryFromNubefact,
   onMarkAsReceived,
   onViewDetails,
   onCancel,
+  onMigrate,
+  onGeneratePDI,
+  onGenerateInstAccessories,
   permissions,
 }: Props): ShipmentsReceptionsColumns[] => [
+  {
+    accessorKey: "document_number",
+    header: "Número Doc.",
+    cell: ({ row }) => {
+      const number = row.getValue("document_number") as string;
+      const type = row.getValue("document_type") as string;
+      return (
+        <div className="flex flex-col items-start w-fit">
+          <span className="font-mono text-sm font-semibold">
+            <span> {number}</span>
+          </span>
+          <span className="text-xs">
+            {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
+          </span>
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "document_type",
     header: "Tipo Doc.",
@@ -128,6 +150,30 @@ export const shipmentsReceptionsColumns = ({
         <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
           {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
         </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const createdAt = row.getValue("created_at") as string;
+      const issueDate = row.getValue("issue_date") as string;
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <span className="font-semibold">Emisión: </span>
+            {createdAt
+              ? format(new Date(createdAt), "dd/MM/yyyy", { locale: es })
+              : "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Traslado: </span>
+            {issueDate
+              ? format(new Date(issueDate), "dd/MM/yyyy", { locale: es })
+              : "-"}
+          </div>
+        </div>
       );
     },
   },
@@ -153,7 +199,7 @@ export const shipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const reason = row.getValue("transfer_reason_description") as string;
       return (
-        <span className="block max-w-[200px] truncate" title={reason}>
+        <span className="text-sm" title={reason}>
           {reason}
         </span>
       );
@@ -162,10 +208,6 @@ export const shipmentsReceptionsColumns = ({
   {
     accessorKey: "document_series",
     header: "Serie",
-  },
-  {
-    accessorKey: "document_number",
-    header: "Número Doc.",
   },
   {
     accessorKey: "issuer_type",
@@ -206,12 +248,9 @@ export const shipmentsReceptionsColumns = ({
 
       if (!fileUrl) {
         return (
-          <div
-            className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors`}
-          >
-            <XCircle className="size-3" />
-            <span>Sin archivo</span>
-          </div>
+          <Badge color="muted" icon={XCircle}>
+            Sin archivo
+          </Badge>
         );
       }
 
@@ -240,13 +279,11 @@ export const shipmentsReceptionsColumns = ({
       const isReceived = row.getValue("is_received") as boolean;
 
       return isReceived ? (
-        <Badge color="green">
-          <CheckCircle2 className="size-3" />
+        <Badge color="green" icon={CheckCircle2}>
           Recepcionado
         </Badge>
       ) : (
-        <Badge color="blue">
-          <XCircle className="size-3" />
+        <Badge color="blue" icon={XCircle}>
           Pendiente
         </Badge>
       );
@@ -261,13 +298,10 @@ export const shipmentsReceptionsColumns = ({
     header: () => (
       <div className="flex items-center gap-1.5">
         <span>Enviado SUNAT</span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="focus:outline-none">
-              <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-3" align="start">
+        <Badge
+          variant="ghost"
+          tooltipVariant="muted"
+          tooltip={
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
               <div className="space-y-1.5 text-xs">
@@ -289,8 +323,10 @@ export const shipmentsReceptionsColumns = ({
                 </div>
               </div>
             </div>
-          </PopoverContent>
-        </Popover>
+          }
+        >
+          <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+        </Badge>
       </div>
     ),
     cell: ({ row }) => {
@@ -307,32 +343,31 @@ export const shipmentsReceptionsColumns = ({
         // Determinar estado y variante
         let variant: "green" | "destructive" | "blue";
         let label: string;
-        let icon: React.ReactNode;
+        let icon: LucideIcon;
 
         if (aceptadaPorSunat === true) {
           variant = "green";
           label = "Aceptado";
-          icon = <CheckCircle2 className="size-3" />;
+          icon = CheckCircle2;
         } else if (
           aceptadaPorSunat === false &&
           hoursDiff > WAITING_TIME_HOURS
         ) {
           variant = "destructive";
           label = "Rechazado";
-          icon = <XCircle className="size-3" />;
+          icon = XCircle;
         } else {
           variant = "blue";
           label = "En espera";
-          icon = <CheckCircle2 className="size-3" />;
+          icon = CheckCircle2;
         }
 
         return (
           <div className="flex flex-col gap-1">
-            <Badge color={variant}>
-              {icon}
+            <Badge icon={icon} color={variant} className="w-fit">
               {label}
             </Badge>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground font-mono">
               {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
             </span>
           </div>
@@ -405,6 +440,30 @@ export const shipmentsReceptionsColumns = ({
     },
   },
   {
+    accessorKey: "is_accounted",
+    header: "Contabilización",
+    cell: ({ row }) => {
+      const was_migrated = row.original.migration_status === "completed";
+      const value = row.original.is_accounted;
+      if (value === true) {
+        return (
+          <Badge variant="outline" color="green" icon={BookCheck}>
+            <span>Contabilizado</span>
+          </Badge>
+        );
+      }
+      return (
+        <Badge
+          color={was_migrated ? "orange" : "gray"}
+          variant="outline"
+          icon={BookX}
+        >
+          <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -417,6 +476,7 @@ export const shipmentsReceptionsColumns = ({
         is_received,
         document_type,
         transfer_reason_id,
+        ap_vehicle_id,
         status,
       } = row.original;
       const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
@@ -540,6 +600,17 @@ export const shipmentsReceptionsColumns = ({
               <DeleteButton onClick={() => onDelete(id)} />
             )}
 
+          <ButtonAction
+            tooltip="Migrar"
+            onClick={() => onMigrate && onMigrate(id)}
+            icon={ArrowRightLeft}
+            canRender={
+              onMigrate &&
+              isGuiaRemision &&
+              row.original.migration_status !== "completed"
+            }
+          />
+
           {/* Cancelar guía - Solo para GUIA_REMISION, cuando ya fue recepcionado y está ACTIVO */}
           {isGuiaRemision && isAlreadyReceived && status && (
             <Button
@@ -550,6 +621,37 @@ export const shipmentsReceptionsColumns = ({
               onClick={() => onCancel(id)}
             >
               <Ban className="size-4" />
+            </Button>
+          )}
+
+          {/*Generamos la OT de PDI tomado el ap_vehicle_id*/}
+          {ap_vehicle_id && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Generar OT de PDI para el vehículo asociado"
+              onClick={() =>
+                ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
+              }
+            >
+              <BookCheck className="size-4" />
+            </Button>
+          )}
+
+          {/*Generamos la OT de instalación de accesorios tomando el ap_vehicle_id*/}
+          {ap_vehicle_id && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
+              onClick={() =>
+                ap_vehicle_id &&
+                onGenerateInstAccessories(Number(ap_vehicle_id))
+              }
+            >
+              <PackageCheck className="size-4" />
             </Button>
           )}
         </div>

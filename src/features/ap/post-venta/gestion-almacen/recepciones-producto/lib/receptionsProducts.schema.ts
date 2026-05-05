@@ -6,7 +6,7 @@ const receptionDetailSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
   quantity_received: z
     .number()
-    .min(0.01, { message: "La cantidad recibida debe ser mayor a 0" }),
+    .min(0, { message: "La cantidad recibida debe ser mayor o igual a 0" }),
   observed_quantity: z
     .number()
     .min(0, { message: "La cantidad observada debe ser mayor o igual a 0" })
@@ -34,7 +34,7 @@ const receptionDetailSchema = z.object({
 });
 
 const receptionSchemaBase = z.object({
-  purchase_order_id: requiredStringId("Orden de compra es requerida"),
+  ap_supplier_order_id: requiredStringId("Orden de compra es requerida"),
   reception_date: z.date({ message: "Fecha de recepción es requerida" }),
   warehouse_id: requiredStringId("Almacén es requerido"),
   shipping_guide_number: z
@@ -65,7 +65,7 @@ export function validateReceptionFormData(data: any): ReceptionSchema {
 }
 
 export function validateReceptionUpdateFormData(
-  data: any
+  data: any,
 ): Partial<ReceptionSchema> {
   return receptionSchemaUpdate.parse(data);
 }

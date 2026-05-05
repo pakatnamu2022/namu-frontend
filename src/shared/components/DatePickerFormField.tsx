@@ -73,7 +73,7 @@ export function DatePickerFormField<T extends FieldValues>({
   disabled = false,
   disabledRange,
   captionLayout = "label",
-  // end month = one year more than today
+  // end month = one year more than today ()
   endMonth = new Date(
     new Date().getFullYear() + 1,
     new Date().getMonth(),
@@ -109,7 +109,13 @@ export function DatePickerFormField<T extends FieldValues>({
 
   const handleChange = (date: Date | undefined) => {
     if (date) {
-      field.onChange(date, "yyyy-MM-dd");
+      // Emitir string local "YYYY-MM-DD" en vez de Date object.
+      // Date object serializado por JSON.stringify usa toISOString() → UTC,
+      // lo que puede desplazar la fecha según el timezone del usuario.
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      field.onChange(`${year}-${month}-${day}`);
       if (isMobile) setDrawerOpen(false);
     } else {
       field.onChange("");
@@ -121,7 +127,7 @@ export function DatePickerFormField<T extends FieldValues>({
   return (
     <FormItem className="flex flex-col justify-between">
       {label && (
-        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
+        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none dark:text-muted-foreground">
           {label}
           {tooltip && (
             <Tooltip>
@@ -144,17 +150,20 @@ export function DatePickerFormField<T extends FieldValues>({
           <DrawerTrigger asChild>
             <FormControl>
               <Button
-                size={size ? size : isMobile ? "sm" : "lg"}
+                size={size ? size : isMobile ? "sm" : "default"}
                 variant="outline"
-                className="w-full justify-between font-normal text-xs"
+                className={cn(
+                  "w-full justify-between font-normal text-xs",
+                  field.value && "bg-muted",
+                )}
                 disabled={disabled}
               >
-                {displayValue}
+                <span className="truncate">{displayValue}</span>
                 <CalendarPlusIcon className="ml-2 h-4 w-4 opacity-50" />
               </Button>
             </FormControl>
           </DrawerTrigger>
-          <DrawerContent className="w-auto p-0 overflow-hidden">
+          <DrawerContent className="w-auto p-0">
             <DrawerHeader>
               <DrawerTitle>Selecciona una fecha</DrawerTitle>
             </DrawerHeader>
@@ -178,19 +187,23 @@ export function DatePickerFormField<T extends FieldValues>({
             <FormControl>
               <Button
                 variant="outline"
-                size={size ? size : isMobile ? "sm" : "lg"}
+                size={size ? size : isMobile ? "sm" : "default"}
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !parsedDate && "text-muted-foreground",
+                  field.value && "bg-muted",
                 )}
                 disabled={disabled}
               >
-                {displayValue}
+                <span className="truncate">{displayValue}</span>
                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
               </Button>
             </FormControl>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 overflow-hidden" align="start">
+          <PopoverContent
+            className="w-auto p-0 max-h-none overflow-hidden"
+            align="start"
+          >
             <Calendar
               mode="single"
               locale={es}

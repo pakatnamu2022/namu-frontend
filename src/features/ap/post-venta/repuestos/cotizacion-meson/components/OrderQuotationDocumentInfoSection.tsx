@@ -6,22 +6,17 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useMemo } from "react";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface OrderQuotationDocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -34,6 +29,9 @@ interface OrderQuotationDocumentInfoSectionProps {
   defaultCustomer?: CustomersResource;
   hasSufficientStock?: boolean;
   pendingBalance?: number;
+  lockedClientId?: number | null;
+  lockedClientName?: string;
+  lockedClientDoc?: string;
 }
 
 export function OrderQuotationDocumentInfoSection({
@@ -47,66 +45,100 @@ export function OrderQuotationDocumentInfoSection({
   defaultCustomer,
   hasSufficientStock = true,
   pendingBalance = 0,
+  lockedClientId = null,
+  lockedClientName = "",
+  lockedClientDoc = "",
 }: OrderQuotationDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
-  >(defaultCustomer);
+  >(undefined);
 
-  // Crear defaultOption desde defaultCustomer si existe
+  // Observar cambios en el cliente
+  const clientId = form.watch("client_id");
+
+  // En modo edición, el cliente real viene del client_id del form (documento existente),
+  // no del defaultCustomer (que es el cliente de la cotización y puede ser distinto)
+  const { data: customerFromApi } = useCustomersById(
+    isEdit && clientId ? Number(clientId) : 0,
+  );
+
+  // Resolver el cliente efectivo: en edición usar el de la API, sino el estado local o defaultCustomer
+  const effectiveCustomer = isEdit
+    ? customerFromApi
+    : (selectedCustomer ?? defaultCustomer);
+
+  // Crear defaultOption desde lockedClient o defaultCustomer
   const defaultOption = useMemo(() => {
+    // Prioridad 1: Cliente bloqueado desde anticipos
+    if (lockedClientId && lockedClientName) {
+      const option = {
+        value: lockedClientId.toString(),
+        label: `${lockedClientName} - ${lockedClientDoc || "S/N"}`,
+      };
+      return option;
+    }
+    // Prioridad 2: Cliente por defecto de la cotización
     if (defaultCustomer) {
-      return {
+      const option = {
         value: defaultCustomer.id.toString(),
         label: `${defaultCustomer.full_name} - ${
           defaultCustomer.num_doc || "S/N"
         }`,
       };
+      return option;
     }
     return undefined;
-  }, [defaultCustomer]);
-
-  // Filtrar series según is_advance_payment
-  const filteredSeries = useMemo(() => {
-    if (isAdvancePayment) {
-      // Si es anticipo, mostrar solo series con is_advance: true
-      return authorizedSeries.filter((series) => series.is_advance === true);
-    } else {
-      // Si no es anticipo, mostrar solo series con is_advance: false
-      return authorizedSeries.filter((series) => series.is_advance === false);
-    }
-  }, [authorizedSeries, isAdvancePayment]);
-
-  // Observar cambios en el cliente
-  const clientId = form.watch("client_id");
+  }, [defaultCustomer, lockedClientId, lockedClientName, lockedClientDoc]);
 
   // Setear el cliente por defecto cuando se monta el componente
   useEffect(() => {
-    if (defaultCustomer && !clientId) {
+    // Si hay un cliente bloqueado desde los anticipos, tiene prioridad ABSOLUTA
+    if (lockedClientId) {
+      const lockedIdString = lockedClientId.toString();
+      // Solo actualizar si es diferente al actual
+      if (clientId !== lockedIdString) {
+        form.setValue("client_id", lockedIdString, {
+          shouldValidate: false,
+        });
+      }
+    } else if (defaultCustomer) {
       form.setValue("client_id", defaultCustomer.id.toString(), {
         shouldValidate: false,
       });
     }
-  }, [defaultCustomer, clientId, form]);
+  }, [defaultCustomer?.id, lockedClientId, form]);
 
   // Forzar el switch a true (anticipo) cuando no hay stock suficiente
+  // Forzar el switch a false (venta interna) cuando el saldo pendiente es 0
   useEffect(() => {
     if (!hasSufficientStock) {
       form.setValue("is_advance_payment", true, {
         shouldValidate: false,
       });
+    } else if (pendingBalance === 0) {
+      form.setValue("is_advance_payment", false, {
+        shouldValidate: false,
+      });
     }
-  }, [hasSufficientStock, form]);
+  }, [hasSufficientStock, pendingBalance, form]);
 
   // Determinar si el switch debe estar habilitado
-  // Se habilita cuando: hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
-  const isToggleEnabled = hasSufficientStock || pendingBalance === 0;
+  // Se deshabilita cuando: no hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
+  const isToggleEnabled = hasSufficientStock && pendingBalance !== 0;
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
-    if (!selectedCustomer) return true; // Si no hay cliente seleccionado, mostrar todos
+    // Prioridad 1: si hay cliente bloqueado, determinar por longitud del doc
+    if (lockedClientId && lockedClientDoc) {
+      const isRuc = lockedClientDoc.trim().length === 11;
+      if (isRuc) return type.id === SUNAT_TYPE_INVOICES_ID.FACTURA;
+      return type.id === SUNAT_TYPE_INVOICES_ID.BOLETA;
+    }
 
-    const documentTypeId = selectedCustomer.document_type_id;
+    if (!effectiveCustomer) return true; // Si no hay cliente seleccionado, mostrar todos
+
+    const documentTypeId = effectiveCustomer.document_type_id;
 
     // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
     if (Number(documentTypeId) === 810) {
@@ -124,16 +156,19 @@ export function OrderQuotationDocumentInfoSection({
 
   // Validar y limpiar tipo de documento cuando cambia el cliente
   useEffect(() => {
-    if (!selectedCustomer) return;
+    if (!effectiveCustomer) return;
+
+    // Si la lista de tipos aún no cargó, no limpiar nada
+    if (filteredDocumentTypes.length === 0) return;
 
     const currentDocumentTypeId = form.getValues(
-      "sunat_concept_document_type_id"
+      "sunat_concept_document_type_id",
     );
 
     // Si hay un tipo de documento seleccionado, verificar si sigue siendo válido
     if (currentDocumentTypeId) {
       const isValid = filteredDocumentTypes.some(
-        (type) => type.id.toString() === currentDocumentTypeId
+        (type) => type.id.toString() === currentDocumentTypeId,
       );
 
       // Si el tipo de documento actual no es válido, limpiarlo
@@ -142,16 +177,17 @@ export function OrderQuotationDocumentInfoSection({
         form.setValue("serie", ""); // También limpiar la serie ya que depende del tipo
       }
     }
-  }, [selectedCustomer, filteredDocumentTypes, form]);
+  }, [isEdit, effectiveCustomer, filteredDocumentTypes, form]);
 
   // Validar y limpiar serie cuando cambia isAdvancePayment
   useEffect(() => {
+    if (isEdit) return;
     const currentSerieId = form.getValues("serie");
 
     // Si hay una serie seleccionada, verificar si sigue siendo válida
     if (currentSerieId) {
-      const isValid = filteredSeries.some(
-        (series) => series.id.toString() === currentSerieId
+      const isValid = authorizedSeries.some(
+        (series) => series.id.toString() === currentSerieId,
       );
 
       // Si la serie actual no es válida, limpiarla
@@ -159,24 +195,52 @@ export function OrderQuotationDocumentInfoSection({
         form.setValue("serie", "");
       }
     }
-  }, [isAdvancePayment, filteredSeries, form]);
+  }, [isEdit, isAdvancePayment, authorizedSeries, form]);
 
   return (
     <>
       {/* Alerta de Stock */}
       {isFromQuotation && (
-        <div className="mb-6 rounded-md border p-4 bg-blue-50/50 border-blue-200">
-          <div className="flex gap-3">
-            {hasSufficientStock ? (
-              <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            ) : (
-              <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            )}
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {hasSufficientStock
-                ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
-                : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
-            </p>
+        <div
+          className={`mb-6 rounded-lg border p-4 ${
+            hasSufficientStock
+              ? "border-emerald-200 bg-emerald-50/70"
+              : "border-rose-200 bg-rose-50/70"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`mt-0.5 rounded-full p-1.5 ${
+                hasSufficientStock
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-rose-100 text-rose-700"
+              }`}
+            >
+              {hasSufficientStock ? (
+                <CheckCircle className="h-4 w-4 shrink-0" />
+              ) : (
+                <AlertCircle className="h-4 w-4 shrink-0" />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <p
+                className={`text-sm font-semibold ${
+                  hasSufficientStock ? "text-emerald-800" : "text-rose-800"
+                }`}
+              >
+                {hasSufficientStock ? "Stock disponible" : "Stock insuficiente"}
+              </p>
+              <p
+                className={`text-sm leading-relaxed ${
+                  hasSufficientStock ? "text-emerald-700" : "text-rose-700"
+                }`}
+              >
+                {hasSufficientStock
+                  ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
+                  : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -184,8 +248,7 @@ export function OrderQuotationDocumentInfoSection({
       <GroupFormSection
         title="Información del Documento"
         icon={FileText}
-        iconColor="text-primary"
-        bgColor="bg-primary/5"
+        color="primary"
         cols={{ sm: 1, md: 3 }}
       >
         <div className="md:col-span-3">
@@ -195,18 +258,21 @@ export function OrderQuotationDocumentInfoSection({
             placeholder="Seleccionar cliente"
             control={form.control}
             useQueryHook={useCustomers}
+            useFindByIdHook={useCustomersById}
             mapOptionFn={(customer) => ({
               value: customer.id.toString(),
               label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
             })}
             description={
-              isFromQuotation
-                ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
-                : "Seleccione el cliente"
+              lockedClientId
+                ? "Cliente bloqueado: Ya existen pagos aplicados para este cliente"
+                : isFromQuotation
+                  ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
+                  : "Seleccione el cliente"
             }
             perPage={10}
             debounceMs={500}
-            disabled={isEdit}
+            disabled={true}
             defaultOption={defaultOption}
             onValueChange={(_, customer) => {
               // Actualizar el estado con el cliente seleccionado
@@ -243,10 +309,10 @@ export function OrderQuotationDocumentInfoSection({
             !hasSufficientStock && pendingBalance > 0
               ? "Sin stock suficiente: Solo se permite anticipo"
               : pendingBalance === 0
-              ? "Pago completo realizado: Puede generar documento de venta final"
-              : isAdvancePayment
-              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-              : "Tipo de operación: Venta Interna (código 01)"
+                ? "Pago completo realizado: Solo se permite venta interna"
+                : isAdvancePayment
+                  ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                  : "Tipo de operación: Venta Interna (código 01)"
           }
         />
 
@@ -274,7 +340,7 @@ export function OrderQuotationDocumentInfoSection({
             before: new Date(
               new Date().getFullYear(),
               new Date().getMonth(),
-              1
+              1,
             ),
             after: new Date(),
           }}
@@ -283,7 +349,7 @@ export function OrderQuotationDocumentInfoSection({
         <FormSelect
           control={form.control}
           name="serie"
-          options={filteredSeries.map((series) => ({
+          options={authorizedSeries.map((series) => ({
             value: series.id.toString(),
             label: `${series.series} - ${series.sede || ""}`,
           }))}
@@ -297,28 +363,17 @@ export function OrderQuotationDocumentInfoSection({
           required
         />
 
-        <FormField
+        <FormInput
           control={form.control}
           name="numero"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Número</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Auto-generado"
-                  disabled
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription className="text-xs">
-                {isEdit
-                  ? "El correlativo no se puede modificar"
-                  : "Se genera automáticamente"}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Número"
+          placeholder="Auto-generado"
+          description={
+            isEdit
+              ? "El correlativo no se puede modificar"
+              : "Se genera automáticamente"
+          }
+          disabled
         />
       </GroupFormSection>
     </>

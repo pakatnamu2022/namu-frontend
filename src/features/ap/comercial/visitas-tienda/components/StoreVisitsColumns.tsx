@@ -30,6 +30,19 @@ export const storeVisitsColumns = ({
     },
   },
   {
+    id: "days_since_registration",
+    header: "Días transcurridos",
+    cell: ({ row }) => {
+      if (row.original.use !== "Subido") return null;
+      const value = row.original.registration_date;
+      if (!value) return null;
+      const diff = Math.floor(
+        (Date.now() - new Date(value).getTime()) / (1000 * 60 * 60 * 24),
+      );
+      return <Badge color="amber">{diff} días</Badge>;
+    },
+  },
+  {
     accessorKey: "sede",
     header: "Sede",
   },
@@ -77,18 +90,15 @@ export const storeVisitsColumns = ({
       > = {
         Subido: {
           label: "Subido",
-          color: "secondary",
-          className: "bg-blue-100 text-blue-700 hover:bg-blue-200",
+          color: "blue",
         },
         Atendido: {
           label: "Atendido",
-          color: "default",
-          className: "bg-green-100 text-green-700 hover:bg-green-200",
+          color: "green",
         },
         Descartado: {
           label: "Descartado",
-          color: "destructive",
-          className: "bg-red-100 text-red-700 hover:bg-red-200",
+          color: "red",
         },
       };
 
@@ -97,11 +107,7 @@ export const storeVisitsColumns = ({
         color: "secondary",
       };
 
-      return (
-        <Badge color={config.color} className={config.className}>
-          {config.label}
-        </Badge>
-      );
+      return <Badge color={config.color}>{config.label}</Badge>;
     },
   },
   {

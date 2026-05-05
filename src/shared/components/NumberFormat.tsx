@@ -2,6 +2,7 @@ interface NumberFormatProps {
   value: number | string | null | undefined;
   decimals?: number;
   locale?: string;
+  prefix?: string;
 }
 
 /**
@@ -20,13 +21,14 @@ interface NumberFormatProps {
 export const NumberFormat = ({
   value,
   decimals = 2,
-  locale = 'es-PE'
+  locale = "es-PE",
+  prefix,
 }: NumberFormatProps) => {
-  if (value === null || value === undefined || value === '') {
+  if (value === null || value === undefined || value === "") {
     return <span>-</span>;
   }
 
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  const numericValue = typeof value === "string" ? parseFloat(value) : value;
 
   if (isNaN(numericValue)) {
     return <span>-</span>;
@@ -37,5 +39,5 @@ export const NumberFormat = ({
     maximumFractionDigits: decimals,
   }).format(numericValue);
 
-  return <span>{formatted}</span>;
+  return <span>{prefix ? `${prefix} ${formatted}` : formatted}</span>;
 };

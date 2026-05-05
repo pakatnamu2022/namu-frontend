@@ -51,7 +51,8 @@ export default function AddVehiclePVPage() {
         defaultValues={{
           vin: "",
           plate: "",
-          year: new Date().getFullYear(),
+          year: undefined,
+          year_delivery: undefined,
           engine_number: "",
           ap_models_vn_id: "",
           vehicle_color_id: "",

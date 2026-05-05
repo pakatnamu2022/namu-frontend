@@ -29,6 +29,8 @@ export default function VehicleTable({
           model: true,
           model_code: false,
           year: true,
+          year_delivery: true,
+          plate: true,
           engine_number: true,
           vehicle_color: true,
           engine_type: false,

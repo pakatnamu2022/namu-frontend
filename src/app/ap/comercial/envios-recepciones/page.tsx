@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -25,7 +25,7 @@ import {
   useCancelShippingGuide,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import ShipmentsReceptionsTable from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsTable";
-import { shipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
+import { ShipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
 import ShipmentsReceptionsActions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsActions";
 import ShipmentsReceptionsOptions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -36,24 +36,39 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useMutation } from "@tanstack/react-query";
+import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import {
+  generatePDIForVehicle,
+  generateInstAccessoriesForVehicle,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
-  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
-  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
+  const formattedDateFrom = dateFrom
+    ? format(dateFrom, "yyyy-MM-dd")
+    : undefined;
+  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : undefined;
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [markAsReceivedId, setMarkAsReceivedId] = useState<number | null>(null);
   const [cancelId, setCancelId] = useState<number | null>(null);
+  const [generatePDIVehicleId, setGeneratePDIVehicleId] = useState<
+    number | null
+  >(null);
+  const [
+    generateInstAccessoriesVehicleId,
+    setGenerateInstAccessoriesVehicleId,
+  ] = useState<number | null>(null);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentsReceptionsResource | null>(null);
   const { MODEL, ROUTE } = SHIPMENTS_RECEPTIONS;
@@ -63,17 +78,27 @@ export default function ShipmentsReceptionsPage() {
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
   const permissions = useModulePermissions(ROUTE);
+  const migrateMutation = useMutation({
+    mutationFn: dispatchShippingGuideMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page]);
-
-  const { data, isLoading, refetch } = useShipmentsReceptions({
+  const { data, isLoading, refetch, isFetching } = useShipmentsReceptions({
     page,
     search,
     per_page,
     issue_date: [formattedDateFrom, formattedDateTo],
+    area_id: AREA_COMERCIAL,
+    send_dynamics: 1,
+    transfer_reason_id: [
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
+    ],
   });
 
   const handleDelete = async () => {
@@ -136,6 +161,26 @@ export default function ShipmentsReceptionsPage() {
     );
   };
 
+  const generatePDIMutation = useMutation({
+    mutationFn: (vehicleId: number) => generatePDIForVehicle(vehicleId),
+    onSuccess: () => successToast("OT de PDI generada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al generar OT de PDI: ${msg}`);
+    },
+  });
+
+  const generateInstAccessoriesMutation = useMutation({
+    mutationFn: (vehicleId: number) =>
+      generateInstAccessoriesForVehicle(vehicleId),
+    onSuccess: () =>
+      successToast("OT de instalación de accesorios generada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al generar OT de instalación de accesorios: ${msg}`);
+    },
+  });
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -148,18 +193,25 @@ export default function ShipmentsReceptionsPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ShipmentsReceptionsActions permissions={permissions} />
+        <ShipmentsReceptionsActions
+          isFetching={isFetching && !isLoading}
+          onRefresh={refetch}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
 
       <ShipmentsReceptionsTable
         isLoading={isLoading}
-        columns={shipmentsReceptionsColumns({
+        columns={ShipmentsReceptionsColumns({
           onDelete: setDeleteId,
           onSendToNubefact: setSendToNubefactId,
           onQueryFromNubefact: handleQueryFromNubefact,
           onMarkAsReceived: setMarkAsReceivedId,
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
+          onMigrate: (id) => migrateMutation.mutate(id),
+          onGeneratePDI: setGeneratePDIVehicleId,
+          onGenerateInstAccessories: setGenerateInstAccessoriesVehicleId,
           permissions,
         })}
         data={data?.data || []}
@@ -224,6 +276,49 @@ export default function ShipmentsReceptionsPage() {
           cancelText="Volver"
           fieldLabel="Motivo de cancelación"
           required={true}
+        />
+      )}
+
+      {generatePDIVehicleId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setGeneratePDIVehicleId(null)}
+          onConfirm={() => {
+            generatePDIMutation.mutate(generatePDIVehicleId, {
+              onSettled: () => setGeneratePDIVehicleId(null),
+            });
+          }}
+          title="Generar OT de PDI"
+          description="¿Está seguro de que desea generar una Orden de Trabajo de PDI para el vehículo asociado?"
+          confirmText="Sí, generar"
+          cancelText="Cancelar"
+          variant="default"
+          icon="warning"
+          isLoading={generatePDIMutation.isPending}
+        />
+      )}
+
+      {generateInstAccessoriesVehicleId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) =>
+            !open && setGenerateInstAccessoriesVehicleId(null)
+          }
+          onConfirm={() => {
+            generateInstAccessoriesMutation.mutate(
+              generateInstAccessoriesVehicleId,
+              {
+                onSettled: () => setGenerateInstAccessoriesVehicleId(null),
+              },
+            );
+          }}
+          title="Generar OT de Instalación de Accesorios"
+          description="¿Está seguro de que desea generar una Orden de Trabajo de instalación de accesorios para el vehículo asociado?"
+          confirmText="Sí, generar"
+          cancelText="Cancelar"
+          variant="default"
+          icon="warning"
+          isLoading={generateInstAccessoriesMutation.isPending}
         />
       )}
 

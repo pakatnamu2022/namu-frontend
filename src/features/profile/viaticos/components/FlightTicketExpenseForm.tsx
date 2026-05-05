@@ -22,7 +22,7 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { ExpenseTypeResource } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.interface";
 
 interface FlightTicketExpenseFormProps {
@@ -47,7 +47,7 @@ export default function FlightTicketExpenseForm({
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const form = useForm<ExpenseSchema>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(expenseSchema) as any,
     defaultValues: {
       receipt_amount: 0,
       receipt_type: "invoice",
@@ -62,10 +62,10 @@ export default function FlightTicketExpenseForm({
   // Validación de RUC cuando el campo tiene 11 dígitos (RUC peruano estándar)
   const shouldValidateRuc = Boolean(
     !isFirstLoad &&
-      rucValue &&
-      rucValue.length === 11 &&
-      /^\d+$/.test(rucValue) &&
-      (receiptType === "invoice" || receiptType === "ticket")
+    rucValue &&
+    rucValue.length === 11 &&
+    /^\d+$/.test(rucValue) &&
+    (receiptType === "invoice" || receiptType === "ticket"),
   );
 
   const {
@@ -85,7 +85,7 @@ export default function FlightTicketExpenseForm({
   useEffect(() => {
     if (expenseTypeId && flightTicketTypes) {
       const selectedExpenseType = flightTicketTypes.find(
-        (type) => type.id.toString() === expenseTypeId
+        (type) => type.id.toString() === expenseTypeId,
       );
 
       if (selectedExpenseType) {
@@ -324,7 +324,7 @@ export default function FlightTicketExpenseForm({
 
           {/* Notas */}
           <div>
-            <FormInputText
+            <FormTextArea
               name="notes"
               label="Notas (Opcional)"
               placeholder="Observaciones adicionales..."

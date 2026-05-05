@@ -34,8 +34,8 @@ export const approvedAccesoriesColumns = ({
     },
   },
   {
-    accessorKey: "type",
-    header: "Tipo",
+    accessorKey: "type_operation",
+    header: "Tipo Op.",
   },
   {
     accessorKey: "description",

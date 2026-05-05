@@ -36,6 +36,7 @@ export default function DashboardChartsSection({
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
@@ -64,6 +65,7 @@ export default function DashboardChartsSection({
   }, [selectedDateData]);
 
   const opportunityPieData = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     console;
     if (!selectedDateData) return [];
     return selectedDateData.por_estado_oportunidad

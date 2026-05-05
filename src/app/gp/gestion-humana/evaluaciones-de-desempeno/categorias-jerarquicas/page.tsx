@@ -22,15 +22,13 @@ import { HierarchicalCategoryResource } from "@/features/gp/gestionhumana/evalua
 import { useQueryClient } from "@tanstack/react-query";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { HierarchicalCategoryObjectivesModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryObjectivesModal";
-import { useAllObjectives } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.hook";
 import { HierarchicalCategoryCompetenceModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryCompetencesModal";
 import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function HierarchicalCategoryPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -66,7 +64,6 @@ export default function HierarchicalCategoryPage() {
   });
 
   const { data: positions = [] } = useAllPositions();
-  const { data: objectives = [] } = useAllObjectives();
   const { data: competences = [] } = useAllCompetences();
 
   const handleDelete = async () => {
@@ -83,7 +80,7 @@ export default function HierarchicalCategoryPage() {
   };
 
   const handleSelectedCategory = (
-    category: HierarchicalCategoryResource | null
+    category: HierarchicalCategoryResource | null,
   ) => {
     if (!category) return;
     setSelectedCategory(category);
@@ -91,7 +88,7 @@ export default function HierarchicalCategoryPage() {
   };
 
   const handleSelectedForObjective = (
-    category: HierarchicalCategoryResource | null
+    category: HierarchicalCategoryResource | null,
   ) => {
     if (!category) return;
     setSelectedForObjective(category);
@@ -99,7 +96,7 @@ export default function HierarchicalCategoryPage() {
   };
 
   const handleSelectedForCompetence = (
-    category: HierarchicalCategoryResource | null
+    category: HierarchicalCategoryResource | null,
   ) => {
     if (!category) return;
     setSelectedForCompetence(category);
@@ -115,7 +112,8 @@ export default function HierarchicalCategoryPage() {
 
     // juntar y quitar duplicados
     const merged = [...existing, ...positions].filter(
-      (p, i, arr) => arr.findIndex((x) => x.position_id === p.position_id) === i
+      (p, i, arr) =>
+        arr.findIndex((x) => x.position_id === p.position_id) === i,
     );
 
     try {
@@ -126,7 +124,7 @@ export default function HierarchicalCategoryPage() {
       successToast("Posiciones agregadas correctamente.");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message ?? "Error al actualizar posiciones."
+        error?.response?.data?.message ?? "Error al actualizar posiciones.",
       );
     }
   };
@@ -202,7 +200,6 @@ export default function HierarchicalCategoryPage() {
             }
           }}
           category={selectedForObjective}
-          objectives={objectives}
         />
       )}
 

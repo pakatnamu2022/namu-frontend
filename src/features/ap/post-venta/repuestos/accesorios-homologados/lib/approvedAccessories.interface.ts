@@ -9,22 +9,21 @@ export interface ApprovedAccesoriesResponse {
 export interface ApprovedAccesoriesResource {
   id: number;
   code: string;
-  type: string;
+  type_operation_id: number;
+  type_operation: string;
   description: string;
   price: number;
   status: boolean;
-  type_currency_id: string;
   body_type_id: string;
   currency_symbol?: string;
 }
 
 export interface ApprovedAccesoriesRequest {
   code: string;
-  type: string;
+  type_operation_id: number;
   description: string;
   price: number;
   status: boolean;
-  type_currency_id: string;
   body_type_id: string;
 }
 

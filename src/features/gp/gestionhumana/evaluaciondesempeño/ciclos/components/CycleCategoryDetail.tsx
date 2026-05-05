@@ -20,6 +20,7 @@ import { useCycle } from "../lib/cycle.hook";
 import { cn } from "@/lib/utils";
 import { Loader } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { CYCLE } from "../lib/cycle.constants";
 
 const schema = z.object({
   categories: z.array(z.string()),
@@ -61,8 +62,16 @@ export default function CycleCategoryDetailForm({
   }, [defaultValue]);
 
   const filteredCategories = useMemo(() => {
-    return categories.filter((category) =>
-      category.name.toLowerCase().includes(search.toLowerCase()),
+    return (
+      categories
+        .filter((category) =>
+          category.name.toLowerCase().includes(search.toLowerCase()),
+        )
+        // Ordena primero los que tienen pass=false
+        .sort((a, b) => {
+          if (a.pass === b.pass) return 0;
+          return a.pass ? 1 : -1; // Los que tienen pass=false aparecerán primero
+        })
     );
   }, [search, categories]);
 
@@ -111,14 +120,33 @@ export default function CycleCategoryDetailForm({
     form.reset();
   };
 
+  const { ICON } = CYCLE;
+
   return (
     <GeneralSheet
       open={open}
       onClose={() => onOpenChange(false)}
       title="Asignar Categorías Jerárquicas"
       subtitle={cycle?.name || ""}
+      icon={ICON}
+      size="5xl"
+      childrenFooter={
+        <div className="flex justify-end gap-2 mt-6">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? <Loader className="animate-spin h-4 w-4" /> : null}
+            {loading ? "Asignando..." : "Confirmar"}
+          </Button>
+        </div>
+      }
     >
-      <div className="mt-4 space-y-4">
+      <div className="space-y-4">
         <Input
           placeholder="Buscar categoría..."
           value={search}
@@ -155,7 +183,7 @@ export default function CycleCategoryDetailForm({
                   <span className="font-medium">Seleccionar todo</span>
                 </div>
 
-                <div className="flex flex-col gap-2 max-h-[65vh] overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-y-auto">
                   {filteredCategories.map((category) => (
                     <FormField
                       key={category.id}
@@ -182,7 +210,7 @@ export default function CycleCategoryDetailForm({
                           <FormItem
                             key={category.id}
                             className={cn(
-                              "border p-3 rounded-md flex flex-col items-start justify-center gap-3 cursor-pointer",
+                              "border p-3 rounded-md flex flex-col items-start justify-start gap-3 cursor-pointer",
                               !category.pass && "opacity-50 cursor-not-allowed",
                             )}
                             onClick={category.pass ? toggle : undefined} // evita click si está disabled
@@ -207,7 +235,7 @@ export default function CycleCategoryDetailForm({
                             {!category.pass && category.issues && (
                               <FormMessage className="text-xs">
                                 {category.issues.map((issue, index) => (
-                                  <li key={index}>{issue}</li>
+                                  <p key={index}>- {issue}</p>
                                 ))}
                               </FormMessage>
                             )}
@@ -221,20 +249,6 @@ export default function CycleCategoryDetailForm({
             )}
           />
         </Form>
-      </div>
-
-      <div className="flex justify-end gap-2 mt-6">
-        <Button
-          variant="outline"
-          onClick={() => onOpenChange(false)}
-          disabled={loading}
-        >
-          Cancelar
-        </Button>
-        <Button onClick={handleSubmit} disabled={loading}>
-          {loading ? <Loader className="animate-spin h-4 w-4" /> : null}
-          {loading ? "Asignando..." : "Confirmar"}
-        </Button>
       </div>
     </GeneralSheet>
   );

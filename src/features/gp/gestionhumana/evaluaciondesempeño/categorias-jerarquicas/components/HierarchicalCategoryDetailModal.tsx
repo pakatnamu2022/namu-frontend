@@ -53,9 +53,9 @@ export function HierarchicalCategoryDetailModal({
   const positionsMap = useMemo(
     () =>
       new Map<number, PositionResource>(
-        positions.map((p) => [p.id, p] as const)
+        positions.map((p) => [p.id, p] as const),
       ),
-    [positions]
+    [positions],
   );
 
   const isDuplicate = (posId: number) => {
@@ -136,8 +136,25 @@ export function HierarchicalCategoryDetailModal({
       open={open}
       onClose={() => setOpen(false)}
       size="2xl"
+      childrenFooter={
+        <div className="w-full flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cerrar
+          </Button>
+          <Button onClick={saveAll} disabled={pending.length === 0 || saving}>
+            {saving ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                Guardando
+              </>
+            ) : (
+              "Guardar"
+            )}
+          </Button>
+        </div>
+      }
     >
-      <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
+      <div className="flex flex-col gap-2">
         <div className="w-full flex justify-end mb-2 gap-2">
           {!adding ? (
             <Button variant="outline" size="sm" onClick={startAdd}>
@@ -270,22 +287,7 @@ export function HierarchicalCategoryDetailModal({
           <p className="text-sm text-muted-foreground">No hay datos.</p>
         )}
       </div>
-      {/* Footer homogéneo: Guardar / Cerrar */}
-      <div className="w-full flex justify-end gap-2 mt-4">
-        <Button variant="outline" onClick={() => setOpen(false)}>
-          Cerrar
-        </Button>
-        <Button onClick={saveAll} disabled={pending.length === 0 || saving}>
-          {saving ? (
-            <>
-              <Loader2 className="size-4 mr-2 animate-spin" />
-              Guardando
-            </>
-          ) : (
-            "Guardar"
-          )}
-        </Button>
-      </div>
+
       {deleteDetailId !== null && (
         <SimpleDeleteDialog
           open={true}

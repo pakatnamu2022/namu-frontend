@@ -9,12 +9,12 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
@@ -24,15 +24,21 @@ import OrderQuotationActions from "@/features/ap/post-venta/taller/cotizacion/co
 import { orderQuotationColumns } from "@/features/ap/post-venta/taller/cotizacion/components/ProformaColumns.tsx";
 import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/components/ProformaTable.tsx";
 import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions.tsx";
-import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import {
+  deleteOrderQuotation,
+  duplicateOrderQuotation,
+  sendNotificationManagement,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function OrderQuotationPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_TALLER;
   const permissions = useModulePermissions(ROUTE);
@@ -40,22 +46,32 @@ export default function OrderQuotationPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
+  // Obtener mis sedes de postventa
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+    has_workshop: 1,
+  });
+
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
+    if (mySedes.length > 0 && !sedeId) {
+      setSedeId(mySedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mySedes]);
 
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
   }, [dateFrom, dateTo]);
@@ -68,7 +84,8 @@ export default function OrderQuotationPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    area_id: AREA_PM_ID.TALLER,
+    area_id: AREA_TALLER.toString(),
+    sede_id: sedeId || undefined,
   });
 
   const handleDelete = async () => {
@@ -93,7 +110,37 @@ export default function OrderQuotationPage() {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  const handleApprove = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/aprobar/${id}`);
+  };
+
+  const handleDuplicate = async (id: number) => {
+    try {
+      await duplicateOrderQuotation(id);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "create", msg));
+    }
+  };
+
+  const handleSendNotification = async (id: number) => {
+    try {
+      await sendNotificationManagement(id);
+      await refetch();
+      successToast("Notificación enviada a gerencia correctamente");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al enviar la notificación a gerencia",
+      );
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -114,6 +161,9 @@ export default function OrderQuotationPage() {
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
           onManage: handleManage,
+          onApprove: handleApprove,
+          onDuplicate: handleDuplicate,
+          onSendNotification: handleSendNotification,
           permissions,
         })}
         data={data?.data || []}
@@ -125,6 +175,9 @@ export default function OrderQuotationPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          sedes={mySedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </OrderQuotationTable>
 

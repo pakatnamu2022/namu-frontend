@@ -7,6 +7,7 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
+  toLocalDateString,
 } from "@/core/core.function";
 import { PerDiemRequestForm } from "@/features/profile/viaticos/components/PerDiemRequestForm";
 import {
@@ -70,13 +71,13 @@ export default function UpdatePerDiemRequestPage() {
   };
 
   function mapPerDiemRequestToForm(
-    data: PerDiemRequestResource
+    data: PerDiemRequestResource,
   ): Partial<PerDiemRequestSchemaUpdate> {
     return {
       company_id: data.company.id.toString(),
       sede_service_id: data.sede_service.id.toString(),
-      start_date: data.start_date ? new Date(data.start_date) : "",
-      end_date: data.end_date ? new Date(data.end_date) : "",
+      start_date: data.start_date ? toLocalDateString(data.start_date) : "",
+      end_date: data.end_date ? toLocalDateString(data.end_date) : "",
       purpose: data.purpose,
       notes: data.notes || "",
       status: data.status,

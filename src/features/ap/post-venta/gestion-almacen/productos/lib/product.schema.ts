@@ -33,13 +33,6 @@ const productSchemaBase = z.object({
   brand_id: z.string().optional(),
   unit_measurement_id: requiredStringId("Unidad de medida es requerida"),
   ap_class_article_id: requiredStringId("Clase de artículo es requerida"),
-  cost_price: z
-    .number()
-    .min(0, { message: "El precio de costo debe ser mayor o igual a 0" })
-    .optional(),
-  sale_price: z
-    .number()
-    .min(0, { message: "El precio de venta debe ser mayor o igual a 0" }),
   warranty_months: z
     .number()
     .int({ message: "Debe ser un número entero" })

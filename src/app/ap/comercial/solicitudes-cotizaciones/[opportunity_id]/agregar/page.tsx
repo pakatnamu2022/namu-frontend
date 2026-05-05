@@ -72,7 +72,8 @@ export default function AddPurchaseRequestQuotePage() {
         defaultValues={{
           sede_id: "",
           type_document: "COTIZACION",
-          warranty: "",
+          warranty_years: 0,
+          warranty_km: 0,
           opportunity_id: opportunityId.toString(),
           comment: "",
           holder_id: "",

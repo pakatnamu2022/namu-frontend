@@ -33,7 +33,7 @@ const getStatusBadgeVariant = (status: string): BadgeColor => {
 
 export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
   return (
-    <Card className="hover:shadow-sm transition-all border-primary/10 hover:bg-blue-50/30">
+    <Card className="hover:shadow-sm transition-all border-primary/10 hover:bg-blue-50/30 py-0">
       <CardContent className="p-4">
         <div className="space-y-3">
           {/* Header: Cliente y Documento */}
@@ -122,6 +122,21 @@ export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
           {/* Información adicional */}
           <div className="flex items-center justify-between pt-2 border-t text-xs">
             <div className="flex flex-col gap-1">
+              {lead.vehicle_brand && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <Briefcase className="h-3 w-3" />
+                  <span>{lead.vehicle_brand}</span>
+                </div>
+              )}
+
+              {lead.worker && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <UserCheck className="h-3 w-3" />
+                  <span>{lead.worker}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
               {lead.income_sector && (
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Briefcase className="h-3 w-3" />
@@ -131,7 +146,7 @@ export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
               {lead.worker && (
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <UserCheck className="h-3 w-3" />
-                  <span>{lead.worker}</span>
+                  <span>{lead.campaign}</span>
                 </div>
               )}
             </div>

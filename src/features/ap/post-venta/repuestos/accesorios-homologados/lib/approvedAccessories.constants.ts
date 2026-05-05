@@ -20,11 +20,11 @@ export const APPROVED_ACCESSORIES: ModelComplete<ApprovedAccesoriesResource> = {
   EMPTY: {
     id: 0,
     code: "",
-    type: "",
+    type_operation_id: 0,
+    type_operation: "",
     description: "",
     price: 0,
     status: true,
-    type_currency_id: "",
     body_type_id: "",
   },
 };

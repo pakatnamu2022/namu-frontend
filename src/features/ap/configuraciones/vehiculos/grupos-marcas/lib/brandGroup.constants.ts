@@ -26,3 +26,7 @@ export const BRAND_GROUP: ModelComplete<BrandGroupResource> = {
     status: true,
   },
 };
+
+export const BRAND_ID = {
+  JAC_CAMIONES: 9,
+};

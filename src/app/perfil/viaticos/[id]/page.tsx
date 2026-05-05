@@ -16,25 +16,26 @@ import {
   downloadContributorExpenseDetailsPdf,
   generateMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import { useReleaseHotelReservation } from "@/features/profile/viaticos/lib/hotelReservation.hook";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
+  HotelReservationSection,
   ExpensesSection,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
 import { errorToast, successToast } from "@/core/core.function";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useIsMobile } from "@/hooks/use-mobile";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
-  const isMobile = useIsMobile();
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -121,20 +122,32 @@ export default function PerDiemRequestDetailPage() {
     startSettlementMutation.mutate(Number(id));
   };
 
+  const releaseHotelMutation = useReleaseHotelReservation(
+    request?.hotel_reservation?.id ?? 0,
+    id ?? "",
+    {
+      onSuccess: () => {
+        successToast("Reserva de hotel liberada correctamente. La solicitud ya puede ser cancelada.");
+      },
+      onError: (error: any) => {
+        errorToast(
+          error?.response?.data?.message ?? "Error al liberar la reserva de hotel"
+        );
+      },
+    },
+  );
+
   // Verificar si se puede cancelar la solicitud
   const canCancelRequest = () => {
     if (!request) return false;
 
-    // No se puede cancelar si ya está en progreso
-    if (request.status === PER_DIEM_STATUS.IN_PROGRESS) return false;
-
-    // No se puede cancelar si ya tiene una reserva de hotel
-    if (request.hotel_reservation) return false;
-
     // Solo se puede cancelar si está aprobada
-    if (request.status === PER_DIEM_STATUS.APPROVED) return true;
+    if (request.status !== PER_DIEM_STATUS.APPROVED) return false;
 
-    return false;
+    // Si tiene hotel activo (no atendido), debe liberarse primero
+    if (request.hotel_reservation && !request.hotel_reservation.attended) return false;
+
+    return true;
   };
 
   if (isLoading) {
@@ -173,7 +186,7 @@ export default function PerDiemRequestDetailPage() {
             </div>
 
             {/* Botones de acción */}
-            <div className="flex flex-row sm:justify-end gap-2 w-full sm:w-auto">
+            <ActionsWrapper maxVisible={3}>
               <Button
                 onClick={handleDownloadPdf}
                 size="sm"
@@ -183,11 +196,7 @@ export default function PerDiemRequestDetailPage() {
               >
                 <FileDown className="h-4 w-4 shrink-0" />
                 <span className="truncate">
-                  {isDownloading
-                    ? "Descargando..."
-                    : isMobile
-                    ? "Gastos"
-                    : "Detalle de Gastos"}
+                  {isDownloading ? "Descargando..." : "Gastos"}
                 </span>
               </Button>
 
@@ -202,53 +211,50 @@ export default function PerDiemRequestDetailPage() {
                 <span className="truncate">
                   {isDownloadingMobilityPayroll
                     ? "Descargando..."
-                    : isMobile
-                    ? "Movilidad"
-                    : "Planilla de Movilidad"}
+                    : "Movilidad"}
                 </span>
               </Button>
 
               {request.status === "in_progress" && (
-                <>
-                  <Button
-                    onClick={() =>
-                      navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}/gastos/agregar`)
-                    }
-                    size="sm"
-                    className="gap-2 w-fit sm:w-auto"
-                  >
-                    <Plus className="h-4 w-4 shrink-0" />
-                    <span className="truncate">
-                      {isMobile ? "Gasto" : "Nuevo Gasto"}
-                    </span>
-                  </Button>
-                  <ConfirmationDialog
-                    trigger={
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="gap-2 w-fit sm:w-auto"
-                        disabled={startSettlementMutation.isPending}
-                      >
-                        <FileCheck className="h-4 w-4 shrink-0" />
-                        <span className="truncate">
-                          {startSettlementMutation.isPending
-                            ? "Iniciando..."
-                            : "Iniciar Liquidación"}
-                        </span>
-                      </Button>
-                    }
-                    title="¿Iniciar proceso de liquidación?"
-                    description={`Esta acción iniciará el proceso de liquidación para la solicitud de viático ${request.code}. Una vez iniciado, el jefe deberá aprobar la liquidación.`}
-                    confirmText="Sí, iniciar liquidación"
-                    cancelText="Cancelar"
-                    onConfirm={handleStartSettlement}
-                    variant="default"
-                    icon="info"
-                    open={showStartSettlementDialog}
-                    onOpenChange={setShowStartSettlementDialog}
-                  />
-                </>
+                <Button
+                  onClick={() =>
+                    navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}/gastos/agregar`)
+                  }
+                  size="sm"
+                  className="gap-2 w-fit sm:w-auto"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Nuevo</span>
+                </Button>
+              )}
+
+              {request.status === "in_progress" && (
+                <ConfirmationDialog
+                  trigger={
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="gap-2 w-fit sm:w-auto"
+                      disabled={startSettlementMutation.isPending}
+                    >
+                      <FileCheck className="h-4 w-4 shrink-0" />
+                      <span className="truncate">
+                        {startSettlementMutation.isPending
+                          ? "Iniciando..."
+                          : "Iniciar Liquidación"}
+                      </span>
+                    </Button>
+                  }
+                  title="¿Iniciar proceso de liquidación?"
+                  description={`Esta acción iniciará el proceso de liquidación para la solicitud de viático ${request.code}. Una vez iniciado, el jefe deberá aprobar la liquidación.`}
+                  confirmText="Sí, iniciar liquidación"
+                  cancelText="Cancelar"
+                  onConfirm={handleStartSettlement}
+                  variant="default"
+                  icon="info"
+                  open={showStartSettlementDialog}
+                  onOpenChange={setShowStartSettlementDialog}
+                />
               )}
 
               {canCancelRequest() && (
@@ -264,8 +270,6 @@ export default function PerDiemRequestDetailPage() {
                       <span className="truncate">
                         {cancelMutation.isPending
                           ? "Cancelando..."
-                          : isMobile
-                          ? "Cancelar"
                           : "Cancelar Solicitud"}
                       </span>
                     </Button>
@@ -288,17 +292,13 @@ export default function PerDiemRequestDetailPage() {
                     navigate(`/perfil/solicitud-viaticos/actualizar/${id}`)
                   }
                   size="sm"
-                  variant="outline"
-                  color="primary"
                   className="gap-2 w-fit sm:w-auto"
                 >
                   <Edit className="h-4 w-4 shrink-0" />
-                  <span className="truncate">
-                    {isMobile ? "Editar" : "Editar Solicitud"}
-                  </span>
+                  <span className="truncate">Editar Solicitud</span>
                 </Button>
               )}
-            </div>
+            </ActionsWrapper>
           </div>
         </div>
 
@@ -309,6 +309,13 @@ export default function PerDiemRequestDetailPage() {
             <GeneralInfoSection request={request} />
           </div>
         </div>
+
+        {/* Reserva de Hotel */}
+        <HotelReservationSection
+          request={request}
+          onRelease={() => releaseHotelMutation.mutate()}
+          isReleasing={releaseHotelMutation.isPending}
+        />
 
         {/* Gastos Registrados */}
         <ExpensesSection request={request} />

@@ -42,6 +42,7 @@ export default function VehicleDamageMarker({
   const [selectedDamage, setSelectedDamage] =
     useState<VehicleInspectionDamageSchema | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [photoError, setPhotoError] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,13 +50,21 @@ export default function VehicleDamageMarker({
   const isMobile = useMemo(() => {
     if (typeof window === "undefined") return false;
     const userAgent = navigator.userAgent || "";
-    const mobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-    const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    const mobile =
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        userAgent.toLowerCase(),
+      );
+    const hasMediaDevices = !!(
+      navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+    );
     return mobile && hasMediaDevices;
   }, []);
 
+  const MAX_DAMAGES = 10;
+
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
+    if (damages.length >= MAX_DAMAGES) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -69,15 +78,21 @@ export default function VehicleDamageMarker({
       photo_url: "",
     });
     setPreviewUrl("");
+    setPhotoError(false);
     setIsDialogOpen(true);
   };
 
   const handleSaveDamage = () => {
     if (selectedDamage) {
+      if (!selectedDamage.photo_url && !previewUrl) {
+        setPhotoError(true);
+        return;
+      }
       onChange([...damages, selectedDamage]);
       setIsDialogOpen(false);
       setSelectedDamage(null);
       setPreviewUrl("");
+      setPhotoError(false);
     }
   };
 
@@ -99,6 +114,7 @@ export default function VehicleDamageMarker({
         photo_url: localPreviewUrl,
         photo_file: file,
       });
+      setPhotoError(false);
     }
   };
 
@@ -119,8 +135,13 @@ export default function VehicleDamageMarker({
           </h3>
           <p className="text-sm text-gray-600 mb-4">
             Haz clic en la imagen del vehículo para marcar la ubicación de los
-            daños
+            daños (máximo {MAX_DAMAGES})
           </p>
+          {damages.length >= MAX_DAMAGES && (
+            <p className="text-sm text-red-500 mb-4">
+              Se alcanzó el límite máximo de {MAX_DAMAGES} daños.
+            </p>
+          )}
 
           {/* Leyenda de símbolos */}
           <div className="flex flex-wrap gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
@@ -151,6 +172,40 @@ export default function VehicleDamageMarker({
           }}
           onClick={handleImageClick}
         >
+          {/* Etiquetas de orientación - pointer-events-none para no interferir con los clics */}
+          <div className="absolute inset-0 pointer-events-none select-none">
+            {/* FRONTAL - arriba centro */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2">
+              <span className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide">
+                FRONTAL
+              </span>
+            </div>
+            {/* TRASERA - abajo centro */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+              <span className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide">
+                TRASERA
+              </span>
+            </div>
+            {/* LATERAL IZQUIERDA - izquierda medio */}
+            <div className="absolute left-2 top-1/2 -translate-y-1/2">
+              <span
+                className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide"
+                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+              >
+                LATERAL IZQ.
+              </span>
+            </div>
+            {/* LATERAL DERECHA - derecha medio */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <span
+                className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide"
+                style={{ writingMode: "vertical-rl" }}
+              >
+                LATERAL DER.
+              </span>
+            </div>
+          </div>
+
           {/* Marcadores de daños */}
           {damages.map((damage, index) => (
             <div
@@ -262,7 +317,7 @@ export default function VehicleDamageMarker({
                   setSelectedDamage(
                     selectedDamage
                       ? { ...selectedDamage, damage_type: value }
-                      : null
+                      : null,
                   )
                 }
               >
@@ -298,14 +353,21 @@ export default function VehicleDamageMarker({
                   setSelectedDamage(
                     selectedDamage
                       ? { ...selectedDamage, description: e.target.value }
-                      : null
+                      : null,
                   )
                 }
               />
             </div>
 
             <div>
-              <Label>Foto del Daño</Label>
+              <Label>
+                Foto del Daño <span className="text-red-500">*</span>
+              </Label>
+              {photoError && (
+                <p className="text-sm text-red-500 mt-1">
+                  La foto del daño es obligatoria.
+                </p>
+              )}
               <div className="mt-2">
                 {selectedDamage?.photo_url || previewUrl ? (
                   <div className="relative">
@@ -374,11 +436,14 @@ export default function VehicleDamageMarker({
                 setIsDialogOpen(false);
                 setSelectedDamage(null);
                 setPreviewUrl("");
+                setPhotoError(false);
               }}
             >
               Cancelar
             </Button>
-            <Button type="button" onClick={handleSaveDamage}>Guardar Daño</Button>
+            <Button type="button" onClick={handleSaveDamage}>
+              Guardar Daño
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

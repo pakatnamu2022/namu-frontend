@@ -3,22 +3,18 @@ import {
   purchaseRequestQuoteSchemaCreate,
   purchaseRequestQuoteSchemaUpdate,
 } from "../lib/purchaseRequestQuote.schema";
+import { localDatePlusDays } from "@/core/core.function";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Building2, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { WarrantyInput } from "./WarrantyInput";
 import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -27,14 +23,21 @@ import {
   useCustomersById,
 } from "../../clientes/lib/customers.hook";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
-import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import {
+  useAllModelsVn,
+  useModelVnById,
+  useModelsVn,
+} from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
+import {
+  useAllVehicleColor,
+  useVehicleColor,
+} from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
 import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -49,10 +52,11 @@ import { OpportunityInfoCard } from "./OpportunityInfoCard";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -82,10 +86,11 @@ export const PurchaseRequestQuoteForm = ({
   opportunity,
   onCancel,
 }: PurchaseRequestQuoteFormProps) => {
-  const isMobile = useIsMobile();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
+  const defaultDeadline = localDatePlusDays(30);
+
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -93,6 +98,7 @@ export const PurchaseRequestQuoteForm = ({
         : purchaseRequestQuoteSchemaUpdate,
     ),
     defaultValues: {
+      quote_deadline: defaultDeadline,
       ...defaultValues,
     },
     mode: "onChange",
@@ -155,7 +161,7 @@ export const PurchaseRequestQuoteForm = ({
     return undefined;
   }, [selectedHolder]);
 
-  const { data: modelsVn = [], isLoading: isLoadingModelsVn } = useAllModelsVn({
+  const { data: modelsVn = [] } = useAllModelsVn({
     family_id: selectedFamilyId,
   });
   const { data: color = [], isLoading: isLoadingColor } = useAllVehicleColor();
@@ -245,6 +251,7 @@ export const PurchaseRequestQuoteForm = ({
             accessory_id: Number(acc.approved_accessory_id),
             quantity: Number(acc.quantity),
             type: acc.type || "ACCESORIO_ADICIONAL",
+            additional_price: Number(acc.additional_price ?? 0),
           }),
         );
         setInitialAccessories(transformedAccessories);
@@ -447,6 +454,13 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [copyClientToHolder, opportunityWatch, opportunity]);
 
+  // Effect para setear sede_id automáticamente cuando viene la prop opportunity con sede desde el lead
+  useEffect(() => {
+    if (opportunity?.lead?.sede_id) {
+      form.setValue("sede_id", opportunity.lead.sede_id.toString());
+    }
+  }, [opportunity]);
+
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
     // Si viene la prop opportunity directamente, usar su family_id
@@ -510,6 +524,14 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [currencyTypes, mode]);
 
+  // Tipo de cambio oficial (SBS) para USD
+  const today = new Date().toISOString().split("T")[0];
+  const usdCurrencyId = currencyTypes.find((c) => c.code === "USD")?.id ?? null;
+  const { data: usdExchangeRateData } = useExchangeRateByDateAndCurrency(
+    usdCurrencyId,
+    today,
+  );
+
   // Obtener la moneda del vehículo (modelo VN o vehículo VN)
   const getVehicleCurrency = () => {
     if (withVinWatch && vehicleVnWatch) {
@@ -538,7 +560,15 @@ export const PurchaseRequestQuoteForm = ({
   const vehicleCurrency = getVehicleCurrency();
 
   // Obtener tipo de cambio de una moneda
+  // Para USD usa el tipo de cambio oficial SBS del día; para otras monedas usa current_exchange_rate
   const getExchangeRate = (currencyId: number): number => {
+    if (usdCurrencyId && currencyId === usdCurrencyId) {
+      return (
+        usdExchangeRateData?.rate ??
+        currencyTypes.find((c) => c.id === currencyId)?.current_exchange_rate ??
+        1
+      );
+    }
     const currency = currencyTypes.find((c) => c.id === currencyId);
     return currency?.current_exchange_rate ?? 1;
   };
@@ -573,9 +603,11 @@ export const PurchaseRequestQuoteForm = ({
       return row.isNegative ? 0 : total + valor;
     }, 0);
 
-    // Calcular accesorios (siempre en soles, necesitan conversión)
+    // Calcular accesorios con la moneda correcta según type_operation_id
+    // 794 = Comercial → USD | 804 = Posventa → PEN
     // Excluir obsequios del cálculo
-    const solesId = currencyTypes.find((c) => c.code === "PEN")?.id || 1;
+    const solesId = currencyTypes.find((c) => c.code === "PEN")?.id || 3;
+    const usdId = currencyTypes.find((c) => c.code === "USD")?.id || 1;
     const accessoriesTotal = accessoriesRows.reduce((total, row) => {
       if (row.type === "OBSEQUIO") {
         return total;
@@ -585,11 +617,14 @@ export const PurchaseRequestQuoteForm = ({
         (acc) => acc.id === row.accessory_id,
       );
       if (accessory) {
-        const accessoryPrice = accessory.price * row.quantity;
+        const unitPrice = Number(accessory.price) + (row.additional_price ?? 0);
+        const accessoryPrice = unitPrice * row.quantity;
+        const accessoryCurrencyId =
+          accessory.type_operation_id === 794 ? usdId : solesId;
 
-        // Convertir de soles a la moneda del vehículo
         return (
-          total + convertAmount(accessoryPrice, solesId, vehicleCurrencyId)
+          total +
+          convertAmount(accessoryPrice, accessoryCurrencyId, vehicleCurrencyId)
         );
       }
       return total;
@@ -610,12 +645,13 @@ export const PurchaseRequestQuoteForm = ({
 
     const subtotal = salePrice + accessoriesTotal - negativeDiscounts;
 
+    const round2 = (n: number) => Math.round(n * 100) / 100;
     return {
-      salePrice,
-      bonusDiscountTotal,
-      accessoriesTotal,
-      negativeDiscounts,
-      subtotal,
+      salePrice: round2(salePrice),
+      bonusDiscountTotal: round2(bonusDiscountTotal),
+      accessoriesTotal: round2(accessoriesTotal),
+      negativeDiscounts: round2(negativeDiscounts),
+      subtotal: round2(subtotal),
       vehicleCurrencyId,
     };
   };
@@ -651,12 +687,17 @@ export const PurchaseRequestQuoteForm = ({
     });
   };
 
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
   // Transformar datos de accesorios para el envío
   const transformAccessoriesData = () => {
     return accessoriesRows.map((row) => ({
       accessory_id: row.accessory_id,
       quantity: row.quantity,
       type: row.type,
+      ...(row.additional_price && row.additional_price > 0
+        ? { additional_price: round2(row.additional_price) }
+        : {}),
     }));
   };
 
@@ -670,9 +711,10 @@ export const PurchaseRequestQuoteForm = ({
       bonus_discounts: bonusDiscountData,
       accessories: accessoriesData,
       type_currency_id: vehicleCurrency.currencyId,
-      base_selling_price: totals.salePrice,
-      sale_price: totals.salePrice + totals.accessoriesTotal,
-      doc_sale_price: finalTotal,
+      base_selling_price: round2(totals.salePrice),
+      sale_price: round2(totals.salePrice + totals.accessoriesTotal),
+      doc_sale_price: round2(finalTotal),
+      down_payment: data.down_payment ? parseFloat(data.down_payment) : undefined,
     };
 
     onSubmit(finalData);
@@ -705,21 +747,29 @@ export const PurchaseRequestQuoteForm = ({
             <GroupFormSection
               title="Información General"
               icon={Building2}
-              iconColor="text-primary"
-              bgColor="bg-blue-50"
+              color="blue"
               cols={{ sm: 1, md: 2 }}
             >
-              <FormSelect
-                name="sede_id"
-                label="Sede"
-                placeholder="Selecciona una sede"
-                options={mySedes.map((item) => ({
-                  label: item.abreviatura,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-              />
+              {opportunity?.lead?.sede_id ? (
+                <FormInput
+                  name="sede_disabled"
+                  label="Sede"
+                  value={opportunity.lead.sede}
+                  readOnly
+                />
+              ) : (
+                <FormSelect
+                  name="sede_id"
+                  label="Sede"
+                  placeholder="Selecciona una sede"
+                  options={mySedes.map((item) => ({
+                    label: item.abreviatura,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                />
+              )}
 
               <FormSelect
                 name="type_document"
@@ -795,14 +845,31 @@ export const PurchaseRequestQuoteForm = ({
                 control={form.control}
                 strictFilter={true}
               />
+
+              <DatePickerFormField
+                control={form.control}
+                name="quote_deadline"
+                label="Fecha Límite de Cotización"
+                captionLayout="dropdown"
+                disabledRange={
+                  { before: new Date() } // Solo permitir fechas futuras
+                }
+              />
+
+              <FormInput
+                control={form.control}
+                name="down_payment"
+                label="Monto a Cuenta"
+                type="text"
+                placeholder="Ingrese monto a cuenta del cliente"
+              />
             </GroupFormSection>
 
             {/*Seccion Información de Vehiculo*/}
             <GroupFormSection
               title="Información del Vehículo"
               icon={Building2}
-              iconColor="text-gray-500"
-              bgColor="bg-gray-50"
+              color="gray"
               cols={{ sm: 1, md: 2 }}
             >
               {/* Switch para seleccionar Con VIN o Sin VIN */}
@@ -850,43 +917,43 @@ export const PurchaseRequestQuoteForm = ({
               {/* Mostrar campos de Modelo VN y Color cuando with_vin es false */}
               {!withVinWatch && (
                 <>
-                  <FormSelect
+                  <FormSelectAsync
                     name="ap_models_vn_id"
                     label="Modelo VN"
                     placeholder="Selecciona un modelo"
-                    options={modelsVn.map((item) => ({
-                      label: item.code + " - " + item.version,
-                      value: item.id.toString(),
-                    }))}
                     control={form.control}
-                    strictFilter={true}
-                    disabled={isLoadingModelsVn}
+                    useQueryHook={useModelsVn}
+                    mapOptionFn={(item: ModelsVnResource) => ({
+                      value: item.id.toString(),
+                      label: item.code + " - " + item.version,
+                    })}
+                    additionalParams={{ family_id: selectedFamilyId }}
+                    useFindByIdHook={useModelVnById}
                   />
 
-                  <FormSelect
+                  <FormSelectAsync
                     name="vehicle_color_id"
                     label="Color"
                     placeholder="Selecciona un color"
-                    options={color.map((item) => ({
-                      label: item.description,
+                    useQueryHook={useVehicleColor}
+                    mapOptionFn={(item: VehicleColorResource) => ({
                       value: item.id.toString(),
-                    }))}
+                      label: item.description,
+                      description: item.code ?? "S/C",
+                    })}
                     control={form.control}
-                    strictFilter={true}
-                    startsWith={true}
-                    sortByLength={true}
                   >
                     <Button
                       type="button"
                       variant="outline"
-                      size={isMobile ? "icon-sm" : "icon-lg"}
+                      size={"icon"}
                       className="aspect-square"
                       onClick={() => setIsColorModalOpen(true)}
                       title="Agregar nuevo color"
                     >
                       <Plus className="size-2 md:size-4" />
                     </Button>
-                  </FormSelect>
+                  </FormSelectAsync>
                 </>
               )}
 
@@ -1023,19 +1090,7 @@ export const PurchaseRequestQuoteForm = ({
                   )}
               </FormInput>
 
-              <FormField
-                control={form.control}
-                name="warranty"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Garantía</FormLabel>
-                    <FormControl>
-                      <Input placeholder="3 años o 100.000km" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <WarrantyInput control={form.control} required />
             </GroupFormSection>
 
             {/*Seccion de Bonos y Descuentos*/}
@@ -1053,6 +1108,11 @@ export const PurchaseRequestQuoteForm = ({
               accessories={approvedAccesories}
               onAccessoriesChange={setAccessoriesRows}
               initialData={initialAccessories}
+              canCreateApprovedAccessory={canAssign}
+              invoiceCurrencyId={
+                invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined
+              }
+              getExchangeRate={getExchangeRate}
             />
           </div>
 
@@ -1076,6 +1136,7 @@ export const PurchaseRequestQuoteForm = ({
             invoiceCurrencyId={invoiceCurrencyId}
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
+            currencyTypes={currencyTypes}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />

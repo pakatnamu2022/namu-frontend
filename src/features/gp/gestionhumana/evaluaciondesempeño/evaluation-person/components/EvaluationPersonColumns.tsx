@@ -6,7 +6,6 @@ import { PanelLeft, RefreshCw } from "lucide-react";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { Badge } from "@/components/ui/badge";
-import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
@@ -14,6 +13,7 @@ import {
   getProgressColorBadge,
   getResultRateColorBadge,
 } from "../lib/evaluationPerson.function";
+import { RegeneratePreviewDialog } from "./RegeneratePreviewDialog";
 
 export type EvaluationPersonColumn = ColumnDef<EvaluationPersonResultResource>;
 const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
@@ -156,7 +156,10 @@ export const EvaluationPersonColumns = ({
           </Button>
 
           {/* Regenerar */}
-          <ConfirmationDialog
+          <RegeneratePreviewDialog
+            personId={person_id}
+            evaluationId={evaluationId}
+            onConfirm={handleRegenerate}
             trigger={
               <Button
                 variant="outline"
@@ -167,12 +170,6 @@ export const EvaluationPersonColumns = ({
                 <RefreshCw className="size-5" />
               </Button>
             }
-            title="Restablecer Evaluación"
-            description="¿Estás seguro de que deseas regenerar la evaluación? Esta acción sobrescribirá los datos actuales de la evaluación."
-            confirmText="Regenerar"
-            cancelText="Cancelar"
-            onConfirm={handleRegenerate}
-            icon="warning"
           />
 
           {/* Delete */}

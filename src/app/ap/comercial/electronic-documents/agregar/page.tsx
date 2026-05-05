@@ -2,7 +2,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useEffect } from "react";
@@ -23,10 +23,13 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const router = useNavigate();
+  const queryClient = useQueryClient();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
 
   // Fetch all SunatConcepts in a single query
@@ -87,15 +90,6 @@ export default function AddElectronicDocumentPage() {
     [sunatConcepts],
   );
 
-  const detractionTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
-      ),
-    [sunatConcepts],
-  );
-
   const creditNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
@@ -121,7 +115,7 @@ export default function AddElectronicDocumentPage() {
       numero: "",
       sunat_concept_document_type_id: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "comercial",
+      area_id: AREA_COMERCIAL.toString(),
       client_id: "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       total: 0,
@@ -155,7 +149,13 @@ export default function AddElectronicDocumentPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeElectronicDocument,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      if (variables.purchase_request_quote_id) {
+        queryClient.invalidateQueries({
+          predicate: () => true,
+          type: "active",
+        });
+      }
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE);
     },
@@ -164,6 +164,12 @@ export default function AddElectronicDocumentPage() {
       errorToast(ERROR_MESSAGE(MODEL, "create", msg));
     },
   });
+
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   const handleSubmit = (data: ElectronicDocumentSchema) => {
     mutate(data);
@@ -183,6 +189,7 @@ export default function AddElectronicDocumentPage() {
         title={currentView.descripcion}
         mode="create"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <ElectronicDocumentForm
         form={form}
@@ -194,7 +201,6 @@ export default function AddElectronicDocumentPage() {
         identityDocumentTypes={identityDocumentTypes || []}
         currencyTypes={currencyTypes || []}
         igvTypes={igvTypes || []}
-        detractionTypes={detractionTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={true}

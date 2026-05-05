@@ -4,10 +4,14 @@ import BackButton from "./BackButton";
 
 interface Props {
   title: string;
-  mode?: "create" | "edit";
+  subtitle?: string;
+  mode?: "create" | "edit" | "view";
   className?: string;
   icon?: keyof typeof LucideReact;
   children?: React.ReactNode;
+  /**
+   * Optional route for the back button. If provided, a back button will be displayed that navigates to this route when clicked.
+   */
   backRoute?: string;
 }
 
@@ -18,6 +22,7 @@ export default function TitleFormComponent({
   icon,
   children,
   backRoute,
+  subtitle,
 }: Props) {
   const IconComponent = icon
     ? (LucideReact[icon] as React.ComponentType<any>)
@@ -27,13 +32,13 @@ export default function TitleFormComponent({
     <div
       className={cn(
         "flex flex-row gap-4 items-center md:items-center justify-between w-full md:w-full",
-        className
+        className,
       )}
     >
       <div
         className={cn(
           "flex flex-row gap-4 items-center md:items-center w-full md:w-full",
-          className
+          className,
         )}
       >
         {backRoute && <BackButton route={backRoute} name={""} size="icon" />}
@@ -44,11 +49,15 @@ export default function TitleFormComponent({
           </div>
         )}
         <div className="flex flex-col items-start">
-          <h1 className="md:text-xl font-bold text-primary">{title}</h1>
+          <h1 className="md:text-xl font-bold text-primary dark:text-primary-foreground">
+            {title}
+          </h1>
 
-          <p className="text-muted-foreground text-xs md:text-sm">{`${
-            mode === "create" ? "Agregar" : "Actualizar"
-          } ${title}`}</p>
+          <p className="text-muted-foreground text-xs md:text-sm">
+            {subtitle
+              ? subtitle
+              : `${mode === "create" ? "Agregar" : mode === "edit" ? "Actualizar" : "Ver"} ${title}`}
+          </p>
         </div>
         {children}
       </div>

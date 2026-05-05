@@ -67,11 +67,15 @@ export default function UpdateWorkOrderPage() {
       vehicle_id: data.vehicle_id ? String(data.vehicle_id) : "",
       currency_id: data.currency_id ? String(data.currency_id) : "",
       sede_id: data.sede_id ? String(data.sede_id) : "",
-      opening_date: data.opening_date ? new Date(data.opening_date) : "",
-      estimated_delivery_date: data.estimated_delivery_date
-        ? new Date(data.estimated_delivery_date)
-        : "",
-      diagnosis_date: data.diagnosis_date ? new Date(data.diagnosis_date) : "",
+      opening_date: data.opening_date ? new Date(data.opening_date) : undefined,
+      estimated_delivery_time: (() => {
+        const date = data.estimated_delivery_date?.split(" ")[0];
+        const time = data.estimated_delivery_time?.substring(0, 5);
+        return date && time ? `${date}T${time}` : undefined;
+      })(),
+      diagnosis_date: data.diagnosis_date
+        ? new Date(data.diagnosis_date)
+        : undefined,
       observations: data.observations || "",
       is_guarantee: data.is_guarantee ?? false,
       is_recall: data.is_recall ?? false,
@@ -81,6 +85,15 @@ export default function UpdateWorkOrderPage() {
         | "AMARILLO"
         | "VERDE"
         | undefined,
+      num_doc_contact: data.num_doc_contact || "",
+      full_contact_name: data.full_contact_name || "",
+      phone_contact: data.phone_contact || "",
+      items: (data.items ?? []).map((item) => ({
+        group_number: item.group_number ?? 1,
+        type_planning_id: String(item.type_planning_id),
+        type_operation_id: String(item.type_operation_id),
+        description: item.description || "",
+      })),
     };
   }
 
@@ -104,6 +117,7 @@ export default function UpdateWorkOrderPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        workOrderData={workOrder}
       />
     </FormWrapper>
   );

@@ -11,6 +11,7 @@ import {
   getAllConceptDiscountBond,
   getAllPurchaseRequestQuote,
   getPurchaseRequestQuote,
+  swapVehicleInPurchaseRequestQuote,
 } from "./purchaseRequestQuote.actions";
 
 const { QUERY_KEY } = PURCHASE_REQUEST_QUOTE;
@@ -19,7 +20,6 @@ export const usePurchaseRequestQuote = (params?: Record<string, any>) => {
   return useQuery<PurchaseRequestQuoteResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getPurchaseRequestQuote({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -52,8 +52,30 @@ export const useAssignVehicleToPurchaseRequestQuote = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ap_vehicle_id }: { id: number; ap_vehicle_id: number }) =>
-      assignVehicleToPurchaseRequestQuote(id, ap_vehicle_id),
+    mutationFn: ({
+      id,
+      ap_vehicle_id,
+    }: {
+      id: number;
+      ap_vehicle_id: number;
+    }) => assignVehicleToPurchaseRequestQuote(id, ap_vehicle_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useSwapVehiclePurchaseRequestQuote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      ap_vehicle_id,
+    }: {
+      id: number;
+      ap_vehicle_id: number;
+    }) => swapVehicleInPurchaseRequestQuote(id, ap_vehicle_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

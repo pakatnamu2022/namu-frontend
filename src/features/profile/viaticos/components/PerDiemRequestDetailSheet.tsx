@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { FileDown } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { FileDown, Receipt } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
@@ -10,6 +10,7 @@ import {
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import {
   GeneralInfoSection,
+  HotelReservationSection,
   FinancialSummarySection,
   RequestStatusBadge,
   BudgetSection,
@@ -18,6 +19,8 @@ import {
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 
 interface Props {
   requestId: number | null;
@@ -30,6 +33,7 @@ export default function PerDiemRequestDetailSheet({
   open,
   onOpenChange,
 }: Props) {
+  const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
@@ -133,14 +137,42 @@ export default function PerDiemRequestDetailSheet({
         {/* Información General */}
         <GeneralInfoSection request={request} />
 
+        {/* Reserva de Hotel */}
+        <HotelReservationSection request={request} />
+
         {/* Detalle de Presupuesto */}
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        {request.settled && <DepositVoucherSection request={request} />}
+        {request.settled && (
+          <DepositVoucherSection
+            request={request}
+            onVoucherDeleted={() => {
+              queryClient.invalidateQueries({
+                queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+              });
+            }}
+          />
+        )}
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} mode="sheet" />
+
+        {/* Gastos Registrados */}
+        {request.expenses && request.expenses.length > 0 && (
+          <GroupFormSection
+            title="Gastos Registrados"
+            icon={Receipt}
+            cols={{ sm: 1 }}
+          >
+            <div className="md:col-span-1">
+              <ExpensesTable
+                expenses={request.expenses}
+                module="profile"
+              />
+            </div>
+          </GroupFormSection>
+        )}
       </div>
     </GeneralSheet>
   );

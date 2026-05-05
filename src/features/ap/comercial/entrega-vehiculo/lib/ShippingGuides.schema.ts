@@ -13,9 +13,8 @@ export const shippingGuideSchema = z
     license: z.string().optional(),
     driver_name: z.string().optional(),
 
-    // Campos para transporte público (transportista RUC)
-    carrier_ruc: z.string().optional(),
-    company_name_transport: z.string().optional(),
+    // Campos para transporte público (transportista - selección de proveedor)
+    transport_company_id: z.string().optional(),
 
     // Placa (obligatoria solo para transporte privado)
     plate: z.string().optional(),
@@ -57,85 +56,31 @@ export const shippingGuideSchema = z
           path: ["license"],
         });
       }
-      if (!data.driver_name || data.driver_name.trim().length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "El nombre del conductor es obligatorio",
-          path: ["driver_name"],
-        });
-      }
 
-      // Transporte privado - OBLIGATORIO: placa del vehículo
-      if (!data.plate || data.plate.trim().length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "La placa del vehículo es obligatoria para transporte privado",
-          path: ["plate"],
-        });
-      } else if (data.plate.length < 6) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "La placa debe tener al menos 6 caracteres",
-          path: ["plate"],
-        });
-      } else if (data.plate.length > 7) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "La placa no puede exceder 7 caracteres",
-          path: ["plate"],
-        });
-      } else if (!/^[A-Z0-9-]+$/.test(data.plate)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "La placa solo puede contener letras mayúsculas, números y guiones",
-          path: ["plate"],
-        });
-      }
-    } else if (isPublicTransport) {
-      // Transporte público - OBLIGATORIO: datos del transportista RUC
-      if (!data.carrier_ruc || data.carrier_ruc.length !== 11) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "El RUC del transportista es obligatorio y debe tener 11 dígitos",
-          path: ["carrier_ruc"],
-        });
-      }
-      if (
-        !data.company_name_transport ||
-        data.company_name_transport.trim().length === 0
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "La razón social del transportista es obligatoria",
-          path: ["company_name_transport"],
-        });
-      }
-
-      // Transporte público - OPCIONAL: placa (validar solo si se proporciona)
-      if (data.plate && data.plate.trim().length > 0) {
-        if (data.plate.length < 6) {
+      // Transporte privado - OPCIONAL: placa del vehículo (si se ingresa, se valida el formato)
+      if (data.plate && data.plate.replace(/-/g, "").length > 0) {
+        if (data.plate.replace(/-/g, "").length !== 6) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "La placa debe tener al menos 6 caracteres",
+            message: "La placa debe tener 6 caracteres",
             path: ["plate"],
           });
-        } else if (data.plate.length > 7) {
+        } else if (!/^[A-Z0-9]+$/.test(data.plate.replace(/-/g, ""))) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "La placa no puede exceder 7 caracteres",
-            path: ["plate"],
-          });
-        } else if (!/^[A-Z0-9-]+$/.test(data.plate)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message:
-              "La placa solo puede contener letras mayúsculas, números y guiones",
+            message: "La placa solo puede contener letras mayúsculas y números",
             path: ["plate"],
           });
         }
+      }
+    } else if (isPublicTransport) {
+      // Transporte público - OBLIGATORIO: proveedor transportista
+      if (!data.transport_company_id || data.transport_company_id.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "El transportista es obligatorio para transporte público",
+          path: ["transport_company_id"],
+        });
       }
     }
   });

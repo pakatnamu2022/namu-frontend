@@ -15,7 +15,7 @@ import { Loader } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllReasonDiscardingSparePart } from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/lib/reasonDiscardingSparePart.hook";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { discardOrderQuotation } from "../lib/quotationMeson.actions";
 
 const discardQuotationSchema = z.object({
@@ -109,7 +109,7 @@ export const DiscardQuotationModal = ({
               disabled={loadingReasons}
             />
 
-            <FormInputText
+            <FormTextArea
               control={form.control}
               name="discarded_note"
               label="Notas (Opcional)"

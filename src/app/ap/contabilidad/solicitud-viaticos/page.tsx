@@ -31,7 +31,7 @@ export default function PerDiemRequestAPPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = PER_DIEM_REQUEST_AP;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PER_DIEM_REQUEST_AP;
   const [hotelReservationRequestId, setHotelReservationRequestId] = useState<
     number | null
   >(null);
@@ -78,8 +78,7 @@ export default function PerDiemRequestAPPage() {
       <PerDiemRequestTable
         isLoading={isLoading}
         columns={perDiemRequestColumns({
-          onViewDetail: (id) =>
-            navigate(`/ap/contabilidad/viaticos-ap/${id}`),
+          onViewDetail: (id) => navigate(`${ABSOLUTE_ROUTE}/${id}`),
           onViewHotelReservation: setHotelReservationRequestId,
           module: "contabilidad",
         })}

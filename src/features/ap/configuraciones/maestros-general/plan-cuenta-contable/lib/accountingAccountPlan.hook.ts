@@ -22,7 +22,7 @@ export const useAccountingAccountPlan = (params?: Record<string, any>) => {
 
 export const useAllAccountingAccountPlan = (params?: Record<string, any>) => {
   return useQuery<AccountingAccountPlanResource[]>({
-    queryKey: [QUERY_KEY],
+    queryKey: [QUERY_KEY, params],
     queryFn: () => getAllAccountingAccountPlan({ params }),
     refetchOnWindowFocus: false,
   });

@@ -15,10 +15,9 @@ export interface PayrollPeriodResource {
   start_date: string;
   end_date: string;
   payment_date: string;
+  biweekly_date: string | null;
   status: PayrollPeriodStatus;
-  can_modify: boolean;
-  can_calculate: boolean;
-  company: Company | null;
+  company?: Company;
   created_at: string;
   updated_at: string;
 }
@@ -33,3 +32,13 @@ export type PayrollPeriodStatus = "OPEN" | "CALCULATED" | "CLOSED";
 export interface getPayrollPeriodsProps {
   params?: Record<string, any>;
 }
+
+export interface CreatePayrollPeriodPayload {
+  year: number;
+  month: number;
+  payment_date: string;
+  biweekly_date?: string | null;
+  company_id: number;
+}
+
+export type UpdatePayrollPeriodPayload = Partial<CreatePayrollPeriodPayload>;

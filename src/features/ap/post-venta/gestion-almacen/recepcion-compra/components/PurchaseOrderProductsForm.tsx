@@ -11,6 +11,7 @@ import {
   FormItem,
   FormControl,
   FormMessage,
+  FormLabel,
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -26,9 +27,9 @@ import {
   FileText,
   Loader,
   Package,
-  Plus,
-  Trash2,
   Calculator,
+  Copy,
+  Check,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
@@ -54,9 +55,10 @@ import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-gener
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
+import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -65,8 +67,7 @@ interface PurchaseOrderProductsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   PurchaseOrderProductsData?: PurchaseOrderProductsResource;
-  supplierOrderId: number;
-  supplierOrderData?: SupplierOrderResource;
+  receptionData?: ReceptionResource;
 }
 
 export const PurchaseOrderProductsForm = ({
@@ -75,10 +76,36 @@ export const PurchaseOrderProductsForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
-  PurchaseOrderProductsData,
-  supplierOrderId,
-  supplierOrderData,
+  receptionData,
 }: PurchaseOrderProductsFormProps) => {
+  // Procesar los items iniciales si hay receptionData
+  const processedItems = (() => {
+    if (defaultValues.items && receptionData?.supplier_order?.details) {
+      return defaultValues.items.map((item: any) => {
+        // Buscar el precio del producto en supplier_order.details
+        const orderDetail = receptionData.supplier_order.details.find(
+          (detail) =>
+            detail.product_id.toString() === item.product_id?.toString(),
+        );
+
+        if (orderDetail) {
+          // Calcular el total basado en la cantidad del item y el precio unitario del pedido
+          const itemTotal =
+            Number(item.quantity || 0) * Number(orderDetail.unit_price || 0);
+
+          return {
+            ...item,
+            unit_price: Number(orderDetail.unit_price || 0),
+            item_total: itemTotal,
+          };
+        }
+
+        return item;
+      });
+    }
+    return defaultValues.items || [];
+  })();
+
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -87,14 +114,18 @@ export const PurchaseOrderProductsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      ap_supplier_order_id: String(supplierOrderId),
-      items: defaultValues.items || [],
+      items: processedItems,
       status: defaultValues.status || "PENDING",
     },
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  // const { fields, append, remove } = useFieldArray({
+  //   control: form.control,
+  //   name: "items",
+  // });
+
+  const { fields } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -124,6 +155,8 @@ export const PurchaseOrderProductsForm = ({
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   // Watch con suscripción completa al formulario
   const formValues = form.watch();
@@ -239,20 +272,30 @@ export const PurchaseOrderProductsForm = ({
     return <FormSkeleton />;
   }
 
-  const handleAddItem = () => {
-    append({
-      product_id: "",
-      quantity: 1,
-      item_total: 0,
-      unit_price: 0,
-      discount: 0,
-      tax_rate: 18,
-      notes: "",
-    });
-  };
+  // const handleAddItem = () => {
+  //   append({
+  //     product_id: "",
+  //     quantity: 1,
+  //     item_total: 0,
+  //     unit_price: 0,
+  //     discount: 0,
+  //     tax_rate: 18,
+  //     notes: "",
+  //   });
+  // };
 
-  const handleRemoveItem = (index: number) => {
-    remove(index);
+  // const handleRemoveItem = (index: number) => {
+  //   remove(index);
+  // };
+
+  const handleCopyCode = async (code: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   const handleSubmit = (data: any) => {
@@ -269,7 +312,6 @@ export const PurchaseOrderProductsForm = ({
           : data.due_date,
       igv: data.total_tax || 0, // Enviar el monto del IGV calculado
       type_operation_id: data.type_operation_id || TYPES_OPERATION_ID.POSTVENTA,
-      ap_supplier_order_id: supplierOrderId || undefined,
     };
 
     onSubmit(transformedData);
@@ -301,39 +343,43 @@ export const PurchaseOrderProductsForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              disabled={Boolean(supplierOrderData)}
+              disabled={Boolean(receptionData)}
               defaultOption={
-                PurchaseOrderProductsData?.supplier_id
+                receptionData?.supplier_id
                   ? {
-                      value: PurchaseOrderProductsData.supplier_id.toString(),
+                      value: receptionData.supplier_id.toString(),
                       label: `${
-                        PurchaseOrderProductsData.supplier_num_doc || "S/N"
-                      } | ${PurchaseOrderProductsData.supplier || "S/N"}`,
+                        receptionData.supplier_num_doc || "S/N"
+                      } | ${receptionData.supplier_name || "S/N"}`,
                     }
-                  : supplierOrderData?.supplier_id
-                    ? {
-                        value: supplierOrderData.supplier_id.toString(),
-                        label: `${
-                          supplierOrderData.supplier?.num_doc || "S/N"
-                        } | ${supplierOrderData.supplier?.full_name || "S/N"}`,
-                      }
-                    : undefined
+                  : undefined
               }
             ></FormSelectAsync>
 
-            <FormInput
-              control={form.control}
-              name="invoice_series"
-              label="Serie Factura"
-              placeholder="Ej: F001"
-            />
+            <div className="md:col-start-2">
+              <FormLabel className="text-xs md:text-sm mb-1 leading-none h-fit">
+                Nro Factura
+              </FormLabel>
+              <div className="grid grid-cols-[7rem_auto_minmax(0,1fr)] items-start gap-1">
+                <FormInput
+                  control={form.control}
+                  name="invoice_series"
+                  placeholder="F001"
+                  className="text-center font-mono"
+                />
 
-            <FormInput
-              control={form.control}
-              name="invoice_number"
-              label="Núm. Factura"
-              placeholder="Ej: 00012345"
-            />
+                <span className="h-7 md:h-8 flex items-center justify-center text-muted-foreground font-mono">
+                  -
+                </span>
+
+                <FormInput
+                  control={form.control}
+                  name="invoice_number"
+                  placeholder="00012345"
+                  className="text-center font-mono"
+                />
+              </div>
+            </div>
 
             <DatePickerFormField
               control={form.control}
@@ -343,9 +389,9 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={
-                supplierOrderData?.order_date
+                receptionData?.reception_date
                   ? [
-                      { before: parseISO(supplierOrderData.order_date) },
+                      { before: parseISO(receptionData.reception_date) },
                       { after: new Date() },
                     ]
                   : { after: new Date() }
@@ -360,7 +406,10 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{
-                before: watchedEmissionDate || new Date(),
+                before:
+                  watchedEmissionDate instanceof Date
+                    ? watchedEmissionDate
+                    : new Date(),
               }}
               disabled={true}
             />
@@ -374,7 +423,7 @@ export const PurchaseOrderProductsForm = ({
                 value: item.id.toString(),
               }))}
               control={form.control}
-              disabled={Boolean(supplierOrderData)}
+              disabled={Boolean(receptionData)}
             />
 
             <FormSelect
@@ -390,7 +439,7 @@ export const PurchaseOrderProductsForm = ({
               disabled={
                 !form.watch("sede_id") ||
                 isLoadingWarehouses ||
-                Boolean(supplierOrderData)
+                Boolean(receptionData)
               }
             />
 
@@ -410,7 +459,7 @@ export const PurchaseOrderProductsForm = ({
                 value: item.id.toString(),
               }))}
               control={form.control}
-              disabled={Boolean(supplierOrderData)}
+              disabled={Boolean(receptionData)}
             />
 
             <FormSelect
@@ -539,7 +588,7 @@ export const PurchaseOrderProductsForm = ({
                             Total Soles
                           </TableHead>
                         )}
-                      <TableHead className="w-20 text-center">Acción</TableHead>
+                      {/* <TableHead className="w-20 text-center">Acción</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -548,6 +597,7 @@ export const PurchaseOrderProductsForm = ({
                         Number(form.watch(`items.${index}.unit_price`)) || 0;
                       const itemTotal =
                         Number(form.watch(`items.${index}.item_total`)) || 0;
+                      const currentItem = form.watch(`items.${index}`);
 
                       return (
                         <TableRow key={field.id}>
@@ -559,50 +609,58 @@ export const PurchaseOrderProductsForm = ({
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5">
-                            <div className="space-y-1">
-                              {mode === "update" ? (
-                                // Modo edición: Mostrar nombre del producto (solo lectura)
-                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                                  <span className="font-medium text-sm truncate">
-                                    {PurchaseOrderProductsData?.items?.[index]
-                                      ?.product_name ||
-                                      "Producto no disponible"}
+                            <div className="space-y-2">
+                              <FormSelectAsync
+                                name={`items.${index}.product_id`}
+                                placeholder="Buscar producto..."
+                                control={form.control}
+                                useQueryHook={useProduct}
+                                mapOptionFn={(product: ProductResource) => ({
+                                  value: product.id.toString(),
+                                  label: `${product.name} - ${product.code} - ${
+                                    product.unit_measurement_name ||
+                                    "Sin unidad"
+                                  }`,
+                                })}
+                                perPage={10}
+                                debounceMs={500}
+                                defaultOption={
+                                  currentItem?.product_name &&
+                                  currentItem?.product_code
+                                    ? {
+                                        value: currentItem.product_id,
+                                        label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.unit_measurement_id || "Sin unidad"}`,
+                                      }
+                                    : undefined
+                                }
+                                disabled={Boolean(receptionData)}
+                              />
+                              {currentItem?.product_code && (
+                                <div className="flex items-center gap-2 px-2 py-1.5">
+                                  <span className="text-xs font-mono text-slate-700">
+                                    Código: {currentItem.product_code}
                                   </span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 hover:bg-slate-200"
+                                    onClick={() => {
+                                      if (currentItem.product_code) {
+                                        handleCopyCode(
+                                          currentItem.product_code,
+                                          index,
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    {copiedIndex === index ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
                                 </div>
-                              ) : supplierOrderData ? (
-                                // Modo creación desde pedido proveedor: Mostrar nombre del producto (solo lectura)
-                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                                  <span className="font-medium text-sm truncate">
-                                    {supplierOrderData.details?.[index]?.product
-                                      ?.name ||
-                                      supplierOrderData.details?.[index]
-                                        ?.product?.code ||
-                                      "Producto no disponible"}
-                                  </span>
-                                </div>
-                              ) : (
-                                // Modo creación: Selector asíncrono
-                                <>
-                                  <FormSelectAsync
-                                    name={`items.${index}.product_id`}
-                                    placeholder="Buscar producto..."
-                                    control={form.control}
-                                    useQueryHook={useProduct}
-                                    mapOptionFn={(
-                                      product: ProductResource,
-                                    ) => ({
-                                      value: product.id.toString(),
-                                      label: `${product.name} - ${
-                                        product.code
-                                      } - ${
-                                        product.unit_measurement_name ||
-                                        "Sin unidad"
-                                      }`,
-                                    })}
-                                    perPage={10}
-                                    debounceMs={500}
-                                  />
-                                </>
                               )}
                             </div>
                           </TableCell>
@@ -619,7 +677,7 @@ export const PurchaseOrderProductsForm = ({
                                       step="1"
                                       placeholder="1"
                                       className="text-center"
-                                      disabled={Boolean(supplierOrderData)}
+                                      disabled={true}
                                       value={
                                         typeof field.value === "number"
                                           ? field.value
@@ -696,7 +754,6 @@ export const PurchaseOrderProductsForm = ({
                                           );
                                         }
                                       }}
-                                      disabled={Boolean(supplierOrderData)}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -716,7 +773,7 @@ export const PurchaseOrderProductsForm = ({
                                 </div>
                               </TableCell>
                             )}
-                          <TableCell className="align-middle text-center p-1.5">
+                          {/* <TableCell className="align-middle text-center p-1.5">
                             <Button
                               type="button"
                               variant="ghost"
@@ -729,7 +786,7 @@ export const PurchaseOrderProductsForm = ({
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       );
                     })}
@@ -738,7 +795,7 @@ export const PurchaseOrderProductsForm = ({
               </div>
 
               {/* Botón para actualizar items */}
-              <Button
+              {/* <Button
                 type="button"
                 variant="outline"
                 onClick={handleAddItem}
@@ -747,12 +804,12 @@ export const PurchaseOrderProductsForm = ({
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Agregar Producto
-              </Button>
+              </Button> */}
 
               {/* Campo de notas dentro de items */}
               {fields.length > 0 && (
                 <div className="mt-4">
-                  <FormInputText
+                  <FormTextArea
                     control={form.control}
                     name="notes"
                     label="Notas Generales"
@@ -770,23 +827,85 @@ export const PurchaseOrderProductsForm = ({
             Cancelar
           </Button>
 
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting ||
-              !form.formState.isValid ||
-              Boolean(
-                watchedCurrencyTypeId &&
-                watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                !exchangeRate,
-              )
+          <ConfirmationDialog
+            trigger={
+              <Button
+                type="button"
+                disabled={
+                  isSubmitting ||
+                  !form.formState.isValid ||
+                  Boolean(
+                    watchedCurrencyTypeId &&
+                    watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                    !exchangeRate,
+                  )
+                }
+              >
+                <Loader
+                  className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
+                />
+                {isSubmitting ? "Guardando..." : "Guardar Orden de Compra"}
+              </Button>
             }
+            title="Confirmar Orden de Compra"
+            description="¿Estás seguro de que deseas guardar esta orden de compra con los siguientes montos?"
+            confirmText="Sí, guardar"
+            cancelText="Cancelar"
+            onConfirm={() => form.handleSubmit(handleSubmit)()}
+            icon="info"
+            open={isConfirmDialogOpen}
+            onOpenChange={setIsConfirmDialogOpen}
           >
-            <Loader
-              className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
-            />
-            {isSubmitting ? "Guardando..." : "Guardar Orden de Compra"}
-          </Button>
+            <div className="space-y-3 border rounded-md p-4 bg-slate-50">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">
+                  Valor de Venta Neta:
+                </span>
+                <span className="font-medium">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId,
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("subtotal") || 0).toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">IGV (18%):</span>
+                <span className="font-medium">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId,
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("total_tax") || 0).toFixed(2)}
+                </span>
+              </div>
+
+              <div className="border-t pt-2 mt-2"></div>
+
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-lg">Importe Total:</span>
+                <span className="font-bold text-xl text-primary">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId,
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("total") || 0).toFixed(2)}
+                </span>
+              </div>
+
+              {watchedCurrencyTypeId &&
+                watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                exchangeRate && (
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <span className="text-sm text-muted-foreground">
+                      Equivalente en Soles (T.C. S/. {exchangeRate.toFixed(4)}):
+                    </span>
+                    <span className="text-sm font-semibold text-green-700">
+                      S/.{" "}
+                      {((form.watch("total") || 0) * exchangeRate).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+            </div>
+          </ConfirmationDialog>
         </div>
       </form>
     </Form>

@@ -1,10 +1,13 @@
 import { UseFormReturn } from "react-hook-form";
 import { User, InfoIcon } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook";
 
 interface ClientInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -17,39 +20,38 @@ export function ClientInfoSection({
   isEdit,
   isFromQuotation = false,
 }: ClientInfoSectionProps) {
-  const { data: customers = [], isLoading } = useAllCustomers();
   const selectedClientId = form.watch("client_id");
 
   // Buscar el cliente seleccionado
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === selectedClientId
+  const { data: selectedCustomer } = useCustomersById(
+    Number(selectedClientId),
+    !!selectedClientId,
   );
 
   return (
     <GroupFormSection
       title="Información del Cliente"
       icon={User}
-      iconColor="text-primary"
-      bgColor="bg-primary/5"
+      color="primary"
       cols={{ sm: 1, md: 2 }}
     >
       <div className="md:col-span-2">
-        <FormSelect
+        <FormSelectAsync
           control={form.control}
           name="client_id"
-          options={customers.map((customer) => ({
+          useQueryHook={useCustomers}
+          mapOptionFn={(customer) => ({
             value: customer.id.toString(),
             label: `${customer.full_name} - ${customer.num_doc}`,
-          }))}
+          })}
           label="Cliente *"
           description={
             isFromQuotation
               ? "Cliente asignado desde la cotización"
               : "Seleccione el cliente"
           }
-          placeholder={
-            isLoading ? "Cargando clientes..." : "Seleccionar cliente"
-          }
+          placeholder="Seleccionar cliente"
+          useFindByIdHook={useCustomersById}
           disabled={isEdit || isFromQuotation}
         />
       </div>

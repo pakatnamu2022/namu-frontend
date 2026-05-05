@@ -7,7 +7,7 @@ import { storeView } from "@/features/gp/gestionsistema/vistas/lib/view.actions"
 import { ViewSchema } from "@/features/gp/gestionsistema/vistas/lib/view.schema";
 import { ViewForm } from "@/features/gp/gestionsistema/vistas/components/ViewForm";
 import { useAllViews } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";

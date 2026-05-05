@@ -1,6 +1,12 @@
 import { toast } from "sonner";
 import { ACTIONS, ACTIONS_NAMES, IGV } from "./core.constants";
 import type { Action, ModelInterface } from "./core.interface";
+import { format, parseISO, isValid, parse } from "date-fns";
+import { es } from "date-fns/locale";
+
+export const getErrorMessage = (error: any): string | undefined => {
+  return error?.response?.data?.error || error?.message;
+};
 
 export const successToast = (
   body: string,
@@ -109,7 +115,8 @@ export const ERROR_MESSAGE = (
 export const SUBTITLE: ({ name }: ModelInterface, action: Action) => string = (
   { name },
   action,
-) => `Aquí puedes ${ACTIONS[action]} ${name.toLowerCase()}.`;
+) =>
+  `${ACTIONS[action].charAt(0).toUpperCase() + ACTIONS[action].slice(1)} ${name.toLowerCase()}.`;
 
 function roundTwoDecimalPlacesUp(valor: number): number {
   return Math.ceil(valor * 100) / 100;
@@ -178,3 +185,200 @@ export const getSunday = (date: Date) => {
   sunday.setHours(23, 59, 59, 999);
   return sunday;
 };
+
+// Calcular el primer día del mes actual
+export const getFirstDayOfMonth = (date: Date) => {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  firstDay.setHours(0, 0, 0, 0);
+  return firstDay;
+};
+
+// Calcular el día actual (hasta el momento actual del mes)
+export const getCurrentDayOfMonth = (date: Date) => {
+  const currentDay = new Date(date);
+  currentDay.setHours(23, 59, 59, 999);
+  return currentDay;
+};
+
+// Obtener la fecha actual en formato local YYYY-MM-DD sin problemas de zona horaria
+export const getTodayLocalDateString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Convierte un Date (o string) a "YYYY-MM-DD" usando hora LOCAL.
+ * Usar en lugar de toISOString().split("T")[0] que usa UTC y puede dar el día anterior.
+ * Úsalo como defaultValue para DatePickerFormField y al enviar fechas al backend.
+ */
+export const toLocalDateString = (date: Date | string): string => {
+  if (typeof date === "string") {
+    const raw = date.trim();
+
+    // Si ya viene como fecha local YYYY-MM-DD, retornarla tal cual
+    // para evitar desplazamientos por timezone al pasar por new Date(...).
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      return raw;
+    }
+
+    const parsed = parseISO(raw.includes(" ") ? raw.replace(" ", "T") : raw);
+    if (isValid(parsed)) {
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, "0");
+      const day = String(parsed.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    const parsedYmd = parse(raw, "yyyy-MM-dd", new Date());
+    if (isValid(parsedYmd)) {
+      const year = parsedYmd.getFullYear();
+      const month = String(parsedYmd.getMonth() + 1).padStart(2, "0");
+      const day = String(parsedYmd.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+  }
+
+  const d = typeof date === "string" ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Convierte una fecha (string o Date) a Date válido para uso en calendarios.
+ * Retorna undefined cuando el valor no puede parsearse.
+ */
+export const toDateOrUndefined = (
+  date: string | Date | null | undefined,
+): Date | undefined => {
+  if (!date) return undefined;
+
+  if (date instanceof Date) {
+    return isValid(date) ? date : undefined;
+  }
+
+  const normalizedDate = date.trim();
+  const isoDate = normalizedDate.includes(" ")
+    ? normalizedDate.replace(" ", "T")
+    : normalizedDate;
+
+  const parsedIsoDate = parseISO(isoDate);
+  if (isValid(parsedIsoDate)) return parsedIsoDate;
+
+  const parsedDateTime = parse(normalizedDate, "yyyy-MM-dd HH:mm:ss", new Date());
+  if (isValid(parsedDateTime)) return parsedDateTime;
+
+  const parsedDate = parse(normalizedDate, "yyyy-MM-dd", new Date());
+  return isValid(parsedDate) ? parsedDate : undefined;
+};
+
+/**
+ * Convierte un Date (o string) a "YYYY-MM-DDTHH:mm" usando hora LOCAL.
+ * Usar en lugar de toISOString() que usa UTC y desplaza la hora según el timezone.
+ * Úsalo como defaultValue para DateTimePickerForm y al enviar fecha+hora al backend.
+ */
+export const toLocalDateTimeString = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+/**
+ * Retorna la fecha local de hoy más N días en formato "YYYY-MM-DD".
+ * Úsalo para calcular defaultValues de date pickers (ej: vencimiento en 30 días).
+ */
+export const localDatePlusDays = (days: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return toLocalDateString(d);
+};
+
+/**
+ * Formatea una fecha ISO o Date a un formato legible
+ * @param date - Fecha en formato ISO string o Date
+ * @param dateFormat - Formato deseado (por defecto: "dd/MM/yyyy")
+ * @returns Fecha formateada o "-" si la fecha es inválida
+ */
+export const formatDate = (
+  date: string | Date | null | undefined,
+  dateFormat: string = "dd/MM/yyyy",
+): string => {
+  if (!date) return "-";
+
+  try {
+    const parsedDate =
+      typeof date === "string"
+        ? (() => {
+            const normalizedDate = date.trim();
+            const isoDate = normalizedDate.includes(" ")
+              ? normalizedDate.replace(" ", "T")
+              : normalizedDate;
+
+            const parsedIsoDate = parseISO(isoDate);
+            if (isValid(parsedIsoDate)) return parsedIsoDate;
+
+            const parsedDateTime = parse(
+              normalizedDate,
+              "yyyy-MM-dd HH:mm:ss",
+              new Date(),
+            );
+            if (isValid(parsedDateTime)) return parsedDateTime;
+
+            return parse(normalizedDate, "yyyy-MM-dd", new Date());
+          })()
+        : date;
+
+    if (!isValid(parsedDate)) return "-";
+
+    return format(parsedDate, dateFormat, { locale: es });
+  } catch {
+    return "-";
+  }
+};
+
+/**
+ * Formatea una fecha ISO o Date a formato fecha y hora
+ * @param date - Fecha en formato ISO string o Date
+ * @param dateFormat - Formato deseado (por defecto: "dd/MM/yyyy HH:mm")
+ * @returns Fecha y hora formateada o "-" si la fecha es inválida
+ */
+export const formatDateTime = (
+  date: string | Date | null | undefined,
+  dateFormat: string = "dd/MM/yyyy HH:mm",
+): string => {
+  return formatDate(date, dateFormat);
+};
+
+/**
+ * Formatea una fecha ISO o Date a formato corto (dd/MM/yy)
+ * @param date - Fecha en formato ISO string o Date
+ * @returns Fecha en formato corto o "-" si la fecha es inválida
+ */
+export const formatDateShort = (
+  date: string | Date | null | undefined,
+): string => {
+  return formatDate(date, "dd/MM/yy");
+};
+
+/**
+ * Formatea una fecha ISO o Date a formato largo legible
+ * @param date - Fecha en formato ISO string o Date
+ * @returns Fecha en formato largo (ej: "7 de febrero de 2026") o "-" si la fecha es inválida
+ */
+export const formatDateLong = (
+  date: string | Date | null | undefined,
+): string => {
+  return formatDate(date, "d 'de' MMMM 'de' yyyy");
+};
+
+export const TEXT_NEW = ({ name, gender }: ModelInterface) =>
+  `Nuev${gender ? "a" : "o"} ${name}`;
+export const TEXT_UPDATE = ({ name }: ModelInterface) => `Actualizar ${name}`;

@@ -20,25 +20,6 @@ export const INVENTORY: ModelComplete<InventoryResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/${ROUTE}/actualizar`,
 };
 
-// INVENTARIO REPUESTOS
-const ROUTE_REPUESTOS = "inventario-repuesto";
-const ABSOLUTE_ROUTE_REPUESTOS = `/ap/post-venta/repuestos/${ROUTE_REPUESTOS}`;
-
-export const INVENTORY_REPUESTOS: ModelComplete<InventoryResource> = {
-  MODEL: {
-    name: "Inventario Repuesto",
-    plural: "Inventarios Repuestos",
-    gender: false,
-  },
-  ICON: "PackageCheck",
-  ENDPOINT: "/ap/postVenta/productWarehouseStock",
-  QUERY_KEY: "inventory-repuestos-stocks",
-  ROUTE: ROUTE_REPUESTOS,
-  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_REPUESTOS,
-  ROUTE_ADD: `${ABSOLUTE_ROUTE_REPUESTOS}/${ROUTE_REPUESTOS}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_REPUESTOS}/${ROUTE_REPUESTOS}/actualizar`,
-};
-
 /**
  * Traducciones para movement_type (tipo de movimiento de inventario)
  */

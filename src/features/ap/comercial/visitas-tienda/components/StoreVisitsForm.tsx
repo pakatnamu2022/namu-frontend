@@ -7,21 +7,14 @@ import {
 } from "../lib/storeVisits.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
+  BUSINESS_PARTNERS,
   EMPRESA_AP,
   TIPO_LEADS,
   VALIDATABLE_DOCUMENT,
@@ -34,14 +27,20 @@ import {
 } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState, useRef } from "react";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
-import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useAllIncomeSector } from "../../sectores-ingreso/lib/incomeSector.hook";
 import {
   useAllBrandsBySede,
   useAllWorkersBySedeAndBrand,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
-import { AREA_CM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { FormInput } from "@/shared/components/FormInput";
+import {
+  NUM_DIGITS_CE,
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -59,11 +58,11 @@ export const StoreVisitsForm = ({
   const { ABSOLUTE_ROUTE } = STORE_VISITS;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate
+      mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
-      area_id: AREA_CM_ID.COMERCIAL,
+      area_id: AREA_COMERCIAL.toString(),
       type: TIPO_LEADS.VISITA,
       campaign: TIPO_LEADS.VISITA,
     },
@@ -91,23 +90,27 @@ export const StoreVisitsForm = ({
   const { data: workers = [], isLoading: isLoadingWorkers } =
     useAllWorkersBySedeAndBrand(
       selectedSedeId ? Number(selectedSedeId) : undefined,
-      selectedBrandId ? Number(selectedBrandId) : undefined
+      selectedBrandId ? Number(selectedBrandId) : undefined,
     );
 
   const selectedDocumentType = documentTypes.find(
-    (type) => type.id.toString() === documentTypeId
+    (type) => type.id.toString() === documentTypeId,
   );
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
   const validationType = VALIDATABLE_DOCUMENT.TYPE_MAP[documentTypeId!] || null;
-  const expectedDigits = selectedDocumentType?.code
-    ? Number(selectedDocumentType.code)
-    : 0;
+  const DIGITS_MAP: Record<string, number> = {
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID]: NUM_DIGITS_DNI,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID]: NUM_DIGITS_RUC,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_CE_ID]: NUM_DIGITS_CE,
+    // si hay CE, agregar aquí
+  };
+  const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
 
   const shouldTriggerValidation = Boolean(
-    shouldValidate && isValidLength && validationType
+    shouldValidate && isValidLength && validationType,
   );
 
   // Hooks de validación condicional
@@ -117,7 +120,7 @@ export const StoreVisitsForm = ({
     error: dniError,
   } = useDniValidation(
     documentNumber,
-    validationType === "dni" && shouldTriggerValidation
+    validationType === "dni" && shouldTriggerValidation,
   );
 
   const {
@@ -126,7 +129,7 @@ export const StoreVisitsForm = ({
     error: rucError,
   } = useRucValidation(
     documentNumber,
-    validationType === "ruc" && shouldTriggerValidation
+    validationType === "ruc" && shouldTriggerValidation,
   );
 
   // Datos consolidados
@@ -185,7 +188,7 @@ export const StoreVisitsForm = ({
   }, [selectedBrandId, form]);
 
   const shouldDisableMainFields = Boolean(
-    validationData?.success && validationData.data
+    validationData?.success && validationData.data,
   );
 
   if (isLoadingSedes || isLoadingTypesDocument || isLoadingIncomeSector)
@@ -193,10 +196,7 @@ export const StoreVisitsForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect
             name="income_sector_id"
@@ -260,134 +260,111 @@ export const StoreVisitsForm = ({
             strictFilter={true}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
+            label={
+              <div className="flex items-center justify-between gap-2 w-full">
+                Núm. Documento
+                <DocumentValidationStatus
+                  shouldValidate={shouldValidate}
+                  documentNumber={documentNumber!}
+                  expectedDigits={expectedDigits}
+                  isValidating={isValidatingDocument}
+                />
+              </div>
+            }
             name="num_doc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Núm. Documento
-                  <DocumentValidationStatus
-                    shouldValidate={shouldValidate}
-                    documentNumber={documentNumber!}
-                    expectedDigits={expectedDigits}
-                    isValidating={isValidatingDocument}
-                  />
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      placeholder={
-                        selectedDocumentType
-                          ? `Ingrese ${expectedDigits} dígitos`
-                          : "Ingrese número"
-                      }
-                      {...field}
-                      maxLength={expectedDigits || undefined}
-                    />
-                    <ValidationIndicator
-                      show={shouldValidate && !!documentNumber}
-                      isValidating={isValidatingDocument}
-                      isValid={validationData?.success && !!validationData.data}
-                      hasError={
-                        !!validationError ||
-                        (!!validationData && !validationData.data)
-                      }
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="text"
+            inputMode="numeric"
+            placeholder={
+              selectedDocumentType
+                ? `Ingrese ${expectedDigits} dígitos`
+                : "Ingrese número"
+            }
+            maxLength={expectedDigits || undefined}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/\D/g, "");
+            }}
+            addonEnd={
+              <ValidationIndicator
+                show={!!documentNumber}
+                isValidating={isValidatingDocument}
+                isValid={validationData?.success && !!validationData.data}
+                hasError={
+                  !!validationError ||
+                  (validationData && !validationData.success)
+                }
+                positioned={false}
+              />
+            }
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="full_name"
-            render={({ field }) => (
-              <FormItem className="relative">
-                <FormLabel>
-                  {validationType === "ruc" ? "Razón Social" : "Nombres"}
-                  {validationType === "ruc" &&
-                    companyStatus !== "-" &&
-                    companyCondition !== "-" && (
-                      <div className="absolute right-0 top-0 flex gap-2">
-                        {/* Estado */}
+            label={
+              <div className="flex items-center justify-between gap-2 w-full">
+                {validationType === "ruc" ? "Razón Social" : "Nombres"}
+                {validationType === "ruc" &&
+                  companyStatus !== "-" &&
+                  companyCondition !== "-" && (
+                    <div className="flex gap-2">
+                      <div
+                        className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          companyStatus === "ACTIVO"
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : "bg-red-100 text-red-800 border border-red-200"
+                        }`}
+                      >
                         <div
-                          className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          className={`w-2 h-2 rounded-full ${
                             companyStatus === "ACTIVO"
-                              ? "bg-green-100 text-green-800 border border-green-200"
-                              : "bg-red-100 text-red-800 border border-red-200"
+                              ? "bg-green-500"
+                              : "bg-red-500"
                           }`}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              companyStatus === "ACTIVO"
-                                ? "bg-green-500"
-                                : "bg-red-500"
-                            }`}
-                          ></div>
-                          {companyStatus}
-                        </div>
-
-                        {/* Condición */}
-                        <div
-                          className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                            companyCondition === "HABIDO"
-                              ? "bg-green-100 text-green-800 border border-green-200"
-                              : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                          }`}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              companyCondition === "HABIDO"
-                                ? "bg-green-500"
-                                : "bg-yellow-500"
-                            }`}
-                          ></div>
-                          {companyCondition}
-                        </div>
+                        />
+                        {companyStatus}
                       </div>
-                    )}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: Juan"
-                    {...field}
-                    disabled={shouldDisableMainFields}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+                      <div
+                        className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          companyCondition === "HABIDO"
+                            ? "bg-green-100 text-green-800 border border-green-200"
+                            : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                        }`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            companyCondition === "HABIDO"
+                              ? "bg-green-500"
+                              : "bg-yellow-500"
+                          }`}
+                        />
+                        {companyCondition}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            }
+            placeholder="Ej: Juan"
+            disabled={shouldDisableMainFields}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
+            label="Email"
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: example@gmail.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            placeholder="Ej: example@gmail.com"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
+            label="Teléfono"
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 987635542" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="text"
+            inputMode="numeric"
+            placeholder="Ej: 987635542"
+            maxLength={9}
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

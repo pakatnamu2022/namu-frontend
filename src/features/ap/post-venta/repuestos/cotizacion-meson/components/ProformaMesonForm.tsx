@@ -21,12 +21,29 @@ import {
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Plus, Trash2, Package, PackagePlus, ExternalLink } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import {
+  Plus,
+  Trash2,
+  Package,
+  PackagePlus,
+  ExternalLink,
+  Copy,
+  Check,
+  User,
+  Car,
+  FileText,
+  Calendar,
+  Gauge,
+} from "lucide-react";
 import { useState, useEffect } from "react";
-import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants";
+import {
+  DEFAULT_APPROVED_DISCOUNT,
+  EMPRESA_AP,
+  IGV,
+  STATUS_ACTIVE,
+} from "@/core/core.constants";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import {
   useProduct,
@@ -40,21 +57,33 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { Warehouse, AlertCircle } from "lucide-react";
+import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import QuotationPartModal from "./QuotationPartModal";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { CUSTOMERS_RP } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
-import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import {
+  useVehicles,
+  useVehicleById,
+} from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
-import { FormInputText } from "@/shared/components/FormInputText";
-
-const onSelectSupplyType = [
-  { label: "Stock", value: "STOCK" },
-  { label: "Lima", value: "LIMA" },
-  { label: "Importación", value: "IMPORTACION" },
-];
+import { FormTextArea } from "@/shared/components/FormTextArea";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  ITEM_TYPE_PRODUCT,
+  onSelectSupplyType,
+} from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
+import {
+  STATUS_APPROVED,
+  TYPE_GLOBAL,
+  TYPE_PARTIAL,
+} from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
+import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
+import { FormInput } from "@/shared/components/FormInput";
+import { DataCard } from "@/components/DataCard";
 
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
@@ -64,6 +93,9 @@ function ProductDetailItem({
   selectedCurrency,
   stockData,
   defaultProductOption,
+  approvedDiscount,
+  defaultDiscount,
+  isDetailsDisabled = false,
 }: {
   index: number;
   form: any;
@@ -71,9 +103,40 @@ function ProductDetailItem({
   selectedCurrency: any;
   stockData: StockByProductIdsResponse | null;
   defaultProductOption?: { value: string; label: string };
+  detailId?: number;
+  approvedDiscount?: number;
+  defaultDiscount: number;
+  isDetailsDisabled?: boolean;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Función para copiar código del repuesto
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
+
+  // Función para manejar el pegado y convertir comas a puntos
+  const handlePaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    field: any,
+  ) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    const normalizedValue = pastedText.replace(",", ".");
+    const numericValue = parseFloat(normalizedValue);
+
+    if (!isNaN(numericValue)) {
+      field.onChange(numericValue);
+    }
+  };
 
   // Buscar el stock del producto actual
   const currentProductStock = stockData?.data?.find(
@@ -98,134 +161,38 @@ function ProductDetailItem({
     <div className="border rounded-lg bg-white transition-colors">
       {/* Vista Desktop - Formato Tabla */}
       <div className="hidden md:grid grid-cols-14 gap-3 px-4 py-3 items-start">
-        <div className="col-span-1 flex justify-center pt-2">
-          <Badge color="secondary" className="text-xs">
-            #{index + 1}
-          </Badge>
-        </div>
-
-        <div className="col-span-3">
-          <FormSelectAsync
-            name={`details.${index}.product_id`}
-            label=""
-            placeholder="Seleccione repuesto"
-            control={form.control}
-            useQueryHook={useProduct}
-            mapOptionFn={(product) => ({
-              label: `${product.code} - ${product.name}`,
-              value: product.id.toString(),
-            })}
-            perPage={10}
-            debounceMs={500}
-            defaultOption={defaultProductOption}
-          />
+        <div className="col-span-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="shrink-0 inline-flex items-center justify-center size-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+              {index + 1}
+            </span>
+            <div className="flex-1 min-w-0">
+              <FormSelectAsync
+                name={`details.${index}.product_id`}
+                label=""
+                placeholder="Seleccione repuesto"
+                control={form.control}
+                useQueryHook={useProduct}
+                mapOptionFn={(product) => ({
+                  label: `${product.code} - ${product.name}`,
+                  value: product.id.toString(),
+                })}
+                perPage={10}
+                debounceMs={500}
+                defaultOption={defaultProductOption}
+                disabled={isDetailsDisabled}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Tarjeta de stock expandida - se extiende hasta antes del botón eliminar */}
         {currentProductStock && productId && (
-          <div className="col-span-13 row-start-2 col-start-2">
-            <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Warehouse className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-semibold text-primary">
-                  Stock Disponible
-                  {productData?.brand_name && (
-                    <span className="ml-1 font-normal">
-                      - Marca: {productData.brand_name}
-                    </span>
-                  )}
-                </span>
-              </div>
-              {currentProductStock.warehouses.length > 0 ? (
-                <div className="space-y-2">
-                  {/* Grid responsive para los almacenes */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    {currentProductStock.warehouses.map((warehouse) => (
-                      <div
-                        key={warehouse.warehouse_id}
-                        className="bg-white p-2 rounded border border-blue-100 space-y-1"
-                      >
-                        <div className="flex items-start justify-between">
-                          <span className="font-semibold text-gray-800 text-xs">
-                            {warehouse.warehouse_name}
-                          </span>
-                          {warehouse.is_out_of_stock && (
-                            <Badge
-                              color="destructive"
-                              className="text-xs py-0 px-1 h-4"
-                            >
-                              Sin Stock
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex gap-3 text-xs">
-                          <div>
-                            <span className="text-gray-500">Disp:</span>
-                            <span className="ml-1 text-green-600 font-bold">
-                              {warehouse.available_quantity}
-                            </span>
-                          </div>
-                          {warehouse.quantity_in_transit > 0 && (
-                            <div>
-                              <span className="text-gray-500">Trán:</span>
-                              <span className="ml-1 text-primary font-bold">
-                                {warehouse.quantity_in_transit}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
-                          <div>
-                            <div className="text-gray-500">Últ. compra</div>
-                            <div className="font-semibold text-gray-700">
-                              ${" "}
-                              {warehouse.last_purchase_price?.toFixed(2) ||
-                                "0.00"}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">P. público</div>
-                            <div className="font-semibold text-gray-700">
-                              ${" "}
-                              {warehouse.public_sale_price?.toFixed(2) ||
-                                "0.00"}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500">P. mín</div>
-                            <div className="font-semibold text-gray-700">
-                              ${" "}
-                              {warehouse.minimum_sale_price?.toFixed(2) ||
-                                "0.00"}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Total al final */}
-                  <div className="pt-1.5 border-t border-blue-300 text-xs font-semibold text-gray-700 flex items-center justify-between">
-                    <span>
-                      Total:{" "}
-                      <span className="text-green-600 text-sm">
-                        {currentProductStock.total_available_quantity}
-                      </span>{" "}
-                      disponibles
-                    </span>
-                    {currentProductStock.warehouses.length > 1 && (
-                      <Badge color="secondary" className="text-xs">
-                        {currentProductStock.warehouses.length} almacenes
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 text-xs text-gray-500 bg-white p-2 rounded">
-                  <AlertCircle className="h-3 w-3" />
-                  <span>Sin stock disponible</span>
-                </div>
-              )}
-            </div>
+          <div className="col-span-14 row-start-2 col-start-1">
+            <StockWarehousesCard
+              stock={currentProductStock}
+              productInfo={productData}
+            />
           </div>
         )}
 
@@ -238,12 +205,12 @@ function ProductDetailItem({
                 <FormControl>
                   <Input
                     type="number"
-                    min="0.01"
-                    step="0.01"
+                    min="1"
                     placeholder="Cant."
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -265,8 +232,15 @@ function ProductDetailItem({
                     min="0"
                     placeholder="P. Ext. ($)"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
+                    }
+                    onPaste={(e) => handlePaste(e, field)}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -296,7 +270,7 @@ function ProductDetailItem({
           />
         </div>
 
-        <div className="col-span-1">
+        <div className="col-span-2">
           <FormField
             control={form.control}
             name={`details.${index}.discount_percentage`}
@@ -307,13 +281,31 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    max="100"
+                    max={approvedDiscount ?? defaultDiscount}
                     placeholder="Dcto %"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    className="h-9"
+                    value={field.value || ""}
+                    onChange={(e) => {
+                      const val = e.target.value
+                        ? Number(e.target.value)
+                        : undefined;
+                      const maxAllowed = approvedDiscount ?? defaultDiscount;
+                      if (val !== undefined && val > maxAllowed) return;
+                      field.onChange(val);
+                    }}
+                    className={
+                      approvedDiscount !== undefined
+                        ? "h-9 border-green-400"
+                        : "h-9"
+                    }
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
+                <p className="text-[10px] font-medium mt-0.5 text-green-600">
+                  Máx.{" "}
+                  {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
+                  {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -347,20 +339,33 @@ function ProductDetailItem({
             size="icon"
             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
             onClick={onRemove}
+            disabled={isDetailsDisabled}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Observaciones en fila completa si existen */}
-        {form.watch(`details.${index}.observations`) && (
-          <div className="col-span-12 pt-2 border-t">
-            <p className="text-xs text-gray-500">
-              <span className="font-semibold">Obs:</span>{" "}
-              {form.watch(`details.${index}.observations`)}
-            </p>
-          </div>
-        )}
+        {/* Tipo de abastecimiento y Observaciones */}
+        <div className="col-span-7 col-start-1">
+          <FormSelect
+            name={`details.${index}.supply_type`}
+            label="Tipo de Abastecimiento"
+            placeholder="Seleccione tipo"
+            control={form.control}
+            options={onSelectSupplyType}
+            disabled={isDetailsDisabled}
+          />
+        </div>
+
+        <div className="col-span-7">
+          <FormInput
+            name={`details.${index}.observations`}
+            label="Notas"
+            control={form.control}
+            placeholder="Opcional"
+            disabled={isDetailsDisabled}
+          />
+        </div>
       </div>
 
       {/* Vista Mobile - Formato Card */}
@@ -375,6 +380,7 @@ function ProductDetailItem({
             size="icon"
             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
             onClick={onRemove}
+            disabled={isDetailsDisabled}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -393,21 +399,46 @@ function ProductDetailItem({
           perPage={10}
           debounceMs={500}
           defaultOption={defaultProductOption}
+          disabled={isDetailsDisabled}
         />
 
         {/* Mostrar stock inline debajo del selector - Mobile */}
         {currentProductStock && productId && (
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
-            <div className="flex items-center gap-1 mb-2">
-              <Warehouse className="h-3 w-3 text-primary" />
-              <span className="text-xs font-semibold text-primary">
-                Stock Disponible
-                {productData?.brand_name && (
-                  <span className="ml-1 font-normal">
-                    - Marca: {productData.brand_name}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <div className="flex items-center gap-1">
+                <Warehouse className="h-3 w-3 text-primary" />
+                <span className="text-xs font-semibold text-primary">
+                  Stock Disponible
+                </span>
+              </div>
+              {productData?.brand_name && (
+                <span className="text-xs text-primary">
+                  Marca:{" "}
+                  <span className="font-medium">{productData.brand_name}</span>
+                </span>
+              )}
+              {productData?.code && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-primary">
+                    Cod: <span className="font-medium">{productData.code}</span>
                   </span>
-                )}
-              </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 hover:bg-blue-100"
+                    onClick={() => copyToClipboard(productData.code)}
+                    tooltip="Copiar código"
+                  >
+                    {isCopied ? (
+                      <Check className="h-3 w-3 text-green-600" />
+                    ) : (
+                      <Copy className="h-3 w-3 text-primary" />
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
             {currentProductStock.warehouses.length > 0 ? (
               <div className="space-y-1.5">
@@ -443,26 +474,32 @@ function ProductDetailItem({
                         </Badge>
                       )}
                     </div>
-                    <div className="grid grid-cols-3 gap-1 text-[10px] text-gray-600">
+                    <div className="grid grid-cols-4 gap-1 text-[10px] text-gray-600">
                       <div>
                         <div className="text-gray-500">Últ. compra</div>
                         <div className="font-medium">
-                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.currency.symbol || "S/."}{" "}
                           {warehouse.last_purchase_price?.toFixed(2) || "0.00"}
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-500">P. público</div>
                         <div className="font-medium">
-                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.currency.symbol || "S/."}{" "}
                           {warehouse.public_sale_price?.toFixed(2) || "0.00"}
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-500">P. mín</div>
                         <div className="font-medium">
-                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.currency.symbol || "S/."}{" "}
                           {warehouse.minimum_sale_price?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">Sin mov.</div>
+                        <div className="font-medium">
+                          {warehouse.days_without_movement} días
                         </div>
                       </div>
                     </div>
@@ -499,11 +536,11 @@ function ProductDetailItem({
                 <FormControl>
                   <Input
                     type="number"
-                    min="0.01"
-                    step="0.01"
+                    min="1"
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -523,8 +560,15 @@ function ProductDetailItem({
                     step="0.01"
                     min="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
+                    }
+                    onPaste={(e) => handlePaste(e, field)}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -565,12 +609,27 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    max="100"
+                    max={approvedDiscount ?? defaultDiscount}
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    className="h-9"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      const maxAllowed = approvedDiscount ?? defaultDiscount;
+                      if (val > maxAllowed) return;
+                      field.onChange(val);
+                    }}
+                    className={
+                      approvedDiscount !== undefined
+                        ? "h-9 border-green-400"
+                        : "h-9"
+                    }
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
+                <p className="text-[10px] font-medium mt-0.5 text-green-600">
+                  Máx.{" "}
+                  {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
+                  {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -598,24 +657,24 @@ function ProductDetailItem({
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name={`details.${index}.observations`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-xs">Observaciones</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  placeholder="Opcional"
-                  className="h-9"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 gap-3">
+          <FormSelect
+            name={`details.${index}.supply_type`}
+            label="Tipo de Abastecimiento"
+            placeholder="Seleccione tipo"
+            control={form.control}
+            options={onSelectSupplyType}
+            disabled={isDetailsDisabled}
+          />
+
+          <FormInput
+            name={`details.${index}.observations`}
+            label="Notas"
+            control={form.control}
+            placeholder="Opcional"
+            disabled={isDetailsDisabled}
+          />
+        </div>
       </div>
     </div>
   );
@@ -630,6 +689,7 @@ interface ProformaMesonFormProps {
   clientData?: CustomersResource;
   vehicleData?: VehicleResource;
   quotationData?: OrderQuotationResource;
+  approvedDiscountRequests?: DiscountRequestOrderQuotationResource[];
 }
 
 export default function ProformaMesonForm({
@@ -641,14 +701,27 @@ export default function ProformaMesonForm({
   clientData,
   vehicleData,
   quotationData,
+  approvedDiscountRequests = [],
 }: ProformaMesonFormProps) {
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
     null,
   );
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+
+  const { user } = useAuthStore();
+  const defaultDiscount =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+
+  // Determinar si los detalles deben estar deshabilitados
+  const isDetailsDisabled =
+    mode === "update" &&
+    (quotationData?.status === STATUS_ORDER_QUOTATION.TO_BILL ||
+      quotationData?.has_management_discount);
 
   const form = useForm<QuotationMesonWithProductsSchema>({
     resolver: zodResolver(
@@ -657,7 +730,7 @@ export default function ProformaMesonForm({
         : quotationMesonWithProductsSchemaUpdate,
     ) as any,
     defaultValues: {
-      area_id: AREA_PM_ID.MESON,
+      area_id: AREA_MESON.toString(),
       sede_id: "",
       currency_id: CURRENCY_TYPE_IDS.SOLES,
       quotation_date: "",
@@ -677,7 +750,7 @@ export default function ProformaMesonForm({
 
   const quotationDate = form.watch("quotation_date");
   const currencyId = form.watch("currency_id");
-  const supplyType = form.watch("supply_type");
+  const vehicleId = form.watch("vehicle_id");
 
   // Usar useWatch para detectar cambios en details en tiempo real
   const watchedDetails = useWatch({
@@ -687,11 +760,18 @@ export default function ProformaMesonForm({
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: 1,
   });
 
   const { data: currencyTypes = [] } = useAllCurrencyTypes({
     enable_after_sales: STATUS_ACTIVE,
   });
+
+  const { data: vehicleById } = useVehicleById(Number(vehicleId) || 0);
+
+  useEffect(() => {
+    setSelectedVehicle(vehicleById ?? null);
+  }, [vehicleById]);
 
   // Setear primera sede por defecto
   useEffect(() => {
@@ -709,13 +789,6 @@ export default function ProformaMesonForm({
     }
   }, [form, defaultValues]);
 
-  // Setear fecha de recojo por defecto a hoy si el tipo de abastecimiento es STOCK
-  useEffect(() => {
-    if (supplyType === "STOCK" && !form.getValues("collection_date")) {
-      form.setValue("collection_date", new Date());
-    }
-  }, [supplyType, form]);
-
   // Actualizar moneda seleccionada
   useEffect(() => {
     if (currencyId && currencyTypes.length > 0) {
@@ -732,6 +805,7 @@ export default function ProformaMesonForm({
   useEffect(() => {
     if (quotationDate) {
       const quotationDateObj = new Date(quotationDate);
+      if (isNaN(quotationDateObj.getTime())) return;
       const expirationDateObj = new Date(quotationDateObj);
       expirationDateObj.setDate(quotationDateObj.getDate() + 7);
       form.setValue("expiration_date", expirationDateObj);
@@ -745,9 +819,12 @@ export default function ProformaMesonForm({
     const fetchExchangeRate = async () => {
       if (!quotationDate) return;
 
+      const dateObj = new Date(quotationDate);
+      if (isNaN(dateObj.getTime())) return;
+
       setIsLoadingExchangeRate(true);
       try {
-        const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
+        const formattedDate = format(dateObj, "yyyy-MM-dd");
         const response = await api.get(
           `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
         );
@@ -809,9 +886,10 @@ export default function ProformaMesonForm({
       discount_percentage: 0,
       total_amount: 0,
       observations: "",
-      retail_price_external: 0,
+      retail_price_external: undefined,
       exchange_rate: exchangeRate || 0,
       freight_commission: 1.05,
+      supply_type: "STOCK",
     });
   };
 
@@ -858,11 +936,16 @@ export default function ProformaMesonForm({
         form.setValue(`details.${index}.total_amount`, calculatedTotal);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchAllFields, exchangeRate, selectedCurrency]);
 
   const formatCurrency = (amount: number) => {
     const symbol = selectedCurrency?.symbol || "S/.";
-    return `${symbol} ${amount.toFixed(2)}`;
+    const formattedAmount = new Intl.NumberFormat("es-PE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    return `${symbol} ${formattedAmount}`;
   };
 
   const getTotalGeneral = () => {
@@ -877,288 +960,387 @@ export default function ProformaMesonForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Información de la Cotización */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            Información de la Cotización
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FormSelect
-              name="sede_id"
-              label="Sede"
-              placeholder="Selecciona una sede"
-              options={mySedes.map((item) => ({
-                label: item.abreviatura,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              required
-            />
-
-            <FormSelect
-              control={form.control}
-              name="currency_id"
-              options={currencyTypes.map((type) => ({
-                value: type.id.toString(),
-                label: type.name,
-              }))}
-              label="Moneda"
-              placeholder="Seleccionar moneda"
-              required
-            />
-
-            <FormSelectAsync
-              placeholder="Seleccionar cliente"
-              control={form.control}
-              label={"Cliente"}
-              name="client_id"
-              useQueryHook={useCustomers}
-              mapOptionFn={(item: CustomersResource) => ({
-                value: item.id.toString(),
-                label: `${item.full_name}`,
-              })}
-              perPage={10}
-              debounceMs={500}
-              defaultOption={
-                clientData
-                  ? {
-                      value: clientData.id.toString(),
-                      label: `${clientData.full_name}`,
-                    }
-                  : undefined
-              }
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-lg"
-                className="aspect-square"
-                onClick={() => window.open(CUSTOMERS_RP.ROUTE_ADD, "_blank")}
-                tooltip="Agregar nuevo cliente"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </FormSelectAsync>
-
-            <FormSelectAsync
-              placeholder="Seleccionar vehículo"
-              control={form.control}
-              label={"Vehículo (Opcional)"}
-              name="vehicle_id"
-              useQueryHook={useVehicles}
-              mapOptionFn={(item: VehicleResource) => ({
-                value: item.id.toString(),
-                label: `${item.plate || item.vin} - ${item.model?.code || ""}`,
-              })}
-              perPage={10}
-              debounceMs={500}
-              defaultOption={
-                vehicleData
-                  ? {
-                      value: vehicleData.id.toString(),
-                      label: `${vehicleData.plate || vehicleData.vin} - ${vehicleData.model?.code || ""}`,
-                    }
-                  : undefined
-              }
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-lg"
-                className="aspect-square"
-                onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
-                tooltip="Agregar nuevo vehículo"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </FormSelectAsync>
-
-            <DatePickerFormField
-              control={form.control}
-              name="quotation_date"
-              label="Fecha de Apertura"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-              disabledRange={{ before: new Date() }}
-            />
-
-            <DatePickerFormField
-              control={form.control}
-              name="expiration_date"
-              label="Fecha de Vencimiento"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-              disabled={true}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="supply_type"
-              options={onSelectSupplyType}
-              label="Tipo de Abastecimiento"
-              placeholder="Seleccionar un tipo"
-              required
-            />
-
-            <DatePickerFormField
-              control={form.control}
-              name="collection_date"
-              label="Fecha de Recojo"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-            />
-          </div>
-
-          <FormInputText
-            name="observations"
-            label="Observaciones"
-            placeholder="Notas adicionales sobre la cotización..."
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <FormSelect
+            name="sede_id"
+            label="Sede"
+            placeholder="Selecciona una sede"
+            options={mySedes.map((item) => ({
+              label: item.abreviatura,
+              value: item.id.toString(),
+            }))}
             control={form.control}
-            rows={3}
+            required
           />
-        </Card>
+
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda"
+            placeholder="Seleccionar moneda"
+            required
+          />
+
+          <FormSelectAsync
+            placeholder="Seleccionar cliente"
+            control={form.control}
+            label={"Cliente"}
+            name="client_id"
+            useQueryHook={useCustomers}
+            mapOptionFn={(item: CustomersResource) => ({
+              value: item.id.toString(),
+              label: `${item.full_name}`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              clientData
+                ? {
+                    value: clientData.id.toString(),
+                    label: `${clientData.full_name}`,
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => setIsCustomerModalOpen(true)}
+              tooltip="Agregar nuevo cliente"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
+
+          <FormSelectAsync
+            placeholder="Seleccionar vehículo"
+            control={form.control}
+            label={"Vehículo"}
+            name="vehicle_id"
+            useQueryHook={useVehicles}
+            mapOptionFn={(item: VehicleResource) => ({
+              value: item.id.toString(),
+              label: item.plate
+                ? `${item.plate} - ${item.vin || ""}`
+                : item.vin || "-",
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              vehicleData
+                ? {
+                    value: vehicleData.id.toString(),
+                    label: vehicleData.plate
+                      ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
+                      : vehicleData.vin || "-",
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
+              tooltip="Agregar nuevo vehículo"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
+
+          <DatePickerFormField
+            control={form.control}
+            name="quotation_date"
+            label="Fecha de Apertura"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabled
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="expiration_date"
+            label="Fecha de Vencimiento"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabled={true}
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="collection_date"
+            label="Fecha Estimada de Recojo"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabledRange={
+              form.watch("quotation_date")
+                ? { before: new Date(form.watch("quotation_date")) }
+                : undefined
+            }
+          />
+        </div>
+
+        <FormTextArea
+          name="observations"
+          label="Observaciones"
+          placeholder="Notas adicionales sobre la cotización..."
+          control={form.control}
+          rows={3}
+        />
+
+        {/* Información del Vehículo Seleccionado */}
+        {selectedVehicle && (
+          <DataCard
+            title="INFORMACIÓN DEL VEHÍCULO"
+            columns={3}
+            fields={[
+              {
+                key: "vin",
+                label: "VIN",
+                icon: FileText,
+                value: selectedVehicle.vin || "N/A",
+              },
+              {
+                key: "brand",
+                label: "Marca",
+                icon: Car,
+                value: selectedVehicle.model?.brand || "N/A",
+              },
+              {
+                key: "model",
+                label: "Modelo",
+                icon: FileText,
+                value: selectedVehicle.model?.version || "N/A",
+              },
+              {
+                key: "year",
+                label: "Año",
+                icon: Calendar,
+                value: selectedVehicle.year || "N/A",
+              },
+              {
+                key: "color",
+                label: "Color",
+                icon: Car,
+                value: selectedVehicle.vehicle_color || "N/A",
+              },
+              {
+                key: "engine_type",
+                label: "Motor",
+                icon: Gauge,
+                value: selectedVehicle.engine_type || "N/A",
+              },
+              {
+                key: "engine_number",
+                label: "N° Motor",
+                icon: FileText,
+                value: selectedVehicle.engine_number || "N/A",
+              },
+            ]}
+            sections={
+              selectedVehicle.owner
+                ? [
+                    {
+                      key: "owner",
+                      title: "Propietario",
+                      icon: User,
+                      fields: [
+                        {
+                          key: "owner_name",
+                          label: "Nombre",
+                          icon: User,
+                          value: selectedVehicle.owner.full_name || "N/A",
+                        },
+                        {
+                          key: "owner_document",
+                          label: "Documento",
+                          icon: FileText,
+                          value: selectedVehicle.owner.num_doc || "N/A",
+                        },
+                        {
+                          key: "owner_phone",
+                          label: "Teléfono",
+                          icon: User,
+                          value: selectedVehicle.owner.phone || "N/A",
+                        },
+                      ],
+                    },
+                  ]
+                : undefined
+            }
+          />
+        )}
 
         {/* Sección de Repuestos */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Repuestos</h3>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                onClick={() => setIsPartModalOpen(true)}
-                size="sm"
-                variant="outline"
-              >
-                <PackagePlus className="h-4 w-4 mr-2" />
-                Crear Repuesto
-              </Button>
-              <Button
-                type="button"
-                onClick={addProduct}
-                size="sm"
-                disabled={!quotationDate}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Repuesto
-              </Button>
-            </div>
+
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Package className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">Repuestos</h3>
           </div>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <Button
+              type="button"
+              onClick={() => setIsPartModalOpen(true)}
+              size="sm"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={isDetailsDisabled}
+            >
+              <PackagePlus className="h-4 w-4 mr-2" />
+              Crear Repuesto
+            </Button>
+            <Button
+              type="button"
+              onClick={addProduct}
+              size="sm"
+              className="w-full sm:w-auto"
+              disabled={!quotationDate || isDetailsDisabled}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar Repuesto
+            </Button>
+          </div>
+        </div>
 
-          {/* Mensaje de tipo de cambio */}
-          {quotationDate && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-4">
+        {/* Mensaje de tipo de cambio */}
+        {quotationDate && (
+          <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-4">
+            <p className="text-xs text-primary">
+              <span className="font-semibold">Comisión de flete:</span> 1.05
+            </p>
+            {isLoadingExchangeRate ? (
               <p className="text-xs text-primary">
-                <span className="font-semibold">Comisión de flete:</span> 1.05
+                <span className="font-semibold">Tipo de cambio:</span>{" "}
+                Cargando...
               </p>
-              {isLoadingExchangeRate ? (
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Tipo de cambio:</span>{" "}
-                  Cargando...
-                </p>
-              ) : exchangeRate ? (
-                <p className="text-xs text-primary">
-                  <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
-                  {exchangeRate.toFixed(4)}
-                </p>
-              ) : (
-                <p className="text-xs text-red-600">
-                  <span className="font-semibold">Tipo de cambio:</span> No
-                  disponible
-                </p>
-              )}
-            </div>
-          )}
+            ) : exchangeRate ? (
+              <p className="text-xs text-primary">
+                <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
+                {exchangeRate.toFixed(4)}
+              </p>
+            ) : (
+              <p className="text-xs text-red-600">
+                <span className="font-semibold">Tipo de cambio:</span> No
+                disponible
+              </p>
+            )}
+          </div>
+        )}
 
-          {fields.length === 0 ? (
-            <div className="text-center py-8 border rounded-lg bg-gray-50">
-              <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600">
-                No hay repuestos agregados
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Selecciona una fecha de cotización y haz clic en "Agregar
-                Repuesto"
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {/* Cabecera de tabla - Solo Desktop */}
-              <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
-                <div className="col-span-1 text-center">#</div>
-                <div className="col-span-3">Repuesto</div>
-                <div className="col-span-1 text-center">Cant.</div>
-                <div className="col-span-2 text-center">P. Ext. ($)</div>
-                <div className="col-span-2 text-center">
-                  P. Unit. ({selectedCurrency?.symbol || "S/."})
-                </div>
-                <div className="col-span-1 text-center">Dcto %</div>
-                <div className="col-span-2 text-center">
-                  Total ({selectedCurrency?.symbol || "S/."})
-                </div>
-                <div className="col-span-1 text-center">Acción</div>
+        {fields.length === 0 ? (
+          <div className="text-center py-8 border rounded-lg bg-gray-50">
+            <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-600">No hay repuestos agregados</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Selecciona una fecha de cotización y haz clic en "Agregar
+              Repuesto"
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Cabecera de tabla - Solo Desktop */}
+            <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
+              <div className="col-span-4">Repuesto</div>
+              <div className="col-span-1 text-center">Cant.</div>
+              <div className="col-span-2 text-center">P. Ext. ($)</div>
+              <div className="col-span-2 text-center">
+                P. Unit. ({selectedCurrency?.symbol || "S/."})
               </div>
+              <div className="col-span-2 text-center">Dcto %</div>
+              <div className="col-span-2 text-center">
+                Total ({selectedCurrency?.symbol || "S/."})
+              </div>
+              <div className="col-span-1 text-center">Acción</div>
+            </div>
 
-              {/* Items */}
-              <div className="space-y-2">
-                {fields.map((field, index) => {
-                  // Buscar el detalle original para obtener el defaultOption del producto
-                  const originalDetail = quotationData?.details?.filter(
-                    (d) => d.item_type === "PRODUCT",
-                  )[index];
-                  const defaultProductOption = originalDetail?.product
-                    ? {
-                        value: originalDetail.product.id.toString(),
-                        label: `${originalDetail.product.code} - ${originalDetail.product.name}`,
-                      }
+            {/* Items */}
+            <div className="space-y-2">
+              {fields.map((field, index) => {
+                // Buscar el detalle original para obtener el defaultOption del producto
+                const originalDetail = quotationData?.details?.filter(
+                  (d) => d.item_type === ITEM_TYPE_PRODUCT,
+                )[index];
+                const defaultProductOption = originalDetail?.product
+                  ? {
+                      value: originalDetail.product.id.toString(),
+                      label: `${originalDetail.product.code} - ${originalDetail.product.name}`,
+                    }
+                  : undefined;
+
+                // Resolver descuento aprobado: GLOBAL aplica a todos, PARTIAL por detail_id
+                const globalApproved = approvedDiscountRequests.find(
+                  (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+                );
+                const partialApproved = originalDetail
+                  ? approvedDiscountRequests.find(
+                      (r) =>
+                        r.type === TYPE_PARTIAL &&
+                        r.status === STATUS_APPROVED &&
+                        r.ap_order_quotation_detail_id === originalDetail.id,
+                    )
+                  : undefined;
+                const approvedDiscount = globalApproved
+                  ? Number(globalApproved.requested_discount_percentage)
+                  : partialApproved
+                    ? Number(partialApproved.requested_discount_percentage)
                     : undefined;
 
-                  return (
-                    <ProductDetailItem
-                      key={field.id}
-                      index={index}
-                      form={form}
-                      onRemove={() => remove(index)}
-                      selectedCurrency={selectedCurrency}
-                      stockData={stockData}
-                      defaultProductOption={defaultProductOption}
-                    />
-                  );
-                })}
-              </div>
+                return (
+                  <ProductDetailItem
+                    key={field.id}
+                    index={index}
+                    form={form}
+                    onRemove={() => remove(index)}
+                    selectedCurrency={selectedCurrency}
+                    stockData={stockData}
+                    defaultProductOption={defaultProductOption}
+                    detailId={originalDetail?.id}
+                    approvedDiscount={approvedDiscount}
+                    defaultDiscount={defaultDiscount}
+                    isDetailsDisabled={isDetailsDisabled}
+                  />
+                );
+              })}
+            </div>
 
-              {/* Total General */}
-              <div className="flex justify-end pt-4 border-t">
-                <div className="text-right space-y-1">
-                  <div className="flex justify-between gap-8">
-                    <p className="text-sm text-gray-600">Subtotal:</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {formatCurrency(getTotalGeneral())}
-                    </p>
-                  </div>
-                  <div className="flex justify-between gap-8">
-                    <p className="text-sm text-gray-600">IGV (18%):</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {formatCurrency(getTotalGeneral() * IGV.RATE)}
-                    </p>
-                  </div>
-                  <div className="flex justify-between gap-8 pt-1 border-t">
-                    <p className="text-sm font-semibold text-gray-700">
-                      Total General:
-                    </p>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatCurrency(getTotalGeneral() * IGV.FACTOR)}
-                    </p>
-                  </div>
+            {/* Total General */}
+            <div className="flex justify-end pt-4 border-t">
+              <div className="text-right space-y-1">
+                <div className="flex justify-between gap-8">
+                  <p className="text-sm text-gray-600">Subtotal:</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatCurrency(getTotalGeneral())}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-8">
+                  <p className="text-sm text-gray-600">IGV (18%):</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatCurrency(getTotalGeneral() * IGV.RATE)}
+                  </p>
+                </div>
+                <div className="flex justify-between gap-8 pt-1 border-t">
+                  <p className="text-sm font-semibold text-gray-700">
+                    Total General:
+                  </p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(getTotalGeneral() * IGV.FACTOR)}
+                  </p>
                 </div>
               </div>
             </div>
-          )}
-        </Card>
+          </div>
+        )}
 
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
@@ -1183,6 +1365,19 @@ export default function ProformaMesonForm({
       <QuotationPartModal
         open={isPartModalOpen}
         onClose={() => setIsPartModalOpen(false)}
+      />
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            form.setValue("client_id", newCustomer.id.toString(), {
+              shouldValidate: true,
+            });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
       />
     </Form>
   );

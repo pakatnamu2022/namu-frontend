@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import { useVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.hook";
@@ -14,22 +14,39 @@ import { vehiclePurchaseOrderColumns } from "@/features/ap/comercial/ordenes-com
 import VehiclePurchaseOrderTable from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderTable";
 import VehiclePurchaseOrderOptions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  dispatchSyncCreditNote,
+  dispatchSyncInvoice,
+  dispatchVehiclePurchaseOrderMigration,
+} from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
+import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import { useMutation } from "@tanstack/react-query";
 
 export default function VehiclePurchaseOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [sedeId, setSedeId] = useState("all");
+  const [sedeId, setSedeId] = useState("");
   const [warehouseId, setWarehouseId] = useState("all");
   const [supplierId, setSupplierId] = useState("all");
   const [year, setYear] = useState("all");
   const [modelId, setModelId] = useState("all");
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
-  const { ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const { MODEL, ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const migrateMutation = useMutation({
+    mutationFn: dispatchVehiclePurchaseOrderMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [
     search,
@@ -43,11 +60,39 @@ export default function VehiclePurchaseOrderPage() {
     statusId,
   ]);
 
+  const handleRequestInvoice = async (purchaseOrderId: number) => {
+    await dispatchSyncInvoice(purchaseOrderId)
+      .then((response) => {
+        if (response.message) {
+          successToast(response.message);
+        }
+        refetch();
+      })
+      .catch((error: any) => {
+        errorToast(ERROR_MESSAGE(MODEL, "fetch"));
+        console.error("Error al solicitar factura:", error);
+      });
+  };
+
+  const handleRequestCreditNote = async (purchaseOrderId: number) => {
+    await dispatchSyncCreditNote(purchaseOrderId)
+      .then((response) => {
+        if (response.message) {
+          successToast(response.message);
+        }
+        refetch();
+      })
+      .catch((error: any) => {
+        errorToast(ERROR_MESSAGE(MODEL, "fetch"));
+        console.error("Error al solicitar nota de crédito:", error);
+      });
+  };
+
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
     page,
     search,
     per_page,
-    sede_id: sedeId !== "all" ? sedeId : undefined,
+    sede_id: sedeId || undefined,
     warehouse_id: warehouseId !== "all" ? warehouseId : undefined,
     supplier_id: supplierId !== "all" ? supplierId : undefined,
     year: year !== "all" ? year : undefined,
@@ -76,7 +121,11 @@ export default function VehiclePurchaseOrderPage() {
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
-        columns={vehiclePurchaseOrderColumns()}
+        columns={vehiclePurchaseOrderColumns({
+          onRequestInvoice: handleRequestInvoice,
+          onRequestCreditNote: handleRequestCreditNote,
+          onMigrate: (id) => migrateMutation.mutate(id),
+        })}
         data={data?.data || []}
       >
         <VehiclePurchaseOrderOptions

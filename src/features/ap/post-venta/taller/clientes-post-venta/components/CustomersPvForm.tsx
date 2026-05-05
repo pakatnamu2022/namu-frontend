@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormInput } from "@/shared/components/FormInput";
 import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import { useAllDistrict } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
@@ -40,6 +41,11 @@ import {
   customersPvSchemaCreate,
   customersPvSchemaUpdate,
 } from "../lib/customers-pv.schema";
+import {
+  NUM_DIGITS_CE,
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 
 interface CustomersPvFormProps {
   defaultValues: Partial<CustomersPvSchema>;
@@ -55,12 +61,13 @@ export const CustomersPvForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  onCancel,
 }: CustomersPvFormProps) => {
   const router = useNavigate();
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? customersPvSchemaCreate : customersPvSchemaUpdate
+      mode === "create" ? customersPvSchemaCreate : customersPvSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -89,27 +96,27 @@ export const CustomersPvForm = ({
   const documentNumber = form.watch("num_doc");
   const typePersonWatch = form.watch("type_person_id");
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
-  // Obtenemos los numeros de dígitos esperados para DNI y RUC
-  const selectedDocumentTypeRuc = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID
-  );
-
-  const numDigitsRuc = selectedDocumentTypeRuc?.code;
 
   const selectedDocumentType = documentTypes.find(
-    (type) => type.id.toString() === documentTypeId
+    (type) => type.id.toString() === documentTypeId,
   );
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
   const validationType = VALIDATABLE_DOCUMENT.TYPE_MAP[documentTypeId!] || null;
-  const expectedDigits = selectedDocumentType?.code
-    ? Number(selectedDocumentType.code)
-    : 0;
+  const DIGITS_MAP: Record<string, number> = {
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID]: NUM_DIGITS_DNI,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID]: NUM_DIGITS_RUC,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_CE_ID]: NUM_DIGITS_CE,
+    // si hay CE, agregar aquí
+  };
+
+  const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
+
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
 
   const shouldTriggerValidation = Boolean(
-    shouldValidate && isValidLength && validationType
+    shouldValidate && isValidLength && validationType,
   );
 
   const hasDocumentChanged =
@@ -123,7 +130,7 @@ export const CustomersPvForm = ({
 
   // Extraer DNI del RUC natural (10 + DNI + dígito verificador)
   const extractedDni =
-    isRucNatural && documentNumber?.length === Number(numDigitsRuc)
+    isRucNatural && documentNumber?.length === Number(NUM_DIGITS_RUC)
       ? documentNumber!.substring(2, 10)
       : documentNumber;
 
@@ -204,6 +211,7 @@ export const CustomersPvForm = ({
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
       form.setValue("document_type_id", BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typePersonWatch]);
 
   // Efecto para auto-completar campos cuando se obtienen datos válidos
@@ -253,7 +261,7 @@ export const CustomersPvForm = ({
         });
 
         const matchedDistrict = districts.find(
-          (district) => district.ubigeo === ubigeo
+          (district) => district.ubigeo === ubigeo,
         );
         if (matchedDistrict) {
           form.setValue("district_id", String(matchedDistrict.id), {
@@ -297,7 +305,16 @@ export const CustomersPvForm = ({
         form.setValue("maternal_surname", "", { shouldValidate: true });
       }
     }
-  }, [validationData, validationError, form, dniData, rucData, isJuridica]);
+  }, [
+    validationData,
+    validationError,
+    form,
+    dniData,
+    rucData,
+    isJuridica,
+    isFirstLoad,
+    districts,
+  ]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {
@@ -330,7 +347,7 @@ export const CustomersPvForm = ({
 
   // AQUÍ VAN LAS VARIABLES DE ESTADO DINÁMICAS
   const shouldDisableMainFields = Boolean(
-    validationData?.success && validationData.data
+    validationData?.success && validationData.data,
   );
 
   // Función para filtrar tipos de documento según tipo de persona
@@ -339,7 +356,7 @@ export const CustomersPvForm = ({
 
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
       return documentTypes.filter(
-        (doc) => doc.id.toString() == BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID
+        (doc) => doc.id.toString() == BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
       );
     }
     if (typePersonWatch !== BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
@@ -411,54 +428,44 @@ export const CustomersPvForm = ({
                 strictFilter={true}
               />
 
-              <FormField
+              <FormInput
                 control={form.control}
                 name="num_doc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 relative">
-                      Núm. Documento
-                      <DocumentValidationStatus
-                        shouldValidate={shouldValidate}
-                        documentNumber={documentNumber!}
-                        expectedDigits={expectedDigits}
-                        isValidating={isValidatingDocument}
-                      />
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder={
-                            selectedDocumentType
-                              ? `Ingrese ${expectedDigits} dígitos`
-                              : "Ingrese número"
-                          }
-                          {...field}
-                          maxLength={expectedDigits || undefined}
-                        />
-                        {/* Indicador de estado */}
-                        {shouldValidate && documentNumber && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            {isValidatingDocument && (
-                              <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
-                            )}
-                            {validationData?.success && validationData.data && (
-                              <div className="text-green-500">✓</div>
-                            )}
-                            {(validationError ||
-                              (validationData &&
-                                !validationData.data &&
-                                validationData?.source !== "database")) && (
-                              <div className="text-red-500">✗</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label={
+                  <span className="flex items-center gap-2">
+                    Núm. Documento
+                    <DocumentValidationStatus
+                      shouldValidate={shouldValidate}
+                      documentNumber={documentNumber!}
+                      expectedDigits={expectedDigits}
+                      isValidating={isValidatingDocument}
+                    />
+                  </span>
+                }
+                placeholder={
+                  selectedDocumentType
+                    ? `Ingrese ${expectedDigits} dígitos`
+                    : "Ingrese número"
+                }
+                maxLength={expectedDigits || undefined}
+                addonEnd={
+                  shouldValidate && documentNumber ? (
+                    <div className="flex items-center">
+                      {isValidatingDocument && (
+                        <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
+                      )}
+                      {validationData?.success && validationData.data && (
+                        <div className="text-green-500">✓</div>
+                      )}
+                      {(validationError ||
+                        (validationData &&
+                          !validationData.data &&
+                          validationData?.source !== "database")) && (
+                        <div className="text-red-500">✗</div>
+                      )}
+                    </div>
+                  ) : undefined
+                }
               />
 
               {/* Campos para Persona Jurídica */}
@@ -469,9 +476,11 @@ export const CustomersPvForm = ({
                       control={form.control}
                       name="full_name"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col justify-between">
                           <div className="relative">
-                            <FormLabel>Razón Social</FormLabel>
+                            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground">
+                              Razón Social
+                            </FormLabel>
                             {/* Indicadores de Estado y Condición */}
                             {isJuridica &&
                               (companyStatus !== "-" ||
@@ -517,6 +526,7 @@ export const CustomersPvForm = ({
                           </div>
                           <FormControl>
                             <Input
+                              className="h-8 md:h-9 text-xs md:text-sm"
                               placeholder="Ingrese razón social"
                               {...field}
                               disabled={shouldDisableMainFields}
@@ -540,95 +550,45 @@ export const CustomersPvForm = ({
               {/* Campos para Persona Natural */}
               {!isJuridica && (
                 <>
-                  <FormField
+                  <FormInput
                     control={form.control}
                     name="first_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Primer Nombre</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Ingrese primer nombres"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Primer Nombre"
+                    placeholder="Ingrese primer nombres"
+                    disabled={shouldDisableMainFields}
                   />
 
-                  <FormField
+                  <FormInput
                     control={form.control}
                     name="middle_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Segundo Nombre</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Ingrese segundo nombres"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Segundo Nombre"
+                    placeholder="Ingrese segundo nombres"
+                    disabled={shouldDisableMainFields}
                   />
 
-                  <FormField
+                  <FormInput
                     control={form.control}
                     name="paternal_surname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Apellido Paterno</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Apellido paterno"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Apellido Paterno"
+                    placeholder="Apellido paterno"
+                    disabled={shouldDisableMainFields}
                   />
 
-                  <FormField
+                  <FormInput
                     control={form.control}
                     name="maternal_surname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Apellido Materno</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Apellido materno"
-                            {...field}
-                            disabled={shouldDisableMainFields}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Apellido Materno"
+                    placeholder="Apellido materno"
+                    disabled={shouldDisableMainFields}
                   />
 
                   <div className="col-span-1 md:col-span-2">
-                    <FormField
+                    <FormInput
                       control={form.control}
                       name="full_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Razón Social</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ingrese razón social"
-                              {...field}
-                              disabled={true}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      label="Razón Social"
+                      placeholder="Ingrese razón social"
+                      disabled={true}
                     />
                   </div>
                 </>
@@ -651,26 +611,14 @@ export const CustomersPvForm = ({
               />
 
               <div className="col-span-1 md:col-span-2">
-                <FormField
+                <FormInput
                   control={form.control}
                   name="direction"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dirección</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Ingrese dirección"
-                          {...field}
-                          disabled={
-                            shouldDisableMainFields &&
-                            !isRucNatural &&
-                            isJuridica
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Dirección"
+                  placeholder="Ingrese dirección"
+                  disabled={
+                    shouldDisableMainFields && !isRucNatural && isJuridica
+                  }
                 />
               </div>
             </div>
@@ -681,86 +629,44 @@ export const CustomersPvForm = ({
         <GroupFormSection
           title="Información de Contacto"
           icon={Building2}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
+          color="red"
           cols={{ sm: 2, md: 3 }}
         >
-          <FormField
+          <FormInput
             control={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Principal</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="email@ejemplo.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email Principal"
+            type="email"
+            placeholder="email@ejemplo.com"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono Principal</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingrese teléfono" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono Principal"
+            placeholder="Ingrese teléfono"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="secondary_phone_contact_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contacto</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre del contacto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Contacto"
+            placeholder="Nombre del contacto"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="secondary_email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Opcional</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="email2@ejemplo.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email Opcional"
+            type="email"
+            placeholder="email2@ejemplo.com"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="secondary_phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono Opcional</FormLabel>
-                <FormControl>
-                  <Input placeholder="Teléfono 2" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono Opcional"
+            placeholder="Teléfono 2"
           />
         </GroupFormSection>
         <div className="flex gap-4 w-full justify-end">
@@ -774,7 +680,8 @@ export const CustomersPvForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(ABSOLUTE_ROUTE!);
+              if (onCancel) onCancel();
+              else router(ABSOLUTE_ROUTE!);
             }}
           />
 

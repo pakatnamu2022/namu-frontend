@@ -22,6 +22,7 @@ import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitude
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useOpportunity } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
 
 export default function UpdatePurchaseRequestQuotePage() {
   const { id } = useParams();
@@ -58,7 +59,7 @@ export default function UpdatePurchaseRequestQuotePage() {
   };
 
   function mapPurchaseRequestQuoteToForm(
-    data: PurchaseRequestQuoteResource
+    data: PurchaseRequestQuoteResource,
   ): any {
     return {
       sede_id: String(data.sede_id),
@@ -72,12 +73,19 @@ export default function UpdatePurchaseRequestQuotePage() {
       sale_price: data.base_selling_price?.toString() || "0",
       doc_type_currency_id: data.doc_type_currency_id?.toString(),
       comment: data.comment || "",
-      warranty: data.warranty || "",
+      warranty_years: data.warranty_years || 0,
+      warranty_km: data.warranty_km || 0,
+      // quote_deadline llega del backend como "YYYY-MM-DD", se pasa directo
+      quote_deadline: data.quote_deadline || "",
       // Pasar los arrays tal como vienen del API
       bonus_discounts: data.bonus_discounts || [],
       accessories: data.accessories || [],
     };
   }
+
+  const { data: opportunity } = useOpportunity(
+    PurchaseRequestQuote?.opportunity_id ?? 0,
+  );
 
   const isLoadingAny = loadingPurchaseRequestQuote || !PurchaseRequestQuote;
 
@@ -100,6 +108,7 @@ export default function UpdatePurchaseRequestQuotePage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        opportunity={opportunity}
         onCancel={() => router(ABSOLUTE_ROUTE)}
       />
     </PageWrapper>

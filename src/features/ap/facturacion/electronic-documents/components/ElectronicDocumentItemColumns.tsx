@@ -11,6 +11,9 @@ interface ElectronicDocumentItemColumnsProps {
   onEdit?: (index: number) => void;
   isAdvancePayment?: boolean;
   showActions?: boolean;
+  canRemoveItem?: boolean;
+  allowEditLastItemDescription?: boolean;
+  totalItems?: number;
 }
 
 export const getElectronicDocumentItemColumns = ({
@@ -19,6 +22,9 @@ export const getElectronicDocumentItemColumns = ({
   onEdit,
   isAdvancePayment = false,
   showActions = true,
+  canRemoveItem = false,
+  allowEditLastItemDescription = false,
+  totalItems = 0,
 }: ElectronicDocumentItemColumnsProps): ColumnDef<
   ElectronicDocumentItemSchema & { index: number }
 >[] => [
@@ -28,7 +34,7 @@ export const getElectronicDocumentItemColumns = ({
     cell: ({ row }) => (
       <div className="text-wrap!">
         <div
-          className={`text-sm text-wrap! font-medium whitespace-pre-line ${
+          className={`text-xs text-wrap! font-medium whitespace-pre-line ${
             row.original.anticipo_regularizacion ? "text-orange-600 italic" : ""
           }`}
         >
@@ -149,16 +155,23 @@ export const getElectronicDocumentItemColumns = ({
         {
           id: "actions",
           header: () => <div className="text-center">Acciones</div>,
-          cell: ({ row }: { row: { original: ElectronicDocumentItemSchema & { index: number } } }) => {
-            const isAdvanceRegularization = row.original.anticipo_regularizacion;
+          cell: ({
+            row,
+          }: {
+            row: { original: ElectronicDocumentItemSchema & { index: number } };
+          }) => {
+            const isAdvanceRegularization =
+              row.original.anticipo_regularizacion;
             // Los items de regularización de anticipos no se pueden editar ni eliminar
             const cannotEdit = isAdvanceRegularization;
-            const cannotDelete = isAdvanceRegularization;
+            const cannotDelete = isAdvanceRegularization || !canRemoveItem;
 
             return (
               <div className="text-center flex gap-1 justify-center">
                 {cannotEdit && cannotDelete ? (
-                  <span className="text-xs text-gray-500 px-2">No editable</span>
+                  <span className="text-xs text-gray-500 px-2">
+                    No editable
+                  </span>
                 ) : (
                   <>
                     {onEdit && !cannotEdit && (
@@ -194,38 +207,81 @@ export const getElectronicDocumentItemColumns = ({
         } as ColumnDef<ElectronicDocumentItemSchema & { index: number }>,
       ]
     : isAdvancePayment
-    ? [
-        {
-          id: "actions",
-          header: () => <div className="text-center">Acciones</div>,
-          cell: ({ row }: { row: { original: ElectronicDocumentItemSchema & { index: number } } }) => {
-            const isAdvanceRegularization = row.original.anticipo_regularizacion;
-            if (isAdvanceRegularization) {
+      ? [
+          {
+            id: "actions",
+            header: () => <div className="text-center">Acciones</div>,
+            cell: ({
+              row,
+            }: {
+              row: {
+                original: ElectronicDocumentItemSchema & { index: number };
+              };
+            }) => {
+              const isAdvanceRegularization =
+                row.original.anticipo_regularizacion;
+              if (isAdvanceRegularization) {
+                return (
+                  <div className="text-center">
+                    <span className="text-xs text-gray-500 px-2">
+                      No editable
+                    </span>
+                  </div>
+                );
+              }
               return (
-                <div className="text-center">
-                  <span className="text-xs text-gray-500 px-2">No editable</span>
+                <div className="text-center flex gap-1 justify-center">
+                  {onEdit && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onEdit(row.original.index)}
+                      className="size-8"
+                      title="Editar"
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                  )}
                 </div>
               );
-            }
-            return (
-              <div className="text-center flex gap-1 justify-center">
-                {onEdit && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onEdit(row.original.index)}
-                    className="size-8"
-                    title="Editar"
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                )}
-              </div>
-            );
-          },
-          size: 100,
-        } as ColumnDef<ElectronicDocumentItemSchema & { index: number }>,
-      ]
-    : []),
+            },
+            size: 100,
+          } as ColumnDef<ElectronicDocumentItemSchema & { index: number }>,
+        ]
+      : allowEditLastItemDescription
+      ? [
+          {
+            id: "actions",
+            header: () => <div className="text-center">Acciones</div>,
+            cell: ({
+              row,
+            }: {
+              row: {
+                original: ElectronicDocumentItemSchema & { index: number };
+              };
+            }) => {
+              const isLastItem = row.original.index === totalItems - 1;
+              if (!isLastItem) return null;
+              return (
+                <div className="text-center flex gap-1 justify-center">
+                  {onEdit && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onEdit(row.original.index)}
+                      className="size-8"
+                      title="Editar descripción"
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                  )}
+                </div>
+              );
+            },
+            size: 100,
+          } as ColumnDef<ElectronicDocumentItemSchema & { index: number }>,
+        ]
+      : []),
 ];

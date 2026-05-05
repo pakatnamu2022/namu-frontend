@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
@@ -26,35 +26,34 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
 import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function SalesReceiptsTallerPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT_TALLER;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_TALLER;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, statusFilter, documentTypeFilter]);
-
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
     search,
     status: statusFilter,
-    origin_module: "posventa",
+    area_id: [String(AREA_TALLER)],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
+    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
@@ -66,6 +65,17 @@ export default function SalesReceiptsTallerPage() {
   const { data: documentTypes } = useAllSunatConcepts({
     type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
   });
+
+  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  useEffect(() => {
+    if (sedes.length > 0 && !sedeId) {
+      setSedeId(sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes, setSedeId]);
 
   const sendToSunatMutation = useMutation({
     mutationFn: sendElectronicDocumentToSunat,
@@ -107,11 +117,7 @@ export default function SalesReceiptsTallerPage() {
 
   const handlePreCancel = async (id: number) => {
     const result = await preCancelElectronicDocument(id);
-    if (!result.annulled) {
-      throw new Error(
-        "El documento no está anulado en Dynamics. No se puede anular en Nubefact.",
-      );
-    }
+    return result.annulled;
   };
 
   const handleRefresh = () => {
@@ -119,7 +125,7 @@ export default function SalesReceiptsTallerPage() {
     refetch();
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -155,13 +161,16 @@ export default function SalesReceiptsTallerPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
-          module: "REPUESTOS",
+          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >
         <SalesReceiptsOptions
           search={search}
           setSearch={setSearch}
+          sedes={sedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           documentTypeFilter={documentTypeFilter}

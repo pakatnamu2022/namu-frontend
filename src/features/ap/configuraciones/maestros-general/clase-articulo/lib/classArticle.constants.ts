@@ -26,3 +26,10 @@ export const CLASS_ARTICLE: ModelComplete<ClassArticleResource> = {
     status: true,
   },
 };
+
+export const CLASS_ARTICLE_ID = {
+  SERVICIOS: 2,
+  M_VEH_NUE: 3,
+  M_CAM_NUE: 4,
+  M_VEH_USA: 5,
+};

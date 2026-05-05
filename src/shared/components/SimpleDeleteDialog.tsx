@@ -19,9 +19,11 @@ interface SimpleDeleteDialogProps {
 export const DeleteButton = ({
   onClick,
   icon = <Trash2 className="size-5 text-destructive" />,
+  disabled = false,
 }: {
   onClick: () => void;
   icon?: React.ReactNode;
+  disabled?: boolean;
 }) => {
   return (
     <Button
@@ -31,6 +33,7 @@ export const DeleteButton = ({
       size="icon"
       className="size-7"
       onClick={onClick}
+      disabled={disabled}
     >
       {icon}
     </Button>

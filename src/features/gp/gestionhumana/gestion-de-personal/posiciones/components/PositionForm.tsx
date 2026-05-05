@@ -151,8 +151,7 @@ export const PositionForm = ({
         <GroupFormSection
           title="Información Básica"
           icon={ClipboardMinus}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
         >
           <FormField
@@ -280,8 +279,7 @@ export const PositionForm = ({
         <GroupFormSection
           title="Banda Salarial"
           icon={CircleDollarSign}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
+          color="red"
           cols={{ sm: 2, md: 3 }}
         >
           <FormField
@@ -369,8 +367,7 @@ export const PositionForm = ({
         <GroupFormSection
           title="Proceso de Selección y Presupuesto"
           icon={LassoSelect}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
         >
           <FormSelect
@@ -447,8 +444,7 @@ export const PositionForm = ({
         <GroupFormSection
           title="Archivos"
           icon={FileStack}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
+          color="red"
           cols={{ sm: 2, md: 3 }}
         >
           <FormField

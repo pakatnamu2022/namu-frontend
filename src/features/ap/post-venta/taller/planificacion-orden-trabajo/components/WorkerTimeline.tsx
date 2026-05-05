@@ -9,10 +9,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
-  PLANNING_STATUS_COLORS,
-  PLANNING_STATUS_LABELS,
+  PLANNING_VISUAL_STATE_COLORS,
+  PLANNING_VISUAL_STATE_LABELS,
+  getPlanningVisualState,
 } from "../lib/workOrderPlanning.interface";
-import { format, parseISO, isSameDay, addHours } from "date-fns";
+import {
+  WORK_SCHEDULE,
+  minutesToTimelinePosition,
+} from "../lib/workOrderPlanning.constants";
+import { format, parseISO, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   Clock,
@@ -58,21 +63,21 @@ import {
   CommandList,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   AT_WORK_WORK_ORDER_ID,
   FINISHED_WORK_ORDER_ID,
   OPENING_WORK_ORDER_ID,
   RECEIVED_WORK_ORDER_ID,
 } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
 
 interface WorkerTimelineProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   selectedDate: Date;
-  data: WorkOrderPlanningResource[];
+  data?: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
   selectionMode?: boolean;
   estimatedHours?: number;
@@ -88,13 +93,13 @@ interface WorkerTimelineProps {
   fullPage?: boolean;
   sedeId?: string;
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 export function WorkerTimeline({
   open = true,
   onOpenChange,
   selectedDate,
-  data,
   onPlanningClick,
   selectionMode = false,
   estimatedHours = 0,
@@ -103,6 +108,7 @@ export function WorkerTimeline({
   fullPage = false,
   sedeId,
   onRefresh,
+  readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -112,6 +118,11 @@ export function WorkerTimeline({
     time: Date;
     workerId: number;
   } | null>(null);
+  // Refs para el resize de la barra seleccionada
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartHoursRef = useRef(0);
+  const timelineRectRef = useRef<DOMRect | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
@@ -142,6 +153,7 @@ export function WorkerTimeline({
           AT_WORK_WORK_ORDER_ID,
           FINISHED_WORK_ORDER_ID,
         ],
+        sede_id: sedeId,
       },
     });
 
@@ -236,12 +248,59 @@ export function WorkerTimeline({
     );
   }, [selectedWorkOrder, activeGroup]);
 
-  // Horarios en minutos desde medianoche
-  const MORNING_START = 480; // 8:00
-  const MORNING_END = 780; // 13:00
-  const LUNCH_START = 780; // 13:00
-  const AFTERNOON_START = 864; // 14:24
-  const AFTERNOON_END = 1080; // 18:00
+  // Horarios en minutos desde medianoche (definidos en workOrderPlanning.constants.ts)
+  const {
+    MORNING_START,
+    MORNING_END,
+    LUNCH_START,
+    AFTERNOON_START,
+    AFTERNOON_END,
+  } = WORK_SCHEDULE;
+
+  // Suma horas de trabajo reales a una fecha, saltando el almuerzo.
+  // Ej: 11:00 + 3h = 17:24 (no 14:00), porque salta 13:00-14:24
+  const addWorkHours = (start: Date, hours: number): Date => {
+    let remainingMinutes = Math.round(hours * 60);
+    let currentMinutes = start.getHours() * 60 + start.getMinutes();
+
+    // Si empieza en almuerzo, avanzar al inicio de la tarde
+    if (
+      currentMinutes >= LUNCH_START &&
+      currentMinutes < WORK_SCHEDULE.LUNCH_END
+    ) {
+      currentMinutes = WORK_SCHEDULE.LUNCH_END;
+    }
+
+    while (remainingMinutes > 0) {
+      if (currentMinutes < LUNCH_START) {
+        // Estamos en la mañana
+        const minutesUntilLunch = LUNCH_START - currentMinutes;
+        if (remainingMinutes <= minutesUntilLunch) {
+          currentMinutes += remainingMinutes;
+          remainingMinutes = 0;
+        } else {
+          remainingMinutes -= minutesUntilLunch;
+          currentMinutes = WORK_SCHEDULE.LUNCH_END; // saltar almuerzo
+        }
+      } else {
+        // Estamos en la tarde o más allá
+        currentMinutes += remainingMinutes;
+        remainingMinutes = 0;
+      }
+    }
+
+    // Si cayó en el almuerzo, mover al inicio de la tarde
+    if (
+      currentMinutes > LUNCH_START &&
+      currentMinutes < WORK_SCHEDULE.LUNCH_END
+    ) {
+      currentMinutes = WORK_SCHEDULE.LUNCH_END;
+    }
+
+    const result = new Date(start);
+    result.setHours(Math.floor(currentMinutes / 60), currentMinutes % 60, 0, 0);
+    return result;
+  };
 
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
@@ -250,7 +309,17 @@ export function WorkerTimeline({
     sede$empresa_id: EMPRESA_AP.id,
   });
 
-  const dayPlannings = data.filter((planning) => {
+  const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+  const { data: ownPlanningData } = useGetWorkOrderPlanning({
+    params: {
+      per_page: 500,
+      ...(sedeId && { workOrder$sede_id: sedeId }),
+      planned_date: selectedDateStr,
+    },
+    enabled: !!sedeId,
+  });
+
+  const dayPlannings = (ownPlanningData?.data ?? []).filter((planning) => {
     if (!planning.planned_start_datetime) return false;
     return isSameDay(parseISO(planning.planned_start_datetime), selectedDate);
   });
@@ -266,23 +335,7 @@ export function WorkerTimeline({
 
   // Convertir hora a posición en el timeline (0-100%)
   const timeToPosition = (hours: number, minutes: number): number => {
-    const totalMinutes = hours * 60 + minutes;
-
-    // Mañana: 8:00-13:00
-    if (totalMinutes >= MORNING_START && totalMinutes <= MORNING_END) {
-      const morningProgress =
-        (totalMinutes - MORNING_START) / (MORNING_END - MORNING_START);
-      return morningProgress * 50; // Mañana ocupa 50% del timeline
-    }
-
-    // Tarde: 14:24-18:00
-    if (totalMinutes >= AFTERNOON_START && totalMinutes <= AFTERNOON_END) {
-      const afternoonProgress =
-        (totalMinutes - AFTERNOON_START) / (AFTERNOON_END - AFTERNOON_START);
-      return 60 + afternoonProgress * 40; // Tarde ocupa del 60% al 100%
-    }
-
-    return 0;
+    return minutesToTimelinePosition(hours * 60 + minutes);
   };
 
   // Convertir posición del timeline (0-100%) a hora
@@ -309,8 +362,8 @@ export function WorkerTimeline({
     let hours = Math.floor(targetMinutes / 60);
     let mins = Math.round(targetMinutes % 60);
 
-    // Redondear a 6 minutos (0.1 horas)
-    mins = Math.round(mins / 6) * 6;
+    // Redondear a 1 minuto
+    mins = Math.round(mins);
     if (mins >= 60) {
       hours += 1;
       mins = 0;
@@ -360,40 +413,70 @@ export function WorkerTimeline({
     startTime: Date,
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
-    const endTime = addHours(startTime, estimatedHours);
-    const endHour = endTime.getHours();
-    const endMinute = endTime.getMinutes();
     const startHour = startTime.getHours();
     const startMin = startTime.getMinutes();
     const startTotalMin = startHour * 60 + startMin;
-    const endTotalMin = endHour * 60 + endMinute;
 
-    // Verificar que no cruce el almuerzo
-    if (startTotalMin < LUNCH_START && endTotalMin > LUNCH_START) {
-      return false; // Cruza el inicio del almuerzo
+    // Si el día seleccionado es hoy, no permitir horas pasadas
+    if (isSameDay(selectedDate, new Date())) {
+      const now = new Date();
+      const nowTotalMin = now.getHours() * 60 + now.getMinutes();
+      if (startTotalMin < nowTotalMin) {
+        return false;
+      }
     }
 
-    // Verificar que esté dentro del horario laboral
-    const isInMorning =
-      startTotalMin >= MORNING_START && endTotalMin <= MORNING_END;
-    const isInAfternoon =
-      startTotalMin >= AFTERNOON_START && endTotalMin <= AFTERNOON_END;
+    // Verificar que el inicio esté dentro del horario laboral (no en almuerzo)
+    const startInMorning =
+      startTotalMin >= MORNING_START && startTotalMin < MORNING_END;
+    const startInAfternoon =
+      startTotalMin >= AFTERNOON_START && startTotalMin <= AFTERNOON_END;
 
-    if (!isInMorning && !isInAfternoon) {
+    if (!startInMorning && !startInAfternoon) {
       return false;
     }
 
-    // Verificar conflictos con tareas existentes
+    // Verificar conflictos con tareas existentes usando el fin real (saltando almuerzo)
+    const endTimeForConflict = addWorkHours(startTime, estimatedHours);
     return !workerPlannings.some((p) => {
       if (!p.planned_start_datetime || !p.planned_end_datetime) return false;
       const planStart = parseISO(p.planned_start_datetime);
       const planEnd = parseISO(p.planned_end_datetime);
       return (
         (startTime >= planStart && startTime < planEnd) ||
-        (endTime > planStart && endTime <= planEnd) ||
-        (startTime <= planStart && endTime >= planEnd)
+        (endTimeForConflict > planStart && endTimeForConflict <= planEnd) ||
+        (startTime <= planStart && endTimeForConflict >= planEnd)
       );
     });
+  };
+
+  // Calcula cuántas horas se derraman al día siguiente (overflow)
+  const getOverflowHours = (startTime: Date, hours: number): number => {
+    const endTime = addWorkHours(startTime, hours);
+    const endTotalMin = endTime.getHours() * 60 + endTime.getMinutes();
+    // Si la hora de fin es menor que la de inicio en minutos absolutos,
+    // significa que pasó la medianoche (edge case extremo), lo ignoramos.
+    // Solo nos interesa si supera AFTERNOON_END (18:00)
+    if (endTotalMin > AFTERNOON_END) {
+      return (endTotalMin - AFTERNOON_END) / 60;
+    }
+    return 0;
+  };
+
+  // Devuelve la hora de fin del último bloque del trabajador en este día,
+  // o null si no tiene bloques.
+  const getLastBlockEnd = (
+    workerPlannings: WorkOrderPlanningResource[],
+  ): Date | null => {
+    const sorted = [...workerPlannings]
+      .filter((p) => p.planned_end_datetime)
+      .sort(
+        (a, b) =>
+          parseISO(b.planned_end_datetime!).getTime() -
+          parseISO(a.planned_end_datetime!).getTime(),
+      );
+    if (sorted.length === 0) return null;
+    return parseISO(sorted[0].planned_end_datetime!);
   };
 
   const handleTimelineClick = (
@@ -402,14 +485,102 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const position = (clickX / rect.width) * 100;
-    const clickedTime = positionToTime(position);
+    // Si ya hay un slot seleccionado, no permitir reposicionar sin usar el botón "Mover"
+    if (selectedTime) return;
 
-    if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
-      setSelectedTime({ time: clickedTime, workerId });
+    const lastEnd = getLastBlockEnd(workerPlannings);
+
+    if (lastEnd) {
+      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
+      if (lastEndTotalMin >= AFTERNOON_END) return;
+
+      // Si el último bloque quedó en el pasado (hora actual > fin del último bloque),
+      // partir desde la hora actual (tiempo muerto permitido)
+      let effectiveStart = lastEnd;
+      if (isSameDay(selectedDate, new Date())) {
+        const now = new Date();
+        if (now > lastEnd) {
+          effectiveStart = now;
+        }
+      }
+
+      // Si el inicio cae en almuerzo, saltar al fin del almuerzo
+      const effectiveStartMin =
+        effectiveStart.getHours() * 60 + effectiveStart.getMinutes();
+      if (
+        effectiveStartMin >= LUNCH_START &&
+        effectiveStartMin < WORK_SCHEDULE.LUNCH_END
+      ) {
+        effectiveStart = new Date(effectiveStart);
+        effectiveStart.setHours(
+          Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+          WORK_SCHEDULE.LUNCH_END % 60,
+          0,
+          0,
+        );
+      }
+
+      // Tiene bloques: el inicio es el fin del último bloque o la hora actual (lo que sea mayor)
+      if (isSlotAvailable(effectiveStart, workerPlannings)) {
+        setSelectedTime({ time: effectiveStart, workerId });
+      }
+    } else {
+      // Sin bloques: libre desde hora actual
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const position = (clickX / rect.width) * 100;
+      const clickedTime = positionToTime(position);
+      if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
+        setSelectedTime({ time: clickedTime, workerId });
+      }
     }
+  };
+
+  // ── Resize handlers ───────────────────────────────────────────────────────
+  const handleResizeStart = (
+    e: React.MouseEvent,
+    timelineEl: HTMLDivElement,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.clientX;
+    dragStartHoursRef.current = estimatedHours;
+    timelineRectRef.current = timelineEl.getBoundingClientRect();
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDraggingRef.current || !timelineRectRef.current || !selectedTime)
+        return;
+      const rect = timelineRectRef.current;
+      const deltaX = ev.clientX - dragStartXRef.current;
+      const deltaFraction = deltaX / rect.width;
+
+      // Convertir fracción de timeline a horas (el timeline total = 8 horas laborales aprox)
+      // Mañana: 0-50% = 5h  |  Almuerzo: 50-60% = skip  |  Tarde: 60-100% = 3.6h
+      const totalWorkHours =
+        (WORK_SCHEDULE.MORNING_END -
+          WORK_SCHEDULE.MORNING_START +
+          WORK_SCHEDULE.AFTERNOON_END -
+          WORK_SCHEDULE.AFTERNOON_START) /
+        60;
+      const deltaHours = deltaFraction * totalWorkHours;
+
+      let newHours = Math.max(0.5, dragStartHoursRef.current + deltaHours);
+      // Redondear a 1 minuto exacto
+      newHours = Math.round(newHours * 60) / 60;
+
+      onEstimatedHoursChange?.(newHours);
+    };
+
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   };
 
   const handleTimelineHover = (
@@ -418,15 +589,62 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const hoverX = event.clientX - rect.left;
-    const position = (hoverX / rect.width) * 100;
-    const hoveredTime = positionToTime(position);
+    // Si ya hay un slot seleccionado, no mostrar hover (solo se mueve con el botón)
+    if (selectedTime) return;
 
-    if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
-      setHoveredSlot({ time: hoveredTime, workerId });
+    const lastEnd = getLastBlockEnd(workerPlannings);
+
+    if (lastEnd) {
+      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
+      if (lastEndTotalMin >= AFTERNOON_END) {
+        setHoveredSlot(null);
+        return;
+      }
+
+      // Si el último bloque quedó en el pasado (hora actual > fin del último bloque),
+      // partir desde la hora actual (tiempo muerto permitido)
+      let effectiveStart = lastEnd;
+      if (isSameDay(selectedDate, new Date())) {
+        const now = new Date();
+        if (now > lastEnd) {
+          effectiveStart = now;
+        }
+      }
+
+      // Si el inicio cae en almuerzo, saltar al fin del almuerzo
+      const effectiveStartMin =
+        effectiveStart.getHours() * 60 + effectiveStart.getMinutes();
+      if (
+        effectiveStartMin >= LUNCH_START &&
+        effectiveStartMin < WORK_SCHEDULE.LUNCH_END
+      ) {
+        effectiveStart = new Date(effectiveStart);
+        effectiveStart.setHours(
+          Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+          WORK_SCHEDULE.LUNCH_END % 60,
+          0,
+          0,
+        );
+      }
+
+      // Tiene bloques: preview fijo al fin del último bloque o la hora actual (lo que sea mayor)
+      if (isSlotAvailable(effectiveStart, workerPlannings)) {
+        setHoveredSlot({ time: effectiveStart, workerId });
+      } else {
+        setHoveredSlot(null);
+      }
     } else {
-      setHoveredSlot(null);
+      // Sin bloques: preview libre siguiendo el cursor
+      const rect = event.currentTarget.getBoundingClientRect();
+      const hoverX = event.clientX - rect.left;
+      const position = (hoverX / rect.width) * 100;
+      const hoveredTime = positionToTime(position);
+      if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
+        setHoveredSlot({ time: hoveredTime, workerId });
+      } else {
+        setHoveredSlot(null);
+      }
     }
   };
 
@@ -473,18 +691,25 @@ export function WorkerTimeline({
     selectedItemId !== null &&
     activeGroup !== null;
 
+  // Posición de la hora actual en el timeline (solo relevante si selectedDate es hoy)
+  const nowTimelinePosition = useMemo(() => {
+    if (!isSameDay(selectedDate, new Date())) return null;
+    const now = new Date();
+    return minutesToTimelinePosition(now.getHours() * 60 + now.getMinutes());
+  }, [selectedDate]);
+
   const timeMarkers = [
-    { time: "8:00", position: 0 },
-    { time: "9:00", position: 10 },
-    { time: "10:00", position: 20 },
-    { time: "11:00", position: 30 },
-    { time: "12:00", position: 40 },
-    { time: "13:00", position: 50 },
-    { time: "14:24", position: 60 },
-    { time: "15:00", position: 69 },
-    { time: "16:00", position: 80 },
-    { time: "17:00", position: 91 },
-    { time: "18:00", position: 100 },
+    { time: "8:00", position: timeToPosition(8, 0) },
+    { time: "9:00", position: timeToPosition(9, 0) },
+    { time: "10:00", position: timeToPosition(10, 0) },
+    { time: "11:00", position: timeToPosition(11, 0) },
+    { time: "12:00", position: timeToPosition(12, 0) },
+    { time: "13:00", position: timeToPosition(13, 0) },
+    { time: "14:24", position: timeToPosition(14, 24) },
+    { time: "15:00", position: timeToPosition(15, 0) },
+    { time: "16:00", position: timeToPosition(16, 0) },
+    { time: "17:00", position: timeToPosition(17, 0) },
+    { time: "18:00", position: timeToPosition(18, 0) },
   ];
 
   const timelineContent = (
@@ -510,14 +735,16 @@ export function WorkerTimeline({
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsExceptionalCaseOpen(true)}
-            className="gap-2"
-          >
-            <Clock className="h-4 w-4" />
-            Caso Excepcional
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="outline"
+              onClick={() => setIsExceptionalCaseOpen(true)}
+              className="gap-2"
+            >
+              <Clock className="h-4 w-4" />
+              Caso Excepcional
+            </Button>
+          )}
         </div>
       </div>
 
@@ -538,9 +765,11 @@ export function WorkerTimeline({
                   type="number"
                   min="0.5"
                   step="0.5"
-                  value={estimatedHours}
+                  value={Number(estimatedHours.toFixed(2))}
                   onChange={(e) =>
-                    onEstimatedHoursChange(Number(e.target.value))
+                    onEstimatedHoursChange(
+                      Math.round(Number(e.target.value) * 100) / 100,
+                    )
                   }
                   className="w-24 text-center font-semibold"
                 />
@@ -585,14 +814,17 @@ export function WorkerTimeline({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
+                <PopoverContent
+                  className="w-[400px] p-0 overflow-hidden"
+                  align="start"
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
                       placeholder="Buscar por correlativo o placa..."
                       value={searchWorkOrder}
                       onValueChange={setSearchWorkOrder}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-60 overflow-y-auto">
                       {isLoadingWorkOrders ? (
                         <div className="flex items-center justify-center py-6">
                           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -687,8 +919,8 @@ export function WorkerTimeline({
 
           {/* Lista de Descripciones */}
           {selectedWorkOrder && activeGroup !== null && (
-            <div className="space-y-2 p-4 bg-white rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
                 <ListChecks className="h-4 w-4" />
                 Seleccionar Descripción de Trabajo
               </Label>
@@ -696,44 +928,46 @@ export function WorkerTimeline({
                 value={selectedItemId?.toString() || ""}
                 onValueChange={(value) => setSelectedItemId(Number(value))}
               >
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div className="space-y-1 max-h-56 overflow-y-auto">
                   {filteredItems.length > 0 ? (
                     filteredItems.map((item) => (
-                      <Card
+                      <div
                         key={item.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
+                        className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
                           selectedItemId === item.id
-                            ? "bg-blue-50 border-blue-300 shadow-sm"
-                            : "bg-white hover:bg-slate-50"
+                            ? "bg-blue-50 border-blue-300"
+                            : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
                         }`}
                         onClick={() => handleItemSelect(item.id)}
                       >
-                        <CardContent className="p-3">
-                          <div className="flex items-start gap-3">
-                            <RadioGroupItem
-                              value={item.id.toString()}
-                              id={`item-${item.id}`}
-                              className="mt-0.5"
-                            />
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50"
-                                >
-                                  {item.type_planning_name}
-                                </Badge>
-                              </div>
-                              <p className="text-sm font-medium text-slate-800 leading-relaxed">
-                                {item.description}
-                              </p>
-                            </div>
+                        <RadioGroupItem
+                          value={item.id.toString()}
+                          id={`item-${item.id}`}
+                          className="mt-0.5 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                            >
+                              {item.type_planning.description}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                            >
+                              {item.type_operation_name}
+                            </Badge>
                           </div>
-                        </CardContent>
-                      </Card>
+                          <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-3">
                       No hay items disponibles para este grupo
                     </p>
                   )}
@@ -744,80 +978,86 @@ export function WorkerTimeline({
         </div>
       )}
 
-      {selectionMode && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <Clock className="h-4 w-4 text-primary" />
-          <AlertDescription className="text-primary">
-            {!selectedWorkOrderId && (
-              <span>
-                Seleccione una <strong>Orden de Trabajo</strong> y luego haz
-                click en un espacio disponible del timeline.
-              </span>
-            )}
-            {selectedWorkOrderId && !selectedTime && (
-              <span>
-                Ahora haz click en un espacio disponible de la línea de tiempo.
-                La tarea durará <strong>{estimatedHours}h</strong>.
-              </span>
-            )}
-            {selectedWorkOrderId && selectedTime && selectedItemId === null && (
-              <span>
-                Selecciona una <strong>descripción de trabajo</strong> para
-                continuar.
-              </span>
-            )}
-            {selectedWorkOrderId && selectedTime && selectedItemId !== null && (
-              <span className="text-green-700 font-semibold">
-                ¡Todo listo! Haz click en "Confirmar y Crear Planificación".
-              </span>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {selectionMode && selectedTime && (
-        <div className="p-5 bg-linear-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-primary">
-                Horario seleccionado:
-              </p>
-              <p className="text-2xl font-bold text-primary">
-                {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
-                {format(addHours(selectedTime.time, estimatedHours), "HH:mm", {
-                  locale: es,
-                })}
-              </p>
-              {selectedItemId !== null && (
-                <p className="text-xs text-primary mt-1">
-                  1 descripción seleccionada
-                </p>
+      {selectionMode &&
+        selectedTime &&
+        (() => {
+          const overflowHours = getOverflowHours(
+            selectedTime.time,
+            estimatedHours,
+          );
+          const hasOverflow = overflowHours > 0;
+          const overflowMins = Math.round(overflowHours * 60);
+          const overflowLabel =
+            overflowMins % 60 === 0
+              ? `${overflowMins / 60}h`
+              : overflowMins < 60
+                ? `${overflowMins}min`
+                : `${Math.floor(overflowMins / 60)}h ${overflowMins % 60}min`;
+          return (
+            <div className="space-y-2">
+              {hasOverflow && (
+                <Alert className="border-orange-300 bg-orange-50">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-700 font-medium">
+                    El horario excede las 18:00.{" "}
+                    <strong>{overflowLabel}</strong> continuará al día siguiente
+                    desde las 08:00.
+                  </AlertDescription>
+                </Alert>
               )}
+              <div
+                className={`p-5 rounded-xl shadow-md border-2 ${hasOverflow ? "bg-linear-to-r from-orange-50 to-amber-50 border-orange-300" : "bg-linear-to-r from-blue-50 to-indigo-50 border-blue-300"}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p
+                      className={`text-sm font-medium ${hasOverflow ? "text-orange-700" : "text-primary"}`}
+                    >
+                      Horario seleccionado:
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${hasOverflow ? "text-orange-700" : "text-primary"}`}
+                    >
+                      {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
+                      {format(
+                        addWorkHours(selectedTime.time, estimatedHours),
+                        "HH:mm",
+                        {
+                          locale: es,
+                        },
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleConfirmSelection}
+                    disabled={!canConfirm}
+                    size="lg"
+                    className="bg-primary hover:bg-primary"
+                  >
+                    Confirmar y Crear Planificación
+                  </Button>
+                </div>
+              </div>
             </div>
-            <Button
-              onClick={handleConfirmSelection}
-              disabled={!canConfirm}
-              size="lg"
-              className="bg-primary hover:bg-primary"
-            >
-              Confirmar y Crear Planificación
-            </Button>
-          </div>
-        </div>
-      )}
+          );
+        })()}
 
       <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg flex-wrap">
+        {(
+          ["planned", "paused", "in_progress", "overtime", "completed"] as const
+        ).map((state) => (
+          <div key={state} className="flex items-center gap-2">
+            <div
+              className={`w-4 h-4 rounded border-2 ${PLANNING_VISUAL_STATE_COLORS[state].bg} ${PLANNING_VISUAL_STATE_COLORS[state].border}`}
+            />
+            <span className="text-sm">
+              {PLANNING_VISUAL_STATE_LABELS[state]}
+            </span>
+          </div>
+        ))}
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-200 border-2 border-blue-500 rounded"></div>
-          <span className="text-sm">Planificado</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-amber-200 border-2 border-amber-500 rounded"></div>
-          <span className="text-sm">Caso Excepcional</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-500 rounded"></div>
-          <span className="text-sm">Completado</span>
+          <div className="w-4 h-4 rounded border-2 bg-red-500 border-red-700" />
+          <span className="text-sm">Exceso real</span>
         </div>
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-green-600" />
@@ -830,288 +1070,542 @@ export function WorkerTimeline({
       </div>
 
       <div className="space-y-6">
-        {workerPlannings.map(({ worker, plannings }) => (
-          <div key={worker.id} className="flex items-center gap-3">
-            <div className="w-48 shrink-0">
-              <h3 className="font-semibold text-sm">{worker.name}</h3>
-              <p className="text-xs text-muted-foreground">
-                {worker.specialty}
-              </p>
-            </div>
+        {workerPlannings.map(({ worker, plannings }) => {
+          const hasExceptional = plannings.some((p) => p.type === "external");
+          return (
+            <div key={worker.id} className="flex items-center gap-3">
+              <div className="w-48 shrink-0">
+                <h3 className="font-semibold text-sm">{worker.name}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {worker.specialty}
+                </p>
+              </div>
 
-            <div className="flex-1">
-              <div
-                className={`relative h-20 rounded border ${
-                  selectionMode ? "cursor-pointer" : ""
-                }`}
-                onClick={(e) =>
-                  selectionMode
-                    ? handleTimelineClick(e, worker.id, plannings)
-                    : undefined
-                }
-                onMouseMove={(e) =>
-                  selectionMode
-                    ? handleTimelineHover(e, worker.id, plannings)
-                    : undefined
-                }
-                onMouseLeave={() =>
-                  selectionMode ? setHoveredSlot(null) : undefined
-                }
-              >
-                {/* Área de mañana */}
+              <div className="flex-1">
                 <div
-                  className="absolute left-0 top-0 bottom-0 bg-gray-100"
-                  style={{ width: "50%" }}
-                ></div>
-
-                {/* Separador almuerzo */}
-                <div
-                  className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
-                  style={{ left: "50%", width: "10%" }}
+                  className={`timeline-row relative rounded border ${
+                    hasExceptional ? "h-32" : "h-20"
+                  } ${selectionMode ? "cursor-pointer" : ""}`}
+                  onClick={(e) =>
+                    selectionMode
+                      ? handleTimelineClick(e, worker.id, plannings)
+                      : undefined
+                  }
+                  onMouseMove={(e) =>
+                    selectionMode
+                      ? handleTimelineHover(e, worker.id, plannings)
+                      : undefined
+                  }
+                  onMouseLeave={() =>
+                    selectionMode ? setHoveredSlot(null) : undefined
+                  }
                 >
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
-                    ALMUERZO
-                  </div>
-                </div>
-
-                {/* Área de tarde */}
-                <div
-                  className="absolute top-0 bottom-0 bg-gray-100"
-                  style={{ left: "60%", width: "40%" }}
-                ></div>
-
-                {/* Marcadores de hora */}
-                {timeMarkers.map((marker, index) => (
+                  {/* Área de mañana */}
                   <div
-                    key={index}
-                    className="absolute top-0 bottom-0 flex flex-col items-start z-20"
-                    style={{ left: `${marker.position}%` }}
+                    className="absolute left-0 top-0 bottom-0 bg-gray-100"
+                    style={{ width: "50%" }}
+                  ></div>
+
+                  {/* Separador almuerzo */}
+                  <div
+                    className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
+                    style={{ left: "50%", width: "10%" }}
                   >
-                    <div className="w-px h-2 bg-gray-500"></div>
-                    <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
-                      {marker.time}
-                    </span>
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
+                      ALMUERZO
+                    </div>
                   </div>
-                ))}
 
-                {/* Barras de planificación */}
-                {plannings.map((planning, index) => {
-                  const startPos = calculatePosition(
-                    planning.planned_start_datetime!,
-                  );
-                  const width = calculateWidth(planning);
-                  const isExternal = planning.type === "external";
+                  {/* Área de tarde */}
+                  <div
+                    className="absolute top-0 bottom-0 bg-gray-100"
+                    style={{ left: "60%", width: "40%" }}
+                  ></div>
 
-                  // Verificar si el planning anterior era interno y este es externo para actualizar espacio
-                  const previousPlanning =
-                    index > 0 ? plannings[index - 1] : null;
-                  const needsTopMargin =
-                    isExternal && previousPlanning?.type !== "external";
+                  {/* Zona de horas pasadas (solo si es hoy) */}
+                  {nowTimelinePosition !== null && nowTimelinePosition > 0 && (
+                    <div
+                      className="absolute top-0 bottom-0 bg-slate-400/20 border-r-2 border-slate-400/50 z-10 pointer-events-none"
+                      style={{ left: 0, width: `${nowTimelinePosition}%` }}
+                    />
+                  )}
 
-                  return (
-                    <TooltipProvider key={planning.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            className="absolute cursor-pointer"
-                            style={{
-                              left: `${startPos}%`,
-                              width: `${width}%`,
-                              top: needsTopMargin ? "calc(50% + 8px)" : "50%",
-                              transform: "translateY(-50%)",
-                            }}
-                            onClick={() => onPlanningClick?.(planning)}
-                          >
-                            {/* Barra única - color según estado o tipo */}
+                  {/* Marcadores de hora */}
+                  {timeMarkers.map((marker, index) => (
+                    <div
+                      key={index}
+                      className="absolute top-0 bottom-0 flex flex-col items-start z-20"
+                      style={{ left: `${marker.position}%` }}
+                    >
+                      <div className="w-px h-2 bg-gray-500"></div>
+                      <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
+                        {marker.time}
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* Barras de planificación */}
+                  {plannings.map((planning) => {
+                    const startPos = calculatePosition(
+                      planning.planned_start_datetime!,
+                    );
+                    const width = calculateWidth(planning);
+                    const isExternal = planning.type === "external";
+
+                    // Calcular posición vertical: si hay excepcionales, separar en dos filas
+                    // Internos: fila superior (~30%), Externos: fila inferior (~72%)
+                    // Si no hay excepcionales: todos centrados en 50%
+                    const verticalTop = hasExceptional
+                      ? isExternal
+                        ? "72%"
+                        : "30%"
+                      : "50%";
+
+                    // Calcular overtime: tiempo real excedió el planificado
+                    const hasOvertime =
+                      planning.planned_end_datetime &&
+                      planning.actual_end_datetime &&
+                      parseISO(planning.actual_end_datetime) >
+                        parseISO(planning.planned_end_datetime);
+                    const overtimeStartPos = hasOvertime
+                      ? calculatePosition(planning.planned_end_datetime!)
+                      : 0;
+                    const overtimeEndPos = hasOvertime
+                      ? calculatePosition(planning.actual_end_datetime!)
+                      : 0;
+                    const overtimeWidth = hasOvertime
+                      ? overtimeEndPos - overtimeStartPos
+                      : 0;
+
+                    return (
+                      <TooltipProvider key={planning.id}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                             <div
-                              className={`h-5 rounded border-2 ${
-                                isExternal
-                                  ? "border-amber-500 bg-amber-200"
-                                  : PLANNING_STATUS_COLORS[planning.status]
-                                      .border
-                              } ${
-                                !isExternal && planning.actual_start_datetime
-                                  ? PLANNING_STATUS_COLORS[planning.status].bg
-                                  : !isExternal
-                                    ? "bg-blue-200 opacity-50"
-                                    : ""
-                              }`}
-                            ></div>
+                              className="absolute cursor-pointer"
+                              style={{
+                                left: `${startPos}%`,
+                                width: `${width}%`,
+                                top: verticalTop,
+                                transform: "translateY(-50%)",
+                              }}
+                              onClick={() => onPlanningClick?.(planning)}
+                            >
+                              {/* Barra única - color según estado visual */}
+                              <div
+                                className={`h-5 rounded border-2 ${
+                                  isExternal
+                                    ? "border-amber-500 bg-amber-200"
+                                    : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
+                                }`}
+                              ></div>
 
-                            {/* Texto centrado */}
-                            <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
-                              <div className="flex items-center gap-1 px-1">
-                                <span className="text-[10px] font-medium truncate text-gray-900">
-                                  {planning.work_order_correlative}
-                                </span>
-                                {isExternal && (
-                                  <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
-                                    EXT
-                                  </Badge>
-                                )}
-                                {getEfficiencyIcon(planning)}
+                              {/* Texto centrado */}
+                              <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
+                                <div className="flex items-center gap-1 px-1">
+                                  <span
+                                    className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
+                                  >
+                                    {planning.work_order_correlative}
+                                  </span>
+                                  {isExternal && (
+                                    <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
+                                      EXT
+                                    </Badge>
+                                  )}
+                                  {getEfficiencyIcon(planning)}
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="top"
-                          className="max-w-xs bg-gray-50 text-black border border-gray-400"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold">
-                                {planning.work_order_correlative}
-                              </div>
-                              {planning.type === "external" && (
-                                <Badge className="text-[10px] bg-amber-600 text-white">
-                                  Caso Excepcional
-                                </Badge>
+
+                              {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
+                              {hasOvertime && overtimeWidth > 0 && (
+                                <div
+                                  className="absolute top-0 h-5 pointer-events-none z-40"
+                                  style={{
+                                    left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
+                                    width: `${(overtimeWidth / width) * 100}%`,
+                                  }}
+                                >
+                                  <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
+                                    <span className="text-[9px] font-bold text-white px-0.5 truncate">
+                                      +
+                                      {Math.round(
+                                        (parseISO(
+                                          planning.actual_end_datetime!,
+                                        ).getTime() -
+                                          parseISO(
+                                            planning.planned_end_datetime!,
+                                          ).getTime()) /
+                                          60000,
+                                      )}
+                                      m
+                                    </span>
+                                  </div>
+                                </div>
                               )}
                             </div>
-                            <div className="text-sm">
-                              {planning.description}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground ">
-                                  Planificado:
-                                </span>
-                                <p>
-                                  {planning.planned_start_datetime &&
-                                    format(
-                                      parseISO(planning.planned_start_datetime),
-                                      "HH:mm",
-                                    )}{" "}
-                                  -{" "}
-                                  {planning.planned_end_datetime &&
-                                    format(
-                                      parseISO(planning.planned_end_datetime),
-                                      "HH:mm",
-                                    )}
-                                </p>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <div className="font-semibold">
+                                  {planning.work_order_correlative}
+                                </div>
+                                {planning.type === "external" && (
+                                  <Badge className="text-[10px] bg-amber-600 text-white">
+                                    Caso Excepcional
+                                  </Badge>
+                                )}
                               </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Real:
-                                </span>
-                                <p>
-                                  {planning.actual_start_datetime
-                                    ? `${format(
+                              <div className="text-sm">
+                                {planning.description}
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <span className="text-muted-foreground ">
+                                    Planificado:
+                                  </span>
+                                  <p>
+                                    {planning.planned_start_datetime &&
+                                      format(
                                         parseISO(
-                                          planning.actual_start_datetime,
+                                          planning.planned_start_datetime,
                                         ),
                                         "HH:mm",
-                                      )} - ${
-                                        planning.actual_end_datetime
-                                          ? format(
-                                              parseISO(
-                                                planning.actual_end_datetime,
-                                              ),
-                                              "HH:mm",
-                                            )
-                                          : "En curso"
-                                      }`
-                                    : "No iniciado"}
-                                </p>
+                                      )}{" "}
+                                    -{" "}
+                                    {planning.planned_end_datetime &&
+                                      format(
+                                        parseISO(planning.planned_end_datetime),
+                                        "HH:mm",
+                                      )}
+                                  </p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Real:
+                                  </span>
+                                  <p>
+                                    {planning.actual_start_datetime
+                                      ? `${format(
+                                          parseISO(
+                                            planning.actual_start_datetime,
+                                          ),
+                                          "HH:mm",
+                                        )} - ${
+                                          planning.actual_end_datetime
+                                            ? format(
+                                                parseISO(
+                                                  planning.actual_end_datetime,
+                                                ),
+                                                "HH:mm",
+                                              )
+                                            : "En curso"
+                                        }`
+                                      : "No iniciado"}
+                                  </p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Estimado:
+                                  </span>
+                                  <p>{planning.estimated_hours || "N/A"}h</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Real:
+                                  </span>
+                                  <p>{planning.actual_hours}h</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Eficiencia:
+                                  </span>
+                                  <p className="flex items-center gap-1">
+                                    {getEfficiencyPercentage(planning)}
+                                    {getEfficiencyIcon(planning)}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Estimado:
+                              <Badge
+                                className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
+                              >
+                                {
+                                  PLANNING_VISUAL_STATE_LABELS[
+                                    getPlanningVisualState(planning)
+                                  ]
+                                }
+                              </Badge>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+
+                  {/* Preview hover */}
+                  {selectionMode &&
+                    hoveredSlot &&
+                    hoveredSlot.workerId === worker.id && (
+                      <div
+                        className="absolute top-0 h-full bg-blue-300 opacity-40 pointer-events-none border-2 border-blue-500 border-dashed z-20"
+                        style={{
+                          left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
+                          width: `${
+                            calculatePositionFromDate(
+                              addWorkHours(hoveredSlot.time, estimatedHours),
+                            ) - calculatePositionFromDate(hoveredSlot.time)
+                          }%`,
+                        }}
+                      ></div>
+                    )}
+
+                  {/* Selección confirmada (con resize y división por almuerzo) */}
+                  {selectionMode &&
+                    selectedTime &&
+                    selectedTime.workerId === worker.id &&
+                    (() => {
+                      const startMin =
+                        selectedTime.time.getHours() * 60 +
+                        selectedTime.time.getMinutes();
+                      const endTime = addWorkHours(
+                        selectedTime.time,
+                        estimatedHours,
+                      );
+                      const endMin =
+                        endTime.getHours() * 60 + endTime.getMinutes();
+                      const crossesLunch =
+                        startMin < LUNCH_START &&
+                        endMin > WORK_SCHEDULE.LUNCH_END;
+
+                      const startPos = calculatePositionFromDate(
+                        selectedTime.time,
+                      );
+                      const endPos = calculatePositionFromDate(endTime);
+
+                      if (crossesLunch) {
+                        // Bloque mañana: inicio → almuerzo
+                        const lunchStartDate = new Date(selectedTime.time);
+                        lunchStartDate.setHours(
+                          Math.floor(LUNCH_START / 60),
+                          LUNCH_START % 60,
+                          0,
+                          0,
+                        );
+                        const lunchEndDate = new Date(selectedTime.time);
+                        lunchEndDate.setHours(
+                          Math.floor(WORK_SCHEDULE.LUNCH_END / 60),
+                          WORK_SCHEDULE.LUNCH_END % 60,
+                          0,
+                          0,
+                        );
+                        const morningEndPos =
+                          calculatePositionFromDate(lunchStartDate);
+                        const afternoonStartPos =
+                          calculatePositionFromDate(lunchEndDate);
+
+                        return (
+                          <>
+                            {/* Segmento mañana */}
+                            <div
+                              className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                              style={{
+                                left: `${startPos}%`,
+                                width: `${morningEndPos - startPos}%`,
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full pointer-events-none">
+                                <span className="text-xs font-bold text-black">
+                                  {format(selectedTime.time, "HH:mm")} -{" "}
+                                  {format(lunchStartDate, "HH:mm")}
                                 </span>
-                                <p>{planning.estimated_hours || "N/A"}h</p>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Real:
+                              {/* Botón mover */}
+                              <button
+                                className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTime(null);
+                                  setHoveredSlot(null);
+                                }}
+                              >
+                                <MoveHorizontal className="h-3 w-3" />
+                                Mover
+                              </button>
+                            </div>
+                            {/* Segmento tarde */}
+                            <div
+                              className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                              style={{
+                                left: `${afternoonStartPos}%`,
+                                width: `${endPos - afternoonStartPos}%`,
+                                cursor: "ew-resize",
+                              }}
+                              ref={(el) => {
+                                if (el) {
+                                  (el as any)._timelineEl = el.closest(
+                                    ".timeline-row",
+                                  ) as HTMLDivElement;
+                                }
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full">
+                                <span className="text-xs font-bold text-black">
+                                  {format(lunchEndDate, "HH:mm")} -{" "}
+                                  {format(endTime, "HH:mm")}
                                 </span>
-                                <p>{planning.actual_hours}h</p>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground">
-                                  Eficiencia:
-                                </span>
-                                <p className="flex items-center gap-1">
-                                  {getEfficiencyPercentage(planning)}
-                                  {getEfficiencyIcon(planning)}
-                                </p>
+                              {/* Handle de resize */}
+                              <div
+                                className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                                onMouseDown={(e) => {
+                                  const timelineEl = e.currentTarget.closest(
+                                    ".timeline-row",
+                                  ) as HTMLDivElement;
+                                  if (timelineEl)
+                                    handleResizeStart(e, timelineEl);
+                                }}
+                              >
+                                <div className="w-1 h-6 bg-primary rounded-full" />
                               </div>
                             </div>
-                            <Badge
-                              className={`${
-                                PLANNING_STATUS_COLORS[planning.status].bg
-                              } ${
-                                PLANNING_STATUS_COLORS[planning.status].text
-                              } hover:${
-                                PLANNING_STATUS_COLORS[planning.status].bg
-                              }`}
+                          </>
+                        );
+                      }
+
+                      // Caso overflow: parte dentro del día (azul) + parte fuera (naranja hasta el borde)
+                      const overflowHours = getOverflowHours(
+                        selectedTime.time,
+                        estimatedHours,
+                      );
+                      const hasOverflow = overflowHours > 0;
+
+                      // endPos clampado al 100% del timeline (18:00)
+                      const clampedEndPos = Math.min(endPos, 100);
+                      // posición de las 18:00 en el timeline
+                      const afternoonEndPos = timeToPosition(18, 0);
+
+                      if (hasOverflow) {
+                        return (
+                          <>
+                            {/* Segmento dentro del horario (azul) */}
+                            <div
+                              className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                              style={{
+                                left: `${startPos}%`,
+                                width: `${afternoonEndPos - startPos}%`,
+                              }}
                             >
-                              {PLANNING_STATUS_LABELS[planning.status]}
-                            </Badge>
+                              <div className="flex items-center justify-center h-full pointer-events-none">
+                                <span className="text-xs font-bold text-black">
+                                  {format(selectedTime.time, "HH:mm")} - 18:00
+                                </span>
+                              </div>
+                              {/* Botón mover */}
+                              <button
+                                className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTime(null);
+                                  setHoveredSlot(null);
+                                }}
+                              >
+                                <MoveHorizontal className="h-3 w-3" />
+                                Mover
+                              </button>
+                            </div>
+                            {/* Segmento overflow (naranja, hasta el borde del timeline) */}
+                            <div
+                              className="absolute top-0 h-full bg-orange-400 opacity-60 border-2 border-orange-600 border-dashed z-30"
+                              style={{
+                                left: `${afternoonEndPos}%`,
+                                width: `${clampedEndPos - afternoonEndPos}%`,
+                                cursor: "ew-resize",
+                              }}
+                            >
+                              <div className="flex items-center justify-center h-full pointer-events-none">
+                                <span className="text-[10px] font-bold text-orange-900 whitespace-nowrap">
+                                  +{Math.round(overflowHours * 60)}min →
+                                </span>
+                              </div>
+                              {/* Handle de resize */}
+                              <div
+                                className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-orange-500/30"
+                                onMouseDown={(e) => {
+                                  const timelineEl = e.currentTarget.closest(
+                                    ".timeline-row",
+                                  ) as HTMLDivElement;
+                                  if (timelineEl)
+                                    handleResizeStart(e, timelineEl);
+                                }}
+                              >
+                                <div className="w-1 h-6 bg-orange-600 rounded-full pointer-events-none" />
+                              </div>
+                            </div>
+                          </>
+                        );
+                      }
+
+                      return (
+                        <div
+                          className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
+                          style={{
+                            left: `${startPos}%`,
+                            width: `${endPos - startPos}%`,
+                          }}
+                        >
+                          <div className="flex items-center justify-center gap-2 h-full pointer-events-none">
+                            <span className="text-xs font-bold text-black">
+                              {format(selectedTime.time, "HH:mm")} -{" "}
+                              {format(endTime, "HH:mm")}
+                            </span>
                           </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  );
-                })}
+                          {/* Botón mover */}
+                          <button
+                            className="absolute left-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-1 bg-white/90 hover:bg-white border border-primary text-primary rounded px-1.5 py-0.5 text-[10px] font-bold shadow cursor-pointer"
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTime(null);
+                              setHoveredSlot(null);
+                            }}
+                          >
+                            <MoveHorizontal className="h-3 w-3" />
+                            Mover
+                          </button>
+                          {/* Handle de resize */}
+                          <div
+                            className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
+                            onMouseDown={(e) => {
+                              const timelineEl = e.currentTarget.closest(
+                                ".timeline-row",
+                              ) as HTMLDivElement;
+                              if (timelineEl) handleResizeStart(e, timelineEl);
+                            }}
+                          >
+                            <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
+                          </div>
+                        </div>
+                      );
+                    })()}
 
-                {/* Preview hover */}
-                {selectionMode &&
-                  hoveredSlot &&
-                  hoveredSlot.workerId === worker.id && (
-                    <div
-                      className="absolute top-0 h-full bg-blue-300 opacity-40 pointer-events-none border-2 border-blue-500 border-dashed z-20"
-                      style={{
-                        left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
-                        width: `${
-                          calculatePositionFromDate(
-                            addHours(hoveredSlot.time, estimatedHours),
-                          ) - calculatePositionFromDate(hoveredSlot.time)
-                        }%`,
-                      }}
-                    ></div>
-                  )}
-
-                {/* Selección confirmada */}
-                {selectionMode &&
-                  selectedTime &&
-                  selectedTime.workerId === worker.id && (
-                    <div
-                      className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
-                      style={{
-                        left: `${calculatePositionFromDate(
-                          selectedTime.time,
-                        )}%`,
-                        width: `${
-                          calculatePositionFromDate(
-                            addHours(selectedTime.time, estimatedHours),
-                          ) - calculatePositionFromDate(selectedTime.time)
-                        }%`,
-                      }}
-                    >
-                      <div className="flex items-center justify-center h-full">
-                        <span className="text-xs font-bold text-black">
-                          {format(selectedTime.time, "HH:mm")} -{" "}
-                          {format(
-                            addHours(selectedTime.time, estimatedHours),
-                            "HH:mm",
-                          )}
-                        </span>
-                      </div>
+                  {plannings.length === 0 && !selectionMode && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm text-muted-foreground">
+                        Sin tareas asignadas
+                      </span>
                     </div>
                   )}
-
-                {plannings.length === 0 && !selectionMode && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm text-muted-foreground">
-                      Sin tareas asignadas
-                    </span>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

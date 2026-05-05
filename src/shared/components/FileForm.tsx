@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FileUp, X } from "lucide-react";
 import {
   FormControl,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 
@@ -65,7 +65,7 @@ export function FileForm({
 
   return (
     <FormItem className={className}>
-      <FormLabel>{label}</FormLabel>
+      <Label>{label}</Label>
       <FormControl>
         <div className="space-y-2">
           {files.length === 0 ? (

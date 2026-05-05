@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -38,9 +38,6 @@ export default function ReasonsAdjustmentPage() {
   const { MODEL, ROUTE } = REASONS_ADJUSTMENT;
   const permissions = useModulePermissions(ROUTE);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
   const { data, isLoading, refetch } = useReasonsAdjustment({
     page,
     search,

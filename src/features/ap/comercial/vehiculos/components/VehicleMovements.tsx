@@ -1,19 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { History } from "lucide-react";
 import { useState } from "react";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import { VehicleMovement } from "../lib/vehicles.interface";
 
 interface Props {
@@ -116,7 +109,7 @@ const TimelineList = ({ movements }: { movements: VehicleMovement[] }) => (
 
     <Separator />
 
-    <div className="max-h-[calc(100vh-250px)] overflow-y-auto p-2">
+    <div className="p-2">
       {movements.map((movement, index) => (
         <TimelineItem
           key={movement.id}
@@ -136,35 +129,25 @@ export default function VehicleMovements({
   const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          size="icon"
-          variant="outline"
-          className="size-7"
-          disabled={loading}
-          tooltip="Ver Movimientos"
-        >
-          <History className={cn("size-4", { "animate-spin": loading })} />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="max-w-(--breakpoint-md)! overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <History className="size-5 text-primary" />
-            Historial de Movimientos
-          </SheetTitle>
-        </SheetHeader>
+    <>
+      <Button
+        size="icon"
+        variant="outline"
+        className="size-7"
+        disabled={loading}
+        tooltip="Ver Movimientos"
+        onClick={() => setOpen(true)}
+      >
+        <History className={cn("size-4", { "animate-spin": loading })} />
+      </Button>
 
-        <div className="py-4 space-y-6">
-          {movements.length > 0 ? (
-            <TimelineList movements={movements} />
-          ) : (
-            <EmptyState />
-          )}
-        </div>
-
-        <SheetFooter>
+      <GeneralSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Historial de Movimientos"
+        icon="History"
+        size="md"
+        childrenFooter={
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
@@ -172,8 +155,14 @@ export default function VehicleMovements({
           >
             Cerrar
           </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        }
+      >
+        {movements.length > 0 ? (
+          <TimelineList movements={movements} />
+        ) : (
+          <EmptyState />
+        )}
+      </GeneralSheet>
+    </>
   );
 }

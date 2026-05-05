@@ -1,15 +1,15 @@
-import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Building2, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { SuppliersResource } from "../lib/suppliers.interface";
-import { SUPPLIERS } from "../lib/suppliers.constants";
 
 export type SuppliersColumns = ColumnDef<SuppliersResource>;
 
 interface Props {
+  onEstablishments: (id: number) => void;
+  onUpdate: (id: number) => void;
   onDelete: (id: number) => void;
   permissions: {
     canUpdate: boolean;
@@ -18,6 +18,8 @@ interface Props {
 }
 
 export const suppliersColumns = ({
+  onEstablishments,
+  onUpdate,
   onDelete,
   permissions,
 }: Props): SuppliersColumns[] => [
@@ -82,10 +84,7 @@ export const suppliersColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = SUPPLIERS;
 
       return (
         <div className="flex items-center gap-2">
@@ -96,7 +95,7 @@ export const suppliersColumns = ({
               size="icon"
               className="size-7"
               tooltip="Establecimientos"
-              onClick={() => router(`${ABSOLUTE_ROUTE}/establecimientos/${id}`)}
+              onClick={() => onEstablishments(id)}
             >
               <Building2 className="size-5" />
             </Button>
@@ -109,7 +108,7 @@ export const suppliersColumns = ({
               size="icon"
               className="size-7"
               tooltip="Editar"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => onUpdate(id)}
             >
               <Pencil className="size-5" />
             </Button>

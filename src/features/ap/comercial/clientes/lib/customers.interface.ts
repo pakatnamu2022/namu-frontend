@@ -52,6 +52,7 @@ export interface CustomersResource {
   activity_economic_id: string;
   company_id: number;
   type: string;
+  document_type: string;
   driving_license_category: string | null;
 }
 

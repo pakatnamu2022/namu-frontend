@@ -1,0 +1,203 @@
+import { useState, useEffect } from "react";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { Calendar } from "lucide-react";
+import { useForPurchaseRequest } from "../lib/proforma.hook";
+import { OrderQuotationResource } from "../lib/proforma.interface";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import DatePicker from "@/shared/components/DatePicker";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import { QuotationSelectionTable } from "./QuotationSelectionTable";
+import type { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import {
+  errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+} from "@/core/core.function";
+
+interface QuotationSelectionModalProps {
+  open: boolean;
+  sedeId?: number;
+  onOpenChange: (open: boolean) => void;
+  onSelectQuotation: (quotationId: string) => void;
+}
+
+export const QuotationSelectionTallerModal = ({
+  open,
+  sedeId,
+  onOpenChange,
+  onSelectQuotation,
+}: QuotationSelectionModalProps) => {
+  const [page, setPage] = useState(1);
+  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getCurrentDayOfMonth(currentDate),
+  );
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
+
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
+
+  const { data, isLoading } = useForPurchaseRequest({
+    page,
+    per_page,
+    is_take: 1,
+    sede_id: sedeId,
+    quotation_date:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
+  });
+
+  const handleRowClick = (quotation: OrderQuotationResource) => {
+    onSelectQuotation(quotation.id.toString());
+    onOpenChange(false);
+  };
+
+  const columns: ColumnDef<OrderQuotationResource>[] = [
+    {
+      accessorKey: "quotation_number",
+      header: "Número de Cotización",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return value && <p className="font-semibold">{value}</p>;
+      },
+    },
+    {
+      accessorKey: "client.full_name",
+      header: "Cliente",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return value && <p className="font-semibold">{value}</p>;
+      },
+    },
+    {
+      accessorKey: "vehicle",
+      header: "Vehículo",
+      cell: ({ row }) => {
+        const vehicle = row.original?.vehicle;
+
+        if (!vehicle) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+
+        const plate = vehicle?.plate || vehicle?.vin || "-";
+        const brand = vehicle?.model?.brand || "";
+        const family = vehicle?.model?.family || "";
+
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className="font-medium">{plate}</span>
+            <span className="text-xs text-muted-foreground">
+              {brand} {family}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "quotation_date",
+      header: "Fecha de Cotización",
+      cell: ({ row }) => {
+        const date = row.original.quotation_date;
+
+        if (!date) return "-";
+
+        try {
+          const formattedDate = format(new Date(date), "dd/MM/yyyy", {
+            locale: es,
+          });
+          return (
+            <div className="flex items-center gap-1.5 text-sm">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">{formattedDate}</span>
+            </div>
+          );
+        } catch {
+          return date;
+        }
+      },
+    },
+    {
+      accessorKey: "total_amount",
+      header: "Monto Total",
+      cell: ({ getValue }) => {
+        const value = getValue() as number;
+        return (
+          <div className="flex items-center gap-1.5 text-sm">
+            <span className="font-semibold text-green-700">
+              S/ {value.toFixed(2)}
+            </span>
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <GeneralModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Seleccionar Cotización"
+      size="7xl"
+    >
+      <div className="space-y-4">
+        {/* Filtros */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <DatePicker
+            value={dateFrom}
+            onChange={setDateFrom}
+            label="Fecha Desde"
+            placeholder="Fecha Desde"
+            showClearButton={false}
+            captionLayout="dropdown"
+          />
+          <DatePicker
+            value={dateTo}
+            onChange={setDateTo}
+            label="Fecha Hasta"
+            placeholder="Fecha Hasta"
+            showClearButton={false}
+            captionLayout="dropdown"
+          />
+        </div>
+
+        {/* Tabla */}
+        <QuotationSelectionTable
+          columns={columns}
+          data={data?.data || []}
+          isLoading={isLoading}
+          initialColumnVisibility={{
+            quotation_number: true,
+            customer: true,
+            vehicle: true,
+            quotation_date: true,
+            total_amount: true,
+          }}
+          onRowClick={handleRowClick}
+        />
+
+        {/* Paginación */}
+        <DataTablePagination
+          page={page}
+          totalPages={data?.meta?.last_page || 1}
+          totalData={data?.meta?.total || 0}
+          onPageChange={setPage}
+          per_page={per_page}
+          setPerPage={setPerPage}
+        />
+      </div>
+    </GeneralModal>
+  );
+};

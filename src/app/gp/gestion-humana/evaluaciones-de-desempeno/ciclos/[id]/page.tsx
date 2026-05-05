@@ -25,13 +25,13 @@ import {
   useChiefsInCycle,
   useCycle,
   useCycleDetails,
-  usePersonsInCycle,
   usePositionsInCycle,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/lib/cycle.hook";
 import CyclePersonDetailOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CyclePersonDetailOptions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { QueryClient } from "@tanstack/react-query";
 
 export default function CyclePersonDetailPage() {
   const { id } = useParams();
@@ -44,6 +44,7 @@ export default function CyclePersonDetailPage() {
   const [positionId, setPositionId] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [chiefDni, setChiefDni] = useState<string | null>(null);
+  const [objectiveId, setObjectiveId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [openAssign, setOpenAssign] = useState(false);
 
@@ -62,6 +63,7 @@ export default function CyclePersonDetailPage() {
     position_id: positionId,
     category_id: categoryId,
     chief_id: chiefDni,
+    objective_id: objectiveId,
     per_page,
   });
 
@@ -70,12 +72,6 @@ export default function CyclePersonDetailPage() {
     isLoading: isLoadingCategories,
     refetch: refetchCategories,
   } = useAllCategoriesWithBosses(idCycle);
-
-  const {
-    data: persons,
-    isLoading: isLoadingPersons,
-    refetch: refetchPersons,
-  } = usePersonsInCycle(idCycle);
 
   const {
     data: positions = [],
@@ -92,15 +88,19 @@ export default function CyclePersonDetailPage() {
   const { data: chiefs = [], isLoading: isLoadingChiefs } =
     useChiefsInCycle(idCycle);
 
+  const queryClient = new QueryClient();
+
   const handleAssign = async (data: CycleCategoryDetailFormType) => {
     if (!id) return;
     try {
       await assignCategoriesToCycle(idCycle, data);
       await refetch();
       await refetchCategories();
-      await refetchPersons();
       await refetchPositions();
       await refetchCategoriesCycle();
+      await queryClient.invalidateQueries({
+        queryKey: ["cycle", idCycle, "persons"],
+      });
       successToast("Participantes asignados correctamente.");
     } catch (error: any) {
       errorToast(
@@ -116,8 +116,10 @@ export default function CyclePersonDetailPage() {
       await updateGoalCyclePersonDetail(id, { goal });
       await refetch();
       successToast("Meta actualizada correctamente.");
-    } catch (error) {
-      errorToast("Error al actualizar la meta.");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Error al actualizar la meta.";
+      errorToast(message);
     }
   };
 
@@ -126,8 +128,10 @@ export default function CyclePersonDetailPage() {
       await updateGoalCyclePersonDetail(id, { weight });
       await refetch();
       successToast("Peso actualizado correctamente.");
-    } catch (error) {
-      errorToast("Error al actualizar el peso.");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Error al actualizar el peso.";
+      errorToast(message);
     }
   };
 
@@ -137,8 +141,11 @@ export default function CyclePersonDetailPage() {
       await deleteCyclePersonDetail(deleteId);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar el objetivo.");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        "Error al eliminar el detalle de ciclo.";
+      errorToast(message);
     } finally {
       setDeleteId(null);
     }
@@ -146,7 +153,6 @@ export default function CyclePersonDetailPage() {
 
   if (
     isLoadingModule ||
-    isLoadingPersons ||
     isLoadingCategories ||
     isLoadingPositions ||
     isLoadingCategoriesCycle ||
@@ -156,6 +162,7 @@ export default function CyclePersonDetailPage() {
   if (!checkRouteExists("ciclos")) notFound();
   if (!currentView) notFound();
   if (!idCycle) notFound();
+
 
   return (
     <div className="space-y-4">
@@ -168,6 +175,7 @@ export default function CyclePersonDetailPage() {
 
         <CyclePersonDetailActions
           id={idCycle}
+          hasDetails={(data?.meta?.total ?? 0) > 0}
           onAssign={() => setOpenAssign(true)}
         />
       </HeaderTableWrapper>
@@ -181,9 +189,9 @@ export default function CyclePersonDetailPage() {
         data={data?.data || []}
       >
         <CyclePersonDetailOptions
+          idCycle={idCycle}
           search={search}
           setSearch={setSearch}
-          persons={persons || []}
           personId={personId}
           setPersonId={setPersonId}
           positions={positions}
@@ -195,6 +203,8 @@ export default function CyclePersonDetailPage() {
           chiefs={chiefs}
           chiefDni={chiefDni}
           setChiefDni={setChiefDni}
+          objectiveId={objectiveId}
+          setObjectiveId={setObjectiveId}
         />
       </CyclePersonDetailTable>
 

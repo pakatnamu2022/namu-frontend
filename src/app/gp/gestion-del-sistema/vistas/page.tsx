@@ -16,6 +16,7 @@ import { viewColumns } from "@/features/gp/gestionsistema/vistas/components/View
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import {
   deleteView,
+  duplicateView,
   updateView,
 } from "@/features/gp/gestionsistema/vistas/lib/view.actions";
 import {
@@ -70,6 +71,19 @@ export default function ViewPage() {
     }
   };
 
+  const handleDuplicate = async (id: number) => {
+    try {
+      await duplicateView(id);
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+    } catch (error: any) {
+      errorToast(
+        ERROR_MESSAGE(MODEL, "create"),
+        error.response.data?.message?.toString()
+      );
+    }
+  };
+
   const handleUpdateCell = async (id: number, key: string, value: number) => {
     try {
       await updateView(id, { [key]: value });
@@ -103,6 +117,7 @@ export default function ViewPage() {
           onDelete: setDeleteId,
           views: parents,
           onUpdateCell: handleUpdateCell,
+          onDuplicate: handleDuplicate,
         })}
         data={data?.data || []}
       >

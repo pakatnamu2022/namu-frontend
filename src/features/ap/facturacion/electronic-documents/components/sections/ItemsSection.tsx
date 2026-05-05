@@ -19,6 +19,7 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { errorToast } from "@/core/core.function";
 import { FormInput } from "@/shared/components/FormInput";
+import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface ItemsSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -30,6 +31,9 @@ interface ItemsSectionProps {
   isFromQuotation?: boolean;
   showActions?: boolean;
   useQuotation?: boolean;
+  isDetraction?: boolean;
+  minRetentionPrice?: number;
+  allowEditLastItemDescription?: boolean;
 }
 
 export function ItemsSection({
@@ -42,8 +46,46 @@ export function ItemsSection({
   isFromQuotation = false,
   showActions = true,
   useQuotation = false,
+  isDetraction = false,
+  minRetentionPrice,
+  allowEditLastItemDescription = false,
 }: ItemsSectionProps) {
-  const { data: accountPlans } = useAllAccountingAccountPlan();
+  const { data: accountPlans } = useAllAccountingAccountPlan({
+    is_detraction: isDetraction ? 1 : 0,
+    type: ACP_TYPE_SALE,
+  });
+
+  // Validate existing items when detraction mode changes
+  const lastValidatedForDetraction = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!accountPlans || lastValidatedForDetraction.current === isDetraction)
+      return;
+
+    if (lastValidatedForDetraction.current === null) {
+      lastValidatedForDetraction.current = isDetraction;
+      return;
+    }
+
+    lastValidatedForDetraction.current = isDetraction;
+
+    const currentItems = form.getValues("items") || [];
+    if (currentItems.length === 0) return;
+
+    const validPlanIds = new Set(accountPlans.map((p) => p.id.toString()));
+    const hasInvalidItems = currentItems.some(
+      (item) => !validPlanIds.has(item.account_plan_id?.toString()),
+    );
+
+    if (hasInvalidItems) {
+      const validItems = currentItems.filter((item) =>
+        validPlanIds.has(item.account_plan_id?.toString()),
+      );
+      form.setValue("items", validItems, { shouldValidate: true });
+      errorToast(
+        "Se eliminaron items con un plan contable no válido para el tipo de operación seleccionado.",
+      );
+    }
+  }, [isDetraction, accountPlans]);
 
   const [newItem, setNewItem] = useState({
     unidad_de_medida: "NIU",
@@ -125,6 +167,14 @@ export function ItemsSection({
       return;
     }
 
+    // Validar precio mínimo por retención
+    if (minRetentionPrice && newItem.precio_unitario < minRetentionPrice) {
+      errorToast(
+        `El precio unitario no puede ser menor a ${currencySymbol} ${minRetentionPrice.toFixed(2)} (mínimo de retención S/ 700)`,
+      );
+      return;
+    }
+
     const item: ElectronicDocumentItemSchema = {
       unidad_de_medida: newItem.unidad_de_medida,
       descripcion: newItem.descripcion,
@@ -141,7 +191,7 @@ export function ItemsSection({
       anticipo_regularizacion: isAdvancePayment ? false : undefined,
     };
 
-    form.setValue("items", [...items, item]);
+    form.setValue("items", [...items, item], { shouldValidate: true });
     setIsSheetOpen(false);
     setNewItem({
       unidad_de_medida: "NIU",
@@ -155,7 +205,7 @@ export function ItemsSection({
 
   const removeItem = (index: number) => {
     const updatedItems = items.filter((_, i) => i !== index);
-    form.setValue("items", updatedItems);
+    form.setValue("items", updatedItems, { shouldValidate: true });
     setEditingIndex(null);
   };
 
@@ -174,13 +224,30 @@ export function ItemsSection({
   };
 
   const updateItem = () => {
-    if (
-      editingIndex === null ||
-      !newItem.descripcion ||
-      newItem.precio_unitario <= 0 ||
-      !newItem.account_plan_id
-    )
+    if (editingIndex === null || !newItem.descripcion) return;
+
+    // En modo edición de solo descripción, solo actualizamos ese campo (no aplica en anticipo)
+    if (allowEditLastItemDescription && !isAdvancePayment) {
+      const updatedItems = [...items];
+      updatedItems[editingIndex] = {
+        ...updatedItems[editingIndex],
+        descripcion: newItem.descripcion,
+      };
+      form.setValue("items", updatedItems, { shouldValidate: true });
+      setIsSheetOpen(false);
+      setNewItem({
+        unidad_de_medida: "NIU",
+        descripcion: "",
+        cantidad: 1,
+        precio_unitario: 0,
+        descuento: 0,
+        account_plan_id: "",
+      });
+      setEditingIndex(null);
       return;
+    }
+
+    if (newItem.precio_unitario <= 0 || !newItem.account_plan_id) return;
 
     const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
     const descuento = newItem.descuento || 0;
@@ -204,6 +271,14 @@ export function ItemsSection({
       return;
     }
 
+    // Validar precio mínimo por retención
+    if (minRetentionPrice && newItem.precio_unitario < minRetentionPrice) {
+      errorToast(
+        `El precio unitario no puede ser menor a ${currencySymbol} ${minRetentionPrice.toFixed(2)} (mínimo de retención S/ 700)`,
+      );
+      return;
+    }
+
     const updatedItem: ElectronicDocumentItemSchema = {
       ...items[editingIndex],
       unidad_de_medida: newItem.unidad_de_medida,
@@ -220,7 +295,7 @@ export function ItemsSection({
 
     const updatedItems = [...items];
     updatedItems[editingIndex] = updatedItem;
-    form.setValue("items", updatedItems);
+    form.setValue("items", updatedItems, { shouldValidate: true });
 
     setIsSheetOpen(false);
     setNewItem({
@@ -260,14 +335,13 @@ export function ItemsSection({
       <GroupFormSection
         title="Items"
         icon={Package}
-        iconColor="text-primary"
-        bgColor="bg-primary/5"
+        color="primary"
         cols={{ sm: 1 }}
         gap="gap-1"
       >
         <div className="flex items-end justify-between gap-4">
           {isAdvancePayment && (
-            <Alert variant="info" className="text-sm p-2 w-fit">
+            <Alert className="text-sm p-2 w-fit">
               <AlertTitle className="flex items-center gap-2">
                 <Info className="size-5" />
                 Modo Anticipo: Solo puede agregar una línea.
@@ -307,6 +381,8 @@ export function ItemsSection({
           onEditItem={editItem}
           isAdvancePayment={isAdvancePayment}
           showActions={showActions}
+          canRemoveItem={!useQuotation}
+          allowEditLastItemDescription={allowEditLastItemDescription}
         />
       </GroupFormSection>
 
@@ -327,7 +403,7 @@ export function ItemsSection({
                 ref={textareaRef}
                 id="item-description"
                 placeholder="Descripción del producto/servicio"
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none uppercase"
                 value={newItem.descripcion}
                 onChange={(e) =>
                   setNewItem({ ...newItem, descripcion: e.target.value })
@@ -336,104 +412,121 @@ export function ItemsSection({
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <SearchableSelect
-                label="Unidad de Medida *"
-                onChange={(value) =>
-                  setNewItem({ ...newItem, unidad_de_medida: value })
-                }
-                value={newItem.unidad_de_medida}
-                options={UNIT_MEASURES.map((unit) => ({
-                  value: unit.value,
-                  label: unit.label,
-                }))}
-                className="w-full!"
-                buttonSize="default"
-              />
-            </div>
+            {!(
+              allowEditLastItemDescription &&
+              editingIndex !== null &&
+              !isAdvancePayment
+            ) && (
+              <>
+                <div className="flex flex-col gap-2">
+                  <SearchableSelect
+                    label="Unidad de Medida *"
+                    onChange={(value) =>
+                      setNewItem({ ...newItem, unidad_de_medida: value })
+                    }
+                    value={newItem.unidad_de_medida}
+                    options={UNIT_MEASURES.map((unit) => ({
+                      value: unit.value,
+                      label: unit.label,
+                    }))}
+                    className="w-full!"
+                    buttonSize="default"
+                  />
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <SearchableSelect
-                label="Plan de Cuenta Contable *"
-                onChange={(value) =>
-                  setNewItem({ ...newItem, account_plan_id: value })
-                }
-                value={newItem.account_plan_id}
-                options={
-                  accountPlans?.map((plan) => ({
-                    value: plan.id.toString(),
-                    label: `${plan.account} - ${plan.description}`,
-                  })) || []
-                }
-                className="w-full!"
-                buttonSize="default"
-                disabled={isFromQuotation}
-              />
-            </div>
+                <div className="flex flex-col gap-2">
+                  <SearchableSelect
+                    label="Plan de Cuenta Contable *"
+                    onChange={(value) =>
+                      setNewItem({ ...newItem, account_plan_id: value })
+                    }
+                    value={newItem.account_plan_id}
+                    options={
+                      accountPlans?.map((plan) => ({
+                        value: plan.id.toString(),
+                        label: `${plan.account} - ${plan.description}`,
+                      })) || []
+                    }
+                    className="w-full!"
+                    buttonSize="default"
+                    disabled={isFromQuotation}
+                  />
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="item-quantity">Cantidad *</Label>
-              <Input
-                id="item-quantity"
-                type="number"
-                min="0"
-                step="0.01"
-                value={newItem.cantidad}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    cantidad: parseFloat(e.target.value) || 1,
-                  })
-                }
-                disabled={isFromQuotation}
-              />
-            </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="item-quantity">Cantidad *</Label>
+                  <Input
+                    id="item-quantity"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItem.cantidad}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        cantidad: parseFloat(e.target.value) || 1,
+                      })
+                    }
+                    disabled={isFromQuotation}
+                  />
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <FormInput
-                name="item-price"
-                label="Precio Unitario (Con IGV)"
-                placeholder="Ej: 580.00"
-                type="number"
-                min="0"
-                step="0.01"
-                value={newItem.precio_unitario}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    precio_unitario: parseFloat(e.target.value) || 0,
-                  })
-                }
-                disabled={isFromQuotation && !isAdvancePayment}
-              />
-            </div>
+                <div className="flex flex-col gap-2">
+                  <FormInput
+                    name="item-price"
+                    label="Precio Unitario (Con IGV)"
+                    placeholder="Ej: 580.00"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItem.precio_unitario}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        precio_unitario: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    disabled={isFromQuotation && !isAdvancePayment}
+                  />
+                  {minRetentionPrice && (
+                    <p className="text-xs text-muted-foreground">
+                      Mínimo por retención:{" "}
+                      <span className="font-medium">
+                        {currencySymbol} {minRetentionPrice.toFixed(2)}
+                      </span>{" "}
+                      (S/ 700)
+                    </p>
+                  )}
+                </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="item-discount">
-                Descuento (Sobre Precio Unitario)
-              </Label>
-              <Input
-                id="item-discount"
-                type="number"
-                min="0"
-                step="0.01"
-                max={newItem.precio_unitario}
-                value={newItem.descuento}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    descuento: parseFloat(e.target.value) || 0,
-                  })
-                }
-                disabled={isAdvancePayment}
-              />
-              {newItem.descuento > 0 && newItem.precio_unitario > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Precio con descuento: {currencySymbol}{" "}
-                  {(newItem.precio_unitario - newItem.descuento).toFixed(2)}
-                </p>
-              )}
-            </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="item-discount">
+                    Descuento (Sobre Precio Unitario)
+                  </Label>
+                  <Input
+                    id="item-discount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    max={newItem.precio_unitario}
+                    value={newItem.descuento}
+                    onChange={(e) =>
+                      setNewItem({
+                        ...newItem,
+                        descuento: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                    disabled={isAdvancePayment}
+                  />
+                  {newItem.descuento > 0 && newItem.precio_unitario > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Precio con descuento: {currencySymbol}{" "}
+                      {(newItem.precio_unitario - newItem.descuento).toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex gap-2 pt-4 border-t">
@@ -450,9 +543,11 @@ export function ItemsSection({
               onClick={handleSaveItem}
               className="flex-1"
               disabled={
-                !newItem.descripcion ||
-                newItem.precio_unitario <= 0 ||
-                !newItem.account_plan_id
+                allowEditLastItemDescription && editingIndex !== null && !isAdvancePayment
+                  ? !newItem.descripcion
+                  : !newItem.descripcion ||
+                    newItem.precio_unitario <= 0 ||
+                    !newItem.account_plan_id
               }
             >
               {editingIndex !== null ? "Actualizar" : "Agregar"}

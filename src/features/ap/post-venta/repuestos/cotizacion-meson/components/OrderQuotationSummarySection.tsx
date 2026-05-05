@@ -10,7 +10,6 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
-import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface OrderQuotationSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -47,7 +46,7 @@ export function OrderQuotationSummarySection({
   quotation,
   advancePayments = [],
 }: OrderQuotationSummarySectionProps) {
-  const items = form.watch("items") || [];
+  //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
   const clientId = form.watch("client_id");
@@ -168,74 +167,6 @@ export function OrderQuotationSummarySection({
             <p className="text-xs text-muted-foreground">
               El IGV se calcula sobre el subtotal de la cotización.
             </p>
-          </div>
-
-          <Separator className="bg-muted-foreground/20" />
-
-          {/* Items Summary */}
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground mb-3">
-              Items ({items.length})
-            </p>
-            <div className="space-y-2 pr-2">
-              {items.length === 0 ? (
-                <p className="text-xs text-center text-muted-foreground py-4">
-                  No hay items agregados
-                </p>
-              ) : (
-                items.map((item, index) => {
-                  // Si es anticipo de regularización, determinar si debe mostrarse en negativo
-                  const isAdvanceRegularization = item.anticipo_regularizacion;
-
-                  // Verificar si el anticipo referenciado NO es una nota de crédito
-                  // (las notas de crédito ya son negativas, así que no las marcamos como negativas)
-                  const isNegative =
-                    isAdvanceRegularization &&
-                    advancePayments.find(
-                      (ap) => ap.id === Number(item.reference_document_id),
-                    )?.sunat_concept_document_type_id !==
-                      SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO;
-
-                  return (
-                    <div
-                      key={index}
-                      className={`flex justify-between items-start gap-2 text-sm p-2 rounded ${
-                        isNegative
-                          ? "bg-orange-50 border border-orange-200"
-                          : "bg-background/50 border border-muted-foreground/10"
-                      }`}
-                    >
-                      <div className="flex-1 min-w-0 text-wrap! ">
-                        <p
-                          className={`font-medium text-xs whitespace-pre-line ${
-                            isNegative ? "text-orange-700" : ""
-                          }`}
-                        >
-                          {item.descripcion}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.cantidad} x {currencySymbol}{" "}
-                          {item.precio_unitario.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </p>
-                      </div>
-                      <p
-                        className={`text-xs font-semibold whitespace-nowrap ${
-                          isNegative ? "text-orange-600" : ""
-                        }`}
-                      >
-                        {isNegative ? "- " : ""}
-                        {currencySymbol}{" "}
-                        {Math.abs(item.total).toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                  );
-                })
-              )}
-            </div>
           </div>
 
           <Separator className="bg-muted-foreground/20" />

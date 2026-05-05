@@ -15,8 +15,8 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddModelsVnPage() {
   const router = useNavigate();
@@ -53,21 +53,21 @@ export default function AddModelsVnPage() {
           code: "",
           version: "",
           power: "",
-          model_year: new Date().getFullYear(),
+          model_year: String(new Date().getFullYear()),
           wheelbase: "",
           axles_number: "",
           width: "",
           length: "",
           height: "",
-          seats_number: "",
-          doors_number: "",
+          seats_number: undefined,
+          doors_number: undefined,
           net_weight: "",
           gross_weight: "",
           payload: "",
           displacement: "",
-          cylinders_number: "",
-          passengers_number: "",
-          wheels_number: "",
+          cylinders_number: undefined,
+          passengers_number: undefined,
+          wheels_number: undefined,
           distributor_price: 0.0,
           transport_cost: 370,
           other_amounts: 0.0,

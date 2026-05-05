@@ -2,6 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
+  ApprovalRequest,
   getOrderQuotationProps,
   OrderQuotationRequest,
   OrderQuotationResource,
@@ -18,6 +19,19 @@ export async function getOrderQuotations({
     params,
   };
   const { data } = await api.get<OrderQuotationResponse>(ENDPOINT, config);
+  return data;
+}
+
+export async function getForPurchaseRequest({
+  params,
+}: getOrderQuotationProps): Promise<OrderQuotationResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<OrderQuotationResponse>(
+    `${ENDPOINT}/for-purchase-request/list`,
+    config,
+  );
   return data;
 }
 
@@ -59,6 +73,26 @@ export async function updateOrderQuotation(
   return response.data;
 }
 
+export async function approveOrderQuotation(
+  id: number,
+  data: ApprovalRequest,
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/approve`,
+    data,
+  );
+  return response.data;
+}
+
+export async function sendNotificationManagement(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/send-notification`,
+  );
+  return response.data;
+}
+
 export async function deleteOrderQuotation(
   id: number,
 ): Promise<GeneralResponse> {
@@ -66,9 +100,24 @@ export async function deleteOrderQuotation(
   return data;
 }
 
-export async function downloadOrderQuotationPdf(id: number): Promise<void> {
+export async function duplicateOrderQuotation(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/duplicate`,
+  );
+  return response.data;
+}
+
+export async function downloadOrderQuotationPdf(
+  id: number,
+  show_codes: boolean,
+): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
+    params: {
+      show_codes: show_codes,
+    },
   });
 
   // Crear un blob desde la respuesta

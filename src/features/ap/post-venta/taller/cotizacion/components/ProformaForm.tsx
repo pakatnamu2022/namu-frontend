@@ -11,25 +11,35 @@ import {
 } from "../lib/proforma.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import {
-  useAllVehicles,
+  useVehicleById,
   useVehicles,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Car, ExternalLink, User } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import {
+  Car,
+  ExternalLink,
+  FileText,
+  User,
+  Gauge,
+  Calendar,
+  Plus,
+} from "lucide-react";
 import { useState, useEffect } from "react";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { OrderQuotationResource } from "../lib/proforma.interface";
+import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { DataCard } from "@/components/DataCard";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -49,6 +59,7 @@ export default function OrderQuotationForm({
   proforma,
 }: OrderQuotationFormProps) {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(
@@ -58,7 +69,7 @@ export default function OrderQuotationForm({
     ),
     defaultValues: {
       ...defaultValues,
-      area_id: AREA_PM_ID.TALLER,
+      area_id: AREA_TALLER.toString(),
     },
     mode: "onChange",
   });
@@ -66,8 +77,7 @@ export default function OrderQuotationForm({
   const quotationDate = form.watch("quotation_date");
   const vehicleId = form.watch("vehicle_id");
 
-  const { data: vehicles = [], isLoading: isLoadingVehicles } =
-    useAllVehicles();
+  const { data: vehicleById } = useVehicleById(Number(vehicleId) || 0);
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -79,17 +89,12 @@ export default function OrderQuotationForm({
     });
 
   useEffect(() => {
-    if (vehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find((v) => v.id.toString() === vehicleId);
-      setSelectedVehicle(vehicle || null);
-    } else {
-      setSelectedVehicle(null);
-    }
-  }, [vehicleId, vehicles]);
+    setSelectedVehicle(vehicleById ?? null);
+  }, [vehicleById]);
 
   useEffect(() => {
     if (quotationDate) {
-      const quotationDateObj = new Date(quotationDate);
+      const quotationDateObj = new Date(String(quotationDate));
       const expirationDateObj = new Date(quotationDateObj);
       expirationDateObj.setDate(quotationDateObj.getDate() + 7);
       form.setValue("expiration_date", expirationDateObj);
@@ -109,8 +114,7 @@ export default function OrderQuotationForm({
     }
   }, [mode, mySedes, form]);
 
-  if (isLoadingVehicles || isLoadingMySedes || isLoadingCurrencyTypes)
-    return <FormSkeleton />;
+  if (isLoadingMySedes || isLoadingCurrencyTypes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
@@ -123,7 +127,7 @@ export default function OrderQuotationForm({
               value: type.id.toString(),
               label: type.name,
             }))}
-            label="Moneda (Cotizar repuestos)"
+            label="Moneda"
             placeholder="Seleccionar moneda"
             required
           />
@@ -166,10 +170,10 @@ export default function OrderQuotationForm({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              onClick={() => setIsCustomerModalOpen(true)}
               tooltip="Agregar nuevo cliente"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -181,7 +185,9 @@ export default function OrderQuotationForm({
             useQueryHook={useVehicles}
             mapOptionFn={(item: VehicleResource) => ({
               value: item.id.toString(),
-              label: `${item.plate || item.vin} - ${item.model?.code || ""}`,
+              label: item.plate
+                ? `${item.plate} - ${item.vin || ""}`
+                : item.vin || "-",
             })}
             perPage={10}
             debounceMs={500}
@@ -189,7 +195,9 @@ export default function OrderQuotationForm({
               proforma
                 ? {
                     value: proforma.vehicle.id.toString(),
-                    label: `${proforma.vehicle.plate || proforma.vehicle.vin} - ${proforma.vehicle.model?.code || ""}`,
+                    label: proforma.vehicle.plate
+                      ? `${proforma.vehicle.plate} - ${proforma.vehicle.vin || ""}`
+                      : proforma.vehicle.vin || "-",
                   }
                 : undefined
             }
@@ -199,7 +207,7 @@ export default function OrderQuotationForm({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              onClick={() => window.open(VEHICLES_TLL.ROUTE_ADD, "_blank")}
               tooltip="Agregar nuevo vehículo"
             >
               <ExternalLink className="h-4 w-4" />
@@ -214,6 +222,7 @@ export default function OrderQuotationForm({
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
             disabledRange={{ before: new Date() }}
+            disabled={true}
           />
 
           <DatePickerFormField
@@ -229,93 +238,96 @@ export default function OrderQuotationForm({
 
         {/* Información del Vehículo Seleccionado */}
         {selectedVehicle && (
-          <div className="col-span-1 md:col-span-3">
-            <Card className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200">
-              <div className="flex items-center gap-2 mb-3">
-                <Car className="h-5 w-5 text-primary" />
-                <h4 className="font-semibold text-gray-800">
-                  Información del Vehículo
-                </h4>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500">VIN</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.vin || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Marca</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.model?.brand || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Modelo</p>
-                  <p className="font-semibold text-sm truncate">
-                    {selectedVehicle.model?.version || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Año</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.year || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Color</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.vehicle_color || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Motor</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.engine_type || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">N° Motor</p>
-                  <p className="font-semibold text-sm">
-                    {selectedVehicle.engine_number || "N/A"}
-                  </p>
-                </div>
-                {selectedVehicle.owner !== null && (
-                  <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <User className="h-4 w-4 text-primary" />
-                      <p className="text-xs font-semibold text-gray-700">
-                        Propietario
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      <div>
-                        <p className="text-xs text-gray-500">Nombre</p>
-                        <p className="font-medium text-sm">
-                          {selectedVehicle.owner.full_name}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Documento</p>
-                        <p className="font-medium text-sm">
-                          {selectedVehicle.owner.num_doc}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Teléfono</p>
-                        <p className="font-medium text-sm">
-                          {selectedVehicle.owner.phone || "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
+          <DataCard
+            title="INFORMACIÓN DEL VEHÍCULO"
+            columns={3}
+            fields={[
+              {
+                key: "vin",
+                label: "VIN",
+                icon: FileText,
+                value: selectedVehicle.vin || "N/A",
+              },
+              {
+                key: "brand",
+                label: "Marca",
+                icon: Car,
+                value: selectedVehicle.model?.brand || "N/A",
+              },
+              {
+                key: "model",
+                label: "Modelo",
+                icon: FileText,
+                value: selectedVehicle.model?.version || "N/A",
+              },
+              {
+                key: "year",
+                label: "Año",
+                icon: Calendar,
+                value: selectedVehicle.year || "N/A",
+              },
+              {
+                key: "color",
+                label: "Color",
+                icon: Car,
+                value: selectedVehicle.vehicle_color || "N/A",
+              },
+              {
+                key: "engine_type",
+                label: "Motor",
+                icon: Gauge,
+                value: selectedVehicle.engine_type || "N/A",
+              },
+              {
+                key: "engine_number",
+                label: "N° Motor",
+                icon: FileText,
+                value: selectedVehicle.engine_number || "N/A",
+              },
+            ]}
+            sections={
+              selectedVehicle.owner
+                ? [
+                    {
+                      key: "owner",
+                      title: "Propietario",
+                      icon: User,
+                      fields: [
+                        {
+                          key: "owner_name",
+                          label: "Nombre",
+                          icon: User,
+                          value: selectedVehicle.owner.full_name || "N/A",
+                        },
+                        {
+                          key: "owner_document",
+                          label: "Documento",
+                          icon: FileText,
+                          value: selectedVehicle.owner.num_doc || "N/A",
+                        },
+                        {
+                          key: "owner_phone",
+                          label: "Teléfono",
+                          icon: User,
+                          value: selectedVehicle.owner.phone || "N/A",
+                        },
+                      ],
+                    },
+                  ]
+                : undefined
+            }
+          />
         )}
 
-        <FormInputText
+        <FormSwitch
+          control={form.control}
+          name="is_requested_by_management"
+          text={form.watch("is_requested_by_management") ? "Si" : "No"}
+          label="¿Solicitado por Gerencia?"
+          description="Indica si esta cotización ha sido solicitada por el área de gerencia."
+        />
+
+        <FormTextArea
           name="observations"
           label="Observaciones"
           control={form.control}
@@ -339,6 +351,19 @@ export default function OrderQuotationForm({
           </Button>
         </div>
       </form>
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            form.setValue("client_id", newCustomer.id.toString(), {
+              shouldValidate: true,
+            });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
+      />
     </Form>
   );
 }

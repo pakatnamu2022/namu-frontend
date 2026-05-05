@@ -10,8 +10,11 @@ export interface WorkOrderLabourResource {
   id: number;
   description: string;
   time_spent: string;
+  time_spent_decimal: number;
   hourly_rate: string;
+  discount_percentage?: string;
   total_cost: string;
+  net_amount: string;
   worker_id: string;
   work_order_id: string;
   worker_full_name: string;
@@ -22,9 +25,11 @@ export interface WorkOrderLabourRequest {
   description: string;
   time_spent: string;
   hourly_rate: string;
+  discount_percentage?: string;
   work_order_id: string;
-  worker_id: number;
+  worker_id?: number;
   group_number: number;
+  quotation_detail_id?: number;
 }
 
 export interface getWorkOrderLabourProps {

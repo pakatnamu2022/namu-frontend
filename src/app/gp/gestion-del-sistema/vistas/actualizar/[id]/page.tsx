@@ -13,7 +13,7 @@ import { ViewSchema } from "@/features/gp/gestionsistema/vistas/lib/view.schema"
 import { ViewResource } from "@/features/gp/gestionsistema/vistas/lib/view.interface";
 import { ViewForm } from "@/features/gp/gestionsistema/vistas/components/ViewForm";
 import { useAllViews } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";

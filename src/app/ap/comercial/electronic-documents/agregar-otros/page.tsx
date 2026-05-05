@@ -20,8 +20,10 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddGeneralElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -85,15 +87,6 @@ export default function AddGeneralElectronicDocumentPage() {
     [sunatConcepts],
   );
 
-  const detractionTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
-      ),
-    [sunatConcepts],
-  );
-
   const creditNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
@@ -119,7 +112,7 @@ export default function AddGeneralElectronicDocumentPage() {
       numero: "",
       sunat_concept_document_type_id: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "comercial",
+      area_id: AREA_COMERCIAL.toString(),
       client_id: "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       total: 0,
@@ -154,6 +147,12 @@ export default function AddGeneralElectronicDocumentPage() {
     mutate(data);
   };
 
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
+
   if (isLoadingModule) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -168,6 +167,7 @@ export default function AddGeneralElectronicDocumentPage() {
         title={currentView.descripcion}
         mode="create"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <ElectronicDocumentForm
         form={form}
@@ -179,7 +179,6 @@ export default function AddGeneralElectronicDocumentPage() {
         identityDocumentTypes={identityDocumentTypes || []}
         currencyTypes={currencyTypes || []}
         igvTypes={igvTypes || []}
-        detractionTypes={detractionTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={false}

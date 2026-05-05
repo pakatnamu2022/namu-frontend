@@ -18,7 +18,6 @@ export const useUserSeriesAssignment = (params?: Record<string, any>) => {
   return useQuery<UserSeriesAssignmentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getUserSeriesAssignment({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -42,6 +41,5 @@ export const useAuthorizedSeries = (params?: Record<string, any>) => {
   return useQuery<AssignSalesSeriesResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAuthorizedSeries({ params }),
-    refetchOnWindowFocus: false,
   });
 };

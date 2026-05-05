@@ -1,14 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form.tsx";
-import { Input } from "@/components/ui/input.tsx";
+import { Form } from "@/components/ui/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Loader } from "lucide-react";
 import {
@@ -16,6 +8,9 @@ import {
   typesPlanningSchemaCreate,
   typesPlanningSchemaUpdate,
 } from "../lib/typesPlanning.schema.ts";
+import { FormInput } from "@/shared/components/FormInput.tsx";
+import { FormSwitch } from "@/shared/components/FormSwitch.tsx";
+import { FormSelect } from "@/shared/components/FormSelect.tsx";
 
 interface TypesPlanningFormProps {
   defaultValues: Partial<TypesPlanningSchema>;
@@ -34,7 +29,7 @@ export const TypesPlanningForm = ({
 }: TypesPlanningFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? typesPlanningSchemaCreate : typesPlanningSchemaUpdate
+      mode === "create" ? typesPlanningSchemaCreate : typesPlanningSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -46,31 +41,44 @@ export const TypesPlanningForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod.</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: MT" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod."
+            placeholder="Ej: MT"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Mantención" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Mantención"
+          />
+
+          <FormSwitch
+            control={form.control}
+            name="validate_receipt"
+            label="Validar Recepción"
+            text={form.watch("validate_receipt") ? "Si" : "No"}
+          />
+
+          <FormSwitch
+            control={form.control}
+            name="validate_labor"
+            label="Validar Mano de Obra"
+            text={form.watch("validate_labor") ? "Si" : "No"}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <FormSelect
+            control={form.control}
+            name="type_document"
+            label="Tipo de Documento"
+            options={[
+              { value: "INTERNA", label: "INTERNA" },
+              { value: "PAYMENT_RECEIPTS", label: "COMPROBANTE DE PAGO" },
+            ]}
           />
         </div>
 

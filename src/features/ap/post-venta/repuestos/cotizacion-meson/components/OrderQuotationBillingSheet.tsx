@@ -1,12 +1,5 @@
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -22,11 +15,15 @@ import {
   User,
   Calendar,
   MessageSquare,
+  Check,
+  Copy,
+  ShieldCheck,
+  Plus,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
 import type { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -39,8 +36,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/SignaturePad";
-import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  confirmOrderQuotation,
+  updateOrderQuotationInvoiceTo,
+} from "../lib/quotationMeson.actions";
+import {
+  errorToast,
+  formatDate,
+  formatDateTime,
+  successToast,
+} from "@/core/core.function";
+import { useState, useMemo, useEffect } from "react";
+import { InfoSection } from "@/shared/components/InfoSection";
+import { FormTextArea } from "@/shared/components/FormTextArea";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -137,6 +150,7 @@ interface BillingSheetContentProps {
 }
 
 const signatureSchema = z.object({
+  notes: z.string().optional(),
   customer_signature: z.string().min(1, "La firma del cliente es requerida"),
 });
 
@@ -152,16 +166,60 @@ function BillingSheetContent({
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   // Verificar si debe mostrar la sección de firma
-  const shouldShowSignature =
-    orderQuotation.status === "Aperturado" &&
-    !orderQuotation.customer_signature;
+  const shouldShowSignature = orderQuotation.status === "Aperturado";
+
+  const isInvoiced = orderQuotation.status === "Facturado";
 
   const form = useForm<SignatureFormData>({
     resolver: zodResolver(signatureSchema),
     defaultValues: {
+      notes: "",
       customer_signature: "",
+    },
+  });
+
+  // Formulario para "Facturar a"
+  const invoiceToForm = useForm<{ invoice_to_id: string }>({
+    defaultValues: { invoice_to_id: "" },
+  });
+
+  const invoiceToDefaultOption = useMemo(() => {
+    if (orderQuotation.invoice_to) {
+      return {
+        value: orderQuotation.invoice_to.toString(),
+        label: `${orderQuotation.invoice_to_client?.full_name} - ${orderQuotation.invoice_to_client?.num_doc || "S/N"}`,
+      };
+    }
+    return undefined;
+  }, [orderQuotation.invoice_to, orderQuotation.invoice_to_client]);
+
+  useEffect(() => {
+    if (invoiceToDefaultOption) {
+      invoiceToForm.setValue("invoice_to_id", invoiceToDefaultOption.value);
+    }
+  }, [invoiceToDefaultOption, invoiceToForm]);
+
+  const invoiceToMutation = useMutation({
+    mutationFn: (customerId: number | null) =>
+      updateOrderQuotationInvoiceTo(orderQuotation.id, customerId),
+    onSuccess: () => {
+      successToast("Cliente de facturación actualizado");
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", orderQuotation.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["useOrderQuotations"] });
+      onRefresh?.();
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al actualizar el cliente de facturación",
+      );
     },
   });
 
@@ -186,6 +244,26 @@ function BillingSheetContent({
       );
     },
   });
+
+  const handleCopyCode = async (
+    code: string,
+    field: string,
+    index?: number,
+  ) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedField(field);
+      if (index !== undefined) {
+        setCopiedIndex(index);
+      }
+      setTimeout(() => {
+        setCopiedField(null);
+        setCopiedIndex(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   const onSubmitSignature = (data: SignatureFormData) => {
     confirmMutation.mutate(data);
@@ -304,17 +382,8 @@ function BillingSheetContent({
                       Fecha de Descarte
                     </p>
                     <p className="text-sm font-medium">
-                      {(orderQuotation as any).discarded_at
-                        ? new Date(
-                            (orderQuotation as any).discarded_at,
-                          ).toLocaleDateString("es-PE", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "N/A"}
+                      {formatDateTime((orderQuotation as any).discarded_at) ??
+                        "N/A"}
                     </p>
                   </div>
                 </div>
@@ -337,213 +406,254 @@ function BillingSheetContent({
       <Separator />
 
       {/* Información del Cliente */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Información del Cliente</h3>
-        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-          <div className="col-span-2">
-            <p className="text-xs text-muted-foreground">Cliente</p>
-            <p className="text-sm font-semibold">
-              {orderQuotation.client?.full_name || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Documento</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.num_doc || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Teléfono</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.phone || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Email</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.email || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Dirección</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.client.direction || "N/A"}
-            </p>
-          </div>
-        </div>
-      </div>
+      <InfoSection
+        title="Información del Cliente"
+        fields={[
+          {
+            label: "Cliente",
+            value: orderQuotation.client?.full_name || "N/A",
+            fullWidth: true,
+          },
+          { label: "Documento", value: orderQuotation.client.num_doc || "N/A" },
+          { label: "Teléfono", value: orderQuotation.client.phone || "N/A" },
+          { label: "Email", value: orderQuotation.client.email || "N/A" },
+          {
+            label: "Dirección",
+            value: orderQuotation.client.direction || "N/A",
+          },
+        ]}
+      />
 
       {/* Información del Vehículo (solo si hay vehículo asociado) */}
       {orderQuotation.vehicle && (
         <>
           <Separator />
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg">Información del Vehículo</h3>
-            <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-              <div>
-                <p className="text-xs text-muted-foreground">Placa</p>
-                <p className="text-sm font-semibold">
-                  {orderQuotation.vehicle.plate || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">VIN</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.vin || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Marca</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.model?.brand || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Modelo</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.model?.version || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Año</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.year || "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Color</p>
-                <p className="text-sm font-medium">
-                  {orderQuotation.vehicle.vehicle_color || "-"}
-                </p>
-              </div>
-            </div>
-          </div>
+          <InfoSection
+            title="Información del Vehículo"
+            fields={[
+              { label: "Placa", value: orderQuotation.vehicle.plate || "-" },
+              { label: "VIN", value: orderQuotation.vehicle.vin || "-" },
+              {
+                label: "Marca",
+                value: orderQuotation.vehicle.model?.brand || "-",
+              },
+              {
+                label: "Modelo",
+                value: orderQuotation.vehicle.model?.version || "-",
+              },
+              { label: "Año", value: orderQuotation.vehicle.year || "-" },
+              {
+                label: "Color",
+                value: orderQuotation.vehicle.vehicle_color || "-",
+              },
+            ]}
+          />
         </>
       )}
 
       <Separator />
 
       {/* Información de la Cotización */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Información de la Cotización</h3>
-        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-          <div>
-            <p className="text-xs text-muted-foreground">
-              Número de Cotización
-            </p>
-            <p className="text-sm font-semibold">
-              {orderQuotation.quotation_number}
-            </p>
+      <InfoSection
+        title="Información de la Cotización"
+        fields={[
+          {
+            label: "Número de Cotización",
+            value: orderQuotation.quotation_number,
+          },
+          {
+            label: "Fecha Cotización",
+            value: orderQuotation.quotation_date
+              ? formatDate(orderQuotation.quotation_date)
+              : "N/A",
+          },
+          {
+            label: "Fecha Vencimiento",
+            value: orderQuotation.expiration_date
+              ? formatDate(orderQuotation.expiration_date)
+              : "N/A",
+          },
+          {
+            label: "Moneda",
+            value: (
+              <Badge variant="outline">
+                {orderQuotation.type_currency?.name || "N/A"}
+              </Badge>
+            ),
+          },
+          ...(orderQuotation.observations
+            ? [
+                {
+                  label: "Observaciones",
+                  value: orderQuotation.observations,
+                  fullWidth: true,
+                },
+              ]
+            : []),
+        ]}
+      />
+
+      <Separator />
+
+      {/* Confirmación virtual */}
+      {orderQuotation.confirmed_at && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-green-600" />
+            <h3 className="font-semibold text-lg">Confirmación</h3>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Fecha Cotización</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.quotation_date
-                ? new Date(orderQuotation.quotation_date).toLocaleDateString(
-                    "es-PE",
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    },
-                  )
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Fecha Vencimiento</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.expiration_date
-                ? new Date(orderQuotation.expiration_date).toLocaleDateString(
-                    "es-PE",
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    },
-                  )
-                : "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Moneda</p>
-            <Badge variant="outline">
-              {orderQuotation.type_currency?.name || "N/A"}
-            </Badge>
-          </div>
-          {orderQuotation.observations && (
-            <div className="col-span-2">
-              <p className="text-xs text-muted-foreground">Observaciones</p>
-              <p className="text-sm font-medium">
-                {orderQuotation.observations}
-              </p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2 text-sm">
+            {orderQuotation.confirmation_metadata?.confirmed_by_name && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Confirmado por</span>
+                <span className="font-medium">
+                  {orderQuotation.confirmation_metadata.confirmed_by_name}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Fecha</span>
+              <span className="font-medium">
+                {formatDate(orderQuotation.confirmed_at)}
+              </span>
             </div>
-          )}
+            {orderQuotation.confirmation_channel && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Canal</span>
+                <span className="font-medium capitalize">
+                  {orderQuotation.confirmation_channel}
+                </span>
+              </div>
+            )}
+            {orderQuotation.confirmation_metadata?.notes && (
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground shrink-0">Notas</span>
+                <span className="font-medium text-right">
+                  {orderQuotation.confirmation_metadata.notes}
+                </span>
+              </div>
+            )}
+            {orderQuotation.confirmation_ip && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">IP</span>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {orderQuotation.confirmation_ip}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <Separator />
 
       {/* Detalle de Productos/Repuestos */}
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Detalle de Productos</h3>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="text-left">Código</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead className="text-center">Cantidad</TableHead>
-                <TableHead className="text-right">P. Unitario</TableHead>
-                <TableHead className="text-right">% Dto.</TableHead>
-                <TableHead className="text-right">Neto</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orderQuotation.details?.map((detail) => (
-                <TableRow key={detail.id}>
-                  <TableCell>
-                    <div className="text-sm">{detail.product!.code}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{detail.description}</div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="text-sm">
-                      {detail.quantity} {detail.unit_measure}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-medium">
-                      {currencySymbol}{" "}
-                      {Number(detail.unit_price).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-medium">
-                      {Number(detail.discount_percentage).toLocaleString(
-                        "es-PE",
-                        {
-                          minimumFractionDigits: 2,
-                        },
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="text-sm font-semibold">
-                      {currencySymbol}{" "}
-                      {Number(detail.total_amount).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <DetailSheetTable
+          rows={orderQuotation.details ?? []}
+          getKey={(detail) => detail.id}
+          columns={[
+            {
+              header: "#",
+              className: "text-left",
+              render: (_, index) => <div className="text-sm">{index + 1}</div>,
+            },
+            {
+              header: "Producto",
+              render: (detail, index) => (
+                <>
+                  <div className="text-sm">{detail.description}</div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      Código: {detail.product?.code || "N/A"}
+                    </span>
+                    {detail.product?.code && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 hover:bg-slate-200"
+                        onClick={() => {
+                          if (detail.product?.code) {
+                            handleCopyCode(
+                              detail.product.code,
+                              "product_code",
+                              index,
+                            );
+                          }
+                        }}
+                      >
+                        {copiedIndex === index &&
+                        copiedField === "product_code" ? (
+                          <Check className="h-3 w-3 text-green-600" />
+                        ) : (
+                          <Copy className="h-3 w-3" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              ),
+            },
+            {
+              header: "Tipo Abastecimiento",
+              className: "text-center",
+              render: (detail) => (
+                <>
+                  <div className="text-sm">{detail.supply_type || "-"}</div>
+                  <span className="text-xs text-muted-foreground">
+                    {detail.observations || ""}
+                  </span>
+                </>
+              ),
+            },
+            {
+              header: "Cantidad",
+              className: "text-center",
+              render: (detail) => (
+                <div className="text-sm">
+                  {detail.quantity} {detail.unit_measure}
+                </div>
+              ),
+            },
+            {
+              header: "P. Unitario",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-medium">
+                  {currencySymbol}{" "}
+                  {Number(detail.unit_price).toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              ),
+            },
+            {
+              header: "% Dto.",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-medium">
+                  {Number(detail.discount_percentage).toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              ),
+            },
+            {
+              header: "Neto",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-semibold">
+                  {currencySymbol}{" "}
+                  {Number(detail.total_amount).toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              ),
+            },
+          ]}
+        />
 
         {/* Totales de la Cotización */}
         <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
@@ -627,128 +737,136 @@ function BillingSheetContent({
           </div>
         ) : (
           <>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead>Documento</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Fecha Emisión</TableHead>
-                    <TableHead>Observaciones</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="text-right">Monto</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {advances.map((doc) => {
+            <DetailSheetTable
+              rows={advances}
+              getKey={(doc) => doc.id}
+              columns={[
+                {
+                  header: "Documento",
+                  render: (doc) => (
+                    <>
+                      <div className="font-medium">
+                        {doc.serie}-{String(doc.numero).padStart(8, "0")}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {doc.full_number}
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  header: "Tipo",
+                  render: (doc) => (
+                    <>
+                      <div className="text-sm">
+                        {doc.document_type?.description || "N/A"}
+                      </div>
+                      {doc.is_advance_payment && (
+                        <Badge color="secondary" className="text-xs mt-1">
+                          Anticipo
+                        </Badge>
+                      )}
+                    </>
+                  ),
+                },
+                {
+                  header: "Cliente",
+                  render: (doc) => (
+                    <>
+                      <div className="text-sm font-medium">
+                        {doc.cliente_denominacion}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {doc.cliente_numero_de_documento}
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  header: "Fecha Emisión",
+                  render: (doc) => (
+                    <div className="text-sm">
+                      {formatDate(doc.fecha_de_emision)}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Observaciones",
+                  render: (doc) => (
+                    <div className="text-sm text-muted-foreground max-w-[200px]">
+                      {doc.observaciones || "-"}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Estado",
+                  render: (doc) => {
                     const config =
                       statusConfig[doc.status as keyof typeof statusConfig];
                     const StatusIcon = config?.icon || FileText;
-
                     return (
-                      <TableRow key={doc.id}>
-                        <TableCell>
-                          <div className="font-medium">
-                            {doc.serie}-{String(doc.numero).padStart(8, "0")}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {doc.full_number}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {doc.document_type?.description || "N/A"}
-                          </div>
-                          {doc.is_advance_payment && (
-                            <Badge color="secondary" className="text-xs mt-1">
-                              Anticipo
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm font-medium">
-                            {doc.cliente_denominacion}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {doc.cliente_numero_de_documento}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {new Date(doc.fecha_de_emision).toLocaleDateString(
-                              "es-PE",
-                              {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                              },
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-muted-foreground max-w-[200px]">
-                            {doc.observaciones || "-"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`${config?.className} flex items-center gap-1 w-fit`}
-                          >
-                            <StatusIcon className="h-3 w-3" />
-                            <span>{config?.label}</span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-semibold w-20">
-                            {currencySymbol}{" "}
-                            {doc.total.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                            })}
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <Badge
+                        variant="outline"
+                        className={`${config?.className} flex items-center gap-1 w-fit`}
+                      >
+                        <StatusIcon className="h-3 w-3" />
+                        <span>{config?.label}</span>
+                      </Badge>
                     );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Resumen de Totales */}
-            <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Cotización</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {orderQuotation.total_amount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Anticipos</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {totalAdvances.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <Separator className="my-2" />
-              <div className="flex justify-between text-base font-bold text-primary">
-                <span>Saldo Pendiente</span>
-                <span>
-                  {currencySymbol}{" "}
-                  {(orderQuotation.total_amount - totalAdvances).toLocaleString(
-                    "es-PE",
-                    {
-                      minimumFractionDigits: 2,
-                    },
-                  )}
-                </span>
-              </div>
-            </div>
+                  },
+                },
+                {
+                  header: "Monto",
+                  className: "text-right",
+                  render: (doc) => (
+                    <div className="font-semibold w-20">
+                      {currencySymbol}{" "}
+                      {doc.total.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </div>
+                  ),
+                },
+              ]}
+              footer={
+                <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Total Cotización
+                    </span>
+                    <span className="font-medium">
+                      {currencySymbol}{" "}
+                      {orderQuotation.total_amount.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Total Anticipos
+                    </span>
+                    <span className="font-medium">
+                      {currencySymbol}{" "}
+                      {totalAdvances.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between text-base font-bold text-primary">
+                    <span>Saldo Pendiente</span>
+                    <span>
+                      {currencySymbol}{" "}
+                      {(
+                        orderQuotation.total_amount - totalAdvances
+                      ).toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                </div>
+              }
+            />
           </>
         )}
       </div>
@@ -803,6 +921,111 @@ function BillingSheetContent({
         </>
       )}
 
+      {/* Facturar a */}
+      <Separator />
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">
+              Facturar a
+            </h4>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {isInvoiced
+                ? "Cliente de facturación establecido"
+                : "Selecciona el cliente para la factura"}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="w-full">
+            <FormProvider {...invoiceToForm}>
+              <div className="flex w-full items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <FormSelectAsync
+                    name="invoice_to_id"
+                    label="Cliente de facturación"
+                    placeholder="Seleccionar cliente"
+                    control={invoiceToForm.control}
+                    useQueryHook={useCustomers}
+                    mapOptionFn={(customer: CustomersResource) => ({
+                      value: customer.id.toString(),
+                      label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                    })}
+                    description={
+                      isInvoiced
+                        ? "Ya existe una factura emitida, no se puede modificar"
+                        : hasAdvances
+                          ? "Ya se registraron avances de pago, no se puede modificar"
+                          : "Cliente a quien se le emitirá la factura de esta cotización"
+                    }
+                    perPage={10}
+                    debounceMs={500}
+                    disabled={
+                      isInvoiced || invoiceToMutation.isPending || hasAdvances
+                    }
+                    defaultOption={invoiceToDefaultOption}
+                    onValueChange={(value) => {
+                      invoiceToMutation.mutate(value ? Number(value) : null);
+                    }}
+                    allowClear={false}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  className="aspect-square shrink-0"
+                  onClick={() => setIsCustomerModalOpen(true)}
+                  tooltip="Agregar nuevo cliente"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </FormProvider>
+          </div>
+
+          {orderQuotation.invoice_to && (
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+              <div className="flex-1 grid grid-cols-1 gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Nombre
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {orderQuotation.invoice_to_client?.full_name || "—"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Documento
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
+                    {orderQuotation.invoice_to_client?.num_doc || "S/N"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <CustomerModal
+        open={isCustomerModalOpen}
+        onClose={(newCustomer) => {
+          setIsCustomerModalOpen(false);
+          if (newCustomer) {
+            queryClient.invalidateQueries({ queryKey: [CUSTOMERS.QUERY_KEY] });
+          }
+        }}
+        title="Agregar Nuevo Cliente"
+      />
+
       {/* Sección de Firma del Cliente */}
       {shouldShowSignature && (
         <>
@@ -815,8 +1038,7 @@ function BillingSheetContent({
               <GroupFormSection
                 title="Firma de Conformidad del Cliente"
                 icon={PenLine}
-                iconColor="text-primary"
-                bgColor="bg-blue-50"
+                color="primary"
                 cols={{ sm: 1 }}
               >
                 <FormField
@@ -831,6 +1053,23 @@ function BillingSheetContent({
                           onChange={field.onChange}
                           disabled={confirmMutation.isPending}
                           required
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <FormTextArea
+                          label="Notas adicionales (opcional)"
+                          placeholder="Escribe aquí..."
+                          disabled={confirmMutation.isPending}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />

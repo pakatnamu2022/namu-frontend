@@ -2,7 +2,13 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
-import { errorToast, successToast } from "@/core/core.function";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import {
+  errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+  successToast,
+} from "@/core/core.function";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
@@ -20,6 +26,7 @@ import AssignedWorkTable from "@/features/ap/post-venta/taller/trabajos-asignado
 import AssignedWorkOptions from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkOptions";
 import { AssignedWorkDetail } from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkDetail";
 import { PauseWorkSheet } from "@/features/ap/post-venta/taller/trabajos-asignados/components/PauseWorkSheet";
+import { ConfirmPartsDeliverySheet } from "@/features/ap/post-venta/taller/trabajos-asignados/components/ConfirmPartsDeliverySheet";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
@@ -32,6 +39,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function AssignedWorkPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { user } = useAuthStore();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -46,32 +54,75 @@ export default function AssignedWorkPage() {
   const [openStartAlert, setOpenStartAlert] = useState(false);
   const [openContinueAlert, setOpenContinueAlert] = useState(false);
   const [openCompleteAlert, setOpenCompleteAlert] = useState(false);
+  const [openConfirmPartsSheet, setOpenConfirmPartsSheet] = useState(false);
   const { ROUTE } = WORK_ORDER_PLANNING_SESSION;
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getCurrentDayOfMonth(currentDate),
+  );
   const startSession = useStartSession();
   const pauseWork = usePauseWork();
   const completeWork = useCompleteWork(); // Reutilizando la mutación de inicio para completar (ajustar según sea necesario)
 
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
+    has_workshop: true,
+  });
+
+  // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSedeId(mySedes[0].id.toString());
+    }
+  }, [mySedes, sedeId]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, workerId]);
+  }, [search, per_page, workerId, sedeId]);
 
-  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
-    cargo_id: POSITION_TYPE.OPERATORS,
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-  });
+  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers(
+    {
+      cargo_id: POSITION_TYPE.OPERATORS,
+      status_id: STATUS_WORKER.ACTIVE,
+      sede$empresa_id: EMPRESA_AP.id,
+      sede_id: sedeId || undefined,
+    },
+    !!sedeId,
+  ); // Solo cargar trabajadores si hay una sede seleccionada
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
+
+  // Si el partner_id del usuario coincide con algún worker, pre-seleccionar y bloquear el select
+  const matchedWorker = workers.find((w) => w.id === user?.partner_id);
+  const isWorkerLocked = !!matchedWorker;
+
+  useEffect(() => {
+    if (isWorkerLocked && matchedWorker) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWorkerId(matchedWorker.id.toString());
+    }
+  }, [isWorkerLocked, matchedWorker]);
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
-    page,
-    search,
-    per_page,
-    worker_id: workerId,
-    workOrder$sede_id: sedeId,
-  });
-
-  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
-    company: EMPRESA_AP.id,
+    params: {
+      page,
+      search,
+      per_page,
+      worker_id: workerId,
+      workOrder$sede_id: sedeId,
+      planned_start_datetime:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+    },
+    enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
   });
 
   const handleViewWork = (work: WorkOrderPlanningResource) => {
@@ -93,6 +144,10 @@ export default function AssignedWorkPage() {
   const handleCompleteWork = (work: WorkOrderPlanningResource) => {
     setActionWork(work);
     setOpenCompleteAlert(true);
+  };
+  const handleConfirmPartsDelivery = (work: WorkOrderPlanningResource) => {
+    setActionWork(work);
+    setOpenConfirmPartsSheet(true);
   };
 
   const handleStartConfirm = async () => {
@@ -163,6 +218,7 @@ export default function AssignedWorkPage() {
           onContinue: handleContinueWork,
           onPause: handlePauseWork,
           onComplete: handleCompleteWork,
+          onConfirmPartsDelivery: handleConfirmPartsDelivery,
         })}
         data={data?.data || []}
       >
@@ -172,9 +228,14 @@ export default function AssignedWorkPage() {
           workers={workers}
           workerId={workerId}
           setWorkerId={setWorkerId}
+          isWorkerLocked={isWorkerLocked}
           sedes={mySedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
         />
       </AssignedWorkTable>
       <DataTablePagination
@@ -231,6 +292,16 @@ export default function AssignedWorkPage() {
         cancelText="No"
         variant="default"
         icon="success"
+      />
+
+      {/* Sheet para Confirmar entrega de repuestos */}
+      <ConfirmPartsDeliverySheet
+        open={openConfirmPartsSheet}
+        onClose={() => {
+          setOpenConfirmPartsSheet(false);
+          setActionWork(null);
+        }}
+        planning={actionWork}
       />
 
       {/* Sheet para Pausar */}

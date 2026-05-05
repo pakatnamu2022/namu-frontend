@@ -4,7 +4,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   WorkOrderPlanningResource,
-  PLANNING_STATUS_LABELS,
+  PLANNING_VISUAL_STATE_COLORS,
+  PLANNING_VISUAL_STATE_LABELS,
+  getPlanningVisualState,
+  getPlanningActions,
 } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -19,6 +22,7 @@ import {
   Pause,
   Play,
   User,
+  PackageCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +33,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PLANNING_TYPE_LABELS } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.constants";
+import { ElapsedTimer } from "../../planificacion-orden-trabajo/components/ElapsedTimer";
 
 interface AssignedWorkColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
@@ -36,6 +41,7 @@ interface AssignedWorkColumnsProps {
   onContinue?: (planning: WorkOrderPlanningResource) => void;
   onPause?: (planning: WorkOrderPlanningResource) => void;
   onComplete?: (planning: WorkOrderPlanningResource) => void;
+  onConfirmPartsDelivery?: (planning: WorkOrderPlanningResource) => void;
 }
 
 export const assignedWorkColumns = ({
@@ -44,6 +50,7 @@ export const assignedWorkColumns = ({
   onContinue,
   onPause,
   onComplete,
+  onConfirmPartsDelivery,
 }: AssignedWorkColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
   {
     accessorKey: "work_order_correlative",
@@ -96,7 +103,7 @@ export const assignedWorkColumns = ({
   },
   {
     accessorKey: "estimated_hours",
-    header: "Hrs Est.",
+    header: "Hrs Programadas",
     cell: ({ row }) => {
       const hours = row.original.estimated_hours;
       return (
@@ -140,6 +147,11 @@ export const assignedWorkColumns = ({
     },
   },
   {
+    id: "elapsed_time",
+    header: "Tiempo Transcurrido",
+    cell: ({ row }) => <ElapsedTimer planning={row.original} />,
+  },
+  {
     accessorKey: "type",
     header: "Tipo",
     cell: ({ row }) => {
@@ -158,25 +170,19 @@ export const assignedWorkColumns = ({
       const status = row.original.status;
       const hasActive = row.original.has_active_session;
 
-      const variantMap = {
-        planned: "blue" as const,
-        in_progress: "orange" as const,
-        completed: "green" as const,
-        canceled: "destructive" as const,
-      };
+      const visualState = getPlanningVisualState(row.original);
+      const colors = PLANNING_VISUAL_STATE_COLORS[visualState];
 
       return (
-        <>
-          <Badge color={variantMap[status]}>
-            {PLANNING_STATUS_LABELS[status]}
+        <div className="flex items-center gap-2">
+          <Badge className={`${colors.bg} ${colors.text} hover:${colors.bg}`}>
+            {PLANNING_VISUAL_STATE_LABELS[visualState]}
           </Badge>
-          {status === "in_progress" && hasActive && (
-            <Play className="size-5 inline-block ml-2" />
-          )}
+          {status === "in_progress" && hasActive && <Play className="size-5" />}
           {status === "in_progress" && !hasActive && (
-            <Pause className="size-5 inline-block ml-2" />
+            <Pause className="size-5" />
           )}
-        </>
+        </div>
       );
     },
   },
@@ -185,21 +191,8 @@ export const assignedWorkColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const planning = row.original;
-      const status = planning.status;
-      const hasActive = row.original.has_active_session;
-
-      // Verificar si hay sesiones pausadas
-      const hasPausedSession =
-        planning.sessions &&
-        planning.sessions.length > 0 &&
-        planning.sessions.some((session) => session.status === "paused");
-
-      // Lógica de estados según requerimientos
-      const showStart = status === "planned" && !hasPausedSession;
-      const showContinue =
-        hasPausedSession && status === "in_progress" && !hasActive;
-      const showPauseAndComplete =
-        status === "in_progress" && planning.has_active_session;
+      const { showStart, showContinue, showPauseAndComplete } =
+        getPlanningActions(planning);
 
       return (
         <div className="flex items-center gap-2">
@@ -208,14 +201,30 @@ export const assignedWorkColumns = ({
             size="icon"
             className="size-7"
             onClick={() => onView?.(planning)}
+            tooltip="Ver detalles del trabajo"
           >
             <Eye className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onConfirmPartsDelivery?.(planning)}
+            tooltip="Confirmar entrega de repuestos"
+          >
+            <PackageCheck className="h-4 w-4 text-blue-600" />
           </Button>
 
           {(showStart || showContinue || showPauseAndComplete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="size-7">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Acciones"
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

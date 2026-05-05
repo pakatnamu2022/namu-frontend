@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Control } from "react-hook-form";
+import { Control, useWatch } from "react-hook-form";
 import { useState, useEffect, useRef, useCallback } from "react";
 import React from "react";
 import { Option } from "@/core/core.interface";
@@ -32,6 +32,11 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
+
+const noopFindById = (_id: any): { data: undefined; isLoading: false } => ({
+  data: undefined,
+  isLoading: false,
+});
 
 interface FormSelectAsyncProps {
   name: string;
@@ -65,6 +70,9 @@ interface FormSelectAsyncProps {
   defaultOption?: Option; // Opción inicial para mostrar cuando se edita
   additionalParams?: Record<string, any>; // Parámetros adicionales para el hook
   onValueChange?: (value: string, item?: any) => void; // Callback cuando cambia el valor
+  allowClear?: boolean;
+  preloadId?: string; // Pagina automáticamente hasta encontrar la opción con este value
+  useFindByIdHook?: (id: any) => { data?: any; isLoading: boolean }; // Hook para cargar un recurso por ID sin paginar
 }
 
 export function FormSelectAsync({
@@ -88,6 +96,9 @@ export function FormSelectAsync({
   defaultOption,
   additionalParams = {},
   onValueChange,
+  allowClear = true,
+  preloadId,
+  useFindByIdHook,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -96,10 +107,12 @@ export function FormSelectAsync({
   const [allOptions, setAllOptions] = useState<Option[]>(
     defaultOption ? [defaultOption] : [],
   );
+  const rawItemsRef = useRef<Map<string, any>>(new Map());
   const [selectedOption, setSelectedOption] = useState<Option | null>(
     defaultOption || null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const preloadDoneRef = useRef(false);
 
   // Sincronizar cuando defaultOption cambie (ej. al seleccionar cotización)
   useEffect(() => {
@@ -126,6 +139,13 @@ export function FormSelectAsync({
     per_page: perPage,
     ...additionalParams,
   });
+
+  // Hook para cargar el recurso actual por ID (evita auto-paginar)
+  const currentFieldValue = useWatch({ control, name });
+  const effectiveFindByIdHook = useFindByIdHook ?? noopFindById;
+  const { data: findByIdData } = effectiveFindByIdHook(
+    currentFieldValue || 0,
+  );
 
   // Debounce para el search
   useEffect(() => {
@@ -157,8 +177,22 @@ export function FormSelectAsync({
     if (data?.data) {
       const newOptions = data.data.map(mapOptionFn);
 
+      // Guardar items crudos en el ref para tenerlos disponibles al seleccionar
+      data.data.forEach((item) => {
+        const option = mapOptionFn(item);
+        rawItemsRef.current.set(option.value, item);
+      });
+
       if (page === 1) {
-        setAllOptions(newOptions);
+        // Preservar defaultOption si no está en los resultados nuevos
+        if (
+          defaultOption &&
+          !newOptions.some((opt) => opt.value === defaultOption.value)
+        ) {
+          setAllOptions([defaultOption, ...newOptions]);
+        } else {
+          setAllOptions(newOptions);
+        }
       } else {
         setAllOptions((prev) => {
           // Evitar duplicados
@@ -170,7 +204,36 @@ export function FormSelectAsync({
         });
       }
     }
-  }, [data, page, mapOptionFn]);
+  }, [data, page, mapOptionFn, defaultOption]);
+
+  // Agregar a allOptions el item encontrado por useFindByIdHook
+  useEffect(() => {
+    if (!findByIdData) return;
+    const option = mapOptionFn(findByIdData);
+    rawItemsRef.current.set(option.value, findByIdData);
+    setAllOptions((prev) => {
+      const exists = prev.some((opt) => opt.value === option.value);
+      return exists ? prev : [option, ...prev];
+    });
+  }, [findByIdData, mapOptionFn]);
+
+  // Auto-paginar hasta encontrar la opción con preloadId
+  useEffect(() => {
+    if (!preloadId || preloadDoneRef.current || isFetching || isLoading) return;
+
+    const found = allOptions.some((opt) => opt.value === preloadId);
+    if (found) {
+      preloadDoneRef.current = true;
+      return;
+    }
+
+    if (data?.meta?.last_page && page < data.meta.last_page) {
+      setPage((prev) => prev + 1);
+    } else if (data) {
+      // Se agotaron las páginas sin encontrarlo
+      preloadDoneRef.current = true;
+    }
+  }, [preloadId, allOptions, data, page, isFetching, isLoading]);
 
   // Manejar scroll para cargar más
   const handleScroll = useCallback(
@@ -216,6 +279,7 @@ export function FormSelectAsync({
             : null);
 
         // Sincronizar selectedOption con field.value usando useEffect
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (field.value && selected && selected !== selectedOption) {
             setSelectedOption(selected);
@@ -236,7 +300,7 @@ export function FormSelectAsync({
             {label && typeof label === "function"
               ? label()
               : label && (
-                  <FormLabel className="flex justify-start items-center">
+                  <FormLabel className="flex justify-start items-center leading-none mb-1 dark:text-muted-foreground">
                     {label}
                     {required && <RequiredField />}
                     {tooltip && (
@@ -264,8 +328,9 @@ export function FormSelectAsync({
                       role="combobox"
                       disabled={disabled}
                       className={cn(
-                        "w-full justify-between min-h-10 flex",
+                        "w-full justify-between flex truncate",
                         !field.value && "text-muted-foreground",
+                        field.value && "bg-muted",
                         className,
                       )}
                     >
@@ -283,7 +348,7 @@ export function FormSelectAsync({
 
                 <PopoverContent
                   container={portalContainer}
-                  className="p-0 w-(--radix-popover-trigger-width)!"
+                  className="p-0 min-w-(--radix-popover-trigger-width) w-auto"
                   onWheel={(e) => e.stopPropagation()}
                   onWheelCapture={(e) => e.stopPropagation()}
                   onTouchMove={(e) => e.stopPropagation()}
@@ -321,16 +386,15 @@ export function FormSelectAsync({
                               className="cursor-pointer"
                               onSelect={() => {
                                 const newValue =
-                                  option.value === field.value
+                                  option.value === field.value && allowClear
                                     ? ""
                                     : option.value;
                                 field.onChange(newValue);
-                                // Llamar onValueChange si existe, pasando el item completo
+                                // Llamar onValueChange si existe, pasando el item completo desde el ref
                                 if (onValueChange) {
-                                  const selectedItem = data?.data?.find(
-                                    (item) =>
-                                      mapOptionFn(item).value === option.value,
-                                  );
+                                  const selectedItem = newValue
+                                    ? rawItemsRef.current.get(option.value)
+                                    : undefined;
                                   onValueChange(newValue, selectedItem);
                                 }
                                 setOpen(false);

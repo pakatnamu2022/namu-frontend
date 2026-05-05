@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { SuppliersResource } from "./suppliers.interface";
 
+// ROUTAS - COMERCIAL - PROVEEDORES
 const ROUTE = "proveedores";
 const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
@@ -74,4 +75,23 @@ export const SUPPLIERS: ModelComplete<SuppliersResource> = {
     activity_economic: null,
     company: "",
   },
+};
+
+// RUTAS - POST-VENTA - GESTIÓN DE ALMACÉN - PROVEEDOR DE ALMACÉN
+const ROUTE_SUPPLIER_WAREHOUSE = "proveedor-almacen";
+const ABSOLUTE_ROUTE_SUPPLIER_WAREHOUSE = `/ap/post-venta/gestion-de-almacen/${ROUTE_SUPPLIER_WAREHOUSE}`;
+
+export const SUPPLIER_WAREHOUSE = {
+  MODEL: {
+    name: "Proveedor de Almacén",
+    plural: "Proveedores de Almacén",
+    gender: true,
+  },
+  ICON: "Warehouse",
+  ENDPOINT: "/ap/warehouse/suppliers",
+  QUERY_KEY: "warehouseSuppliers",
+  ROUTE: ROUTE_SUPPLIER_WAREHOUSE,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_SUPPLIER_WAREHOUSE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_SUPPLIER_WAREHOUSE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_SUPPLIER_WAREHOUSE}/actualizar`,
 };

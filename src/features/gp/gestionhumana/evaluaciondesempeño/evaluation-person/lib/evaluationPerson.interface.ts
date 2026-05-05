@@ -167,9 +167,32 @@ export interface Evaluator {
 
 // Leader Status Interfaces
 export interface LeaderStatusEvaluationResponse {
-  evaluation: LeaderStatusEvaluation;
-  leaders: Leader[];
-  summary: LeaderStatusSummary;
+  data: LeaderStatusEvaluationResource[];
+  links: Links;
+  meta: Meta;
+}
+
+export interface LeaderStatusEvaluationResource {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  team_evaluation_stats: Teamevaluationstats;
+  team_members_count: number;
+}
+
+export interface Teamevaluationstats {
+  total_team_members: number;
+  completed_members: number;
+  in_progress_members: number;
+  not_started_members: number;
+  objectives_evaluated: number;
+  competences_evaluated: number;
+  completion_percentage: number;
+  evaluation_progress_percentage: number;
 }
 
 export interface LeaderStatusSummary {
@@ -213,4 +236,162 @@ export interface LeaderStatusEvaluation {
   status: number;
   start_date: string;
   end_date: string;
+}
+
+// Team Members Response
+
+export interface TeamMembersResponse {
+  data: TeamMembersResource[];
+  links: Links;
+  meta: Meta;
+  leader: LeaderInfo;
+}
+
+export interface LeaderInfo {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+}
+
+export interface TeamMembersResource {
+  id: number;
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  evaluation_results: Evaluationresults;
+  evaluation_progress: Evaluationprogress;
+  has_objectives: number;
+  comments: null;
+  last_updated: string;
+}
+
+export interface Evaluationprogress {
+  is_completed: boolean;
+  completion_percentage: number;
+  progress_status: string;
+  progress_status_label: string;
+}
+
+export interface Evaluationresults {
+  objectives_result: number;
+  competences_result: number;
+  final_result: number;
+  objectives_percentage: string;
+  competences_percentage: string;
+}
+
+// Regenerate Preview Interfaces
+export interface RegeneratePreviewResponse {
+  person: RegeneratePreviewPerson;
+  validations: string[];
+  warnings: string[];
+  errors: string[];
+  can_regenerate: boolean;
+  what_will_be_deleted: RegenerateChanges;
+  what_will_be_created: RegenerateChanges;
+}
+
+export interface RegeneratePreviewPerson {
+  id: number;
+  name: string;
+  dni: string;
+  position: string;
+  hierarchical_category: string;
+}
+
+export interface RegenerateChanges {
+  competences: number;
+  evaluation_persons: number;
+  person_cycle_details: number;
+  competence_details?: number;
+}
+
+// Regenerate Evaluation Preview Interfaces
+export interface RegenerateEvaluationPreviewResponse {
+  evaluation: RegenerateEvaluation;
+  parameters: RegenerateParameters;
+  current_state: RegenerateCurrentState;
+  cycle_analysis: CycleAnalysis;
+  validations: string[];
+  warnings: string[];
+  errors: string[];
+  will_execute: boolean;
+  affected_persons: AffectedPersons;
+}
+
+export interface RegenerateEvaluation {
+  id: number;
+  name: string;
+  cycle_id: number;
+  type: number;
+}
+
+export interface RegenerateParameters {
+  mode: string;
+  reset_progress: boolean | string;
+  force: boolean | string;
+}
+
+export interface RegenerateCurrentState {
+  total_persons: number;
+  statistics: RegenerateStatistics;
+}
+
+export interface RegenerateStatistics {
+  person_results: number;
+  competence_details: number;
+  evaluation_persons: number;
+  dashboards: number;
+}
+
+export interface CycleAnalysis {
+  expected_persons_in_cycle: number;
+  changes_detected: boolean;
+  persons_to_add_count: number;
+  persons_to_remove_count: number;
+}
+
+export interface AffectedPersons {
+  mode: string;
+  description: string;
+  impact: string;
+  summary: AffectedPersonsSummary;
+  persons_to_remove?: PersonAffected[];
+  persons_to_add?: PersonToAdd[];
+  warnings: string[];
+}
+
+export interface AffectedPersonsSummary {
+  total_will_remove?: number;
+  total_will_add: number;
+  total_will_keep?: number;
+  will_reset_progress?: boolean;
+  persons_with_progress_lost?: number;
+  no_deletions?: boolean;
+  no_modifications?: boolean;
+}
+
+export interface PersonAffected {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  reason: string;
+}
+
+export interface PersonToAdd extends PersonAffected {
+  will_have?: {
+    objectives: number;
+  };
 }

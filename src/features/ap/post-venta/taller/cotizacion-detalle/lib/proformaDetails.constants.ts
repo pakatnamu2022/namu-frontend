@@ -18,3 +18,14 @@ export const ORDER_QUOTATION_DETAILS: ModelComplete<OrderQuotationDetailsResourc
     ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
+
+export const ITEM_TYPE_PRODUCT = "PRODUCT";
+export const ITEM_TYPE_LABOR = "LABOR";
+
+export const onSelectSupplyType = [
+  { label: "Stock", value: "STOCK" },
+  { label: "Translado", value: "TRASLADO" },
+  { label: "Local", value: "LOCAL" },
+  { label: "Central", value: "CENTRAL" },
+  { label: "Importación", value: "IMPORTACION" },
+];

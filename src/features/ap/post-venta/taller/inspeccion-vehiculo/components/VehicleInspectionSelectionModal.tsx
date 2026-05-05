@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar, Car } from "lucide-react";
 import { useVehicleInspection } from "../lib/vehicleInspection.hook";
 import { VehicleInspectionResource } from "../lib/vehicleInspection.interface";
@@ -15,27 +10,33 @@ import { VehicleInspectionSelectionTable } from "./VehicleInspectionSelectionTab
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast } from "@/core/core.function";
+import { errorToast, getMonday, getSunday } from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 
 interface VehicleInspectionSelectionModalProps {
   open: boolean;
+  sedeId: number;
   onOpenChange: (open: boolean) => void;
   onSelectInspection: (inspection: VehicleInspectionResource) => void;
 }
 
 export const VehicleInspectionSelectionModal = ({
   open,
+  sedeId,
   onOpenChange,
   onSelectInspection,
 }: VehicleInspectionSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const currently = new Date();
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currently);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currently);
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined;
@@ -56,10 +57,12 @@ export const VehicleInspectionSelectionModal = ({
     page,
     per_page,
     search,
+    is_cancelled: 0,
     inspection_date:
       dateFrom || dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    workOrder$sede_id: sedeId,
   });
 
   const handleRowClick = (inspection: VehicleInspectionResource) => {
@@ -105,7 +108,7 @@ export const VehicleInspectionSelectionModal = ({
     },
     {
       id: "inspection_datetime",
-      header: "Fecha Inspección",
+      header: "Fecha Recepción",
       cell: ({ row }) => {
         const date = row.original.inspection_date;
 
@@ -149,25 +152,24 @@ export const VehicleInspectionSelectionModal = ({
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[75vw] xl:w-[70vw] 2xl:max-w-[1400px] h-[85vh] sm:h-[80vh] md:h-[75vh] lg:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-4 md:p-5 lg:p-6">
-        <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">
-            Seleccionar Inspección de Vehículo
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-1 sm:p-2">
-          {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <div className="sm:col-span-2 lg:col-span-1">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder="Buscar por placa..."
-                label="Buscar"
-              />
-            </div>
+    <GeneralModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Seleccionar Recepción de Vehículo"
+      size="7xl"
+    >
+      <div className="space-y-4">
+        {/* Filtros */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div className="w-full">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar placa o cliente..."
+              label="Buscar"
+            />
+          </div>
+          <div className="w-full">
             <DatePicker
               value={dateFrom}
               onChange={setDateFrom}
@@ -176,6 +178,8 @@ export const VehicleInspectionSelectionModal = ({
               showClearButton={false}
               captionLayout="dropdown"
             />
+          </div>
+          <div className="w-full">
             <DatePicker
               value={dateTo}
               onChange={setDateTo}
@@ -185,34 +189,34 @@ export const VehicleInspectionSelectionModal = ({
               captionLayout="dropdown"
             />
           </div>
-
-          {/* Tabla */}
-          <VehicleInspectionSelectionTable
-            columns={columns}
-            data={data?.data || []}
-            isLoading={isLoading}
-            initialColumnVisibility={{
-              vehicle_plate: true,
-              vehicle_vin: true,
-              work_order_correlative: true,
-              inspection_datetime: true,
-              mileage: true,
-              inspected_by_name: true,
-            }}
-            onRowClick={handleRowClick}
-          />
-
-          {/* Paginación */}
-          <DataTablePagination
-            page={page}
-            totalPages={data?.meta?.last_page || 1}
-            totalData={data?.meta?.total || 0}
-            onPageChange={setPage}
-            per_page={per_page}
-            setPerPage={setPerPage}
-          />
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Tabla */}
+        <VehicleInspectionSelectionTable
+          columns={columns}
+          data={data?.data || []}
+          isLoading={isLoading}
+          initialColumnVisibility={{
+            vehicle_plate: true,
+            vehicle_vin: true,
+            work_order_correlative: true,
+            inspection_datetime: true,
+            mileage: true,
+            inspected_by_name: true,
+          }}
+          onRowClick={handleRowClick}
+        />
+
+        {/* Paginación */}
+        <DataTablePagination
+          page={page}
+          totalPages={data?.meta?.last_page || 1}
+          totalData={data?.meta?.total || 0}
+          onPageChange={setPage}
+          per_page={per_page}
+          setPerPage={setPerPage}
+        />
+      </div>
+    </GeneralModal>
   );
 };

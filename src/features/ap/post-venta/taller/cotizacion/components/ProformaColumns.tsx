@@ -1,13 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { errorToast, successToast } from "@/core/core.function";
+import { Send } from "lucide-react";
 import { OrderQuotationResource } from "../lib/proforma.interface";
-import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { ProformaActionsCell } from "./ProformaActionsCell";
 
 export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 
@@ -15,16 +12,45 @@ interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
+  onApprove: (id: number) => void;
+  onDuplicate: (id: number) => void;
+  onSendNotification: (id: number) => void;
   permissions: {
+    canApprove: boolean;
+    canDuplicate: boolean;
+    canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
 }
 
+const getQuotationStatus = (
+  quotationDate: string | null | undefined,
+  isTake: boolean,
+): "Aperturada" | "Vencida" | "Aceptada" => {
+  if (!quotationDate) return "Aperturada";
+
+  const createdAt = new Date(quotationDate);
+  if (Number.isNaN(createdAt.getTime())) return "Aperturada";
+
+  const expirationByRule = new Date(createdAt);
+  expirationByRule.setDate(expirationByRule.getDate() + 15);
+
+  const today = new Date();
+  const expired = today > expirationByRule;
+
+  if (expired && isTake) return "Aceptada";
+  if (expired) return "Vencida";
+  return "Aperturada";
+};
+
 export const orderQuotationColumns = ({
   onUpdate,
   onManage,
   onDelete,
+  onApprove,
+  onDuplicate,
+  onSendNotification,
   permissions,
 }: Props): OrderQuotationColumns[] => [
   {
@@ -87,16 +113,101 @@ export const orderQuotationColumns = ({
     header: "Observaciones",
   },
   {
+    accessorKey: "created_by_name",
+    header: "Creado por",
+  },
+  {
+    accessorKey: "emails_sent_count",
+    header: "Emails enviados",
+    cell: ({ row }) => {
+      const sentCount = Number(
+        (row.getValue("emails_sent_count") as
+          | number
+          | string
+          | null
+          | undefined) ?? 0,
+      );
+      const hasSent = sentCount > 0;
+
+      return (
+        <Badge
+          variant="outline"
+          color={hasSent ? "sky" : "gray"}
+          className="inline-flex items-center gap-1"
+        >
+          <Send className="size-3" />
+          {sentCount} {sentCount === 1 ? "envío" : "envíos"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "is_take",
-    header: "Tomada",
+    header: "Aceptada",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge
-          color={value ? "default" : "secondary"}
-          className="capitalize w-8 flex items-center justify-center"
-        >
+        <Badge variant="outline" color={value ? "green" : "gray"}>
           {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "has_management_discount",
+    header: "Dcto. Gerencial",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={value ? "green" : "gray"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "chief_approval_by",
+    header: "Aprob. Jefe",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return (
+        <Badge variant="outline" color={value ? "green" : "red"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "manager_approval_by",
+    header: "Aprob. Gerente",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return (
+        <Badge variant="outline" color={value ? "green" : "red"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const isTake = !!(row.getValue("is_take") as boolean | undefined);
+      const status = getQuotationStatus(row.original.quotation_date, isTake);
+
+      return (
+        <Badge
+          variant="outline"
+          color={
+            status === "Aceptada"
+              ? "green"
+              : status === "Vencida"
+                ? "red"
+                : "blue"
+          }
+        >
+          {status}
         </Badge>
       );
     },
@@ -104,57 +215,17 @@ export const orderQuotationColumns = ({
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => {
-      const { id } = row.original;
-
-      const handleDownloadPdf = async () => {
-        try {
-          await downloadOrderQuotationPdf(id);
-          successToast("PDF descargado correctamente");
-        } catch {
-          errorToast("Error al descargar el PDF");
-        }
-      };
-
-      return (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onManage(id)}
-            tooltip="Gestionar"
-          >
-            <Settings className="size-5" />
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={handleDownloadPdf}
-            tooltip="PDF"
-          >
-            <Download className="size-5" />
-          </Button>
-
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canDelete && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <ProformaActionsCell
+        row={row.original}
+        permissions={permissions}
+        onManage={onManage}
+        onSendNotification={onSendNotification}
+        onApprove={onApprove}
+        onDuplicate={onDuplicate}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+      />
+    ),
   },
 ];

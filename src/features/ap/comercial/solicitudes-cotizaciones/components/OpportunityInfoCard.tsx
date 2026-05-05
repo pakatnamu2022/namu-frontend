@@ -245,7 +245,7 @@ export const OpportunityInfoCard = ({
           <div className="flex items-center gap-1.5">
             <Briefcase className="size-3.5 text-slate-500" />
             <span className="font-semibold text-slate-900">
-              {opportunity.lead.type}
+              {opportunity.lead?.type}
             </span>
           </div>
           {opportunity.actions && opportunity.actions.length > 0 && (

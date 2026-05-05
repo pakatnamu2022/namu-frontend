@@ -38,11 +38,6 @@ export const inventoryColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "warehouse.dyn_code",
-    header: "Almacén",
-    enableSorting: false,
-  },
-  {
     accessorKey: "quantity",
     header: "Stock Total",
     enableSorting: true,

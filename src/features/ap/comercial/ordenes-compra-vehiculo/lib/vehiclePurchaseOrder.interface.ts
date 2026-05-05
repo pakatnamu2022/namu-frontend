@@ -2,6 +2,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { ClassArticleResource } from "../../../configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
+import { PurchaseRequestQuoteResource } from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 
 export interface VehiclePurchaseOrderResponse {
   data: VehiclePurchaseOrderResource[];
@@ -22,6 +23,9 @@ export interface VehiclePurchaseOrderMovement {
 export interface PurchaseOrderItem {
   id?: number;
   unit_measurement_id?: number;
+  product_code: string;
+  product_name: string;
+  product_dyn_code: string;
   description: string;
   unit_price: string | number;
   quantity: number;
@@ -70,6 +74,7 @@ export interface VehiclePurchaseOrderResource {
   total: string | number;
   discount?: string | number;
   isc?: string | number;
+  quotation_id?: string | null;
   sede_id: number;
   sede: string;
   supplier: string;
@@ -77,17 +82,15 @@ export interface VehiclePurchaseOrderResource {
   supplier_order_type: string;
   currency: string;
   currency_code: string;
+  currency_symbol: string;
   warehouse: string;
-  article_class: ClassArticleResource;
-  vehicle?: VehicleResource;
-  items?: PurchaseOrderItem[];
   resent: boolean;
   status: boolean;
   migration_status: string;
   invoice_dynamics: string;
   receipt_dynamics: string;
   credit_note_dynamics?: string;
-  vehicleMovement?: VehiclePurchaseOrderMovement;
+  payment_terms: string;
   migrated_at: string;
   created_at: string;
   updated_at: string;
@@ -115,8 +118,13 @@ export interface VehiclePurchaseOrderResource {
   status_color?: string;
   warehouse_physical?: string;
   taxClassType?: string;
+  article_class: ClassArticleResource;
+  vehicle?: VehicleResource;
+  items?: PurchaseOrderItem[];
+  vehicleMovement?: VehiclePurchaseOrderMovement;
   movements?: VehiclePurchaseOrderMovement[];
   creator: UserResource;
+  quotation?: PurchaseRequestQuoteResource;
 }
 
 export interface VehiclePurchaseOrderRequest {
@@ -129,6 +137,7 @@ export interface VehiclePurchaseOrderRequest {
   supplier_order_type_id: string;
   engine_type_id: string;
   sede_id: string;
+  quotation_id?: string;
   // Invoice
   invoice_series: string;
   invoice_number: string;
@@ -143,6 +152,12 @@ export interface VehiclePurchaseOrderRequest {
 
 export interface GetVehiclePurchaseOrderProps {
   params?: Record<string, any>;
+}
+
+export interface NextCorrelativeResponse {
+  series: string;
+  number_correlative: string;
+  number: string;
 }
 
 // Migration interfaces

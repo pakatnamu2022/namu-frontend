@@ -21,7 +21,7 @@ export const PHONE_LINE: ModelComplete<PhoneLineRequest> = {
     telephone_account_id: "",
     telephone_plan_id: "",
     line_number: "",
-    status: "",
-    is_active: false,
+    status: "active",
+    is_active: true,
   },
 };

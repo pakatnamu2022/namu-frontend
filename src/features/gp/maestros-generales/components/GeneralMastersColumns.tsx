@@ -19,10 +19,6 @@ export const generalMastersColumns = ({
   permissions,
 }: GeneralMastersColumnsProps): ColumnDef<GeneralMastersResource>[] => [
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     accessorKey: "code",
     header: "Código",
   },
@@ -42,7 +38,6 @@ export const generalMastersColumns = ({
   {
     accessorKey: "status",
     header: "Estado",
-    enableSorting: true,
     cell: ({ row }) => {
       const status = row.original.status === 1;
       return (

@@ -2,17 +2,18 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   ReceptionChecklistSchema,
   receptionChecklistSchemaUpdate,
@@ -20,26 +21,34 @@ import {
 import { useAllDeliveryChecklist } from "@/features/ap/configuraciones/vehiculos/checklist-entrega/lib/deliveryChecklist.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ChecklistField } from "@/shared/components/ChecklistField";
-import { useReceptionChecklistById, useVehicleByShippingGuide } from "../lib/shipmentsReceptions.hook";
+import {
+  useReceptionChecklistById,
+  useVehicleByShippingGuide,
+} from "../lib/shipmentsReceptions.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmation";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
-import { FileText, Car } from "lucide-react";
+import {
+  FileText,
+  Car,
+  Camera,
+  ClipboardList,
+  AlertTriangle,
+  Gauge,
+} from "lucide-react";
+import { CONTROL_UNITS } from "../../control-unidades/lib/controlUnits.constants";
+import { FormInput } from "@/shared/components/FormInput";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
+import VehicleDamageMarker from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/VehicleDamageMarker";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface ReceptionChecklistFormProps {
-  shippingGuideId: number; // ID de la guía (requerido)
+  shippingGuideId: number;
   onSubmit: (data: ReceptionChecklistSchema) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
+  unitControl?: boolean;
 }
 
 export const ReceptionChecklistForm = ({
@@ -47,182 +56,435 @@ export const ReceptionChecklistForm = ({
   onSubmit,
   isSubmitting = false,
   onCancel,
+  unitControl = false,
 }: ReceptionChecklistFormProps) => {
-  const { ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
+  const { ABSOLUTE_ROUTE } = unitControl ? CONTROL_UNITS : SHIPMENTS_RECEPTIONS;
   const router = useNavigate();
+  const [hasDamages, setHasDamages] = useState(false);
+
   const form = useForm<ReceptionChecklistSchema>({
     resolver: zodResolver<
       ReceptionChecklistSchema,
       any,
       ReceptionChecklistSchema
-    >(receptionChecklistSchemaUpdate),
+    >(receptionChecklistSchemaUpdate as any),
     defaultValues: {
       shipping_guide_id: String(shippingGuideId),
       items_receiving: {},
+      kilometers: "",
+      damages: [],
+      has_pdi: false,
     },
     mode: "onChange",
   });
 
+  const handleDamagesChange = (damages: any[]) => {
+    form.setValue("damages", damages);
+  };
+
+  const handleHasDamagesChange = (checked: boolean) => {
+    setHasDamages(checked);
+    if (!checked) form.setValue("damages", []);
+  };
+
   const {
     data: deliveryChecklist = [],
     isLoading: isLoadingDeliveryChecklist,
-  } = useAllDeliveryChecklist({
-    type: "RECEPCION",
-  });
+  } = useAllDeliveryChecklist({ type: "RECEPCION" });
 
   const { data: receptionChecklist, isLoading: isLoadingReceptionChecklist } =
     useReceptionChecklistById(shippingGuideId);
 
-  const { data: vehicle, isLoading: isLoadingVehicle } = useVehicleByShippingGuide(shippingGuideId);
+  const { data: vehicle, isLoading: isLoadingVehicle } =
+    useVehicleByShippingGuide(shippingGuideId);
 
-  // Inicializar los items seleccionados desde el backend
   useEffect(() => {
     if (receptionChecklist?.data && receptionChecklist.data.length > 0) {
-      // Construir el objeto items_receiving con receiving_id como clave y quantity como valor (ambos como strings)
       const itemsReceiving: Record<string, string> = {};
       receptionChecklist.data.forEach((item) => {
-        // Si tiene cantidad, usar esa cantidad, sino usar 0 (convertido a string)
         itemsReceiving[String(item.receiving_id)] = String(
-          (item as any).quantity || 0
+          (item as any).quantity || 0,
         );
       });
       form.setValue("items_receiving", itemsReceiving);
 
-      // Setear la nota si existe
       if (receptionChecklist.note_received) {
         form.setValue("note", receptionChecklist.note_received);
+        form.setValue("general_observations", receptionChecklist.note_received);
+      }
+
+      if ((receptionChecklist as any).kilometers != null) {
+        form.setValue(
+          "kilometers",
+          String((receptionChecklist as any).kilometers),
+        );
       }
     }
   }, [receptionChecklist, form]);
 
-  if (isLoadingDeliveryChecklist || isLoadingReceptionChecklist || isLoadingVehicle) {
+  if (
+    isLoadingDeliveryChecklist ||
+    isLoadingReceptionChecklist ||
+    isLoadingVehicle
+  ) {
     return <FormSkeleton />;
   }
+
+  const hasAccessories =
+    receptionChecklist?.accessories &&
+    receptionChecklist.accessories.length > 0;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {/* Sección: Información del Vehículo y Accesorios */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Card: Información del Vehículo */}
-          {vehicle && (
-            <Card className="bg-muted">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Car className="h-5 w-5 text-primary" />
-                  Información del Vehículo
-                </CardTitle>
-                <CardDescription>
-                  Datos del vehículo a recepcionar
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+        {/* Layout principal: 4 columnas */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+          {/* ── Columna izquierda (1/4): info vehículo + accesorios + kilometraje ── */}
+          <div className="flex flex-col gap-4 lg:col-span-1">
+            {/* Información del Vehículo */}
+            {vehicle && (
+              <GroupFormSection
+                title="Información del Vehículo"
+                icon={Car}
+                color="blue"
+                cols={{ sm: 1 }}
+              >
+                <div className="grid grid-cols-1 gap-1.5">
                   {vehicle.model?.version && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">Modelo</span>
-                      <span className="font-medium">{vehicle.model.version}</span>
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Modelo
+                      </span>
+                      <span className="font-medium text-xs wrap-break-word">
+                        {vehicle.model.version}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.year && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Año
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.year}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.vehicle_color && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Color
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.vehicle_color}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.model?.transmission && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Transmisión
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.model.transmission}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.engine_type && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Tipo de Motor
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.engine_type}
+                      </span>
                     </div>
                   )}
                   {vehicle.vin && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">VIN</span>
-                      <span className="font-medium font-mono text-sm">{vehicle.vin}</span>
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        VIN
+                      </span>
+                      <span className="font-medium font-mono text-xs break-all">
+                        {vehicle.vin}
+                      </span>
                     </div>
                   )}
                   {vehicle.engine_number && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">Motor</span>
-                      <span className="font-medium font-mono text-sm">{vehicle.engine_number}</span>
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-muted rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Motor
+                      </span>
+                      <span className="font-medium font-mono text-xs break-all">
+                        {vehicle.engine_number}
+                      </span>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Card: Accesorios Adjuntados */}
-          {receptionChecklist?.accessories &&
-            receptionChecklist.accessories.length > 0 && (
-              <Card className="bg-muted">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    Accesorios de la Compra
-                  </CardTitle>
-                  <CardDescription>
-                    Estos son los accesorios con los que debe venir el vehículo
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {receptionChecklist.accessories.map((accessory) => (
-                      <div
-                        key={accessory.id}
-                        className="flex items-center justify-between p-3 bg-background rounded-lg border border-muted hover:border-primary transition-colors"
-                      >
-                        <p className="font-medium text-foreground">
-                          {accessory.description}
-                        </p>
-                        <Badge color="secondary" className="text-xs">
-                          {accessory.quantity} {accessory.unit_measurement}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              </GroupFormSection>
             )}
+
+            {/* Accesorios de la Compra */}
+            {hasAccessories && (
+              <GroupFormSection
+                title="Accesorios de la Compra"
+                icon={FileText}
+                color="amber"
+                cols={{ sm: 1 }}
+              >
+                <div className="space-y-1.5">
+                  {receptionChecklist!.accessories!.map((accessory) => (
+                    <div
+                      key={accessory.id}
+                      className="flex items-center justify-between gap-1.5 p-1.5 bg-muted rounded border border-muted"
+                    >
+                      <p className="font-medium text-foreground text-xs wrap-break-word">
+                        {accessory.description}
+                      </p>
+                      <span className="text-muted-foreground text-[10px] shrink-0">
+                        {accessory.quantity} {accessory.unit_measurement}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </GroupFormSection>
+            )}
+
+            {/* Kilometraje — al final de la columna izquierda */}
+            <GroupFormSection
+              title="Kilometraje"
+              icon={Gauge}
+              color="gray"
+              cols={{ sm: 1 }}
+            >
+              <FormInput
+                control={form.control}
+                name="kilometers"
+                label="Kilometraje actual del vehículo"
+                placeholder="Ingresa el kilometraje"
+                type="number"
+                required
+              />
+              <FormField
+                control={form.control}
+                name="has_pdi"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center gap-2 pt-1">
+                        <Switch
+                          id="has-pdi-switch"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                        <Label
+                          htmlFor="has-pdi-switch"
+                          className="text-xs font-semibold cursor-pointer uppercase tracking-wide font-mono"
+                        >
+                          ¿Llega con PDI?
+                        </Label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </GroupFormSection>
+          </div>
+
+          {/* ── Columna derecha (3/4): checklist + fotos + daños + observaciones ── */}
+          <div className="flex flex-col gap-6 lg:col-span-3">
+            {/* Equipamiento del Vehículo */}
+            <GroupFormSection
+              title="Equipamiento del Vehículo"
+              icon={ClipboardList}
+              color="blue"
+              cols={{ sm: 1 }}
+              gap="gap-0"
+            >
+              <ChecklistField
+                form={form}
+                name="items_receiving"
+                label=""
+                compact
+                items={deliveryChecklist.map((item) => ({
+                  id: item.id,
+                  description: item.description,
+                  category: (item as any).category || "EQUIPAMIENTO",
+                  has_quantity: (item as any).has_quantity || false,
+                }))}
+              />
+            </GroupFormSection>
+
+            {/* Fotos del Vehículo — 4 en una sola fila */}
+            <GroupFormSection
+              title="Fotos del estado del vehículo (Obligatorio)"
+              icon={Camera}
+              color="orange"
+              cols={{ sm: 4 }}
+            >
+              <FormField
+                control={form.control}
+                name="photo_front"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FileUploadWithCamera
+                        label="Frontal"
+                        accept="image/*"
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="photo_back"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FileUploadWithCamera
+                        label="Trasera"
+                        accept="image/*"
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="photo_left"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FileUploadWithCamera
+                        label="Lateral Izq."
+                        accept="image/*"
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="photo_right"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FileUploadWithCamera
+                        label="Lateral Der."
+                        accept="image/*"
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </GroupFormSection>
+
+            {/* Marcador de Daños */}
+            <GroupFormSection
+              title="Marcador de Daños"
+              icon={AlertTriangle}
+              color="red"
+              cols={{ sm: 1 }}
+              gap="gap-0"
+              headerExtra={
+                <div className="flex items-center gap-2">
+                  <Label
+                    htmlFor="has-damages-switch"
+                    className="text-xs font-semibold cursor-pointer uppercase tracking-wide font-mono"
+                  >
+                    ¿El vehículo presenta daños?
+                  </Label>
+                  <Switch
+                    id="has-damages-switch"
+                    checked={hasDamages}
+                    onCheckedChange={handleHasDamagesChange}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              }
+            >
+              {hasDamages ? (
+                <VehicleDamageMarker
+                  damages={(form.watch("damages") as any) || []}
+                  onChange={handleDamagesChange}
+                  disabled={isSubmitting}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Activa el interruptor si el vehículo presenta daños visibles.
+                </p>
+              )}
+            </GroupFormSection>
+
+            {/* Observaciones */}
+            <GroupFormSection
+              title="Observaciones"
+              icon={FileText}
+              color="gray"
+              cols={{ sm: 1 }}
+            >
+              <FormField
+                control={form.control}
+                name="general_observations"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Anota cualquier detalle relevante sobre el estado del vehículo..."
+                        className="resize-none"
+                        rows={4}
+                        {...field}
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          form.setValue("note", e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </GroupFormSection>
+          </div>
         </div>
 
-        {/* Sección: Checklist de Equipamiento */}
-        <ChecklistField
-          form={form}
-          name="items_receiving"
-          label="Equipamiento del Vehículo"
-          items={deliveryChecklist.map((item) => ({
-            id: item.id,
-            description: item.description,
-            category: (item as any).category || "EQUIPAMIENTO",
-            has_quantity: (item as any).has_quantity || false,
-          }))}
-        />
-
-        {/* Sección: Observaciones */}
-        <FormField
-          control={form.control}
-          name="note"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observaciones (Opcional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Anota cualquier detalle relevante sobre el equipamiento recibido..."
-                  className="resize-none"
-                  rows={4}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Botones de Acción */}
-        <div className="flex gap-4 w-full justify-end">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 w-full sm:justify-end">
           {onCancel && (
             <ConfirmationDialog
               trigger={
-                <Button type="button" variant="outline">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
                   Cancelar
                 </Button>
               }
               title="¿Cancelar registro?"
               variant="destructive"
               icon="warning"
-              onConfirm={() => {
-                router(ABSOLUTE_ROUTE);
-              }}
+              onConfirm={() => router(ABSOLUTE_ROUTE)}
             />
           )}
 

@@ -7,6 +7,7 @@ import {
   ProductResource,
   ProductResponse,
 } from "./product.interface.ts";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface.ts";
 
 const { ENDPOINT } = PRODUCT;
 
@@ -48,7 +49,7 @@ export async function storeProduct(data: any): Promise<ProductResource> {
 
 export async function updateProduct(
   id: number,
-  data: any
+  data: any,
 ): Promise<ProductResource> {
   const response = await api.put<ProductResource>(`${ENDPOINT}/${id}`, data);
   return response.data;
@@ -61,14 +62,25 @@ export async function deleteProduct(id: number): Promise<GeneralResponse> {
 
 export async function assignToWarehouse(
   product_id: number,
-  warehouse_id: number
+  warehouse_id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
     `${ENDPOINT}/assign-to-warehouse`,
     {
       product_id,
       warehouse_id,
-    }
+    },
+  );
+  return data;
+}
+
+export async function getWarehousesByProduct(
+  id: number,
+): Promise<WarehouseResource[]> {
+  const config: AxiosRequestConfig = {};
+  const { data } = await api.get<WarehouseResource[]>(
+    `${ENDPOINT}/${id}/warehouses-availability`,
+    config,
   );
   return data;
 }

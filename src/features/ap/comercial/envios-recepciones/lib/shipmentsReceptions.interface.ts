@@ -15,6 +15,7 @@ export interface ShipmentsReceptionsResource {
   series: string;
   correlative: string;
   document_number: string;
+  dyn_series: string;
   issue_date: string;
   requires_sunat: boolean;
   is_sunat_registered: boolean;
@@ -68,6 +69,17 @@ export interface ShipmentsReceptionsResource {
   ruc_transport?: string;
   company_name_transport?: string;
   status?: boolean;
+  receiving_checklists: any[];
+  items: ShipmentItemResource[];
+  migration_status: string;
+  is_accounted: boolean;
+}
+
+export interface ShipmentItemResource {
+  codigo: string;
+  descripcion: string;
+  unidad: string;
+  cantidad: string;
 }
 
 export interface EstablishmentResource {
@@ -92,11 +104,11 @@ export interface ShipmentsReceptionsRequest {
   total_packages: string;
   total_weight: string;
   file?: File | null;
-  transport_company_id: string;
-  driver_doc: string;
-  license: string;
-  plate: string;
-  driver_name: string;
+  transport_company_id?: string;
+  driver_doc?: string;
+  license?: string;
+  plate?: string;
+  driver_name?: string;
   notes?: string;
   transfer_reason_id: string;
   transfer_modality_id: string;
@@ -121,8 +133,33 @@ export interface ReceptionChecklistResponse {
   note_received: string;
   data: ReceptionChecklistResource[];
   accessories: AccessoryResource[];
+  inspection?: ReceptionInspectionResource;
 }
 
+export interface ReceptionInspectionResource {
+  id: number;
+  shipping_guide_id: number;
+  photo_front_url?: string | null;
+  photo_back_url?: string | null;
+  photo_left_url?: string | null;
+  photo_right_url?: string | null;
+  general_observations?: string | null;
+  inspected_by: number;
+  inspected_by_name: string;
+  created_at: string;
+  damages: ReceptionInspectionDamageResource[];
+}
+
+export interface ReceptionInspectionDamageResource {
+  id: number;
+  receiving_inspection_id: number;
+  damage_type: string;
+  x_coordinate?: string | null;
+  y_coordinate?: string | null;
+  description?: string | null;
+  photo_url?: string | null;
+  created_at: string;
+}
 
 export interface ReceptionChecklistResource {
   id: number;
@@ -140,10 +177,26 @@ export interface AccessoryResource {
   unit_measurement: string;
 }
 
+export interface ReceptionChecklistDamageRequest {
+  damage_type: string;
+  x_coordinate?: number | null;
+  y_coordinate?: number | null;
+  description?: string | null;
+  photo_file?: File;
+}
+
 export interface ReceptionChecklistRequest {
-  items_receiving: Record<string, string>;
   shipping_guide_id: string;
+  kilometers: string;
   note?: string;
+  general_observations?: string;
+  photo_front?: File | null;
+  photo_back?: File | null;
+  photo_left?: File | null;
+  photo_right?: File | null;
+  items_receiving: Record<string, string>;
+  damages?: ReceptionChecklistDamageRequest[];
+  has_pdi: boolean;
 }
 
 // Respuesta de Nubefact

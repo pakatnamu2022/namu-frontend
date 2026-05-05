@@ -34,6 +34,19 @@ export function requiredNumber(object: string, minValue: number = 0) {
     .min(minValue, `${object} debe ser al menos ${minValue}`);
 }
 
+export function optionalNumber(object: string, minValue: number = 0) {
+  return z
+    .union([
+      z.coerce
+        .number()
+        .min(minValue, `${object} debe ser al menos ${minValue}`),
+      z.undefined(),
+    ])
+    .refine((val) => val === undefined || !isNaN(val), {
+      message: `${object} debe ser un número válido`,
+    });
+}
+
 export const requiredDecimalNumber = (object: string, minValue: number = 0) => {
   return z
     .string()

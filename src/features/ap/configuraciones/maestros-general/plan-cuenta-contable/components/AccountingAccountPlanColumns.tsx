@@ -14,6 +14,7 @@ interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
+  onToggleDetraction: (id: number, newValue: boolean) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -24,6 +25,7 @@ export const accountingAccountPlanColumns = ({
   onUpdate,
   onDelete,
   onToggleStatus,
+  onToggleDetraction,
   permissions,
 }: Props): AccountingAccountPlanColumns[] => [
   {
@@ -57,13 +59,41 @@ export const accountingAccountPlanColumns = ({
     header: "Tipo Cuenta Contable",
   },
   {
+    accessorKey: "is_detraction",
+    header: "Detracción",
+    cell: ({ row }) => {
+      const { id, is_detraction, status } = row.original;
+      return permissions.canUpdate ? (
+        <Switch
+          checked={is_detraction}
+          disabled={!status}
+          onCheckedChange={(checked) => onToggleDetraction(id, checked)}
+          className={cn(
+            "cursor-pointer",
+            is_detraction ? "bg-primary" : "bg-secondary",
+            !status && "opacity-50 cursor-not-allowed",
+          )}
+        />
+      ) : (
+        <Switch
+          checked={is_detraction}
+          disabled
+          className={cn(
+            "cursor-not-allowed",
+            is_detraction ? "bg-primary" : "bg-secondary",
+          )}
+        />
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
         <Badge
-          color={value ? "default" : "secondary"}                      
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}
@@ -84,7 +114,10 @@ export const accountingAccountPlanColumns = ({
             <Switch
               checked={status}
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
-              className={cn(status ? "bg-primary" : "bg-secondary")}
+              className={cn(
+                "cursor-pointer",
+                status ? "bg-primary" : "bg-secondary",
+              )}
             />
           )}
 

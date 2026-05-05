@@ -24,10 +24,13 @@ export default function OrderQuotationTable({
         initialColumnVisibility={{
           quotation_number: true,
           quotation_date: true,
-          expiration_date: true,
+          expiration_date: false,
           total_amount: true,
           observations: false,
           is_take: true,
+          has_management_discount: false,
+          chief_approval_by: false,
+          manager_approval_by: false,
         }}
       >
         {children}

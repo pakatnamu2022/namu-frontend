@@ -8,7 +8,6 @@ import {
   GeneralMastersSchema,
 } from "../lib/generalMasters.schema";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormCombobox } from "@/shared/components/FormCombobox";
 import { useGeneralMastersTypes } from "../lib/generalMasters.hook";
 import { useMemo } from "react";
@@ -19,6 +18,8 @@ interface GeneralMastersFormProps {
   defaultValues?: GeneralMastersSchema;
   mode: "create" | "update";
   onCancel?: () => void;
+  lockedCode?: boolean;
+  lockedType?: boolean;
 }
 
 export default function GeneralMastersForm({
@@ -27,6 +28,8 @@ export default function GeneralMastersForm({
   defaultValues,
   mode,
   onCancel,
+  lockedCode,
+  lockedType,
 }: GeneralMastersFormProps) {
   const { data: typesData, isLoading: isLoadingTypes } =
     useGeneralMastersTypes();
@@ -58,6 +61,7 @@ export default function GeneralMastersForm({
           name="code"
           label="Código"
           placeholder="Ingrese el código"
+          disabled={lockedCode}
         />
 
         <FormInput
@@ -67,16 +71,18 @@ export default function GeneralMastersForm({
           placeholder="Ingrese la descripción"
         />
 
-        <FormCombobox
-          control={form.control}
-          name="type"
-          label="Tipo"
-          placeholder="Seleccione o escriba un tipo"
-          options={typeOptions}
-          isLoadingOptions={isLoadingTypes}
-          required
-          allowCreate={true}
-        />
+        {!lockedType && (
+          <FormCombobox
+            control={form.control}
+            name="type"
+            label="Tipo"
+            placeholder="Seleccione o escriba un tipo"
+            options={typeOptions}
+            isLoadingOptions={isLoadingTypes}
+            required
+            allowCreate={true}
+          />
+        )}
 
         <FormInput
           control={form.control}
@@ -84,15 +90,6 @@ export default function GeneralMastersForm({
           label="Valor"
           placeholder="Ingrese el valor (opcional)"
         />
-
-        {mode === "update" && (
-          <FormSwitch
-            label="Estado"
-            control={form.control}
-            text={form.watch("status") ? "Activo" : "Inactivo"}
-            name="status"
-          />
-        )}
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={onCancel}>

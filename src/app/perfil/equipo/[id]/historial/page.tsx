@@ -16,13 +16,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import {
-  TrendingUp,
-  Target,
-  ChevronLeft,
-  FileText,
-  RefreshCw,
-} from "lucide-react";
+import { TrendingUp, Target, ChevronLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
@@ -286,20 +280,11 @@ export default function NamuPerformanceHistoryPage() {
                 )}
               />
             </div>
-            <Button
-              variant="default"
-              size="icon-lg"
-              onClick={handleRefresh}
-              disabled={saving}
-              className="gap-2"
-            >
-              <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
-            </Button>
           </div>
         </PersonTitleComponent>
       </div>
 
-      <div className="mt-6 space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Tabs de contenido */}
         <Tabs
           defaultValue={
@@ -373,7 +358,11 @@ export default function NamuPerformanceHistoryPage() {
           </Button>
           {/* Resumen de estadísticas */}
           {!isLoadingEvaluationPerson && evaluationPersonResult && (
-            <EvaluationSummaryCard evaluationResult={evaluationPersonResult} />
+            <EvaluationSummaryCard
+              evaluationResult={evaluationPersonResult}
+              isSaving={saving}
+              onRefresh={handleRefresh}
+            />
           )}
         </div>
       </div>

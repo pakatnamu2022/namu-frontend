@@ -1,21 +1,23 @@
 import SearchInput from "@/shared/components/SearchInput";
-import {
-  DOCUMENT_STATUS,
-  ORIGIN_MODULES,
-} from "../lib/electronicDocument.constants";
+import { DOCUMENT_STATUS } from "../lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { AREA_OPTIONS } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 
 interface Props {
   search: string;
   setSearch: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  moduleFilter?: string;
-  setModuleFilter?: (value: string) => void;
+  areaFilter?: string;
+  setAreaFilter?: (value: string) => void;
   documentTypeFilter: string;
   setDocumentTypeFilter: (value: string) => void;
   documentTypes: SunatConceptsResource[];
+  sedes?: SedeResource[];
+  sedeId?: string;
+  setSedeId?: (value: string) => void;
 }
 
 export default function ElectronicDocumentOptions({
@@ -23,11 +25,14 @@ export default function ElectronicDocumentOptions({
   setSearch,
   statusFilter,
   setStatusFilter,
-  moduleFilter,
-  setModuleFilter,
+  areaFilter,
+  setAreaFilter,
   documentTypeFilter,
   setDocumentTypeFilter,
   documentTypes = [],
+  sedes,
+  sedeId,
+  setSedeId,
 }: Props) {
   return (
     <div className="flex items-end gap-4 flex-wrap">
@@ -38,6 +43,20 @@ export default function ElectronicDocumentOptions({
           placeholder="Buscar por cliente, serie, número..."
         />
       </div>
+
+      {sedes && setSedeId && (
+        <SearchableSelect
+          options={sedes.map((item) => ({
+            value: item.id.toString(),
+            label: item.abreviatura,
+          }))}
+          value={sedeId ?? ""}
+          onChange={setSedeId}
+          placeholder="Filtrar por sede"
+          className="min-w-56"
+          classNameOption="text-xs"
+        />
+      )}
 
       {setStatusFilter && (
         <SearchableSelect
@@ -52,15 +71,15 @@ export default function ElectronicDocumentOptions({
         />
       )}
 
-      {moduleFilter && setModuleFilter && (
+      {areaFilter && setAreaFilter && (
         <SearchableSelect
-          onChange={setModuleFilter}
-          value={moduleFilter}
+          onChange={setAreaFilter}
+          value={areaFilter}
           className="md:min-w-44"
-          placeholder="Seleccionar Módulo"
-          options={ORIGIN_MODULES.map((module) => ({
-            value: module.value,
-            label: module.label,
+          placeholder="Seleccionar Área"
+          options={AREA_OPTIONS.map((area) => ({
+            value: area.value,
+            label: area.label,
           }))}
         />
       )}

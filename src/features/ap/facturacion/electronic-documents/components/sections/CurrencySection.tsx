@@ -22,8 +22,7 @@ export function CurrencySection({
     <GroupFormSection
       title="Moneda y Datos Financieros"
       icon={DollarSign}
-      iconColor="text-primary"
-      bgColor="bg-primary/5"
+      color="primary"
       cols={{ sm: 1, md: 2 }}
     >
       <FormSelect

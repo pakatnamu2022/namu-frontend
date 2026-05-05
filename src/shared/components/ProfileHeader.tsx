@@ -13,6 +13,7 @@ import { LogOut, User, Moon, Sun, Monitor } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useTheme } from "@/components/theme-provider";
+import NotificationBell from "@/features/notifications/components/NotificationBell";
 
 export default function ProfileHeader() {
   const { user } = useAuthStore();
@@ -57,40 +58,46 @@ export default function ProfileHeader() {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <ProfileHeaderButton />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
-      >
-        <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleProfileClick} className="gap-2">
-          <User className="w-4 h-4" />
-          <p>Ver Perfil</p>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>Tema</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
-          <Sun className="w-4 h-4" />
-          <p>Claro</p>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
-          <Moon className="w-4 h-4" />
-          <p>Oscuro</p>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")} className="gap-2">
-          <Monitor className="w-4 h-4" />
-          <p>Sistema</p>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="gap-2">
-          <LogOut className="w-4 h-4" />
-          <p>Cerrar Sesión</p>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-1">
+      <NotificationBell />
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <ProfileHeaderButton />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
+        >
+          <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleProfileClick} className="gap-2">
+            <User className="w-4 h-4" />
+            <p>Ver Perfil</p>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Tema</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
+            <Sun className="w-4 h-4" />
+            <p>Claro</p>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
+            <Moon className="w-4 h-4" />
+            <p>Oscuro</p>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setTheme("system")}
+            className="gap-2"
+          >
+            <Monitor className="w-4 h-4" />
+            <p>Sistema</p>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout} className="gap-2">
+            <LogOut className="w-4 h-4" />
+            <p>Cerrar Sesión</p>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

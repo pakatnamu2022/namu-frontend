@@ -1,5 +1,9 @@
+import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "../../productos/lib/product.interface";
+import { SupplierOrderResource } from "../../compra-proveedor/lib/supplierOrder.interface";
 
 export interface ReceptionDetailResource {
   id: number;
@@ -22,29 +26,17 @@ export interface ReceptionDetailResource {
   batch_number?: string;
   expiration_date?: string;
   notes?: string;
-  product?: {
-    id: number;
-    code: string;
-    name: string;
-    brand_name?: string;
-    category_name?: string;
-    unit_measurement_name?: string;
-    cost_price?: string | number;
-    sale_price?: string | number;
-  };
-  purchase_order_item?: {
-    id: number;
-    product_id: number;
-    product_name?: string;
-    quantity: number;
-    unit_price?: number;
-  };
+  product?: ProductResource;
 }
 
 export interface ReceptionResource {
   id: number;
   reception_number?: string;
-  purchase_order_id: number;
+  supplier_id: number;
+  supplier_num_doc: string;
+  supplier_name: string;
+  type_currency_id: number;
+  ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
   freight_cost: number;
@@ -56,26 +48,10 @@ export interface ReceptionResource {
   total_items?: number;
   total_quantity?: string;
   status?: string;
-  purchase_order?: {
-    id: number;
-    number: string;
-    supplier?: string;
-    supplier_num_doc?: string;
-    sede?: string;
-    currency?: string;
-    currency_code?: string;
-    items?: Array<{
-      id: number;
-      product_id: number;
-      product_name?: string;
-      quantity: number;
-      unit_price: number;
-    }>;
-  };
-  warehouse?: {
-    id: number;
-    description: string;
-  };
+  has_invoice?: boolean;
+  supplier_order: SupplierOrderResource;
+  purchase_order?: VehiclePurchaseOrderResource;
+  warehouse: WarehouseResource;
   carrier: SuppliersResource;
   details?: ReceptionDetailResource[];
   created_at?: string;
@@ -86,7 +62,7 @@ export interface ReceptionResource {
 export interface ReceptionListItem {
   id: number;
   reception_number?: string;
-  purchase_order_id: number;
+  ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
   shipping_guide_number?: string;
@@ -125,7 +101,7 @@ export interface ReceptionDetailRequest {
 }
 
 export interface ReceptionRequest {
-  purchase_order_id: string;
+  ap_supplier_order_id: string;
   reception_date: string | Date;
   warehouse_id: string;
   shipping_guide_number?: string;

@@ -11,36 +11,55 @@ import {
   Building2,
   Coins,
   Tag,
+  FileCheck,
+  Eye,
+  Copy,
+  Check,
 } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button.tsx";
 import {
   translateReasonObservation,
   translateReceptionTypeStatus,
-  translateStatus,
 } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
+import { useState } from "react";
+import { InvoiceDetailSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/components/InvoiceDetailSheet.tsx";
+import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
+import { translateStatusPurchase } from "../lib/receptionsProducts.constants";
 
 interface Props {
   data: ReceptionResource[];
-  onDelete: (id: number) => void;
-  permissions: {
-    canUpdate: boolean;
-    canDelete: boolean;
-  };
   routeUpdate?: string;
-  purchaseOrderNumber?: string;
+  routeInvoice?: string;
+  supplierOrderNumber?: string;
   warehouseName?: string;
 }
 
 export default function ReceptionsProductsCards({
   data,
-  onDelete,
-  permissions,
-  purchaseOrderNumber,
+  routeInvoice,
+  supplierOrderNumber,
   warehouseName,
 }: Props) {
+  const [selectedInvoice, setSelectedInvoice] =
+    useState<VehiclePurchaseOrderResource | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const handleCopyCode = async (code: string, identifier: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(identifier);
+      setTimeout(() => {
+        setCopiedCode(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
+
   if (data.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -83,7 +102,7 @@ export default function ReceptionsProductsCards({
                       variant="default"
                       className={isSingleCard ? "text-xs" : "text-[10px]"}
                     >
-                      {translateStatus(reception.status)}
+                      {translateStatusPurchase(reception.status)}
                     </Badge>
                   )}
                   {reception.reception_type && (
@@ -100,12 +119,34 @@ export default function ReceptionsProductsCards({
                     isSingleCard ? "text-sm mt-1" : "text-xs mt-0.5"
                   }`}
                 >
-                  OC: {purchaseOrderNumber || "-"}
+                  OC: {supplierOrderNumber || "-"}
                 </p>
               </div>
               <div className="flex gap-2">
-                {permissions.canDelete && (
-                  <DeleteButton onClick={() => onDelete(reception.id)} />
+                {routeInvoice && !reception.purchase_order && (
+                  <Link to={`${routeInvoice}/${reception.id}`}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="size-7"
+                      tooltip="Registrar Factura de Compra"
+                    >
+                      <FileCheck className="size-4" />
+                    </Button>
+                  </Link>
+                )}
+                {reception.purchase_order && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-7"
+                    tooltip="Ver Factura"
+                    onClick={() =>
+                      setSelectedInvoice(reception.purchase_order!)
+                    }
+                  >
+                    <Eye className="size-4" />
+                  </Button>
                 )}
               </div>
             </div>
@@ -441,21 +482,73 @@ export default function ReceptionsProductsCards({
                               isSingleCard ? "text-base" : "text-sm"
                             }`}
                           >
-                            {detail.product?.name ||
-                              detail.purchase_order_item?.product_name ||
-                              "Producto sin nombre"}
+                            {detail.product?.name || "Producto sin nombre"}
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {detail.product?.code && (
-                              <Badge
-                                variant="outline"
-                                className={
-                                  isSingleCard ? "text-xs" : "text-[10px]"
-                                }
-                              >
-                                <Tag className="size-3 mr-1" />
-                                {detail.product.code}
-                              </Badge>
+                              <div className="flex items-center gap-1">
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isSingleCard ? "text-xs" : "text-[10px]"
+                                  }
+                                >
+                                  <Tag className="size-3 mr-1" />
+                                  Cód: {detail.product.code}
+                                </Badge>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-5 w-5 p-0 hover:bg-slate-200"
+                                  onClick={() =>
+                                    handleCopyCode(
+                                      detail.product!.code,
+                                      `product-${reception.id}-${idx}`,
+                                    )
+                                  }
+                                >
+                                  {copiedCode ===
+                                  `product-${reception.id}-${idx}` ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
+                            )}
+
+                            {detail.product?.dyn_code && (
+                              <div className="flex items-center gap-1">
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isSingleCard ? "text-xs" : "text-[10px]"
+                                  }
+                                >
+                                  <Tag className="size-3 mr-1" />
+                                  Cód Dyn: {detail.product.dyn_code}
+                                </Badge>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-5 w-5 p-0 hover:bg-slate-200"
+                                  onClick={() =>
+                                    handleCopyCode(
+                                      detail.product!.dyn_code,
+                                      `product-dyn-${reception.id}-${idx}`,
+                                    )
+                                  }
+                                >
+                                  {copiedCode ===
+                                  `product-dyn-${reception.id}-${idx}` ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
                             )}
                             {detail.product?.brand_name && (
                               <Badge
@@ -570,6 +663,15 @@ export default function ReceptionsProductsCards({
           </CardContent>
         </Card>
       ))}
+
+      {/* Sheet para mostrar el detalle de la factura */}
+      {selectedInvoice && (
+        <InvoiceDetailSheet
+          open={!!selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          invoice={selectedInvoice}
+        />
+      )}
     </div>
   );
 }

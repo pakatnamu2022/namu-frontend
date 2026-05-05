@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ModelsVnActionsProps {
   isCommercial: number;

@@ -4,6 +4,17 @@ import {
   VehicleMovement,
   VehicleResource,
 } from "../../../comercial/vehiculos/lib/vehicles.interface";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { AreaType } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
+
+export interface ExchangeRateResource {
+  id: number;
+  date: string;
+  to_currency_id: number;
+  type: string;
+  rate: number;
+}
 
 export interface ElectronicDocumentResponse {
   data: ElectronicDocumentResource[];
@@ -16,15 +27,18 @@ export interface ElectronicDocumentResource {
   sunat_concept_document_type_id: number;
   series_id: number;
   serie: string;
+  sede: string;
   numero: number;
   full_number: string;
   sunat_concept_transaction_type_id: number;
   is_advance_payment: boolean;
-  origin_module: "comercial" | "posventa";
+  area_id: AreaType;
   origin_entity_type?: string;
   origin_entity_id: number;
   ap_vehicle_movement_id?: number;
   purchase_request_quote_id?: number;
+  order_quotation_id?: number;
+  work_order_id?: number;
   credit_note_id?: number;
   debit_note_id?: number;
   client_id: number;
@@ -72,6 +86,9 @@ export interface ElectronicDocumentResource {
   sunat_concept_debit_note_type_id?: number;
   observaciones?: string;
   condiciones_de_pago?: string;
+  bank?: ApBankResource;
+  operation_number?: string;
+  financing_type?: string;
   medio_de_pago?: string;
   placa_vehiculo?: string;
   orden_compra_servicio?: string;
@@ -86,6 +103,9 @@ export interface ElectronicDocumentResource {
   sunat_soap_error?: string;
   sunat_description?: string;
   anulado: boolean;
+  was_dyn_requested?: boolean;
+  is_accounted?: boolean;
+  is_annulled?: boolean;
   enlace_del_pdf?: string;
   enlace_del_xml?: string;
   enlace_del_cdr?: string;
@@ -98,6 +118,10 @@ export interface ElectronicDocumentResource {
   migration_status?: string;
   created_by?: number;
   updated_by?: number;
+  card_last4: string;
+  internal_note: string;
+  is_referenced?: boolean;
+  consolidation_type: "work_orders" | "simple";
   document_type?: SunatConceptsResource;
   transaction_type?: SunatConceptsResource;
   identity_document_type?: SunatConceptsResource;
@@ -115,6 +139,7 @@ export interface ElectronicDocumentItem {
   account_plan_id?: number;
   unidad_de_medida: string;
   codigo?: string;
+  product_id?: string;
   codigo_producto_sunat?: string;
   descripcion: string;
   cantidad: number;
@@ -217,4 +242,83 @@ export interface EventHistoryResponse {
   status: string;
   error?: string;
   proceso_estado?: number;
+}
+
+export interface InternalNote {
+  id: number;
+  number: string;
+  status: string;
+  created_date: string;
+  closed_date: string | null;
+  work_order: WorkOrderResource;
+}
+
+export interface InvoiceWorkOrdersSummary {
+  total_internal_notes: number;
+  total_work_orders: number;
+  total_amount: string;
+}
+
+export interface InvoiceWorkOrdersInvoice {
+  id: number;
+  full_number: string;
+  serie: string;
+  numero: number;
+  document_type: string;
+  client_name: string;
+  client_document: string;
+  emission_date: string;
+  due_date: string | null;
+  currency: string;
+  total: string;
+  status: string;
+  consolidation_type: string;
+}
+
+export interface InvoiceWithWorkOrdersResponse {
+  invoice: InvoiceWorkOrdersInvoice;
+  internal_notes: InternalNote[];
+  summary: InvoiceWorkOrdersSummary;
+}
+
+export interface MigrationAllResponse {
+  total_dispatched: number;
+  dispatched: Dispatched[];
+}
+
+export interface Dispatched {
+  id: number;
+  number: string;
+  migration_status: string;
+  reason: Reason;
+}
+
+export interface Reason {
+  type: string;
+  description: string;
+  steps: (Step | Steps2 | Steps3)[];
+}
+
+export interface Steps3 {
+  step: string;
+  status: string;
+  attempts: number;
+  error: null;
+  last_attempt_at: string;
+}
+
+export interface Steps2 {
+  step: string;
+  status: string;
+  attempts: number;
+  error: string;
+  last_attempt_at: string;
+}
+
+export interface Step {
+  step: string;
+  status: string;
+  attempts: number;
+  error: null;
+  last_attempt_at: null | string;
 }

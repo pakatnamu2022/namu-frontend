@@ -1,20 +1,9 @@
-import { requiredText } from "@/shared/lib/global.schema";
+import { requiredStringId, requiredText } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const hotelReservationSchema = z
   .object({
-    hotel_agreement_id: z
-      .union([z.string(), z.number()])
-      .transform((val) => {
-        if (val === "" || val === "none") return null;
-        if (typeof val === "string") {
-          const parsed = parseInt(val);
-          return isNaN(parsed) ? null : parsed;
-        }
-        return val;
-      })
-      .nullable()
-      .optional(),
+    hotel_agreement_id: requiredStringId("Convenio de Hotel"),
     ruc: requiredText("RUC del Hotel", 11, 11),
     hotel_name: requiredText("Nombre del Hotel", 1, 255),
     address: requiredText("Dirección del Hotel", 1, 500),
@@ -61,7 +50,7 @@ export const hotelReservationSchema = z
         },
         {
           message: "El archivo debe ser PDF, JPG, JPEG o PNG",
-        }
+        },
       )
       .refine((file) => file && file.size <= 10 * 1024 * 1024, {
         message: "El archivo no debe superar los 10MB",
@@ -85,7 +74,7 @@ export const hotelReservationSchema = z
       message:
         "La fecha de check-out debe ser posterior a la fecha de check-in",
       path: ["checkout_date"],
-    }
+    },
   );
 
 export type HotelReservationSchema = z.infer<typeof hotelReservationSchema>;

@@ -4,6 +4,7 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 export default function EvaluationPersonOptions({
   search,
@@ -31,7 +32,7 @@ export default function EvaluationPersonOptions({
   setBossDni: (value: string | null) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -68,6 +69,6 @@ export default function EvaluationPersonOptions({
         placeholder="Seleccionar Jefe"
         classNameOption="text-xs"
       />
-    </div>
+    </FilterWrapper>
   );
 }

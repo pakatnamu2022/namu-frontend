@@ -4,7 +4,7 @@ import { TYPE_EXPENSE_LOCAL_MOBILITY } from "./perDiemExpense.constants";
 
 export const expenseSchema = z
   .object({
-    expense_date: z.date({
+    expense_date: z.coerce.date({
       error: "La fecha del gasto es requerida",
     }),
     receipt_amount: z

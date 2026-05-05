@@ -18,20 +18,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, Upload } from "lucide-react";
-import { ActiveHotelAgreement } from "../lib/hotelReservation.interface";
 import { useEffect, useState, useMemo } from "react";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Option } from "@/core/core.interface";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
+import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 
 interface HotelReservationFormProps {
   defaultValues?: Partial<HotelReservationSchema>;
   onSubmit: (data: HotelReservationSchema) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
-  hotelAgreements: ActiveHotelAgreement[];
+  hotelAgreements: HotelAgreementResource[];
   perDiemStartDate?: string | Date;
   perDiemEndDate?: string | Date;
   mode?: "create" | "update";
@@ -50,6 +50,18 @@ export const HotelReservationForm = ({
   existingFileUrl,
 }: HotelReservationFormProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Document number parts
+  const [docSerie, setDocSerie] = useState(() => {
+    const num = defaultValues?.document_number ?? "";
+    return num.split("-")[0] ?? "";
+  });
+  const [docCorrelativo, setDocCorrelativo] = useState(() => {
+    const num = defaultValues?.document_number ?? "";
+    const parts = num.split("-");
+    return parts.length > 1 ? parts.slice(1).join("-") : "";
+  });
+  const padLength = 8; // Dígitos del correlativo (rellenado con ceros)
 
   // Convertir las fechas del viático a Date para validación
   const tripStartDate = useMemo(() => {
@@ -79,7 +91,7 @@ export const HotelReservationForm = ({
   const form = useForm<HotelReservationSchema>({
     resolver: zodResolver(hotelReservationSchema) as any,
     defaultValues: {
-      hotel_agreement_id: null,
+      hotel_agreement_id: "",
       hotel_name: "",
       address: "",
       phone: "",
@@ -103,6 +115,7 @@ export const HotelReservationForm = ({
           !agreementValue ||
           (typeof agreementValue === "string" && agreementValue === "none")
         ) {
+          form.setValue("ruc", "");
           form.setValue("hotel_name", "");
           form.setValue("address", "");
           form.setValue("phone", "");
@@ -116,6 +129,7 @@ export const HotelReservationForm = ({
         const agreement = hotelAgreements.find((a) => a.id === agreementId);
 
         if (agreement) {
+          form.setValue("ruc", agreement.ruc);
           form.setValue("hotel_name", agreement.name);
           form.setValue("address", agreement.address);
           form.setValue("phone", agreement.phone);
@@ -128,7 +142,7 @@ export const HotelReservationForm = ({
             const checkoutDate = new Date(checkout);
             const nights = Math.ceil(
               (checkoutDate.getTime() - checkinDate.getTime()) /
-                (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24),
             );
             const corporateRate = parseFloat(agreement.corporate_rate);
             if (!isNaN(corporateRate) && nights > 0) {
@@ -149,10 +163,12 @@ export const HotelReservationForm = ({
           const checkoutDate = new Date(checkout);
           const nights = Math.ceil(
             (checkoutDate.getTime() - checkinDate.getTime()) /
-              (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24),
           );
 
-          const agreement = hotelAgreements.find((a) => a.id === agreementId);
+          const agreement = hotelAgreements.find(
+            (a) => a.id === Number(agreementId),
+          );
           if (agreement && nights > 0) {
             const corporateRate = parseFloat(agreement.corporate_rate);
             if (!isNaN(corporateRate)) {
@@ -193,6 +209,7 @@ export const HotelReservationForm = ({
           name="ruc"
           label="RUC del Hotel"
           placeholder="Ej: 20512345678"
+          maxLength={11}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -262,11 +279,66 @@ export const HotelReservationForm = ({
             placeholder="0.00"
           />
           {/* Nro del Documento */}
-          <FormInput
+          <FormField
             control={form.control}
             name="document_number"
-            label="Nro del Documento"
-            placeholder="Ej: F001-123456"
+            render={() => (
+              <FormItem>
+                <FormLabel>Nro del Documento</FormLabel>
+                <FormControl>
+                  <div className="flex items-center gap-1">
+                    <FormInput
+                      name="doc_serie"
+                      value={docSerie}
+                      onChange={(e) => {
+                        const val = (e.target.value as string)
+                          .toUpperCase()
+                          .slice(0, 4);
+                        setDocSerie(val);
+                        const padded = docCorrelativo.padStart(padLength, "0");
+                        form.setValue(
+                          "document_number",
+                          val ? `${val}-${padded}` : padded,
+                          { shouldValidate: true },
+                        );
+                      }}
+                      placeholder="F001"
+                      maxLength={4}
+                      className="w-20 text-center font-mono"
+                    />
+                    <span className="text-muted-foreground font-mono pb-0.5">
+                      -
+                    </span>
+                    <FormInput
+                      name="doc_correlativo"
+                      value={docCorrelativo}
+                      onChange={(e) => {
+                        const val = e.target.value as string;
+                        setDocCorrelativo(val);
+                        const padded = val.padStart(padLength, "0");
+                        form.setValue(
+                          "document_number",
+                          docSerie ? `${docSerie}-${padded}` : padded,
+                          { shouldValidate: true },
+                        );
+                      }}
+                      onBlur={() => {
+                        if (docCorrelativo) {
+                          const padded = docCorrelativo.padStart(
+                            padLength,
+                            "0",
+                          );
+                          setDocCorrelativo(padded);
+                        }
+                      }}
+                      placeholder={"0".repeat(padLength)}
+                      className="flex-1 font-mono"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
 
@@ -326,7 +398,7 @@ export const HotelReservationForm = ({
         />
 
         {/* Notas */}
-        <FormInputText
+        <FormTextArea
           control={form.control}
           name="notes"
           label="Notas (Opcional)"
@@ -349,8 +421,8 @@ export const HotelReservationForm = ({
             {isSubmitting
               ? "Guardando..."
               : mode === "update"
-              ? "Actualizar Reserva"
-              : "Crear Reserva"}
+                ? "Actualizar Reserva"
+                : "Crear Reserva"}
           </Button>
         </div>
       </form>

@@ -24,16 +24,19 @@ export const usePurchaseRequests = (params?: Record<string, any>) => {
     queryKey: [QUERY_KEY, params],
     queryFn: () => getPurchaseRequests({ params }),
     refetchOnWindowFocus: false,
+    enabled: params?.warehouse_id != null,
   });
 };
 
 export const usePurchaseRequestsDetailsPending = (
   params?: Record<string, any>,
+  enabled: boolean = true,
 ) => {
   return useQuery<PurchaseRequestDetailResponse>({
     queryKey: [QUERY_KEY, params, "pending-details"],
     queryFn: () => getPurchaseRequestsDetailsPending({ params }),
     refetchOnWindowFocus: false,
+    enabled,
   });
 };
 

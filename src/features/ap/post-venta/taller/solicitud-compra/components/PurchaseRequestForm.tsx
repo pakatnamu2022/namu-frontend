@@ -3,7 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Package,
+  Search,
+  PackagePlus,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,17 +38,19 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
-import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
+import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
-
-const onSelectSupplyType = [
-  { label: "Lima", value: "LIMA" },
-  { label: "Importación", value: "IMPORTACION" },
-];
+import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
+import {
+  SUPPLY_TYPE_OPTIONS,
+  SUPPLY_TYPES,
+} from "../lib/purchaseRequest.constants";
+import { IGV, STATUS_ACTIVE } from "@/core/core.constants";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -64,25 +74,56 @@ export default function PurchaseRequestForm({
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
     if (defaultValues.details && defaultValues.details.length > 0) {
-      const transformed = defaultValues.details.map((detail: any) => ({
-        product_id: detail.product_id?.toString() || "",
-        product_name: detail.product_name || "",
-        product_code: detail.product_code || "",
-        quantity: Number(detail.quantity) || 1,
-        notes: detail.notes || "",
-      }));
+      const transformed = defaultValues.details.map((detail: any) => {
+        // Verificar si supply_type es el string "null" o está vacío
+        let supplyType = detail.supply_type;
+        if (supplyType === "null" || supplyType === "" || supplyType === null) {
+          supplyType = undefined;
+        }
+
+        return {
+          product_id: detail.product_id?.toString() || "",
+          product_name: detail.product_name || "",
+          product_code: detail.product_code || "",
+          quantity: Number(detail.quantity) || 1,
+          notes: detail.notes || "",
+          supply_type: supplyType,
+          unit_price:
+            detail.unit_price !== undefined
+              ? Number(detail.unit_price)
+              : undefined,
+          discount_percentage:
+            detail.discount_percentage !== undefined
+              ? Number(detail.discount_percentage)
+              : undefined,
+          total_amount:
+            detail.total_amount !== undefined
+              ? Number(detail.total_amount)
+              : undefined,
+        };
+      });
+
       return transformed;
     }
     return [];
   });
-  const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
+  const [selectedQuotationData, setSelectedQuotationData] =
+    useState<OrderQuotationResource | null>(null);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState<{
+    symbol: string;
+  } | null>(null);
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();
+
+  const { data: currencyTypes = [] } = useAllCurrencyTypes({
+    enable_after_sales: STATUS_ACTIVE,
+  });
 
   const form = useForm({
     resolver: zodResolver(
@@ -96,8 +137,10 @@ export default function PurchaseRequestForm({
       observations: "",
       has_appointment: false,
       ...defaultValues,
-      // Usar los details ya transformados
       details: details,
+      ...Object.fromEntries(
+        details.map((d, i) => [`detail_supply_type_${i}`, d.supply_type ?? ""]),
+      ),
     },
     mode: "onChange",
   });
@@ -105,6 +148,11 @@ export default function PurchaseRequestForm({
   const selectedWarehouseId = form.watch("warehouse_id");
   const hasAppointment = form.watch("has_appointment");
   const selectedQuotationId = form.watch("ap_order_quotation_id");
+  const currencyId = form.watch("currency_id");
+
+  const selectedWarehouse = warehouses.find(
+    (w) => w.id.toString() === selectedWarehouseId,
+  );
 
   // Estado local para el selector temporal de productos
   const [tempProductId, setTempProductId] = useState<string>("");
@@ -114,8 +162,13 @@ export default function PurchaseRequestForm({
   // Sincronizar details con el formulario
   useEffect(() => {
     form.setValue("details", details);
-    // Validar inmediatamente después de setear
     form.trigger("details");
+
+    details.forEach((detail, index) => {
+      if (detail.supply_type) {
+        form.setValue(`detail_supply_type_${index}` as any, detail.supply_type);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [details]);
 
@@ -135,78 +188,79 @@ export default function PurchaseRequestForm({
     if (!hasAppointment) {
       form.setValue("ap_order_quotation_id", "");
     }
-  }, [hasAppointment]);
+  }, [form, hasAppointment]);
 
-  const loadQuotations = useCallback(async () => {
-    try {
-      setIsLoadingQuotations(true);
-      const response = await getAllOrderQuotations({
-        is_take: 0,
-      });
-      setQuotations(response || []);
-      return response || [];
-    } catch (error: any) {
-      const msgError =
-        error?.response?.data?.message || "Error al cargar las cotizaciones.";
-      errorToast(msgError);
-      setQuotations([]);
-      return [];
-    } finally {
-      setIsLoadingQuotations(false);
+  useEffect(() => {
+    if (currencyId && currencyTypes.length > 0) {
+      const currency = currencyTypes.find(
+        (c) => c.id.toString() === currencyId,
+      );
+      setSelectedCurrency(currency || null);
     }
-  }, []);
+  }, [currencyId, currencyTypes]);
 
   const loadQuotationDetails = useCallback(
-    async (
-      quotationId: string,
-      quotationsToSearch?: OrderQuotationResource[],
-    ) => {
-      // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
-      const quotationsArray = quotationsToSearch || quotations;
+    async (quotationId: string) => {
+      try {
+        setIsLoadingQuotations(true);
+        const quotation = await findOrderQuotationById(Number(quotationId));
+        if (!quotation?.details) return;
 
-      const selectedQuotation = quotationsArray.find(
-        (q) => q.id.toString() === quotationId,
-      );
+        setSelectedQuotationData(quotation);
 
-      if (!selectedQuotation || !selectedQuotation.details) return;
+        if (quotation.currency_id) {
+          form.setValue("currency_id", quotation.currency_id.toString(), {
+            shouldValidate: true,
+          });
+        }
 
-      // Filtrar solo los productos (item_type = "PRODUCT")
-      const productDetails = selectedQuotation.details.filter(
-        (detail) => detail.item_type === "PRODUCT",
-      );
+        const productDetails = quotation.details.filter(
+          (detail) =>
+            detail.item_type === ITEM_TYPE_PRODUCT &&
+            (detail.supply_type === SUPPLY_TYPES.CENTRAL ||
+              detail.supply_type === SUPPLY_TYPES.IMPORTACION),
+        );
 
-      // Mapear a PurchaseRequestDetailSchema
-      const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
-        (detail) => ({
-          product_id: detail.product_id!.toString(),
-          product_name: detail.product?.name || "",
-          product_code: detail.product?.code || "",
-          quantity: Number(detail.quantity) || 1, // Asegurar que sea number
-          notes: "",
-        }),
-      );
+        const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
+          (detail) => ({
+            product_id: detail.product_id!.toString(),
+            product_name: detail.product?.name || "",
+            product_code: detail.product?.code || "",
+            quantity: Number(detail.quantity) || 1,
+            notes: "",
+            supply_type: detail.supply_type,
+            unit_price:
+              detail.unit_price !== undefined
+                ? Number(detail.unit_price)
+                : undefined,
+            discount_percentage:
+              detail.discount_percentage !== undefined
+                ? Number(detail.discount_percentage)
+                : undefined,
+            total_amount:
+              detail.total_amount !== undefined
+                ? Number(detail.total_amount)
+                : undefined,
+          }),
+        );
 
-      // Setear los detalles en la tabla
-      setDetails(newDetails);
-
-      // Setear el supply_type si existe en la cotización
-      if (selectedQuotation.supply_type) {
-        form.setValue("supply_type", selectedQuotation.supply_type);
+        setDetails(newDetails);
+      } catch (error: any) {
+        const msgError =
+          error?.response?.data?.message || "Error al cargar la cotización.";
+        errorToast(msgError);
+      } finally {
+        setIsLoadingQuotations(false);
       }
     },
-    [quotations, form],
+    [form],
   );
 
   useEffect(() => {
     if (selectedQuotationId) {
-      // Si quotations está vacío, cargarlas primero
-      if (quotations.length === 0) {
-        loadQuotations().then((loadedQuotations) => {
-          loadQuotationDetails(selectedQuotationId, loadedQuotations);
-        });
-      } else {
-        loadQuotationDetails(selectedQuotationId);
-      }
+      loadQuotationDetails(selectedQuotationId);
+    } else {
+      setSelectedQuotationData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuotationId]);
@@ -239,9 +293,16 @@ export default function PurchaseRequestForm({
       product_code: productData?.product.code || "",
       quantity: 1,
       notes: "",
+      supply_type: SUPPLY_TYPES.CENTRAL,
+      discount_percentage: 0,
     };
 
+    const newIndex = details.length;
     setDetails([...details, newDetail]);
+    form.setValue(
+      `detail_supply_type_${newIndex}` as any,
+      SUPPLY_TYPES.CENTRAL,
+    );
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -250,9 +311,16 @@ export default function PurchaseRequestForm({
 
   const handleUpdateQuantity = (index: number, quantity: number) => {
     const updatedDetails = [...details];
+    const qty = quantity > 0 ? quantity : 1;
+    const unitPrice = updatedDetails[index].unit_price ?? 0;
+    const discount = updatedDetails[index].discount_percentage ?? 0;
     updatedDetails[index] = {
       ...updatedDetails[index],
-      quantity: quantity > 0 ? quantity : 1,
+      quantity: qty,
+      total_amount:
+        unitPrice > 0
+          ? unitPrice * qty * (1 - discount / 100)
+          : updatedDetails[index].total_amount,
     };
     setDetails(updatedDetails);
   };
@@ -266,26 +334,65 @@ export default function PurchaseRequestForm({
     setDetails(updatedDetails);
   };
 
+  const handleUpdateSupplyType = (index: number, supply_type: string) => {
+    const updatedDetails = [...details];
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      supply_type,
+    };
+    setDetails(updatedDetails);
+  };
+
+  const handleUpdateUnitPrice = (index: number, unit_price: number) => {
+    const updatedDetails = [...details];
+    const discount = updatedDetails[index].discount_percentage ?? 0;
+    const qty = updatedDetails[index].quantity;
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      unit_price,
+      total_amount: unit_price * qty * (1 - discount / 100),
+    };
+    setDetails(updatedDetails);
+  };
+
+  const handleUpdateDiscountPercentage = (
+    index: number,
+    discount_percentage: number,
+  ) => {
+    const updatedDetails = [...details];
+    const unitPrice = updatedDetails[index].unit_price ?? 0;
+    const qty = updatedDetails[index].quantity;
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      discount_percentage,
+      total_amount: unitPrice * qty * (1 - discount_percentage / 100),
+    };
+    setDetails(updatedDetails);
+  };
+
   const handleSelectQuotation = (quotationId: string) => {
     form.setValue("ap_order_quotation_id", quotationId);
   };
 
+  const handleCopyCode = async (code: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
+
   const getSelectedQuotationLabel = () => {
-    if (!selectedQuotationId || quotations.length === 0) return null;
+    if (!selectedQuotationId || !selectedQuotationData) return null;
 
-    const quotation = quotations.find(
-      (q) => q.id.toString() === selectedQuotationId,
-    );
-
-    if (!quotation) return null;
-
-    // Validar si existe vehículo
-    const vehicle = quotation?.vehicle;
+    const vehicle = selectedQuotationData.vehicle;
     const vehicleInfo = vehicle
-      ? `${vehicle.plate || "Sin placa"} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
-      : "Sin vehículo";
+      ? `${vehicle.plate || vehicle.vin} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
+      : "-";
 
-    return `${quotation.quotation_number} - ${vehicleInfo} - S/ ${quotation.total_amount.toFixed(2)}`;
+    return `${selectedQuotationData.quotation_number} - ${vehicleInfo} - S/ ${selectedQuotationData.total_amount.toFixed(2)}`;
   };
 
   return (
@@ -305,6 +412,19 @@ export default function PurchaseRequestForm({
               }))}
               control={form.control}
               strictFilter={true}
+              required
+            />
+
+            <FormSelect
+              control={form.control}
+              name="currency_id"
+              options={currencyTypes.map((type) => ({
+                value: type.id.toString(),
+                label: type.name,
+              }))}
+              label="Moneda"
+              placeholder="Seleccionar moneda"
+              required
             />
 
             <DatePickerFormField
@@ -315,16 +435,6 @@ export default function PurchaseRequestForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{ before: new Date() }}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="supply_type"
-              options={onSelectSupplyType}
-              label="Tipo de Abastecimiento"
-              placeholder="Seleccionar un tipo"
-              disabled={!!selectedQuotationId}
-              required
             />
           </div>
 
@@ -371,7 +481,6 @@ export default function PurchaseRequestForm({
                           variant="outline"
                           className="w-full justify-start"
                           onClick={() => {
-                            loadQuotations();
                             setIsQuotationModalOpen(true);
                           }}
                           disabled={isLoadingQuotations}
@@ -392,7 +501,7 @@ export default function PurchaseRequestForm({
           )}
 
           <div className="mt-4">
-            <FormInputText
+            <FormTextArea
               name="observations"
               label="Observaciones"
               placeholder="Notas adicionales sobre la solicitud..."
@@ -514,12 +623,15 @@ export default function PurchaseRequestForm({
                 ) : (
                   <div className="border rounded-lg overflow-hidden">
                     {/* Cabecera de tabla - Desktop */}
-                    <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
+                    <div className="hidden md:grid grid-cols-12 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
                       <div className="col-span-2">Código</div>
-                      <div className="col-span-4">Producto</div>
-                      <div className="col-span-2">Cantidad</div>
-                      <div className="col-span-3">Notas</div>
-                      <div className="col-span-1"></div>
+                      <div className="col-span-2">Producto</div>
+                      <div className="col-span-2">Tipo Abastec.</div>
+                      <div className="col-span-1">Cantidad</div>
+                      <div className="col-span-1">P. Unit.</div>
+                      <div className="col-span-1">Desc. %</div>
+                      <div className="col-span-1">Total</div>
+                      <div className="col-span-2">Notas</div>
                     </div>
 
                     {/* Items */}
@@ -528,14 +640,38 @@ export default function PurchaseRequestForm({
                         return (
                           <div key={index}>
                             {/* Vista Desktop */}
-                            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                            <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
                               <div className="col-span-2">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {detail.product_code ||
-                                    `Producto #${detail.product_id}`}
-                                </p>
+                                <div className="flex items-center gap-1">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {detail.product_code ||
+                                      `Producto #${detail.product_id}`}
+                                  </p>
+                                  {detail.product_code && (
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-5 w-5 hover:bg-blue-100 shrink-0"
+                                      onClick={() =>
+                                        handleCopyCode(
+                                          detail.product_code!,
+                                          index,
+                                        )
+                                      }
+                                      tooltip="Copiar código"
+                                    >
+                                      {copiedIndex === index ? (
+                                        <Check className="h-3 w-3 text-green-600" />
+                                      ) : (
+                                        <Copy className="h-3 w-3 text-primary" />
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
-                              <div className="col-span-4">
+
+                              <div className="col-span-2">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
@@ -543,6 +679,25 @@ export default function PurchaseRequestForm({
                               </div>
 
                               <div className="col-span-2">
+                                {selectedQuotationId ? (
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {detail.supply_type || "-"}
+                                  </span>
+                                ) : (
+                                  <FormSelect
+                                    name={`detail_supply_type_${index}` as any}
+                                    placeholder="Seleccionar"
+                                    options={SUPPLY_TYPE_OPTIONS}
+                                    control={form.control}
+                                    strictFilter={true}
+                                    onValueChange={(value) =>
+                                      handleUpdateSupplyType(index, value)
+                                    }
+                                  />
+                                )}
+                              </div>
+
+                              <div className="col-span-1">
                                 <Input
                                   type="number"
                                   min="0.01"
@@ -559,7 +714,58 @@ export default function PurchaseRequestForm({
                                 />
                               </div>
 
-                              <div className="col-span-3">
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={detail.unit_price ?? ""}
+                                  onChange={(e) =>
+                                    handleUpdateUnitPrice(
+                                      index,
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  placeholder="0.00"
+                                  className="h-9 text-sm"
+                                  disabled={!!selectedQuotationId}
+                                />
+                              </div>
+
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  step="0.01"
+                                  value={detail.discount_percentage ?? ""}
+                                  onChange={(e) =>
+                                    handleUpdateDiscountPercentage(
+                                      index,
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  placeholder="0"
+                                  className="h-9 text-sm"
+                                  readOnly
+                                />
+                              </div>
+
+                              <div className="col-span-1">
+                                <Input
+                                  type="number"
+                                  value={
+                                    detail.total_amount !== undefined
+                                      ? Number(detail.total_amount).toFixed(2)
+                                      : ""
+                                  }
+                                  readOnly
+                                  placeholder="0.00"
+                                  className="h-9 text-sm bg-gray-50"
+                                />
+                              </div>
+
+                              <div className="col-span-2 flex items-center gap-1">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -569,14 +775,11 @@ export default function PurchaseRequestForm({
                                   placeholder="Notas opcionales..."
                                   className="h-9 text-sm"
                                 />
-                              </div>
-
-                              <div className="col-span-1 flex justify-end">
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
                                   onClick={() => handleRemoveProduct(index)}
                                   disabled={!!selectedQuotationId}
                                 >
@@ -593,6 +796,32 @@ export default function PurchaseRequestForm({
                                     {detail.product_name ||
                                       `Producto #${detail.product_id}`}
                                   </p>
+                                  {detail.product_code && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <span className="text-xs font-mono text-slate-700">
+                                        Código: {detail.product_code}
+                                      </span>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-5 w-5 hover:bg-blue-100"
+                                        onClick={() =>
+                                          handleCopyCode(
+                                            detail.product_code!,
+                                            index,
+                                          )
+                                        }
+                                        tooltip="Copiar código"
+                                      >
+                                        {copiedIndex === index ? (
+                                          <Check className="h-3 w-3 text-green-600" />
+                                        ) : (
+                                          <Copy className="h-3 w-3 text-primary" />
+                                        )}
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                                 <Button
                                   type="button"
@@ -607,6 +836,30 @@ export default function PurchaseRequestForm({
                               </div>
 
                               <div className="space-y-2">
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Tipo Abastecimiento
+                                  </label>
+                                  {selectedQuotationId ? (
+                                    <span className="text-sm font-medium text-gray-700">
+                                      {detail.supply_type || "-"}
+                                    </span>
+                                  ) : (
+                                    <FormSelect
+                                      name={
+                                        `detail_supply_type_${index}` as any
+                                      }
+                                      placeholder="Seleccionar"
+                                      options={SUPPLY_TYPE_OPTIONS}
+                                      control={form.control}
+                                      strictFilter={true}
+                                      onValueChange={(value) =>
+                                        handleUpdateSupplyType(index, value)
+                                      }
+                                    />
+                                  )}
+                                </div>
+
                                 <div>
                                   <label className="text-xs font-medium text-gray-700 mb-1 block">
                                     Cantidad
@@ -624,6 +877,67 @@ export default function PurchaseRequestForm({
                                     }
                                     className="h-9 text-sm w-full"
                                     disabled={!!selectedQuotationId}
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                      Precio Unit.
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="0.01"
+                                      value={detail.unit_price ?? ""}
+                                      onChange={(e) =>
+                                        handleUpdateUnitPrice(
+                                          index,
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      className="h-9 text-sm w-full"
+                                      disabled={!!selectedQuotationId}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                      Descuento %
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.01"
+                                      value={detail.discount_percentage ?? ""}
+                                      onChange={(e) =>
+                                        handleUpdateDiscountPercentage(
+                                          index,
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                      placeholder="0"
+                                      className="h-9 text-sm w-full"
+                                      disabled={!!selectedQuotationId}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Total
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    value={
+                                      detail.total_amount !== undefined
+                                        ? Number(detail.total_amount).toFixed(2)
+                                        : ""
+                                    }
+                                    readOnly
+                                    placeholder="0.00"
+                                    className="h-9 text-sm w-full bg-gray-50"
                                   />
                                 </div>
 
@@ -654,6 +968,56 @@ export default function PurchaseRequestForm({
           )}
 
           <FormMessage>{form.formState.errors.details?.message}</FormMessage>
+
+          {/* Resumen de Totales */}
+          {details.some((d) => d.total_amount !== undefined) && (
+            <div className="flex justify-end pt-4 border-t mt-4">
+              <div className="text-right space-y-1">
+                {(() => {
+                  const subtotal = details.reduce(
+                    (sum, d) => sum + (d.total_amount ?? 0),
+                    0,
+                  );
+                  return (
+                    <>
+                      <div className="flex justify-between gap-8">
+                        <p className="text-sm text-gray-600">Subtotal:</p>
+                        <p className="text-sm font-medium text-gray-800">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {subtotal.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex justify-between gap-8">
+                        <p className="text-sm text-gray-600">IGV (18%):</p>
+                        <p className="text-sm font-medium text-gray-800">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {(subtotal * IGV.RATE).toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex justify-between gap-8 pt-1 border-t">
+                        <p className="text-sm font-semibold text-gray-700">
+                          Total General:
+                        </p>
+                        <p className="text-2xl font-bold text-primary">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {(subtotal * IGV.FACTOR).toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </Card>
 
         <div className="flex justify-end gap-2 pt-4">
@@ -677,6 +1041,7 @@ export default function PurchaseRequestForm({
         {/* Modal de Selección de Cotización */}
         <QuotationSelectionModal
           open={isQuotationModalOpen}
+          sedeId={selectedWarehouse?.sede_id}
           onOpenChange={setIsQuotationModalOpen}
           onSelectQuotation={handleSelectQuotation}
         />

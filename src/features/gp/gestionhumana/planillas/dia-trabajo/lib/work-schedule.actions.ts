@@ -13,71 +13,53 @@ import { WORK_SCHEDULE } from "./work-schedule.constant";
 
 const { ENDPOINT } = WORK_SCHEDULE;
 
+// Helper para extraer data de la respuesta envuelta { success, data: {...} }
+function unwrap<T>(response: any): T {
+  return response?.data ?? response;
+}
+
 export async function getWorkSchedules({
   params,
 }: GetWorkSchedulesProps): Promise<WorkScheduleResponse> {
-  const config: AxiosRequestConfig = {
-    params: {
-      ...params,
-    },
-  };
+  const config: AxiosRequestConfig = { params };
   const { data } = await api.get<WorkScheduleResponse>(ENDPOINT, config);
   return data;
 }
 
-export async function getAllWorkSchedules(
-  params?: Record<string, any>
-): Promise<WorkScheduleResource[]> {
-  const config: AxiosRequestConfig = {
-    params: {
-      all: true,
-      ...params,
-    },
-  };
-  const { data } = await api.get<WorkScheduleResource[]>(ENDPOINT, config);
-  return data;
-}
-
-export async function findWorkScheduleById(
-  id: string
-): Promise<WorkScheduleResource> {
-  const response = await api.get<WorkScheduleResource>(`${ENDPOINT}/${id}`);
-  return response.data;
-}
-
 export async function getWorkSchedulesByPeriod(
   periodId: number,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ): Promise<WorkScheduleResource[]> {
   const config: AxiosRequestConfig = {
-    params: {
-      all: true,
-      period_id: periodId,
-      ...params,
-    },
+    params: { period_id: periodId, all: true, ...params },
   };
-  const { data } = await api.get<WorkScheduleResource[]>(ENDPOINT, config);
+  const { data } = await api.get<any>(ENDPOINT, config);
   return data;
 }
 
 export async function getWorkScheduleSummary(
-  periodId: number
+  periodId: number,
 ): Promise<WorkScheduleSummaryResponse> {
-  const response = await api.get<WorkScheduleSummaryResponse>(
-    `${ENDPOINT}/summary/${periodId}`
-  );
-  return response.data;
+  const { data } = await api.get<any>(`${ENDPOINT}/summary/${periodId}`);
+  return unwrap<WorkScheduleSummaryResponse>(data);
+}
+
+export async function findWorkScheduleById(
+  id: string,
+): Promise<WorkScheduleResource> {
+  const { data } = await api.get<any>(`${ENDPOINT}/${id}`);
+  return unwrap<WorkScheduleResource>(data);
 }
 
 export async function storeWorkSchedule(
-  payload: WorkScheduleRequest
+  payload: WorkScheduleRequest,
 ): Promise<WorkScheduleResource> {
-  const response = await api.post<WorkScheduleResource>(ENDPOINT, payload);
-  return response.data;
+  const { data } = await api.post<any>(ENDPOINT, payload);
+  return unwrap<WorkScheduleResource>(data);
 }
 
 export async function storeWorkScheduleBulk(
-  payload: WorkScheduleBulkRequest
+  payload: WorkScheduleBulkRequest,
 ): Promise<GeneralResponse> {
   const response = await api.post<GeneralResponse>(`${ENDPOINT}/bulk`, payload);
   return response.data;
@@ -85,13 +67,10 @@ export async function storeWorkScheduleBulk(
 
 export async function updateWorkSchedule(
   id: string,
-  payload: Partial<WorkScheduleRequest>
+  payload: Partial<WorkScheduleRequest>,
 ): Promise<WorkScheduleResource> {
-  const response = await api.put<WorkScheduleResource>(
-    `${ENDPOINT}/${id}`,
-    payload
-  );
-  return response.data;
+  const { data } = await api.put<any>(`${ENDPOINT}/${id}`, payload);
+  return unwrap<WorkScheduleResource>(data);
 }
 
 export async function deleteWorkSchedule(id: number): Promise<GeneralResponse> {

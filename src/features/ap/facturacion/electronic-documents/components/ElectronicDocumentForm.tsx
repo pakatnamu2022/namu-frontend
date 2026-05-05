@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ElectronicDocumentSchema,
   ElectronicDocumentItemSchema,
 } from "../lib/electronicDocument.schema";
 import {
   DEFAULT_IGV_PERCENTAGE,
+  MIN_RETENTION,
   NUBEFACT_CODES,
   QUOTATION_ACCOUNT_PLAN_IDS,
 } from "../lib/electronicDocument.constants";
@@ -17,11 +19,9 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import {
   useNextCorrelativeElectronicDocument,
   useAdvancePaymentsByQuotation,
+  useExchangeRateByDateAndCurrency,
 } from "../lib/electronicDocument.hook";
-import {
-  useAllPurchaseRequestQuote,
-  usePurchaseRequestQuoteById,
-} from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import { usePurchaseRequestQuoteById } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import { DocumentInfoSection } from "./sections/DocumentInfoSection";
 import { QuotationSection } from "./sections/QuotationSection";
 import { QuotationFinancialInfo } from "./sections/QuotationFinancialInfo";
@@ -30,7 +30,6 @@ import { AdditionalConfigSection } from "./sections/AdditionalConfigSection";
 import { SummarySection } from "./sections/SummarySection";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface ElectronicDocumentFormProps {
@@ -43,7 +42,6 @@ interface ElectronicDocumentFormProps {
   identityDocumentTypes?: SunatConceptsResource[];
   currencyTypes?: SunatConceptsResource[];
   igvTypes?: SunatConceptsResource[];
-  detractionTypes?: SunatConceptsResource[];
   creditNoteTypes?: SunatConceptsResource[];
   debitNoteTypes?: SunatConceptsResource[];
   useQuotation?: boolean; // Mostrar select de cotizaciones
@@ -73,24 +71,18 @@ export function ElectronicDocumentForm({
 
   // Ref para rastrear la última cotización cargada (evitar loops)
   const lastLoadedQuotationId = useRef<number | null>(null);
+  // Ref independiente para el tracking de items (el efecto de moneda actualiza
+  // lastLoadedQuotationId antes de que corra el efecto de items, así que usar
+  // un ref separado evita que los items de la cotización anterior queden al cambiar)
+  const lastItemsQuotationId = useRef<number | null>(null);
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   // Ref para evitar procesar anticipos múltiples veces por la misma cotización + modo
   // Guardamos una key en formato `${quotationId}:total` o `${quotationId}:advance`
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
 
-  // Fetch todas las cotizaciones disponibles
-  const { data: quotations = [], isLoading: isLoadingQuotations } =
-    useAllPurchaseRequestQuote({
-      status: "approved", // Solo cotizaciones aprobadas
-      // has_vehicle: 1,
-      is_approved: 1,
-      is_paid: 0, // Solo cotizaciones no pagadas
-    });
-
   // Fetch la cotización seleccionada
-  const { data: quotation } = usePurchaseRequestQuoteById(
-    selectedQuotationId || 0,
-  );
+  const { data: quotation, isLoading: isLoadingQuotation } =
+    usePurchaseRequestQuoteById(selectedQuotationId || 0);
 
   // Obtener anticipos previos de la cotización
   const vehicleId = quotation?.ap_vehicle_id || null;
@@ -109,6 +101,8 @@ export function ElectronicDocumentForm({
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const purchaseRequestQuoteId = form.watch("purchase_request_quote_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
+  const isDetraction = form.watch("detraccion") || false;
+  const fechaDeEmision = form.watch("fecha_de_emision");
 
   // Consultar series autorizadas
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
@@ -144,6 +138,7 @@ export function ElectronicDocumentForm({
       setSelectedQuotationId(parseInt(purchaseRequestQuoteId));
       // resetear tracking de procesamiento cuando se selecciona nueva cotización
       processedAdvancePaymentsForQuotationKey.current = null;
+      lastItemsQuotationId.current = null;
     } else {
       setSelectedQuotationId(null);
     }
@@ -175,15 +170,20 @@ export function ElectronicDocumentForm({
   }, [quotation, hasVehicle, vehicleId, form]);
 
   // Limpiar campos cuando se deselecciona la cotización
+  // IMPORTANTE: No limpiar en modo edición para mantener los datos originales
   useEffect(() => {
+    // Si está en modo edición, no limpiar campos automáticamente
+    if (isEdit) return;
+
     if (!selectedQuotationId) {
       // eslint-disable-next-line react-hooks/immutability
       resetData();
     }
-  }, [selectedQuotationId, form]);
+  }, [selectedQuotationId, form, isEdit]);
 
   const resetData = () => {
     lastLoadedQuotationId.current = null;
+    lastItemsQuotationId.current = null;
     lastLoadedAdvancePaymentState.current = null;
     processedAdvancePaymentsForQuotationKey.current = null;
     // Limpiar cliente
@@ -260,14 +260,19 @@ export function ElectronicDocumentForm({
   }, [quotation, form, currencyTypes]);
 
   // Efecto separado para cargar items (se ejecuta cuando cambia cotización O isAdvancePayment)
+  // IMPORTANTE: No ejecutar en modo edición para mantener los items originales del documento
   useEffect(() => {
+    // Si está en modo edición, no recalcular items desde la cotización
+    if (isEdit) return;
+
     if (
       quotation &&
-      (quotation.id !== lastLoadedQuotationId.current ||
+      (quotation.id !== lastItemsQuotationId.current ||
         isAdvancePayment !== lastLoadedAdvancePaymentState.current)
     ) {
       form.setValue("items", []);
-      // Marcar este estado como procesado
+      // Marcar esta cotización e estado como procesados
+      lastItemsQuotationId.current = quotation.id;
       lastLoadedAdvancePaymentState.current = isAdvancePayment;
 
       // Si cambió el modo de anticipo, resetear el tracking de anticipos procesados
@@ -330,10 +335,12 @@ export function ElectronicDocumentForm({
 
         // Construir descripción base del vehículo
         let descripcion = "";
+        let unidadDeMedida = "NIU";
 
         // Si es anticipo, usar descripción simple
         if (isAdvancePayment) {
           descripcion = `ANTICIPO DE CLIENTE`;
+          unidadDeMedida = "ZZ"; // Unidad no definida, ya que es un anticipo
         } else {
           // Si es venta total, usar formato detallado SUNAT
           const vehicle = quotation.ap_vehicle;
@@ -364,7 +371,7 @@ MODELO: ${vehicle?.model?.version || ``}
           account_plan_id: isAdvancePayment
             ? QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT
             : QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
-          unidad_de_medida: "NIU",
+          unidad_de_medida: unidadDeMedida,
           codigo: quotation.ap_vehicle_id?.toString() || undefined,
           descripcion,
           cantidad: 1,
@@ -402,10 +409,14 @@ MODELO: ${vehicle?.model?.version || ``}
     advancePayments,
     isLoadingAdvancePayments,
     pendingBalance,
+    isEdit,
   ]);
 
   // Efecto separado para procesar y actualizar anticipos cuando la consulta termine
+  // IMPORTANTE: No ejecutar en modo edición para mantener los items originales del documento
   useEffect(() => {
+    // Si está en modo edición, no agregar anticipos automáticamente
+    if (isEdit) return;
     if (!quotation) return;
     if (isAdvancePayment) return; // sólo aplica para venta total
     if (isLoadingAdvancePayments) return; // esperar a que termine la carga
@@ -462,6 +473,7 @@ MODELO: ${vehicle?.model?.version || ``}
     igvTypes,
     porcentaje_de_igv,
     form,
+    isEdit,
   ]);
 
   // Calcular totales
@@ -491,18 +503,22 @@ MODELO: ${vehicle?.model?.version || ``}
                 SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
             ) {
               total_gravada += item.subtotal;
+              total_igv += item.igv;
               total_anticipo += -item.subtotal;
             } else {
               total_gravada += -item.subtotal;
+              total_igv += -item.igv;
               total_anticipo += item.subtotal;
             }
           } else {
             total_gravada += -item.subtotal;
+            total_igv += -item.igv;
             total_anticipo += item.subtotal;
           }
         } else {
           // Gravado normal
           total_gravada += item.subtotal;
+          total_igv += item.igv;
         }
       } else if (igvType?.code_nubefact === "20") {
         if (item.anticipo_regularizacion) {
@@ -529,19 +545,19 @@ MODELO: ${vehicle?.model?.version || ``}
       }
     });
 
-    // Calcular IGV sobre la base imponible neta (después de restar anticipos)
-    total_igv = total_gravada * (porcentaje_de_igv / 100);
-
+    // El IGV ya fue sumado de los items directamente (no recalcular)
     const total = total_gravada + total_inafecta + total_exonerada + total_igv;
 
+    // Redondear a 2 decimales para evitar errores de punto flotante (ej: -1.8e-12 → 0)
+    const round2 = (n: number) => Math.round(n * 100) / 100;
     return {
-      total_gravada,
-      total_inafecta,
-      total_exonerada,
-      total_igv,
-      total_gratuita,
-      total_anticipo,
-      total,
+      total_gravada: round2(total_gravada),
+      total_inafecta: round2(total_inafecta),
+      total_exonerada: round2(total_exonerada),
+      total_igv: round2(total_igv),
+      total_gratuita: round2(total_gratuita),
+      total_anticipo: round2(total_anticipo),
+      total: round2(total),
     };
   };
 
@@ -593,6 +609,30 @@ MODELO: ${vehicle?.model?.version || ``}
     sede_id: selectedSeries?.sede_id,
   });
 
+  // Tipo de cambio: siempre consultar para la moneda seleccionada y la fecha de emisión
+  const fechaDeEmisionStr = fechaDeEmision
+    ? fechaDeEmision instanceof Date
+      ? fechaDeEmision.toISOString().split("T")[0]
+      : String(fechaDeEmision).split("T")[0]
+    : "";
+  const { data: exchangeRate } = useExchangeRateByDateAndCurrency(
+    selectedCurrency?.currency_type ?? null,
+    fechaDeEmisionStr,
+  );
+
+  // Precio mínimo por detracción (MIN_RETENTION = S/ 700)
+  // Solo aplica cuando no es useQuotation y tiene detracción activa
+  const isUSD = selectedCurrency?.iso_code === "USD";
+  const exchangeRateMissing = isUSD && !exchangeRate?.rate;
+  const minRetentionPrice =
+    !useQuotation && isDetraction
+      ? isUSD
+        ? exchangeRate?.rate
+          ? MIN_RETENTION / exchangeRate.rate
+          : undefined // USD sin tasa aún: no aplicar mínimo
+        : MIN_RETENTION
+      : undefined;
+
   useEffect(() => {
     if (isEdit) {
       form.setValue("numero", form.getValues("numero"));
@@ -613,10 +653,6 @@ MODELO: ${vehicle?.model?.version || ``}
         ? "$"
         : "";
 
-  if (useQuotation && isLoadingQuotations) {
-    return <FormSkeleton />;
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -624,12 +660,13 @@ MODELO: ${vehicle?.model?.version || ``}
           {/* Formulario - 2/3 del ancho */}
           <div className="lg:col-span-2 space-y-6">
             {/* Vincular con Cotización - Solo si useQuotation es true */}
-            {useQuotation && (
-              <QuotationSection form={form} quotations={quotations} />
-            )}
+            {useQuotation && <QuotationSection form={form} />}
 
             {/* Información Financiera de la Cotización */}
-            {quotation && selectedQuotationId && (
+            {selectedQuotationId && isLoadingQuotation && (
+              <Skeleton className="h-32 w-full rounded-lg" />
+            )}
+            {quotation && selectedQuotationId && !isLoadingQuotation && (
               <QuotationFinancialInfo
                 quotation={quotation}
                 advances={advancePayments}
@@ -647,6 +684,8 @@ MODELO: ${vehicle?.model?.version || ``}
               currencyTypes={currencyTypes}
               isFromQuotation={!!selectedQuotationId}
               hasVehicle={hasVehicle}
+              pendingBalance={pendingBalance}
+              useQuotation={useQuotation}
               defaultCustomerId={
                 quotation?.holder_id ? Number(quotation.holder_id) : null
               }
@@ -667,10 +706,16 @@ MODELO: ${vehicle?.model?.version || ``}
               }
               isFromQuotation={!!selectedQuotationId}
               useQuotation={useQuotation}
+              isDetraction={isDetraction}
+              minRetentionPrice={minRetentionPrice}
             />
 
             {/* Configuración Adicional */}
-            <AdditionalConfigSection form={form} checkbooks={checkbooks} />
+            <AdditionalConfigSection
+              form={form}
+              checkbooks={checkbooks}
+              useQuotation={useQuotation}
+            />
           </div>
 
           {/* Resumen tipo Recibo - 1/3 del ancho */}
@@ -687,6 +732,10 @@ MODELO: ${vehicle?.model?.version || ``}
             isAdvancePayment={isAdvancePayment}
             quotation={quotation}
             advancePayments={advancePayments}
+            selectedCustomer={selectedCustomer}
+            onSubmit={form.handleSubmit(onSubmit)}
+            exchangeRate={exchangeRate?.rate}
+            exchangeRateMissing={exchangeRateMissing}
           />
         </div>
 

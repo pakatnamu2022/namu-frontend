@@ -10,14 +10,18 @@ export interface TypesPlanningResource {
   id: number;
   code: string;
   description: string;
-  type: string;
+  validate_receipt: boolean;
+  validate_labor: boolean;
+  type_document: string;
   status: boolean;
 }
 
 export interface TypesPlanningRequest {
   code: string;
   description: string;
-  type: string;
+  validate_receipt: boolean;
+  validate_labor: boolean;
+  type_document: string;
   status: boolean;
 }
 

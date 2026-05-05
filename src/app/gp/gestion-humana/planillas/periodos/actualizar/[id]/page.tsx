@@ -47,7 +47,7 @@ export default function UpdatePayrollPeriodPage() {
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "update"),
       );
     },
   });
@@ -57,12 +57,12 @@ export default function UpdatePayrollPeriodPage() {
   };
 
   function mapPayrollPeriodToForm(
-    data: PayrollPeriodResource
+    data: PayrollPeriodResource,
   ): Partial<PayrollPeriodSchema> {
     return {
       year: data.year,
       month: data.month,
-      payment_date: data.payment_date ?? "",
+      payment_date: data.payment_date ? new Date(data.payment_date) : "",
       company_id: data.company?.id,
     };
   }

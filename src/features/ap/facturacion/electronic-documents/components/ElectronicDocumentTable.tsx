@@ -22,17 +22,9 @@ export default function ElectronicDocumentTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          status: true,
           documentType: false,
-          serie: true,
-          cliente_denominacion: true,
-          fecha_de_emision: true,
-          currency: true,
-          total: true,
-          aceptada_por_sunat: true,
-          anulado: false,
-          origin_module: false,
-          actions: true,
+          area_id: false,
+          internal_note: false,
         }}
       >
         {children}

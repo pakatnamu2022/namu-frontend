@@ -143,6 +143,7 @@ export default function DashboardStoreVisitsPage() {
     if (dateFrom && dateTo) {
       fetchDashboardData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFrom, dateTo, dashboardType]);
 
   if (isLoadingModule) return <FormSkeleton />;

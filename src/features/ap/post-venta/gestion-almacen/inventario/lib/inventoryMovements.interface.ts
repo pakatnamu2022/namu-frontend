@@ -4,6 +4,10 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
+import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
+import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface.ts";
+import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
+import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 
 export interface InventoryMovementDetail {
   id: number;
@@ -29,12 +33,51 @@ export interface InventoryMovementResource {
   is_inbound?: boolean;
   is_outbound?: boolean;
   created_at: string;
+  reference_type: string;
   reference?:
     | ReceptionResource // type = PURCHASE_RECEPTION
     | ShipmentsReceptionsResource // type = TRANSFER_OUT
     | WorkOrderPartsResource // type = ADJUSTMENT_OUT
+    | OrderQuotationResource // type = SALE, ADJUSTMENT_OUT
+    | TransferReceptionResource // type = TRANSFER_IN
     | Record<string, any>;
   details?: InventoryMovementDetail[];
+  reason_in_out_id: number; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
+  reason_in_out: ApMastersResource; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
+}
+
+export interface CreditNoteResource {
+  id: number;
+  credit_note_number: string;
+  purchase_order_id: number;
+  purchase_reception_id: number;
+  supplier_id: number;
+  credit_note_date: string;
+  reason: string;
+  subtotal: string;
+  tax_amount: string;
+  total: string;
+  status: string;
+  notes: string | null;
+  approved_by: number | null;
+  approved_at: string | null;
+  created_at: string;
+  updated_at: string;
+  purchase_order: VehiclePurchaseOrderResource;
+  details: CreditNoteDetailResource[];
+}
+
+export interface CreditNoteDetailResource {
+  id: number;
+  supplier_credit_note_id: number;
+  product_id: number;
+  quantity: string;
+  unit_price: string;
+  discount_percentage: string;
+  tax_rate: string;
+  subtotal: string;
+  notes: string | null;
+  product: ProductResource;
 }
 
 export interface InventoryMovementResponse {

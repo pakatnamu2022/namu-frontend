@@ -32,7 +32,7 @@ export async function getAllReceptions({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      ...(purchaseOrderId && { purchase_order_id: purchaseOrderId }),
+      ...(purchaseOrderId && { ap_supplier_order_id: purchaseOrderId }),
       all: true,
     },
   };
@@ -46,14 +46,14 @@ export async function getReceptionById(id: number): Promise<ReceptionResource> {
 }
 
 export async function findReceptionById(
-  id: number
+  id: number,
 ): Promise<ReceptionResource> {
   const response = await api.get<ReceptionResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeReception(
-  payload: ReceptionRequest
+  payload: ReceptionRequest,
 ): Promise<ReceptionResource> {
   const { data } = await api.post<ReceptionResource>(ENDPOINT, payload);
   return data;
@@ -61,11 +61,11 @@ export async function storeReception(
 
 export async function updateReception(
   id: number,
-  payload: Partial<ReceptionRequest>
+  payload: Partial<ReceptionRequest>,
 ): Promise<ReceptionResource> {
   const { data } = await api.put<ReceptionResource>(
     `${ENDPOINT}/${id}`,
-    payload
+    payload,
   );
   return data;
 }

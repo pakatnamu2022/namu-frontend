@@ -15,8 +15,7 @@ interface RoleUsersModalProps {
 
 export function RoleUsersModal({ id, nombre, trigger }: RoleUsersModalProps) {
   const [open, setOpen] = useState(false);
-
-  const { data: users } = useUsersByRole(id);
+  const { data: users } = useUsersByRole(id, open);
 
   return (
     <>

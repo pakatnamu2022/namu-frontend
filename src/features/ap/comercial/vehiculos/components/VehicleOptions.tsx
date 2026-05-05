@@ -1,28 +1,42 @@
-"use client";
-
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { FilterMultiSelect } from "@/shared/components/FilterMultiSelect";
+import FilterWrapper from "@/shared/components/FilterWrapper";
+import SearchInput from "@/shared/components/SearchInput";
 
 interface VehicleOptionsProps {
   search: string;
   setSearch: (value: string) => void;
+  ap_vehicle_status_id: string[];
+  set_ap_vehicle_status_id: (value: string[]) => void;
 }
 
 export default function VehicleOptions({
   search,
   setSearch,
+  ap_vehicle_status_id,
+  set_ap_vehicle_status_id,
 }: VehicleOptionsProps) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <div className="relative w-full sm:w-64">
-        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
-        <Input
-          placeholder="Buscar por VIN, modelo..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-8"
-        />
-      </div>
-    </div>
+    <FilterWrapper>
+      <SearchInput
+        placeholder="Buscar por VIN, modelo..."
+        value={search}
+        onChange={setSearch}
+      />
+      <FilterMultiSelect
+        placeholder="Estado Vehículo"
+        value={ap_vehicle_status_id}
+        onChange={set_ap_vehicle_status_id}
+        options={[
+          { label: "PEDIDO VN", value: "1" },
+          { label: "VEHICULO EN TRANSITO", value: "2" },
+          { label: "VEHICULO EN TRANSITO DEVUELTO", value: "3" },
+          { label: "VEHICULO VENDIDO NO ENTREGADO", value: "4" },
+          { label: "INVENTARIO VN", value: "5" },
+          { label: "VEHICULO VENDIDO ENTREGADO", value: "6" },
+          { label: "VEHICULO FACTURADO", value: "7" },
+          { label: "VEHICULO EN CONSIGNACION", value: "8" },
+        ]}
+      />
+    </FilterWrapper>
   );
 }

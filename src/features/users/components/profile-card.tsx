@@ -4,11 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   User,
-  Settings,
-  Calendar,
-  Award,
-  Clock,
-  File,
+  // Settings,
+  // Calendar,
+  // Award,
+  // Clock,
+  // File,
   Users,
   ClipboardList,
   TicketsPlane,
@@ -76,9 +76,9 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       label: "Mi desempeño",
       route: "mi-desempeno",
       icon: ClipboardList,
-      stats: () => (
-        <Badge className="bg-primary text-white animate-pulse">Nuevo</Badge>
-      ),
+      // stats: () => (
+      //   <Badge className="bg-primary text-white animate-pulse">Nuevo</Badge>
+      // ),
       allow: true,
     },
     {
@@ -105,41 +105,41 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       },
       allow: user.subordinates > 0,
     },
-    {
-      label: "OnBoarding",
-      route: "onboarding",
-      icon: Settings,
-      stats: undefined,
-      allow: true,
-    },
-    {
-      label: "Documentos",
-      route: "documentos",
-      icon: File,
-      stats: 4,
-      allow: true,
-    },
-    {
-      label: "Capacitaciones",
-      route: "capacitaciones",
-      icon: Award,
-      stats: 1,
-      allow: true,
-    },
-    {
-      label: "Vacaciones",
-      route: "vacaciones",
-      icon: Calendar,
-      stats: undefined,
-      allow: true,
-    },
-    {
-      label: "Políticas empresariales",
-      route: "",
-      icon: Clock,
-      stats: undefined,
-      allow: true,
-    },
+    // {
+    //   label: "OnBoarding",
+    //   route: "onboarding",
+    //   icon: Settings,
+    //   stats: undefined,
+    //   allow: true,
+    // },
+    // {
+    //   label: "Documentos",
+    //   route: "documentos",
+    //   icon: File,
+    //   stats: 4,
+    //   allow: true,
+    // },
+    // {
+    //   label: "Capacitaciones",
+    //   route: "capacitaciones",
+    //   icon: Award,
+    //   stats: 1,
+    //   allow: true,
+    // },
+    // {
+    //   label: "Vacaciones",
+    //   route: "vacaciones",
+    //   icon: Calendar,
+    //   stats: undefined,
+    //   allow: true,
+    // },
+    // {
+    //   label: "Políticas empresariales",
+    //   route: "",
+    //   icon: Clock,
+    //   stats: undefined,
+    //   allow: true,
+    // },
     {
       label: "Viaticos",
       route: PER_DIEM_REQUEST_ROUTE,
@@ -215,7 +215,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
               onClick={() => handleProfileClick(option.route)}
             >
               <div className="flex items-center gap-2">
-                <option.icon className="w-4 h-4 text-primary dark:text-primary-foreground" />
+                <option.icon className="w-4 h-4 " />
                 <span>{option.label}</span>
               </div>
               {option.stats !== undefined &&

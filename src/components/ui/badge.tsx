@@ -8,12 +8,14 @@ export type BadgeVariant = "default" | "outline" | "ghost";
 
 export type BadgeColor =
   | "default"
+  | "primary"
   | "secondary"
   | "tertiary"
   | "muted"
   | "destructive"
   | "orange"
   | "green"
+  | "emerald"
   | "blue"
   | "sky"
   | "red"
@@ -43,6 +45,7 @@ const badgeVariants = cva(
         destructive: "",
         orange: "",
         green: "",
+        emerald: "",
         blue: "",
         sky: "",
         red: "",
@@ -76,6 +79,11 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
   default: {
     default: "bg-primary text-primary-foreground hover:bg-primary/80",
     outline: "border border-border text-foreground hover:bg-primary/10",
+    ghost: "text-primary hover:bg-primary/10",
+  },
+  primary: {
+    default: "bg-primary text-primary-foreground hover:bg-primary/80",
+    outline: "border-primary text-primary hover:bg-primary/10",
     ghost: "text-primary hover:bg-primary/10",
   },
   secondary: {
@@ -115,6 +123,14 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
       "bg-green-100 border-green-400 text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-950/50",
     ghost:
       "text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/50",
+  },
+  emerald: {
+    default:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200",
+    outline:
+      "bg-emerald-100 border-emerald-400 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/50",
+    ghost:
+      "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50",
   },
   blue: {
     default: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-200",
@@ -209,7 +225,12 @@ export interface BadgeProps
 export type BadgeCustomProps = BadgeProps & {
   icon?: LucideIcon;
   tooltip?: React.ReactNode;
-  tooltipVariant?: "default" | "secondary" | "tertiary";
+  tooltipVariant?:
+    | "default"
+    | "secondary"
+    | "tertiary"
+    | "muted"
+    | "background";
 };
 
 function getTooltipVariant(variant: BadgeCustomProps["tooltipVariant"]) {
@@ -218,6 +239,8 @@ function getTooltipVariant(variant: BadgeCustomProps["tooltipVariant"]) {
       return "!bg-secondary !text-secondary-foreground !fill-secondary";
     case "tertiary":
       return "!bg-tertiary !text-tertiary-foreground !fill-tertiary";
+    case "muted":
+      return "!bg-muted !text-muted-foreground !fill-muted";
     default:
       return "!bg-primary !text-primary-foreground !fill-primary";
   }

@@ -8,7 +8,11 @@ import {
   eachDayOfInterval,
   getDay,
   isWeekend,
+  parseISO,
+  isBefore,
+  isAfter,
 } from "date-fns";
+import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -26,6 +30,8 @@ interface WorkScheduleCalendarProps {
   schedules: WorkScheduleResource[];
   workerId: number;
   workerName: string;
+  periodStartDate?: string;
+  periodEndDate?: string;
   onAddSchedule: (date: Date) => void;
   onEditSchedule: (schedule: WorkScheduleResource) => void;
   onDeleteSchedule: (scheduleId: number) => void;
@@ -40,12 +46,28 @@ export function WorkScheduleCalendar({
   schedules,
   workerId,
   workerName,
+  periodStartDate,
+  periodEndDate,
   onAddSchedule,
   onEditSchedule,
   onDeleteSchedule,
   canModify = true,
 }: WorkScheduleCalendarProps) {
   const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+
+  const periodStart = useMemo(
+    () => (periodStartDate ? parseISO(periodStartDate) : null),
+    [periodStartDate],
+  );
+  const periodEnd = useMemo(
+    () => (periodEndDate ? parseISO(periodEndDate) : null),
+    [periodEndDate],
+  );
+
+  const isDayOutsidePeriod = (day: Date): boolean => {
+    if (!periodStart || !periodEnd) return false;
+    return isBefore(day, periodStart) || isAfter(day, periodEnd);
+  };
 
   const daysInMonth = useMemo(() => {
     const start = startOfMonth(new Date(year, month - 1));
@@ -60,9 +82,13 @@ export function WorkScheduleCalendar({
   const schedulesByDate = useMemo(() => {
     const map = new Map<string, WorkScheduleResource>();
     schedules
-      .filter((s) => s.worker.id === workerId)
+      .filter((s) => (s.worker_id ?? s.worker?.id) === workerId)
       .forEach((schedule) => {
-        const dateKey = format(new Date(schedule.work_date), "yyyy-MM-dd");
+        if (!schedule.work_date) return;
+        // work_date puede venir como ISO completo "2026-02-02T05:00:00.000000Z"
+        // o como fecha sola "2026-02-02". Extraemos solo la parte yyyy-MM-dd.
+        const dateKey = schedule.work_date.slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
         map.set(dateKey, schedule);
       });
     return map;
@@ -79,40 +105,64 @@ export function WorkScheduleCalendar({
     const isHovered = hoveredDay === dateKey;
     const isSunday = getDay(day) === 0;
     const isSaturday = getDay(day) === 6;
+    const isOutsidePeriod = isDayOutsidePeriod(day);
+
+    if (isOutsidePeriod) {
+      return (
+        <div
+          className="w-full h-full min-h-16 p-1 rounded-md bg-muted/50 opacity-40 cursor-not-allowed"
+          title="Fuera del rango del período"
+        >
+          <div className="text-xs font-medium text-muted-foreground">
+            {format(day, "d")}
+          </div>
+        </div>
+      );
+    }
 
     if (schedule) {
       const statusOption = getStatusOption(schedule.status);
+      const isAbsent = schedule.code === "F" || schedule.hours_worked === 0;
       return (
         <Tooltip>
           <TooltipTrigger asChild>
             <div
               className={cn(
                 "w-full h-full min-h-16 p-1 rounded-md cursor-pointer transition-all",
-                statusOption?.color || "bg-gray-100",
+                isAbsent ? "bg-red-200 text-red-900" : (statusOption?.color || "bg-gray-100"),
                 "hover:ring-2 hover:ring-primary",
+                isAbsent && "ring-2 ring-red-500",
               )}
               onClick={() => canModify && onEditSchedule(schedule)}
               onMouseEnter={() => setHoveredDay(dateKey)}
               onMouseLeave={() => setHoveredDay(null)}
             >
-              <div className="text-xs font-medium">{format(day, "d")}</div>
-              <div className="text-[10px] font-medium truncate">
-                {schedule.work_type.code}
-              </div>
-              <div className="text-[10px]">
-                {schedule.total_hours}h
-                {schedule.extra_hours > 0 && (
-                  <span className="text-orange-600 ml-1">
-                    +{schedule.extra_hours}
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-medium">{format(day, "d")}</div>
+                {isAbsent && (
+                  <span className="text-[8px] font-bold text-white bg-red-500 rounded px-1 leading-tight">
+                    FALTÓ
                   </span>
                 )}
               </div>
+              <div className="text-[10px] font-bold truncate">
+                {schedule.code}
+              </div>
+              <div className="text-[10px] truncate opacity-75">
+                {statusOption?.label}
+              </div>
+              {!!schedule.extra_hours && (
+                <div className="text-[9px] font-semibold text-amber-700">
+                  +{schedule.extra_hours}h extra
+                </div>
+              )}
               {isHovered && canModify && (
                 <div className="absolute top-1 right-1 flex gap-0.5">
                   <Button
                     size="icon"
                     variant="ghost"
                     className="h-5 w-5"
+                    color="blue"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditSchedule(schedule);
@@ -123,7 +173,8 @@ export function WorkScheduleCalendar({
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-5 w-5 text-destructive"
+                    className="h-5 w-5"
+                    color="red"
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteSchedule(schedule.id);
@@ -137,11 +188,14 @@ export function WorkScheduleCalendar({
           </TooltipTrigger>
           <TooltipContent>
             <div className="space-y-1">
-              <p className="font-medium">{schedule.work_type.name}</p>
-              <p>
-                Horas: {schedule.hours_worked} | Extra: {schedule.extra_hours}
-              </p>
-              <p>Total: {schedule.total_hours}h</p>
+              <p className="font-medium">Código: {schedule.code}</p>
+              <p>Estado: {statusOption?.label}</p>
+              {schedule.hours_worked != null && (
+                <p>Horas trabajadas: {schedule.hours_worked}h</p>
+              )}
+              {!!schedule.extra_hours && (
+                <p>Horas extra: {schedule.extra_hours}h</p>
+              )}
               {schedule.notes && (
                 <p className="text-xs italic">{schedule.notes}</p>
               )}
@@ -184,8 +238,20 @@ export function WorkScheduleCalendar({
 
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
-      <div className="bg-muted px-4 py-2 border-b">
+      <div className="bg-muted px-4 py-2 border-b flex items-center justify-between gap-2">
         <h3 className="font-semibold text-sm">{workerName}</h3>
+        {periodStart && periodEnd && (
+          <span className="text-xs text-muted-foreground shrink-0">
+            Período:{" "}
+            <span className="font-medium text-foreground">
+              {format(periodStart, "d MMM", { locale: es })}
+            </span>
+            {" – "}
+            <span className="font-medium text-foreground">
+              {format(periodEnd, "d MMM yyyy", { locale: es })}
+            </span>
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-7 border-b">

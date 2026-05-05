@@ -3,6 +3,7 @@ import {
   ElectronicDocumentResource,
   ElectronicDocumentResponse,
   AdvancePaymentsByQuotationResponse,
+  ExchangeRateResource,
 } from "./electronicDocument.interface";
 import {
   findElectronicDocumentById,
@@ -11,6 +12,7 @@ import {
   getNextCorrelativeElectronicDocument,
   getAdvancePaymentsByVehicle,
   getAdvancePaymentsByQuotation,
+  getExchangeRateByDateAndCurrency,
 } from "./electronicDocument.actions";
 import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
 
@@ -20,7 +22,6 @@ export const useElectronicDocuments = (params?: Record<string, any>) => {
   return useQuery<ElectronicDocumentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getElectronicDocuments(params),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -47,7 +48,6 @@ export const useNextCorrelativeElectronicDocument = (
   return useQuery<{ number: string }>({
     queryKey: [QUERY_KEY, { documentTypeId, series }],
     queryFn: () => getNextCorrelativeElectronicDocument(documentTypeId, series),
-    refetchOnWindowFocus: false,
     enabled: !!documentTypeId && !!series && documentTypeId > 0 && series > 0,
   });
 };
@@ -65,7 +65,17 @@ export const useAdvancePaymentsByQuotation = (quotationId: number | null) => {
   return useQuery<AdvancePaymentsByQuotationResponse>({
     queryKey: [QUERY_KEY, "advances", "quotation", quotationId],
     queryFn: () => getAdvancePaymentsByQuotation(quotationId!),
-    refetchOnWindowFocus: false,
     enabled: !!quotationId && quotationId > 0,
+  });
+};
+
+export const useExchangeRateByDateAndCurrency = (
+  to_currency_id: number | null,
+  date: string,
+) => {
+  return useQuery<ExchangeRateResource>({
+    queryKey: ["exchange-rate", to_currency_id, date],
+    queryFn: () => getExchangeRateByDateAndCurrency(to_currency_id!, date),
+    enabled: !!to_currency_id && !!date,
   });
 };

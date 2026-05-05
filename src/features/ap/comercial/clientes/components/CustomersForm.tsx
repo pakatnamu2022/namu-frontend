@@ -54,6 +54,11 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CUSTOMERS } from "../lib/customers.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { Badge } from "@/components/ui/badge";
+import {
+  NUM_DIGITS_CE,
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -167,16 +172,6 @@ export const CustomersForm = ({
     maritalStatusId === BUSINESS_PARTNERS.MARRIED_ID ||
     maritalStatusId === BUSINESS_PARTNERS.CO_OWNER_ID;
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
-  // Obtenemos los numeros de dígitos esperados para DNI y RUC
-  const selectedDocumentTypeDni = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
-  );
-  const selectedDocumentTypeRuc = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
-  );
-
-  const numDigitsDni = selectedDocumentTypeDni?.code;
-  const numDigitsRuc = selectedDocumentTypeRuc?.code;
 
   const selectedDocumentType = documentTypes.find(
     (type) => type.id.toString() === documentTypeId,
@@ -184,9 +179,15 @@ export const CustomersForm = ({
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
   const validationType = VALIDATABLE_DOCUMENT.TYPE_MAP[documentTypeId!] || null;
-  const expectedDigits = selectedDocumentType?.code
-    ? Number(selectedDocumentType.code)
-    : 0;
+
+  const DIGITS_MAP: Record<string, number> = {
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID]: NUM_DIGITS_DNI,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID]: NUM_DIGITS_RUC,
+    [BUSINESS_PARTNERS.TYPE_DOCUMENT_CE_ID]: NUM_DIGITS_CE,
+    // si hay CE, agregar aquí
+  };
+  const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
+
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
 
@@ -205,7 +206,7 @@ export const CustomersForm = ({
 
   // Extraer DNI del RUC natural (10 + DNI + dígito verificador)
   const extractedDni =
-    isRucNatural && documentNumber?.length === Number(numDigitsRuc)
+    isRucNatural && documentNumber?.length === Number(NUM_DIGITS_RUC)
       ? documentNumber!.substring(2, 10)
       : documentNumber;
 
@@ -243,7 +244,9 @@ export const CustomersForm = ({
     error: conyugeDniError,
   } = useDniValidation(
     conyugeDni,
-    !isFirstLoad && !!conyugeDni && conyugeDni.length === Number(numDigitsDni),
+    !isFirstLoad &&
+      !!conyugeDni &&
+      conyugeDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
 
@@ -256,7 +259,7 @@ export const CustomersForm = ({
     isJuridica &&
       !!legalRepresentativeDni &&
       !isFirstLoad &&
-      legalRepresentativeDni.length === Number(numDigitsDni),
+      legalRepresentativeDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
 
@@ -268,15 +271,18 @@ export const CustomersForm = ({
     conductorDni,
     !isFirstLoad &&
       !!conductorDni &&
-      conductorDni.length === Number(numDigitsDni),
+      conductorDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
 
-  // Hook para buscar distrito por ubigeo cuando se valida RUC
+  // Hook para buscar distrito por ubigeo cuando se valida DNI o RUC
+  const ubigeoFromDni =
+    dniData?.data?.ubigeo_reniec || dniData?.data?.ubigeo_sunat || "";
   const ubigeoFromRuc = rucData?.data?.ubigeo?.[2] || "";
+  const ubigeoToSearch = ubigeoFromRuc || ubigeoFromDni;
   const { data: districtByUbigeo, isLoading: isLoadingDistrictByUbigeo } =
     useDistricts({
-      search: ubigeoFromRuc,
+      search: ubigeoToSearch,
       per_page: 1,
     });
 
@@ -519,9 +525,10 @@ export const CustomersForm = ({
     }
   }, [conductorDniData, form]);
 
-  // UseEffect específico para setear distrito automáticamente desde ubigeo del RUC:
+  // UseEffect específico para setear distrito automáticamente desde ubigeo del DNI o RUC:
   useEffect(() => {
     if (isFirstLoad || isLoadingDistrictByUbigeo) return;
+    if (!ubigeoToSearch) return;
 
     if (districtByUbigeo?.data && districtByUbigeo.data.length > 0) {
       const firstDistrict = districtByUbigeo.data[0];
@@ -537,7 +544,7 @@ export const CustomersForm = ({
         value: firstDistrict.id.toString(),
       });
     }
-  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo]);
+  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo, ubigeoToSearch]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {
@@ -619,8 +626,7 @@ export const CustomersForm = ({
         <GroupFormSection
           title="Información Personal"
           icon={User}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
           headerExtra={
             notificationMessage && (
@@ -650,6 +656,7 @@ export const CustomersForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode == "update"}
           />
 
           <FormSelect
@@ -662,6 +669,7 @@ export const CustomersForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode == "update"}
           />
 
           <FormInput
@@ -708,6 +716,7 @@ export const CustomersForm = ({
                 </div>
               )
             }
+            disabled={mode == "update"}
           />
 
           {/* Campos para Persona Jurídica */}
@@ -728,7 +737,7 @@ export const CustomersForm = ({
                     </div>
                   }
                   placeholder="Ingrese razón social"
-                  disabled={shouldDisableMainFields}
+                  disabled={shouldDisableMainFields || mode == "update"}
                 />
               </div>
 
@@ -758,7 +767,7 @@ export const CustomersForm = ({
                 name="first_name"
                 label="Primer Nombre"
                 placeholder="Ingrese primer nombres"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <FormInput
@@ -766,7 +775,7 @@ export const CustomersForm = ({
                 name="middle_name"
                 label="Segundo Nombre"
                 placeholder="Ingrese segundo nombres"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <FormInput
@@ -774,7 +783,7 @@ export const CustomersForm = ({
                 name="paternal_surname"
                 label="Apellido Paterno"
                 placeholder="Apellido paterno"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <FormInput
@@ -782,7 +791,7 @@ export const CustomersForm = ({
                 name="maternal_surname"
                 label="Apellido Materno"
                 placeholder="Apellido materno"
-                disabled={shouldDisableMainFields}
+                disabled={shouldDisableMainFields || mode == "update"}
               />
 
               <div className="col-span-1 md:col-span-2">
@@ -911,6 +920,7 @@ export const CustomersForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode === "update"}
           />
 
           <div className="col-span-1 md:col-span-2 lg:col-span-3">
@@ -919,7 +929,10 @@ export const CustomersForm = ({
               name="direction"
               label="Dirección"
               placeholder="Ingrese dirección"
-              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
+              disabled={
+                (shouldDisableMainFields && !isRucNatural && isJuridica) ||
+                mode === "update"
+              }
             />
           </div>
 
@@ -942,8 +955,7 @@ export const CustomersForm = ({
             <GroupFormSection
               title="Representante Legal"
               icon={Scale}
-              iconColor="text-purple-600"
-              bgColor="bg-purple-50"
+              color="purple"
               cols={{ sm: 2, md: 3 }}
               className="mt-8 md:col-span-3"
             >
@@ -1006,12 +1018,11 @@ export const CustomersForm = ({
         </GroupFormSection>
 
         {/* Sección: Datos del Cónyuge (Solo si está casado) */}
-        {!isJuridica && isMarried && !fromOpportunities && (
+        {!isJuridica && isMarried && (
           <GroupFormSection
             title="Datos del Cónyuge"
             icon={Heart}
-            iconColor="text-pink-600"
-            bgColor="bg-pink-50"
+            color="pink"
             cols={{ sm: 1, md: 3 }}
             className="mt-8"
           >
@@ -1064,8 +1075,7 @@ export const CustomersForm = ({
         <GroupFormSection
           title="Información de Contacto"
           icon={Building2}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
+          color="red"
           cols={{ sm: 2, md: 3 }}
         >
           <FormInput
@@ -1081,6 +1091,7 @@ export const CustomersForm = ({
             name="phone"
             label="Teléfono Principal"
             placeholder="Ingrese teléfono"
+            maxLength={9}
           />
 
           <FormInput
@@ -1103,6 +1114,7 @@ export const CustomersForm = ({
             name="secondary_phone"
             label="Teléfono Opcional"
             placeholder="Teléfono 2"
+            maxLength={9}
           />
         </GroupFormSection>
 
@@ -1111,8 +1123,7 @@ export const CustomersForm = ({
           <GroupFormSection
             title="Licencias"
             icon={FileText}
-            iconColor="text-gray-600"
-            bgColor="bg-gray-50"
+            color="gray"
             cols={{ sm: 2, md: 3 }}
           >
             <FormInput

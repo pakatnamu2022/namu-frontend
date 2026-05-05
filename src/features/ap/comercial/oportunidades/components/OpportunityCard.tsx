@@ -96,24 +96,22 @@ export const OpportunityCard = ({
         </div>
 
         {showOpenButton && (
-          <Link
-            to={`${ABSOLUTE_ROUTE}/${opportunity.id}`}
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("h-6 px-2 text-xs", hoverTextColor)}
+            asChild
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("h-6 px-2 text-xs", hoverTextColor)}
-              asChild
+            <Link
+              to={`${ABSOLUTE_ROUTE}/${opportunity.id}`}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
             >
-              <span>
-                <PanelRightClose className="size-3 mr-1" />
-                Abrir
-              </span>
-            </Button>
-          </Link>
+              <PanelRightClose className="size-3 mr-1" />
+              Abrir
+            </Link>
+          </Button>
         )}
       </div>
     </div>

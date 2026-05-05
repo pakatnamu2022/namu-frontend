@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AppointmentPlanningResource,
   AppointmentPlanningResponse,
+  getAppointmentPlanningProps,
 } from "./appointmentPlanning.interface";
 import {
   findAppointmentPlanningById,
@@ -12,11 +13,12 @@ import { APPOINTMENT_PLANNING } from "./appointmentPlanning.constants";
 
 const { QUERY_KEY } = APPOINTMENT_PLANNING;
 
-export const useAppointmentPlanning = (params?: Record<string, any>) => {
+export const useAppointmentPlanning = (props: getAppointmentPlanningProps) => {
   return useQuery<AppointmentPlanningResponse>({
-    queryKey: [QUERY_KEY, params],
-    queryFn: () => getAppointmentPlanning({ params }),
+    queryKey: [QUERY_KEY, props],
+    queryFn: () => getAppointmentPlanning(props),
     refetchOnWindowFocus: false,
+    enabled: props.enabled !== false,
   });
 };
 

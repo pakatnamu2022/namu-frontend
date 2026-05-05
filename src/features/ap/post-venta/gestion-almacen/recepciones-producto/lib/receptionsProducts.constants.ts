@@ -1,8 +1,8 @@
 import { ModelComplete } from "@/core/core.interface.ts";
 import { ReceptionResource } from "./receptionsProducts.interface.ts";
 
-const ROUTE = "recepcion";
-const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/recepcion-compra/${ROUTE}`;
+const ROUTE = "recepcionar";
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/compra-proveedor/${ROUTE}`;
 
 export const RECEPTION: ModelComplete<ReceptionResource> = {
   MODEL: {
@@ -25,3 +25,15 @@ export const RECEPTION_TYPES = [
   { value: "GIFT", label: "Regalo" },
   { value: "SAMPLE", label: "Muestra" },
 ] as const;
+
+/**
+ * Traducciones para status
+ */
+export function translateStatusPurchase(status?: string | null): string {
+  const translations: Record<string, string> = {
+    APPROVED: "Aprobado",
+    PARTIAL: "Parcial",
+    INCOMPLETE: "Incompleto",
+  };
+  return status ? (translations[status] ?? status) : "-";
+}

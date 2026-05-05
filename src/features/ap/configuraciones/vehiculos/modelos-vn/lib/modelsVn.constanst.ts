@@ -55,3 +55,4 @@ export const MODELS_VN_REPUESTOS: ModelComplete<ModelsVnResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE_REPUESTOS}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_REPUESTOS}/actualizar`,
 };
+

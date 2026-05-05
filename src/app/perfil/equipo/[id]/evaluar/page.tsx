@@ -17,7 +17,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, RefreshCw, ChevronLeft } from "lucide-react";
+import { TrendingUp, Target, ChevronLeft } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useActivePerformanceEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/lib/performance-evaluation.hook";
 import {
@@ -246,15 +246,6 @@ export default function NamuPerformanceEvaluationPage() {
                 )}
               />
             </div>
-            <Button
-              variant="default"
-              size="icon-lg"
-              onClick={handleRefresh}
-              disabled={saving}
-              className="gap-2"
-            >
-              <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
-            </Button>
           </div>
         </PersonTitleComponent>
 
@@ -351,7 +342,11 @@ export default function NamuPerformanceEvaluationPage() {
 
         {/* Resumen de estadísticas */}
         {!isLoadingEvaluationPerson && evaluationPersonResult && (
-          <EvaluationSummaryCard evaluationResult={evaluationPersonResult} />
+          <EvaluationSummaryCard
+            evaluationResult={evaluationPersonResult}
+            isSaving={saving}
+            onRefresh={handleRefresh}
+          />
         )}
       </div>
     </PageWrapper>

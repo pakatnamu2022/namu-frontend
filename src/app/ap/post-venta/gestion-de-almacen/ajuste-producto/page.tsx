@@ -1,12 +1,12 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -46,15 +46,22 @@ export default function AdjustmentsProductPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
 
   const { data, isLoading, refetch } = useAdjustmentsProduct({
     page,

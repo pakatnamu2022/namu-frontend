@@ -18,8 +18,9 @@ import { VehicleInspectionForm } from "@/features/ap/post-venta/taller/inspeccio
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
-import { Card } from "@/components/ui/card";
-import { Car, Wrench } from "lucide-react";
+import { DataCard } from "@/components/DataCard";
+import { Car, FileText, Gauge, User, Wrench } from "lucide-react";
+import { format } from "date-fns";
 
 export default function VehicleInspectionPage() {
   const { workOrderId } = useParams();
@@ -51,7 +52,7 @@ export default function VehicleInspectionPage() {
     const formData = new FormData();
 
     // Agregar campos básicos
-    formData.append("work_order_id", data.work_order_id);
+    formData.append("ap_work_order_id", data.ap_work_order_id);
     formData.append("dirty_unit", data.dirty_unit ? "1" : "0");
     formData.append("unit_ok", data.unit_ok ? "1" : "0");
     formData.append("title_deed", data.title_deed ? "1" : "0");
@@ -74,7 +75,62 @@ export default function VehicleInspectionPage() {
     formData.append("fluid_caps", data.fluid_caps ? "1" : "0");
     formData.append("tool_kit", data.tool_kit ? "1" : "0");
     formData.append("jack_and_lever", data.jack_and_lever ? "1" : "0");
+    // Detalles de trabajo
+    formData.append("oil_change", data.oil_change ? "1" : "0");
+    formData.append("check_level_lights", data.check_level_lights ? "1" : "0");
+    formData.append(
+      "general_lubrication",
+      data.general_lubrication ? "1" : "0",
+    );
+    formData.append(
+      "rotation_inspection_cleaning",
+      data.rotation_inspection_cleaning ? "1" : "0",
+    );
+    formData.append(
+      "insp_filter_basic_checks",
+      data.insp_filter_basic_checks ? "1" : "0",
+    );
+    formData.append(
+      "tire_pressure_inflation_check",
+      data.tire_pressure_inflation_check ? "1" : "0",
+    );
+    formData.append(
+      "alignment_balancing",
+      data.alignment_balancing ? "1" : "0",
+    );
+    formData.append(
+      "pad_replace_disc_resurface",
+      data.pad_replace_disc_resurface ? "1" : "0",
+    );
+    formData.append("other_work_details", data.other_work_details || "");
+    // Requerimiento del cliente
+    formData.append("customer_requirement", data.customer_requirement || "");
+    // Explicación de resultados
+    formData.append(
+      "explanation_work_performed",
+      data.explanation_work_performed ? "1" : "0",
+    );
+    formData.append("price_explanation", data.price_explanation ? "1" : "0");
+    formData.append(
+      "confirm_additional_work",
+      data.confirm_additional_work ? "1" : "0",
+    );
+    formData.append(
+      "clarification_customer_concerns",
+      data.clarification_customer_concerns ? "1" : "0",
+    );
+    formData.append("exterior_cleaning", data.exterior_cleaning ? "1" : "0");
+    formData.append("interior_cleaning", data.interior_cleaning ? "1" : "0");
+    formData.append("keeps_spare_parts", data.keeps_spare_parts ? "1" : "0");
+    formData.append("valuable_objects", data.valuable_objects ? "1" : "0");
+    // Items de cortesía
+    formData.append(
+      "courtesy_seat_cover",
+      data.courtesy_seat_cover ? "1" : "0",
+    );
+    formData.append("paper_floor", data.paper_floor ? "1" : "0");
     formData.append("general_observations", data.general_observations || "");
+    formData.append("washed", data.washed ? "1" : "0");
     //photos front, back, left, right
     if (data.photo_front) {
       formData.append("photo_front", data.photo_front);
@@ -88,18 +144,37 @@ export default function VehicleInspectionPage() {
     if (data.photo_right) {
       formData.append("photo_right", data.photo_right);
     }
+    if (data.photo_optional_1) {
+      formData.append("photo_optional_1", data.photo_optional_1);
+    }
+    if (data.photo_optional_2) {
+      formData.append("photo_optional_2", data.photo_optional_2);
+    }
+    if (data.photo_optional_3) {
+      formData.append("photo_optional_3", data.photo_optional_3);
+    }
+    if (data.photo_optional_4) {
+      formData.append("photo_optional_4", data.photo_optional_4);
+    }
+    if (data.photo_optional_5) {
+      formData.append("photo_optional_5", data.photo_optional_5);
+    }
+    if (data.photo_optional_6) {
+      formData.append("photo_optional_6", data.photo_optional_6);
+    }
 
     // Daños y otros campos
     formData.append(
       "inspection_date",
-      data.inspection_date instanceof Date
-        ? data.inspection_date.toISOString()
+      data.inspection_date
+        ? format(new Date(data.inspection_date), "yyyy-MM-dd HH:mm:ss")
         : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
     formData.append("mileage", String(data.mileage));
     formData.append("customer_signature", data.customer_signature);
+    formData.append("signer_type", data.signer_type ?? "OWNER");
 
     // Agregar daños y sus fotos
     if (data.damages && data.damages.length > 0) {
@@ -144,7 +219,7 @@ export default function VehicleInspectionPage() {
   };
 
   const defaultValues: Partial<VehicleInspectionSchema> = {
-    work_order_id: String(workOrder.id),
+    ap_work_order_id: String(workOrder.id),
     dirty_unit: false,
     unit_ok: false,
     title_deed: false,
@@ -167,97 +242,121 @@ export default function VehicleInspectionPage() {
     fluid_caps: false,
     tool_kit: false,
     jack_and_lever: false,
+    oil_change: false,
+    check_level_lights: false,
+    general_lubrication: false,
+    rotation_inspection_cleaning: false,
+    insp_filter_basic_checks: false,
+    tire_pressure_inflation_check: false,
+    alignment_balancing: false,
+    pad_replace_disc_resurface: false,
+    other_work_details: "",
+    customer_requirement: "",
+    explanation_work_performed: false,
+    price_explanation: false,
+    confirm_additional_work: false,
+    clarification_customer_concerns: false,
+    exterior_cleaning: false,
+    interior_cleaning: false,
+    keeps_spare_parts: false,
+    valuable_objects: false,
+    courtesy_seat_cover: false,
+    paper_floor: false,
+    washed: false,
     general_observations: "",
-    inspection_date: getCurrentDate(),
+    inspection_date: String(getCurrentDate()),
     fuel_level: workOrder.fuel_level || "",
     oil_level: "",
-    mileage: workOrder.mileage ? Number(workOrder.mileage) : 0,
+    mileage: workOrder.mileage ? Number(workOrder.mileage) : undefined,
     damages: [],
+    signer_type: "OWNER",
   };
+
+  const workOrderSections = (workOrder.items || []).map((item, index) => ({
+    key: `work-item-${item.id ?? index}`,
+    title: `Trabajo`,
+    icon: Wrench,
+    columns: 3 as const,
+    fields: [
+      {
+        key: `planning-${item.id ?? index}`,
+        label: "Planificación",
+        icon: Wrench,
+        value: item.type_planning.description || "—",
+      },
+      {
+        key: `operation-${item.id ?? index}`,
+        label: "Operación",
+        icon: Wrench,
+        value: item.type_operation_name || "—",
+      },
+      ...(item.description
+        ? [
+            {
+              key: `description-${item.id ?? index}`,
+              label: "Detalle",
+              icon: FileText,
+              value: item.description,
+            },
+          ]
+        : []),
+    ],
+  }));
 
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={`Inspección de Vehículo - ${workOrder.correlative}`}
+        title={`Recepción de Vehículo - ${workOrder.correlative}`}
         mode="create"
         icon="ClipboardCheck"
       />
 
       {/* Información de la Orden de Trabajo */}
-      <Card className="p-4 mb-6 gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <div className="flex items-center gap-2 mb-3">
-          <Car className="h-5 w-5 text-primary" />
-          <h4 className="font-semibold text-gray-800">
-            Información de la Orden de Trabajo
-          </h4>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div>
-            <p className="text-xs text-gray-500">Correlativo</p>
-            <p className="font-semibold text-sm">{workOrder.correlative}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Placa</p>
-            <p className="font-semibold text-sm">
-              {workOrder.vehicle_plate || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">VIN</p>
-            <p className="font-semibold text-sm">
-              {workOrder.vehicle_vin || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Kilometraje</p>
-            <p className="font-semibold text-sm">
-              {workOrder.mileage ? `${workOrder.mileage} km` : "N/A"}
-            </p>
-          </div>
-        </div>
-
-        {/* Trabajo a Realizar */}
-        {workOrder.items && workOrder.items.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-              <Wrench className="h-5 w-5 text-primary" />
-              <h5 className="font-semibold text-gray-800">
-                Trabajo a Realizar
-              </h5>
-            </div>
-            <div className="space-y-2">
-              {workOrder.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3 bg-white rounded-lg border border-blue-100"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
-                    <div>
-                      <span className="text-xs font-medium text-gray-500">
-                        Planificación:
-                      </span>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {item.type_planning_name}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-xs font-medium text-gray-500">
-                        Operación:
-                      </span>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {item.type_operation_name}
-                      </p>
-                    </div>
-                  </div>
-                  {item.description && (
-                    <p className="text-sm text-gray-600">{item.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </Card>
+      <div className="mb-6">
+        <DataCard
+          title="INFORMACIÓN DE LA ORDEN DE TRABAJO"
+          columns={4}
+          fields={[
+            {
+              key: "correlative",
+              label: "Correlativo",
+              icon: Car,
+              value: workOrder.correlative || "—",
+            },
+            {
+              key: "plate",
+              label: "Placa",
+              icon: Car,
+              value: workOrder.vehicle_plate || "—",
+            },
+            {
+              key: "vin",
+              label: "VIN",
+              icon: FileText,
+              value: workOrder.vehicle_vin || "—",
+            },
+            {
+              key: "mileage",
+              label: "Kilometraje",
+              icon: Gauge,
+              value: workOrder.mileage ? `${workOrder.mileage} km` : "—",
+            },
+            {
+              key: "owner_name",
+              label: "Propietario",
+              icon: User,
+              value: workOrder.vehicle.owner?.full_name || "N/A",
+            },
+            {
+              key: "full_contact_name",
+              label: "Contacto",
+              icon: User,
+              value: workOrder.full_contact_name || "N/A",
+            },
+          ]}
+          sections={workOrderSections}
+        />
+      </div>
 
       <VehicleInspectionForm
         defaultValues={defaultValues}
@@ -265,6 +364,12 @@ export default function VehicleInspectionPage() {
         isSubmitting={isCreating}
         mode="create"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
+        dateOrderWork={
+          workOrder.opening_date ? new Date(workOrder.opening_date) : undefined
+        }
+        ownerName={workOrder.vehicle.owner?.full_name}
+        contactName={workOrder.full_contact_name}
+        ownerDocumentTypeId={String(workOrder.vehicle.owner?.document_type_id)}
       />
     </FormWrapper>
   );

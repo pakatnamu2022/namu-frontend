@@ -16,7 +16,11 @@ import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import { errorToast, getMonday, getSunday } from "@/core/core.function.ts";
+import {
+  errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+} from "@/core/core.function.ts";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import ExportButtons from "@/shared/components/ExportButtons.tsx";
 import { exportProductMovementHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
@@ -31,19 +35,14 @@ export default function ProductKardexPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, dateFrom, dateTo]);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD

@@ -35,8 +35,8 @@ export const perDiemPolicySchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Nombre es requerido",
     }),
-  effective_from: z.union([z.literal(""), z.date()]),
-  effective_to: z.union([z.literal(""), z.date()]),
+  effective_from: z.coerce.date(),
+  effective_to: z.coerce.date(),
   is_current: z.boolean().optional().default(false),
   document: pdfFileField,
   notes: z.string().max(500).optional().default(""),
@@ -55,8 +55,8 @@ export const perDiemPolicySchemaUpdate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Nombre es requerido",
     }),
-  effective_from: z.union([z.literal(""), z.date()]),
-  effective_to: z.union([z.literal(""), z.date()]),
+  effective_from: z.coerce.date(),
+  effective_to: z.coerce.date(),
   is_current: z.boolean().optional().default(false),
   document: pdfFileFieldOptional,
   notes: z.string().max(500).optional().default(""),

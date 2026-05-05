@@ -1,14 +1,25 @@
 import axios from "axios";
 import { errorToast } from "./core.function";
 
-const MILLA_BASE = "https://api.grupopakatnamu.com/storage/app/";
-// const MILLA_BASE = "http://localhost/web_millagp_2/storage/app/";
-// const MILLA_GP_BASEPATH = "http://localhost/milla-backend/public";
+/**
+ * PRODUCTION
+ */
+// const MILLA_BASE = "https://api.grupopakatnamu.com/storage/app/";
+// const MILLA_GP_BASEPATH = "https://api.grupopakatnamu.com";
+
+/**
+ * DEVELOPMENT
+ */
+const MILLA_BASE = "http://localhost/web_millagp_2/storage/app/";
+const MILLA_GP_BASEPATH = "http://localhost/milla-backend/public";
+
+/**
+ * TESTING
+ */
 // const MILLA_GP_BASEPATH = "http://192.168.1.37/milla-backend/public";
 // const MILLA_GP_BASEPATH = "http://192.168.2.23/milla-backend/public";
 // const MILLA_GP_BASEPATH = "http://192.168.9.69/milla-backend/public";
 // const MILLA_GP_BASEPATH = "http://192.168.18.122/milla-backend/public";
-const MILLA_GP_BASEPATH = "https://api.grupopakatnamu.com";
 
 const API_URL = "/api";
 const BASE_PATH = "";
@@ -29,7 +40,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Interceptor para manejar respuestas y errores
@@ -43,11 +54,12 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Don't redirect if already on login page
-      const isOnLoginPage = window.location.pathname === "/" || window.location.pathname === "/login";
+      const isOnLoginPage =
+        window.location.pathname === "/" ||
+        window.location.pathname === "/login";
 
       if (!isOnLoginPage && !isRedirecting) {
         isRedirecting = true;
-        console.error("No autenticado: Redirigiendo al inicio de sesión...");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         localStorage.removeItem("permissions");
@@ -59,7 +71,7 @@ api.interceptors.response.use(
       return new Promise(() => {}); // Promesa que nunca se resuelve para detener la ejecución
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export { MILLA_BASE, MILLA_GP_BASEPATH, BASE_PATH, api, apiMilla };

@@ -15,12 +15,14 @@ import { useCreateShipmentsReceptions } from "@/features/ap/comercial/envios-rec
 import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useEffect } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddShipmentsReceptionsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
-
+  const { setOpen, setOpenMobile } = useSidebar();
   const createMutation = useCreateShipmentsReceptions();
 
   const handleSubmit = (data: ShipmentsReceptionsSchema) => {
@@ -40,6 +42,11 @@ export default function AddShipmentsReceptionsPage() {
     router(ABSOLUTE_ROUTE);
   };
 
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
+
   if (!checkRouteExists(ROUTE)) notFound();
 
   return (
@@ -56,7 +63,7 @@ export default function AddShipmentsReceptionsPage() {
             document_series_id: "",
             series: "",
             correlative: "",
-            issue_date: "",
+            issue_date: undefined,
             transmitter_origin_id: "",
             receiver_destination_id: "",
             transmitter_id: "",

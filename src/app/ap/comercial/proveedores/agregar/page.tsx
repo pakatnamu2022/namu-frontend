@@ -75,6 +75,7 @@ export default function AddSupplierPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

@@ -61,7 +61,9 @@ export default function BarChartCard({
               </span>
               <div className="text-lg text-primary leading-none font-semibold sm:text-xl mt-1">
                 {selectedDated
-                  ? format(selectedDated, "PPP", { locale: es })
+                  ? format(new Date(selectedDated + "T00:00:00"), "PPP", {
+                      locale: es,
+                    })
                   : "Selecciona una fecha"}
               </div>
             </div>
@@ -101,7 +103,7 @@ export default function BarChartCard({
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value);
+                const date = new Date(value + "T00:00:00");
                 return format(date, "dd MMM", { locale: es });
               }}
             />
@@ -113,7 +115,9 @@ export default function BarChartCard({
                   <div className="rounded-lg border bg-background p-3 shadow-lg">
                     <div className="mb-2 border-b pb-2">
                       <p className="text-xs font-medium text-muted-foreground">
-                        {format(new Date(item.fecha), "PPP", { locale: es })}
+                        {format(new Date(item.fecha + "T00:00:00"), "PPP", {
+                          locale: es,
+                        })}
                       </p>
                     </div>
                     <div className="space-y-1.5">

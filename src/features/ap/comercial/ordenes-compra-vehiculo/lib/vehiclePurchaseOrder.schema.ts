@@ -31,15 +31,15 @@ const basePurchaseOrderSchema = z.object({
     }),
   invoice_number: z
     .string()
+    .min(1, "El número de factura es requerido")
     .max(20, "El número no puede tener más de 20 caracteres")
-    .refine((value) => value.trim() !== "", {
-      message: "Número de factura es requerido",
-    }),
-  emission_date: z.date({
+    .regex(/^\d+$/, "El número debe contener solo dígitos"),
+  emission_date: z.string().min(1, {
     error: "La fecha de emisión es requerida",
   }),
   due_date: z
-    .date({
+    .string()
+    .min(1, {
       error: "La fecha de vencimiento debe ser una fecha válida",
     })
     .optional(),
@@ -74,10 +74,12 @@ const basePurchaseOrderSchema = z.object({
 
 // Schema base sin el refine para poder usar .partial()
 const vehiclePurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
+  // Quotation (optional)
+  quotation_id: z.string().optional(),
   // Vehicle information - REQUERIDOS cuando isVehiclePurchase = true
   vin: z
     .string()
-    .max(17, "El VIN no puede tener más de 17 caracteres")
+    .max(20, "El VIN no puede tener más de 20 caracteres")
     .refine((value) => value.trim() !== "", {
       message: "VIN es requerido",
     }),
@@ -117,15 +119,18 @@ export const vehiclePurchaseOrderSchemaCreate =
       message:
         "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
       path: ["due_date"],
-    }
+    },
   );
 
 // Schema base genérico sin el refine
 const genericPurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
+  // Quotation (optional)
+  quotation_id: z.string().optional(),
   // Vehicle information - OPCIONALES cuando isVehiclePurchase = false
   vin: z
     .string()
-    .max(17, "El VIN no puede tener más de 17 caracteres")
+    .min(17, "El VIN debe tener al menos 17 caracteres")
+    .max(20, "El VIN no puede tener más de 20 caracteres")
     .optional()
     .or(z.literal("")),
   year: z
@@ -168,8 +173,33 @@ export const genericPurchaseOrderSchemaCreate =
       message:
         "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
       path: ["due_date"],
-    }
+    },
   );
+
+// Schema para órdenes de consignación (warehouse_id no requerido)
+const consignmentPurchaseOrderSchemaBase =
+  genericPurchaseOrderSchemaBase.extend({
+    warehouse_id: z.string().optional().or(z.literal("")),
+    ap_brand_id: z.string().optional().or(z.literal("")),
+  });
+
+export const consignmentPurchaseOrderSchemaCreate =
+  consignmentPurchaseOrderSchemaBase.refine(
+    (data) => {
+      if (data.due_date && data.emission_date) {
+        return data.due_date >= data.emission_date;
+      }
+      return true;
+    },
+    {
+      message:
+        "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
+      path: ["due_date"],
+    },
+  );
+
+export const consignmentPurchaseOrderSchemaUpdate =
+  consignmentPurchaseOrderSchemaBase.partial();
 
 // Para update usamos los schemas base sin refine, y luego aplicamos partial
 export const vehiclePurchaseOrderSchemaUpdate =

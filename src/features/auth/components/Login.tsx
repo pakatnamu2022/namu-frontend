@@ -125,7 +125,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                     <LoaderCircle
                       className={cn(
                         "mr-2 h-4 w-4",
-                        isLogging ? "animate-spin" : "hidden"
+                        isLogging ? "animate-spin" : "hidden",
                       )}
                     />
                     {isLogging ? "Iniciando sesión..." : "Iniciar Sesión"}

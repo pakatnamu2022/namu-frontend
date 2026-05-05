@@ -2,7 +2,7 @@
 
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { deleteVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions.ts";
 import VehicleActionsPV from "@/features/ap/comercial/vehiculos/components/VehicleActionsPV.tsx";
@@ -23,6 +23,8 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclesPostVentaPage() {
   const router = useNavigate();
@@ -30,17 +32,19 @@ export default function VehiclesPostVentaPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [ap_vehicle_status_id, setApVehicleStatusId] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_TLL;
+  const permissions = useModulePermissions(ROUTE);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
   const { data, isLoading, refetch } = useVehicles({
     page,
     search,
     per_page,
     type_operation_id: CM_POSTVENTA_ID,
+    ap_vehicle_status_id: ap_vehicle_status_id.length
+      ? ap_vehicle_status_id
+      : undefined,
   });
 
   const handleDelete = async () => {
@@ -76,11 +80,17 @@ export default function VehiclesPostVentaPage() {
         columns={vehicleColumns({
           onDelete: setDeleteId,
           onUpdate: (id) => router(`${ROUTE_UPDATE}/${id}`),
+          permissions,
         })}
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}
       >
-        <VehicleOptions search={search} setSearch={setSearch} />
+        <VehicleOptions
+          search={search}
+          setSearch={setSearch}
+          ap_vehicle_status_id={ap_vehicle_status_id}
+          set_ap_vehicle_status_id={setApVehicleStatusId}
+        />
       </VehicleTable>
 
       {deleteId !== null && (

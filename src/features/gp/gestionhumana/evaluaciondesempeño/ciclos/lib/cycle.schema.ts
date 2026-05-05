@@ -2,11 +2,20 @@ import { z } from "zod";
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { TYPE_EVALUATION_VALUES } from "../../evaluaciones/lib/evaluation.constans";
 
+const localDate = z.preprocess((val) => {
+  if (val instanceof Date) return val;
+  if (typeof val === "string") {
+    const m = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  return val;
+}, z.date());
+
 const baseCycleSchema = z.object({
   name: z.string().max(100).min(1),
-  start_date: z.coerce.date(),
-  end_date: z.coerce.date(),
-  cut_off_date: z.coerce.date(),
+  start_date: localDate,
+  end_date: localDate,
+  cut_off_date: localDate,
   // start_date_objectives: z.coerce.date(),
   // end_date_objectives: z.coerce.date(),
   period_id: requiredStringId("Selecciona un período"),

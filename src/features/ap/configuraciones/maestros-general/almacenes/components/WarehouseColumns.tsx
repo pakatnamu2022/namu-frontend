@@ -63,14 +63,14 @@ export const warehouseColumns = ({
   },
   {
     accessorKey: "is_received",
-    header: "¿Es Recepción?",
+    header: "Recepcionado",
     cell: ({ getValue }) => {
       const value = getValue() as boolean | null;
       if (value === null)
         return <span className="text-muted-foreground">-</span>;
       return (
         <Badge
-          color={value ? "default" : "secondary"}                      
+          color={value ? "default" : "secondary"}
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "SI" : "NO"}
@@ -87,7 +87,7 @@ export const warehouseColumns = ({
         return <span className="text-muted-foreground">-</span>;
       return (
         <Badge
-          color={value ? "default" : "secondary"}                      
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

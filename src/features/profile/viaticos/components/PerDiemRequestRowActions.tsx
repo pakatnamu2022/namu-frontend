@@ -10,7 +10,9 @@ import {
   Download,
   Loader2,
   RotateCcwSquare,
+  RotateCcw,
   MailPlus,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
@@ -21,8 +23,14 @@ import {
   completeSettlement,
   expenseTotalWithEvidencePdf,
   resendPerDiemRequestEmails,
+  resetApprovals,
+  regenerateBudgets,
 } from "../lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
+import {
+  ABSOLUTE_ROUTE_GP,
+  PER_DIEM_REQUEST,
+  PER_DIEM_REQUEST_AP,
+} from "../lib/perDiemRequest.constants";
 import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,6 +62,7 @@ export function PerDiemRequestRowActions({
   permissions,
 }: PerDiemRequestRowActionsProps) {
   const { ROUTE } = PER_DIEM_REQUEST;
+  const { ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_AP } = PER_DIEM_REQUEST_AP;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -66,6 +75,10 @@ export function PerDiemRequestRowActions({
   const [sendToEmployee, setSendToEmployee] = useState(true);
   const [sendToB, setSendToBoss] = useState(false);
   const [sendToAccounting, setSendToAccounting] = useState(false);
+  const [isResetApprovalsDialogOpen, setIsResetApprovalsDialogOpen] =
+    useState(false);
+  const [isRegenerateBudgetsDialogOpen, setIsRegenerateBudgetsDialogOpen] =
+    useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -75,7 +88,9 @@ export function PerDiemRequestRowActions({
   const isCancelled = request.status === "cancelled";
   const canCompleteSettlement = request.settlement_status === "approved";
   const isOnlyApproved = request.status === "approved";
-  const { canAuthorize } = useModulePermissions(ROUTE);
+  const { canAuthorize, canAnnul } = useModulePermissions(ROUTE);
+  const statusForAnnul =
+    request.status === "pending" || request.status === "approved";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmProgressPerDiemRequest(requestId),
@@ -88,7 +103,7 @@ export function PerDiemRequestRowActions({
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || "Error al confirmar la solicitud "
+        error?.response?.data?.message || "Error al confirmar la solicitud ",
       );
     },
   });
@@ -113,7 +128,7 @@ export function PerDiemRequestRowActions({
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || "Error al completar la liquidación"
+        error?.response?.data?.message || "Error al completar la liquidación",
       );
     },
   });
@@ -145,6 +160,38 @@ export function PerDiemRequestRowActions({
     },
   });
 
+  const resetApprovalsMutation = useMutation({
+    mutationFn: (requestId: number) => resetApprovals(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      successToast("Aprobaciones restablecidas exitosamente");
+      setIsResetApprovalsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al restablecer aprobaciones",
+      );
+    },
+  });
+
+  const regenerateBudgetsMutation = useMutation({
+    mutationFn: (requestId: number) => regenerateBudgets(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      successToast("Presupuestos regenerados exitosamente");
+      setIsRegenerateBudgetsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al regenerar presupuestos",
+      );
+    },
+  });
+
   const handleConfirmRequest = () => {
     confirmMutation.mutate(request.id);
   };
@@ -173,10 +220,7 @@ export function PerDiemRequestRowActions({
     });
   };
 
-  const prefix =
-    module === "gh"
-      ? "/gp/gestion-humana/viaticos/solicitud-viaticos"
-      : "/ap/contabilidad/viaticos-ap";
+  const prefix = module === "gh" ? ABSOLUTE_ROUTE_GP : ABSOLUTE_ROUTE_AP;
 
   const handleAddHotelReservation = () => {
     navigate(`${prefix}/${request.id}/reserva-hotel/agregar`);
@@ -318,11 +362,9 @@ export function PerDiemRequestRowActions({
         )}
 
         {module === "contabilidad" &&
-          request.settlement_status === "approved" &&
-          request.end_date &&
-          new Date(
-            new Date(request.end_date).getTime() + 3 * 24 * 60 * 60 * 1000
-          ) <= new Date() && (
+          ["approved", "in_progress", "pending_settlement"].includes(
+            request.status,
+          ) && (
             <Button
               variant="outline"
               size="icon-xs"
@@ -373,6 +415,54 @@ export function PerDiemRequestRowActions({
           </ConfirmationDialog>
         )}
 
+        {module === "gh" && canAnnul && statusForAnnul && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon-xs"
+                tooltip="Restablecer aprobaciones"
+                disabled={resetApprovalsMutation.isPending}
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            }
+            title="¿Restablecer aprobaciones?"
+            description="Esta acción restablecerá las aprobaciones de la solicitud. ¿Deseas continuar?"
+            confirmText="Sí, restablecer"
+            cancelText="Cancelar"
+            onConfirm={() => resetApprovalsMutation.mutate(request.id)}
+            variant="destructive"
+            icon="warning"
+            open={isResetApprovalsDialogOpen}
+            onOpenChange={setIsResetApprovalsDialogOpen}
+          />
+        )}
+
+        {request.status === "in_progress" && module === "gh" && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon-xs"
+                tooltip="Regenerar presupuestos"
+                disabled={regenerateBudgetsMutation.isPending}
+              >
+                <RefreshCw className="size-4" />
+              </Button>
+            }
+            title="¿Regenerar presupuestos?"
+            description="Esta acción regenerará los presupuestos y cálculos de la solicitud. ¿Deseas continuar?"
+            confirmText="Sí, regenerar"
+            cancelText="Cancelar"
+            onConfirm={() => regenerateBudgetsMutation.mutate(request.id)}
+            variant="default"
+            icon="info"
+            open={isRegenerateBudgetsDialogOpen}
+            onOpenChange={setIsRegenerateBudgetsDialogOpen}
+          />
+        )}
+
         {permissions?.canSend && module === "gh" && (
           <Popover
             open={isResendEmailPopoverOpen}
@@ -404,6 +494,7 @@ export function PerDiemRequestRowActions({
                     options={[
                       { value: "created", label: "Solicitud creada" },
                       { value: "approved", label: "Solicitud aprobada" },
+                      { value: "hotel_reservation", label: "Reserva de hotel" },
                       { value: "in_progress", label: "Solicitud en progreso" },
                       { value: "settlement", label: "Inicio de Liquidación" },
                       { value: "settled", label: "Liquidada" },

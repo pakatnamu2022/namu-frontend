@@ -3,9 +3,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ViewResource } from "../lib/view.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, ShieldCheck } from "lucide-react";
+import { Copy, Pencil, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { Badge } from "@/components/ui/badge";
 import { EditableSelectCell } from "@/shared/components/EditableSelectCell";
 import { EditableCell } from "@/shared/components/EditableCell";
@@ -17,12 +18,14 @@ interface Props {
   views: ViewResource[];
   onUpdateCell: (id: number, key: string, value: any) => void;
   onDelete: (id: number) => void;
+  onDuplicate: (id: number) => void;
 }
 
 export const viewColumns = ({
   views,
   onUpdateCell,
   onDelete,
+  onDuplicate,
 }: Props): ViewColumns[] => [
   {
     accessorKey: "id",
@@ -211,6 +214,25 @@ export const viewColumns = ({
           >
             <Pencil className="size-5" />
           </Button>
+          {/* Duplicate */}
+          <ConfirmationDialog
+            trigger={
+              <Button
+                tooltip="Duplicar"
+                variant="outline"
+                size="icon"
+                className="size-7"
+              >
+                <Copy className="size-5" />
+              </Button>
+            }
+            title="¿Duplicar vista?"
+            description="Se creará una copia de esta vista. ¿Deseas continuar?"
+            confirmText="Sí, duplicar"
+            cancelText="Cancelar"
+            icon="info"
+            onConfirm={() => onDuplicate(id)}
+          />
           {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
