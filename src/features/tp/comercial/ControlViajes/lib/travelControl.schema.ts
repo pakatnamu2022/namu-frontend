@@ -238,7 +238,7 @@ export const createTravelControlModalSchema = (options?: {
     const final = parseFloat(data.finalKm);
     const initialFromTrip = options?.tripInitialKm ?? parseFloat(data.initialKm);
     
-    if (!isNaN(final) && !isNaN(initialFromTrip) && final <= initialFromTrip) {
+    if (!isNaN(final) && !isNaN(initialFromTrip) && final < initialFromTrip) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `Debe ser mayor al kilometraje inicial (${initialFromTrip} km)`,

@@ -3,9 +3,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Play, Fuel, Pencil, Eye, Truck, MapPin, User} from "lucide-react";
+import { CheckCircle, Clock, Play, Fuel, Pencil, Eye, Truck, MapPin, User, Sheet, Loader2} from "lucide-react";
 import { TravelControlColumnsProps, TravelControlResource } from "../lib/travelControl.interface";
 import { TravelControlDetailModal } from "./TravelControlDetailModal";
+import { useExportTravelReport } from "../lib/travelControl.hooks";
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export type TravelControlColumns = ColumnDef<TravelControlResource>;
 
