@@ -1082,6 +1082,7 @@ function App() {
               />
 
               {/* PostVentas Configuration */}
+              <Route path="postventa" element={<ModulePage />} />
               <Route
                 path="postventa/parametros-postventa"
                 element={<AfterSalesParameterPage />}
@@ -1104,6 +1105,7 @@ function App() {
               />
 
               {/* Ventas Configuration */}
+              <Route path="ventas" element={<ModulePage />} />
               <Route
                 path="ventas/asignar-grupo-marca"
                 element={<CommercialManagerBrandGroupPage />}

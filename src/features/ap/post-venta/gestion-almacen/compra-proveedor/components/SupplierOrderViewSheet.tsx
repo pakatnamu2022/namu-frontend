@@ -4,18 +4,12 @@ import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/
 import { getSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Loader2, FileText, Copy, Check } from "lucide-react";
+import { Loader2, FileText } from "lucide-react";
 import { Separator } from "@/components/ui/separator.tsx";
-import { Button } from "@/components/ui/button.tsx";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
+import { CopyCell } from "@/shared/components/CopyCell";
+import { InfoSection } from "@/shared/components/InfoSection";
 
 interface SupplierOrderViewSheetProps {
   open: boolean;
@@ -30,8 +24,6 @@ export function SupplierOrderViewSheet({
 }: SupplierOrderViewSheetProps) {
   const [data, setData] = useState<SupplierOrderResource | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,42 +46,19 @@ export function SupplierOrderViewSheet({
 
   const handleClose = () => {
     onOpenChange(false);
-    // Limpiamos los datos cuando se cierra
     setTimeout(() => setData(null), 300);
-  };
-
-  const handleCopyCode = async (
-    code: string,
-    field: string,
-    index?: number,
-  ) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedField(field);
-      if (index !== undefined) {
-        setCopiedIndex(index);
-      }
-      setTimeout(() => {
-        setCopiedField(null);
-        setCopiedIndex(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
   };
 
   if (!open) return null;
 
   const currencySymbol = data?.type_currency?.symbol || "S/.";
 
-  // Obtener montos del pedido desde el API
   const netAmount = Number(data?.net_amount) || 0;
   const taxAmount = Number(data?.tax_amount) || 0;
   const totalAmount = Number(data?.total_amount) || 0;
 
   const invoiceTotal = data?.invoice ? Number(data.invoice.total) : 0;
 
-  // Verificar si los montos coinciden (con tolerancia de 0.01 para decimales)
   const totalsMatch = data?.invoice
     ? Math.abs(totalAmount - invoiceTotal) < 0.01
     : true;
@@ -115,44 +84,39 @@ export function SupplierOrderViewSheet({
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Información General */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
-            <div>
-              <p className="text-xs text-muted-foreground">Nº Pedido</p>
-              <div className="flex items-center gap-2">
-                <p className="font-semibold">{data.order_number}</p>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 hover:bg-slate-200"
-                  onClick={() =>
-                    handleCopyCode(data.order_number, "order_number")
-                  }
-                >
-                  {copiedField === "order_number" ? (
-                    <Check className="h-3 w-3 text-green-600" />
-                  ) : (
-                    <Copy className="h-3 w-3" />
-                  )}
-                </Button>
-              </div>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Fecha de Pedido</p>
-              <p className="font-medium">{data.order_date}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Tipo Abast.</p>
-              {data.supply_type}
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Tiene Recepiones</p>
-              <Badge color={data.has_receptions ? "default" : "destructive"}>
-                {data.has_receptions ? "Sí" : "No"}
-              </Badge>
-            </div>
-          </div>
+          {/* Información del General */}
+          <InfoSection
+            title="Información General"
+            fields={[
+              {
+                label: "Nº Pedido",
+                value: (
+                  <CopyCell
+                    value={data.order_number}
+                    className="font-semibold"
+                  />
+                ),
+              },
+              {
+                label: "Fecha de Pedido",
+                value: data.order_date,
+              },
+              {
+                label: "Tipo Abastecimiento",
+                value: data.supply_type,
+              },
+              {
+                label: "Tiene Recepciones",
+                value: (
+                  <Badge
+                    color={data.has_receptions ? "default" : "destructive"}
+                  >
+                    {data.has_receptions ? "Sí" : "No"}
+                  </Badge>
+                ),
+              },
+            ]}
+          />
 
           {/* Información del Proveedor y Almacén */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -274,32 +238,10 @@ export function SupplierOrderViewSheet({
                         <p className="text-xs text-muted-foreground mb-1">
                           N° Factura
                         </p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold">
-                            {data.invoice.invoice_series}-
-                            {data.invoice.invoice_number}
-                          </p>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-5 w-5 p-0 hover:bg-slate-200"
-                            onClick={() => {
-                              if (data.invoice) {
-                                handleCopyCode(
-                                  `${data.invoice.invoice_series}-${data.invoice.invoice_number}`,
-                                  "invoice_number",
-                                );
-                              }
-                            }}
-                          >
-                            {copiedField === "invoice_number" ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
-                        </div>
+                        <CopyCell
+                          value={`${data.invoice.invoice_series}-${data.invoice.invoice_number}`}
+                          className="text-sm font-semibold"
+                        />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">
@@ -380,155 +322,125 @@ export function SupplierOrderViewSheet({
           )}
 
           {/* Tabla de Productos */}
-          <div className="border rounded-lg">
-            <div className="p-4 bg-muted/50 border-b">
-              <h3 className="font-semibold text-sm">Productos Solicitados</h3>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead>Producto</TableHead>
-                  <TableHead className="text-center">Cantidad</TableHead>
-                  <TableHead className="text-end">Precio Unit.</TableHead>
-                  <TableHead className="text-end">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.details && data.details.length > 0 ? (
-                  data.details.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{index + 1}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-sm">
-                            {item.product?.name || "N/A"}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-muted-foreground">
-                              Cód: {item.product?.code || "N/A"}
-                            </span>
-                            {item.product?.code && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="h-5 w-5 p-0 hover:bg-slate-200"
-                                onClick={() => {
-                                  if (item.product?.code) {
-                                    handleCopyCode(
-                                      item.product.code,
-                                      "product_code",
-                                      index,
-                                    );
-                                  }
-                                }}
-                              >
-                                {copiedIndex === index &&
-                                copiedField === "product_code" ? (
-                                  <Check className="h-3 w-3 text-green-600" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs text-muted-foreground">
-                              Cód Dyn: {item.product?.dyn_code || "N/A"}
-                            </span>
-                            {item.product?.dyn_code && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="h-5 w-5 p-0 hover:bg-slate-200"
-                                onClick={() => {
-                                  if (item.product?.dyn_code) {
-                                    handleCopyCode(
-                                      item.product.dyn_code,
-                                      "product_dyn_code",
-                                      index,
-                                    );
-                                  }
-                                }}
-                              >
-                                {copiedIndex === index &&
-                                copiedField === "product_dyn_code" ? (
-                                  <Check className="h-3 w-3 text-green-600" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                          {item.note && (
-                            <span className="text-xs text-muted-foreground italic">
-                              Nota: {item.note}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {item.quantity}
-                      </TableCell>
-                      <TableCell className="text-end">
-                        {currencySymbol}{" "}
-                        {Number(item.unit_price)
-                          .toFixed(4)
-                          .replace(/\.?0+$/, "")}
-                      </TableCell>
-                      <TableCell className="text-end font-semibold">
-                        {currencySymbol}{" "}
-                        {Number(item.total)
-                          .toFixed(4)
-                          .replace(/\.?0+$/, "")}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        No hay productos en este pedido
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm">Productos Solicitados</h3>
+            <DetailSheetTable
+              rows={data.details ?? []}
+              getKey={(item) => item.id}
+              emptyMessage="No hay productos en este pedido"
+              columns={[
+                {
+                  header: "#",
+                  className: "w-12",
+                  render: (_, index) => (
+                    <span className="font-medium">{index + 1}</span>
+                  ),
+                },
+                {
+                  header: "Producto",
+                  render: (item) => (
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">
+                        {item.product?.name || "N/A"}
+                      </span>
+                      {item.product?.code ? (
+                        <CopyCell
+                          value={item.product.code}
+                          label={`Cód: ${item.product.code}`}
+                          className="text-xs text-muted-foreground"
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          Cód: N/A
+                        </span>
+                      )}
+                      {item.product?.dyn_code ? (
+                        <CopyCell
+                          value={item.product.dyn_code}
+                          label={`Cód Dyn: ${item.product.dyn_code}`}
+                          className="text-xs text-muted-foreground"
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          Cód Dyn: N/A
+                        </span>
+                      )}
+                      {item.note && (
+                        <span className="text-xs text-muted-foreground italic">
+                          Nota: {item.note}
+                        </span>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Cantidad",
+                  className: "text-center",
+                  render: (item) => <span>{item.quantity}</span>,
+                },
+                {
+                  header: "Precio Unit.",
+                  className: "text-end",
+                  render: (item) => (
+                    <span>
+                      {currencySymbol}{" "}
+                      {Number(item.unit_price)
+                        .toFixed(4)
+                        .replace(/\.?0+$/, "")}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Total",
+                  className: "text-end",
+                  render: (item) => (
+                    <span className="font-semibold">
+                      {currencySymbol}{" "}
+                      {Number(item.total)
+                        .toFixed(4)
+                        .replace(/\.?0+$/, "")}
+                    </span>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           {/* Desglose de Montos del Pedido */}
-          <Separator />
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Resumen del Pedido</h3>
-            <div className="border rounded-lg p-4 bg-slate-50/50">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">
-                    Valor de Venta Neta:
-                  </span>
-                  <span className="font-medium">
-                    {currencySymbol} {netAmount.toFixed(2)}
-                  </span>
-                </div>
+          <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Valor de Venta Neta:
+                </span>
+                <span className="font-medium">
+                  {currencySymbol}{" "}
+                  {netAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
 
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">IGV (18%):</span>
-                  <span className="font-medium">
-                    {currencySymbol} {taxAmount.toFixed(2)}
-                  </span>
-                </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">IGV (18%):</span>
+                <span className="font-medium">
+                  {currencySymbol}{" "}
+                  {taxAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
 
-                <div className="border-t pt-2 mt-2"></div>
+              <Separator className="my-2" />
 
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">Importe Total:</span>
-                  <span className="font-bold text-lg text-primary">
-                    {currencySymbol} {totalAmount.toFixed(2)}
-                  </span>
-                </div>
+              <div className="flex justify-between text-base font-bold text-primary">
+                <span>Importe Total:</span>
+                <span>
+                  {currencySymbol}{" "}
+                  {totalAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
               </div>
             </div>
           </div>
@@ -538,7 +450,6 @@ export function SupplierOrderViewSheet({
             <div className="space-y-4">
               <Separator />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Total del Pedido */}
                 <div
                   className={`p-4 rounded-lg border-2 ${
                     totalsMatch
@@ -564,7 +475,6 @@ export function SupplierOrderViewSheet({
                   </div>
                 </div>
 
-                {/* Total de la Factura */}
                 <div
                   className={`p-4 rounded-lg border-2 ${
                     totalsMatch
@@ -592,7 +502,6 @@ export function SupplierOrderViewSheet({
                 </div>
               </div>
 
-              {/* Mensaje de validación */}
               <div
                 className={`p-3 rounded-lg text-center text-sm font-medium ${
                   totalsMatch

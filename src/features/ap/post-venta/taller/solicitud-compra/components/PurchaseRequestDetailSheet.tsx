@@ -11,8 +11,6 @@ import {
   FileText,
   Loader2,
   Package,
-  Copy,
-  Check,
   Hash,
   Calendar,
   Car,
@@ -27,9 +25,8 @@ import { useQuery } from "@tanstack/react-query";
 import { findPurchaseRequestById } from "../lib/purchaseRequest.actions";
 import type { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { formatDate } from "@/core/core.function";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface PurchaseRequestDetailSheetProps {
   purchaseRequestId: number | null;
@@ -95,28 +92,6 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
     PURCHASE_REQUEST_STATUS[
       purchaseRequest.status as keyof typeof PURCHASE_REQUEST_STATUS
     ] || purchaseRequest.status;
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  const handleCopyCode = async (
-    code: string,
-    field: string,
-    index?: number,
-  ) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedField(field);
-      if (index !== undefined) {
-        setCopiedIndex(index);
-      }
-      setTimeout(() => {
-        setCopiedField(null);
-        setCopiedIndex(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
 
   return (
     <div className="space-y-6 px-6">
@@ -286,7 +261,7 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
-            Detalle de Productos ({details.length})
+            Detalle de Repuestos ({details.length})
           </h3>
         </div>
 
@@ -304,44 +279,37 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 ),
               },
               {
-                header: "Producto",
-                render: (detail, index) => (
+                header: "Repuesto",
+                render: (detail) => (
                   <>
                     <div className="text-sm">{detail.product?.name}</div>
-                    <div className="flex items-center gap-1">
+                    {detail.product?.code ? (
+                      <CopyCell
+                        value={detail.product.code}
+                        label={`Cód: ${detail.product.code}`}
+                        className="text-xs text-muted-foreground"
+                      />
+                    ) : (
                       <span className="text-xs text-muted-foreground">
-                        Código: {detail.product?.code || "N/A"}
+                        Cód: N/A
                       </span>
-                      {detail.product?.code && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-5 w-5 p-0 hover:bg-slate-200"
-                          onClick={() => {
-                            if (detail.product?.code) {
-                              handleCopyCode(
-                                detail.product.code,
-                                "product_code",
-                                index,
-                              );
-                            }
-                          }}
-                        >
-                          {copiedIndex === index &&
-                          copiedField === "product_code" ? (
-                            <Check className="h-3 w-3 text-green-600" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
-                      )}
-                    </div>
+                    )}
+                    {detail.product?.dyn_code ? (
+                      <CopyCell
+                        value={detail.product.dyn_code}
+                        label={`Cód Dyn: ${detail.product.dyn_code}`}
+                        className="text-xs text-muted-foreground"
+                      />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        Cód Dyn: N/A
+                      </span>
+                    )}
                   </>
                 ),
               },
               {
-                header: "Tipo de Abastecimiento",
+                header: "Tip. Abast.",
                 className: "text-center",
                 render: (detail) => (
                   <div className="text-sm text-muted-foreground">
@@ -350,14 +318,14 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 ),
               },
               {
-                header: "Cantidad",
+                header: "Cant.",
                 className: "text-center",
                 render: (detail) => (
                   <div className="text-sm font-semibold">{detail.quantity}</div>
                 ),
               },
               {
-                header: "Precio Unitario",
+                header: "P. Unit.",
                 className: "text-center",
                 render: (detail) => (
                   <div className="text-sm font-semibold">
@@ -366,7 +334,7 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 ),
               },
               {
-                header: "% Descuento",
+                header: "% Desc.",
                 className: "text-center",
                 render: (detail) => (
                   <div className="text-sm font-semibold">
@@ -375,7 +343,7 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 ),
               },
               {
-                header: "Precio Total",
+                header: "P. Total",
                 className: "text-center",
                 render: (detail) => (
                   <div className="text-sm font-semibold">

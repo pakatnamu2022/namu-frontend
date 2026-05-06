@@ -164,7 +164,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       ) {
         const transferReception = reference as TransferReceptionResource;
         const warehouseOrigin =
-          transferReception.transfer_movement?.warehouse_origin;
+          transferReception.shipping_guide.transmitter_establishment;
         const shippingGuide = transferReception.shipping_guide;
 
         return (

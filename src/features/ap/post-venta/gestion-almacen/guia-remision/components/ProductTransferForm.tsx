@@ -14,9 +14,6 @@ import {
   Box,
   FileText,
   Search,
-  Copy,
-  Check,
-  Tag,
 } from "lucide-react";
 import {
   ProductTransferSchema,
@@ -46,7 +43,6 @@ import { ValidationIndicator } from "@/shared/components/ValidationIndicator.tsx
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus.tsx";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation.ts";
 import { Card } from "@/components/ui/card.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
 import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants.ts";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook.ts";
@@ -58,6 +54,7 @@ import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inve
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -100,7 +97,13 @@ export const ProductTransferForm = ({
   const conductorDni = form.watch("driver_doc");
   const typePersonId = form.watch("type_person_id");
   const transferType = form.watch("item_type");
+  const transferModalityId = form.watch("transfer_modality_id");
   const prevTransferTypeRef = useRef(transferType);
+
+  const isTransportPrivate =
+    transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
+  const isTransportPublic =
+    transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
 
   // Estados para los modales de establecimientos
   const [isOriginModalOpen, setIsOriginModalOpen] = useState(false);
@@ -124,8 +127,6 @@ export const ProductTransferForm = ({
     name: string;
   } | null>(null);
 
-  // Estado para copiar códigos de productos
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   // Estado para almacenar los productos seleccionados (en modo create)
   const [selectedProducts, setSelectedProducts] = useState<
     Map<number, InventoryResource>
@@ -164,19 +165,6 @@ export const ProductTransferForm = ({
     control: form.control,
     name: "details",
   });
-
-  // Función para copiar código de producto
-  const handleCopyCode = async (code: string, identifier: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCode(identifier);
-      setTimeout(() => {
-        setCopiedCode(null);
-      }, 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
 
   const watchTransmitterOriginId = form.watch("transmitter_origin_id");
   const watchReceiverDestinationId = form.watch("receiver_destination_id");
@@ -277,6 +265,25 @@ export const ProductTransferForm = ({
       }
     }
   }, [conductorDniData, isFirstLoad, form]);
+
+  // Forzar tipo de persona según modalidad de traslado
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    if (isTransportPrivate) {
+      form.setValue(
+        "type_person_id",
+        BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID,
+        { shouldValidate: true },
+      );
+    } else if (isTransportPublic) {
+      form.setValue(
+        "type_person_id",
+        BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+        { shouldValidate: true },
+      );
+    }
+  }, [transferModalityId, isFirstLoad, form, isTransportPrivate, isTransportPublic]);
 
   // UseEffect para limpiar campos cuando cambia el tipo de persona
   useEffect(() => {
@@ -615,7 +622,6 @@ export const ProductTransferForm = ({
               value: item.id.toString(),
             }))}
             control={form.control}
-            strictFilter={true}
           />
 
           <FormInput
@@ -671,6 +677,7 @@ export const ProductTransferForm = ({
               }))}
             control={form.control}
             strictFilter={true}
+            disabled={isTransportPrivate || isTransportPublic}
           />
 
           {/* Campos para Persona Natural */}
@@ -901,32 +908,13 @@ export const ProductTransferForm = ({
                               {transferData?.details?.[index]?.product
                                 ?.code && (
                                 <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant="outline"
-                                    className="text-xs w-fit"
-                                  >
-                                    <Tag className="size-3 mr-1" />
-                                    {transferData.details[index].product.code}
-                                  </Badge>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 hover:bg-slate-200"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        transferData.details[index].product
-                                          .code,
-                                        `product-${index}`,
-                                      )
+                                  <CopyCell
+                                    className="text-xs font-medium"
+                                    value={
+                                      transferData.details[index].product.code
                                     }
-                                  >
-                                    {copiedCode === `product-${index}` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
+                                    label={`Cód: ${transferData.details[index].product.code}`}
+                                  />
                                 </div>
                               )}
                             </div>
@@ -986,34 +974,13 @@ export const ProductTransferForm = ({
                           />
                           {selectedProducts.get(index) && (
                             <div className="flex items-center gap-2 mt-2">
-                              <Badge
-                                variant="outline"
-                                className="text-xs w-fit"
-                              >
-                                <Tag className="size-3 mr-1" />
-                                {selectedProducts.get(index)!.product.code ||
-                                  "Sin código"}
-                              </Badge>
-                              {selectedProducts.get(index)!.product.code && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-5 w-5 p-0 hover:bg-slate-200"
-                                  onClick={() =>
-                                    handleCopyCode(
-                                      selectedProducts.get(index)!.product.code,
-                                      `product-create-${index}`,
-                                    )
-                                  }
-                                >
-                                  {copiedCode === `product-create-${index}` ? (
-                                    <Check className="h-3 w-3 text-green-600" />
-                                  ) : (
-                                    <Copy className="h-3 w-3" />
-                                  )}
-                                </Button>
-                              )}
+                              <CopyCell
+                                className="text-xs font-medium"
+                                value={
+                                  selectedProducts.get(index)!.product.code
+                                }
+                                label={`Cód: ${selectedProducts.get(index)!.product.code}`}
+                              />
                             </div>
                           )}
                         </div>

@@ -12,8 +12,6 @@ import {
   CheckCircle,
   XCircle,
   Percent,
-  Copy,
-  Check,
   UserCheck,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -42,6 +40,7 @@ import {
   updateWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
 import { EditableCell } from "@/shared/components/EditableCell";
+import { CopyCell } from "@/shared/components/CopyCell";
 import { AssignPartToTechnicianSheet } from "../AssignPartToTechnicianSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
@@ -86,19 +85,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const [selectedWarehouseForAdd, setSelectedWarehouseForAdd] =
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [copiedCodeKey, setCopiedCodeKey] = useState<string | null>(null);
   const { ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
-
-  const handleCopyCode = async (code: string, key: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCodeKey(key);
-      setTimeout(() => setCopiedCodeKey(null), 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
 
   // Sheet asignar repuesto a técnico
   const [assignSheetOpen, setAssignSheetOpen] = useState(false);
@@ -626,55 +614,21 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                 {detail.description}
                               </p>
                               <div className="flex items-center gap-1">
-                                <span className="font-semibold">
-                                  {detail.product?.code || "-"}
-                                </span>
-                                {detail.product?.code && (
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-5 w-5 hover:bg-blue-100"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        detail.product.code,
-                                        `quotation-${detail.id}-code`,
-                                      )
-                                    }
-                                    tooltip="Copiar código"
-                                  >
-                                    {copiedCodeKey ===
-                                    `quotation-${detail.id}-code` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3 text-primary" />
-                                    )}
-                                  </Button>
+                                {detail.product?.code ? (
+                                  <CopyCell
+                                    value={detail.product.code}
+                                    className="font-semibold"
+                                  />
+                                ) : (
+                                  <span className="font-semibold">-</span>
                                 )}
-                                <span className="font-semibold">
-                                  {detail.product?.dyn_code || "-"}
-                                </span>
-                                {detail.product?.dyn_code && (
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-5 w-5 hover:bg-blue-100"
-                                    onClick={() =>
-                                      handleCopyCode(
-                                        detail.product.dyn_code,
-                                        `quotation-${detail.id}-dyn_code`,
-                                      )
-                                    }
-                                    tooltip="Copiar código dynamics"
-                                  >
-                                    {copiedCodeKey ===
-                                    `quotation-${detail.id}-dyn_code` ? (
-                                      <Check className="h-3 w-3 text-green-600" />
-                                    ) : (
-                                      <Copy className="h-3 w-3 text-primary" />
-                                    )}
-                                  </Button>
+                                {detail.product?.dyn_code ? (
+                                  <CopyCell
+                                    value={detail.product.dyn_code}
+                                    className="font-semibold"
+                                  />
+                                ) : (
+                                  <span className="font-semibold">-</span>
                                 )}
                               </div>
                             </TableCell>
@@ -852,56 +806,21 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     <TableCell>
                       <p className="font-medium">{part.product_name}</p>
                       {part.product_code && (
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span className="text-xs text-muted-foreground">
-                            Cód: {part.product_code}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-5 w-5 p-0 hover:bg-slate-200"
-                            tooltip="Copiar código"
-                            onClick={() =>
-                              handleCopyCode(
-                                part.product_code!,
-                                `part-${part.id}-code`,
-                              )
-                            }
-                          >
-                            {copiedCodeKey === `part-${part.id}-code` ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
+                        <div className="mt-0.5">
+                          <CopyCell
+                            value={part.product_code}
+                            label={`Cód: ${part.product_code}`}
+                            className="text-xs text-muted-foreground"
+                          />
                         </div>
                       )}
-
                       {part.product_dyn_code && (
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span className="text-xs text-muted-foreground">
-                            Cód Dyn: {part.product_dyn_code}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-5 w-5 p-0 hover:bg-slate-200"
-                            tooltip="Copiar código"
-                            onClick={() =>
-                              handleCopyCode(
-                                part.product_dyn_code!,
-                                `part-${part.id}-dyn-code`,
-                              )
-                            }
-                          >
-                            {copiedCodeKey === `part-${part.id}-dyn-code` ? (
-                              <Check className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
+                        <div className="mt-0.5">
+                          <CopyCell
+                            value={part.product_dyn_code}
+                            label={`Cód Dyn: ${part.product_dyn_code}`}
+                            className="text-xs text-muted-foreground"
+                          />
                         </div>
                       )}
                     </TableCell>

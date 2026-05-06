@@ -45,17 +45,20 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ACP_TYPE_DEBIT_NOTE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { format } from "date-fns";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface DebitNoteFormProps {
   originalDocument: ElectronicDocumentResource;
   onSubmit: (data: DebitNoteSchema) => void;
   isPending: boolean;
+  type_operation_id?: number;
 }
 
 export function DebitNoteForm({
   originalDocument,
   onSubmit,
   isPending,
+  type_operation_id = CM_COMERCIAL_ID,
 }: DebitNoteFormProps) {
   // Series verification states
   const [nextNumber, setNextNumber] = useState<string | null>(null);
@@ -91,6 +94,8 @@ export function DebitNoteForm({
 
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: TYPE_RECEIPT_SERIES.NOTA_DEBITO,
+    sede_id: originalDocument.sede_id,
+    type_operation_id,
   });
 
   const selectedCustomer = customers.find(
@@ -99,8 +104,7 @@ export function DebitNoteForm({
   const porcentaje_de_igv =
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
-  const currency =
-    originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
+  const currency = originalDocument.currency?.iso_code === "PEN" ? "S/" : "$";
 
   const form = useForm<DebitNoteSchema>({
     resolver: zodResolver(DebitNoteSchema as any),
