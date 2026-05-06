@@ -1,13 +1,8 @@
 import { useState } from "react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Banknote,
   AlertCircle,
@@ -200,71 +195,69 @@ export default function DepositVoucherSection({
         </div>
       </GroupFormSection>
 
-      {/* Modal para vista previa en escritorio */}
-      <Dialog
+      {/* Modal para vista previa */}
+      <GeneralModal
         open={!!selectedVoucher}
-        onOpenChange={(open) => !open && setSelectedVoucher(null)}
+        onClose={() => setSelectedVoucher(null)}
+        title={selectedVoucher?.label}
+        size="4xl"
+        icon="Banknote"
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedVoucher?.label}</DialogTitle>
-          </DialogHeader>
-          {selectedVoucher && (
-            <div className="space-y-4">
-              {isPDF(selectedVoucher.mimeType, selectedVoucher.url) ? (
-                <div className="space-y-2">
-                  <embed
-                    src={selectedVoucher.url}
-                    type="application/pdf"
-                    className="w-full h-[600px] rounded-md"
-                  />
-                  <a
-                    href={selectedVoucher.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-2"
-                  >
-                    <Banknote className="h-4 w-4" />
-                    Abrir PDF en nueva pestaña
-                  </a>
-                </div>
-              ) : isImage(selectedVoucher.mimeType, selectedVoucher.url) ? (
-                <div className="space-y-2">
-                  <img
-                    src={selectedVoucher.url}
-                    alt={selectedVoucher.label}
-                    className="w-full h-auto rounded-md"
-                  />
-                  <a
-                    href={selectedVoucher.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline flex items-center gap-2"
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    Abrir imagen en nueva pestaña
-                  </a>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Banknote className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Formato de archivo no soportado para vista previa
-                  </p>
-                  <a
-                    href={selectedVoucher.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline mt-2 inline-block"
-                  >
-                    Descargar archivo
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+        {selectedVoucher && (
+          <div className="space-y-4">
+            {isPDF(selectedVoucher.mimeType, selectedVoucher.url) ? (
+              <div className="space-y-2">
+                <embed
+                  src={selectedVoucher.url}
+                  type="application/pdf"
+                  className="w-full h-[600px] rounded-md"
+                />
+                <a
+                  href={selectedVoucher.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline flex items-center gap-2"
+                >
+                  <Banknote className="h-4 w-4" />
+                  Abrir PDF en nueva pestaña
+                </a>
+              </div>
+            ) : isImage(selectedVoucher.mimeType, selectedVoucher.url) ? (
+              <div className="space-y-2">
+                <img
+                  src={selectedVoucher.url}
+                  alt={selectedVoucher.label}
+                  className="w-full h-auto rounded-md"
+                />
+                <a
+                  href={selectedVoucher.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline flex items-center gap-2"
+                >
+                  <ImageIcon className="h-4 w-4" />
+                  Abrir imagen en nueva pestaña
+                </a>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Banknote className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Formato de archivo no soportado para vista previa
+                </p>
+                <a
+                  href={selectedVoucher.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline mt-2 inline-block"
+                >
+                  Descargar archivo
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+      </GeneralModal>
 
       {/* Diálogo de confirmación de eliminación */}
       <SimpleConfirmDialog
