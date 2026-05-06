@@ -11,12 +11,20 @@ export interface TravelControlOptionsProps{
     status: TripStatus | "all";
     setStatus: (value: TripStatus | "all") => void;
     userPosition?: string;
+    permissions: {
+    canUpdate: boolean;
+    canExport: boolean;
+  };
 }
 
 export interface TravelControlDetailModalProps{
   trip: TravelControlResource,
   trigger: React.ReactNode,
-  onStatusChange?: (tripId: string, newStatus: TripStatus) => void
+  onStatusChange?: (tripId: string, newStatus: TripStatus) => void,
+  permissions: {
+    canUpdate: boolean;
+    canExport: boolean;
+  };
 }
 
 export interface TravelControlColumnsProps{
@@ -24,6 +32,10 @@ export interface TravelControlColumnsProps{
   onFinishRoute?: (id: string) => void;
   onCompleteFuel?: (id:string) => void;
   onStatusChange?: (tripId: string, newStatus: TripStatus) => void;
+  permissions: {
+    canUpdate: boolean;
+    canExport: boolean;
+  };
 }
 
 export interface TravelControlResponse{
