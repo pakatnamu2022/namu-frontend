@@ -15,7 +15,6 @@ import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useTravels } from "@/features/tp/comercial/ControlViajes/lib/travelControl.hooks";
 import TravelControlOptions from "@/features/tp/comercial/ControlViajes/components/TravelControlOptions";
-import { TRAVEL_CONTROL } from "@/features/tp/comercial/ControlViajes/controlViajesType/travelControl.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 
