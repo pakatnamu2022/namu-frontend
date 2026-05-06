@@ -8,6 +8,8 @@ import {
   ManageLeadsResponse,
   ImportLeadsResponse,
   AssignWorkersResponse,
+  TransferLeadsRequest,
+  TransferLeadsResponse,
 } from "./manageLeads.interface";
 
 const { ENDPOINT } = MANAGE_LEADS;
@@ -126,6 +128,16 @@ export async function assignWorkersToLeads(params?: {
   const { data } = await api.post<AssignWorkersResponse>(
     `${ENDPOINT}/assign-workers`,
     params,
+  );
+  return data;
+}
+
+export async function transferWorkerLeads(
+  body: TransferLeadsRequest,
+): Promise<TransferLeadsResponse> {
+  const { data } = await api.post<TransferLeadsResponse>(
+    `${ENDPOINT}/transfer-workers`,
+    body,
   );
   return data;
 }

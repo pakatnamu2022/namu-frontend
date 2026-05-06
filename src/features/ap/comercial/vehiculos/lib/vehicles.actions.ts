@@ -33,8 +33,8 @@ export async function getAllVehiclesWithCosts({
 }: GetVehiclesProps): Promise<VehicleResourceWithCosts[]> {
   const config: AxiosRequestConfig = {
     params: {
-      all: true,
       ...params,
+      all: true,
     },
   };
   const { data } = await api.get<VehicleResourceWithCosts[]>(
