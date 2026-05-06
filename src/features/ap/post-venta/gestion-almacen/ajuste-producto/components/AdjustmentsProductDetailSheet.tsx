@@ -31,6 +31,7 @@ export function AdjustmentsProductDetailSheet({
       open={open}
       onClose={() => onOpenChange(false)}
       title="Detalles del Ajuste de Producto"
+      subtitle={data ? `Movimiento N° ${data.movement_number}` : "Cargando..."}
       size="3xl"
     >
       {isLoading ? (
@@ -42,7 +43,7 @@ export function AdjustmentsProductDetailSheet({
           <p className="text-muted-foreground">No se encontraron datos</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 px-6">
           {/* Información General */}
           <InfoSection
             title="Información General"

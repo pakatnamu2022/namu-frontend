@@ -159,7 +159,7 @@ export default function AssignedWorkPage() {
       setOpenStartAlert(false);
       setActionWork(null);
     } catch (error: any) {
-      errorToast("Error al iniciar la sesión", error.response?.data?.message);
+      errorToast("Error al iniciar trabajo", error.response?.data?.message);
     }
   };
 
@@ -238,6 +238,7 @@ export default function AssignedWorkPage() {
           setDateTo={setDateTo}
         />
       </AssignedWorkTable>
+
       <DataTablePagination
         page={page}
         totalPages={data?.meta?.last_page || 1}
@@ -246,6 +247,7 @@ export default function AssignedWorkPage() {
         setPerPage={setPerPage}
         totalData={data?.meta?.total || 0}
       />
+
       <AssignedWorkDetail
         planning={selectedWork}
         open={openDetail}

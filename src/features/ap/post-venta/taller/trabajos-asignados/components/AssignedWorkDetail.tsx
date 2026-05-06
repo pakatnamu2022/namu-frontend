@@ -2,7 +2,7 @@
 
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_COLORS,
@@ -11,9 +11,10 @@ import {
 } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Clock, User, FileText, PlayCircle } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { User, PlayCircle } from "lucide-react";
 import { useIsTablet } from "@/hooks/use-tablet";
+import { InfoSection } from "@/shared/components/InfoSection";
+import { formatDateTime } from "@/core/core.function";
 
 interface AssignedWorkDetailProps {
   planning: WorkOrderPlanningResource | null;
@@ -36,241 +37,204 @@ export function AssignedWorkDetail({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title={`Detalle de  - ${planning.work_order_correlative}`}
+      title="Trabajos realizados"
+      subtitle={`Detalle de ${planning.work_order_correlative}`}
       type={isTablet ? "tablet" : "default"}
       size="3xl"
     >
-      <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
-        {/* Estado */}
-        <div className="flex items-center justify-between">
-          <Badge
-            className={`${colors.bg} ${colors.text} border ${colors.border}`}
-            variant="outline"
-          >
-            {PLANNING_STATUS_LABELS[planning.status]}
-          </Badge>
-        </div>
-
+      <div className="space-y-6 px-6">
         {/* Información General */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Información General</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Orden de Trabajo
-                </p>
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  <p className="font-medium">
-                    {planning.work_order_correlative}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Trabajador</p>
+        <InfoSection
+          title="Información General"
+          fields={[
+            {
+              label: "N° Orden de Trabajo",
+              value: planning.work_order_correlative,
+            },
+            {
+              label: "Estado",
+              value: (
+                <Badge
+                  className={`${colors.bg} ${colors.text} border ${colors.border}`}
+                  variant="outline"
+                >
+                  {PLANNING_STATUS_LABELS[planning.status]}
+                </Badge>
+              ),
+            },
+            {
+              label: "Trabajador",
+              value: (
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  <p className="font-medium">{planning.worker_name}</p>
+                  <span>{planning.worker_name}</span>
                 </div>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Descripción</p>
-              <p className="font-medium">{planning.description}</p>
-            </div>
-          </CardContent>
-        </Card>
+              ),
+            },
+            {
+              label: "Descripción",
+              value: planning.description,
+            },
+          ]}
+        />
 
         {/* Tiempos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Información de Tiempos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  <Clock className="h-4 w-4 inline mr-1" />
-                  Horas Estimadas
-                </p>
-                <p className="text-2xl font-bold text-primary">
-                  {planning.estimated_hours || "-"} horas
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  <Clock className="h-4 w-4 inline mr-1" />
-                  Horas Trabajadas
-                </p>
-                <p
-                  className={`text-2xl font-bold ${
-                    planning.estimated_hours &&
-                    planning.actual_hours > planning.estimated_hours
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  {planning.actual_hours != null
-                    ? `${planning.actual_hours} horas`
-                    : "-"}
-                </p>
-              </div>
-            </div>
-
-            <Separator className="my-4" />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Inicio Planificado
-                </p>
-                <p className="font-medium">
-                  {planning.planned_start_datetime
-                    ? format(
-                        parseISO(planning.planned_start_datetime),
-                        "dd/MM/yyyy HH:mm",
-                        { locale: es },
-                      )
-                    : "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Fin Planificado</p>
-                <p className="font-medium">
-                  {planning.planned_end_datetime
-                    ? format(
-                        parseISO(planning.planned_end_datetime),
-                        "dd/MM/yyyy HH:mm",
-                        { locale: es },
-                      )
-                    : "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Inicio Real</p>
-                <p className="font-medium">
-                  {planning.actual_start_datetime
-                    ? format(
-                        parseISO(planning.actual_start_datetime),
-                        "dd/MM/yyyy HH:mm",
-                        { locale: es },
-                      )
-                    : "-"}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Fin Real</p>
-                <p className="font-medium">
-                  {planning.actual_end_datetime
-                    ? format(
-                        parseISO(planning.actual_end_datetime),
-                        "dd/MM/yyyy HH:mm",
-                        { locale: es },
-                      )
-                    : "-"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <InfoSection
+          title="Información de Tiempos"
+          fields={[
+            {
+              label: "Horas Programadas",
+              value: planning.estimated_hours,
+            },
+            {
+              label: "Horas Trabajadas",
+              value: planning.actual_hours,
+            },
+            {
+              label: "Inicio Programado",
+              value: formatDateTime(planning.planned_start_datetime),
+            },
+            {
+              label: "Fin Programado",
+              value: formatDateTime(planning.planned_end_datetime),
+            },
+            {
+              label: "Inicio Real",
+              value: formatDateTime(planning.actual_start_datetime),
+            },
+            {
+              label: "Fin Real",
+              value: formatDateTime(planning.actual_end_datetime),
+            },
+          ]}
+        />
 
         {/* Sesiones */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
+        <section className="bg-white border rounded-lg shadow-sm">
+          <header className="px-6 py-4 border-b flex items-center justify-between">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
               <PlayCircle className="h-5 w-5" />
               Historial de Sesiones ({planning.sessions_count})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </h3>
+          </header>
+
+          <div className="px-6 py-4">
             {planning.sessions && planning.sessions.length > 0 ? (
-              <div className="space-y-4">
+              <ol className="space-y-4">
                 {planning.sessions.map((session, index) => (
-                  <div
-                    key={session.id}
-                    className="border rounded-lg p-4 space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold">Sesión {index + 1}</h4>
-                      <Badge
-                        color={
-                          session.status === "in_progress"
-                            ? "blue"
-                            : session.status === "completed"
-                              ? "green"
-                              : "gray"
-                        }
-                      >
-                        {SESSION_STATUS_LABELS[session.status]}
-                      </Badge>
+                  <li key={session.id} className="flex items-start gap-4">
+                    <div className="shrink-0 mt-1">
+                      <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        {session.status === "in_progress" ? (
+                          <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+                        ) : session.status === "completed" ? (
+                          <svg
+                            className="h-5 w-5 text-green-600"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 00-1.414-1.414L8 11.172 4.707 7.879A1 1 0 003.293 9.293l4 4a1 1 0 001.414 0l8-8z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="h-2 w-2 rounded-full bg-gray-400" />
+                        )}
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Inicio</p>
-                        <p className="font-medium">
-                          {format(
-                            parseISO(session.start_datetime),
-                            "dd/MM/yyyy HH:mm",
-                            { locale: es },
-                          )}
-                        </p>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-semibold">Sesión {index + 1}</h4>
+                        <Badge
+                          color={
+                            session.status === "in_progress"
+                              ? "blue"
+                              : session.status === "completed"
+                                ? "green"
+                                : "gray"
+                          }
+                        >
+                          {SESSION_STATUS_LABELS[session.status]}
+                        </Badge>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Fin</p>
-                        <p className="font-medium">
-                          {session.end_datetime
-                            ? format(
+
+                      <div className="grid grid-cols-2 gap-4 text-sm mt-2">
+                        <div>
+                          <p className="text-muted-foreground">Inicio</p>
+                          <p className="font-medium">
+                            {format(
+                              parseISO(session.start_datetime),
+                              "dd/MM/yyyy HH:mm",
+                              { locale: es },
+                            )}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Fin</p>
+                          <p className="font-medium">
+                            {session.end_datetime ? (
+                              format(
                                 parseISO(session.end_datetime),
                                 "dd/MM/yyyy HH:mm",
                                 { locale: es },
                               )
-                            : "En curso..."}
-                        </p>
+                            ) : (
+                              <span className="inline-flex items-center gap-2">
+                                <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+                                En curso...
+                              </span>
+                            )}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Horas Trabajadas
-                      </p>
-                      <p className="text-lg font-bold text-green-600">
-                        {session.hours_worked
-                          ? `${Number(session.hours_worked).toFixed(1)}h`
-                          : "En curso..."}
-                      </p>
-                    </div>
-
-                    {session.notes && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Notas</p>
-                        <p className="text-sm">{session.notes}</p>
-                      </div>
-                    )}
-
-                    {session.pause_reason && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+                      <div className="mt-3">
                         <p className="text-sm text-muted-foreground">
-                          Razón de Pausa
+                          Horas Trabajadas
                         </p>
-                        <p className="text-sm text-yellow-800">
-                          {session.pause_reason}
+                        <p className="text-lg font-bold text-green-600">
+                          {session.hours_worked ? (
+                            `${Number(session.hours_worked).toFixed(1)}h`
+                          ) : (
+                            <span className="text-sm text-muted-foreground">
+                              En curso...
+                            </span>
+                          )}
                         </p>
                       </div>
-                    )}
-                  </div>
+
+                      {session.notes && (
+                        <div className="mt-3">
+                          <p className="text-sm text-muted-foreground">Notas</p>
+                          <p className="text-sm">{session.notes}</p>
+                        </div>
+                      )}
+
+                      {session.pause_reason && (
+                        <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded p-2">
+                          <p className="text-sm text-muted-foreground">
+                            Razón de Pausa
+                          </p>
+                          <p className="text-sm text-yellow-800">
+                            {session.pause_reason}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </li>
                 ))}
-              </div>
+              </ol>
             ) : (
               <p className="text-center text-muted-foreground py-8">
                 No se han registrado sesiones de trabajo aún.
               </p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </GeneralSheet>
   );
