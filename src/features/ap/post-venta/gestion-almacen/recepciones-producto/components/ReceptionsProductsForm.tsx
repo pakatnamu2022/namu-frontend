@@ -215,12 +215,12 @@ export const ReceptionsProductsForm = ({
           ></FormSelectAsync>
         </GroupFormSection>
 
-        {/* Detalles de Productos Recibidos */}
+        {/* Detalles de Repuestos Recibidos */}
         <Card className="p-3">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <PackageCheck className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Productos Recibidos</h3>
+              <h3 className="text-lg font-semibold">Repuestos Recibidos</h3>
             </div>
             <Button
               type="button"
@@ -230,7 +230,7 @@ export const ReceptionsProductsForm = ({
               className="hidden"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Agregar Producto
+              Agregar Repuesto
             </Button>
           </div>
 
@@ -264,7 +264,7 @@ export const ReceptionsProductsForm = ({
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <h4 className="font-semibold text-sm truncate text-slate-700">
                           {productItem?.product?.name ||
-                            `Producto ${index + 1}`}
+                            `Repuesto ${index + 1}`}
                         </h4>
                         {isOrderedProduct && (
                           <Badge
@@ -298,7 +298,7 @@ export const ReceptionsProductsForm = ({
 
                     {/* Campos en grid responsivo */}
                     <div className="space-y-2">
-                      {/* Fila 1: Producto (si no es ordenado) o Cantidades + Notas */}
+                      {/* Fila 1: Repuesto (si no es ordenado) o Cantidades + Notas */}
                       <div
                         className={`grid gap-2 ${
                           isOrderedProduct
@@ -311,12 +311,12 @@ export const ReceptionsProductsForm = ({
                             // Modo edición: Mostrar nombre del producto (solo lectura)
                             <div className="space-y-1">
                               <FormLabel className="text-xs font-medium">
-                                Producto *
+                                Repuesto *
                               </FormLabel>
                               <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
                                 <span className="font-medium text-sm truncate">
                                   {productItem?.product?.name ||
-                                    "Producto no disponible"}
+                                    "Repuesto no disponible"}
                                 </span>
                               </div>
                             </div>
@@ -324,7 +324,7 @@ export const ReceptionsProductsForm = ({
                             // Modo creación: Selector asíncrono
                             <FormSelectAsync
                               name={`details.${index}.product_id`}
-                              label="Producto *"
+                              label="Repuesto *"
                               placeholder="Buscar producto..."
                               control={form.control}
                               useQueryHook={useProduct}
