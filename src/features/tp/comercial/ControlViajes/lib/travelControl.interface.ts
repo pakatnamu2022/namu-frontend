@@ -1,7 +1,9 @@
+// travelControl.interface.ts - Actualización
 
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
 export type TripStatus = 'pending' | 'in_progress' | 'completed' | 'fuel_pending';
+export type SubTripStatus = 'locked' | 'pending' | 'in_progress' | 'completed';
 
 export interface TravelControlOptionsProps{
     search: string;
@@ -10,6 +12,7 @@ export interface TravelControlOptionsProps{
     setStatus: (value: TripStatus | "all") => void;
     userPosition?: string;
 }
+
 export interface TravelControlDetailModalProps{
   trip: TravelControlResource,
   trigger: React.ReactNode,
@@ -27,6 +30,89 @@ export interface TravelControlResponse{
     data: TravelControlResource[];
     links: Links;
     meta: Meta;
+}
+
+// Nueva interfaz para SubTrip
+export interface SubTrip {
+    id: string;
+    despacho_id: string | number;
+    order: number; 
+    name: string;
+    origin: string;
+    destination: string;
+    idorigen: string | number | null;
+    iddestino: string | number | null;
+    idproducto: string | number | null;
+    producto_descripcion: string | null;
+    observacion: string | null;
+    tiempo_estimado: number | null;
+    tipo_flete: string | null;
+    unidad_medida_id: string | number | null;
+    km_viaje: number | null;
+    cantidad: number | null;
+    precio_unit: number | null;
+    total: number | null;
+    statusigv: string | null;
+    statusflete: string | null;
+    status: SubTripStatus;
+    initial_mileage: number | null;
+    final_mileage: number | null;  
+    total_mileage: number | null; 
+    total_hours: number | null;  
+    actual_start: string | null; 
+    actual_end: string | null; 
+    segment_status: SubTripStatus; 
+    start_latitude: number | null;
+    start_longitude: number | null;
+    end_latitude: number | null;
+    end_longitude: number | null;
+    created_at: string | null;
+    updated_at: string | null;
+    initialKm?: number | null;
+    finalKm?: number | null;
+    totalKm?: number | null;
+    totalHours?: number | null;
+    startTime?: string | null;
+    endTime?: string | null;
+}
+
+export function mapSubTripFromBackend(backendSubTrip: any): SubTrip {
+    return {
+        id: backendSubTrip.id,
+        despacho_id: backendSubTrip.despacho_id,
+        order: backendSubTrip.order,
+        name: backendSubTrip.name,
+        origin: backendSubTrip.origin,
+        destination: backendSubTrip.destination,
+        idorigen: backendSubTrip.idorigen,
+        iddestino: backendSubTrip.iddestino,
+        idproducto: backendSubTrip.idproducto,
+        producto_descripcion: backendSubTrip.producto_descripcion,
+        observacion: backendSubTrip.observacion,
+        tiempo_estimado: backendSubTrip.tiempo_estimado,
+        tipo_flete: backendSubTrip.tipo_flete,
+        unidad_medida_id: backendSubTrip.unidad_medida_id,
+        km_viaje: backendSubTrip.km_viaje,
+        cantidad: backendSubTrip.cantidad,
+        precio_unit: backendSubTrip.precio_unit,
+        total: backendSubTrip.total,
+        statusigv: backendSubTrip.statusigv,
+        statusflete: backendSubTrip.statusflete,
+        status: backendSubTrip.segment_status || backendSubTrip.status,
+        initial_mileage: backendSubTrip.initial_mileage ?? backendSubTrip.initialKm,
+        final_mileage: backendSubTrip.final_mileage ?? backendSubTrip.finalKm,
+        total_mileage: backendSubTrip.total_mileage ?? backendSubTrip.totalKm,
+        total_hours: backendSubTrip.total_hours ?? backendSubTrip.totalHours,
+        actual_start: backendSubTrip.actual_start ?? backendSubTrip.startTime,
+        actual_end: backendSubTrip.actual_end ?? backendSubTrip.endTime,
+        segment_status: backendSubTrip.segment_status ?? backendSubTrip.status,
+        start_latitude: backendSubTrip.start_latitude,
+        start_longitude: backendSubTrip.start_longitude,
+        end_latitude: backendSubTrip.end_latitude,
+        end_longitude: backendSubTrip.end_longitude,
+        created_at: backendSubTrip.created_at,
+        updated_at: backendSubTrip.updated_at,
+    };
 }
 
 export interface TravelControlResource {
@@ -117,6 +203,8 @@ export interface TravelControlResource {
         has_geolocation: boolean;
         formattedDate: string;
     }>;
+    // Nuevo campo para SubTrips
+    subTrips?: SubTrip[];
     proximocod: string;
     proximoruta: string;
     pendientecond: number;
@@ -180,6 +268,7 @@ export interface DriverResource {
   phone?: string;
   email?: string;
 }
+
 export interface GetTripsProps {
   params?: Record<string, any>;
   search?: string;
@@ -187,9 +276,10 @@ export interface GetTripsProps {
   page?: number;
   per_page?: number;
 }
+
 export type UserRole = 'CONDUCTOR TP' | 'COMERCIAL Y FACTURACION TP';
 
-//API
+// API
 export interface ApiResponse<T = any>{
   data?: T;
   message?: string;
@@ -201,12 +291,14 @@ export interface TravelByIdResponse {
   data: TravelControlResource;
   message?: string;
 }
+
 export interface ViajesListResponse {
   data: TravelControlResource[];
   links: Links;
   meta: Meta;
   message?: string;
 }
+
 export interface LaravelPaginatedResponse<T> {
   data: T[];
   links: {
@@ -229,4 +321,38 @@ export interface LaravelPaginatedResponse<T> {
     to: number;
     total: number;
   };
+}
+
+// Interfaces para operaciones con SubTrips
+export interface UpdateSubTripParams {
+  id: string;
+  status?: SubTripStatus;
+  initialKm?: number;
+  finalKm?: number;
+  totalKm?: number;
+  totalHours?: number;
+  startTime?: string;
+  endTime?: string;
+  notes?: string;
+}
+
+export interface UpdateSubTripResponse {
+  data: SubTrip;
+  message: string;
+}
+
+export interface GetSubTripsResponse {
+  data: SubTrip[];
+  message?: string;
+}
+
+export interface UpdateMileageParams{
+  id: string;
+  general_initial_km?: number | null;
+  general_final_km?: number | null;
+  segments?: Array<{
+    id:string;
+    initial_mileage?: number | null;
+    final_mileage?: number | null;
+  }>
 }
