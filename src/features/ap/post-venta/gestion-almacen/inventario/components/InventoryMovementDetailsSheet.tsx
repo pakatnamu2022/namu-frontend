@@ -2,10 +2,7 @@ import {
   CreditNoteResource,
   InventoryMovementResource,
 } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface.ts";
@@ -13,24 +10,16 @@ import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/l
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
+import { InfoSection } from "@/shared/components/InfoSection.tsx";
+import { translateMovementType } from "../lib/inventory.constants.ts";
+import { getStatusLabelPurchaseOrder } from "../../../taller/solicitud-compra/lib/purchaseRequest.constants.ts";
+import { translateStatusTransfer } from "../../recepcion-transferencia/lib/transferReception.constants.ts";
 
 interface InventoryMovementDetailsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   movement: InventoryMovementResource;
 }
-
-const getStatusLabel = (status: string) => {
-  const statusLabels: Record<string, string> = {
-    APPROVED: "Aprobado",
-    PENDING: "Pendiente",
-    REJECTED: "Rechazado",
-    CANCELLED: "Cancelado",
-    COMPLETED: "Completado",
-    DRAFT: "Borrador",
-  };
-  return statusLabels[status] || status;
-};
 
 export default function InventoryMovementDetailsSheet({
   open,
@@ -87,9 +76,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Fecha</p>
                   <p className="font-medium">
-                    {format(new Date(reception.reception_date), "dd/MM/yyyy", {
-                      locale: es,
-                    })}
+                    {formatDate(reception.reception_date)}
                   </p>
                 </div>
                 <div>
@@ -100,7 +87,9 @@ export default function InventoryMovementDetailsSheet({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Estado</p>
-                  <Badge>{getStatusLabel(reception.status || "")}</Badge>
+                  <Badge>
+                    {getStatusLabelPurchaseOrder(reception.status || "")}
+                  </Badge>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Total Items</p>
@@ -147,11 +136,7 @@ export default function InventoryMovementDetailsSheet({
                       Fecha Emisión
                     </p>
                     <p className="font-medium">
-                      {format(
-                        new Date(purchaseOrder.emission_date),
-                        "dd/MM/yyyy",
-                        { locale: es },
-                      )}
+                      {formatDate(purchaseOrder.emission_date)}
                     </p>
                   </div>
                   {purchaseOrder.invoice_series &&
@@ -195,9 +180,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Fecha Emisión</p>
                   <p className="font-medium">
-                    {format(new Date(shipment.issue_date), "dd/MM/yyyy", {
-                      locale: es,
-                    })}
+                    {formatDate(shipment.issue_date)}
                   </p>
                 </div>
                 <div>
@@ -329,11 +312,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Fecha</p>
                   <p className="font-medium">
-                    {format(
-                      new Date(transferReception.reception_date),
-                      "dd/MM/yyyy",
-                      { locale: es },
-                    )}
+                    {formatDate(transferReception.reception_date)}
                   </p>
                 </div>
                 <div>
@@ -351,7 +330,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Estado</p>
                   <Badge variant="default">
-                    {getStatusLabel(transferReception.status)}
+                    {translateStatusTransfer(transferReception.status)}
                   </Badge>
                 </div>
               </div>
@@ -408,13 +387,7 @@ export default function InventoryMovementDetailsSheet({
                       Fecha Emisión
                     </p>
                     <p className="font-medium">
-                      {format(
-                        new Date(shippingGuide.issue_date),
-                        "dd/MM/yyyy",
-                        {
-                          locale: es,
-                        },
-                      )}
+                      {formatDate(shippingGuide.issue_date)}
                     </p>
                   </div>
                   {shippingGuide.enlace_del_pdf && (
@@ -461,9 +434,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Fecha</p>
                   <p className="font-medium">
-                    {format(new Date(quotation.quotation_date), "dd/MM/yyyy", {
-                      locale: es,
-                    })}
+                    {formatDate(quotation.quotation_date)}
                   </p>
                 </div>
                 <div className="col-span-2">
@@ -828,53 +799,40 @@ export default function InventoryMovementDetailsSheet({
       open={open}
       onClose={() => onOpenChange(false)}
       title="Detalles del Movimiento"
+      subtitle={`Movimiento #${movement.movement_number} - ${translateMovementType(movement.movement_type)}`}
       size="3xl"
     >
-      <div className="space-y-6">
+      <div className="space-y-6 px-6">
         {/* Información General del Movimiento */}
-        <div className="space-y-4">
-          <div className="p-4 bg-muted/50 border-b rounded-t-lg">
-            <h3 className="font-semibold text-sm">Información General</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4 px-4">
-            <div>
-              <p className="text-xs text-muted-foreground">N° Movimiento</p>
-              <p className="font-semibold">{movement.movement_number}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Fecha</p>
-              <p className="font-medium">
-                {formatDate(movement.movement_date)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Cantidad Entrada</p>
-              <p className="font-semibold text-green-600 text-lg">
-                {movement.quantity_in}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Cantidad Salida</p>
-              <p className="font-semibold text-red-600 text-lg">
-                {movement.quantity_out}
-              </p>
-            </div>
-            {movement.user_name && (
-              <div>
-                <p className="text-xs text-muted-foreground">Usuario</p>
-                <p className="font-medium">{movement.user_name}</p>
-              </div>
-            )}
-            {movement.notes && (
-              <div className="col-span-2">
-                <p className="text-xs text-muted-foreground">Observaciones</p>
-                <p className="font-medium text-sm">{movement.notes}</p>
-              </div>
-            )}
-          </div>
-        </div>
 
-        <Separator />
+        <InfoSection
+          title="Información del Movimiento"
+          fields={[
+            {
+              label: "N° Movimiento",
+              value: movement.movement_number,
+              fullWidth: true,
+            },
+            {
+              label: "Fecha de movimiento",
+              value: formatDate(movement.movement_date),
+            },
+            { label: "Cantidad Entrada", value: movement.quantity_in },
+            {
+              label: "Cantidad Salida",
+              value: movement.quantity_out,
+            },
+            {
+              label: "Usuario",
+              value: movement.user_name || "N/A",
+            },
+            {
+              label: "Observaciones",
+              value: movement.notes || "N/A",
+              fullWidth: true,
+            },
+          ]}
+        />
 
         {/* Detalles de la Referencia */}
         {renderReferenceDetails()}
