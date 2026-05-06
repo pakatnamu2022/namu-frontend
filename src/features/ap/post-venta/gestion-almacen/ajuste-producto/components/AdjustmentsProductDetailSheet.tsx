@@ -1,18 +1,15 @@
 import { AdjustmentsProductResource } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.interface.ts";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { Loader2 } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
+import { CopyCell } from "@/shared/components/CopyCell";
+import { InfoSection } from "@/shared/components/InfoSection";
+import { formatDate } from "@/core/core.function";
+import { translateMovementStatus } from "../../inventario/lib/inventory.constants";
 
 interface AdjustmentsProductDetailSheetProps {
   open: boolean;
@@ -27,6 +24,8 @@ export function AdjustmentsProductDetailSheet({
   data,
   isLoading = false,
 }: AdjustmentsProductDetailSheetProps) {
+  const details = data?.details || [];
+
   return (
     <GeneralSheet
       open={open}
@@ -45,51 +44,56 @@ export function AdjustmentsProductDetailSheet({
       ) : (
         <div className="space-y-6">
           {/* Información General */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
-            <div>
-              <p className="text-xs text-muted-foreground">N° Movimiento</p>
-              <p className="font-semibold">{data.movement_number || "-"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Tipo Movimiento</p>
-              <Badge
-                color={
-                  data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
-                    ? "default"
-                    : "secondary"
-                }
-                className="capitalize w-20 flex items-center justify-center"
-              >
-                {data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
-                  ? "INGRESO"
-                  : "SALIDA"}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">F. Movimiento</p>
-              <p className="font-medium">
-                {format(new Date(data.movement_date), "dd/MM/yyyy", {
-                  locale: es,
-                })}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Estado</p>
-              <Badge
-                color={data.status === "APPROVED" ? "default" : "destructive"}
-              >
-                {data.status || "-"}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total Ítems</p>
-              <p className="font-medium">{data.total_items || 0}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Cantidad Total</p>
-              <p className="font-medium">{data.total_quantity || "0.00"}</p>
-            </div>
-          </div>
+          <InfoSection
+            title="Información General"
+            fields={[
+              {
+                label: "N° Movimiento",
+                value: data.movement_number,
+              },
+              {
+                label: "Tipo Movimiento",
+                value: (
+                  <Badge
+                    color={
+                      data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
+                        ? "default"
+                        : "secondary"
+                    }
+                    className="capitalize w-20 flex items-center justify-center"
+                  >
+                    {data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
+                      ? "INGRESO"
+                      : "SALIDA"}
+                  </Badge>
+                ),
+              },
+              {
+                label: "F. Movimiento",
+                value: formatDate(data.movement_date),
+              },
+              {
+                label: "Estado",
+                value: (
+                  <Badge
+                    color={
+                      data.status === "APPROVED" ? "default" : "destructive"
+                    }
+                  >
+                    {translateMovementStatus(data.status) || "-"}
+                  </Badge>
+                ),
+              },
+              {
+                label: "Total Ítems",
+                value: data.total_items || 0,
+              },
+              {
+                label: "Cantidad Total",
+                value: data.total_quantity || "0.00",
+              },
+            ]}
+          />
 
           {/* Información del Almacén y Usuario */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,57 +156,62 @@ export function AdjustmentsProductDetailSheet({
           )}
 
           {/* Tabla de Productos */}
+
           {data.details && data.details.length > 0 && (
             <div className="border rounded-lg">
-              <div className="p-4 bg-muted/50 border-b">
-                <h3 className="font-semibold text-sm">Productos Ajustados</h3>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>Producto</TableHead>
-                    <TableHead className="text-center">Cantidad</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.details.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{index + 1}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-sm">
-                            {item.product?.name || "-"}
+              <DetailSheetTable
+                rows={details}
+                getKey={(detail) => detail.id}
+                emptyMessage="No hay productos asociados a esta solicitud"
+                columns={[
+                  {
+                    header: "#",
+                    className: "text-left",
+                    render: (_detail, index) => (
+                      <div className="text-sm font-medium">{index + 1}</div>
+                    ),
+                  },
+                  {
+                    header: "Repuesto",
+                    render: (detail) => (
+                      <>
+                        <div className="text-sm">{detail.product?.name}</div>
+                        {detail.product?.code ? (
+                          <CopyCell
+                            value={detail.product.code}
+                            label={`Cód: ${detail.product.code}`}
+                            className="text-xs text-muted-foreground"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Cód: N/A
                           </span>
-                          {item.product?.code && (
-                            <span className="text-xs text-muted-foreground">
-                              Cód: {item.product.code}
-                            </span>
-                          )}
-                          {item.product?.dyn_code && (
-                            <span className="text-xs text-muted-foreground">
-                              Cód Dyn: {item.product.dyn_code}
-                            </span>
-                          )}
-                          {item.product?.brand_name && (
-                            <span className="text-xs text-muted-foreground">
-                              Marca: {item.product.brand_name}
-                            </span>
-                          )}
-                          {item.notes && (
-                            <span className="text-xs text-muted-foreground italic">
-                              {item.notes}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {item.quantity}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        )}
+                        {detail.product?.dyn_code ? (
+                          <CopyCell
+                            value={detail.product.dyn_code}
+                            label={`Cód Dyn: ${detail.product.dyn_code}`}
+                            className="text-xs text-muted-foreground"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Cód Dyn: N/A
+                          </span>
+                        )}
+                      </>
+                    ),
+                  },
+                  {
+                    header: "Cant.",
+                    className: "text-center",
+                    render: (detail) => (
+                      <div className="text-sm font-semibold">
+                        {detail.quantity}
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </div>
           )}
 
