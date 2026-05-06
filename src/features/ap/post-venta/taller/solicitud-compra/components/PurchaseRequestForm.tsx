@@ -629,7 +629,7 @@ export default function PurchaseRequestForm({
                                     {detail.product_code ? (
                                       <CopyCell
                                         value={detail.product_code}
-                                        label={`${detail.product_code}`}
+                                        label={`Cód: ${detail.product_code}`}
                                       />
                                     ) : (
                                       <span className="text-gray-500">-</span>
