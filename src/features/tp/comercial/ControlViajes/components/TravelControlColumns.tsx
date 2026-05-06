@@ -3,12 +3,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Play, Fuel, Pencil, Eye, Truck, MapPin, User, Sheet, Loader2} from "lucide-react";
+import { CheckCircle, Clock, Play, Fuel,Truck, MapPin, User, PlayCircle, Gauge} from "lucide-react";
 import { TravelControlColumnsProps, TravelControlResource } from "../lib/travelControl.interface";
 import { TravelControlDetailModal } from "./TravelControlDetailModal";
-import { useExportTravelReport } from "../lib/travelControl.hooks";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export type TravelControlColumns = ColumnDef<TravelControlResource>;
 
@@ -146,9 +143,48 @@ export const TravelControlColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+
+      //export type TripStatus = 'pending' | 'in_progress' | 'completed' | 'fuel_pending';
       const trip = row.original;
       const { status } = trip;
-      const showEdit = status !== "completed";
+      
+
+      const getActionButton = () => {
+        switch(status) {
+          case "pending": 
+                return {
+                  icon: <PlayCircle className="size-4 text-green-600" />,
+                  label: "Comenzar viaje",
+                  variant: "outline" as const
+                };
+          case "in_progress":
+                return {
+                  icon: <Gauge className="size-4 text-blue-600" />,
+                  label: "Registrar kilometrajes",
+                  variant: "default" as const
+                };
+           case "fuel_pending":
+                return {
+                  icon: <Fuel className="size-4 text-blue-600" />,
+                  label: "Cargar Combustible",
+                  variant: "outline" as const
+                };
+            case "completed":
+                return {
+                  icon: <CheckCircle className="size-4 text-blue-600" />,
+                  label: "Viaje Finalizado",
+                  variant: "ghost" as const
+                };
+             default:
+                return {
+                  icon: <PlayCircle className="size-4 text-blue-600" />,
+                  label: "Gestionar",
+                  variant: "outline" as const
+                };
+        }
+      };
+
+      const action = getActionButton();
 
       return (
         <div className="flex items-center gap-1">
@@ -157,33 +193,22 @@ export const TravelControlColumns = ({
             onStatusChange={onStatusChange}
             trigger={
               <Button
-                tooltip="Ver Detalles y Gestionar"
-                variant="outline"
+                tooltip={action.label}
+                variant={action.variant}
                 size="icon"
                 className="size-7"
-                title="Gestionar viaje"
+                title={action.label}
               >
-                <Eye className="size-4" />
+                {action.icon}
               </Button>
             }
           />
 
-          {/* Editar */}
-          {showEdit && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              title="Editar viaje"
-            >
-              <Pencil className="size-4" />
-            </Button>
-          )}
+          
           {status === "completed" && (
-            <div className="flex items-center text-xs text-muted-foreground ml-2">
-              <CheckCircle className="size-4 mr-1 text-green-600" />
-              <span>Completado</span>
-            </div>
+            <span className="text-[10px] font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 ml-1">
+            Listo
+            </span>
           )}
         </div>
       );

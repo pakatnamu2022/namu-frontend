@@ -177,7 +177,7 @@ export const useStartSegment = () => {
             latitude?: number | null;
             longitude?: number | null;
         }) => startSegment(params),
-        onSuccess: (data, variables) => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'detail', variables.travelId] });
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'segments', variables.travelId] });
@@ -200,7 +200,7 @@ export const useEndSegment = () => {
             longitude?: number | null;
             tonnage?: number;
         }) => endSegment(params),
-        onSuccess: (data, variables) => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'detail', variables.travelId] });
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'segments', variables.travelId] });
@@ -233,7 +233,6 @@ export const useSegmentsProgress = (travelId?: string) => {
 };
 
 export const useExportTravelReport = () => {
-    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: ({ travelId, format}: {travelId: string; format?: 'excel' | 'pdf'}) =>
@@ -249,7 +248,6 @@ export const useExportTravelReport = () => {
     });
 };
 export const useExportAllTravelsReport = () => {
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ format, filters }: { format?: 'excel' | 'pdf'; filters?: any }) =>
@@ -271,7 +269,7 @@ export const useUpdateTravelMileage = () => {
 
     return useMutation({
         mutationFn: (params: UpdateMileageParams) => updateTravelMileage(params),
-        onSuccess: (data, variables) => {
+        onSuccess: ( variables) => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY]});
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'detail', variables.id]});
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'segments', variables.id]});

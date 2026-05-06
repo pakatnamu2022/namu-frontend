@@ -42,7 +42,6 @@ import {
   useLastMileage,
   useRegisterFuel,
   useStartRoute,
-  useUpdateSubTrip,
   useStartSegment,
   useEndSegment,
   useUpdateTravelMileage
@@ -84,7 +83,7 @@ export function TravelControlDetailModal({
   const { data: lastMileage } = useLastMileage(
     localTrip?.tracto_id ? String(localTrip.tracto_id) : undefined,
   );
-  const { data: segmentsData, isLoading: isLoadingSegments } = useSegments(localTrip?.id);
+  const { data: segmentsData} = useSegments(localTrip?.id);
 
   // Estado para los SubTrips
   const [subTrips, setSubTrips] = useState<SubTrip[]>([]);
@@ -104,9 +103,6 @@ export function TravelControlDetailModal({
   });
 
   const { mutateAsync: updateMileage, isPending: isUpdatingMileage } = useUpdateTravelMileage();
-
-
-
 
   const travelSchema = useMemo(() => {
     return createTravelControlModalSchema({
@@ -133,7 +129,6 @@ export function TravelControlDetailModal({
   const {
     control,
     formState: { errors: formErrors, isSubmitting: formSubmitting },
-    reset,
     setValue,
     watch,
     getValues,
@@ -142,11 +137,10 @@ export function TravelControlDetailModal({
 
   const { mutateAsync: startRouteMutation, isPending: isStartingRoute } =
     useStartRoute();
-  const { mutateAsync: endRouteMutation, isPending: isEndingRoute } =
+  const { isPending: isEndingRoute } =
     useEndRoute();
   const { mutateAsync: registerFuelMutation, isPending: isRegisteringFuel } =
     useRegisterFuel();
-  const { mutateAsync: updateSubTripMutation } = useUpdateSubTrip();
 
   const { mutateAsync: startSegmentMutation } = useStartSegment();
   const { mutateAsync: endSegmentMutation } = useEndSegment();
