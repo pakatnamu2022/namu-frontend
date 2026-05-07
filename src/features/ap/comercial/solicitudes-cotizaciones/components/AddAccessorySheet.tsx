@@ -6,7 +6,6 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { FormInput } from "@/shared/components/FormInput";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
-import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ApprovedAccessoryRow } from "./ApprovedAccessoriesTable";
 
 interface AddAccessorySheetProps {
@@ -44,6 +43,7 @@ export function AddAccessorySheet({
       setForm((prev) => ({ ...prev, accessory_id: initialAccessoryId }));
     }
   }, [open, initialAccessoryId]);
+
   const [errors, setErrors] = useState({
     accessory_id: false,
     accessory_duplicate: false,
@@ -77,12 +77,9 @@ export function AddAccessorySheet({
     handleClose();
   };
 
-  const availableAccessories =
-    form.type === "OBSEQUIO"
-      ? accessories.filter((acc) => acc.type_operation_id === CM_COMERCIAL_ID)
-      : accessories;
+  const availableAccessories = accessories;
 
-  const selectedAccessory = accessories.find(
+  const selectedAccessory = availableAccessories.find(
     (acc) => acc.id === form.accessory_id,
   );
 
@@ -100,19 +97,7 @@ export function AddAccessorySheet({
           label="Tipo"
           value={form.type}
           onChange={(value) => {
-            const newType = value as "ACCESORIO_ADICIONAL" | "OBSEQUIO";
-            const selectedAcc = accessories.find(
-              (acc) => acc.id === form.accessory_id,
-            );
-            const resetId =
-              newType === "OBSEQUIO" &&
-              selectedAcc &&
-              selectedAcc.type_operation_id !== CM_COMERCIAL_ID;
-            setForm({
-              ...form,
-              type: newType,
-              accessory_id: resetId ? 0 : form.accessory_id,
-            });
+            setForm({ ...form, type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO" });
           }}
           options={[
             { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
@@ -129,9 +114,7 @@ export function AddAccessorySheet({
             <SearchableSelect
               buttonSize="default"
               label="Accesorio"
-              value={
-                form.accessory_id === 0 ? "" : form.accessory_id.toString()
-              }
+              value={form.accessory_id === 0 ? "" : form.accessory_id.toString()}
               onChange={(value) => {
                 setForm({ ...form, accessory_id: parseInt(value) });
                 setErrors({ ...errors, accessory_id: false, accessory_duplicate: false });

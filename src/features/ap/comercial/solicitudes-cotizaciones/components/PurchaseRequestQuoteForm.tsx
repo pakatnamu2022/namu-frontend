@@ -104,7 +104,7 @@ export const PurchaseRequestQuoteForm = ({
     },
     mode: "onChange",
   });
-  const { canAssign } = useModulePermissions(ROUTE);
+  const { canAssign, canManage } = useModulePermissions(ROUTE);
 
   // Estados
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
@@ -177,6 +177,7 @@ export const PurchaseRequestQuoteForm = ({
   const { data: vehiclesVn = [], isLoading: isLoadingVehiclesVn } =
     useAllVehiclesWithCosts({
       family_id: selectedFamilyId,
+      is_editing: mode === "update" ? true : false,
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
@@ -988,11 +989,11 @@ export const PurchaseRequestQuoteForm = ({
                 {/* Mostrar información adicional según el modo */}
                 {withVinWatch && vehicleVnWatch && (
                   <div className="mt-2 space-y-2 w-full">
-                    {billedCost > 0 ? (
+                    {canManage && (billedCost > 0 ? (
                       <>
                         <Alert variant="info">
                           <AlertDescription>
-                            <span className="font-medium">Costo Facturado:</span>{" "}
+                            <span className="font-medium">Costo Compra:</span>{" "}
                             {currencySymbol}{" "}
                             {billedCost.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
@@ -1022,7 +1023,7 @@ export const PurchaseRequestQuoteForm = ({
                           Revisar el registro del vehículo.
                         </AlertDescription>
                       </Alert>
-                    )}
+                    ))}
                     {parseFloat(salePriceWatch || "0") === 0 && (
                       <Alert variant="destructive">
                         <AlertTitle>Precio de venta en 0</AlertTitle>
@@ -1134,6 +1135,11 @@ export const PurchaseRequestQuoteForm = ({
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
             currencyTypes={currencyTypes}
+            billedCost={billedCost}
+            bonusDiscountRows={bonusDiscountRows}
+            accessoriesRows={accessoriesRows}
+            approvedAccesories={approvedAccesories}
+            canManage={canManage}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />
