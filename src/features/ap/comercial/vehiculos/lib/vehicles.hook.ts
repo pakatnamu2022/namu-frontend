@@ -29,6 +29,7 @@ export const useAllVehiclesWithCosts = (params?: Record<string, any>) => {
   return useQuery<VehicleResourceWithCosts[]>({
     queryKey: [QUERY_KEY, "with-costs", params],
     queryFn: () => getAllVehiclesWithCosts({ params }),
+    enabled: !!params,
   });
 };
 

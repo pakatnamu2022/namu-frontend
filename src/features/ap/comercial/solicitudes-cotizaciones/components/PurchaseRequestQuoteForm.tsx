@@ -177,6 +177,7 @@ export const PurchaseRequestQuoteForm = ({
   const { data: vehiclesVn = [], isLoading: isLoadingVehiclesVn } =
     useAllVehiclesWithCosts({
       family_id: selectedFamilyId,
+      is_editing: mode === "update" ? true : false,
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
@@ -992,7 +993,7 @@ export const PurchaseRequestQuoteForm = ({
                       <>
                         <Alert variant="info">
                           <AlertDescription>
-                            <span className="font-medium">Costo Facturado:</span>{" "}
+                            <span className="font-medium">Costo Compra:</span>{" "}
                             {currencySymbol}{" "}
                             {billedCost.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
