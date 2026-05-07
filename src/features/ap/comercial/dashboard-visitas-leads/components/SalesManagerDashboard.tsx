@@ -49,7 +49,7 @@ const getLastMonthRange = () => {
 
 export default function SalesManagerDashboard() {
   const ROUTE = "dashboard-equipo-leads";
-  const { canViewAdvisors } = useModulePermissions(ROUTE);
+  const { canViewAdvisors, canAssign } = useModulePermissions(ROUTE);
 
   const lastMonthRange = getLastMonthRange();
 
@@ -190,7 +190,7 @@ export default function SalesManagerDashboard() {
           variant="grouped"
         />
 
-        {canViewAdvisors && (
+        {canAssign && (
           <Button
             size="sm"
             variant="outline"

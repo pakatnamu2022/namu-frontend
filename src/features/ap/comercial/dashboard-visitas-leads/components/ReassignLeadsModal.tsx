@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, Minus, Plus } from "lucide-react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,8 @@ import { transferWorkerLeads } from "../../gestionar-leads/lib/manageLeads.actio
 import { successToast } from "@/core/core.function";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface ReassignLeadsModalProps {
   open: boolean;
@@ -31,48 +33,33 @@ function StepIndicator({
   completedSteps: number[];
 }) {
   return (
-    <div className="flex items-start w-full">
-      {steps.map((step, index) => {
-        const stepNumber = index + 1;
-        const isDone = completedSteps.includes(stepNumber);
-        const isActive = activeStep === stepNumber;
-        const isLast = index === steps.length - 1;
-
-        return (
-          <div key={stepNumber} className="flex items-center flex-1">
-            <div className="flex flex-col items-center gap-1">
-              <div
-                className={cn(
-                  "size-7 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-all",
-                  isDone
-                    ? "bg-primary border-primary text-primary-foreground"
-                    : isActive
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "bg-background border-muted-foreground/25 text-muted-foreground",
-                )}
-              >
-                {isDone ? <Check className="size-3.5" /> : stepNumber}
-              </div>
-              <span
-                className={cn(
-                  "text-[10px] font-medium text-center leading-tight whitespace-nowrap",
-                  isDone || isActive ? "text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {step.label}
-              </span>
-            </div>
-            {!isLast && (
-              <div
-                className={cn(
-                  "flex-1 h-px mx-2 mb-3.5 transition-colors",
-                  isDone ? "bg-primary" : "bg-muted-foreground/20",
-                )}
-              />
-            )}
-          </div>
-        );
-      })}
+    <div className="space-y-2">
+      <div className="flex gap-1">
+        {steps.map((_, index) => {
+          const stepNumber = index + 1;
+          const isDone = completedSteps.includes(stepNumber);
+          const isActive = activeStep === stepNumber;
+          return (
+            <div
+              key={stepNumber}
+              className={cn(
+                "h-0.5 flex-1 rounded-full transition-all duration-300",
+                isDone
+                  ? "bg-primary"
+                  : isActive
+                    ? "bg-primary/40"
+                    : "bg-muted-foreground/15",
+              )}
+            />
+          );
+        })}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {steps[activeStep - 1]?.label}
+        <span className="text-muted-foreground/50 ml-1.5">
+          {activeStep} / {steps.length}
+        </span>
+      </p>
     </div>
   );
 }
@@ -99,7 +86,10 @@ export default function ReassignLeadsModal({
 
   const fromWorkerIdNum = fromWorkerId ? parseInt(fromWorkerId, 10) : null;
   const { data: pendingLeads = [], isLoading: isLoadingLeads } =
-    usePendingLeadsByWorker(fromWorkerIdNum);
+    usePendingLeadsByWorker(fromWorkerIdNum, {
+      sort: "registration_date",
+      direction: "desc",
+    });
 
   const handleClose = () => {
     setFromWorkerId("");
@@ -130,7 +120,9 @@ export default function ReassignLeadsModal({
 
   const toggleLeadSelection = (leadId: number) => {
     setSelectedLeadIds((prev) =>
-      prev.includes(leadId) ? prev.filter((id) => id !== leadId) : [...prev, leadId],
+      prev.includes(leadId)
+        ? prev.filter((id) => id !== leadId)
+        : [...prev, leadId],
     );
   };
 
@@ -143,11 +135,11 @@ export default function ReassignLeadsModal({
         from_worker_id: fromWorkerIdNum,
         to_worker_id: parseInt(toWorkerId, 10),
         potential_buyer_ids:
-        scope === "specific"
-          ? selectedLeadIds
-          : scope === "quantity"
-            ? pendingLeads.slice(0, quantity).map((l) => l.id)
-            : [],
+          scope === "specific"
+            ? selectedLeadIds
+            : scope === "quantity"
+              ? pendingLeads.slice(0, quantity).map((l) => l.id)
+              : [],
       });
       successToast(response.message);
       queryClient.invalidateQueries({ queryKey: ["salesManagerStats"] });
@@ -207,10 +199,17 @@ export default function ReassignLeadsModal({
       icon="ArrowLeftRight"
       childrenFooter={
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleTransfer} disabled={!canConfirm || isSubmitting}>
+          <Button
+            onClick={handleTransfer}
+            disabled={!canConfirm || isSubmitting}
+          >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirmar transferencia
           </Button>
@@ -253,9 +252,13 @@ export default function ReassignLeadsModal({
                 "Cargando leads pendientes..."
               ) : (
                 <>
-                  <span className="font-medium text-foreground">{fromWorkerName}</span>{" "}
+                  <span className="font-medium text-foreground">
+                    {fromWorkerName}
+                  </span>{" "}
                   tiene{" "}
-                  <span className="font-semibold text-foreground">{pendingLeads.length}</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    {pendingLeads.length}
+                  </span>{" "}
                   lead(s) pendiente(s)
                 </>
               )}
@@ -268,7 +271,9 @@ export default function ReassignLeadsModal({
           <div className="space-y-3">
             <RadioGroup
               value={scope}
-              onValueChange={(v) => handleScopeChange(v as "all" | "quantity" | "specific")}
+              onValueChange={(v) =>
+                handleScopeChange(v as "all" | "quantity" | "specific")
+              }
               className="space-y-2"
             >
               <div className="flex items-center space-x-2">
@@ -303,7 +308,9 @@ export default function ReassignLeadsModal({
                         min={1}
                         max={pendingLeads.length}
                         value={quantity}
-                        onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                        onChange={(e) =>
+                          handleQuantityChange(parseInt(e.target.value) || 1)
+                        }
                         className="w-20 text-center"
                       />
                       <Button
@@ -320,15 +327,25 @@ export default function ReassignLeadsModal({
                         de {pendingLeads.length} leads
                       </span>
                     </div>
-                    <div className="border rounded-md divide-y max-h-36 overflow-y-auto">
+                    <div className="border rounded-md divide-y max-h-64 overflow-y-auto">
                       {pendingLeads.slice(0, quantity).map((lead, i) => (
-                        <div key={lead.id} className="flex items-center gap-3 px-3 py-2">
-                          <span className="text-xs text-muted-foreground w-4 shrink-0">{i + 1}</span>
+                        <div
+                          key={lead.id}
+                          className="flex items-center gap-3 px-3 py-2"
+                        >
+                          <span className="text-xs text-muted-foreground w-4 shrink-0">
+                            {i + 1}
+                          </span>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium truncate">{lead.full_name}</p>
+                            <p className="text-sm font-medium truncate">
+                              {lead.full_name}
+                            </p>
                             <p className="text-xs text-muted-foreground truncate">
                               {lead.phone}
                               {lead.campaign ? ` · ${lead.campaign}` : ""}
+                              {lead.registration_date
+                                ? ` · ${format(new Date(`${lead.registration_date}T00:00:00`), "PPP", { locale: es })}`
+                                : ""}
                             </p>
                           </div>
                           <span className="text-xs text-muted-foreground shrink-0">
@@ -350,7 +367,7 @@ export default function ReassignLeadsModal({
             </RadioGroup>
 
             {scope === "specific" && (
-              <div className="border rounded-md divide-y max-h-48 overflow-y-auto">
+              <div className="border rounded-md divide-y max-h-64 overflow-y-auto">
                 {pendingLeads.map((lead) => (
                   <div
                     key={lead.id}
@@ -363,7 +380,9 @@ export default function ReassignLeadsModal({
                       onClick={(e) => e.stopPropagation()}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{lead.full_name}</p>
+                      <p className="text-sm font-medium truncate">
+                        {lead.full_name}
+                      </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {lead.phone}
                         {lead.campaign ? ` · ${lead.campaign}` : ""}
@@ -384,11 +403,17 @@ export default function ReassignLeadsModal({
           <div className="rounded-md bg-muted/50 border px-4 py-3">
             <p className="text-sm text-muted-foreground">
               Se transferirán{" "}
-              <span className="font-semibold text-foreground">{transferCount}</span>{" "}
+              <span className="font-semibold text-foreground">
+                {transferCount}
+              </span>{" "}
               lead(s) de{" "}
-              <span className="font-semibold text-foreground">{fromWorkerName}</span>{" "}
+              <span className="font-semibold text-foreground">
+                {fromWorkerName}
+              </span>{" "}
               a{" "}
-              <span className="font-semibold text-foreground">{toWorkerName}</span>
+              <span className="font-semibold text-foreground">
+                {toWorkerName}
+              </span>
             </p>
           </div>
         )}

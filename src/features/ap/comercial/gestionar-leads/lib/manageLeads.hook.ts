@@ -50,10 +50,14 @@ export const useAllManageLeads = (params?: Record<string, any>) => {
   });
 };
 
-export const usePendingLeadsByWorker = (workerId: number | null) => {
+export const usePendingLeadsByWorker = (
+  workerId: number | null,
+  params?: Record<string, any>,
+) => {
   return useQuery<ManageLeadsResource[]>({
     queryKey: [QUERY_KEY, "pending", workerId],
-    queryFn: () => getAllManageLeads({ params: { worker_id: workerId, use: 0 } }),
+    queryFn: () =>
+      getAllManageLeads({ params: { worker_id: workerId, use: 0, ...params } }),
     refetchOnWindowFocus: false,
     enabled: !!workerId,
   });
