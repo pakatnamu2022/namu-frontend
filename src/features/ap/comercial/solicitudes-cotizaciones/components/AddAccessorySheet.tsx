@@ -6,7 +6,6 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { FormInput } from "@/shared/components/FormInput";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
-import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ApprovedAccessoryRow } from "./ApprovedAccessoriesTable";
 
 interface AddAccessorySheetProps {
@@ -44,34 +43,27 @@ export function AddAccessorySheet({
       setForm((prev) => ({ ...prev, accessory_id: initialAccessoryId }));
     }
   }, [open, initialAccessoryId]);
+
   const [errors, setErrors] = useState({
     accessory_id: false,
     accessory_duplicate: false,
-    accessory_posventa: false,
     quantity: false,
   });
 
   const handleClose = () => {
     setForm(EMPTY_FORM);
-    setErrors({ accessory_id: false, accessory_duplicate: false, accessory_posventa: false, quantity: false });
+    setErrors({ accessory_id: false, accessory_duplicate: false, quantity: false });
     onClose();
   };
 
   const handleAdd = () => {
-    const selectedAcc = accessories.find((acc) => acc.id === form.accessory_id);
-    const isPosventa =
-      form.type === "ACCESORIO_ADICIONAL" &&
-      selectedAcc &&
-      selectedAcc.type_operation_id !== CM_COMERCIAL_ID;
-
     const newErrors = {
       accessory_id: !form.accessory_id || form.accessory_id === 0,
       accessory_duplicate: false,
-      accessory_posventa: !!isPosventa,
       quantity: form.quantity <= 0,
     };
     setErrors(newErrors);
-    if (newErrors.accessory_id || newErrors.quantity || newErrors.accessory_posventa) return;
+    if (newErrors.accessory_id || newErrors.quantity) return;
 
     const duplicate = existingRows.find(
       (row) => row.accessory_id === form.accessory_id,
@@ -87,7 +79,7 @@ export function AddAccessorySheet({
 
   const availableAccessories = accessories;
 
-  const selectedAccessory = accessories.find(
+  const selectedAccessory = availableAccessories.find(
     (acc) => acc.id === form.accessory_id,
   );
 
@@ -105,9 +97,7 @@ export function AddAccessorySheet({
           label="Tipo"
           value={form.type}
           onChange={(value) => {
-            const newType = value as "ACCESORIO_ADICIONAL" | "OBSEQUIO";
-            setForm({ ...form, type: newType });
-            setErrors((prev) => ({ ...prev, accessory_posventa: false }));
+            setForm({ ...form, type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO" });
           }}
           options={[
             { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
@@ -124,12 +114,10 @@ export function AddAccessorySheet({
             <SearchableSelect
               buttonSize="default"
               label="Accesorio"
-              value={
-                form.accessory_id === 0 ? "" : form.accessory_id.toString()
-              }
+              value={form.accessory_id === 0 ? "" : form.accessory_id.toString()}
               onChange={(value) => {
                 setForm({ ...form, accessory_id: parseInt(value) });
-                setErrors({ ...errors, accessory_id: false, accessory_duplicate: false, accessory_posventa: false });
+                setErrors({ ...errors, accessory_id: false, accessory_duplicate: false });
               }}
               options={availableAccessories.map((accessory) => ({
                 label: `${accessory.code} - ${accessory.description}`,
@@ -137,7 +125,7 @@ export function AddAccessorySheet({
                 description: accessory.type_operation,
               }))}
               placeholder="Selecciona un accesorio"
-              className={errors.accessory_id || errors.accessory_duplicate || errors.accessory_posventa ? "border-red-500" : ""}
+              className={errors.accessory_id || errors.accessory_duplicate ? "border-red-500" : ""}
               classNameDiv="flex-1"
               withValue={false}
             />

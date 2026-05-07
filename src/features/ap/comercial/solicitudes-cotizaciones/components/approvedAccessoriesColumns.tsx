@@ -160,9 +160,15 @@ export function getApprovedAccessoriesColumns({
         return (
           <div className="text-right text-sm">
             {row.original.type === "OBSEQUIO" ? (
-              <span className="font-medium text-green-600">
-                {invoiceCurrency?.symbol ?? ""} 0.00
-              </span>
+              <div>
+                <span className="font-medium text-green-600 block">
+                  {invoiceCurrency?.symbol ?? ""} 0.00
+                </span>
+                <span className="text-xs text-red-500 block">
+                  Costo: {invoiceCurrency?.symbol ?? ""}{" "}
+                  <NumberFormat value={convertedSubtotal.toFixed(2)} />
+                </span>
+              </div>
             ) : (
               <span className="font-medium text-primary">
                 {invoiceCurrency?.symbol ?? ""}{" "}
