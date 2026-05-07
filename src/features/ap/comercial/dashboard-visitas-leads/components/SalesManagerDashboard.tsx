@@ -27,7 +27,14 @@ import { MetricCard } from "@/shared/components/MetricCard";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Shuffle, UserCheck, UserCircle, UserMinus, Users, UserX } from "lucide-react";
+import {
+  Shuffle,
+  UserCheck,
+  UserCircle,
+  UserMinus,
+  Users,
+  UserX,
+} from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 
@@ -165,7 +172,7 @@ export default function SalesManagerDashboard() {
       {/* Header */}
       <TitleComponent
         icon="FileSignature"
-        title="Dashboard de Leads de Equipo de Ventas"
+        title="Dashboard de Leads de Equ  ipo de Ventas"
         subtitle={
           statsData
             ? `Resumen gerencial de ${statsData.data.manager_info.boss_name}`
@@ -183,7 +190,7 @@ export default function SalesManagerDashboard() {
           variant="grouped"
         />
 
-        {!canViewAdvisors && (
+        {canViewAdvisors && (
           <Button
             size="sm"
             variant="outline"

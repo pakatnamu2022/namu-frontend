@@ -2,27 +2,79 @@
 
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Check, Loader2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { usePendingLeadsByWorker } from "../../gestionar-leads/lib/manageLeads.hook";
 import { transferWorkerLeads } from "../../gestionar-leads/lib/manageLeads.actions";
-import { errorToast, successToast } from "@/core/core.function";
+import { successToast } from "@/core/core.function";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { cn } from "@/lib/utils";
 
 interface ReassignLeadsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+function StepIndicator({
+  steps,
+  activeStep,
+  completedSteps,
+}: {
+  steps: { label: string }[];
+  activeStep: number;
+  completedSteps: number[];
+}) {
+  return (
+    <div className="flex items-start w-full">
+      {steps.map((step, index) => {
+        const stepNumber = index + 1;
+        const isDone = completedSteps.includes(stepNumber);
+        const isActive = activeStep === stepNumber;
+        const isLast = index === steps.length - 1;
+
+        return (
+          <div key={stepNumber} className="flex items-center flex-1">
+            <div className="flex flex-col items-center gap-1">
+              <div
+                className={cn(
+                  "size-7 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-all",
+                  isDone
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : isActive
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "bg-background border-muted-foreground/25 text-muted-foreground",
+                )}
+              >
+                {isDone ? <Check className="size-3.5" /> : stepNumber}
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium text-center leading-tight whitespace-nowrap",
+                  isDone || isActive ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {step.label}
+              </span>
+            </div>
+            {!isLast && (
+              <div
+                className={cn(
+                  "flex-1 h-px mx-2 mb-3.5 transition-colors",
+                  isDone ? "bg-primary" : "bg-muted-foreground/20",
+                )}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function ReassignLeadsModal({
@@ -33,7 +85,8 @@ export default function ReassignLeadsModal({
 
   const [fromWorkerId, setFromWorkerId] = useState<string>("");
   const [toWorkerId, setToWorkerId] = useState<string>("");
-  const [scope, setScope] = useState<"all" | "specific">("all");
+  const [scope, setScope] = useState<"all" | "quantity" | "specific">("all");
+  const [quantity, setQuantity] = useState<number>(1);
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -65,9 +118,14 @@ export default function ReassignLeadsModal({
     setErrorMsg("");
   };
 
-  const handleScopeChange = (value: "all" | "specific") => {
+  const handleScopeChange = (value: "all" | "quantity" | "specific") => {
     setScope(value);
     setSelectedLeadIds([]);
+    setQuantity(1);
+  };
+
+  const handleQuantityChange = (next: number) => {
+    setQuantity(Math.min(Math.max(1, next), pendingLeads.length));
   };
 
   const toggleLeadSelection = (leadId: number) => {
@@ -84,7 +142,12 @@ export default function ReassignLeadsModal({
       const response = await transferWorkerLeads({
         from_worker_id: fromWorkerIdNum,
         to_worker_id: parseInt(toWorkerId, 10),
-        potential_buyer_ids: scope === "specific" ? selectedLeadIds : [],
+        potential_buyer_ids:
+        scope === "specific"
+          ? selectedLeadIds
+          : scope === "quantity"
+            ? pendingLeads.slice(0, quantity).map((l) => l.id)
+            : [],
       });
       successToast(response.message);
       queryClient.invalidateQueries({ queryKey: ["salesManagerStats"] });
@@ -103,171 +166,235 @@ export default function ReassignLeadsModal({
   const toWorkerName =
     consultants.find((c) => c.id.toString() === toWorkerId)?.name ?? "";
   const transferCount =
-    scope === "all" ? pendingLeads.length : selectedLeadIds.length;
+    scope === "all"
+      ? pendingLeads.length
+      : scope === "quantity"
+        ? quantity
+        : selectedLeadIds.length;
 
   const destinationOptions = consultants
     .filter((c) => c.id.toString() !== fromWorkerId)
     .map((c) => ({ label: c.name, value: c.id.toString() }));
 
-  const showScopeStep =
-    !!fromWorkerId && !!toWorkerId && pendingLeads.length > 0;
-  const canConfirm =
-    !!fromWorkerId &&
-    !!toWorkerId &&
-    !isLoadingLeads &&
-    (scope === "all" ? pendingLeads.length > 0 : selectedLeadIds.length > 0);
+  const step1Done = !!fromWorkerId && !!toWorkerId && !isLoadingLeads;
+  const showScopeStep = step1Done && pendingLeads.length > 0;
+  const step2Done =
+    !showScopeStep ||
+    scope === "all" ||
+    (scope === "quantity" && quantity >= 1) ||
+    selectedLeadIds.length > 0;
+  const canConfirm = step1Done && step2Done;
+
+  const steps = showScopeStep
+    ? [{ label: "Asesores" }, { label: "Alcance" }, { label: "Confirmar" }]
+    : [{ label: "Asesores" }, { label: "Confirmar" }];
+
+  let activeStep: number;
+  if (!step1Done) activeStep = 1;
+  else if (showScopeStep && !step2Done) activeStep = 2;
+  else activeStep = steps.length;
+
+  const completedSteps: number[] = [];
+  if (step1Done) completedSteps.push(1);
+  if (showScopeStep && step2Done) completedSteps.push(2);
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Reasignar leads</DialogTitle>
-        </DialogHeader>
-
-        <div className="flex-1 overflow-y-auto space-y-6 py-2 pr-1">
-          {/* Paso 1: Selección de asesores */}
-          <div className="space-y-3">
-            <p className="text-sm font-semibold text-foreground">
-              1. Selección de asesores
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <SearchableSelect
-                label="Asesor origen"
-                options={consultants.map((c) => ({
-                  label: c.name,
-                  value: c.id.toString(),
-                }))}
-                value={fromWorkerId}
-                onChange={handleFromWorkerChange}
-                placeholder="Seleccionar asesor"
-              />
-              <SearchableSelect
-                label="Asesor destino"
-                options={destinationOptions}
-                value={toWorkerId}
-                onChange={setToWorkerId}
-                placeholder="Seleccionar asesor"
-                disabled={!fromWorkerId}
-              />
-            </div>
-
-            {fromWorkerId && (
-              <p className="text-sm text-muted-foreground">
-                {isLoadingLeads ? (
-                  "Cargando leads pendientes..."
-                ) : (
-                  <>
-                    <span className="font-medium text-foreground">
-                      {fromWorkerName}
-                    </span>{" "}
-                    tiene{" "}
-                    <span className="font-semibold text-foreground">
-                      {pendingLeads.length}
-                    </span>{" "}
-                    lead(s) pendiente(s)
-                  </>
-                )}
-              </p>
-            )}
-          </div>
-
-          {/* Paso 2: Alcance */}
-          {showScopeStep && (
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-foreground">
-                2. Alcance de la transferencia
-              </p>
-              <RadioGroup
-                value={scope}
-                onValueChange={(v) => handleScopeChange(v as "all" | "specific")}
-                className="space-y-1"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="all" id="scope-all" />
-                  <Label htmlFor="scope-all" className="cursor-pointer">
-                    Transferir todos los pendientes ({pendingLeads.length})
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="specific" id="scope-specific" />
-                  <Label htmlFor="scope-specific" className="cursor-pointer">
-                    Seleccionar específicos
-                  </Label>
-                </div>
-              </RadioGroup>
-
-              {scope === "specific" && (
-                <div className="border rounded-md divide-y max-h-48 overflow-y-auto">
-                  {pendingLeads.map((lead) => (
-                    <div
-                      key={lead.id}
-                      className="flex items-center gap-3 p-3 hover:bg-muted/50 cursor-pointer"
-                      onClick={() => toggleLeadSelection(lead.id)}
-                    >
-                      <Checkbox
-                        checked={selectedLeadIds.includes(lead.id)}
-                        onCheckedChange={() => toggleLeadSelection(lead.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">
-                          {lead.full_name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {lead.phone}
-                          {lead.campaign ? ` · ${lead.campaign}` : ""}
-                        </p>
-                      </div>
-                      <span className="text-xs text-muted-foreground shrink-0">
-                        {lead.vehicle_brand}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Paso 3: Confirmación */}
-          {fromWorkerId && toWorkerId && (
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">
-                3. Confirmación
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Se transferirán{" "}
-                <span className="font-semibold text-foreground">
-                  {transferCount}
-                </span>{" "}
-                lead(s) de{" "}
-                <span className="font-semibold text-foreground">
-                  {fromWorkerName}
-                </span>{" "}
-                a{" "}
-                <span className="font-semibold text-foreground">
-                  {toWorkerName}
-                </span>
-              </p>
-            </div>
-          )}
-
-          {errorMsg && (
-            <p className="text-sm text-destructive">{errorMsg}</p>
-          )}
-        </div>
-
-        <DialogFooter className="pt-2">
+    <GeneralSheet
+      open={open}
+      onClose={handleClose}
+      title="Reasignar leads"
+      size="2xl"
+      icon="ArrowLeftRight"
+      childrenFooter={
+        <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
             Cancelar
           </Button>
           <Button onClick={handleTransfer} disabled={!canConfirm || isSubmitting}>
-            {isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirmar transferencia
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        <StepIndicator
+          steps={steps}
+          activeStep={activeStep}
+          completedSteps={completedSteps}
+        />
+
+        {/* Selección de asesores */}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-4">
+            <SearchableSelect
+              label="Asesor origen"
+              options={consultants.map((c) => ({
+                label: c.name,
+                value: c.id.toString(),
+              }))}
+              value={fromWorkerId}
+              onChange={handleFromWorkerChange}
+              placeholder="Seleccionar asesor"
+            />
+            <SearchableSelect
+              label="Asesor destino"
+              options={destinationOptions}
+              value={toWorkerId}
+              onChange={setToWorkerId}
+              placeholder="Seleccionar asesor"
+              disabled={!fromWorkerId}
+            />
+          </div>
+
+          {fromWorkerId && (
+            <p className="text-sm text-muted-foreground">
+              {isLoadingLeads ? (
+                "Cargando leads pendientes..."
+              ) : (
+                <>
+                  <span className="font-medium text-foreground">{fromWorkerName}</span>{" "}
+                  tiene{" "}
+                  <span className="font-semibold text-foreground">{pendingLeads.length}</span>{" "}
+                  lead(s) pendiente(s)
+                </>
+              )}
+            </p>
+          )}
+        </div>
+
+        {/* Alcance de la transferencia */}
+        {showScopeStep && (
+          <div className="space-y-3">
+            <RadioGroup
+              value={scope}
+              onValueChange={(v) => handleScopeChange(v as "all" | "quantity" | "specific")}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="all" id="scope-all" />
+                <Label htmlFor="scope-all" className="cursor-pointer">
+                  Transferir todos los pendientes ({pendingLeads.length})
+                </Label>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="quantity" id="scope-quantity" />
+                  <Label htmlFor="scope-quantity" className="cursor-pointer">
+                    Seleccionar por cantidad
+                  </Label>
+                </div>
+                {scope === "quantity" && (
+                  <div className="ml-6 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="size-8 shrink-0"
+                        onClick={() => handleQuantityChange(quantity - 1)}
+                        disabled={quantity <= 1}
+                      >
+                        <Minus className="size-3.5" />
+                      </Button>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={pendingLeads.length}
+                        value={quantity}
+                        onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                        className="w-20 text-center"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="size-8 shrink-0"
+                        onClick={() => handleQuantityChange(quantity + 1)}
+                        disabled={quantity >= pendingLeads.length}
+                      >
+                        <Plus className="size-3.5" />
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        de {pendingLeads.length} leads
+                      </span>
+                    </div>
+                    <div className="border rounded-md divide-y max-h-36 overflow-y-auto">
+                      {pendingLeads.slice(0, quantity).map((lead, i) => (
+                        <div key={lead.id} className="flex items-center gap-3 px-3 py-2">
+                          <span className="text-xs text-muted-foreground w-4 shrink-0">{i + 1}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{lead.full_name}</p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {lead.phone}
+                              {lead.campaign ? ` · ${lead.campaign}` : ""}
+                            </p>
+                          </div>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {lead.vehicle_brand}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="specific" id="scope-specific" />
+                <Label htmlFor="scope-specific" className="cursor-pointer">
+                  Seleccionar específicos manualmente
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {scope === "specific" && (
+              <div className="border rounded-md divide-y max-h-48 overflow-y-auto">
+                {pendingLeads.map((lead) => (
+                  <div
+                    key={lead.id}
+                    className="flex items-center gap-3 p-3 hover:bg-muted/50 cursor-pointer"
+                    onClick={() => toggleLeadSelection(lead.id)}
+                  >
+                    <Checkbox
+                      checked={selectedLeadIds.includes(lead.id)}
+                      onCheckedChange={() => toggleLeadSelection(lead.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{lead.full_name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {lead.phone}
+                        {lead.campaign ? ` · ${lead.campaign}` : ""}
+                      </p>
+                    </div>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {lead.vehicle_brand}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Resumen de confirmación */}
+        {canConfirm && (
+          <div className="rounded-md bg-muted/50 border px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Se transferirán{" "}
+              <span className="font-semibold text-foreground">{transferCount}</span>{" "}
+              lead(s) de{" "}
+              <span className="font-semibold text-foreground">{fromWorkerName}</span>{" "}
+              a{" "}
+              <span className="font-semibold text-foreground">{toWorkerName}</span>
+            </p>
+          </div>
+        )}
+
+        {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
+      </div>
+    </GeneralSheet>
   );
 }
