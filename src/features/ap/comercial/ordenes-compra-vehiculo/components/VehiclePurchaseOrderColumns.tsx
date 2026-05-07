@@ -52,6 +52,24 @@ export const vehiclePurchaseOrderColumns = ({
     },
   },
   {
+    accessorKey: "vehicle.vin",
+    header: "VIN",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge
+            color="sky"
+            variant="default"
+            className="font-semibold"
+          >
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
     accessorKey: "emission_date",
     header: "Fecha Emisión",
   },

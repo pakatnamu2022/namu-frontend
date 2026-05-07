@@ -87,3 +87,15 @@ export interface AssignWorkersResponse {
   success: boolean;
   message: string;
 }
+
+export interface TransferLeadsRequest {
+  from_worker_id: number;
+  to_worker_id: number;
+  potential_buyer_ids: number[];
+}
+
+export interface TransferLeadsResponse {
+  success: boolean;
+  message: string;
+  transferred_count: number;
+}
