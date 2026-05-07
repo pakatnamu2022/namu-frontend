@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { FileCheck } from "lucide-react";
+import { FileCheck, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,28 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { VehicleResourceWithCosts } from "../../vehiculos/lib/vehicles.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
+import { useState } from "react";
+
+interface BonusDiscountRow {
+  id: string;
+  concept_id: string;
+  descripcion: string;
+  isPercentage: boolean;
+  valor: number;
+  isNegative: boolean;
+}
 
 interface PurchaseRequestQuoteSummaryProps {
   form: UseFormReturn<any>;
@@ -49,6 +65,8 @@ interface PurchaseRequestQuoteSummaryProps {
   selectedInvoiceCurrency: CurrencyTypesResource | undefined;
   getExchangeRate: (currencyId: number) => number;
   currencyTypes: CurrencyTypesResource[];
+  billedCost?: number;
+  bonusDiscountRows?: BonusDiscountRow[];
   onCancel: () => void;
   onSubmit: (data: any) => void;
 }
@@ -71,14 +89,52 @@ export function PurchaseRequestQuoteSummary({
   finalTotal,
   selectedInvoiceCurrency,
   getExchangeRate,
+  billedCost = 0,
+  bonusDiscountRows = [],
   onCancel,
   onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
   const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
+  const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
+
   // Obtener el color seleccionado
   const selectedColor = vehicleColorWatch
     ? vehicleColors.find((c) => c.id.toString() === vehicleColorWatch)
     : undefined;
+
+  const fmt = (n: number) =>
+    n.toLocaleString("es-PE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  // Calcular bonos y descuentos directamente desde las filas (evita bug de orden en calculateTotals)
+  const rowAmount = (row: BonusDiscountRow) =>
+    row.isPercentage ? (totals.salePrice * row.valor) / 100 : row.valor;
+
+  const bonusRows = bonusDiscountRows.filter((r) => !r.isNegative);
+  const discountRows = bonusDiscountRows.filter((r) => r.isNegative);
+
+  const bonusTotal = bonusRows.reduce((sum, r) => sum + rowAmount(r), 0);
+  const discountTotal = discountRows.reduce((sum, r) => sum + rowAmount(r), 0);
+
+  // Margen real:
+  //   Ingresos del cliente  = precio venta - descuentos al cliente + accesorios cobrados
+  //   Ingresos de la marca  = bonos de marca
+  //   Costo                 = costo de compra del vehículo
+  const hasMarginData = withVinWatch && billedCost > 0 && totals.salePrice > 0;
+  const clientRevenue = totals.salePrice - discountTotal + totals.accessoriesTotal;
+  const totalIncome = clientRevenue + bonusTotal;
+  const realMarginAmount = hasMarginData ? totalIncome - billedCost : 0;
+  const realMarginPct = hasMarginData ? (realMarginAmount / billedCost) * 100 : 0;
+
+  const marginButtonColor = !hasMarginData
+    ? ""
+    : realMarginPct >= 4
+      ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
+      : realMarginPct >= 0
+        ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500"
+        : "bg-red-600 hover:bg-red-700 text-white border-red-600";
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
@@ -268,6 +324,20 @@ export function PurchaseRequestQuoteSummary({
             </div>
           </div>
 
+          {/* Botón Margen Real */}
+          {hasMarginData && (
+            <Button
+              type="button"
+              variant="outline"
+              className={`w-full font-semibold ${marginButtonColor}`}
+              onClick={() => setIsMarginModalOpen(true)}
+            >
+              <TrendingUp className="size-4 mr-2" />
+              Ver Margen ({realMarginPct >= 0 ? "+" : ""}
+              {realMarginPct.toFixed(2)}%)
+            </Button>
+          )}
+
           <Separator className="bg-muted-foreground/20" />
 
           {/* Comentarios */}
@@ -345,6 +415,134 @@ export function PurchaseRequestQuoteSummary({
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Detalle de Margen */}
+      <Dialog open={isMarginModalOpen} onOpenChange={setIsMarginModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="size-5" />
+              Detalle del Margen Real
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3 pt-1">
+            {/* ── INGRESOS ── */}
+            <div className="space-y-2 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Ingresos
+              </p>
+
+              {/* Precio de venta base */}
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Precio de Venta</span>
+                <span className="font-medium">
+                  {vehicleCurrency.symbol} {fmt(totals.salePrice)}
+                </span>
+              </div>
+
+              {/* Descuentos al cliente (reducen lo que cobra el dealer) */}
+              {discountRows.map((row) => (
+                <div
+                  key={row.id}
+                  className="flex justify-between items-center text-sm"
+                >
+                  <span className="text-muted-foreground truncate max-w-[210px]">
+                    Desc. {row.descripcion}
+                    {row.isPercentage && ` (${row.valor}%)`}
+                  </span>
+                  <span className="font-medium text-red-600">
+                    − {vehicleCurrency.symbol} {fmt(rowAmount(row))}
+                  </span>
+                </div>
+              ))}
+
+              {/* Accesorios cobrados al cliente */}
+              {totals.accessoriesTotal > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Accesorios</span>
+                  <span className="font-medium text-primary">
+                    + {vehicleCurrency.symbol} {fmt(totals.accessoriesTotal)}
+                  </span>
+                </div>
+              )}
+
+              <Separator className="my-1" />
+
+              {/* Subtotal del cliente */}
+              <div className="flex justify-between items-center text-sm font-medium">
+                <span>Subtotal (cliente)</span>
+                <span>{vehicleCurrency.symbol} {fmt(clientRevenue)}</span>
+              </div>
+
+              {/* Bonos de marca (ingreso adicional del dealer, no del cliente) */}
+              {bonusRows.length > 0 && (
+                <>
+                  <Separator className="my-1" />
+                  <p className="text-xs text-muted-foreground">Bonos de marca</p>
+                  {bonusRows.map((row) => (
+                    <div
+                      key={row.id}
+                      className="flex justify-between items-center text-sm"
+                    >
+                      <span className="text-muted-foreground truncate max-w-[210px]">
+                        {row.descripcion}
+                        {row.isPercentage && ` (${row.valor}%)`}
+                      </span>
+                      <span className="font-medium text-green-600">
+                        + {vehicleCurrency.symbol} {fmt(rowAmount(row))}
+                      </span>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              <Separator className="my-1" />
+
+              {/* Total ingresos */}
+              <div className="flex justify-between items-center text-sm font-semibold">
+                <span>Total Ingresos</span>
+                <span>{vehicleCurrency.symbol} {fmt(totalIncome)}</span>
+              </div>
+            </div>
+
+            {/* ── COSTOS ── */}
+            <div className="space-y-2 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Costos
+              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Costo de Compra</span>
+                <span className="font-medium text-red-600">
+                  − {vehicleCurrency.symbol} {fmt(billedCost)}
+                </span>
+              </div>
+            </div>
+
+            {/* ── MARGEN REAL ── */}
+            <div
+              className={`p-3 rounded-lg border flex justify-between items-center ${
+                realMarginPct >= 4
+                  ? "bg-green-50 border-green-300 text-green-700"
+                  : realMarginPct >= 0
+                    ? "bg-orange-50 border-orange-300 text-orange-700"
+                    : "bg-red-50 border-red-300 text-red-700"
+              }`}
+            >
+              <span className="text-base font-bold">Margen Real</span>
+              <div className="text-right">
+                <p className="text-lg font-bold">
+                  {vehicleCurrency.symbol} {fmt(realMarginAmount)}
+                </p>
+                <p className="text-sm font-semibold">
+                  ({realMarginPct >= 0 ? "+" : ""}
+                  {realMarginPct.toFixed(2)}%)
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1135,6 +1135,8 @@ export const PurchaseRequestQuoteForm = ({
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
             currencyTypes={currencyTypes}
+            billedCost={billedCost}
+            bonusDiscountRows={bonusDiscountRows}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />
