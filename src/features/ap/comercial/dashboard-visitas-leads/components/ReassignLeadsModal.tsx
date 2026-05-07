@@ -15,8 +15,9 @@ import { transferWorkerLeads } from "../../gestionar-leads/lib/manageLeads.actio
 import { successToast } from "@/core/core.function";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { es } from "date-fns/locale";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 interface ReassignLeadsModalProps {
   open: boolean;
@@ -72,6 +73,10 @@ export default function ReassignLeadsModal({
 
   const [fromWorkerId, setFromWorkerId] = useState<string>("");
   const [toWorkerId, setToWorkerId] = useState<string>("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    startOfMonth(new Date()),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [scope, setScope] = useState<"all" | "quantity" | "specific">("all");
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedLeadIds, setSelectedLeadIds] = useState<number[]>([]);
@@ -85,15 +90,26 @@ export default function ReassignLeadsModal({
   });
 
   const fromWorkerIdNum = fromWorkerId ? parseInt(fromWorkerId, 10) : null;
+  const registrationDateParam =
+    dateFrom && dateTo
+      ? [format(dateFrom, "yyyy-MM-dd"), format(dateTo, "yyyy-MM-dd")]
+      : dateFrom
+        ? [format(dateFrom, "yyyy-MM-dd")]
+        : undefined;
   const { data: pendingLeads = [], isLoading: isLoadingLeads } =
     usePendingLeadsByWorker(fromWorkerIdNum, {
       sort: "registration_date",
       direction: "desc",
+      ...(registrationDateParam
+        ? { registration_date: registrationDateParam }
+        : {}),
     });
 
   const handleClose = () => {
     setFromWorkerId("");
     setToWorkerId("");
+    setDateFrom(startOfMonth(new Date()));
+    setDateTo(new Date());
     setScope("all");
     setSelectedLeadIds([]);
     setErrorMsg("");
@@ -103,6 +119,8 @@ export default function ReassignLeadsModal({
   const handleFromWorkerChange = (value: string) => {
     setFromWorkerId(value);
     setToWorkerId("");
+    setDateFrom(startOfMonth(new Date()));
+    setDateTo(new Date());
     setSelectedLeadIds([]);
     setScope("all");
     setErrorMsg("");
@@ -247,6 +265,18 @@ export default function ReassignLeadsModal({
           </div>
 
           {fromWorkerId && (
+            <DateRangePickerFilter
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              onDateChange={(from, to) => {
+                setDateFrom(from);
+                setDateTo(to);
+                setSelectedLeadIds([]);
+              }}
+            />
+          )}
+
+          {fromWorkerId && (
             <p className="text-sm text-muted-foreground">
               {isLoadingLeads ? (
                 "Cargando leads pendientes..."
@@ -260,6 +290,12 @@ export default function ReassignLeadsModal({
                     {pendingLeads.length}
                   </span>{" "}
                   lead(s) pendiente(s)
+                  {(dateFrom || dateTo) && (
+                    <span className="text-muted-foreground/60">
+                      {" "}
+                      en el rango seleccionado
+                    </span>
+                  )}
                 </>
               )}
             </p>
@@ -386,6 +422,9 @@ export default function ReassignLeadsModal({
                       <p className="text-xs text-muted-foreground truncate">
                         {lead.phone}
                         {lead.campaign ? ` · ${lead.campaign}` : ""}
+                        {lead.registration_date
+                          ? ` · ${format(new Date(`${lead.registration_date}T00:00:00`), "PPP", { locale: es })}`
+                          : ""}
                       </p>
                     </div>
                     <span className="text-xs text-muted-foreground shrink-0">

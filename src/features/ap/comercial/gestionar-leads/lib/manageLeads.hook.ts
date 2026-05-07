@@ -55,7 +55,7 @@ export const usePendingLeadsByWorker = (
   params?: Record<string, any>,
 ) => {
   return useQuery<ManageLeadsResource[]>({
-    queryKey: [QUERY_KEY, "pending", workerId],
+    queryKey: [QUERY_KEY, "pending", workerId, params],
     queryFn: () =>
       getAllManageLeads({ params: { worker_id: workerId, use: 0, ...params } }),
     refetchOnWindowFocus: false,
