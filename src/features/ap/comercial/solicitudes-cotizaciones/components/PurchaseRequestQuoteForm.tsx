@@ -1137,6 +1137,8 @@ export const PurchaseRequestQuoteForm = ({
             currencyTypes={currencyTypes}
             billedCost={billedCost}
             bonusDiscountRows={bonusDiscountRows}
+            accessoriesRows={accessoriesRows}
+            approvedAccesories={approvedAccesories}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />
