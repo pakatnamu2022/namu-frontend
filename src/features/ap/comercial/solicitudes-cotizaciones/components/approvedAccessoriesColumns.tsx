@@ -112,9 +112,17 @@ export function getApprovedAccessoriesColumns({
         return (
           <div className="text-right font-medium text-primary">
             {row.original.type === "OBSEQUIO" ? (
-              <span className="text-green-600">
-                {accessory ? accessory.currency_symbol : ""} 0.00
-              </span>
+              <div>
+                <span className="text-green-600 block">
+                  {accessory ? accessory.currency_symbol : ""} 0.00
+                </span>
+                {accessory && (
+                  <span className="text-xs text-red-500 block">
+                    Costo: {accessory.currency_symbol}{" "}
+                    {Number(subtotal).toFixed(2)}
+                  </span>
+                )}
+              </div>
             ) : accessory ? (
               `${accessory.currency_symbol} ${Number(subtotal).toFixed(2)}`
             ) : null}

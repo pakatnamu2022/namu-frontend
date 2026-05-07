@@ -79,6 +79,7 @@ interface PurchaseRequestQuoteSummaryProps {
   bonusDiscountRows?: BonusDiscountRow[];
   accessoriesRows?: AccessoryRow[];
   approvedAccesories?: ApprovedAccesoriesResource[];
+  canManage?: boolean;
   onCancel: () => void;
   onSubmit: (data: any) => void;
 }
@@ -106,6 +107,7 @@ export function PurchaseRequestQuoteSummary({
   bonusDiscountRows = [],
   accessoriesRows = [],
   approvedAccesories = [],
+  canManage = false,
   onCancel,
   onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
@@ -400,7 +402,7 @@ export function PurchaseRequestQuoteSummary({
           </div>
 
           {/* Botón Margen Real */}
-          {hasMarginData && (
+          {canManage && hasMarginData && (
             <Button
               type="button"
               variant="outline"

@@ -88,7 +88,7 @@ export function EditAccessorySheet({
   };
 
   const availableAccessories =
-    form.type === "OBSEQUIO"
+    form.type === "ACCESORIO_ADICIONAL"
       ? accessories.filter((acc) => acc.type_operation_id === CM_COMERCIAL_ID)
       : accessories;
 
@@ -115,7 +115,7 @@ export function EditAccessorySheet({
               (acc) => acc.id === form.accessory_id,
             );
             const resetId =
-              newType === "OBSEQUIO" &&
+              newType === "ACCESORIO_ADICIONAL" &&
               selectedAcc &&
               selectedAcc.type_operation_id !== CM_COMERCIAL_ID;
             setForm({

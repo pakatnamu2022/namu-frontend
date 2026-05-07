@@ -104,7 +104,7 @@ export const PurchaseRequestQuoteForm = ({
     },
     mode: "onChange",
   });
-  const { canAssign } = useModulePermissions(ROUTE);
+  const { canAssign, canManage } = useModulePermissions(ROUTE);
 
   // Estados
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
@@ -989,7 +989,7 @@ export const PurchaseRequestQuoteForm = ({
                 {/* Mostrar información adicional según el modo */}
                 {withVinWatch && vehicleVnWatch && (
                   <div className="mt-2 space-y-2 w-full">
-                    {billedCost > 0 ? (
+                    {canManage && (billedCost > 0 ? (
                       <>
                         <Alert variant="info">
                           <AlertDescription>
@@ -1023,7 +1023,7 @@ export const PurchaseRequestQuoteForm = ({
                           Revisar el registro del vehículo.
                         </AlertDescription>
                       </Alert>
-                    )}
+                    ))}
                     {parseFloat(salePriceWatch || "0") === 0 && (
                       <Alert variant="destructive">
                         <AlertTitle>Precio de venta en 0</AlertTitle>
@@ -1139,6 +1139,7 @@ export const PurchaseRequestQuoteForm = ({
             bonusDiscountRows={bonusDiscountRows}
             accessoriesRows={accessoriesRows}
             approvedAccesories={approvedAccesories}
+            canManage={canManage}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />
