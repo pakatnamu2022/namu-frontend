@@ -44,6 +44,7 @@ export interface SupplierOrderResource {
   tax_amount: number;
   total_amount: number;
   has_receptions: boolean;
+  has_receptions_annulled: boolean;
   approved_by: number | null;
   invoice_numbers: string[];
   oc_dyn_numbers: string[];
@@ -64,6 +65,10 @@ export interface SupplierOrderResource {
       requested_by_name: string;
     },
   ];
+  discarded_by?: number;
+  discarded_by_name?: string;
+  reason_cancellation?: string;
+  discarded_at?: string;
 }
 
 export interface SupplierOrderDetailsRequest {

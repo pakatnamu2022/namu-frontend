@@ -214,15 +214,22 @@ export const PurchaseOrderProductsForm = ({
 
   // useEffect para consultar tipo de cambio cuando cambien la moneda y la fecha
   useEffect(() => {
-    // Solo consultar si la moneda NO es soles (id 1) y si ambos valores existen
+    const rawDate = watchedEmissionDate as Date | string | undefined;
+    const emissionDateAsDate =
+      rawDate instanceof Date
+        ? rawDate
+        : rawDate
+          ? new Date(rawDate as string)
+          : null;
+
     if (
       watchedCurrencyTypeId &&
       watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-      watchedEmissionDate instanceof Date
+      emissionDateAsDate instanceof Date &&
+      !isNaN(emissionDateAsDate.getTime())
     ) {
-      fetchExchangeRate(watchedCurrencyTypeId, watchedEmissionDate);
+      fetchExchangeRate(watchedCurrencyTypeId, emissionDateAsDate);
     } else {
-      // Si es soles o no hay datos, limpiar el tipo de cambio
       setExchangeRate(null);
       setExchangeRateError("");
     }

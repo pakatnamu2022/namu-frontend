@@ -1147,7 +1147,7 @@ export const SupplierOrderForm = ({
               <Loader
                 className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
               />
-              {isSubmitting ? "Guardando..." : "Guardar Pedido a Proveedor"}
+              {isSubmitting ? "Guardando..." : "Guardar Pedido"}
             </Button>
           </div>
         </form>

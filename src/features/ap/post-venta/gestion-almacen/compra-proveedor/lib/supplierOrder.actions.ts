@@ -91,6 +91,17 @@ export async function approveSupplierOrder(
   return data;
 }
 
+export async function discardSupplierOrder(
+  id: number,
+  payload: { reason_cancellation: string },
+): Promise<SupplierOrderResource> {
+  const { data } = await api.put<SupplierOrderResource>(
+    `${ENDPOINT}/${id}/discard`,
+    payload,
+  );
+  return data;
+}
+
 export async function downloadSupplierOrderPdf(id: number): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
