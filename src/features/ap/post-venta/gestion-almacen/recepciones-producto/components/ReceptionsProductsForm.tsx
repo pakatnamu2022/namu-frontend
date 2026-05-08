@@ -372,7 +372,7 @@ export const ReceptionsProductsForm = ({
                           <FormInput
                             control={form.control}
                             name={`details.${index}.observed_quantity`}
-                            label="Cant. Observada"
+                            label="Cant. Nota Crédito"
                             placeholder="0"
                             type="number"
                             min="0"

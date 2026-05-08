@@ -44,10 +44,11 @@ export interface SupplierOrderResource {
   tax_amount: number;
   total_amount: number;
   has_receptions: boolean;
+  has_receptions_active: boolean;
   has_receptions_annulled: boolean;
   approved_by: number | null;
-  invoice_numbers: string[];
-  oc_dyn_numbers: string[];
+  invoice_numbers: SupplierOrderTrackedNumberResource[];
+  oc_dyn_numbers: SupplierOrderTrackedNumberResource[];
   reception_type: "PENDING" | "PARTIAL" | "COMPLETE";
   status: boolean;
   supplier?: SuppliersResource;
@@ -69,6 +70,11 @@ export interface SupplierOrderResource {
   discarded_by_name?: string;
   reason_cancellation?: string;
   discarded_at?: string;
+}
+
+export interface SupplierOrderTrackedNumberResource {
+  number: string;
+  status: boolean;
 }
 
 export interface SupplierOrderDetailsRequest {

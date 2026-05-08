@@ -1,5 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
+import {
+  SupplierOrderResource,
+  type SupplierOrderTrackedNumberResource,
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
 import {
@@ -7,8 +10,35 @@ import {
   RECEPCION_STATUS_COLORS,
 } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 import { SupplierOrderActionsCell } from "./SupplierOrderActionsCell";
+import { XCircle } from "lucide-react";
 
 export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
+
+const renderTrackedNumbers = (
+  numbers: SupplierOrderTrackedNumberResource[],
+) => {
+  if (!numbers.length) return "N/A";
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      {numbers.map(({ number, status }, index) =>
+        status ? (
+          <CopyCell key={`${number}-${index}`} value={number} />
+        ) : (
+          <Badge
+            key={`${number}-${index}`}
+            variant="outline"
+            color="red"
+            className="w-fit gap-1"
+          >
+            <XCircle className="size-3" />
+            <span className="line-through">{number}</span>
+          </Badge>
+        ),
+      )}
+    </div>
+  );
+};
 
 interface Props {
   onDelete: (id: number) => void;
@@ -119,13 +149,7 @@ export const supplierOrderColumns = ({
         );
       }
 
-      return (
-        <div className="flex flex-col gap-0.5">
-          {invoiceNumbers.map((invoice, index) => (
-            <CopyCell key={index} value={invoice} />
-          ))}
-        </div>
-      );
+      return renderTrackedNumbers(invoiceNumbers);
     },
   },
   {
@@ -144,13 +168,7 @@ export const supplierOrderColumns = ({
         );
       }
 
-      return (
-        <div className="flex flex-col gap-0.5">
-          {invoiceNumbers.map((purchase_order, index) => (
-            <CopyCell key={index} value={purchase_order} />
-          ))}
-        </div>
-      );
+      return renderTrackedNumbers(invoiceNumbers);
     },
   },
   {

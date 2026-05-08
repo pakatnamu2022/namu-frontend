@@ -41,8 +41,14 @@ export const SupplierOrderActionsCell = ({
   routeUpdate,
   routeReception,
 }: SupplierOrderActionsCellProps) => {
-  const { id, has_receptions, has_receptions_annulled, approved_by, status } =
-    row;
+  const {
+    id,
+    has_receptions,
+    has_receptions_active,
+    has_receptions_annulled,
+    approved_by,
+    status,
+  } = row;
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
@@ -53,7 +59,8 @@ export const SupplierOrderActionsCell = ({
   const canUpdateAndActive = permissions.canUpdate && isActive;
   const canReception = canUpdateAndActive;
   const canEdit = canUpdateAndActive && !has_receptions && Boolean(routeUpdate);
-  const canDiscard = Boolean(has_receptions_annulled) && isActive;
+  const canDiscard =
+    Boolean(has_receptions_annulled) && isActive && !has_receptions_active;
   const canDelete = permissions.canDelete && !has_receptions && isActive;
 
   const handleDownloadPdf = async () => {

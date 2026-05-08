@@ -91,6 +91,7 @@ export interface VehiclePurchaseOrderResource {
   receipt_dynamics: string;
   credit_note_dynamics?: string;
   payment_terms: string;
+  type_operation_id: number;
   migrated_at: string;
   created_at: string;
   updated_at: string;
