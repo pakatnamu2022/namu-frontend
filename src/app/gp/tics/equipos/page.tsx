@@ -4,6 +4,7 @@
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import EquipmentTable from "@/features/gp/tics/equipment/components/EquipmentTable";
 import { useEquipments } from "@/features/gp/tics/equipment/lib/equipment.hook";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useEffect, useState } from "react";
@@ -26,12 +27,15 @@ export default function EquipmentPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [useStatus, setUseStatus] = useState("all");
+  const [sedeId, setSedeId] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [historyId, setHistoryId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, status, useStatus, sedeId]);
+
+  const { data: sedes = [] } = useAllSedes();
 
   const { data, isLoading, refetch } = useEquipments({
     page,
@@ -39,6 +43,7 @@ export default function EquipmentPage() {
     search,
     status_id: status === "all" ? undefined : status,
     estado_uso: useStatus === "all" ? undefined : useStatus,
+    sede_id: sedeId === "all" ? undefined : sedeId,
   });
 
   const handleDelete = async () => {
@@ -83,6 +88,9 @@ export default function EquipmentPage() {
           setStatus={setStatus}
           useStatus={useStatus}
           setUseStatus={setUseStatus}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
+          sedes={sedes}
         />
       </EquipmentTable>
 
