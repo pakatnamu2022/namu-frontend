@@ -72,6 +72,7 @@ export function TravelControlDetailModal({
   trip,
   trigger,
   onStatusChange,
+  permissions
 }: TravelControlDetailModalProps) {
   const [open, setOpen] = useState(false);
   const [localTrip, setLocalTrip] = useState<TravelControlResource | null>(
@@ -84,7 +85,7 @@ export function TravelControlDetailModal({
     localTrip?.tracto_id ? String(localTrip.tracto_id) : undefined,
   );
   const { data: segmentsData} = useSegments(localTrip?.id);
-
+  const { canUpdate, canExport } = permissions;
   // Estado para los SubTrips
   const [subTrips, setSubTrips] = useState<SubTrip[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -145,6 +146,7 @@ export function TravelControlDetailModal({
   const { mutateAsync: startSegmentMutation } = useStartSegment();
   const { mutateAsync: endSegmentMutation } = useEndSegment();
   const { mutate: exportReport, isPending: isExporting } = useExportTravelReport();
+ 
 
 
   const tonnageValue = watch("tonnage");
@@ -374,57 +376,6 @@ const handleSaveMileageEdits = async () => {
         errorToast(error.message || "Error al actualizar los kilometrajes");
     }
 };
-
-// const handleSaveMileageEdits = async () => {
-//     if (!localTrip) return;
-    
-//     // Validaciones
-//     const generalInitial = parseFloat(editFormData.general_initial_km);
-//     const generalFinal = parseFloat(editFormData.general_final_km);
-    
-//     if (!isNaN(generalInitial) && !isNaN(generalFinal) && generalFinal <= generalInitial) {
-//         errorToast("El kilometraje final general debe ser mayor al inicial");
-//         return;
-//     }
-    
-//     // Preparar datos de segmentos
-//     const segmentsData = [];
-//     for (const sub of sortedSubTrips) {
-//         const segmentData = editFormData.segments[sub.id];
-//         if (segmentData) {
-//             const initial = segmentData.initial ? parseFloat(segmentData.initial) : null;
-//             const final = segmentData.final ? parseFloat(segmentData.final) : null;
-            
-//             if (initial !== null && final !== null && final <= initial) {
-//                 errorToast(`El kilometraje final del tramo "${sub.name}" debe ser mayor al inicial`);
-//                 return;
-//             }
-            
-//             segmentsData.push({
-//                 id: sub.id,
-//                 initial_mileage: initial,
-//                 final_mileage: final,
-//             });
-//         }
-//     }
-    
-//     try {
-//         const updatedTravel = await updateMileage({
-//             id: localTrip.id,
-//             general_initial_km: editFormData.general_initial_km ? parseFloat(editFormData.general_initial_km) : null,
-//             general_final_km: editFormData.general_final_km ? parseFloat(editFormData.general_final_km) : null,
-//             segments: segmentsData,
-//         });
-        
-//         setLocalTrip(updatedTravel);
-//         setIsEditingMileage(false);
-        
-//         successToast("Kilometrajes actualizados correctamente");
-//     } catch (error: any) {
-//         errorToast(error.message || "Error al actualizar los kilometrajes");
-//     }
-// };
-
   const handleExport = (format: 'excel' | 'pdf') => {
     if(localTrip){
       exportReport({ travelId: localTrip.id, format});
@@ -830,6 +781,7 @@ const handleSaveMileageEdits = async () => {
     (userComplete?.position?.toUpperCase() === 'INSTRUCTOR DE FLOTA');
   const isComercial = (userComplete?.role?.toUpperCase() === 'COMERCIAL Y FACTURACION TP') ||
     (userComplete?.position?.toUpperCase() === 'ASISTENTE DE OPERACIONES');
+  const userCanEditMileage = canUpdate && !isDriver;
 
   const allSubTripsCompleted = subTrips.length > 0 && subTrips.every((s) => s.status === "completed");
   const hasSubTrips = subTrips.length > 0;
@@ -877,7 +829,7 @@ const handleSaveMileageEdits = async () => {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               {/* Botón de exportación */}
-              {(localTrip.status === "fuel_pending" || localTrip.status === "completed") && (
+              {(localTrip.status === "fuel_pending" || localTrip.status === "completed") && canExport && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2" disabled={isExporting}>
@@ -1249,49 +1201,51 @@ const handleSaveMileageEdits = async () => {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-lg">Métricas del Viaje</h3>
-                    {!isEditingMileage ? (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsEditingMileage(true)}
-                            className="gap-2"
-                            disabled={isUpdatingMileage}
-                        >
-                            <Pencil className="h-4 w-4" />
-                            Editar Kilometrajes
-                        </Button>
-                    ) : (
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setIsEditingMileage(false)}
-                                disabled={isUpdatingMileage}
-                            >
-                                <X className="h-4 w-4 mr-1" />
-                                Cancelar
-                            </Button>
-                            <Button
-                                variant="default"
-                                size="sm"
-                                onClick={handleSaveMileageEdits}
-                                disabled={isUpdatingMileage}
-                                className="gap-2"
-                            >
-                                {isUpdatingMileage ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                    <Save className="h-4 w-4" />
-                                )}
-                                Guardar Cambios
-                            </Button>
-                        </div>
-                    )}
+                    {userCanEditMileage && (
+                      !isEditingMileage ? (
+                          <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setIsEditingMileage(true)}
+                              className="gap-2"
+                              disabled={isUpdatingMileage}
+                          >
+                              <Pencil className="h-4 w-4" />
+                              Editar Kilometrajes
+                          </Button>
+                      ) : (
+                          <div className="flex gap-2">
+                              <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setIsEditingMileage(false)}
+                                  disabled={isUpdatingMileage}
+                              >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Cancelar
+                              </Button>
+                              <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={handleSaveMileageEdits}
+                                  disabled={isUpdatingMileage}
+                                  className="gap-2"
+                              >
+                                  {isUpdatingMileage ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                      <Save className="h-4 w-4" />
+                                  )}
+                                  Guardar Cambios
+                              </Button>
+                          </div>
+                      )
+                  )}
                 </div>
 
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {!isEditingMileage ? (
+                    {!isEditingMileage || !userCanEditMileage ? (
                         // Modo vista - mostrar valores actuales
                         <>
                             <MetricCard label="Km Inicial" value={localTrip.initialKm?.toString() || "-"} subtext="km" />
@@ -1352,7 +1306,7 @@ const handleSaveMileageEdits = async () => {
                     )}
                 </div>
 
-                {isEditingMileage && (() => {
+                {isEditingMileage && userCanEditMileage && (() => {
                   const warnings = getSegmentWarnings();
                   if (warnings.length > 0) {
                       return (
@@ -1378,7 +1332,7 @@ const handleSaveMileageEdits = async () => {
                     <h2 className="font-semibold text-foreground flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-primary" />
                         Métricas por Tramo
-                        {isEditingMileage && (
+                        {isEditingMileage && userCanEditMileage && (
                             <Badge variant="outline" className="ml-2 text-xs">
                                 <Edit3 className="h-3 w-3 mr-1" />
                                 Modo edición
@@ -1418,8 +1372,8 @@ const handleSaveMileageEdits = async () => {
                                         {isCompleted ? "Completado" : "Sin Completar"}
                                     </span>
                                 </div>
-                                
-                                {!isEditingMileage ? (
+
+                                {!isEditingMileage && (
                                     // Modo vista
                                     <div className="grid grid-cols-3 gap-2 text-xs">
                                         <div className="p-2 bg-card rounded">
@@ -1435,7 +1389,9 @@ const handleSaveMileageEdits = async () => {
                                             <p className="font-semibold text-green-600">{sub.total_mileage ?? '-'}</p>
                                         </div>
                                     </div>
-                                ) : (
+                                )}
+                                
+                                { isEditingMileage && userCanEditMileage && (
                                     // Modo edición
                                     <div className="grid grid-cols-3 gap-3">
                                         <div>
@@ -1471,6 +1427,23 @@ const handleSaveMileageEdits = async () => {
                                         </div>
                                     </div>
                                 )}
+
+                                {isEditingMileage && !userCanEditMileage && (
+                                <div className="grid grid-cols-3 gap-2 text-xs opacity-75">
+                                  <div className="p-2 bg-card rounded">
+                                    <p className="text-muted-foreground">Km Inicial</p>
+                                    <p className="font-semibold">{sub.initial_mileage ?? '-'}</p>
+                                  </div>
+                                  <div className="p-2 bg-card rounded">
+                                    <p className="text-muted-foreground">Km Final</p>
+                                    <p className="font-semibold">{sub.final_mileage ?? '-'}</p>
+                                  </div>
+                                  <div className="p-2 bg-card rounded">
+                                    <p className="text-muted-foreground">Total Km</p>
+                                    <p className="font-semibold text-green-600">{sub.total_mileage ?? '-'}</p>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                         );
                     })}

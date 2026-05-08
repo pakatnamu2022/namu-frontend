@@ -11,6 +11,7 @@ import { SalesManagerFilters } from "../lib/dashboard.interface";
 import SalesManagerStatsCards from "./SalesManagerStatsCards";
 import SalesManagerAdvisorTable from "./SalesManagerAdvisorTable";
 import SalesManagerDetailsSheet from "./SalesManagerDetailsSheet";
+import ReassignLeadsModal from "./ReassignLeadsModal";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
@@ -26,7 +27,14 @@ import { MetricCard } from "@/shared/components/MetricCard";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { UserCheck, UserCircle, UserMinus, Users, UserX } from "lucide-react";
+import {
+  Shuffle,
+  UserCheck,
+  UserCircle,
+  UserMinus,
+  Users,
+  UserX,
+} from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 
@@ -41,7 +49,7 @@ const getLastMonthRange = () => {
 
 export default function SalesManagerDashboard() {
   const ROUTE = "dashboard-equipo-leads";
-  const { canViewAdvisors } = useModulePermissions(ROUTE);
+  const { canViewAdvisors, canAssign } = useModulePermissions(ROUTE);
 
   const lastMonthRange = getLastMonthRange();
 
@@ -59,6 +67,7 @@ export default function SalesManagerDashboard() {
     null,
   );
   const [showDetailsSheet, setShowDetailsSheet] = useState(false);
+  const [showReassignModal, setShowReassignModal] = useState(false);
 
   const { data: bosses = [] } = useAllWorkers({
     cargo_id: [...POSITION_TYPE.SALES_MANAGER, ...POSITION_TYPE.SALES_BOSS],
@@ -163,7 +172,7 @@ export default function SalesManagerDashboard() {
       {/* Header */}
       <TitleComponent
         icon="FileSignature"
-        title="Dashboard de Leads de Equipo de Ventas"
+        title="Dashboard de Leads de Equ  ipo de Ventas"
         subtitle={
           statsData
             ? `Resumen gerencial de ${statsData.data.manager_info.boss_name}`
@@ -180,6 +189,17 @@ export default function SalesManagerDashboard() {
           disablePdf={!dateFrom || !dateTo || !currentBossId}
           variant="grouped"
         />
+
+        {canAssign && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowReassignModal(true)}
+          >
+            <Shuffle className="mr-2 h-4 w-4" />
+            Reasignación de leads
+          </Button>
+        )}
 
         {canViewAdvisors && (
           <SearchableSelect
@@ -330,6 +350,11 @@ export default function SalesManagerDashboard() {
           }}
         />
       )}
+
+      <ReassignLeadsModal
+        open={showReassignModal}
+        onOpenChange={setShowReassignModal}
+      />
     </PageWrapper>
   );
 }

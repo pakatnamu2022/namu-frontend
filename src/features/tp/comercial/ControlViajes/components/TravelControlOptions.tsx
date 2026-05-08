@@ -23,10 +23,12 @@ export default function TravelControlOptions({
     status,
     setStatus,
     userPosition = "CONDUCTOR DE TRACTO CAMION",
+    permissions
 }: TravelControlOptionsProps){
 
     const { mutate: exportAllReports, isPending: isExporting } = useExportAllTravelsReport();
     const { mutate: exportSummaryReport, isPending: isExportingSummary } = useExportSummaryReport();
+    const { canExport } = permissions;
 
     const handleExportSummary = (format: 'excel' | 'pdf') => {
         const filters: any = {};
@@ -67,7 +69,9 @@ export default function TravelControlOptions({
         placeholder="Estado del viaje"
       />
       {/* Botón de exportación general */}
-            <DropdownMenu>
+
+      { canExport && (<>
+        <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2" disabled={isExporting}>
                         {isExporting ? (
@@ -103,6 +107,10 @@ export default function TravelControlOptions({
                 </DropdownMenuItem>
                </DropdownMenuContent>
             </DropdownMenu>
+      
+      </>)}
+        
+            
     </div>
     );
 }

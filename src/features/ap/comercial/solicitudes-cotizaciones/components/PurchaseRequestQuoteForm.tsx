@@ -52,6 +52,7 @@ import { OpportunityInfoCard } from "./OpportunityInfoCard";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
@@ -103,7 +104,7 @@ export const PurchaseRequestQuoteForm = ({
     },
     mode: "onChange",
   });
-  const { canAssign } = useModulePermissions(ROUTE);
+  const { canAssign, canManage } = useModulePermissions(ROUTE);
 
   // Estados
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
@@ -176,6 +177,7 @@ export const PurchaseRequestQuoteForm = ({
   const { data: vehiclesVn = [], isLoading: isLoadingVehiclesVn } =
     useAllVehiclesWithCosts({
       family_id: selectedFamilyId,
+      is_editing: mode === "update" ? true : false,
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
@@ -986,71 +988,68 @@ export const PurchaseRequestQuoteForm = ({
               >
                 {/* Mostrar información adicional según el modo */}
                 {withVinWatch && vehicleVnWatch && (
-                  <div className="mt-2 space-y-1 w-full">
-                    {billedCost > 0 ? (
+                  <div className="mt-2 space-y-2 w-full">
+                    {canManage && (billedCost > 0 ? (
                       <>
-                        <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                          <span className="font-medium">Costo Facturado:</span>{" "}
-                          {currencySymbol}{" "}
-                          {billedCost.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </div>
-                        {margin.amount !== 0 && (
-                          <div
-                            className={`text-xs px-2 py-1 rounded ${
-                              margin.amount > 0
-                                ? "text-green-700 bg-green-50"
-                                : "text-red-700 bg-red-50"
-                            }`}
-                          >
-                            <span className="font-medium">Margen:</span>{" "}
+                        <Alert variant="info">
+                          <AlertDescription>
+                            <span className="font-medium">Costo Compra:</span>{" "}
                             {currencySymbol}{" "}
-                            {margin.amount.toLocaleString("es-PE", {
+                            {billedCost.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
-                            })}{" "}
-                            ({margin.percentage > 0 ? "+" : ""}
-                            {margin.percentage.toFixed(2)}%)
-                          </div>
+                            })}
+                          </AlertDescription>
+                        </Alert>
+                        {margin.amount !== 0 && (
+                          <Alert variant={margin.amount > 0 ? "success" : "destructive"}>
+                            <AlertDescription>
+                              <span className="font-medium">Margen:</span>{" "}
+                              {currencySymbol}{" "}
+                              {margin.amount.toLocaleString("es-PE", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}{" "}
+                              ({margin.percentage > 0 ? "+" : ""}
+                              {margin.percentage.toFixed(2)}%)
+                            </AlertDescription>
+                          </Alert>
                         )}
                       </>
                     ) : (
-                      <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                        ⚠️ Este vehículo no tiene costo de compra registrado.
-                        Revisar el registro del vehículo.
-                      </div>
-                    )}
+                      <Alert variant="warning">
+                        <AlertDescription>
+                          Este vehículo no tiene costo de compra registrado.
+                          Revisar el registro del vehículo.
+                        </AlertDescription>
+                      </Alert>
+                    ))}
                     {parseFloat(salePriceWatch || "0") === 0 && (
-                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                        {!selectedModel ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
-                            cargar la información del modelo de este vehículo.
-                            Verifique que el vehículo pertenezca a la familia de
-                            la oportunidad seleccionada.
-                          </>
-                        ) : originalPrice === 0 ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
-                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
-                            {selectedModel.id}) de este vehículo no tiene precio
-                            de venta configurado. Ir a Configuraciones → Modelos
-                            VN para agregarlo.
-                          </>
-                        ) : (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> Se
-                            estableció manualmente, pero el modelo tiene
-                            configurado {currencySymbol}{" "}
-                            {originalPrice.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                            })}
-                            . Verifique si esto es correcto.
-                          </>
-                        )}
-                      </div>
+                      <Alert variant="destructive">
+                        <AlertTitle>Precio de venta en 0</AlertTitle>
+                        <AlertDescription>
+                          {!selectedModel ? (
+                            "No se pudo cargar la información del modelo de este vehículo. Verifique que el vehículo pertenezca a la familia de la oportunidad seleccionada."
+                          ) : originalPrice === 0 ? (
+                            <>
+                              El modelo{" "}
+                              <strong>"{selectedModel.code}"</strong> (ID:{" "}
+                              {selectedModel.id}) de este vehículo no tiene precio
+                              de venta configurado. Ir a Configuraciones → Modelos
+                              VN para agregarlo.
+                            </>
+                          ) : (
+                            <>
+                              Se estableció manualmente, pero el modelo tiene
+                              configurado {currencySymbol}{" "}
+                              {originalPrice.toLocaleString("es-PE", {
+                                minimumFractionDigits: 2,
+                              })}
+                              . Verifique si esto es correcto.
+                            </>
+                          )}
+                        </AlertDescription>
+                      </Alert>
                     )}
                   </div>
                 )}
@@ -1060,32 +1059,31 @@ export const PurchaseRequestQuoteForm = ({
                   modelVnWatch &&
                   parseFloat(salePriceWatch || "0") === 0 && (
                     <div className="mt-2 w-full">
-                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                        {!selectedModel ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
-                            cargar la información del modelo seleccionado.
-                          </>
-                        ) : originalPrice === 0 ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
-                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
-                            {selectedModel.id}) no tiene precio de venta
-                            configurado. Ir a Configuraciones → Modelos VN para
-                            agregarlo.
-                          </>
-                        ) : (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> Se
-                            estableció manualmente, pero el modelo tiene
-                            configurado {currencySymbol}{" "}
-                            {originalPrice.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                            })}
-                            . Verifique si esto es correcto.
-                          </>
-                        )}
-                      </div>
+                      <Alert variant="destructive">
+                        <AlertTitle>Precio de venta en 0</AlertTitle>
+                        <AlertDescription>
+                          {!selectedModel ? (
+                            "No se pudo cargar la información del modelo seleccionado."
+                          ) : originalPrice === 0 ? (
+                            <>
+                              El modelo{" "}
+                              <strong>"{selectedModel.code}"</strong> (ID:{" "}
+                              {selectedModel.id}) no tiene precio de venta
+                              configurado. Ir a Configuraciones → Modelos VN para
+                              agregarlo.
+                            </>
+                          ) : (
+                            <>
+                              Se estableció manualmente, pero el modelo tiene
+                              configurado {currencySymbol}{" "}
+                              {originalPrice.toLocaleString("es-PE", {
+                                minimumFractionDigits: 2,
+                              })}
+                              . Verifique si esto es correcto.
+                            </>
+                          )}
+                        </AlertDescription>
+                      </Alert>
                     </div>
                   )}
               </FormInput>
@@ -1137,6 +1135,11 @@ export const PurchaseRequestQuoteForm = ({
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
             currencyTypes={currencyTypes}
+            billedCost={billedCost}
+            bonusDiscountRows={bonusDiscountRows}
+            accessoriesRows={accessoriesRows}
+            approvedAccesories={approvedAccesories}
+            canManage={canManage}
             onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />

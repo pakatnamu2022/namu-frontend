@@ -10,7 +10,8 @@ import { TravelControlDetailModal } from "./TravelControlDetailModal";
 export type TravelControlColumns = ColumnDef<TravelControlResource>;
 
 export const TravelControlColumns = ({
-  onStatusChange
+  onStatusChange,
+  permissions
 }: TravelControlColumnsProps): TravelControlColumns[] => [
   {
     accessorKey: "tripNumber",
@@ -189,6 +190,7 @@ export const TravelControlColumns = ({
       return (
         <div className="flex items-center gap-1">
           <TravelControlDetailModal
+           permissions={permissions}
             trip={trip}
             onStatusChange={onStatusChange}
             trigger={

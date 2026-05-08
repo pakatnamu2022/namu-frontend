@@ -15,6 +15,7 @@ import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useTravels } from "@/features/tp/comercial/ControlViajes/lib/travelControl.hooks";
 import TravelControlOptions from "@/features/tp/comercial/ControlViajes/components/TravelControlOptions";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 
 export default function ControlTravelPage() {
@@ -25,6 +26,9 @@ export default function ControlTravelPage() {
   const [status, setStatus] = useState<TripStatus | "all">("all");
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
+
+  //permisos
+  const permissions = useModulePermissions("control-viajes");
 
  const resetPage = useCallback(() => {
     setPage(1);
@@ -69,7 +73,7 @@ export default function ControlTravelPage() {
       
       <TravelControlTable
         isLoading={isLoading}
-        columns={TravelControlColumns({})}
+        columns={TravelControlColumns({ permissions })}
         data={data?.data || []}
       >
         <TravelControlOptions
@@ -77,6 +81,7 @@ export default function ControlTravelPage() {
           setSearch={setSearch}
           status={status}
           setStatus={setStatus}
+          permissions={permissions}
           userPosition={userComplete?.position.toUpperCase()}
         />
       </TravelControlTable>
