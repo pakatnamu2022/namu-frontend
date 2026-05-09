@@ -1,5 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
 import { FileCheck, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -113,6 +114,8 @@ export function PurchaseRequestQuoteSummary({
   onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
   const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
+  const { data: freightMaster } = useGeneralMasterByCode("FREIGHT_COMMERCIAL");
+  const freightCost = parseFloat(freightMaster?.value ?? "0") || 0;
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
   const [simulationAdj, setSimulationAdj] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -221,14 +224,17 @@ export function PurchaseRequestQuoteSummary({
   const hasMarginData = withVinWatch && billedCost > 0 && totals.salePrice > 0;
   const clientRevenue = totals.salePrice - discountTotal + paidAccTotal;
   const totalIncome = clientRevenue + bonusTotal;
-  const totalCosts = billedCost + giftTotal;
-  const realMarginAmount = hasMarginData ? totalIncome - totalCosts : 0;
-  const realMarginPct = hasMarginData ? (realMarginAmount / billedCost) * 100 : 0;
+  const vehicleCosts = billedCost + giftTotal;
+  const grossDiff = totalIncome - vehicleCosts;
+  const netDiff = grossDiff / 1.18;
+  const realMarginAmount = hasMarginData ? netDiff - freightCost : 0;
+  const netSalePrice = totals.salePrice / 1.18;
+  const realMarginPct = hasMarginData ? (realMarginAmount / netSalePrice) * 100 : 0;
 
   // Simulación hipotética
   const simAdj = parseFloat(simulationAdj) || 0;
   const simMarginAmount = realMarginAmount + simAdj;
-  const simMarginPct = billedCost > 0 ? (simMarginAmount / billedCost) * 100 : 0;
+  const simMarginPct = netSalePrice > 0 ? (simMarginAmount / netSalePrice) * 100 : 0;
 
   const marginColor = (pct: number) =>
     pct >= 4
@@ -572,6 +578,15 @@ export function PurchaseRequestQuoteSummary({
                 </span>
               </div>
 
+              {freightCost > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Flete Comercial</span>
+                  <span className="font-medium text-red-600">
+                    − {vehicleCurrency.symbol} {fmt(freightCost)}
+                  </span>
+                </div>
+              )}
+
               {/* Obsequios (costo para el dealer) */}
               {giftAccessories.map((acc) => (
                 <div key={acc.id} className="flex justify-between items-center text-sm">
@@ -584,28 +599,55 @@ export function PurchaseRequestQuoteSummary({
                 </div>
               ))}
 
-              {totalCosts !== billedCost && (
+              {vehicleCosts !== billedCost && (
                 <>
                   <Separator className="my-1.5" />
                   <div className="flex justify-between items-center text-sm font-bold">
                     <span>Total Costos</span>
                     <span className="text-red-600">
-                      − {vehicleCurrency.symbol} {fmt(totalCosts)}
+                      − {vehicleCurrency.symbol} {fmt(vehicleCosts)}
                     </span>
                   </div>
                 </>
               )}
             </div>
 
-            {/* ── MARGEN REAL ── */}
-            <div className={`p-3 rounded-lg border flex justify-between items-center ${realColor.badge}`}>
-              <span className="text-base font-bold">Margen Real</span>
-              <div className="text-right">
-                <p className="text-lg font-bold">
+            {/* ── UTILIDAD NETA ── */}
+            <div className="space-y-1.5 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Utilidad Neta
+              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">(Ingresos − Costos) ÷ 1.18</span>
+                <span className="font-medium">{vehicleCurrency.symbol} {fmt(netDiff)}</span>
+              </div>
+              {freightCost > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">Flete Comercial</span>
+                  <span className="font-medium text-red-600">− {vehicleCurrency.symbol} {fmt(freightCost)}</span>
+                </div>
+              )}
+              <Separator className="my-1.5" />
+              <div className="flex justify-between items-center text-sm font-bold">
+                <span>Utilidad Neta</span>
+                <span className={realMarginAmount >= 0 ? "text-green-700" : "text-red-600"}>
                   {vehicleCurrency.symbol} {fmt(realMarginAmount)}
-                </p>
-                <p className="text-sm font-semibold">
-                  ({realMarginPct >= 0 ? "+" : ""}{realMarginPct.toFixed(2)}%)
+                </span>
+              </div>
+            </div>
+
+            {/* ── MARGEN REAL ── */}
+            <div className={`p-3 rounded-lg border ${realColor.badge}`}>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Margen Comercial
+              </p>
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-muted-foreground">
+                  <p>{vehicleCurrency.symbol} {fmt(realMarginAmount)}</p>
+                  <p className="text-xs">÷ (PV {vehicleCurrency.symbol} {fmt(totals.salePrice)} ÷ 1.18)</p>
+                </div>
+                <p className="text-2xl font-bold">
+                  {realMarginPct >= 0 ? "+" : ""}{realMarginPct.toFixed(2)}%
                 </p>
               </div>
             </div>
