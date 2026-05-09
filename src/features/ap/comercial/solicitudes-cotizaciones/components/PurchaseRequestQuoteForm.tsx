@@ -286,23 +286,6 @@ export const PurchaseRequestQuoteForm = ({
     ? parseFloat(vehicleVnSelected.billed_cost.toString())
     : 0;
 
-  // Calcular el margen de ganancia
-  const calculateMargin = () => {
-    const salePrice = parseFloat(salePriceWatch || "0");
-    const basePrice = withVinWatch ? billedCost : 0;
-
-    if (basePrice === 0 || salePrice === 0) return { amount: 0, percentage: 0 };
-
-    const marginAmount = salePrice - basePrice;
-    const marginPercentage = (marginAmount / basePrice) * 100;
-
-    return {
-      amount: marginAmount,
-      percentage: marginPercentage,
-    };
-  };
-
-  const margin = calculateMargin();
 
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
@@ -1001,20 +984,6 @@ export const PurchaseRequestQuoteForm = ({
                             })}
                           </AlertDescription>
                         </Alert>
-                        {margin.amount !== 0 && (
-                          <Alert variant={margin.amount > 0 ? "success" : "destructive"}>
-                            <AlertDescription>
-                              <span className="font-medium">Margen:</span>{" "}
-                              {currencySymbol}{" "}
-                              {margin.amount.toLocaleString("es-PE", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}{" "}
-                              ({margin.percentage > 0 ? "+" : ""}
-                              {margin.percentage.toFixed(2)}%)
-                            </AlertDescription>
-                          </Alert>
-                        )}
                       </>
                     ) : (
                       <Alert variant="warning">
