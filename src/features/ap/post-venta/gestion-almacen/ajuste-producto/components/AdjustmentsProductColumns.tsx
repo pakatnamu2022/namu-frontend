@@ -1,9 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button.tsx";
-import { Pencil, Eye } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
-import { ADJUSTMENT } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.constants.ts";
+import { Eye } from "lucide-react";
 import { AdjustmentsProductListItem } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
@@ -22,9 +19,7 @@ interface Props {
 }
 
 export const adjustmentsProductColumns = ({
-  onDelete,
   onView,
-  permissions,
 }: Props): AdjustmentsProductColumns[] => [
   {
     accessorKey: "movement_number",
@@ -85,10 +80,7 @@ export const adjustmentsProductColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE } = ADJUSTMENT;
 
       return (
         <div className="flex items-center gap-2">
@@ -104,7 +96,7 @@ export const adjustmentsProductColumns = ({
           </Button>
 
           {/* Edit */}
-          {permissions.canUpdate && (
+          {/* {permissions.canUpdate && (
             <Button
               variant="outline"
               size="icon"
@@ -114,12 +106,12 @@ export const adjustmentsProductColumns = ({
             >
               <Pencil className="size-5" />
             </Button>
-          )}
+          )} */}
 
           {/* Delete */}
-          {permissions.canDelete && (
+          {/* {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
-          )}
+          )} */}
         </div>
       );
     },
