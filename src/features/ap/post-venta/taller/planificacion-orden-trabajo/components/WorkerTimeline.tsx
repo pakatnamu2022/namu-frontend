@@ -312,7 +312,7 @@ export function WorkerTimeline({
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
   const { data: ownPlanningData } = useGetWorkOrderPlanning({
     params: {
-      per_page: 500,
+      per_page: 100,
       ...(sedeId && { workOrder$sede_id: sedeId }),
       planned_date: selectedDateStr,
     },
