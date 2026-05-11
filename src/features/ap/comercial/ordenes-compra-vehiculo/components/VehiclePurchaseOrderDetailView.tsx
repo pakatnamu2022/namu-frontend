@@ -3,6 +3,11 @@
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import {
+  DetailSheetTable,
+  type DetailSheetTableColumn,
+} from "@/shared/components/DetailSheetTable";
+import { CopyCell } from "@/shared/components/CopyCell";
+import {
   Car,
   FileText,
   Package,
@@ -36,14 +41,13 @@ export default function VehiclePurchaseOrderDetailView({
   purchaseOrder,
 }: VehiclePurchaseOrderDetailViewProps) {
   const hasVehicle = !!purchaseOrder.vehicle;
-  const hasItems = purchaseOrder.items && purchaseOrder.items.length > 0;
   const { quotation } = purchaseOrder;
 
   // Margin calculation
   let purchaseCost = 0;
   let normalizedSaleBase = 0;
   let normalizedSaleNet = 0;
-  let marginCurrency = purchaseOrder.currency_code;
+  const marginCurrency = purchaseOrder.currency_code;
 
   if (quotation) {
     purchaseCost = Number(purchaseOrder.total);
@@ -265,68 +269,97 @@ export default function VehiclePurchaseOrderDetailView({
       </GroupFormSection>
 
       {/* Items de la Orden */}
-      {hasItems && (
+      {purchaseOrder.items != null && (
         <GroupFormSection
           title="Items de la Orden de Compra"
           icon={Package}
           cols={{ sm: 1, md: 2, lg: 4 }}
         >
           <div className="col-span-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">#</TableHead>
-                  <TableHead className="min-w-[180px]">
-                    Unidad de Medida
-                  </TableHead>
-                  <TableHead className="min-w-[250px]">Descripción</TableHead>
-                  <TableHead className="w-[140px]">Precio Unitario</TableHead>
-                  <TableHead className="w-[100px]">Cantidad</TableHead>
-                  <TableHead className="w-[140px]">Subtotal</TableHead>
-                  <TableHead className="w-[100px]">Tipo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {purchaseOrder.items?.map((item, index) => {
-                  const itemPrice = Number(item.unit_price) || 0;
-                  const itemQty = Number(item.quantity) || 0;
-                  const itemSubtotal = itemPrice * itemQty;
-
-                  return (
-                    <TableRow key={item.id || index}>
-                      <TableCell>
-                        <span className="text-sm font-medium">{index + 1}</span>
-                      </TableCell>
-                      <TableCell>
-                        {item.unit_measurement
-                          ? `${item.unit_measurement.dyn_code} - ${item.unit_measurement.description}`
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        {item.product_name || item.description}
-                        {item.product_code || ""}
-                      </TableCell>
-                      <TableCell>{fmt(itemPrice)}</TableCell>
-                      <TableCell>{itemQty}</TableCell>
-                      <TableCell>
-                        <span className="font-medium">{fmt(itemSubtotal)}</span>
-                      </TableCell>
-                      <TableCell>
-                        {item.is_vehicle ? (
-                          <Badge color="default" className="text-xs">
-                            Vehículo
-                          </Badge>
-                        ) : (
-                          <Badge color="secondary" className="text-xs">
-                            Producto
-                          </Badge>
+            <DetailSheetTable
+              rows={purchaseOrder.items}
+              getKey={(item, index) => item.id ?? index}
+              columns={
+                [
+                  {
+                    header: "#",
+                    className: "w-12",
+                    render: (_item, index) => (
+                      <span className="text-sm font-medium">{index + 1}</span>
+                    ),
+                  },
+                  {
+                    header: "Unidad de Medida",
+                    className: "min-w-[180px]",
+                    render: (item) =>
+                      item.unit_measurement
+                        ? `${item.unit_measurement.dyn_code} - ${item.unit_measurement.description}`
+                        : "-",
+                  },
+                  {
+                    header: "Descripción",
+                    className: "min-w-[250px]",
+                    render: (item) => (
+                      <div className="flex flex-col gap-0.5">
+                        <span>{item.product_name || item.description}</span>
+                        {item.product_code && (
+                          <CopyCell
+                            value={item.product_code}
+                            label={`Cód: ${item.product_code}`}
+                            className="text-xs text-muted-foreground"
+                          />
                         )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                        {item.product_dyn_code && (
+                          <CopyCell
+                            value={item.product_dyn_code}
+                            label={`Cód Dyn: ${item.product_dyn_code}`}
+                            className="text-xs text-muted-foreground"
+                          />
+                        )}
+                      </div>
+                    ),
+                  },
+                  {
+                    header: "Precio Unitario",
+                    className: "w-[140px]",
+                    render: (item) => fmt(Number(item.unit_price) || 0),
+                  },
+                  {
+                    header: "Cantidad",
+                    className: "w-[100px]",
+                    render: (item) => Number(item.quantity) || 0,
+                  },
+                  {
+                    header: "Subtotal",
+                    className: "w-[140px]",
+                    render: (item) => (
+                      <span className="font-medium">
+                        {fmt(
+                          (Number(item.unit_price) || 0) *
+                            (Number(item.quantity) || 0),
+                        )}
+                      </span>
+                    ),
+                  },
+                  {
+                    header: "Tipo",
+                    className: "w-[100px]",
+                    render: (item) =>
+                      item.is_vehicle ? (
+                        <Badge color="default" className="text-xs">
+                          Vehículo
+                        </Badge>
+                      ) : (
+                        <Badge color="secondary" className="text-xs">
+                          Producto
+                        </Badge>
+                      ),
+                  },
+                ] satisfies DetailSheetTableColumn<
+                  (typeof purchaseOrder.items)[number]
+                >[]
+              }
+            />
           </div>
         </GroupFormSection>
       )}
@@ -389,7 +422,7 @@ export default function VehiclePurchaseOrderDetailView({
           <div className="col-span-full">
             <p className="text-xs text-muted-foreground">Estado</p>
             <div className="flex flex-wrap gap-1 mt-1">
-              {!!quotation.is_approved ? (
+              {quotation.is_approved ? (
                 <Badge className="border-0 text-xs">Aprobada</Badge>
               ) : (
                 <Badge color="secondary" className="border-0 text-xs">

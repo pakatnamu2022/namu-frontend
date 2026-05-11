@@ -46,10 +46,15 @@ export default function ReceptionsProductsPage() {
     ? parseInt(supplierOrderId)
     : undefined;
 
-  const { data: supplierOrder, isLoading: isLoadingSupplierOrder } =
-    useSupplierOrderById(supplierOrderIdNum || 0);
+  const {
+    data: supplierOrder,
+    isLoading: isLoadingSupplierOrder,
+    refetch: refetchSupplierOrder,
+  } = useSupplierOrderById(supplierOrderIdNum || 0);
 
-  const { data, isLoading, refetch } = useAllReceptions({}, supplierOrderIdNum);
+  const { data, isLoading, refetch } = useAllReceptions({
+    ap_supplier_order_id: supplierOrderIdNum,
+  });
 
   const hasCompleteReception = supplierOrder?.reception_type === "COMPLETE";
 
@@ -91,7 +96,7 @@ export default function ReceptionsProductsPage() {
     if (!deleteId) return;
     try {
       await deleteReception(deleteId);
-      await refetch();
+      await Promise.all([refetch(), refetchSupplierOrder()]);
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";
@@ -251,6 +256,7 @@ export default function ReceptionsProductsPage() {
             routeInvoice={`${ABSOLUTE_ROUTE}/recepcionar/facturar`}
             supplierOrderNumber={supplierOrder.order_number}
             warehouseName={supplierOrder?.warehouse?.description || ""}
+            onDelete={(id) => setDeleteId(id)}
           />
         }
       ></ReceptionsProductsTable>

@@ -53,7 +53,6 @@ export const workOrderCajaColumns = ({
               aria-label="Seleccionar fila"
             />
           ),
-          enableSorting: false,
           enableHiding: false,
         },
       ] as WorkOrderColumns[])

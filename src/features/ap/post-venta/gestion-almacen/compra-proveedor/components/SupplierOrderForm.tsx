@@ -114,6 +114,10 @@ export const SupplierOrderForm = ({
   const [productRefPriceMap, setProductRefPriceMap] = useState<
     Record<string, number>
   >({});
+  // Mapa de símbolo de moneda por product_id desde solicitudes pendientes
+  const [productRefCurrencyMap, setProductRefCurrencyMap] = useState<
+    Record<string, string>
+  >({});
   const [selectedSupplier, setSelectedSupplier] =
     useState<SuppliersResource | null>(null);
   const [showOrderNumberExternal, setShowOrderNumberExternal] = useState(
@@ -186,6 +190,7 @@ export const SupplierOrderForm = ({
       setAddedRequestDetailIds([]);
       setProductRequestMap({});
       setProductRefPriceMap({});
+      setProductRefCurrencyMap({});
       setDetailDefaultOptions({});
       productsCache.current = {};
     }
@@ -335,6 +340,13 @@ export const SupplierOrderForm = ({
         delete newMap[productId];
         return newMap;
       });
+
+      // Limpiar el símbolo de moneda de referencia de este producto
+      setProductRefCurrencyMap((prev) => {
+        const newMap = { ...prev };
+        delete newMap[productId];
+        return newMap;
+      });
     }
 
     // Eliminar el item del formulario
@@ -404,6 +416,14 @@ export const SupplierOrderForm = ({
       setProductRefPriceMap((prev) => ({
         ...prev,
         [productId]: Number(requestDetail.unit_price),
+      }));
+    }
+
+    // Guardar el símbolo de moneda de la solicitud
+    if (requestDetail.currency_symbol != null) {
+      setProductRefCurrencyMap((prev) => ({
+        ...prev,
+        [productId]: requestDetail.currency_symbol,
       }));
     }
 
@@ -773,7 +793,7 @@ export const SupplierOrderForm = ({
 
                 {/* Sección 3: Detalles del Pedido */}
                 <GroupFormSection
-                  title="Productos del Pedido"
+                  title="Repuestos del Pedido"
                   icon={Package}
                   className="mt-6 w-full col-span-full"
                   cols={{ sm: 1 }}
@@ -786,28 +806,26 @@ export const SupplierOrderForm = ({
                           <TableRow>
                             <TableHead className="w-12">#</TableHead>
                             <TableHead className="min-w-[250px]">
-                              Producto
+                              Repuesto
                             </TableHead>
-                            <TableHead className="w-40">
-                              Unidad Medida
-                            </TableHead>
+                            <TableHead className="w-40">Und. Med.</TableHead>
                             <TableHead className="w-24 text-center">
-                              Cantidad
+                              Cant.
                             </TableHead>
                             <TableHead className="w-32 text-end">
-                              Precio
+                              P. Unit.
                             </TableHead>
                             <TableHead className="w-32 text-end">
-                              Total
+                              P. Total
                             </TableHead>
-                            {watchedCurrencyTypeId &&
+                            {/* {watchedCurrencyTypeId &&
                               watchedCurrencyTypeId !==
                                 CURRENCY_TYPE_IDS.SOLES &&
                               exchangeRate && (
                                 <TableHead className="w-32 text-end">
                                   Total Soles
                                 </TableHead>
-                              )}
+                              )} */}
                             <TableHead className="w-20 text-center">
                               Acción
                             </TableHead>
@@ -819,8 +837,8 @@ export const SupplierOrderForm = ({
                               Number(
                                 form.watch(`details.${index}.unit_price`),
                               ) || 0;
-                            const itemTotal =
-                              Number(form.watch(`details.${index}.total`)) || 0;
+                            // const itemTotal =
+                            //   Number(form.watch(`details.${index}.total`)) || 0;
                             const currentProductId = form.watch(
                               `details.${index}.product_id`,
                             );
@@ -830,6 +848,10 @@ export const SupplierOrderForm = ({
                             const refPrice = currentProductId
                               ? productRefPriceMap[currentProductId]
                               : undefined;
+                            const refCurrencySymbol = currentProductId
+                              ? (productRefCurrencyMap[currentProductId] ??
+                                "S/.")
+                              : "S/.";
                             const itemQuantity =
                               Number(form.watch(`details.${index}.quantity`)) ||
                               0;
@@ -1000,7 +1022,8 @@ export const SupplierOrderForm = ({
                                   </div>
                                   {refPrice != null && (
                                     <div className="text-xs text-slate-400 text-end mt-0.5 px-1">
-                                      Ref: {refPrice.toFixed(2)}
+                                      Ref: {refCurrencySymbol}{" "}
+                                      {refPrice.toFixed(2)}
                                     </div>
                                   )}
                                 </TableCell>
@@ -1053,11 +1076,12 @@ export const SupplierOrderForm = ({
                                   />
                                   {refTotal != null && (
                                     <div className="text-xs text-slate-400 text-end mt-0.5 px-1">
-                                      Ref: {refTotal.toFixed(2)}
+                                      Ref: {refCurrencySymbol}{" "}
+                                      {refTotal.toFixed(2)}
                                     </div>
                                   )}
                                 </TableCell>
-                                {watchedCurrencyTypeId &&
+                                {/* {watchedCurrencyTypeId &&
                                   watchedCurrencyTypeId !==
                                     CURRENCY_TYPE_IDS.SOLES &&
                                   exchangeRate && (
@@ -1069,7 +1093,7 @@ export const SupplierOrderForm = ({
                                           .replace(/\.?0+$/, "")}
                                       </div>
                                     </TableCell>
-                                  )}
+                                  )} */}
                                 <TableCell className="align-middle text-center p-1.5">
                                   <Button
                                     type="button"
@@ -1096,7 +1120,7 @@ export const SupplierOrderForm = ({
                       className="w-full"
                     >
                       <Plus className="mr-2 h-4 w-4" />
-                      Agregar Producto
+                      Agregar Repuesto
                     </Button> */}
                   </div>
                 </GroupFormSection>
@@ -1123,7 +1147,7 @@ export const SupplierOrderForm = ({
               <Loader
                 className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
               />
-              {isSubmitting ? "Guardando..." : "Guardar Pedido a Proveedor"}
+              {isSubmitting ? "Guardando..." : "Guardar Pedido"}
             </Button>
           </div>
         </form>

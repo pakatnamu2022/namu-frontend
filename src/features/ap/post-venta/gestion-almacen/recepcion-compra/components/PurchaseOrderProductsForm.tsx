@@ -214,15 +214,22 @@ export const PurchaseOrderProductsForm = ({
 
   // useEffect para consultar tipo de cambio cuando cambien la moneda y la fecha
   useEffect(() => {
-    // Solo consultar si la moneda NO es soles (id 1) y si ambos valores existen
+    const rawDate = watchedEmissionDate as Date | string | undefined;
+    const emissionDateAsDate =
+      rawDate instanceof Date
+        ? rawDate
+        : rawDate
+          ? new Date(rawDate as string)
+          : null;
+
     if (
       watchedCurrencyTypeId &&
       watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-      watchedEmissionDate instanceof Date
+      emissionDateAsDate instanceof Date &&
+      !isNaN(emissionDateAsDate.getTime())
     ) {
-      fetchExchangeRate(watchedCurrencyTypeId, watchedEmissionDate);
+      fetchExchangeRate(watchedCurrencyTypeId, emissionDateAsDate);
     } else {
-      // Si es soles o no hay datos, limpiar el tipo de cambio
       setExchangeRate(null);
       setExchangeRateError("");
     }
@@ -564,13 +571,13 @@ export const PurchaseOrderProductsForm = ({
                       </TableHead>
                       <TableHead className="w-32 text-end">Precio</TableHead>
                       <TableHead className="w-32 text-end">Total</TableHead>
-                      {watchedCurrencyTypeId &&
+                      {/* {watchedCurrencyTypeId &&
                         watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
                         exchangeRate && (
                           <TableHead className="w-32 text-end">
                             Total Soles
                           </TableHead>
-                        )}
+                        )} */}
                       {/* <TableHead className="w-20 text-center">Acción</TableHead> */}
                     </TableRow>
                   </TableHeader>
@@ -578,8 +585,8 @@ export const PurchaseOrderProductsForm = ({
                     {fields.map((field, index) => {
                       const unitPrice =
                         Number(form.watch(`items.${index}.unit_price`)) || 0;
-                      const itemTotal =
-                        Number(form.watch(`items.${index}.item_total`)) || 0;
+                      // const itemTotal =
+                      //   Number(form.watch(`items.${index}.item_total`)) || 0;
                       const currentItem = form.watch(`items.${index}`);
 
                       return (
@@ -726,7 +733,7 @@ export const PurchaseOrderProductsForm = ({
                               )}
                             />
                           </TableCell>
-                          {watchedCurrencyTypeId &&
+                          {/* {watchedCurrencyTypeId &&
                             watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
                             exchangeRate && (
                               <TableCell className="align-middle p-1.5 text-end">
@@ -737,7 +744,7 @@ export const PurchaseOrderProductsForm = ({
                                     .replace(/\.?0+$/, "")}
                                 </div>
                               </TableCell>
-                            )}
+                            )} */}
                           {/* <TableCell className="align-middle text-center p-1.5">
                             <Button
                               type="button"

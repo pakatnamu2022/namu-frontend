@@ -177,7 +177,6 @@ export const orderQuotationMesonColumns = ({
 
       return getStatusBadge(status);
     },
-    enableSorting: false,
   },
   {
     id: "actions",

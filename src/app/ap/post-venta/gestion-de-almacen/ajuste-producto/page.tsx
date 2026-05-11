@@ -22,7 +22,6 @@ import {
   deleteAdjustmentsProduct,
   findAdjustmentsProductById,
 } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.actions.ts";
-import AdjustmentsProductActions from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductActions.tsx";
 import AdjustmentsProductTable from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductTable.tsx";
 import { adjustmentsProductColumns } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductColumns.tsx";
 import AdjustmentsProductOptions from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductOptions.tsx";
@@ -119,7 +118,7 @@ export default function AdjustmentsProductPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <AdjustmentsProductActions permissions={permissions} />
+        {/* <AdjustmentsProductActions permissions={permissions} /> */}
       </HeaderTableWrapper>
       <AdjustmentsProductTable
         isLoading={isLoading}

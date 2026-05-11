@@ -1,24 +1,50 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
-import { Button } from "@/components/ui/button.tsx";
-import { Eye, Pencil, PackageCheck, Download, ShieldCheck } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
-import { Link } from "react-router-dom";
+import {
+  SupplierOrderResource,
+  type SupplierOrderTrackedNumberResource,
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
 import {
   RECEPCION_TYPE_LABELS,
   RECEPCION_STATUS_COLORS,
 } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
-import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { SupplierOrderActionsCell } from "./SupplierOrderActionsCell";
+import { XCircle } from "lucide-react";
 
 export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
+
+const renderTrackedNumbers = (
+  numbers: SupplierOrderTrackedNumberResource[],
+) => {
+  if (!numbers.length) return "N/A";
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      {numbers.map(({ number, status }, index) =>
+        status ? (
+          <CopyCell key={`${number}-${index}`} value={number} />
+        ) : (
+          <Badge
+            key={`${number}-${index}`}
+            variant="outline"
+            color="red"
+            className="w-fit gap-1"
+          >
+            <XCircle className="size-3" />
+            <span className="line-through">{number}</span>
+          </Badge>
+        ),
+      )}
+    </div>
+  );
+};
 
 interface Props {
   onDelete: (id: number) => void;
   onView?: (id: number) => void;
   onApprove: (id: number) => void;
-  onDownloadPdf: (id: number) => void;
+  onDownloadPdf: (id: number) => Promise<void>;
   permissions: {
     canApprove: boolean;
     canUpdate: boolean;
@@ -123,13 +149,7 @@ export const supplierOrderColumns = ({
         );
       }
 
-      return (
-        <div className="flex flex-col gap-0.5">
-          {invoiceNumbers.map((invoice, index) => (
-            <CopyCell key={index} value={invoice} />
-          ))}
-        </div>
-      );
+      return renderTrackedNumbers(invoiceNumbers);
     },
   },
   {
@@ -148,13 +168,7 @@ export const supplierOrderColumns = ({
         );
       }
 
-      return (
-        <div className="flex flex-col gap-0.5">
-          {invoiceNumbers.map((purchase_order, index) => (
-            <CopyCell key={index} value={purchase_order} />
-          ))}
-        </div>
-      );
+      return renderTrackedNumbers(invoiceNumbers);
     },
   },
   {
@@ -173,87 +187,35 @@ export const supplierOrderColumns = ({
     },
   },
   {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const { id, has_receptions, approved_by } = row.original;
-
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
       return (
-        <div className="flex items-center gap-2">
-          {permissions.canView && onView && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Ver"
-              onClick={() => onView(id)}
-            >
-              <Eye className="size-4" />
-            </Button>
-          )}
-
-          {permissions.canApprove && !approved_by && (
-            <ConfirmationDialog
-              trigger={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Aprobar"
-                >
-                  <ShieldCheck className="size-4" />
-                </Button>
-              }
-              title="¿Aprobar orden de compra?"
-              description="¿Estás seguro de que deseas aprobar esta orden de compra? Esta acción no se puede deshacer."
-              confirmText="Sí, aprobar"
-              cancelText="Cancelar"
-              icon="info"
-              onConfirm={() => onApprove(id)}
-            />
-          )}
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Descargar PDF"
-            onClick={() => onDownloadPdf(id)}
-          >
-            <Download className="size-5" />
-          </Button>
-
-          {permissions.canUpdate && (
-            <Link to={`${routeReception}/${id}`}>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Recepcionar"
-              >
-                <PackageCheck className="size-4" />
-              </Button>
-            </Link>
-          )}
-
-          {permissions.canUpdate && !has_receptions && routeUpdate && (
-            <Link to={`${routeUpdate}/${id}`}>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-              >
-                <Pencil className="size-4" />
-              </Button>
-            </Link>
-          )}
-
-          {permissions.canDelete && !has_receptions && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
-        </div>
+        <Badge
+          variant="outline"
+          color={value ? "green" : "red"}
+          className="w-fit"
+        >
+          {value ? "Activo" : "Anulado"}
+        </Badge>
       );
     },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => (
+      <SupplierOrderActionsCell
+        row={row.original}
+        onDelete={onDelete}
+        onView={onView}
+        onApprove={onApprove}
+        onDownloadPdf={onDownloadPdf}
+        permissions={permissions}
+        routeUpdate={routeUpdate}
+        routeReception={routeReception}
+      />
+    ),
   },
 ];

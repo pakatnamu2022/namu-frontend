@@ -5,7 +5,14 @@ import { getSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/c
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Loader2, FileText } from "lucide-react";
+import {
+  Loader2,
+  FileText,
+  AlertTriangle,
+  User,
+  Calendar,
+  MessageSquare,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator.tsx";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { CopyCell } from "@/shared/components/CopyCell";
@@ -106,12 +113,29 @@ export function SupplierOrderViewSheet({
                 value: data.supply_type,
               },
               {
-                label: "Tiene Recepciones",
-                value: (
+                label: "Recepciones",
+                value: data.has_receptions ? (
+                  data.has_receptions_annulled ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-orange-100 text-orange-700 border-orange-300"
+                    >
+                      Identifico recepciones anuladas
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="bg-green-100 text-green-700 border-green-300"
+                    >
+                      Sí
+                    </Badge>
+                  )
+                ) : (
                   <Badge
-                    color={data.has_receptions ? "default" : "destructive"}
+                    variant="outline"
+                    className="bg-red-100 text-red-700 border-red-300"
                   >
-                    {data.has_receptions ? "Sí" : "No"}
+                    No
                   </Badge>
                 ),
               },
@@ -518,6 +542,62 @@ export function SupplierOrderViewSheet({
                 )}
               </div>
             </div>
+          )}
+
+          {/* Información de Anulación */}
+          {!data.status && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg flex items-center gap-2 text-red-700">
+                  <AlertTriangle className="h-5 w-5" />
+                  Información de Anulación
+                </h3>
+                <div className="bg-red-50 border border-red-200 p-4 rounded-lg space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="h-4 w-4 text-red-600 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Motivo de Anulación
+                        </p>
+                        <p className="text-sm font-medium text-red-700">
+                          {data.reason_cancellation || "No especificado"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <User className="h-4 w-4 text-red-600 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Anulado Por
+                        </p>
+                        <p className="text-sm font-medium">
+                          {data.discarded_by_name || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                    {data.discarded_at && (
+                      <div className="flex items-start gap-2">
+                        <Calendar className="h-4 w-4 text-red-600 mt-0.5" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Fecha de Anulación
+                          </p>
+                          <p className="text-sm font-medium">
+                            {format(
+                              parseISO(data.discarded_at),
+                              "dd/MM/yyyy HH:mm",
+                              { locale: es },
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
 
           {/* Información Adicional */}

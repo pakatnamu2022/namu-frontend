@@ -5,15 +5,8 @@ import {
 } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.schema.ts";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form.tsx";
-import { Input } from "@/components/ui/input.tsx";
+import { Form, FormField } from "@/components/ui/form.tsx";
+import { FormInput } from "@/shared/components/FormInput.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   FileText,
@@ -27,7 +20,6 @@ import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
-import { Textarea } from "@/components/ui/textarea.tsx";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { useEffect, useState } from "react";
@@ -35,6 +27,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { OBSERVATION_REASONS } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.constants.ts";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface TransferReceptionFormProps {
   defaultValues: Partial<TransferReceptionSchema>;
@@ -166,12 +159,12 @@ export const TransferReceptionForm = ({
           />
         </GroupFormSection>
 
-        {/* Detalles de Productos Recibidos */}
+        {/* Detalles de Repuestos Recibidos */}
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <PackageCheck className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Productos Recibidos</h3>
+              <h3 className="text-lg font-semibold">Repuestos Recibidos</h3>
             </div>
           </div>
 
@@ -225,7 +218,7 @@ export const TransferReceptionForm = ({
                               transferItem?.notes ||
                               `Servicio ${index + 1}`
                             : transferItem?.product_name ||
-                              `Producto ${index + 1}`}
+                              `Repuesto ${index + 1}`}
                         </h4>
                         {isOrderedProduct && (
                           <Badge
@@ -268,7 +261,7 @@ export const TransferReceptionForm = ({
                         <div className="col-span-12 md:col-span-8">
                           <FormSelectAsync
                             name={`details.${index}.product_id`}
-                            label="Producto *"
+                            label="Repuesto *"
                             placeholder="Buscar producto..."
                             useQueryHook={useProduct}
                             mapOptionFn={(product) => ({
@@ -284,139 +277,89 @@ export const TransferReceptionForm = ({
 
                       {(isOrderedProduct || isServiceItem) && transferItem && (
                         <div className="col-span-12 md:col-span-2">
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium">
-                              Cant. Enviada
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                className="text-center bg-slate-100"
-                                value={transferItem.quantity}
-                                disabled
-                                readOnly
-                              />
-                            </FormControl>
-                          </FormItem>
+                          <FormInput
+                            name={`details.${index}.quantity_sent`}
+                            label="Cant. Enviada"
+                            type="number"
+                            className="text-center bg-slate-100"
+                            value={transferItem.quantity}
+                            disabled
+                            readOnly
+                          />
                         </div>
                       )}
 
                       <div
                         className={`col-span-12 ${isOrderedProduct || isServiceItem ? "md:col-span-2" : "md:col-span-4"}`}
                       >
-                        <FormField
+                        <FormInput
                           control={form.control}
                           name={`details.${index}.quantity_received`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs font-medium">
-                                Cant. Recibida *
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  className="text-center"
-                                  placeholder="0"
-                                  disabled={mode === "update"}
-                                  value={
-                                    typeof field.value === "number"
-                                      ? field.value
-                                      : ""
-                                  }
-                                  onChange={(e) => {
-                                    const num = parseFloat(e.target.value);
-                                    const newQuantityReceived = isNaN(num)
-                                      ? 0
-                                      : num;
+                          label="Cant. Recibida *"
+                          type="number"
+                          min="0"
+                          className="text-center"
+                          placeholder="0"
+                          disabled={mode === "update"}
+                          onChange={(e) => {
+                            const num = parseFloat(String(e.target.value));
+                            const newQuantityReceived = isNaN(num) ? 0 : num;
 
-                                    // Si es ítem transferido (producto o servicio), calcular cantidad observada
-                                    if (isOrderedProduct && transferItem) {
-                                      const transferredQuantity =
-                                        transferItem.quantity;
-
-                                      // No permitir que la cantidad recibida supere la transferida
-                                      const finalQuantityReceived = Math.min(
-                                        newQuantityReceived,
-                                        transferredQuantity,
-                                      );
-                                      const observedQuantity =
-                                        transferredQuantity -
-                                        finalQuantityReceived;
-
-                                      field.onChange(finalQuantityReceived);
-                                      form.setValue(
-                                        `details.${index}.observed_quantity`,
-                                        observedQuantity,
-                                      );
-                                    } else {
-                                      field.onChange(newQuantityReceived);
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                            if (isOrderedProduct && transferItem) {
+                              const transferredQuantity = transferItem.quantity;
+                              const finalQuantityReceived = Math.min(
+                                newQuantityReceived,
+                                transferredQuantity,
+                              );
+                              const observedQuantity =
+                                transferredQuantity - finalQuantityReceived;
+                              form.setValue(
+                                `details.${index}.quantity_received`,
+                                finalQuantityReceived,
+                              );
+                              form.setValue(
+                                `details.${index}.observed_quantity`,
+                                observedQuantity,
+                              );
+                            }
+                          }}
                         />
                       </div>
 
                       {isOrderedProduct && (
                         <div className="col-span-12 md:col-span-2">
-                          <FormField
+                          <FormInput
                             control={form.control}
                             name={`details.${index}.observed_quantity`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Cant. Observada
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    className="text-center"
-                                    placeholder="0"
-                                    disabled={mode === "update"}
-                                    value={
-                                      typeof field.value === "number"
-                                        ? field.value
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      const num = parseFloat(e.target.value);
-                                      const newObservedQuantity = isNaN(num)
-                                        ? 0
-                                        : num;
+                            label="Cant. Observada"
+                            type="number"
+                            min="0"
+                            className="text-center"
+                            placeholder="0"
+                            disabled={mode === "update"}
+                            onChange={(e) => {
+                              const num = parseFloat(String(e.target.value));
+                              const newObservedQuantity = isNaN(num) ? 0 : num;
 
-                                      // Si es ítem transferido (producto o servicio), calcular cantidad recibida
-                                      if (transferItem) {
-                                        const transferredQuantity =
-                                          transferItem.quantity;
-
-                                        // No permitir que la cantidad observada supere la transferida
-                                        const finalObservedQuantity = Math.min(
-                                          newObservedQuantity,
-                                          transferredQuantity,
-                                        );
-                                        const receivedQuantity =
-                                          transferredQuantity -
-                                          finalObservedQuantity;
-
-                                        field.onChange(finalObservedQuantity);
-                                        form.setValue(
-                                          `details.${index}.quantity_received`,
-                                          receivedQuantity,
-                                        );
-                                      } else {
-                                        field.onChange(newObservedQuantity);
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                              if (transferItem) {
+                                const transferredQuantity =
+                                  transferItem.quantity;
+                                const finalObservedQuantity = Math.min(
+                                  newObservedQuantity,
+                                  transferredQuantity,
+                                );
+                                const receivedQuantity =
+                                  transferredQuantity - finalObservedQuantity;
+                                form.setValue(
+                                  `details.${index}.observed_quantity`,
+                                  finalObservedQuantity,
+                                );
+                                form.setValue(
+                                  `details.${index}.quantity_received`,
+                                  receivedQuantity,
+                                );
+                              }
+                            }}
                           />
                         </div>
                       )}
@@ -424,25 +367,12 @@ export const TransferReceptionForm = ({
                       {/* Notas Adicionales con más espacio - solo para productos ordenados no servicios */}
                       {isOrderedProduct && !isServiceItem && (
                         <div className="col-span-12 md:col-span-6">
-                          <FormField
+                          <FormInput
                             control={form.control}
                             name={`details.${index}.observation_notes`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Notas Adicionales
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Comentarios sobre este producto..."
-                                    disabled={mode === "update"}
-                                    {...field}
-                                    value={field.value || ""}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            label="Notas Adicionales"
+                            placeholder="Comentarios sobre este producto..."
+                            disabled={mode === "update"}
                           />
                         </div>
                       )}
@@ -455,55 +385,25 @@ export const TransferReceptionForm = ({
                           Observación Detectada
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <FormField
-                            control={form.control}
+                          <FormSelect
                             name={`details.${index}.reason_observation`}
-                            render={() => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Motivo de Observación *
-                                </FormLabel>
-                                <FormControl>
-                                  <FormSelect
-                                    name={`details.${index}.reason_observation`}
-                                    placeholder="Selecciona motivo"
-                                    options={OBSERVATION_REASONS.map(
-                                      (reason) => ({
-                                        label: reason.label,
-                                        value: reason.value,
-                                      }),
-                                    )}
-                                    control={form.control}
-                                    disabled={mode === "update"}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            label="Motivo de Observación *"
+                            placeholder="Selecciona motivo"
+                            options={OBSERVATION_REASONS.map((reason) => ({
+                              label: reason.label,
+                              value: reason.value,
+                            }))}
+                            control={form.control}
+                            disabled={mode === "update"}
                           />
 
-                          {!isServiceItem && (
-                            <FormField
-                              control={form.control}
-                              name={`details.${index}.observation_notes`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs font-medium">
-                                    Notas de Observación
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Detalles adicionales..."
-                                      disabled={mode === "update"}
-                                      {...field}
-                                      value={field.value || ""}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          )}
+                          <FormInput
+                            control={form.control}
+                            name={`details.${index}.observation_notes`}
+                            label="Notas de Observación"
+                            placeholder="Detalles adicionales..."
+                            disabled={mode === "update"}
+                          />
                         </div>
                       </div>
                     )}
@@ -530,23 +430,13 @@ export const TransferReceptionForm = ({
         </Card>
 
         {/* Notas */}
-        <FormField
+        <FormTextArea
           control={form.control}
           name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notas Generales</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Notas o comentarios adicionales de la recepción"
-                  className="resize-none"
-                  rows={3}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Notas Generales"
+          placeholder="Notas o comentarios adicionales de la recepción"
+          className="resize-none"
+          rows={3}
         />
 
         <div className="flex gap-4 w-full justify-end">

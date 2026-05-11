@@ -81,3 +81,12 @@ export const SUPPLY_TYPE_OPTIONS = [
   { label: "Central", value: SUPPLY_TYPES.CENTRAL },
   { label: "Importación", value: SUPPLY_TYPES.IMPORTACION },
 ];
+
+export const getStatusLabelPurchaseOrder = (status: string) => {
+  const statusLabels: Record<string, string> = {
+    APPROVED: "Aprobado",
+    PARTIAL: "Parcial",
+    INCOMPLETE: "Incompleto",
+  };
+  return statusLabels[status] || status;
+};

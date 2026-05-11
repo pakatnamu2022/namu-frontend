@@ -100,6 +100,7 @@ export default function PurchaseOrderWarehousePage() {
         columns={vehiclePurchaseOrderColumns({
           onRequestInvoice: handleRequestInvoice,
           onRequestCreditNote: handleRequestCreditNote,
+          typeOperationId: CM_POSTVENTA_ID,
         })}
         data={data?.data || []}
       >
