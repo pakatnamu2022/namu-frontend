@@ -1,4 +1,6 @@
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 
 interface Props {
@@ -8,11 +10,17 @@ interface Props {
   setDateFrom: (date: Date | undefined) => void;
   dateTo: Date | undefined;
   setDateTo: (date: Date | undefined) => void;
+  warehouses: WarehouseResource[];
+  warehouseId: string;
+  setWarehouseId: (value: string) => void;
 }
 
 export default function AdjustmentsProductOptions({
   search,
   setSearch,
+  warehouses = [],
+  warehouseId,
+  setWarehouseId,
   dateFrom,
   setDateFrom,
   dateTo,
@@ -24,6 +32,17 @@ export default function AdjustmentsProductOptions({
         value={search}
         onChange={setSearch}
         placeholder="Buscar ajuste de producto..."
+      />
+      <SearchableSelect
+        options={warehouses.map((item) => ({
+          value: item.id.toString(),
+          label: item.dyn_code,
+        }))}
+        value={warehouseId}
+        onChange={setWarehouseId}
+        placeholder="Filtrar por almacén"
+        className="min-w-72"
+        classNameOption="text-xs"
       />
       <DateRangePickerFilter
         dateFrom={dateFrom}
