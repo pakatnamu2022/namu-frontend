@@ -10,6 +10,7 @@ import {
   getWorkOrderPlanning,
   getConsolidatedWorkers,
   getConsolidatedPlanning,
+  continueWork,
 } from "./workOrderPlanning.actions";
 import {
   WorkOrderPlanningRequest,
@@ -101,6 +102,18 @@ export function usePauseWork() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data?: PauseWorkRequest }) =>
       pauseWork(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+}
+
+// Hook para continuar trabajo
+export function useContinueWork() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => continueWork(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
