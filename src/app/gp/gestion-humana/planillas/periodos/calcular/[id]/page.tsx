@@ -130,6 +130,7 @@ export default function PayrollCalculationPage() {
         >
           <PayrollCalculationToolbar
             periodId={period.id}
+            periodCode={period.code}
             periodStatus={period.status}
             biweeklyDate={period.biweekly_date}
             quincena={quincena}

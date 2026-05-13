@@ -82,6 +82,7 @@ export default function PayrollCalculationPanel({
             </div>
             <PayrollCalculationToolbar
               periodId={period.id}
+              periodCode={period.code}
               periodStatus={period.status}
               activeView={activeView}
               onChangeView={handleChangeView}
