@@ -52,7 +52,6 @@ export const purchaseRequestColumns = ({
         <CopyCell value={value} className="font-semibold" />
       ) : null;
     },
-    enableSorting: false,
   },
   {
     accessorKey: "requested_date",
@@ -66,7 +65,6 @@ export const purchaseRequestColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "requested_by",

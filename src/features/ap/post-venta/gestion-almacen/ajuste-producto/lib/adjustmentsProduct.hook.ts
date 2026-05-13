@@ -9,11 +9,15 @@ import {
   getAllAdjustmentsProduct,
 } from "./adjustmentsProduct.actions.ts";
 
-export const useAdjustmentsProduct = (params?: Record<string, any>) => {
+export const useAdjustmentsProduct = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<AdjustmentsProductResponse>({
     queryKey: ["inventory-movements", params],
     queryFn: () => getAdjustmentsProduct({ params }),
     refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 };
 

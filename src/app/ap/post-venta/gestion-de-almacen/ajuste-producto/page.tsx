@@ -22,7 +22,6 @@ import {
   deleteAdjustmentsProduct,
   findAdjustmentsProductById,
 } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.actions.ts";
-import AdjustmentsProductActions from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductActions.tsx";
 import AdjustmentsProductTable from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductTable.tsx";
 import { adjustmentsProductColumns } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductColumns.tsx";
 import AdjustmentsProductOptions from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductOptions.tsx";
@@ -30,12 +29,14 @@ import { ADJUSTMENT } from "@/features/ap/post-venta/gestion-almacen/ajuste-prod
 import { useAdjustmentsProduct } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.hook.ts";
 import { AdjustmentsProductDetailSheet } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/components/AdjustmentsProductDetailSheet.tsx";
 import { AdjustmentsProductResource } from "@/features/ap/post-venta/gestion-almacen/ajuste-producto/lib/adjustmentsProduct.interface.ts";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 export default function AdjustmentsProductPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedAdjustment, setSelectedAdjustment] =
@@ -63,15 +64,32 @@ export default function AdjustmentsProductPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = useAdjustmentsProduct({
-    page,
-    search,
-    per_page,
-    movement_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-  });
+  // Obtener mis almacenes físicos de postventa
+  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
+
+  // Setear automáticamente el primer almacén cuando se carguen
+  useEffect(() => {
+    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      setWarehouseId(warehouses[0].id.toString());
+    }
+  }, [isLoadingWarehouses, warehouses, warehouseId]);
+
+  const { data, isLoading, refetch } = useAdjustmentsProduct(
+    {
+      page,
+      search,
+      per_page,
+      movement_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      warehouse_id: warehouseId,
+    },
+    {
+      enabled: !!warehouseId,
+    },
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -107,7 +125,7 @@ export default function AdjustmentsProductPage() {
     setSelectedAdjustment(null);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -119,7 +137,7 @@ export default function AdjustmentsProductPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <AdjustmentsProductActions permissions={permissions} />
+        {/* <AdjustmentsProductActions permissions={permissions} /> */}
       </HeaderTableWrapper>
       <AdjustmentsProductTable
         isLoading={isLoading}
@@ -137,6 +155,9 @@ export default function AdjustmentsProductPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          warehouses={warehouses}
+          warehouseId={warehouseId}
+          setWarehouseId={setWarehouseId}
         />
       </AdjustmentsProductTable>
 

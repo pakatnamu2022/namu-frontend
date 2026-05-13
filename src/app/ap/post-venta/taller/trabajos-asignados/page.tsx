@@ -16,6 +16,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
   useCompleteWork,
+  useContinueWork,
   useGetWorkOrderPlanning,
   usePauseWork,
   useStartSession,
@@ -65,6 +66,7 @@ export default function AssignedWorkPage() {
   );
   const startSession = useStartSession();
   const pauseWork = usePauseWork();
+  const continueWork = useContinueWork(); // Reutilizando la mutación de inicio para continuar (ajustar según sea necesario)
   const completeWork = useCompleteWork(); // Reutilizando la mutación de inicio para completar (ajustar según sea necesario)
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -180,6 +182,23 @@ export default function AssignedWorkPage() {
     }
   };
 
+  const handleContinueConfirm = async () => {
+    if (!actionWork) return;
+    try {
+      await continueWork.mutateAsync(actionWork.id);
+      successToast("Trabajo continuado exitosamente");
+      refetch();
+      setOpenCompleteAlert(false);
+      setActionWork(null);
+    } catch (error: any) {
+      errorToast(
+        "Error al continuar el trabajo",
+        error.response?.data?.message,
+      );
+      return;
+    }
+  };
+
   const handleCompleteConfirm = async () => {
     if (!actionWork) return;
     try {
@@ -274,7 +293,7 @@ export default function AssignedWorkPage() {
       <SimpleConfirmDialog
         open={openContinueAlert}
         onOpenChange={setOpenContinueAlert}
-        onConfirm={handleStartConfirm}
+        onConfirm={handleContinueConfirm}
         title="¿Continuar trabajo?"
         description="¿Estás seguro de continuar con este trabajo? Se creará una nueva sesión de trabajo."
         confirmText="Sí, Continuar"

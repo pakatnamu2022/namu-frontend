@@ -110,17 +110,25 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const purchaseOrder = reception.purchase_order;
 
         if (purchaseOrder) {
+          const hasCreditNote = purchaseOrder.credit_note_dynamics != null;
+          const invoiceLabel =
+            purchaseOrder.invoice_dynamics ??
+            `${purchaseOrder.invoice_series}-${purchaseOrder.invoice_number}`;
+
           return (
             <div className="flex flex-col text-sm">
               <span className="font-medium">{purchaseOrder.supplier}</span>
               <span className="text-xs text-gray-500">
                 RUC: {purchaseOrder.supplier_num_doc}
               </span>
-              <span className="text-xs text-gray-500">
-                Factura: {purchaseOrder.invoice_series}
-                {"-"}
-                {purchaseOrder.invoice_number}
-              </span>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>Factura: {invoiceLabel}</span>
+                {hasCreditNote && (
+                  <Badge variant="outline" color="yellow">
+                    Nota Crédito
+                  </Badge>
+                )}
+              </div>
             </div>
           );
         }

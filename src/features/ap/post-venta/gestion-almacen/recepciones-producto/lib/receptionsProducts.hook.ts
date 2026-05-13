@@ -14,7 +14,7 @@ const { QUERY_KEY } = RECEPTION;
 
 export const useReceptions = (
   params?: Record<string, any>,
-  purchaseOrderId?: number
+  purchaseOrderId?: number,
 ) => {
   return useQuery<ReceptionResponse>({
     queryKey: [QUERY_KEY, params, purchaseOrderId],
@@ -23,13 +23,10 @@ export const useReceptions = (
   });
 };
 
-export const useAllReceptions = (
-  params?: Record<string, any>,
-  purchaseOrderId?: number
-) => {
+export const useAllReceptions = (params?: Record<string, any>) => {
   return useQuery<ReceptionResource[]>({
-    queryKey: [QUERY_KEY, "all", purchaseOrderId],
-    queryFn: () => getAllReceptions({ params, purchaseOrderId }),
+    queryKey: [QUERY_KEY, "all", params],
+    queryFn: () => getAllReceptions({ params }),
     refetchOnWindowFocus: false,
   });
 };

@@ -29,11 +29,12 @@ export const RECEPTION_TYPES = [
 /**
  * Traducciones para status
  */
-export function translateStatusPurchase(status?: string | null): string {
+export function translateStatusReception(status?: string | null): string {
   const translations: Record<string, string> = {
     APPROVED: "Aprobado",
     PARTIAL: "Parcial",
     INCOMPLETE: "Incompleto",
+    ANNULLED: "Anulado",
   };
   return status ? (translations[status] ?? status) : "-";
 }

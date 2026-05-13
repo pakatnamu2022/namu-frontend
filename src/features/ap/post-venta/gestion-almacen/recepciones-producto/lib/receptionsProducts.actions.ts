@@ -27,12 +27,10 @@ export async function getReceptions({
 
 export async function getAllReceptions({
   params,
-  purchaseOrderId,
 }: getReceptionsProps): Promise<ReceptionResource[]> {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      ...(purchaseOrderId && { ap_supplier_order_id: purchaseOrderId }),
       all: true,
     },
   };

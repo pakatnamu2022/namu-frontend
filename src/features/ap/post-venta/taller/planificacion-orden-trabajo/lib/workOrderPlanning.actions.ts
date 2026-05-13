@@ -39,16 +39,16 @@ export async function getAllWorkOrderPlanning({
 }
 
 export async function findWorkOrderPlanningById(
-  id: number
+  id: number,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.get<WorkOrderPlanningResource>(
-    `${ENDPOINT}/${id}`
+    `${ENDPOINT}/${id}`,
   );
   return response.data;
 }
 
 export async function storeWorkOrderPlanning(
-  data: WorkOrderPlanningRequest
+  data: WorkOrderPlanningRequest,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.post<WorkOrderPlanningResource>(ENDPOINT, data);
   return response.data;
@@ -56,17 +56,17 @@ export async function storeWorkOrderPlanning(
 
 export async function updateWorkOrderPlanning(
   id: number,
-  data: Partial<WorkOrderPlanningRequest>
+  data: Partial<WorkOrderPlanningRequest>,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.put<WorkOrderPlanningResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deleteWorkOrderPlanning(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
@@ -75,49 +75,58 @@ export async function deleteWorkOrderPlanning(
 // Session Actions
 export async function startSession(
   id: number,
-  requestData?: WorkOrderPlanningSessionRequest
+  requestData?: WorkOrderPlanningSessionRequest,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.post<WorkOrderPlanningResource>(
     `${ENDPOINT}/${id}/start`,
-    requestData
+    requestData,
   );
   return response.data;
 }
 
 export async function pauseWork(
   id: number,
-  requestData?: PauseWorkRequest
+  requestData?: PauseWorkRequest,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.post<WorkOrderPlanningResource>(
     `${ENDPOINT}/${id}/pause`,
-    requestData
+    requestData,
+  );
+  return response.data;
+}
+
+export async function continueWork(
+  id: number,
+): Promise<WorkOrderPlanningResource> {
+  const response = await api.post<WorkOrderPlanningResource>(
+    `${ENDPOINT}/${id}/continue`,
   );
   return response.data;
 }
 
 export async function completeWork(
-  id: number
+  id: number,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.post<WorkOrderPlanningResource>(
-    `${ENDPOINT}/${id}/complete`
+    `${ENDPOINT}/${id}/complete`,
   );
   return response.data;
 }
 
 export async function cancelPlanning(
-  id: number
+  id: number,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.post<WorkOrderPlanningResource>(
-    `${ENDPOINT}/${id}/cancel`
+    `${ENDPOINT}/${id}/cancel`,
   );
   return response.data;
 }
 
 export async function getStatusPlanning(
-  id: number
+  id: number,
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.get<WorkOrderPlanningResource>(
-    `${ENDPOINT}/${id}/status`
+    `${ENDPOINT}/${id}/status`,
   );
   return response.data;
 }
@@ -128,19 +137,19 @@ export async function getSessions(id: number) {
 }
 
 export async function getConsolidatedPlanning(
-  workOrderId: number
+  workOrderId: number,
 ): Promise<ConsolidatedPlanning[]> {
   const response = await api.get<ConsolidatedPlanning[]>(
-    `${ENDPOINT}/consolidated/${workOrderId}`
+    `${ENDPOINT}/consolidated/${workOrderId}`,
   );
   return response.data;
 }
 
 export async function getConsolidatedWorkers(
-  workOrderId: number
+  workOrderId: number,
 ): Promise<ConsolidatedWorker[]> {
   const response = await api.get<ConsolidatedWorker[]>(
-    `${ENDPOINT}/workers/${workOrderId}`
+    `${ENDPOINT}/workers/${workOrderId}`,
   );
   return response.data;
 }
