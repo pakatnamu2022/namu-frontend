@@ -7,6 +7,7 @@ import {
 } from "./payroll-calculation.interface";
 import {
   PAYROLL_CALCULATION_ENDPOINT,
+  PAYROLL_CALCULATION_EXPORT_ENDPOINT,
   PAYROLL_CALCULATION_REPORT_ENDPOINT,
 } from "./payroll-calculation.constant";
 
@@ -74,6 +75,28 @@ export async function getPayrollReport(
     { params },
   );
   return data;
+}
+
+/**
+ * GET /calculations/export-summary/{periodId}?biweekly=1|2
+ * Descarga el Excel de nómina (3 hojas) y lo ofrece al navegador
+ */
+export async function exportPayrollExcel(
+  periodId: number,
+  periodCode: string,
+  quincena?: 1 | 2 | null,
+): Promise<void> {
+  const params = quincena ? { biweekly: quincena } : undefined;
+  const { data } = await api.get(
+    `${PAYROLL_CALCULATION_EXPORT_ENDPOINT}/${periodId}`,
+    { params, responseType: "blob" },
+  );
+  const url = URL.createObjectURL(data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `planilla-${periodCode}${quincena ? `-q${quincena}` : ""}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /**

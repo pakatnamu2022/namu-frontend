@@ -6,6 +6,7 @@ export const PAYROLL_CALCULATION_QUERY_KEY = "payroll-calculations";
 export const PAYROLL_CALCULATION_SUMMARY_QUERY_KEY = "payroll-calculations-summary";
 export const PAYROLL_CALCULATION_REPORT_QUERY_KEY = "payroll-calculations-report";
 export const PAYROLL_CALCULATION_REPORT_ENDPOINT = "/gp/gh/payroll/calculations/report";
+export const PAYROLL_CALCULATION_EXPORT_ENDPOINT = "/gp/gh/payroll/calculations/export-summary";
 
 export const CALCULATION_STATUS_CONFIG: Record<
   PayrollCalculationStatus,
