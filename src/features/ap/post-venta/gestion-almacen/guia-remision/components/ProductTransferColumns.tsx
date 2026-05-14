@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import ShippingGuideHistory from "@/features/ap/comercial/envios-recepciones/components/ShippingGuideHistory";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
 
@@ -66,12 +67,13 @@ export const productTransferColumns = ({
       if (!reference) return "-";
 
       return (
-        <div className="flex flex-col gap-1">
-          <span className="font-mono text-sm font-semibold">
-            {reference.document_number}
-            {cancelled_inventory_movement_id === null ? "" : "*"}
-          </span>
-        </div>
+        <CopyCell
+          value={
+            reference.document_number +
+            (cancelled_inventory_movement_id ? "*" : "")
+          }
+          className="font-mono text-sm font-semibold"
+        />
       );
     },
   },
@@ -79,19 +81,20 @@ export const productTransferColumns = ({
     id: "nro_reference_dyn",
     header: "Serie Dyn",
     cell: ({ row }) => {
-      const { reference } = row.original;
+      const { reference, cancelled_inventory_movement_id } = row.original;
       if (!reference) return "-";
 
+      const dynSeries =
+        cancelled_inventory_movement_id !== null &&
+        !reference.dyn_series?.endsWith("*")
+          ? `${reference.dyn_series}*`
+          : reference.dyn_series;
+
       return (
-        <div className="flex flex-col gap-1">
-          {reference.dyn_series ? (
-            <span className="font-mono text-sm font-semibold">
-              {reference.dyn_series}
-            </span>
-          ) : (
-            <span className="text-sm text-muted-foreground">-</span>
-          )}
-        </div>
+        <CopyCell
+          value={dynSeries}
+          className="font-mono text-sm font-semibold"
+        />
       );
     },
   },
@@ -103,7 +106,11 @@ export const productTransferColumns = ({
         row.original;
       if (!reference) return "-";
 
-      if (reference.is_accounted && cancelled_inventory_movement_id === null) {
+      const isAccounted =
+        reference.is_accounted &&
+        (cancelled_inventory_movement_id === null || reference.is_annulled);
+
+      if (isAccounted) {
         return (
           <Badge variant="outline" color="green" icon={BookCheck}>
             <span>Contabilizado</span>
@@ -411,10 +418,34 @@ export const productTransferColumns = ({
       const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
       const isReceived = reference?.is_received === true;
       const isAccounted = reference?.is_accounted === true;
+      const isCancelled = reference?.status === true;
 
       const currentWarehouseId = warehouseId ? Number(warehouseId) : null;
       const isOrigin = currentWarehouseId === warehouse_origin_id;
       const isDestination = currentWarehouseId === warehouse_destination_id;
+
+      const canSendToNubefact =
+        isOrigin && !isSent && !!onSendToNubefact && !!reference_id;
+      const canQueryFromNubefact =
+        isOrigin &&
+        isSent &&
+        !isAcceptedBySunat &&
+        !!onQueryFromNubefact &&
+        !!reference_id;
+      const canReceive =
+        isDestination &&
+        !!permissions.canReceive &&
+        !!onReceive &&
+        isSent &&
+        isAcceptedBySunat &&
+        !isReceived;
+      const canEdit =
+        isOrigin &&
+        permissions.canUpdate &&
+        !!routeUpdate &&
+        !isAcceptedBySunat;
+      const canCancel = isAccounted && !!onCancel && isCancelled;
+      const canDelete = isOrigin && permissions.canDelete && !isAcceptedBySunat;
 
       return (
         <div className="flex items-center gap-2">
@@ -435,87 +466,73 @@ export const productTransferColumns = ({
           <ShippingGuideHistory shippingGuideId={reference_id} />
 
           {/* Enviar a Nubefact - Solo origen y si NO ha sido enviado */}
-          {isOrigin && !isSent && onSendToNubefact && reference_id && (
+          {canSendToNubefact && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
               tooltip="Enviar a Nubefact"
-              onClick={() => onSendToNubefact(reference_id)}
+              onClick={() => onSendToNubefact!(reference_id!)}
             >
               <Send className="size-4" />
             </Button>
           )}
 
           {/* Consultar estado en Nubefact - Solo origen, enviado y NO aceptado */}
-          {isOrigin &&
-            isSent &&
-            !isAcceptedBySunat &&
-            onQueryFromNubefact &&
-            reference_id && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Consultar estado en SUNAT"
-                onClick={() => onQueryFromNubefact(reference_id)}
-              >
-                <RefreshCw className="size-4" />
-              </Button>
-            )}
+          {canQueryFromNubefact && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Consultar estado en SUNAT"
+              onClick={() => onQueryFromNubefact!(reference_id!)}
+            >
+              <RefreshCw className="size-4" />
+            </Button>
+          )}
 
           {/* Recepcionar - Solo destino, enviado, aceptado por SUNAT y no recepcionado aún */}
-          {isDestination &&
-            permissions.canReceive &&
-            onReceive &&
-            isSent &&
-            isAcceptedBySunat &&
-            !isReceived && (
+          {canReceive && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Recepcionar"
+              onClick={() => onReceive!(row.original)}
+            >
+              <PackageCheck className="size-4" />
+            </Button>
+          )}
+
+          {/* Editar - Solo origen, oculto si fue aceptada por SUNAT */}
+          {canEdit && (
+            <Link to={`${routeUpdate!}/${id}`}>
               <Button
                 variant="outline"
                 size="icon"
                 className="size-7"
-                tooltip="Recepcionar"
-                onClick={() => onReceive(row.original)}
+                tooltip="Editar"
               >
-                <PackageCheck className="size-4" />
+                <Pencil className="size-5" />
               </Button>
-            )}
-
-          {/* Editar - Solo origen, oculto si fue aceptada por SUNAT */}
-          {isOrigin &&
-            permissions.canUpdate &&
-            routeUpdate &&
-            !isAcceptedBySunat && (
-              <Link to={`${routeUpdate}/${id}`}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Editar"
-                >
-                  <Pencil className="size-5" />
-                </Button>
-              </Link>
-            )}
+            </Link>
+          )}
 
           {/* Cancelar - Solo cuando está contabilizado */}
-          {isAccounted && onCancel && (
+          {canCancel && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
               tooltip="Cancelar"
-              onClick={() => onCancel(id)}
+              onClick={() => onCancel!(id)}
             >
               <Ban className="size-4" />
             </Button>
           )}
 
           {/* Eliminar - Solo origen, oculto si fue aceptada por SUNAT */}
-          {isOrigin && permissions.canDelete && !isAcceptedBySunat && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
+          {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
         </div>
       );
     },

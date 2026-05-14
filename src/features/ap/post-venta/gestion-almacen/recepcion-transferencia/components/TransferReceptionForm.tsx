@@ -175,7 +175,7 @@ export const TransferReceptionForm = ({
             </div>
           ) : (
             <div className="space-y-3">
-              {fields.map((field, index) => {
+              {fields.map((_, index) => {
                 const detail = watchedDetails?.[index];
                 const observedQuantity = detail?.observed_quantity || 0;
                 const hasObservation = observedQuantity > 0;
@@ -205,59 +205,62 @@ export const TransferReceptionForm = ({
                 const isServiceItem = isServicio && !detail?.product_id;
 
                 return (
-                  <Card
-                    key={field.id}
-                    className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 hover:border-slate-300 transition-colors"
-                  >
-                    {/* Header compacto */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm truncate text-slate-700">
-                          {isServiceItem
-                            ? detail?.observation_notes ||
-                              transferItem?.notes ||
-                              `Servicio ${index + 1}`
-                            : transferItem?.product_name ||
-                              `Repuesto ${index + 1}`}
-                        </h4>
-                        {isOrderedProduct && (
-                          <Badge
-                            color="default"
-                            className="text-xs h-5 shrink-0"
-                          >
-                            TRANSFERIDO
-                          </Badge>
-                        )}
-                        {isServiceItem && (
-                          <Badge
-                            color="default"
-                            className="text-xs h-5 shrink-0"
-                          >
-                            SERVICIO
-                          </Badge>
-                        )}
-                        {transferItem && !isServiceItem && (
-                          <span className="text-xs text-slate-500 shrink-0 bg-slate-200 px-2 py-0.5 rounded">
-                            Trans: {transferItem.quantity}
-                          </span>
-                        )}
-                      </div>
-                      {!isOrderedProduct && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
-                          onClick={() => remove(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
+                  <>
+                    {isOrderedProduct || isServiceItem ? (
+                      <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="truncate text-sm font-semibold text-slate-700">
+                              {isServiceItem
+                                ? detail?.observation_notes ||
+                                  transferItem?.notes ||
+                                  `Servicio ${index + 1}`
+                                : transferItem?.product_name ||
+                                  `Repuesto ${index + 1}`}
+                            </h4>
+                            {isOrderedProduct && (
+                              <Badge
+                                color="default"
+                                className="h-5 shrink-0 text-xs"
+                              >
+                                TRANSFERIDO
+                              </Badge>
+                            )}
+                            {isServiceItem && (
+                              <Badge
+                                color="default"
+                                className="h-5 shrink-0 text-xs"
+                              >
+                                SERVICIO
+                              </Badge>
+                            )}
+                          </div>
+                          {transferItem && !isServiceItem && (
+                            <p className="mt-1 text-xs text-slate-500">
+                              Cantidad enviada: {transferItem.quantity}
+                            </p>
+                          )}
+                        </div>
 
-                    {/* Campos en una sola fila en desktop, columna en móvil */}
-                    <div className="grid grid-cols-12 gap-3 mb-3 items-end">
-                      {!isOrderedProduct && !isServiceItem && (
+                        <div className="flex shrink-0 items-center gap-2">
+                          <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                            Recibe: {detail?.quantity_received ?? 0}
+                          </span>
+                          {!isOrderedProduct && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
+                              onClick={() => remove(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-12 gap-3 mb-3 items-end">
                         <div className="col-span-12 md:col-span-8">
                           <FormSelectAsync
                             name={`details.${index}.product_id`}
@@ -273,110 +276,21 @@ export const TransferReceptionForm = ({
                             perPage={20}
                           />
                         </div>
-                      )}
 
-                      {(isOrderedProduct || isServiceItem) && transferItem && (
-                        <div className="col-span-12 md:col-span-2">
-                          <FormInput
-                            name={`details.${index}.quantity_sent`}
-                            label="Cant. Enviada"
-                            type="number"
-                            className="text-center bg-slate-100"
-                            value={transferItem.quantity}
-                            disabled
-                            readOnly
-                          />
-                        </div>
-                      )}
-
-                      <div
-                        className={`col-span-12 ${isOrderedProduct || isServiceItem ? "md:col-span-2" : "md:col-span-4"}`}
-                      >
-                        <FormInput
-                          control={form.control}
-                          name={`details.${index}.quantity_received`}
-                          label="Cant. Recibida *"
-                          type="number"
-                          min="0"
-                          className="text-center"
-                          placeholder="0"
-                          disabled={mode === "update"}
-                          onChange={(e) => {
-                            const num = parseFloat(String(e.target.value));
-                            const newQuantityReceived = isNaN(num) ? 0 : num;
-
-                            if (isOrderedProduct && transferItem) {
-                              const transferredQuantity = transferItem.quantity;
-                              const finalQuantityReceived = Math.min(
-                                newQuantityReceived,
-                                transferredQuantity,
-                              );
-                              const observedQuantity =
-                                transferredQuantity - finalQuantityReceived;
-                              form.setValue(
-                                `details.${index}.quantity_received`,
-                                finalQuantityReceived,
-                              );
-                              form.setValue(
-                                `details.${index}.observed_quantity`,
-                                observedQuantity,
-                              );
-                            }
-                          }}
-                        />
-                      </div>
-
-                      {isOrderedProduct && (
-                        <div className="col-span-12 md:col-span-2">
+                        <div className="col-span-12 md:col-span-4">
                           <FormInput
                             control={form.control}
-                            name={`details.${index}.observed_quantity`}
-                            label="Cant. Observada"
+                            name={`details.${index}.quantity_received`}
+                            label="Cant. Recibida *"
                             type="number"
                             min="0"
                             className="text-center"
                             placeholder="0"
-                            disabled={mode === "update"}
-                            onChange={(e) => {
-                              const num = parseFloat(String(e.target.value));
-                              const newObservedQuantity = isNaN(num) ? 0 : num;
-
-                              if (transferItem) {
-                                const transferredQuantity =
-                                  transferItem.quantity;
-                                const finalObservedQuantity = Math.min(
-                                  newObservedQuantity,
-                                  transferredQuantity,
-                                );
-                                const receivedQuantity =
-                                  transferredQuantity - finalObservedQuantity;
-                                form.setValue(
-                                  `details.${index}.observed_quantity`,
-                                  finalObservedQuantity,
-                                );
-                                form.setValue(
-                                  `details.${index}.quantity_received`,
-                                  receivedQuantity,
-                                );
-                              }
-                            }}
+                            disabled={true}
                           />
                         </div>
-                      )}
-
-                      {/* Notas Adicionales con más espacio - solo para productos ordenados no servicios */}
-                      {isOrderedProduct && !isServiceItem && (
-                        <div className="col-span-12 md:col-span-6">
-                          <FormInput
-                            control={form.control}
-                            name={`details.${index}.observation_notes`}
-                            label="Notas Adicionales"
-                            placeholder="Comentarios sobre este producto..."
-                            disabled={mode === "update"}
-                          />
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {/* Observaciones */}
                     {hasObservation && (
@@ -422,7 +336,7 @@ export const TransferReceptionForm = ({
                         )}
                       />
                     )}
-                  </Card>
+                  </>
                 );
               })}
             </div>

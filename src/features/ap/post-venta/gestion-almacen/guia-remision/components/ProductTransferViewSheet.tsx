@@ -343,6 +343,61 @@ export function ProductTransferViewSheet({
                 </>
               )}
 
+              {/* Estado de anulación / stock */}
+              {!transferData.reference.status && (
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <XCircle className="size-4 text-destructive/70" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-destructive/70">
+                      Registro anulado
+                    </span>
+                  </div>
+
+                  <Separator className="opacity-30" />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-3 py-1">
+                      <span className="text-sm text-muted-foreground">
+                        Estado en SIAN
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-destructive/30 text-destructive bg-transparent text-xs font-medium"
+                      >
+                        Anulado
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 py-1">
+                      <span className="text-sm text-muted-foreground">
+                        Estado en Dynamics
+                      </span>
+                      {transferData.reference.is_annulled ? (
+                        <Badge
+                          variant="outline"
+                          className="border-emerald-500/40 text-emerald-600 bg-transparent text-xs font-medium"
+                        >
+                          Anulado
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="border-gray-500/40 text-gray-600 bg-transparent text-xs font-medium"
+                        >
+                          Pendiente
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed pt-1 border-t border-destructive/10">
+                    {!transferData.reference.is_annulled
+                      ? "Anulada en SIAN. Falta procesar la anulación en Dynamics para que el stock retorne al almacén origen."
+                      : "Anulada en SIAN y en Dynamics. El stock debe estar revertido al almacén origen."}
+                  </p>
+                </div>
+              )}
+
               {/* Documentos SUNAT */}
               {transferData.reference.requires_sunat &&
                 transferData.reference.is_sunat_registered && (
