@@ -73,6 +73,7 @@ export interface ShipmentsReceptionsResource {
   items: ShipmentItemResource[];
   migration_status: string;
   is_accounted: boolean;
+  is_annulled: boolean;
 }
 
 export interface ShipmentItemResource {

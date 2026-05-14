@@ -40,7 +40,7 @@ export function translateMovementType(type?: string | null): string {
 /**
  * Traducciones para status (estado del movimiento)
  */
-export function translateMovementStatus(status?: string | null): string {
+export function translateInventoryMovement(status?: string | null): string {
   const translations: Record<string, string> = {
     DRAFT: "Borrador",
     APPROVED: "Aprobado",

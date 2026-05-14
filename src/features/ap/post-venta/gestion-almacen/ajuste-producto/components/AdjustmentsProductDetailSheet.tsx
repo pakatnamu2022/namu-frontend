@@ -9,7 +9,7 @@ import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { InfoSection } from "@/shared/components/InfoSection";
 import { formatDate } from "@/core/core.function";
-import { translateMovementStatus } from "../../inventario/lib/inventory.constants";
+import { translateInventoryMovement } from "../../inventario/lib/inventory.constants";
 
 interface AdjustmentsProductDetailSheetProps {
   open: boolean;
@@ -81,7 +81,7 @@ export function AdjustmentsProductDetailSheet({
                       data.status === "APPROVED" ? "default" : "destructive"
                     }
                   >
-                    {translateMovementStatus(data.status) || "-"}
+                    {translateInventoryMovement(data.status) || "-"}
                   </Badge>
                 ),
               },

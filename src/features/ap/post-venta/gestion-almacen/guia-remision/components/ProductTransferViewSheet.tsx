@@ -1,4 +1,4 @@
-import { Badge, BadgeColor } from "@/components/ui/badge.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { format } from "date-fns";
@@ -27,37 +27,14 @@ import {
   DetailSheetTable,
   DetailSheetTableColumn,
 } from "@/shared/components/DetailSheetTable";
+import { formatDate } from "@/core/core.function";
+import { translateInventoryMovement } from "../../inventario/lib/inventory.constants";
 
 interface ProductTransferViewSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transferId: number;
 }
-
-const getStatusBadge = (status: string) => {
-  const statusConfig: {
-    [key: string]: {
-      label: string;
-      color: BadgeColor;
-    };
-  } = {
-    IN_TRANSIT: { label: "En Tránsito", color: "default" },
-    COMPLETED: { label: "Completado", color: "secondary" },
-    CANCELLED: { label: "Cancelado", color: "destructive" },
-    PENDING: { label: "Pendiente", color: "default" },
-  };
-
-  const config = statusConfig[status as keyof typeof statusConfig] || {
-    label: status,
-    color: "default",
-  };
-
-  return (
-    <Badge color={config.color} className="capitalize">
-      {config.label}
-    </Badge>
-  );
-};
 
 const detailColumns: DetailSheetTableColumn<ProductTransferDetailResource>[] = [
   {
@@ -115,11 +92,6 @@ export function ProductTransferViewSheet({
     enabled: !!transferId && open,
   });
 
-  const formatDate = (date: string | null) => {
-    if (!date) return "-";
-    return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
-  };
-
   return (
     <GeneralSheet
       open={open}
@@ -148,7 +120,7 @@ export function ProductTransferViewSheet({
               },
               {
                 label: "Estado",
-                value: getStatusBadge(transferData.status),
+                value: translateInventoryMovement(transferData.status),
               },
               {
                 label: "Fecha de Movimiento",
@@ -212,11 +184,21 @@ export function ProductTransferViewSheet({
                   fields={[
                     {
                       label: "Número de Documento",
-                      value: transferData.reference.document_number,
+                      value: (
+                        <CopyCell
+                          value={transferData.reference.document_number}
+                          className="font-medium"
+                        />
+                      ),
                     },
                     {
                       label: "Número de Documento Dynamics",
-                      value: transferData.reference.dyn_series,
+                      value: (
+                        <CopyCell
+                          value={transferData.reference.dyn_series}
+                          className="font-medium"
+                        />
+                      ),
                     },
                     {
                       label: "Fecha de Emisión",
@@ -359,6 +341,61 @@ export function ProductTransferViewSheet({
                     </div>
                   </div>
                 </>
+              )}
+
+              {/* Estado de anulación / stock */}
+              {!transferData.reference.status && (
+                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <XCircle className="size-4 text-destructive/70" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-destructive/70">
+                      Registro anulado
+                    </span>
+                  </div>
+
+                  <Separator className="opacity-30" />
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-3 py-1">
+                      <span className="text-sm text-muted-foreground">
+                        Estado en SIAN
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="border-destructive/30 text-destructive bg-transparent text-xs font-medium"
+                      >
+                        Anulado
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 py-1">
+                      <span className="text-sm text-muted-foreground">
+                        Estado en Dynamics
+                      </span>
+                      {transferData.reference.is_annulled ? (
+                        <Badge
+                          variant="outline"
+                          className="border-emerald-500/40 text-emerald-600 bg-transparent text-xs font-medium"
+                        >
+                          Anulado
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="border-gray-500/40 text-gray-600 bg-transparent text-xs font-medium"
+                        >
+                          Pendiente
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed pt-1 border-t border-destructive/10">
+                    {!transferData.reference.is_annulled
+                      ? "Anulada en SIAN. Falta procesar la anulación en Dynamics para que el stock retorne al almacén origen."
+                      : "Anulada en SIAN y en Dynamics. El stock debe estar revertido al almacén origen."}
+                  </p>
+                </div>
               )}
 
               {/* Documentos SUNAT */}

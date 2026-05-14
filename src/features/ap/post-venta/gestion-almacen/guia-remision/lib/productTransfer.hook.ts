@@ -6,6 +6,7 @@ import {
   ProductTransferResponse,
 } from "./productTransfer.interface.ts";
 import {
+  cancelProductTransfer,
   deleteProductTransfer,
   findProductTransferById,
   getAllProductTransfers,
@@ -86,7 +87,23 @@ export const useDeleteProductTransfer = () => {
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al eliminar la transferencia de producto"
+          "Error al eliminar la transferencia de producto",
+      );
+    },
+  });
+};
+
+export const useCancelProductTransfer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => cancelProductTransfer(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Transferencia cancelada exitosamente");
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al cancelar la transferencia",
       );
     },
   });
@@ -104,7 +121,7 @@ export const useSendShippingGuideToNubefact = () => {
         successToast(response.message);
       } else {
         errorToast(
-          response.message || "Error al enviar la guía de remisión a Nubefact"
+          response.message || "Error al enviar la guía de remisión a Nubefact",
         );
       }
     },
@@ -138,7 +155,7 @@ export const useQueryShippingGuideFromNubefact = () => {
         successToast(response.message);
       } else {
         errorToast(
-          response.message || "Error al consultar el estado de la guía"
+          response.message || "Error al consultar el estado de la guía",
         );
       }
     },
