@@ -108,6 +108,9 @@ export const TransferReceptionForm = ({
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<any>(null);
+  const confirmDescription = isServicio
+    ? "¿Está seguro de guardar esta recepción?"
+    : "Esta información será migrada a DYNAMICS. ¿Deseas continuar?";
 
   const handlePreSubmit = (data: any) => {
     setPendingData(data);
@@ -362,7 +365,7 @@ export const TransferReceptionForm = ({
             open={confirmOpen}
             onOpenChange={setConfirmOpen}
             title="Confirmar guardado"
-            description="Esta información será migrada a DYNAMICS. ¿Deseas continuar?"
+            description={confirmDescription}
             confirmText="Sí, guardar"
             cancelText="No, cancelar"
             onConfirm={handleConfirm}
