@@ -30,6 +30,7 @@ import {
   useProductTransfers,
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
+  useCancelProductTransfer,
 } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
 import { useNavigate } from "react-router-dom";
 import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferViewSheet.tsx";
@@ -46,11 +47,13 @@ export default function ProductTransferPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number>(0);
+  const [cancelId, setCancelId] = useState<number | null>(null);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendShippingGuideToNubefact();
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
+  const cancelMutation = useCancelProductTransfer();
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
@@ -145,10 +148,8 @@ export default function ProductTransferPage() {
 
   const handleSyncWithDynamics = async (id: number) => {
     await syncShippingGuideWithDynamics(id)
-      .then((response) => {
-        if (response.message) {
-          successToast(response.message);
-        }
+      .then(() => {
+        successToast("Guía de remisión sincronizada con Dynamics exitosamente");
 
         refetch();
       })
@@ -157,6 +158,16 @@ export default function ProductTransferPage() {
           error.response?.data?.message || ERROR_MESSAGE(MODEL, "fetch");
         errorToast(errorMsg);
       });
+  };
+
+  const handleCancel = () => {
+    if (!cancelId) return;
+    cancelMutation.mutate(cancelId, {
+      onSettled: () => {
+        refetch();
+        setCancelId(null);
+      },
+    });
   };
 
   if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
@@ -190,6 +201,7 @@ export default function ProductTransferPage() {
           },
           onReceive: handleReceive,
           onSyncWithDynamics: handleSyncWithDynamics,
+          onCancel: setCancelId,
           routeUpdate: ROUTE_UPDATE,
           warehouseId,
         })}
@@ -228,6 +240,21 @@ export default function ProductTransferPage() {
           variant="default"
           icon="warning"
           isLoading={sendToNubefactMutation.isPending}
+        />
+      )}
+
+      {cancelId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setCancelId(null)}
+          onConfirm={handleCancel}
+          title="Cancelar Guía de Remisión"
+          description="¿Está seguro de que desea cancelar esta guía de remisión? Esta acción no se puede deshacer."
+          confirmText="Sí, enviar"
+          cancelText="Cancelar"
+          variant="default"
+          icon="warning"
+          isLoading={cancelMutation.isPending}
         />
       )}
 

@@ -12,6 +12,7 @@ import {
   CloudUpload,
   BookCheck,
   BookX,
+  Ban,
   type LucideIcon,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
@@ -32,6 +33,7 @@ interface Props {
   onQueryFromNubefact?: (id: number) => void;
   onReceive?: (row: ProductTransferResource) => void;
   onSyncWithDynamics?: (id: number) => void;
+  onCancel?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -49,6 +51,7 @@ export const productTransferColumns = ({
   onQueryFromNubefact,
   onReceive,
   onSyncWithDynamics,
+  onCancel,
   permissions,
   routeUpdate,
   warehouseId,
@@ -58,12 +61,15 @@ export const productTransferColumns = ({
     header: "Nro Referencia",
     cell: ({ row }) => {
       const { reference } = row.original;
+      const cancelled_inventory_movement_id =
+        row.original.cancelled_inventory_movement_id;
       if (!reference) return "-";
 
       return (
         <div className="flex flex-col gap-1">
           <span className="font-mono text-sm font-semibold">
             {reference.document_number}
+            {cancelled_inventory_movement_id === null ? "" : "*"}
           </span>
         </div>
       );
@@ -93,10 +99,11 @@ export const productTransferColumns = ({
     id: "is_accounted",
     header: "Contabilización",
     cell: ({ row }) => {
-      const { reference, reference_id } = row.original;
+      const { reference, reference_id, cancelled_inventory_movement_id } =
+        row.original;
       if (!reference) return "-";
 
-      if (reference.is_accounted) {
+      if (reference.is_accounted && cancelled_inventory_movement_id === null) {
         return (
           <Badge variant="outline" color="green" icon={BookCheck}>
             <span>Contabilizado</span>
@@ -334,6 +341,37 @@ export const productTransferColumns = ({
     },
   },
   {
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const { status } = row.original;
+      const statusMap: Record<
+        string,
+        {
+          label: string;
+          color: "gray" | "green" | "blue" | "red";
+          icon: LucideIcon;
+        }
+      > = {
+        DRAFT: { label: "Borrador", color: "gray", icon: BookX },
+        APPROVED: { label: "Aprobado", color: "green", icon: BookCheck },
+        IN_TRANSIT: { label: "En Tránsito", color: "blue", icon: Send },
+        CANCELLED: { label: "Cancelado", color: "red", icon: Ban },
+      };
+
+      const statusInfo = statusMap[status] || {
+        label: status,
+        color: "gray" as const,
+        icon: BookX,
+      };
+      return (
+        <Badge color={statusInfo.color} icon={statusInfo.icon}>
+          {statusInfo.label}
+        </Badge>
+      );
+    },
+  },
+  {
     id: "notas_guia",
     header: "Observaciones",
     cell: ({ row }) => {
@@ -372,6 +410,7 @@ export const productTransferColumns = ({
       const isSent = !!reference?.sent_at;
       const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
       const isReceived = reference?.is_received === true;
+      const isAccounted = reference?.is_accounted === true;
 
       const currentWarehouseId = warehouseId ? Number(warehouseId) : null;
       const isOrigin = currentWarehouseId === warehouse_origin_id;
@@ -459,6 +498,19 @@ export const productTransferColumns = ({
                 </Button>
               </Link>
             )}
+
+          {/* Cancelar - Solo cuando está contabilizado */}
+          {isAccounted && onCancel && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Cancelar"
+              onClick={() => onCancel(id)}
+            >
+              <Ban className="size-4" />
+            </Button>
+          )}
 
           {/* Eliminar - Solo origen, oculto si fue aceptada por SUNAT */}
           {isOrigin && permissions.canDelete && !isAcceptedBySunat && (

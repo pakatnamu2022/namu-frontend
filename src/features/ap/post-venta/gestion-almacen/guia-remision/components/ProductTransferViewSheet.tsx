@@ -1,4 +1,4 @@
-import { Badge, BadgeColor } from "@/components/ui/badge.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { format } from "date-fns";
@@ -27,37 +27,14 @@ import {
   DetailSheetTable,
   DetailSheetTableColumn,
 } from "@/shared/components/DetailSheetTable";
+import { formatDate } from "@/core/core.function";
+import { translateInventoryMovement } from "../../inventario/lib/inventory.constants";
 
 interface ProductTransferViewSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transferId: number;
 }
-
-const getStatusBadge = (status: string) => {
-  const statusConfig: {
-    [key: string]: {
-      label: string;
-      color: BadgeColor;
-    };
-  } = {
-    IN_TRANSIT: { label: "En Tránsito", color: "default" },
-    COMPLETED: { label: "Completado", color: "secondary" },
-    CANCELLED: { label: "Cancelado", color: "destructive" },
-    PENDING: { label: "Pendiente", color: "default" },
-  };
-
-  const config = statusConfig[status as keyof typeof statusConfig] || {
-    label: status,
-    color: "default",
-  };
-
-  return (
-    <Badge color={config.color} className="capitalize">
-      {config.label}
-    </Badge>
-  );
-};
 
 const detailColumns: DetailSheetTableColumn<ProductTransferDetailResource>[] = [
   {
@@ -115,11 +92,6 @@ export function ProductTransferViewSheet({
     enabled: !!transferId && open,
   });
 
-  const formatDate = (date: string | null) => {
-    if (!date) return "-";
-    return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
-  };
-
   return (
     <GeneralSheet
       open={open}
@@ -148,7 +120,7 @@ export function ProductTransferViewSheet({
               },
               {
                 label: "Estado",
-                value: getStatusBadge(transferData.status),
+                value: translateInventoryMovement(transferData.status),
               },
               {
                 label: "Fecha de Movimiento",
@@ -212,11 +184,21 @@ export function ProductTransferViewSheet({
                   fields={[
                     {
                       label: "Número de Documento",
-                      value: transferData.reference.document_number,
+                      value: (
+                        <CopyCell
+                          value={transferData.reference.document_number}
+                          className="font-medium"
+                        />
+                      ),
                     },
                     {
                       label: "Número de Documento Dynamics",
-                      value: transferData.reference.dyn_series,
+                      value: (
+                        <CopyCell
+                          value={transferData.reference.dyn_series}
+                          className="font-medium"
+                        />
+                      ),
                     },
                     {
                       label: "Fecha de Emisión",

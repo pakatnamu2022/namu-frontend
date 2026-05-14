@@ -31,6 +31,7 @@ export interface ProductTransferResource {
   notes?: string;
   total_items: number;
   total_quantity: string;
+  cancelled_inventory_movement_id: number | null;
   details: ProductTransferDetailResource[];
   transfer_reception: TransferReceptionResource[] | null;
   created_at: string;

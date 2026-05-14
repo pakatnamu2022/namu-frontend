@@ -39,45 +39,54 @@ export async function getAllProductTransfers({
 }
 
 export async function getProductTransferById(
-  id: number
+  id: number,
 ): Promise<ProductTransferResource> {
   const { data } = await api.get<ProductTransferResource>(`${ENDPOINT}/${id}`);
   return data;
 }
 
 export async function findProductTransferById(
-  id: number
+  id: number,
 ): Promise<ProductTransferResource> {
   const response = await api.get<ProductTransferResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeProductTransfer(
-  payload: ProductTransferRequest
+  payload: ProductTransferRequest,
 ): Promise<ProductTransferResource> {
   const { data } = await api.post<ProductTransferResource>(
     `${ENDPOINT}/transfers`,
-    payload
+    payload,
   );
   return data;
 }
 
 export async function updateProductTransfer(
   id: number,
-  payload: ProductTransferRequest
+  payload: ProductTransferRequest,
 ): Promise<ProductTransferResource> {
   const { data } = await api.put<ProductTransferResource>(
     `${ENDPOINT}/transfers/${id}`,
-    payload
+    payload,
   );
   return data;
 }
 
 export async function deleteProductTransfer(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(
-    `${ENDPOINT}/transfers/${id}`
+    `${ENDPOINT}/transfers/${id}`,
+  );
+  return data;
+}
+
+export async function cancelProductTransfer(
+  id: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/transfers/${id}/cancel`,
   );
   return data;
 }
