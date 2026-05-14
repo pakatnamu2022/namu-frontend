@@ -375,7 +375,7 @@ export function ProductTransferViewSheet({
                       {transferData.reference.is_annulled ? (
                         <Badge
                           variant="outline"
-                          className="border-emerald-500/40 text-emerald-600 bg-transparent text-xs font-medium"
+                          className="border-destructive/30 text-destructive bg-transparent text-xs font-medium"
                         >
                           Anulado
                         </Badge>

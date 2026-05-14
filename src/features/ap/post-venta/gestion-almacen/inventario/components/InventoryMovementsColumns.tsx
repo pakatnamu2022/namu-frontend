@@ -154,12 +154,14 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           shipment.receiver_name ||
           "-";
         const documentNumber = shipment.document_number || "-";
+        const isAnnulled = shipment.is_annulled;
 
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">Destino: {destinationName}</span>
             <span className="text-xs text-gray-500">
               Guía: {documentNumber}
+              {isAnnulled && "*"}
             </span>
           </div>
         );
@@ -174,6 +176,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const warehouseOrigin =
           transferReception.shipping_guide.transmitter_establishment;
         const shippingGuide = transferReception.shipping_guide;
+        const isAnnulled = shippingGuide.is_annulled;
 
         return (
           <div className="flex flex-col text-sm">
@@ -182,7 +185,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
             </span>
             {shippingGuide?.document_number && (
               <span className="text-xs text-gray-500">
-                Guía: {shippingGuide.document_number}
+                Guía: {shippingGuide.document_number} {isAnnulled && "*"}
               </span>
             )}
           </div>
