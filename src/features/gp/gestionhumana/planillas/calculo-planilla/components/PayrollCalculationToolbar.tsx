@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Calculator, RefreshCw, Loader2 } from "lucide-react";
+import { Calculator, RefreshCw, Loader2, FileSpreadsheet } from "lucide-react";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
+  exportPayrollExcel,
   generatePayrollCalculations,
   recalculatePayrollCalculations,
 } from "../lib/payroll-calculation.actions";
@@ -18,6 +19,7 @@ export type Quincena = 1 | 2 | null;
 
 interface Props {
   periodId: number;
+  periodCode: string;
   periodStatus: PayrollPeriodStatus;
   biweeklyDate?: string | null;
   activeView?: ActiveView;
@@ -31,6 +33,7 @@ interface Props {
 
 export default function PayrollCalculationToolbar({
   periodId,
+  periodCode,
   periodStatus,
   biweeklyDate,
   quincena,
@@ -40,6 +43,7 @@ export default function PayrollCalculationToolbar({
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [showRecalcConfirm, setShowRecalcConfirm] = useState(false);
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
 
@@ -80,6 +84,17 @@ export default function PayrollCalculationToolbar({
       }
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      await exportPayrollExcel(periodId, periodCode, quincena);
+    } catch {
+      errorToast("Error al exportar el Excel de nómina");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -161,6 +176,22 @@ export default function PayrollCalculationToolbar({
               <RefreshCw className="size-4 mr-1.5" />
             )}
             Recalcular Nómina
+          </Button>
+        )}
+
+        {hasCalculations && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="size-4 mr-1.5 animate-spin" />
+            ) : (
+              <FileSpreadsheet className="size-4 mr-1.5" />
+            )}
+            Exportar Excel
           </Button>
         )}
       </div>
