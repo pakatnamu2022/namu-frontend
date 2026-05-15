@@ -40,6 +40,7 @@ interface Props {
     canDelete: boolean;
     canView: boolean;
     canReceive?: boolean;
+    canAnnul?: boolean;
   };
   routeUpdate?: string;
   warehouseId?: string;
@@ -466,8 +467,9 @@ export const productTransferColumns = ({
         !!routeUpdate &&
         !isAcceptedBySunat;
       const canCancel =
-        (isAccounted && !!onCancel && isCancelled) ||
-        (item_type === "SERVICIO" && isReceived);
+        permissions.canAnnul &&
+        ((isAccounted && !!onCancel && isCancelled) ||
+          (item_type === "SERVICIO" && isReceived));
       const canDelete = isOrigin && permissions.canDelete && !isAcceptedBySunat;
 
       return (

@@ -197,7 +197,6 @@ export default function ProductTransferPage() {
           onQueryFromNubefact: handleQueryFromNubefact,
           permissions: {
             ...permissions,
-            canReceive: permissions.canCreate,
           },
           onReceive: handleReceive,
           onSyncWithDynamics: handleSyncWithDynamics,
