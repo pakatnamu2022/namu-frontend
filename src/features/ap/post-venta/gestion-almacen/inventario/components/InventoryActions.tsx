@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button.tsx";
-import { FileBox, FileSpreadsheet } from "lucide-react";
+import { FileBox, FileSpreadsheet, GitCompareArrows } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper.tsx";
 import DropdownButton from "@/shared/components/DropdownButton.tsx";
 import { useNavigate } from "react-router-dom";
@@ -64,6 +64,17 @@ export default function InventoryActions({ permissions, warehouseId }: Props) {
           Sin stock
         </DropdownMenuItem>
       </DropdownButton>
+
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={!warehouseId}
+        onClick={() =>
+          router(`${ABSOLUTE_ROUTE}/comparativa-dynamics?warehouse_id=${warehouseId}`)
+        }
+      >
+        <GitCompareArrows className="size-4 mr-2" /> Comparativa Dynamics
+      </Button>
 
       {permissions.canCreate && (
         <Button

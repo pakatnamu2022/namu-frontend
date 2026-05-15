@@ -4,8 +4,9 @@ import {
   getInventoryKardex,
   getInventoryMovements,
   getProductPurchaseHistory,
+  getCompareDynamics,
 } from "./inventory.actions.ts";
-import { InventoryResponse } from "./inventory.interface.ts";
+import { CompareDynamicsResponse, InventoryResponse } from "./inventory.interface.ts";
 import {
   InventoryMovementResponse,
   PurchaseHistoryResponse,
@@ -44,6 +45,18 @@ export const useInventoryKardex = (
   return useQuery<InventoryMovementResponse>({
     queryKey: ["inventory-movements", params],
     queryFn: () => getInventoryKardex({ params }),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useCompareDynamics = (
+  warehouseId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<CompareDynamicsResponse>({
+    queryKey: ["compare-dynamics", warehouseId],
+    queryFn: () => getCompareDynamics({ warehouse_id: warehouseId }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,
   });

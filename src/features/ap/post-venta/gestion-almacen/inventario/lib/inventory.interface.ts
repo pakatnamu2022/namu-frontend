@@ -148,3 +148,53 @@ export interface InventoryResponse {
 export interface getInventoryProps {
   params?: Record<string, any>;
 }
+
+// --- Comparativa Dynamics ---
+
+export interface CompareDynamicsProduct {
+  product_dyn_code: string;
+  product_code: string | null;
+  product_name: string | null;
+  warehouse_dynamics: string | null;
+  local_quantity: string | null;
+  local_available: string | null;
+  local_in_transit: string | null;
+  local_reserved: string | null;
+  local_pending_credit_note: string | null;
+  dynamics_stock: number | null;
+  difference: number | null;
+  match: boolean;
+  found_in: "SOLO_LOCAL" | "SOLO_DYNAMICS" | "AMBOS";
+}
+
+export interface CompareDynamicsData {
+  warehouse_id: number;
+  warehouse_code: string;
+  warehouse_description: string;
+  comparison_date: string;
+  total_products: number;
+  matching_products: number;
+  products: CompareDynamicsProduct[];
+}
+
+export interface CompareDynamicsResponse {
+  success: boolean;
+  data: CompareDynamicsData;
+}
+
+/** Fila unificada (merge de la entrada local + la entrada de Dynamics) */
+export interface CompareDynamicsMergedRow {
+  product_dyn_code: string;
+  product_code: string | null;
+  product_name: string | null;
+  warehouse_dynamics: string | null;
+  local_quantity: string | null;
+  local_available: string | null;
+  local_in_transit: string | null;
+  local_reserved: string | null;
+  local_pending_credit_note: string | null;
+  dynamics_stock: number | null;
+  difference: number | null;
+  match: boolean;
+  found_in: "SOLO_LOCAL" | "SOLO_DYNAMICS" | "AMBOS";
+}

@@ -5,6 +5,7 @@ import {
   getInventoryProps,
   InventoryResponse,
   StockByProductIdsResponse,
+  CompareDynamicsResponse,
 } from "./inventory.interface.ts";
 import {
   getInventoryKardexProps,
@@ -169,6 +170,17 @@ export const exportInventory = async (params: {
   link.click();
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
+};
+
+export const getCompareDynamics = async (params: {
+  warehouse_id: number;
+}): Promise<CompareDynamicsResponse> => {
+  const config: AxiosRequestConfig = { params };
+  const { data } = await api.get<CompareDynamicsResponse>(
+    `/ap/postVenta/productWarehouseStock/compare-dynamics`,
+    config,
+  );
+  return data;
 };
 
 export const exportProductMovementHistory = async (
