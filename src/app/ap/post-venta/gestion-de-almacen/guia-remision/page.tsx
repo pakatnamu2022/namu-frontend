@@ -195,9 +195,7 @@ export default function ProductTransferPage() {
           onView: handleView,
           onSendToNubefact: setSendToNubefactId,
           onQueryFromNubefact: handleQueryFromNubefact,
-          permissions: {
-            ...permissions,
-          },
+          permissions,
           onReceive: handleReceive,
           onSyncWithDynamics: handleSyncWithDynamics,
           onCancel: setCancelId,
