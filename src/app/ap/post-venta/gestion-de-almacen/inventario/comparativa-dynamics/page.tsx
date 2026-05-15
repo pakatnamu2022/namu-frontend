@@ -119,6 +119,36 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
     },
   },
   {
+    id: "found_in",
+    accessorKey: "found_in",
+    header: () => <span className="block text-center">Encontrado en</span>,
+    cell: ({ getValue }) => {
+      const v = getValue() as "SOLO_LOCAL" | "SOLO_DYNAMICS" | "AMBOS";
+      const map = {
+        AMBOS: {
+          label: "Ambos",
+          className: "bg-emerald-100 text-emerald-700 border-emerald-300",
+        },
+        SOLO_LOCAL: {
+          label: "Solo SIAN",
+          className: "bg-blue-100 text-blue-700 border-blue-300",
+        },
+        SOLO_DYNAMICS: {
+          label: "Solo Dynamics",
+          className: "bg-amber-100 text-amber-700 border-amber-300",
+        },
+      };
+      const { label, className } = map[v] ?? { label: v, className: "" };
+      return (
+        <span
+          className={`mx-auto flex w-fit items-center rounded-full border px-2 py-0.5 text-xs font-medium ${className}`}
+        >
+          {label}
+        </span>
+      );
+    },
+  },
+  {
     id: "match",
     accessorKey: "match",
     header: () => <span className="block text-center">Estado</span>,
