@@ -432,6 +432,7 @@ export const productTransferColumns = ({
         reference_id,
         warehouse_origin_id,
         warehouse_destination_id,
+        item_type,
       } = row.original;
       const isSent = !!reference?.sent_at;
       const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
@@ -451,19 +452,22 @@ export const productTransferColumns = ({
         !isAcceptedBySunat &&
         !!onQueryFromNubefact &&
         !!reference_id;
+      const cantRecordDynamics = item_type === "PRODUCTO";
       const canReceive =
         isDestination &&
         !!permissions.canReceive &&
         !!onReceive &&
         isSent &&
-        isAcceptedBySunat &&
-        !isReceived;
+        isAcceptedBySunat;
+      //&& !isReceived;
       const canEdit =
         isOrigin &&
         permissions.canUpdate &&
         !!routeUpdate &&
         !isAcceptedBySunat;
-      const canCancel = isAccounted && !!onCancel && isCancelled;
+      const canCancel =
+        (isAccounted && !!onCancel && isCancelled) ||
+        (item_type === "SERVICIO" && isReceived);
       const canDelete = isOrigin && permissions.canDelete && !isAcceptedBySunat;
 
       return (
@@ -482,7 +486,9 @@ export const productTransferColumns = ({
           )}
 
           {/* Historial - Solo para GUIA_REMISION */}
-          <ShippingGuideHistory shippingGuideId={reference_id} />
+          {cantRecordDynamics && (
+            <ShippingGuideHistory shippingGuideId={reference_id} />
+          )}
 
           {/* Enviar a Nubefact - Solo origen y si NO ha sido enviado */}
           {canSendToNubefact && (
