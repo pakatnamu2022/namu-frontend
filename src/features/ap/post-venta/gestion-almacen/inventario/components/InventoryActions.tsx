@@ -1,18 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button.tsx";
-import { FileBox, FileSpreadsheet, ChevronDown, Loader2 } from "lucide-react";
+import { FileBox, FileSpreadsheet } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper.tsx";
+import DropdownButton from "@/shared/components/DropdownButton.tsx";
 import { useNavigate } from "react-router-dom";
 import { INVENTORY } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu.tsx";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu.tsx";
 import { useMutation } from "@tanstack/react-query";
 import { exportInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
 import { errorToast, successToast } from "@/core/core.function.ts";
@@ -41,44 +35,35 @@ export default function InventoryActions({ permissions, warehouseId }: Props) {
 
   return (
     <ActionsWrapper>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline" disabled={isPending}>
-            {isPending ? (
-              <Loader2 className="size-4 mr-2 animate-spin" />
-            ) : (
-              <FileSpreadsheet className="size-4 mr-2" />
-            )}
-            Reportes
-            <ChevronDown className="size-4 ml-1" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-52" align="end">
-          <DropdownMenuLabel>Stock de Inventario</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => handleExport("all")}
-            disabled={!warehouseId || isPending}
-          >
-            <FileSpreadsheet className="size-4 mr-2" />
-            Total
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleExport("with_stock")}
-            disabled={!warehouseId || isPending}
-          >
-            <FileSpreadsheet className="size-4 mr-2" />
-            Con stock
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleExport("without_stock")}
-            disabled={!warehouseId || isPending}
-          >
-            <FileSpreadsheet className="size-4 mr-2" />
-            Sin stock
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownButton
+        label="Reportes"
+        icon={FileSpreadsheet}
+        isPending={isPending}
+        disabled={!warehouseId}
+        menuLabel="Stock de Inventario"
+      >
+        <DropdownMenuItem
+          onClick={() => handleExport("all")}
+          disabled={isPending}
+        >
+          <FileSpreadsheet className="size-4 mr-2" />
+          Total
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => handleExport("with_stock")}
+          disabled={isPending}
+        >
+          <FileSpreadsheet className="size-4 mr-2" />
+          Con stock
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => handleExport("without_stock")}
+          disabled={isPending}
+        >
+          <FileSpreadsheet className="size-4 mr-2" />
+          Sin stock
+        </DropdownMenuItem>
+      </DropdownButton>
 
       {permissions.canCreate && (
         <Button
