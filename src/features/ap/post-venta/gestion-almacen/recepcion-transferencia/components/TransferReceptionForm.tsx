@@ -89,7 +89,7 @@ export const TransferReceptionForm = ({
       productTransferItems.length > 0 &&
       fields.length === 0
     ) {
-      const initialDetails = productTransferItems.map((item) => ({
+      const initialDetails = productTransferItems.map((item, index) => ({
         transfer_item_id: String(item.id),
         product_id: item.product_id ? item.product_id.toString() : undefined,
         quantity_sent: item.quantity,
@@ -97,17 +97,23 @@ export const TransferReceptionForm = ({
         observed_quantity: 0,
         reception_type: "ORDERED" as const,
         reason_observation: undefined,
-        observation_notes: "",
+        observation_notes:
+          isServicio && !item.product_id
+            ? item.notes || `Servicio ${index + 1}`
+            : "",
         bonus_reason: "",
         notes: "",
       }));
 
       form.setValue("details", initialDetails);
     }
-  }, [mode, productTransferItems, fields.length, form]);
+  }, [mode, productTransferItems, fields.length, form, isServicio]);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<any>(null);
+  const confirmDescription = isServicio
+    ? "¿Está seguro de guardar esta recepción?"
+    : "Esta información será migrada a DYNAMICS. ¿Deseas continuar?";
 
   const handlePreSubmit = (data: any) => {
     setPendingData(data);
@@ -362,7 +368,7 @@ export const TransferReceptionForm = ({
             open={confirmOpen}
             onOpenChange={setConfirmOpen}
             title="Confirmar guardado"
-            description="Esta información será migrada a DYNAMICS. ¿Deseas continuar?"
+            description={confirmDescription}
             confirmText="Sí, guardar"
             cancelText="No, cancelar"
             onConfirm={handleConfirm}

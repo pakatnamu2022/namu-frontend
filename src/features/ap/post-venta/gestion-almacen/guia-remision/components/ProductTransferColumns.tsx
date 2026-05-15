@@ -40,6 +40,7 @@ interface Props {
     canDelete: boolean;
     canView: boolean;
     canReceive?: boolean;
+    canAnnul?: boolean;
   };
   routeUpdate?: string;
   warehouseId?: string;
@@ -81,7 +82,8 @@ export const productTransferColumns = ({
     id: "nro_reference_dyn",
     header: "Serie Dyn",
     cell: ({ row }) => {
-      const { reference, cancelled_inventory_movement_id } = row.original;
+      const { reference, cancelled_inventory_movement_id, item_type } =
+        row.original;
       if (!reference) return "-";
 
       const dynSeries =
@@ -91,10 +93,16 @@ export const productTransferColumns = ({
           : reference.dyn_series;
 
       return (
-        <CopyCell
-          value={dynSeries}
-          className="font-mono text-sm font-semibold"
-        />
+        <>
+          {item_type === "PRODUCTO" ? (
+            <CopyCell
+              value={dynSeries || ""}
+              className="font-mono text-sm font-semibold"
+            />
+          ) : (
+            "-"
+          )}
+        </>
       );
     },
   },
@@ -102,8 +110,12 @@ export const productTransferColumns = ({
     id: "is_accounted",
     header: "Contabilización",
     cell: ({ row }) => {
-      const { reference, reference_id, cancelled_inventory_movement_id } =
-        row.original;
+      const {
+        reference,
+        reference_id,
+        cancelled_inventory_movement_id,
+        item_type,
+      } = row.original;
       if (!reference) return "-";
 
       const isAccounted =
@@ -122,6 +134,14 @@ export const productTransferColumns = ({
         return (
           <Badge variant="outline" color="gray" icon={BookX}>
             <span>No Contabilizado</span>
+          </Badge>
+        );
+      }
+
+      if (item_type !== "PRODUCTO") {
+        return (
+          <Badge variant="outline" color="gray" icon={BookX}>
+            <span>No Permitido</span>
           </Badge>
         );
       }
@@ -413,6 +433,7 @@ export const productTransferColumns = ({
         reference_id,
         warehouse_origin_id,
         warehouse_destination_id,
+        item_type,
       } = row.original;
       const isSent = !!reference?.sent_at;
       const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
@@ -432,19 +453,23 @@ export const productTransferColumns = ({
         !isAcceptedBySunat &&
         !!onQueryFromNubefact &&
         !!reference_id;
+      const cantRecordDynamics = item_type === "PRODUCTO";
       const canReceive =
         isDestination &&
         !!permissions.canReceive &&
         !!onReceive &&
         isSent &&
-        isAcceptedBySunat &&
-        !isReceived;
+        isAcceptedBySunat;
+      //&& !isReceived;
       const canEdit =
         isOrigin &&
         permissions.canUpdate &&
         !!routeUpdate &&
         !isAcceptedBySunat;
-      const canCancel = isAccounted && !!onCancel && isCancelled;
+      const canCancel =
+        permissions.canAnnul &&
+        ((isAccounted && !!onCancel && isCancelled) ||
+          (item_type === "SERVICIO" && isReceived));
       const canDelete = isOrigin && permissions.canDelete && !isAcceptedBySunat;
 
       return (
@@ -463,7 +488,9 @@ export const productTransferColumns = ({
           )}
 
           {/* Historial - Solo para GUIA_REMISION */}
-          <ShippingGuideHistory shippingGuideId={reference_id} />
+          {cantRecordDynamics && (
+            <ShippingGuideHistory shippingGuideId={reference_id} />
+          )}
 
           {/* Enviar a Nubefact - Solo origen y si NO ha sido enviado */}
           {canSendToNubefact && (
