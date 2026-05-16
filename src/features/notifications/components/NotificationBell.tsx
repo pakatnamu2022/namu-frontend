@@ -1,8 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, CheckCheck, Trash2 } from "lucide-react";
+import { Bell, CheckCheck, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+
+function ExpandableBody({ text }: { text: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [text]);
+
+  return (
+    <div>
+      <div
+        ref={ref}
+        className={`text-[11px] text-muted-foreground mt-0.5 leading-relaxed whitespace-pre-wrap ${expanded ? "" : "line-clamp-2"}`}
+      >
+        {text}
+      </div>
+      {(isTruncated || expanded) && (
+        <button
+          className="mt-0.5 flex items-center gap-0.5 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded((prev) => !prev);
+          }}
+        >
+          {expanded ? (
+            <>
+              <ChevronUp className="w-3 h-3" />
+              Ver menos
+            </>
+          ) : (
+            <>
+              <ChevronDown className="w-3 h-3" />
+              Ver más
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -77,7 +125,7 @@ export default function NotificationBell() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-96 p-0" sideOffset={8}>
+      <PopoverContent align="end" className="w-96 p-0 max-h-[480px] flex flex-col overflow-hidden" sideOffset={8}>
         <div className="flex items-center justify-between px-3 py-2.5">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Notificaciones{unreadCount > 0 ? ` · ${unreadCount} nuevas` : ""}
@@ -96,7 +144,7 @@ export default function NotificationBell() {
           )}
         </div>
         <Separator />
-        <div className="max-h-[360px] overflow-y-auto">
+        <div className="overflow-y-auto flex-1">
           {isLoading ? (
             <div className="px-3 py-2 space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -124,7 +172,9 @@ export default function NotificationBell() {
                       !notification.is_read && "bg-muted/30",
                     )}
                     onClick={() => handleNotificationClick(notification)}
-                    onKeyDown={(e) => e.key === "Enter" && handleNotificationClick(notification)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleNotificationClick(notification)
+                    }
                   >
                     <div className="flex items-start gap-2 pr-6">
                       {!notification.is_read && (
@@ -139,9 +189,7 @@ export default function NotificationBell() {
                         <p className="text-xs font-medium leading-snug line-clamp-1 text-foreground/90">
                           {notification.title}
                         </p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
-                          {notification.body}
-                        </p>
+                        <ExpandableBody text={notification.body} />
                         <p className="text-[10px] text-muted-foreground/50 mt-1">
                           {formatDistanceToNow(
                             new Date(notification.created_at),

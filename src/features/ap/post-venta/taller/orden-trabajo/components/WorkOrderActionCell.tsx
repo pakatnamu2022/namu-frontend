@@ -46,6 +46,7 @@ export function WorkOrderActionCell({
   const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
   const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
   const isDelivery = is_delivery;
+  const firstItemPlanning = items?.[0]?.type_planning;
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
@@ -64,7 +65,7 @@ export function WorkOrderActionCell({
       {permissions.canReceive &&
         !is_inspection_completed &&
         !isClosed &&
-        items[0].type_planning.validate_receipt && (
+        firstItemPlanning?.validate_receipt && (
           <Button
             variant="outline"
             size="icon"
@@ -88,7 +89,7 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {isClosed && items[0].type_planning.type_document !== "INTERNA" && (
+      {isClosed && firstItemPlanning?.type_document !== "INTERNA" && (
         <Button
           variant="outline"
           size="icon"
@@ -107,7 +108,7 @@ export function WorkOrderActionCell({
 
       {isClosed &&
         !isDelivery &&
-        items[0].type_planning.type_document !== "INTERNA" && (
+        firstItemPlanning?.type_document !== "INTERNA" && (
           <Button
             variant="outline"
             size="icon"
@@ -119,7 +120,7 @@ export function WorkOrderActionCell({
           </Button>
         )}
 
-      {!isClosed && items[0].type_planning.type_document === "INTERNA" && (
+      {!isClosed && firstItemPlanning?.type_document === "INTERNA" && (
         <Button
           variant="outline"
           size="icon"
