@@ -391,6 +391,16 @@ export function WorkerTimeline({
     return endPos - startPos;
   };
 
+  const formatDecimalHours = (hours: number | null | undefined): string => {
+    if (hours == null || hours === 0) return "0min";
+    const totalMinutes = Math.round(hours * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const min = totalMinutes % 60;
+    if (h === 0) return `${min}min`;
+    if (min === 0) return `${h}h`;
+    return `${h}h ${min}min`;
+  };
+
   const getEfficiencyIcon = (planning: WorkOrderPlanningResource) => {
     if (!planning.estimated_hours || planning.actual_hours === 0) return null;
     const efficiency = (planning.estimated_hours / planning.actual_hours) * 100;
@@ -1312,13 +1322,13 @@ export function WorkerTimeline({
                                   <span className="text-muted-foreground">
                                     Estimado:
                                   </span>
-                                  <p>{planning.estimated_hours || "N/A"}h</p>
+                                  <p>{planning.estimated_hours != null ? formatDecimalHours(planning.estimated_hours) : "N/A"}</p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">
                                     Real:
                                   </span>
-                                  <p>{planning.actual_hours}h</p>
+                                  <p>{planning.actual_hours != null ? formatDecimalHours(planning.actual_hours) : "N/A"}</p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">
