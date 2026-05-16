@@ -18,6 +18,8 @@ import { inventoryColumns } from "@/features/ap/post-venta/gestion-almacen/inven
 import InventoryActions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryActions.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import type { SortingState } from "@tanstack/react-table";
+import InventoryStockMinMaxModal from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryStockMinMaxModal";
+import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 
 export default function InventoryPage() {
   const router = useNavigate();
@@ -26,6 +28,8 @@ export default function InventoryPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
+  const [stockMinMaxSelected, setStockMinMaxSelected] =
+    useState<InventoryResource | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
   const permissions = useModulePermissions(ROUTE);
@@ -41,11 +45,6 @@ export default function InventoryPage() {
       setWarehouseId(warehouses[0].id.toString());
     }
   }, [isLoadingWarehouses, warehouses, warehouseId]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, warehouseId, sorting]);
 
   // Extraer order_by_stock del sorting state
   const orderByStock =
@@ -112,6 +111,7 @@ export default function InventoryPage() {
       <InventoryTable
         isLoading={isLoading}
         columns={inventoryColumns({
+          onUpdateStockMinMax: (row) => setStockMinMaxSelected(row),
           onMovements: (id, warehouse_id) =>
             router(`${ABSOLUTE_ROUTE}/movimientos/${id}/${warehouse_id}`),
           onPurchaseHistory: (id, warehouse_id) =>
@@ -130,6 +130,17 @@ export default function InventoryPage() {
           setWarehouseId={setWarehouseId}
         />
       </InventoryTable>
+
+      {stockMinMaxSelected !== null && (
+        <InventoryStockMinMaxModal
+          row={stockMinMaxSelected}
+          title={"Actualizar Stock Mínimo/Máximo"}
+          open={true}
+          onClose={() => {
+            setStockMinMaxSelected(null);
+          }}
+        />
+      )}
 
       <DataTablePagination
         page={page}

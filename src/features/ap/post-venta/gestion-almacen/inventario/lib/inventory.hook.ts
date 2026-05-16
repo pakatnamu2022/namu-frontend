@@ -1,16 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getInventory,
   getInventoryKardex,
   getInventoryMovements,
   getProductPurchaseHistory,
   getCompareDynamics,
+  updateInventoryStockMinMax,
 } from "./inventory.actions.ts";
-import { CompareDynamicsResponse, InventoryResponse } from "./inventory.interface.ts";
+import {
+  CompareDynamicsResponse,
+  InventoryResponse,
+} from "./inventory.interface.ts";
 import {
   InventoryMovementResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { errorToast, successToast } from "@/core/core.function.ts";
 
 export const useInventory = (
   params?: Record<string, any>,
@@ -74,5 +79,20 @@ export const useProductPurchaseHistory = (
       getProductPurchaseHistory({ productId, warehouseId, params }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,
+  });
+};
+
+export const useUpdateInventoryStockMinMax = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      updateInventoryStockMinMax(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-stock"] });
+      successToast("Stock mínimo/máximo actualizado correctamente");
+    },
+    onError: () => {
+      errorToast("Error al actualizar el stock mínimo/máximo");
+    },
   });
 };

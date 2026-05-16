@@ -3,10 +3,11 @@ import {
   InventoryStockMinMaxSchema,
   inventoryStockMinMaxSchemaUpdate,
 } from "../lib/inventoryStockMinMaxSchema";
-import { Form, useForm } from "react-hook-form";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "@/shared/components/FormInput";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 interface InventoryStockMinMaxFormProps {
   defaultValues: Partial<InventoryStockMinMaxSchema>;
@@ -40,14 +41,12 @@ export const InventoryStockMinMaxForm = ({
             name="minimum_stock"
             label="Stock Mínimo"
             placeholder="Ej: 10.00"
-            type="number"
           />
           <FormInput
             control={form.control}
             name="maximum_stock"
             label="Stock Máximo"
             placeholder="Ej: 100.00"
-            type="number"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
