@@ -59,6 +59,10 @@ export interface PauseWorkRequest {
   pause_reason?: string;
 }
 
+export interface SupervisorCompleteRequest {
+  end_datetime: string;
+}
+
 export interface getWorkOrderPlanningSessionProps {
   params?: Record<string, any>;
   enabled?: boolean;

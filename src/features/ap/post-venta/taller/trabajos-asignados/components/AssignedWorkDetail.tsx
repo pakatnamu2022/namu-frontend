@@ -2,7 +2,8 @@
 
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, ShieldCheck } from "lucide-react";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_COLORS,
@@ -14,12 +15,22 @@ import { es } from "date-fns/locale";
 import { User, PlayCircle } from "lucide-react";
 import { useIsTablet } from "@/hooks/use-tablet";
 import { InfoSection } from "@/shared/components/InfoSection";
-import { formatDateTime } from "@/core/core.function";
+import { formatDateTime, errorToast, successToast } from "@/core/core.function";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Form } from "@/components/ui/form";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { useSupervisorComplete } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 
 interface AssignedWorkDetailProps {
   planning: WorkOrderPlanningResource | null;
   open: boolean;
   onClose: () => void;
+}
+
+interface SupervisorCompleteForm {
+  end_datetime: string;
 }
 
 export function AssignedWorkDetail({
@@ -28,12 +39,36 @@ export function AssignedWorkDetail({
   onClose,
 }: AssignedWorkDetailProps) {
   const isTablet = useIsTablet();
+  const [supervisorModalOpen, setSupervisorModalOpen] = useState(false);
+  const supervisorCompleteMutation = useSupervisorComplete();
+
+  const form = useForm<SupervisorCompleteForm>({
+    defaultValues: { end_datetime: "" },
+  });
+
+  const handleSupervisorComplete = async (values: SupervisorCompleteForm) => {
+    if (!planning) return;
+    try {
+      await supervisorCompleteMutation.mutateAsync({
+        id: planning.id,
+        end_datetime: values.end_datetime,
+      });
+      successToast("Trabajo finalizado correctamente por el supervisor");
+      setSupervisorModalOpen(false);
+      form.reset();
+      onClose();
+    } catch (error: any) {
+      errorToast(error?.response?.data?.message || "Error al finalizar el trabajo");
+    }
+  };
 
   if (!planning) return null;
 
   const colors = PLANNING_STATUS_COLORS[planning.status];
+  const canSupervisorComplete = planning.status === "in_progress";
 
   return (
+    <>
     <GeneralSheet
       open={open}
       onClose={onClose}
@@ -43,6 +78,21 @@ export function AssignedWorkDetail({
       size="3xl"
     >
       <div className="space-y-6 px-6">
+        {canSupervisorComplete && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              className="gap-2 border-orange-400 text-orange-700 hover:bg-orange-50"
+              onClick={() => {
+                form.reset();
+                setSupervisorModalOpen(true);
+              }}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Finalizar como Supervisor
+            </Button>
+          </div>
+        )}
         {/* Información General */}
         <InfoSection
           title="Información General"
@@ -237,5 +287,50 @@ export function AssignedWorkDetail({
         </section>
       </div>
     </GeneralSheet>
+
+    {/* Modal finalización por supervisor */}
+    <GeneralModal
+      open={supervisorModalOpen}
+      onClose={() => setSupervisorModalOpen(false)}
+      title="Finalizar como Supervisor"
+      icon="ShieldCheck"
+      size="md"
+      childrenFooter={
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setSupervisorModalOpen(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="supervisor-complete-form"
+            disabled={supervisorCompleteMutation.isPending}
+            className="gap-2"
+          >
+            {supervisorCompleteMutation.isPending && (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            )}
+            Confirmar
+          </Button>
+        </div>
+      }
+    >
+      <Form {...form}>
+        <form
+          id="supervisor-complete-form"
+          onSubmit={form.handleSubmit(handleSupervisorComplete)}
+        >
+          <DateTimePickerForm
+            control={form.control}
+            name="end_datetime"
+            label="Hora de finalización"
+          />
+        </form>
+      </Form>
+    </GeneralModal>
+    </>
   );
 }
