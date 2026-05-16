@@ -198,3 +198,11 @@ export interface CompareDynamicsMergedRow {
   match: boolean;
   found_in: "SOLO_LOCAL" | "SOLO_DYNAMICS" | "AMBOS";
 }
+
+/**Interface para modificar stock minimo y maximo del inventario */
+export interface InventoryStockMinMaxResource {
+  minimum_stock: string;
+  maximum_stock: string;
+  product_id: string;
+  warehouse_id: string;
+}
