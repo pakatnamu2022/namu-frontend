@@ -135,68 +135,62 @@ export function ElectronicDocumentDetailSheet({
         </div>
 
         {/* Archivos */}
-        {(document.enlace_del_pdf ||
-          document.enlace_del_xml ||
-          document.enlace_del_cdr) && (
-          <>
-            <Separator />
-            <div className="space-y-3">
-              <h3 className="font-semibold">Archivos Disponibles</h3>
-              <div className="flex flex-wrap gap-2">
-                {document.enlace_del_pdf && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link
-                      to={document.enlace_del_pdf}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar PDF
-                    </Link>
-                  </Button>
-                )}
-                {document.enlace_del_xml && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link
-                      to={document.enlace_del_xml}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar XML
-                    </Link>
-                  </Button>
-                )}
-                {document.enlace_del_cdr && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link
-                      to={document.enlace_del_cdr}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar CDR
-                    </Link>
-                  </Button>
-                )}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleQueryStatus}
-                  disabled={queryStatusMutation.isPending}
+        <Separator />
+        <div className="space-y-3">
+          <h3 className="font-semibold">Archivos Disponibles</h3>
+          <div className="flex flex-wrap gap-2">
+            {document.enlace_del_pdf && (
+              <Button variant="outline" size="sm" asChild>
+                <Link
+                  to={document.enlace_del_pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  {queryStatusMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <SearchCheck className="h-4 w-4 mr-2" />
-                  )}
-                  Consultar a Sunat
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar PDF
+                </Link>
+              </Button>
+            )}
+            {document.enlace_del_xml && (
+              <Button variant="outline" size="sm" asChild>
+                <Link
+                  to={document.enlace_del_xml}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar XML
+                </Link>
+              </Button>
+            )}
+            {document.enlace_del_cdr && (
+              <Button variant="outline" size="sm" asChild>
+                <Link
+                  to={document.enlace_del_cdr}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar CDR
+                </Link>
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleQueryStatus}
+              disabled={queryStatusMutation.isPending}
+            >
+              {queryStatusMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <SearchCheck className="h-4 w-4 mr-2" />
+              )}
+              Consultar a Sunat
+            </Button>
+          </div>
+        </div>
 
         <Separator />
 
