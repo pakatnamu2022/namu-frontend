@@ -1,38 +1,32 @@
-"use client";
-
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
 import {
-  BankSchema,
-  bankSchemaCreate,
-  bankSchemaUpdate,
-} from "../lib/bank.schema";
+  InventoryStockMinMaxSchema,
+  inventoryStockMinMaxSchemaUpdate,
+} from "../lib/inventoryStockMinMaxSchema";
+import { Form, useForm } from "react-hook-form";
+import { Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { FormInput } from "@/shared/components/FormInput";
 
-interface BankFormProps {
-  defaultValues: Partial<BankSchema>;
+interface InventoryStockMinMaxFormProps {
+  defaultValues: Partial<InventoryStockMinMaxSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
-  mode?: "create" | "update";
   onCancel?: () => void;
 }
 
-export const BankForm = ({
+export const InventoryStockMinMaxForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
-  mode = "create",
   onCancel,
-}: BankFormProps) => {
+}: InventoryStockMinMaxFormProps) => {
   const form = useForm({
-    resolver: zodResolver(
-      mode === "create" ? bankSchemaCreate : bankSchemaUpdate,
-    ),
+    resolver: zodResolver(inventoryStockMinMaxSchemaUpdate),
     defaultValues: {
       ...defaultValues,
+      warehouse_id: defaultValues.warehouse_id || undefined,
+      product_id: defaultValues.product_id || undefined,
     },
     mode: "onChange",
   });
@@ -43,15 +37,17 @@ export const BankForm = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             control={form.control}
-            name="code"
-            label="Abreviatura"
-            placeholder="Ej: BN"
+            name="minimum_stock"
+            label="Stock Mínimo"
+            placeholder="Ej: 10.00"
+            type="number"
           />
           <FormInput
             control={form.control}
-            name="description"
-            label="Nombre"
-            placeholder="Ej: Banco de la Nación"
+            name="maximum_stock"
+            label="Stock Máximo"
+            placeholder="Ej: 100.00"
+            type="number"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
@@ -66,7 +62,7 @@ export const BankForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : "Guardar Banco"}
+            {isSubmitting ? "Guardando" : "Guardar Cambios"}
           </Button>
         </div>
       </form>
