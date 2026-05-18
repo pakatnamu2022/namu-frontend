@@ -49,6 +49,7 @@ interface StoreVisitsFormProps {
   mode?: "create" | "update";
   lockedType?: string;
   onCancel?: () => void;
+  disableIncomeSector?: boolean;
 }
 
 export const StoreVisitsForm = ({
@@ -58,6 +59,7 @@ export const StoreVisitsForm = ({
   mode = "create",
   lockedType,
   onCancel,
+  disableIncomeSector = false,
 }: StoreVisitsFormProps) => {
   const { ABSOLUTE_ROUTE } = STORE_VISITS;
   const resolvedType = lockedType ?? TIPO_LEADS.VISITA;
@@ -213,6 +215,7 @@ export const StoreVisitsForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={disableIncomeSector}
           />
 
           <FormSelect

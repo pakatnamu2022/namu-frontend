@@ -562,13 +562,14 @@ export default function OpportunitiesKanbanPage() {
           sede_id: "",
           vehicle_brand_id: "",
           document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
-          income_sector_id: INCOME_SECTOR.SHOWROOM_ID,
+          income_sector_id: INCOME_SECTOR.SALESFORCE_ID,
           area_id: "",
         }}
-        onSubmit={(data) => salesforceMutation.mutate(data)}
+        onSubmit={(data) => salesforceMutation.mutate({ ...data, registration_date: new Date().toISOString().slice(0, 19).replace("T", " ") })}
         isSubmitting={salesforceMutation.isPending}
         mode="create"
-        lockedType={TIPO_LEADS.SALESFORCE}
+        lockedType={TIPO_LEADS.LEADS}
+        disableIncomeSector
         onCancel={() => setSalesforceModalOpen(false)}
       />
     </GeneralModal>
