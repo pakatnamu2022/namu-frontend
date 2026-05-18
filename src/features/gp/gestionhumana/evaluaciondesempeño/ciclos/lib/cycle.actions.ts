@@ -152,12 +152,12 @@ export async function deleteCycle(id: number): Promise<GeneralResponse> {
 
 export async function deleteCyclePersonDetail(
   id: number,
-  deleteAll = false,
+  params?: { delete_all_for_person?: boolean },
 ): Promise<GeneralResponse> {
-  const url = deleteAll
-    ? `${ENDPOINT_DETAIL}/${id}?delete_all_for_person=true`
-    : `${ENDPOINT_DETAIL}/${id}`;
-  const { data } = await api.delete<GeneralResponse>(url);
+  const { data } = await api.delete<GeneralResponse>(
+    `${ENDPOINT_DETAIL}/${id}`,
+    { params },
+  );
   return data;
 }
 

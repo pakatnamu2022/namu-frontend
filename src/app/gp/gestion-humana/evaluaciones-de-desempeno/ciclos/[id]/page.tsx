@@ -138,7 +138,10 @@ export default function CyclePersonDetailPage() {
   const handleDelete = async (deleteAll: boolean) => {
     if (!deleteId) return;
     try {
-      await deleteCyclePersonDetail(deleteId, deleteAll);
+      await deleteCyclePersonDetail(
+        deleteId,
+        deleteAll ? { delete_all_for_person: true } : undefined,
+      );
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
     } catch (error: any) {
