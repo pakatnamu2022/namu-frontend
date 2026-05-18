@@ -135,13 +135,13 @@ export default function CyclePersonDetailPage() {
     }
   };
 
-  const handleDelete = async (deleteAll: boolean) => {
+  const handleDelete = async (deleteAll: boolean, deactivateCategory: boolean) => {
     if (!deleteId) return;
+    const params: { delete_all_for_person?: boolean; deactivate_category_objective?: boolean } = {};
+    if (deleteAll) params.delete_all_for_person = true;
+    if (deactivateCategory) params.deactivate_category_objective = true;
     try {
-      await deleteCyclePersonDetail(
-        deleteId,
-        deleteAll ? { delete_all_for_person: true } : undefined,
-      );
+      await deleteCyclePersonDetail(deleteId, Object.keys(params).length ? params : undefined);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
     } catch (error: any) {

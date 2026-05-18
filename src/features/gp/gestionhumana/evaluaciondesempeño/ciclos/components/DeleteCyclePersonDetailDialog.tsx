@@ -9,12 +9,13 @@ import { FormSwitch } from "@/shared/components/FormSwitch";
 
 type FormValues = {
   deleteAll: boolean;
+  deactivateCategory: boolean;
 };
 
 interface DeleteCyclePersonDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (deleteAll: boolean) => Promise<void>;
+  onConfirm: (deleteAll: boolean, deactivateCategory: boolean) => Promise<void>;
 }
 
 export function DeleteCyclePersonDetailDialog({
@@ -25,7 +26,7 @@ export function DeleteCyclePersonDetailDialog({
   const [loading, setLoading] = useState(false);
 
   const form = useForm<FormValues>({
-    defaultValues: { deleteAll: false },
+    defaultValues: { deleteAll: false, deactivateCategory: false },
   });
 
   const handleClose = () => {
@@ -36,7 +37,7 @@ export function DeleteCyclePersonDetailDialog({
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      await onConfirm(form.getValues("deleteAll"));
+      await onConfirm(form.getValues("deleteAll"), form.getValues("deactivateCategory"));
       handleClose();
     } finally {
       setLoading(false);
@@ -62,13 +63,22 @@ export function DeleteCyclePersonDetailDialog({
       }
     >
       <Form {...form}>
-        <FormSwitch
-          control={form.control}
-          name="deleteAll"
-          text="Eliminar también todos los demás objetivos de esta persona en el ciclo"
-          textDescription="Limpia toda la data de esta persona en las evaluaciones asociadas al ciclo"
-          autoHeight
-        />
+        <div className="space-y-3">
+          <FormSwitch
+            control={form.control}
+            name="deleteAll"
+            text="Eliminar también todos los demás objetivos de esta persona en el ciclo"
+            textDescription="Limpia toda la data de esta persona en las evaluaciones asociadas al ciclo"
+            autoHeight
+          />
+          <FormSwitch
+            control={form.control}
+            name="deactivateCategory"
+            text="Desactivar el objetivo en la configuración de categoría"
+            textDescription="Desactiva (active=0, weight=0) el objetivo correspondiente para que no aparezca en futuros ciclos"
+            autoHeight
+          />
+        </div>
       </Form>
     </GeneralModal>
   );
