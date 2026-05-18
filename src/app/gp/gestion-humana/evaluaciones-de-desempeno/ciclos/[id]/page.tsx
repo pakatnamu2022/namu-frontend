@@ -213,6 +213,7 @@ export default function CyclePersonDetailPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
+          description="Se eliminarán todos los objetivos de esta persona en el ciclo y sus registros en las evaluaciones. ¿Deseas continuar?"
         />
       )}
 
