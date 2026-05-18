@@ -51,6 +51,14 @@ export const inventoryColumns = ({
     header: "Categoría",
   },
   {
+    accessorKey: "sale_price",
+    header: "PVP (S/.)",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return Number(value).toFixed(2);
+    },
+  },
+  {
     accessorKey: "quantity",
     header: "Stock Total",
     enableSorting: true,

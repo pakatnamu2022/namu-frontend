@@ -206,3 +206,58 @@ export interface InventoryStockMinMaxResource {
   product_id: string;
   warehouse_id: string;
 }
+
+// ─── Price Calculation Details ────────────────────────────────────────────────
+
+export interface PriceCalculationPrices {
+  last_purchase_price: number;
+  average_cost: number;
+  public_sale_price: number;
+  calculated_pvp: number;
+  minimum_sale_price: number;
+  price_matches: boolean;
+}
+
+export interface PriceCalculationConfiguration {
+  profit_margin: number;
+  profit_margin_percent: string;
+  freight_commission: number;
+  freight_commission_percent: string;
+  minimum_discount: number;
+  minimum_discount_percent: string;
+  calculation_method: number;
+}
+
+export interface PriceCalculationSummary {
+  product_id: number;
+  product_code: string;
+  product_name: string;
+  warehouse_id: number;
+  warehouse_name: string;
+  currency: string;
+  current_stock: number;
+  prices: PriceCalculationPrices;
+  configuration: PriceCalculationConfiguration;
+}
+
+export interface CalculationStepData {
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+export interface CalculationStep {
+  step: number;
+  title: string;
+  description: string;
+  data: CalculationStepData;
+  development?: Record<string, string | number | boolean | null | undefined>;
+  formula?: string;
+  calculation_details?: string;
+  message: string;
+}
+
+export interface PriceCalculationDetailsResponse {
+  success: boolean;
+  summary: PriceCalculationSummary;
+  calculation_steps: CalculationStep[];
+  generated_at: string;
+}

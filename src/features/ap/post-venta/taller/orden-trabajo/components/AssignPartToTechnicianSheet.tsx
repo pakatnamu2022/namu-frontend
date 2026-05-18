@@ -136,10 +136,15 @@ export function AssignPartToTechnicianSheet({
               name="delivered_to"
               label="Técnico"
               placeholder="Seleccione un técnico"
-              options={planningWorkers.map((w) => ({
-                value: w.worker_id.toString(),
-                label: w.worker_name,
-              }))}
+              options={planningWorkers
+                .filter(
+                  (w, i, arr) =>
+                    arr.findIndex((x) => x.worker_id === w.worker_id) === i,
+                )
+                .map((w) => ({
+                  value: w.worker_id.toString(),
+                  label: w.worker_name,
+                }))}
             />
 
             <FormInput
