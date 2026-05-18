@@ -59,6 +59,7 @@ export const OPPORTUNITY_FRIA = "FRIO";
 export const OPPORTUNITY_TEMPLADA = "TEMPLADA";
 export const OPPORTUNITY_CALIENTE = "CALIENTE";
 export const OPPORTUNITY_VENDIDA = "FACTURADA";
+export const OPPORTUNITY_ENTREGADA = "ENTREGADO";
 export const OPPORTUNITY_CERRADA = "CERRADA";
 
 // IDs de estados de oportunidad del backend
@@ -68,6 +69,7 @@ export const OPPORTUNITY_STATUS_IDS = {
   HOT: 858,
   SOLD: 859,
   CLOSED: 860,
+  DELIVERED: 992,
 } as const;
 
 // Mapeo de columna kanban a opportunity_status_id
@@ -76,6 +78,7 @@ export const COLUMN_TO_STATUS_ID: Record<string, number> = {
   [OPPORTUNITY_TEMPLADA]: OPPORTUNITY_STATUS_IDS.WARM,
   [OPPORTUNITY_CALIENTE]: OPPORTUNITY_STATUS_IDS.HOT,
   [OPPORTUNITY_VENDIDA]: OPPORTUNITY_STATUS_IDS.SOLD,
+  [OPPORTUNITY_ENTREGADA]: OPPORTUNITY_STATUS_IDS.DELIVERED,
   [OPPORTUNITY_CERRADA]: OPPORTUNITY_STATUS_IDS.CLOSED,
 };
 
@@ -85,6 +88,7 @@ export const STATUS_ID_TO_COLUMN: Record<number, string> = {
   [OPPORTUNITY_STATUS_IDS.WARM]: OPPORTUNITY_TEMPLADA,
   [OPPORTUNITY_STATUS_IDS.HOT]: OPPORTUNITY_CALIENTE,
   [OPPORTUNITY_STATUS_IDS.SOLD]: OPPORTUNITY_VENDIDA,
+  [OPPORTUNITY_STATUS_IDS.DELIVERED]: OPPORTUNITY_ENTREGADA,
   [OPPORTUNITY_STATUS_IDS.CLOSED]: OPPORTUNITY_CERRADA,
 };
 
@@ -94,6 +98,7 @@ export const STATUS_ID_TO_LABEL: Record<number, string> = {
   [OPPORTUNITY_STATUS_IDS.WARM]: "Templada",
   [OPPORTUNITY_STATUS_IDS.HOT]: "Caliente",
   [OPPORTUNITY_STATUS_IDS.SOLD]: "Facturada",
+  [OPPORTUNITY_STATUS_IDS.DELIVERED]: "Entregado",
   [OPPORTUNITY_STATUS_IDS.CLOSED]: "Cerrada",
 };
 
@@ -102,6 +107,7 @@ export const BG_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "bg-yellow-500/5",
   [OPPORTUNITY_CALIENTE]: "bg-orange-500/5",
   [OPPORTUNITY_VENDIDA]: "bg-green-600/5",
+  [OPPORTUNITY_ENTREGADA]: "bg-purple-500/5",
   [OPPORTUNITY_CERRADA]: "bg-gray-500/5",
 };
 
@@ -110,6 +116,7 @@ export const VARIANT_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "yellow",
   [OPPORTUNITY_CALIENTE]: "orange",
   [OPPORTUNITY_VENDIDA]: "green",
+  [OPPORTUNITY_ENTREGADA]: "purple",
   [OPPORTUNITY_CERRADA]: "gray",
 };
 
@@ -123,6 +130,8 @@ export const getStatusColor = (status: string) => {
       return "orange";
     case OPPORTUNITY_VENDIDA:
       return "green";
+    case OPPORTUNITY_ENTREGADA:
+      return "purple";
     case OPPORTUNITY_CERRADA:
       return "gray";
     default:
@@ -135,6 +144,7 @@ export const BG_TEXT_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "bg-yellow-500/15",
   [OPPORTUNITY_CALIENTE]: "bg-orange-500/15",
   [OPPORTUNITY_VENDIDA]: "bg-green-600/15",
+  [OPPORTUNITY_ENTREGADA]: "bg-purple-500/15",
   [OPPORTUNITY_CERRADA]: "bg-gray-500/15",
 };
 
@@ -143,6 +153,7 @@ export const TEXT_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "text-yellow-600",
   [OPPORTUNITY_CALIENTE]: "text-orange-700",
   [OPPORTUNITY_VENDIDA]: "text-green-700",
+  [OPPORTUNITY_ENTREGADA]: "text-purple-600",
   [OPPORTUNITY_CERRADA]: "text-gray-800",
 };
 
@@ -151,6 +162,7 @@ export const BORDER_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "border-yellow-600/15",
   [OPPORTUNITY_CALIENTE]: "border-orange-600/15",
   [OPPORTUNITY_VENDIDA]: "border-green-600/15",
+  [OPPORTUNITY_ENTREGADA]: "border-purple-600/15",
   [OPPORTUNITY_CERRADA]: "border-gray-600/15",
 };
 
@@ -159,6 +171,7 @@ export const SHADOW_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "shadow-none shadow-yellow-500/10",
   [OPPORTUNITY_CALIENTE]: "shadow-none shadow-orange-500/10",
   [OPPORTUNITY_VENDIDA]: "shadow-none shadow-green-500/10",
+  [OPPORTUNITY_ENTREGADA]: "shadow-none shadow-purple-500/10",
   [OPPORTUNITY_CERRADA]: "shadow-none shadow-gray-500/10",
 };
 
@@ -167,6 +180,7 @@ export const HOVER_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "hover:bg-yellow-200/10",
   [OPPORTUNITY_CALIENTE]: "hover:bg-orange-200/10",
   [OPPORTUNITY_VENDIDA]: "hover:bg-green-200/10",
+  [OPPORTUNITY_ENTREGADA]: "hover:bg-purple-200/10",
   [OPPORTUNITY_CERRADA]: "hover:bg-gray-200/10",
 };
 
@@ -175,6 +189,7 @@ export const OPPORTUNITY_STATUS_COLORS: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: `${BG_OPPORTUNITY[OPPORTUNITY_TEMPLADA]} ${TEXT_OPPORTUNITY[OPPORTUNITY_TEMPLADA]}`,
   [OPPORTUNITY_CALIENTE]: `${BG_OPPORTUNITY[OPPORTUNITY_CALIENTE]} ${TEXT_OPPORTUNITY[OPPORTUNITY_CALIENTE]}`,
   [OPPORTUNITY_VENDIDA]: `${BG_OPPORTUNITY[OPPORTUNITY_VENDIDA]} ${TEXT_OPPORTUNITY[OPPORTUNITY_VENDIDA]}`,
+  [OPPORTUNITY_ENTREGADA]: `${BG_OPPORTUNITY[OPPORTUNITY_ENTREGADA]} ${TEXT_OPPORTUNITY[OPPORTUNITY_ENTREGADA]}`,
   [OPPORTUNITY_CERRADA]: `${BG_OPPORTUNITY[OPPORTUNITY_CERRADA]} ${TEXT_OPPORTUNITY[OPPORTUNITY_CERRADA]}`,
 };
 
@@ -183,6 +198,7 @@ export const TEXT_OPPORTUNITY_STATUS_COLORS: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "text-yellow-600",
   [OPPORTUNITY_CALIENTE]: "text-orange-600",
   [OPPORTUNITY_VENDIDA]: "text-green-600",
+  [OPPORTUNITY_ENTREGADA]: "text-purple-600",
   [OPPORTUNITY_CERRADA]: "text-gray-700",
 };
 
@@ -191,6 +207,7 @@ export const HOVER_TEXT_OPPORTUNITY_STATUS_COLORS: Record<string, string> = {
   [OPPORTUNITY_TEMPLADA]: "hover:text-yellow-600 hover:bg-yellow-600/10",
   [OPPORTUNITY_CALIENTE]: "hover:text-orange-600 hover:bg-orange-600/10",
   [OPPORTUNITY_VENDIDA]: "hover:text-green-600 hover:bg-green-600/10",
+  [OPPORTUNITY_ENTREGADA]: "hover:text-purple-600 hover:bg-purple-600/10",
   [OPPORTUNITY_CERRADA]: "hover:text-gray-700 hover:bg-gray-500/10",
 };
 
@@ -237,6 +254,17 @@ export const OPPORTUNITIES_COLUMNS = [
     textColor: TEXT_OPPORTUNITY[OPPORTUNITY_VENDIDA],
     shadowColor: SHADOW_OPPORTUNITY[OPPORTUNITY_VENDIDA],
     hoverColor: HOVER_OPPORTUNITY[OPPORTUNITY_VENDIDA],
+    canEdit: false,
+  },
+  {
+    id: OPPORTUNITY_ENTREGADA,
+    name: "Entregado",
+    bgColor: BG_OPPORTUNITY[OPPORTUNITY_ENTREGADA],
+    bgTextColor: BG_TEXT_OPPORTUNITY[OPPORTUNITY_ENTREGADA],
+    borderColor: BORDER_OPPORTUNITY[OPPORTUNITY_ENTREGADA],
+    textColor: TEXT_OPPORTUNITY[OPPORTUNITY_ENTREGADA],
+    shadowColor: SHADOW_OPPORTUNITY[OPPORTUNITY_ENTREGADA],
+    hoverColor: HOVER_OPPORTUNITY[OPPORTUNITY_ENTREGADA],
     canEdit: false,
   },
   {

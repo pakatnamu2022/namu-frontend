@@ -237,13 +237,14 @@ export default function OpportunitiesKanbanPage() {
       return;
     }
 
-    // Check if opportunity is closed (FACTURADA/CERRADA)
+    // Check if opportunity is closed (FACTURADA/ENTREGADO/CERRADA)
     if (
       opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.SOLD ||
+      opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.DELIVERED ||
       opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.CLOSED
     ) {
       errorToast(
-        "No se pueden mover oportunidades que están Vendidas o Cerradas",
+        "No se pueden mover oportunidades que están Facturadas, Entregadas o Cerradas",
       );
       invalidateQuery([QUERY_KEY, "my", "status"]);
       return;
