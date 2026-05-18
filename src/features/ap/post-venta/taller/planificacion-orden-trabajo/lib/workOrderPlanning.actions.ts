@@ -122,6 +122,17 @@ export async function cancelPlanning(
   return response.data;
 }
 
+export async function supervisorComplete(
+  id: number,
+  end_datetime: string,
+): Promise<WorkOrderPlanningResource> {
+  const response = await api.post<WorkOrderPlanningResource>(
+    `${ENDPOINT}/${id}/supervisor-complete`,
+    { end_datetime },
+  );
+  return response.data;
+}
+
 export async function getStatusPlanning(
   id: number,
 ): Promise<WorkOrderPlanningResource> {

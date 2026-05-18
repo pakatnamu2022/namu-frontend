@@ -59,6 +59,10 @@ export interface PauseWorkRequest {
   pause_reason?: string;
 }
 
+export interface SupervisorCompleteRequest {
+  end_datetime: string;
+}
+
 export interface getWorkOrderPlanningSessionProps {
   params?: Record<string, any>;
   enabled?: boolean;
@@ -90,27 +94,31 @@ export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
 
 export const PLANNING_STATUS_COLORS: Record<
   PlanningStatus,
-  { bg: string; text: string; border: string }
+  { bg: string; text: string; border: string; color: string }
 > = {
   planned: {
     bg: "bg-blue-100",
     text: "text-blue-800",
     border: "border-blue-300",
+    color: "blue",
   },
   in_progress: {
     bg: "bg-yellow-100",
     text: "text-yellow-800",
     border: "border-yellow-300",
+    color: "yellow",
   },
   completed: {
     bg: "bg-green-100",
     text: "text-green-800",
     border: "border-green-300",
+    color: "green",
   },
   canceled: {
     bg: "bg-red-100",
     text: "text-red-800",
     border: "border-red-300",
+    color: "red",
   },
 };
 

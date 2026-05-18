@@ -972,8 +972,16 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenAssignSheet(part)}
-                          className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          tooltip="Asignar a técnico"
+                          className={
+                            part.part_fully_delivered
+                              ? "h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                              : "h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          }
+                          tooltip={
+                            part.part_fully_delivered
+                              ? "Entrega completa"
+                              : "Asignar a técnico"
+                          }
                         >
                           <UserCheck className="h-4 w-4" />
                         </Button>

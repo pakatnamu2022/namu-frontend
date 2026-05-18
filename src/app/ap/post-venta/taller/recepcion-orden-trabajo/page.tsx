@@ -31,6 +31,9 @@ export default function WorkOrderReceptionPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
+  const [dateField, setDateField] = useState<
+    "opening_date" | "estimated_delivery_date"
+  >("opening_date");
   const { ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER_RECEPCION;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -69,7 +72,7 @@ export default function WorkOrderReceptionPage() {
       page,
       search,
       per_page,
-      opening_date:
+      [dateField]:
         dateFrom && dateTo
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
@@ -126,6 +129,8 @@ export default function WorkOrderReceptionPage() {
           sedes={mySedes}
           sedeId={effectiveSedeId}
           setSedeId={setSedeId}
+          dateField={dateField}
+          setDateField={setDateField}
         />
       </WorkOrderTable>
 
