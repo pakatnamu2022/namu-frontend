@@ -12,7 +12,7 @@ import {
   updateGoalCyclePersonDetail,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/lib/cycle.actions";
 import { errorToast, successToast } from "@/core/core.function";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { DeleteCyclePersonDetailDialog } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/DeleteCyclePersonDetailDialog";
 import CyclePersonDetailTable from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CyclePersonDetailTable";
 import { CyclePersonDetailColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CyclePersonDetailColumns";
 import CyclePersonDetailActions from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CyclePersonDetailActions";
@@ -135,10 +135,13 @@ export default function CyclePersonDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (deleteAll: boolean, deactivateCategory: boolean) => {
     if (!deleteId) return;
+    const params: { delete_all_for_person?: boolean; deactivate_category_objective?: boolean } = {};
+    if (deleteAll) params.delete_all_for_person = true;
+    if (deactivateCategory) params.deactivate_category_objective = true;
     try {
-      await deleteCyclePersonDetail(deleteId);
+      await deleteCyclePersonDetail(deleteId, Object.keys(params).length ? params : undefined);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
     } catch (error: any) {
@@ -209,7 +212,7 @@ export default function CyclePersonDetailPage() {
       </CyclePersonDetailTable>
 
       {deleteId !== null && (
-        <SimpleDeleteDialog
+        <DeleteCyclePersonDetailDialog
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}

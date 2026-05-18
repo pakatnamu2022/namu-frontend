@@ -7,7 +7,7 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { errorToast, successToast } from "@/core/core.function";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { DeleteEvaluationPersonDialog } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/DeleteEvaluationPersonDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
@@ -106,12 +106,15 @@ export default function EvaluationDetailPage() {
     },
   );
 
-  const handleDelete = async () => {
+  const handleDelete = async (alsoRemoveFromCycle: boolean) => {
     if (!deleteId) return;
     try {
-      await deleteEvaluationPerson(deleteId);
+      await deleteEvaluationPerson(
+        deleteId,
+        alsoRemoveFromCycle ? { also_remove_from_cycle: true } : undefined,
+      );
       await refetch();
-      successToast("Detalle de Ciclo eliminado correctamente.");
+      successToast("Persona eliminada correctamente.");
     } catch (error: any) {
       errorToast(
         error.response.data.message || "Error al eliminar el registro.",
@@ -255,7 +258,7 @@ export default function EvaluationDetailPage() {
       </Tabs>
 
       {deleteId !== null && (
-        <SimpleDeleteDialog
+        <DeleteEvaluationPersonDialog
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
