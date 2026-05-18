@@ -1,10 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_LABELS,
+  PLANNING_STATUS_COLORS,
 } from "../lib/workOrderPlanning.interface";
 import { PLANNING_TYPE_LABELS } from "../lib/workOrderPlanning.constants";
 import { format, parseISO } from "date-fns";
@@ -152,16 +153,11 @@ export const planningColumns = ({
     cell: ({ row }) => {
       const status = row.original.status;
 
-      const variantMap = {
-        planned: "blue" as const,
-        in_progress: "orange" as const,
-        completed: "green" as const,
-        canceled: "destructive" as const,
-      };
+      const colors = PLANNING_STATUS_COLORS[status];
 
       return (
         <>
-          <Badge color={variantMap[status]}>
+          <Badge color={colors.color as BadgeColor}>
             {PLANNING_STATUS_LABELS[status]}
           </Badge>
         </>
