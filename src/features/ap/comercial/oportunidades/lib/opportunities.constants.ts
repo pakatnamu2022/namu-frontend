@@ -58,7 +58,7 @@ export const OPPORTUNITY_ACTIONS: ModelComplete<OpportunityActionSchema> = {
 export const OPPORTUNITY_FRIA = "FRIO";
 export const OPPORTUNITY_TEMPLADA = "TEMPLADA";
 export const OPPORTUNITY_CALIENTE = "CALIENTE";
-export const OPPORTUNITY_VENDIDA = "VENDIDA";
+export const OPPORTUNITY_VENDIDA = "FACTURADA";
 export const OPPORTUNITY_CERRADA = "CERRADA";
 
 // IDs de estados de oportunidad del backend
@@ -77,6 +77,24 @@ export const COLUMN_TO_STATUS_ID: Record<string, number> = {
   [OPPORTUNITY_CALIENTE]: OPPORTUNITY_STATUS_IDS.HOT,
   [OPPORTUNITY_VENDIDA]: OPPORTUNITY_STATUS_IDS.SOLD,
   [OPPORTUNITY_CERRADA]: OPPORTUNITY_STATUS_IDS.CLOSED,
+};
+
+// Mapeo inverso: opportunity_status_id -> columna kanban
+export const STATUS_ID_TO_COLUMN: Record<number, string> = {
+  [OPPORTUNITY_STATUS_IDS.COLD]: OPPORTUNITY_FRIA,
+  [OPPORTUNITY_STATUS_IDS.WARM]: OPPORTUNITY_TEMPLADA,
+  [OPPORTUNITY_STATUS_IDS.HOT]: OPPORTUNITY_CALIENTE,
+  [OPPORTUNITY_STATUS_IDS.SOLD]: OPPORTUNITY_VENDIDA,
+  [OPPORTUNITY_STATUS_IDS.CLOSED]: OPPORTUNITY_CERRADA,
+};
+
+// Mapeo: opportunity_status_id -> nombre display en español
+export const STATUS_ID_TO_LABEL: Record<number, string> = {
+  [OPPORTUNITY_STATUS_IDS.COLD]: "Fría",
+  [OPPORTUNITY_STATUS_IDS.WARM]: "Templada",
+  [OPPORTUNITY_STATUS_IDS.HOT]: "Caliente",
+  [OPPORTUNITY_STATUS_IDS.SOLD]: "Facturada",
+  [OPPORTUNITY_STATUS_IDS.CLOSED]: "Cerrada",
 };
 
 export const BG_OPPORTUNITY: Record<string, string> = {
@@ -212,7 +230,7 @@ export const OPPORTUNITIES_COLUMNS = [
   },
   {
     id: OPPORTUNITY_VENDIDA,
-    name: "Ventas Concretadas",
+    name: "Facturada",
     bgColor: BG_OPPORTUNITY[OPPORTUNITY_VENDIDA],
     bgTextColor: BG_TEXT_OPPORTUNITY[OPPORTUNITY_VENDIDA],
     borderColor: BORDER_OPPORTUNITY[OPPORTUNITY_VENDIDA],

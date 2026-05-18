@@ -21,9 +21,9 @@ import { OpportunityCard } from "@/features/ap/comercial/oportunidades/component
 import { LeadCard } from "@/features/ap/comercial/oportunidades/components/LeadCard";
 import {
   OPPORTUNITIES_COLUMNS,
-  OPPORTUNITY_VENDIDA,
-  OPPORTUNITY_CERRADA,
   COLUMN_TO_STATUS_ID,
+  STATUS_ID_TO_COLUMN,
+  OPPORTUNITY_STATUS_IDS,
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { Badge } from "@/components/ui/badge";
@@ -194,7 +194,7 @@ export default function OpportunitiesKanbanPage() {
       allOpportunities.map((opp) => ({
         id: opp.id.toString(),
         name: opp.family.description,
-        column: opp.opportunity_status,
+        column: STATUS_ID_TO_COLUMN[opp.opportunity_status_id] ?? opp.opportunity_status,
         opportunity: opp,
       })),
     [allOpportunities],
@@ -237,10 +237,10 @@ export default function OpportunitiesKanbanPage() {
       return;
     }
 
-    // Check if opportunity is closed (VENDIDA/CERRADA)
+    // Check if opportunity is closed (FACTURADA/CERRADA)
     if (
-      opportunity.opportunity_status === OPPORTUNITY_VENDIDA ||
-      opportunity.opportunity_status === OPPORTUNITY_CERRADA
+      opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.SOLD ||
+      opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.CLOSED
     ) {
       errorToast(
         "No se pueden mover oportunidades que están Vendidas o Cerradas",

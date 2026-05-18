@@ -32,6 +32,8 @@ import { OpportunityActionForm } from "@/features/ap/comercial/oportunidades/com
 import {
   OPPORTUNITIES,
   OPPORTUNITY_STATUS_COLORS,
+  STATUS_ID_TO_COLUMN,
+  STATUS_ID_TO_LABEL,
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormWrapper from "@/shared/components/FormWrapper";
@@ -147,9 +149,11 @@ export default function OpportunityDetailPage() {
   if (isLoadingOpportunity || isLoadingActions) return <FormSkeleton />;
   if (!opportunity) return <EmptyModel route={`${AGENDA_ABSOLUTE_ROUTE}`} />;
 
+  const statusKey = STATUS_ID_TO_COLUMN[opportunity.opportunity_status_id] ?? opportunity.opportunity_status;
+  const statusLabel = STATUS_ID_TO_LABEL[opportunity.opportunity_status_id] ?? opportunity.opportunity_status;
   const statusColor =
-    OPPORTUNITY_STATUS_COLORS[opportunity.opportunity_status] ||
-    "bg-muted-foretext-muted-foreground text-white";
+    OPPORTUNITY_STATUS_COLORS[statusKey] ||
+    "bg-muted text-muted-foreground";
 
   return (
     <FormWrapper>
@@ -204,7 +208,7 @@ export default function OpportunityDetailPage() {
             {opportunity.opportunity_type}
           </p>
           <Badge variant="ghost" className={cn(statusColor)}>
-            {opportunity.opportunity_status}
+            {statusLabel}
           </Badge>
         </div>
         <div className="space-y-4">
