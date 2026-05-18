@@ -7,6 +7,7 @@ import {
   StockByProductIdsResponse,
   CompareDynamicsResponse,
   InventoryResource,
+  PriceCalculationDetailsResponse,
 } from "./inventory.interface.ts";
 import {
   getInventoryKardexProps,
@@ -221,6 +222,17 @@ export const exportProductMovementHistory = async (
 
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
+};
+
+export const getPriceCalculationDetails = async (
+  productId: number,
+  warehouseId: number,
+): Promise<PriceCalculationDetailsResponse> => {
+  const { data } = await api.get<PriceCalculationDetailsResponse>(
+    `/ap/postVenta/productWarehouseStock/price-calculation-details`,
+    { params: { product_id: productId, warehouse_id: warehouseId } },
+  );
+  return data;
 };
 
 export async function updateInventoryStockMinMax(

@@ -241,6 +241,7 @@ import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/pag
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
 import PurchaseHistoryPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx";
+import PriceCalculationPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/precio-calculo/page.tsx";
 import ComparativaDynamicsPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/comparativa-dynamics/page.tsx";
 import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/[supplierOrderId]/page.tsx";
 import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
@@ -1300,6 +1301,10 @@ function App() {
               <Route
                 path="gestion-de-almacen/inventario/historico-compras/:productId/:warehouseId"
                 element={<PurchaseHistoryPage />}
+              />
+              <Route
+                path="gestion-de-almacen/inventario/historico-compras/:productId/:warehouseId/precio-calculo"
+                element={<PriceCalculationPage />}
               />
               <Route
                 path="gestion-de-almacen/inventario/comparativa-dynamics"
