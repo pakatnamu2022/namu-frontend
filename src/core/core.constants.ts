@@ -129,10 +129,12 @@ export const VALIDATABLE_DOCUMENT = {
 export const TIPO_LEADS = {
   VISITA: "VISITA",
   LEADS: "LEADS",
+  SALESFORCE: "SALESFORCE",
 };
 
 export const INCOME_SECTOR = {
   SHOWROOM_ID: "827",
   TALLER_ID: "828",
   SITIO_WEB_ID: "829",
+  SALESFORCE_ID: "991",
 };

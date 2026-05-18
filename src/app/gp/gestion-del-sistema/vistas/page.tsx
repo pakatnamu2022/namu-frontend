@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import ViewOptions from "@/features/gp/gestionsistema/vistas/components/ViewOptions";
 import ViewActions from "@/features/gp/gestionsistema/vistas/components/ViewActions";
 import { viewColumns } from "@/features/gp/gestionsistema/vistas/components/ViewColumns";
+import ViewPermissionsSheet from "@/features/gp/gestionsistema/vistas/components/ViewPermissionsSheet";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import {
   deleteView,
@@ -41,6 +42,7 @@ export default function ViewPage() {
   const [search, setSearch] = useState("");
   const [parentId, setParentId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [permissionsViewId, setPermissionsViewId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -118,6 +120,7 @@ export default function ViewPage() {
           views: parents,
           onUpdateCell: handleUpdateCell,
           onDuplicate: handleDuplicate,
+          onOpenPermissions: setPermissionsViewId,
         })}
         data={data?.data || []}
       >
@@ -137,6 +140,12 @@ export default function ViewPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <ViewPermissionsSheet
+        viewId={permissionsViewId}
+        open={permissionsViewId !== null}
+        onClose={() => setPermissionsViewId(null)}
+      />
 
       <DataTablePagination
         page={page}

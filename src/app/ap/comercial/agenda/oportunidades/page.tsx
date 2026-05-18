@@ -21,14 +21,19 @@ import { OpportunityCard } from "@/features/ap/comercial/oportunidades/component
 import { LeadCard } from "@/features/ap/comercial/oportunidades/components/LeadCard";
 import {
   OPPORTUNITIES_COLUMNS,
-  OPPORTUNITY_VENDIDA,
-  OPPORTUNITY_CERRADA,
   COLUMN_TO_STATUS_ID,
+  STATUS_ID_TO_COLUMN,
+  OPPORTUNITY_STATUS_IDS,
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { errorToast, ERROR_MESSAGE, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  ERROR_MESSAGE,
+  successToast,
+  SUCCESS_MESSAGE,
+} from "@/core/core.function";
 import { cn } from "@/lib/utils";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
@@ -46,7 +51,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
-import { EMPRESA_AP } from "@/core/core.constants";
+import {
+  BUSINESS_PARTNERS,
+  EMPRESA_AP,
+  INCOME_SECTOR,
+  TIPO_LEADS,
+} from "@/core/core.constants";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -56,6 +66,13 @@ import {
   useCalendarYear,
 } from "@/shared/components/CalendarGrid";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
+import { storeStoreVisits } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.actions";
+import { STORE_VISITS } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.constants";
+import { useMutation } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -69,8 +86,10 @@ export default function OpportunitiesKanbanPage() {
   const [debouncedLeadSearch, setDebouncedLeadSearch] = useState("");
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [salesforceModalOpen, setSalesforceModalOpen] = useState(false);
   const permissions = useModulePermissions(ROUTE);
   const invalidateQuery = useInvalidateQuery();
+  const { MODEL: STORE_VISITS_MODEL } = STORE_VISITS;
 
   // Get calendar state from atoms
   const [calendarMonth] = useCalendarMonth();
@@ -78,6 +97,20 @@ export default function OpportunitiesKanbanPage() {
 
   // Check if user has permission to view all users' opportunities
   const canViewAdvisors = permissions.canViewAdvisors || false;
+  const canSalesforce = permissions.canSalesforce || false;
+
+  const salesforceMutation = useMutation({
+    mutationFn: storeStoreVisits,
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(STORE_VISITS_MODEL, "create"));
+      setSalesforceModalOpen(false);
+      invalidateQuery([LEADS_QUERY_KEY, "my"]);
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(STORE_VISITS_MODEL, "create", msg));
+    },
+  });
 
   // Get month range based on calendar state
   const firstDay = new Date(calendarYear, calendarMonth, 1);
@@ -171,7 +204,9 @@ export default function OpportunitiesKanbanPage() {
       allOpportunities.map((opp) => ({
         id: opp.id.toString(),
         name: opp.family.description,
-        column: opp.opportunity_status,
+        column:
+          STATUS_ID_TO_COLUMN[opp.opportunity_status_id] ??
+          opp.opportunity_status,
         opportunity: opp,
       })),
     [allOpportunities],
@@ -214,13 +249,14 @@ export default function OpportunitiesKanbanPage() {
       return;
     }
 
-    // Check if opportunity is closed (VENDIDA/CERRADA)
+    // Check if opportunity is closed (FACTURADA/ENTREGADO/CERRADA)
     if (
-      opportunity.opportunity_status === OPPORTUNITY_VENDIDA ||
-      opportunity.opportunity_status === OPPORTUNITY_CERRADA
+      opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.SOLD ||
+      opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.DELIVERED ||
+      opportunity.opportunity_status_id === OPPORTUNITY_STATUS_IDS.CLOSED
     ) {
       errorToast(
-        "No se pueden mover oportunidades que están Vendidas o Cerradas",
+        "No se pueden mover oportunidades que están Facturadas, Entregadas o Cerradas",
       );
       invalidateQuery([QUERY_KEY, "my", "status"]);
       return;
@@ -339,86 +375,98 @@ export default function OpportunitiesKanbanPage() {
   if (!currentView) notFound();
 
   return (
-    <PageWrapper>
-      <HeaderTableWrapper>
-        <TitleComponent
-          title="Tablero de Oportunidades"
-          subtitle="Gestiona tus oportunidades arrastrando y soltando"
-          icon="Target"
-        />
-
-        <div className="flex items-center gap-2 w-full">
-          <OpportunityActions
-            canViewAllUsers={canViewAdvisors}
-            selectedAdvisorId={selectedAdvisorId}
-            setSelectedAdvisorId={setSelectedAdvisorId}
-            workers={workers}
+    <>
+      <PageWrapper>
+        <HeaderTableWrapper>
+          <TitleComponent
+            title="Tablero de Oportunidades"
+            subtitle="Gestiona tus oportunidades arrastrando y soltando"
+            icon="Target"
           />
-        </div>
-      </HeaderTableWrapper>
 
-      <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-        {/* Leads Carousel */}
-        <div className="p-2 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <Input
-              type="text"
-              placeholder="Buscar lead..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-xs h-8 text-sm"
+          <div className="flex items-center gap-2 w-full">
+            <OpportunityActions
+              canViewAllUsers={canViewAdvisors}
+              selectedAdvisorId={selectedAdvisorId}
+              setSelectedAdvisorId={setSelectedAdvisorId}
+              workers={workers}
             />
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-medium text-tertiary">
-                Leads Validados
-              </h3>
-              <Badge className="text-xs h-5">{leadsTotalCount}</Badge>
-            </div>
           </div>
+        </HeaderTableWrapper>
 
-          <Carousel
-            opts={{
-              align: "start",
-              loop: false,
-              dragFree: true,
-            }}
-            setApi={setCarouselApi}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2">
-              {isLoadingLeads
-                ? (
-                    <CarouselItem className="pl-2 basis-full">
-                      <FormSkeleton />
-                    </CarouselItem>
-                  )
-                : filteredLeads.map((lead) => (
+        <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+          {/* Leads Carousel */}
+          <div className="p-2 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+             <div className="flex gap-2">
+               <Input
+                type="text"
+                placeholder="Buscar lead..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-xs h-8 text-sm"
+              />
+              {canSalesforce && (
+                <Button
+                  color="blue"
+                  onClick={() => setSalesforceModalOpen(true)}
+                >
+                  <Plus className="size-3" />
+                  Salesforce Lead
+                </Button>
+              )}
+             </div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-medium text-tertiary">
+                  Leads Validados
+                </h3>
+                <Badge className="text-xs h-5">{leadsTotalCount}</Badge>
+              </div>
+            </div>
+
+            <Carousel
+              opts={{
+                align: "start",
+                loop: false,
+                dragFree: true,
+              }}
+              setApi={setCarouselApi}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2">
+                {isLoadingLeads ? (
+                  <CarouselItem className="pl-2 basis-full">
+                    <FormSkeleton />
+                  </CarouselItem>
+                ) : (
+                  filteredLeads.map((lead) => (
                     <CarouselItem key={lead.id} className="pl-2 basis-auto">
                       <div className="w-80">
                         <LeadCard lead={lead} onDiscard={handleDiscardLead} />
                       </div>
                     </CarouselItem>
-                  ))}
-              {leadsQuery.isFetchingNextPage && (
-                <CarouselItem className="pl-2 basis-auto">
-                  <div className="w-72 h-full flex items-center justify-center">
-                    <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
-                  </div>
-                </CarouselItem>
-              )}
-            </CarouselContent>
-            <CarouselPrevious className="left-0" />
-            <CarouselNext className="right-0" />
-          </Carousel>
+                  ))
+                )}
+                {leadsQuery.isFetchingNextPage && (
+                  <CarouselItem className="pl-2 basis-auto">
+                    <div className="w-72 h-full flex items-center justify-center">
+                      <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+                    </div>
+                  </CarouselItem>
+                )}
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
 
-          {!isLoadingLeads && filteredLeads.length === 0 && (
-            <div className="text-center py-4 text-sm text-muted-foreground">
-              {searchTerm
-                ? `No se encontraron leads que coincidan con "${searchTerm}"`
-                : "No hay leads validados"}
-            </div>
-          )}
-        </div>
+            {!isLoadingLeads && filteredLeads.length === 0 && (
+              <div className="text-center py-4 text-sm text-muted-foreground">
+                {searchTerm
+                  ? `No se encontraron leads que coincidan con "${searchTerm}"`
+                  : "No hay leads validados"}
+              </div>
+            )}
+          </div>
 
           {/* Search + Kanban Boards */}
           <div className="px-2">
@@ -473,34 +521,34 @@ export default function OpportunitiesKanbanPage() {
                     {query?.isLoading ? (
                       <FormSkeleton />
                     ) : (
-                    <KanbanCards
-                      id={column.id}
-                      onScrollEnd={() => handleColumnScrollEnd(columnIndex)}
-                      isLoadingMore={query?.isFetchingNextPage}
-                    >
-                      {(item: any) => (
-                        <KanbanCard
-                          id={item.id}
-                          key={item.id}
-                          name={item.name}
-                          column={item.column}
-                          className={cn(
-                            "w-72 transition-colors duration-300",
-                            column.shadowColor,
-                            column.borderColor,
-                            column.hoverColor,
-                          )}
-                        >
-                          <OpportunityCard
-                            key={item.opportunity.id}
-                            opportunity={item.opportunity}
-                            disableClick={true}
-                            showOpenButton={true}
-                            noWrapper={true}
-                          />
-                        </KanbanCard>
-                      )}
-                    </KanbanCards>
+                      <KanbanCards
+                        id={column.id}
+                        onScrollEnd={() => handleColumnScrollEnd(columnIndex)}
+                        isLoadingMore={query?.isFetchingNextPage}
+                      >
+                        {(item: any) => (
+                          <KanbanCard
+                            id={item.id}
+                            key={item.id}
+                            name={item.name}
+                            column={item.column}
+                            className={cn(
+                              "w-72 transition-colors duration-300",
+                              column.shadowColor,
+                              column.borderColor,
+                              column.hoverColor,
+                            )}
+                          >
+                            <OpportunityCard
+                              key={item.opportunity.id}
+                              opportunity={item.opportunity}
+                              disableClick={true}
+                              showOpenButton={true}
+                              noWrapper={true}
+                            />
+                          </KanbanCard>
+                        )}
+                      </KanbanCards>
                     )}
                   </KanbanBoard>
                 );
@@ -508,6 +556,44 @@ export default function OpportunitiesKanbanPage() {
             </KanbanProvider>
           </div>
         </div>
-    </PageWrapper>
+      </PageWrapper>
+
+      <GeneralModal
+        open={salesforceModalOpen}
+        onClose={() => setSalesforceModalOpen(false)}
+        title="Nuevo Salesforce Lead"
+        subtitle="Registra un lead desde Salesforce"
+        icon="ContactRound"
+        size="4xl"
+      >
+        <StoreVisitsForm
+          defaultValues={{
+            num_doc: "",
+            full_name: "",
+            phone: "",
+            email: "",
+            sede_id: "",
+            vehicle_brand_id: "",
+            document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
+            income_sector_id: INCOME_SECTOR.SALESFORCE_ID,
+            area_id: "",
+          }}
+          onSubmit={(data) =>
+            salesforceMutation.mutate({
+              ...data,
+              registration_date: new Date()
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " "),
+            })
+          }
+          isSubmitting={salesforceMutation.isPending}
+          mode="create"
+          lockedType={TIPO_LEADS.LEADS}
+          disableIncomeSector
+          onCancel={() => setSalesforceModalOpen(false)}
+        />
+      </GeneralModal>
+    </>
   );
 }

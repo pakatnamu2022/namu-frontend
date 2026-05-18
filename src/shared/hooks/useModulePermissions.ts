@@ -200,6 +200,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Bell",
     description: "Permite enviar notificaciones relacionadas al módulo",
   },
+  {
+    value: "salesforce",
+    label: "Salesforce",
+    icon: "Salesforce",
+    description: "Permite habilitar opciones de Salesforce",
+  },
 ];
 
 /**
@@ -266,5 +272,6 @@ export function useModulePermissions(moduleCode: string) {
     ),
     canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
     canNotify: hasModulePermission("notify"),
+    canSalesforce: hasModulePermission("salesforce"),
   };
 }

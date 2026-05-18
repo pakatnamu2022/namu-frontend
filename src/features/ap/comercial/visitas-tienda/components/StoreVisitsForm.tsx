@@ -47,6 +47,9 @@ interface StoreVisitsFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  lockedType?: string;
+  onCancel?: () => void;
+  disableIncomeSector?: boolean;
 }
 
 export const StoreVisitsForm = ({
@@ -54,8 +57,12 @@ export const StoreVisitsForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  lockedType,
+  onCancel,
+  disableIncomeSector = false,
 }: StoreVisitsFormProps) => {
   const { ABSOLUTE_ROUTE } = STORE_VISITS;
+  const resolvedType = lockedType ?? TIPO_LEADS.VISITA;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate,
@@ -63,8 +70,8 @@ export const StoreVisitsForm = ({
     defaultValues: {
       ...defaultValues,
       area_id: AREA_COMERCIAL.toString(),
-      type: TIPO_LEADS.VISITA,
-      campaign: TIPO_LEADS.VISITA,
+      type: resolvedType,
+      campaign: resolvedType,
     },
     mode: "onChange",
   });
@@ -208,6 +215,7 @@ export const StoreVisitsForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={disableIncomeSector}
           />
 
           <FormSelect
@@ -368,11 +376,17 @@ export const StoreVisitsForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
-            <Button type="button" variant="outline">
+          {onCancel ? (
+            <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
             </Button>
-          </Link>
+          ) : (
+            <Link to={ABSOLUTE_ROUTE}>
+              <Button type="button" variant="outline">
+                Cancelar
+              </Button>
+            </Link>
+          )}
 
           <Button
             type="submit"
