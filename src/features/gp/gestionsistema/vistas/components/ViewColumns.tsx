@@ -19,6 +19,7 @@ interface Props {
   onUpdateCell: (id: number, key: string, value: any) => void;
   onDelete: (id: number) => void;
   onDuplicate: (id: number) => void;
+  onOpenPermissions: (id: number) => void;
 }
 
 export const viewColumns = ({
@@ -26,6 +27,7 @@ export const viewColumns = ({
   onUpdateCell,
   onDelete,
   onDuplicate,
+  onOpenPermissions,
 }: Props): ViewColumns[] => [
   {
     accessorKey: "id",
@@ -189,7 +191,7 @@ export const viewColumns = ({
       const id = row.original.id;
       const submodule = row.original.submodule;
       const route = row.original.route;
-      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = VIEW;
+      const { ROUTE_UPDATE } = VIEW;
 
       return (
         <div className="flex items-center gap-2">
@@ -200,7 +202,7 @@ export const viewColumns = ({
             size="icon"
             className="size-7"
             disabled={submodule || route === null}
-            onClick={() => router(`${ABSOLUTE_ROUTE}/permisos/${id}`)}
+            onClick={() => onOpenPermissions(id)}
           >
             <ShieldCheck className="size-5" />
           </Button>

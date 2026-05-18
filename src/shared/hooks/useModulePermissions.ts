@@ -200,6 +200,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Bell",
     description: "Permite enviar notificaciones relacionadas al módulo",
   },
+  {
+    value: "salesforce",
+    label: "Salesforce",
+    icon: "Salesforce",
+    description: "Permite habilitar opciones de Salesforce",
+  },
 ];
 
 /**

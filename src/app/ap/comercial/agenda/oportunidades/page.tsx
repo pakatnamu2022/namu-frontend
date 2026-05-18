@@ -28,7 +28,7 @@ import {
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { errorToast, ERROR_MESSAGE, successToast } from "@/core/core.function";
+import { errorToast, ERROR_MESSAGE, successToast, SUCCESS_MESSAGE } from "@/core/core.function";
 import { cn } from "@/lib/utils";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
@@ -46,7 +46,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { BUSINESS_PARTNERS, EMPRESA_AP, INCOME_SECTOR, TIPO_LEADS } from "@/core/core.constants";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -56,6 +56,13 @@ import {
   useCalendarYear,
 } from "@/shared/components/CalendarGrid";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
+import { storeStoreVisits } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.actions";
+import { STORE_VISITS } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.constants";
+import { useMutation } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -69,8 +76,10 @@ export default function OpportunitiesKanbanPage() {
   const [debouncedLeadSearch, setDebouncedLeadSearch] = useState("");
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [salesforceModalOpen, setSalesforceModalOpen] = useState(false);
   const permissions = useModulePermissions(ROUTE);
   const invalidateQuery = useInvalidateQuery();
+  const { MODEL: STORE_VISITS_MODEL } = STORE_VISITS;
 
   // Get calendar state from atoms
   const [calendarMonth] = useCalendarMonth();
@@ -78,6 +87,20 @@ export default function OpportunitiesKanbanPage() {
 
   // Check if user has permission to view all users' opportunities
   const canViewAdvisors = permissions.canViewAdvisors || false;
+  const canSalesforce = permissions.canSalesforce || false;
+
+  const salesforceMutation = useMutation({
+    mutationFn: storeStoreVisits,
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(STORE_VISITS_MODEL, "create"));
+      setSalesforceModalOpen(false);
+      invalidateQuery([LEADS_QUERY_KEY, "my"]);
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(STORE_VISITS_MODEL, "create", msg));
+    },
+  });
 
   // Get month range based on calendar state
   const firstDay = new Date(calendarYear, calendarMonth, 1);
@@ -339,6 +362,7 @@ export default function OpportunitiesKanbanPage() {
   if (!currentView) notFound();
 
   return (
+    <>
     <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
@@ -369,6 +393,17 @@ export default function OpportunitiesKanbanPage() {
               className="max-w-xs h-8 text-sm"
             />
             <div className="flex items-center gap-2">
+              {canSalesforce && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs gap-1"
+                  onClick={() => setSalesforceModalOpen(true)}
+                >
+                  <Plus className="size-3" />
+                  Salesforce Lead
+                </Button>
+              )}
               <h3 className="text-sm font-medium text-tertiary">
                 Leads Validados
               </h3>
@@ -509,5 +544,34 @@ export default function OpportunitiesKanbanPage() {
           </div>
         </div>
     </PageWrapper>
+
+    <GeneralModal
+      open={salesforceModalOpen}
+      onClose={() => setSalesforceModalOpen(false)}
+      title="Nuevo Salesforce Lead"
+      subtitle="Registra un lead desde Salesforce"
+      icon="ContactRound"
+      size="4xl"
+    >
+      <StoreVisitsForm
+        defaultValues={{
+          num_doc: "",
+          full_name: "",
+          phone: "",
+          email: "",
+          sede_id: "",
+          vehicle_brand_id: "",
+          document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
+          income_sector_id: INCOME_SECTOR.SHOWROOM_ID,
+          area_id: "",
+        }}
+        onSubmit={(data) => salesforceMutation.mutate(data)}
+        isSubmitting={salesforceMutation.isPending}
+        mode="create"
+        lockedType={TIPO_LEADS.SALESFORCE}
+        onCancel={() => setSalesforceModalOpen(false)}
+      />
+    </GeneralModal>
+    </>
   );
 }
