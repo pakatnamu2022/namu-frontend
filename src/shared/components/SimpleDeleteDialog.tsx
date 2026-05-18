@@ -14,6 +14,7 @@ interface SimpleDeleteDialogProps {
   onConfirm: () => Promise<void>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  description?: string;
 }
 
 export const DeleteButton = ({
@@ -44,6 +45,7 @@ export function SimpleDeleteDialog({
   onConfirm,
   open,
   onOpenChange,
+  description,
 }: SimpleDeleteDialogProps) {
   const [loading, setLoading] = useState(false);
 
@@ -63,8 +65,8 @@ export function SimpleDeleteDialog({
         <DialogHeader>
           <DialogTitle>Eliminar registro</DialogTitle>
           <DialogDescription>
-            Esta acción no se puede deshacer. ¿Estás seguro de que deseas
-            eliminar este registro?
+            {description ??
+              "Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar este registro?"}
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2 mt-4">

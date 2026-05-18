@@ -152,9 +152,14 @@ export async function deleteCycle(id: number): Promise<GeneralResponse> {
 
 export async function deleteCyclePersonDetail(
   id: number,
+  params?: {
+    delete_all_for_person?: boolean;
+    deactivate_category_objective?: boolean;
+  },
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(
     `${ENDPOINT_DETAIL}/${id}`,
+    { params },
   );
   return data;
 }
