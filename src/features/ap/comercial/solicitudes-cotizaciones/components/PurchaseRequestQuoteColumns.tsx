@@ -56,6 +56,14 @@ export const purchaseRequestQuoteColumns = ({
     },
   },
   {
+    accessorKey: "created_at",
+    header: "Fecha",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return <span>{new Date(value).toLocaleDateString("es-PE")}</span>;
+    },
+  },
+  {
     accessorKey: "doc_type_currency",
     header: "Moneda",
   },
@@ -186,8 +194,7 @@ export const purchaseRequestQuoteColumns = ({
         permissions.canAssign && hasVehicle && !row.original.is_paid;
       const canSwapVehicle =
         permissions.canAssign && hasVehicle && !row.original.is_paid;
-      const canEdit =
-        permissions.canUpdate && !row.original.is_invoiced;
+      const canEdit = permissions.canUpdate && !row.original.is_invoiced;
 
       return (
         <div className="flex items-center gap-2">
