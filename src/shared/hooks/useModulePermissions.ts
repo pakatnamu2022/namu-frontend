@@ -266,5 +266,6 @@ export function useModulePermissions(moduleCode: string) {
     ),
     canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
     canNotify: hasModulePermission("notify"),
+    canSalesforce: hasModulePermission("salesforce"),
   };
 }
