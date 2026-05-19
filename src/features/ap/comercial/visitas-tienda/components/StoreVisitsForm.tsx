@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import {
   StoreVisitsSchema,
@@ -109,7 +109,9 @@ export const StoreVisitsForm = ({
       canViewAdvisors && selectedBrandId ? Number(selectedBrandId) : undefined,
     );
 
-  const isLoadingSedes = canViewAdvisors ? isLoadingAllSedes : isLoadingWorkerConfig;
+  const isLoadingSedes = canViewAdvisors
+    ? isLoadingAllSedes
+    : isLoadingWorkerConfig;
   const sedes = canViewAdvisors
     ? allSedes
     : (workerConfig?.sedes ?? []).map((s) => ({
@@ -117,11 +119,12 @@ export const StoreVisitsForm = ({
         description: s.localidad,
       }));
 
-  const workerBrandsForSede = !canViewAdvisors && selectedSedeId
-    ? (workerConfig?.brands ?? []).filter(
-        (b) => b.sede_id === Number(selectedSedeId),
-      )
-    : [];
+  const workerBrandsForSede =
+    !canViewAdvisors && selectedSedeId
+      ? (workerConfig?.brands ?? []).filter(
+          (b) => b.sede_id === Number(selectedSedeId),
+        )
+      : [];
 
   const sedeVehicleBrands = canViewAdvisors
     ? vehicleBrands
@@ -284,7 +287,9 @@ export const StoreVisitsForm = ({
             }))}
             control={form.control}
             strictFilter={true}
-            disabled={canViewAdvisors ? isLoadingVehicleBrands : !selectedSedeId}
+            disabled={
+              canViewAdvisors ? isLoadingVehicleBrands : !selectedSedeId
+            }
           />
 
           {canViewAdvisors ? (
