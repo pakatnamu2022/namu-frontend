@@ -8,7 +8,12 @@ import {
   getUsersByRole,
 } from "./role.actions";
 import { ROLE } from "./role.constants";
-import { ERROR_MESSAGE, errorToast, SUCCESS_MESSAGE, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 import { UserResource } from "../../usuarios/lib/user.interface";
 
 export const useRoles = (params?: Record<string, any>) => {
@@ -46,7 +51,7 @@ export const useRoleById = (id: number) => {
 
 export const useDuplicateRole = () => {
   const queryClient = useQueryClient();
-  const { MODEL, QUERY_KEY } = ROLE;
+  const { MODEL } = ROLE;
 
   return useMutation({
     mutationFn: (id: number) => duplicateRole(id),
@@ -55,7 +60,9 @@ export const useDuplicateRole = () => {
       await queryClient.invalidateQueries({ queryKey: ["role"] });
     },
     onError: (error: any) => {
-      errorToast(error.response?.data?.message ?? ERROR_MESSAGE(MODEL, "create"));
+      errorToast(
+        error.response?.data?.message ?? ERROR_MESSAGE(MODEL, "create"),
+      );
     },
   });
 };
