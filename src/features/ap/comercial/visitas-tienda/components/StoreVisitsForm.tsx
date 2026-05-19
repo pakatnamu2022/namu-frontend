@@ -31,6 +31,7 @@ import { useAllIncomeSector } from "../../sectores-ingreso/lib/incomeSector.hook
 import {
   useAllBrandsBySede,
   useAllWorkersBySedeAndBrand,
+  useWorkerConfig,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
@@ -50,6 +51,8 @@ interface StoreVisitsFormProps {
   lockedType?: string;
   onCancel?: () => void;
   disableIncomeSector?: boolean;
+  canViewAdvisors?: boolean;
+  loggedWorkerId?: number;
 }
 
 export const StoreVisitsForm = ({
@@ -60,6 +63,8 @@ export const StoreVisitsForm = ({
   lockedType,
   onCancel,
   disableIncomeSector = false,
+  canViewAdvisors = true,
+  loggedWorkerId,
 }: StoreVisitsFormProps) => {
   const { ABSOLUTE_ROUTE } = STORE_VISITS;
   const resolvedType = lockedType ?? TIPO_LEADS.VISITA;
@@ -85,20 +90,42 @@ export const StoreVisitsForm = ({
   const selectedBrandId = form.watch("vehicle_brand_id");
 
   // Consultas para selects
-  const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
+  const { data: allSedes = [], isLoading: isLoadingAllSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
+  const { data: workerConfig, isLoading: isLoadingWorkerConfig } =
+    useWorkerConfig(!canViewAdvisors ? loggedWorkerId : undefined);
   const { data: documentTypes = [], isLoading: isLoadingTypesDocument } =
     useAllDocumentType();
   const { data: incomeSector = [], isLoading: isLoadingIncomeSector } =
     useAllIncomeSector();
   const { data: vehicleBrands = [], isLoading: isLoadingVehicleBrands } =
-    useAllBrandsBySede(selectedSedeId ? Number(selectedSedeId) : undefined);
+    useAllBrandsBySede(
+      canViewAdvisors && selectedSedeId ? Number(selectedSedeId) : undefined,
+    );
   const { data: workers = [], isLoading: isLoadingWorkers } =
     useAllWorkersBySedeAndBrand(
-      selectedSedeId ? Number(selectedSedeId) : undefined,
-      selectedBrandId ? Number(selectedBrandId) : undefined,
+      canViewAdvisors && selectedSedeId ? Number(selectedSedeId) : undefined,
+      canViewAdvisors && selectedBrandId ? Number(selectedBrandId) : undefined,
     );
+
+  const isLoadingSedes = canViewAdvisors ? isLoadingAllSedes : isLoadingWorkerConfig;
+  const sedes = canViewAdvisors
+    ? allSedes
+    : (workerConfig?.data?.sedes ?? []).map((s) => ({
+        id: Number(s.id),
+        description: s.localidad,
+      }));
+
+  const workerBrandsForSede = !canViewAdvisors && selectedSedeId
+    ? (workerConfig?.data?.brands ?? []).filter(
+        (b) => b.sede_id === Number(selectedSedeId),
+      )
+    : [];
+
+  const sedeVehicleBrands = canViewAdvisors
+    ? vehicleBrands
+    : workerBrandsForSede.map((b) => ({ id: b.id, name: b.name }));
 
   const selectedDocumentType = documentTypes.find(
     (type) => type.id.toString() === documentTypeId,
@@ -171,6 +198,15 @@ export const StoreVisitsForm = ({
     }
   }, [validationData, form, dniData, rucData]);
 
+  // Auto-set worker_id when not canViewAdvisors and config loads
+  useEffect(() => {
+    if (!canViewAdvisors && workerConfig?.data?.worker) {
+      form.setValue("worker_id", workerConfig.data.worker.id.toString() as any, {
+        shouldValidate: true,
+      });
+    }
+  }, [canViewAdvisors, workerConfig, form]);
+
   // Limpiar campos dependientes cuando cambia la sede
   useEffect(() => {
     if (
@@ -178,21 +214,24 @@ export const StoreVisitsForm = ({
       prevSedeId.current !== undefined
     ) {
       form.setValue("vehicle_brand_id", undefined);
-      form.setValue("worker_id", undefined);
+      if (canViewAdvisors) {
+        form.setValue("worker_id", undefined);
+      }
     }
     prevSedeId.current = selectedSedeId;
-  }, [selectedSedeId, form]);
+  }, [selectedSedeId, form, canViewAdvisors]);
 
-  // Limpiar worker_id cuando cambia la marca
+  // Limpiar worker_id cuando cambia la marca (solo si puede ver asesores)
   useEffect(() => {
     if (
+      canViewAdvisors &&
       prevBrandId.current !== selectedBrandId &&
       prevBrandId.current !== undefined
     ) {
       form.setValue("worker_id", undefined);
     }
     prevBrandId.current = selectedBrandId;
-  }, [selectedBrandId, form]);
+  }, [selectedBrandId, form, canViewAdvisors]);
 
   const shouldDisableMainFields = Boolean(
     validationData?.success && validationData.data,
@@ -234,27 +273,47 @@ export const StoreVisitsForm = ({
             name="vehicle_brand_id"
             label="Marca Vehículo"
             placeholder="Selecciona marca"
-            options={vehicleBrands.map((item) => ({
+            options={sedeVehicleBrands.map((item) => ({
               label: item.name,
               value: item.id.toString(),
             }))}
             control={form.control}
             strictFilter={true}
-            disabled={isLoadingVehicleBrands}
+            disabled={canViewAdvisors ? isLoadingVehicleBrands : !selectedSedeId}
           />
 
-          <FormSelect
-            name="worker_id"
-            label="Asesor"
-            placeholder="Selecciona asesor"
-            options={workers.map((item) => ({
-              label: item.name,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={isLoadingWorkers}
-          />
+          {canViewAdvisors ? (
+            <FormSelect
+              name="worker_id"
+              label="Asesor"
+              placeholder="Selecciona asesor"
+              options={workers.map((item) => ({
+                label: item.name,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={isLoadingWorkers}
+            />
+          ) : (
+            <FormSelect
+              name="worker_id"
+              label="Asesor"
+              placeholder="Asesor asignado"
+              options={
+                workerConfig?.data?.worker
+                  ? [
+                      {
+                        label: workerConfig.data.worker.nombre_completo,
+                        value: workerConfig.data.worker.id.toString(),
+                      },
+                    ]
+                  : []
+              }
+              control={form.control}
+              disabled
+            />
+          )}
 
           <FormSelect
             name="document_type_id"

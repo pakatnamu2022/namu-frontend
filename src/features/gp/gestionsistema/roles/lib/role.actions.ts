@@ -51,6 +51,11 @@ export async function deleteRole(id: number): Promise<GeneralResponse> {
   return data;
 }
 
+export async function duplicateRole(id: number): Promise<RoleResource> {
+  const { data } = await api.post<RoleResource>(`/configuration/role/${id}/duplicate`);
+  return data;
+}
+
 export async function getUsersByRole(roleId: number): Promise<UserResource[]> {
   const config: AxiosRequestConfig = {
     params: {
