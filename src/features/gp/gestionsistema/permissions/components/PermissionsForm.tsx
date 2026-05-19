@@ -9,13 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import {
   Tooltip,
   TooltipContent,
@@ -546,63 +540,14 @@ export default function PermissionsForm({ id }: { id: number }) {
       </div>
 
       {/* Sync confirmation dialog */}
-      <Dialog open={previewOpen} onOpenChange={(open) => !isSaving && setPreviewOpen(open)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="size-5" />
-              Confirmar sincronización
-            </DialogTitle>
-          </DialogHeader>
-
-          {previewData && (
-            <div className="space-y-3 text-sm">
-              {previewData.to_assign.length > 0 && (
-                <div>
-                  <p className="flex items-center gap-1.5 font-medium text-green-600 mb-1.5">
-                    <PlusCircle className="size-4" />
-                    Se asignarán {previewData.to_assign.length} permiso{previewData.to_assign.length !== 1 ? "s" : ""}
-                  </p>
-                  <div className="max-h-36 overflow-y-auto space-y-1 pl-1">
-                    {previewData.to_assign.map((p) => (
-                      <div key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
-                        <span className="font-mono">{p.code}</span>
-                        <span className="truncate">{p.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {previewData.to_remove.length > 0 && (
-                <div>
-                  <p className="flex items-center gap-1.5 font-medium text-destructive mb-1.5">
-                    <MinusCircle className="size-4" />
-                    Se eliminarán {previewData.to_remove.length} permiso{previewData.to_remove.length !== 1 ? "s" : ""}
-                  </p>
-                  <div className="max-h-36 overflow-y-auto space-y-1 pl-1">
-                    {previewData.to_remove.map((p) => (
-                      <div key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="size-1.5 rounded-full bg-destructive shrink-0" />
-                        <span className="font-mono">{p.code}</span>
-                        <span className="truncate">{p.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {previewData.unchanged.length > 0 && (
-                <p className="flex items-center gap-1.5 text-muted-foreground">
-                  <Minus className="size-4" />
-                  {previewData.unchanged.length} permiso{previewData.unchanged.length !== 1 ? "s" : ""} sin cambios
-                </p>
-              )}
-            </div>
-          )}
-
-          <DialogFooter>
+      <GeneralModal
+        open={previewOpen}
+        onClose={() => !isSaving && setPreviewOpen(false)}
+        title="Confirmar sincronización"
+        icon="ShieldCheck"
+        size="lg"
+        childrenFooter={
+          <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setPreviewOpen(false)} disabled={isSaving}>
               Cancelar
             </Button>
@@ -610,9 +555,56 @@ export default function PermissionsForm({ id }: { id: number }) {
               <ShieldCheck className="size-4 mr-1.5" />
               {isSaving ? "Guardando..." : "Confirmar"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        }
+      >
+        {previewData && (
+          <div className="space-y-3 text-sm">
+            {previewData.to_assign.length > 0 && (
+              <div>
+                <p className="flex items-center gap-1.5 font-medium text-green-600 mb-1.5">
+                  <PlusCircle className="size-4" />
+                  Se asignarán {previewData.to_assign.length} permiso{previewData.to_assign.length !== 1 ? "s" : ""}
+                </p>
+                <div className="max-h-36 overflow-y-auto space-y-1 pl-1">
+                  {previewData.to_assign.map((p) => (
+                    <div key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+                      <span className="font-mono">{p.code}</span>
+                      <span className="truncate">{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.to_remove.length > 0 && (
+              <div>
+                <p className="flex items-center gap-1.5 font-medium text-destructive mb-1.5">
+                  <MinusCircle className="size-4" />
+                  Se eliminarán {previewData.to_remove.length} permiso{previewData.to_remove.length !== 1 ? "s" : ""}
+                </p>
+                <div className="max-h-36 overflow-y-auto space-y-1 pl-1">
+                  {previewData.to_remove.map((p) => (
+                    <div key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-destructive shrink-0" />
+                      <span className="font-mono">{p.code}</span>
+                      <span className="truncate">{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.unchanged.length > 0 && (
+              <p className="flex items-center gap-1.5 text-muted-foreground">
+                <Minus className="size-4" />
+                {previewData.unchanged.length} permiso{previewData.unchanged.length !== 1 ? "s" : ""} sin cambios
+              </p>
+            )}
+          </div>
+        )}
+      </GeneralModal>
     </div>
   );
 }
