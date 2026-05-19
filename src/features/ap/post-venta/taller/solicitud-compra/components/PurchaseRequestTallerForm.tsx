@@ -133,7 +133,7 @@ export default function PurchaseRequestTallerForm({
     (w) => w.id.toString() === selectedWarehouseId,
   );
 
-  // Estado local para el selector temporal de productos
+  // Estado local para el selector temporal de repuestos
   const [tempProductId, setTempProductId] = useState<string>("");
   const [tempProductData, setTempProductData] =
     useState<InventoryResource | null>(null);
@@ -255,13 +255,13 @@ export default function PurchaseRequestTallerForm({
       return;
     }
 
-    // Verificar si el producto ya está en la lista
+    // Verificar si el repuesto ya está en la lista
     const productExists = details.some(
       (detail) => detail.product_id === productId,
     );
 
     if (productExists) {
-      errorToast("El producto ya ha sido agregado a la solicitud.");
+      errorToast("El repuesto ya ha sido agregado a la solicitud.");
       return;
     }
 
@@ -474,9 +474,9 @@ export default function PurchaseRequestTallerForm({
           />
         </GroupFormSection>
 
-        {/* Productos */}
+        {/* Repuestos */}
         <GroupFormSection
-          title="Productos a solicitar"
+          title="Repuestos a solicitar"
           icon={Package}
           cols={{ sm: 1 }}
         >
@@ -498,22 +498,22 @@ export default function PurchaseRequestTallerForm({
             <div className="text-center py-8 border rounded-lg bg-gray-50">
               <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
               <p className="text-sm text-gray-600">
-                Seleccione un almacén para agregar productos
+                Seleccione un almacén para agregar repuestos
               </p>
             </div>
           ) : (
             <>
-              {/* Selector de productos con búsqueda - Solo visible si NO hay cotización */}
+              {/* Selector de repuestos con búsqueda - Solo visible si NO hay cotización */}
               {!selectedQuotationId && (
                 <div className="mb-6">
                   <label className="text-sm font-medium mb-2 block">
-                    Seleccionar Producto
+                    Seleccionar Repuesto
                   </label>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1">
                       <FormSelectAsync
                         name="temp_product_selector"
-                        placeholder="Buscar y seleccionar producto para agregar"
+                        placeholder="Buscar y seleccionar repuesto para agregar"
                         control={form.control}
                         useQueryHook={useInventory}
                         additionalParams={{
@@ -566,12 +566,10 @@ export default function PurchaseRequestTallerForm({
                 </div>
               )}
 
-              {/* Lista de Productos */}
+              {/* Lista de Repuestos */}
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-3 pb-2 border-b">
-                  <h4 className="font-semibold text-gray-700">
-                    Items de Productos
-                  </h4>
+                  <h4 className="font-semibold text-gray-700">Repuestos</h4>
                   <Badge color="secondary" className="font-semibold">
                     {details.length} item(s)
                   </Badge>
@@ -581,7 +579,7 @@ export default function PurchaseRequestTallerForm({
                   <div className="text-center py-8 border rounded-lg bg-gray-50">
                     <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-600">
-                      No hay productos agregados
+                      No hay repuestos agregados
                     </p>
                   </div>
                 ) : (
@@ -589,7 +587,7 @@ export default function PurchaseRequestTallerForm({
                     {/* Cabecera de tabla - Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
                       <div className="col-span-2">Código</div>
-                      <div className="col-span-2">Producto</div>
+                      <div className="col-span-2">Repuesto</div>
                       <div className="col-span-2">Tipo Abastec.</div>
                       <div className="col-span-1">Cantidad</div>
                       <div className="col-span-1">P. Unit.</div>
@@ -623,7 +621,7 @@ export default function PurchaseRequestTallerForm({
                               <div className="col-span-2">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
-                                    `Producto #${detail.product_id}`}
+                                    `Repuesto #${detail.product_id}`}
                                 </p>
                               </div>
 
@@ -743,7 +741,7 @@ export default function PurchaseRequestTallerForm({
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-gray-900 truncate">
                                     {detail.product_name ||
-                                      `Producto #${detail.product_id}`}
+                                      `Repuesto #${detail.product_id}`}
                                   </p>
                                   {detail.product_code && (
                                     <div className="flex items-center gap-1 mt-1">
