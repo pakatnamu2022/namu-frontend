@@ -5,570 +5,456 @@ import { PermissionsActions } from "./PermissionsActions";
 import { useNavigate } from "react-router-dom";
 import { successToast, errorToast } from "@/core/core.function";
 import { api } from "@/core/api";
-import { CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
-  ChevronDown,
-  ChevronUp,
-  CheckSquare,
-  SquareX,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Search,
   ShieldCheck,
   Layers,
   Building2,
   FolderTree,
-  Trash2,
-  CheckCheck,
+  CheckSquare,
+  SquareX,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import { useAllViewPermission } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
+import type { View } from "@/features/gp/gestionsistema/vistas/lib/view.interface";
 import * as LucideIcons from "lucide-react";
-// import DataTablePagination from "@/shared/components/DataTablePagination";
 import { ROLE } from "../../roles/lib/role.constants";
 
 export default function PermissionsForm({ id }: { id: number }) {
   const { ABSOLUTE_ROUTE } = ROLE;
   const router = useNavigate();
 
-  // State for search and pagination
-  const [searchInput, setSearchInput] = useState(""); // Input value (immediate)
-  const [searchTerm, setSearchTerm] = useState(""); // Debounced value (delayed)
-  const [currentPage, setCurrentPage] = useState(1);
-  // const [perPage, setPerPage] = useState(10);
-
-  // State for expanded views (to show/hide permissions)
-  const [expandedViews, setExpandedViews] = useState<Set<number>>(new Set());
-
-  // State for selected permissions: { viewId: Set<permissionId> }
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedViewId, setSelectedViewId] = useState<number | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [selectedPermissions, setSelectedPermissions] = useState<
     Record<number, Set<number>>
   >({});
-
-  // State for saving
   const [isSaving, setIsSaving] = useState(false);
 
-  // Debounce search input (500ms delay)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearchTerm(searchInput);
-      setCurrentPage(1); // Reset to first page on search
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  // Fetch all views with their permissions using the hook with search and pagination
-  const {
-    data: viewsData,
-    isLoading,
-    refetch,
-  } = useAllViewPermission({
-    search: searchTerm,
-    // per_page: perPage,
-    page: currentPage,
+  // Load all views once — search is done client-side
+  const { data: viewsData, isLoading } = useAllViewPermission({
     rol_id: id,
     all: 1,
   });
 
-  const handleCancel = () => {
-    router(ABSOLUTE_ROUTE);
-  };
-
-  // Get all views from the response
-  const allViews = useMemo(() => {
-    if (!viewsData) return [];
-    return viewsData;
-  }, [viewsData]);
+  const allViews = useMemo(() => viewsData ?? [], [viewsData]);
 
   // Initialize selected permissions from is_assigned
   useEffect(() => {
     if (!viewsData) return;
-
-    const initialSelected: Record<number, Set<number>> = {};
-
+    const initial: Record<number, Set<number>> = {};
     viewsData.forEach((view) => {
-      const assignedPermissions =
-        view.permissions
-          ?.filter((p) => p.is_assigned === true)
-          .map((p) => p.id) || [];
-
-      if (assignedPermissions.length > 0) {
-        initialSelected[view.id] = new Set(assignedPermissions);
-      }
+      const assigned =
+        view.permissions?.filter((p) => p.is_assigned).map((p) => p.id) ?? [];
+      if (assigned.length > 0) initial[view.id] = new Set(assigned);
     });
-
-    setSelectedPermissions(initialSelected);
+    setSelectedPermissions(initial);
   }, [viewsData]);
 
-  // Pagination data
-  // const pagination = useMemo(() => {
-  //   if (!viewsData) return null;
-  //   return {
-  //     currentPage: viewsData.current_page,
-  //     lastPage: viewsData.last_page,
-  //     from: viewsData.from,
-  //     to: viewsData.to,
-  //     total: viewsData.total,
-  //     perPage: viewsData.per_page,
-  //   };
-  // }, [viewsData]);
+  // Client-side filter
+  const filteredViews = useMemo(() => {
+    if (!searchTerm.trim()) return allViews;
+    const lower = searchTerm.toLowerCase();
+    return allViews.filter(
+      (v) =>
+        v.descripcion.toLowerCase().includes(lower) ||
+        v.route?.toLowerCase().includes(lower) ||
+        v.padre?.toLowerCase().includes(lower) ||
+        v.company?.toLowerCase().includes(lower),
+    );
+  }, [allViews, searchTerm]);
 
-  // Toggle view expansion
-  const handleToggleExpand = (viewId: number) => {
-    setExpandedViews((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(viewId)) {
-        newSet.delete(viewId);
-      } else {
-        newSet.add(viewId);
-      }
-      return newSet;
+  // Group by company → padre
+  const groupedViews = useMemo(() => {
+    const groups: Record<string, Record<string, View[]>> = {};
+    filteredViews.forEach((view) => {
+      const company = view.company ?? "Sin empresa";
+      const padre = view.padre ?? "General";
+      if (!groups[company]) groups[company] = {};
+      if (!groups[company][padre]) groups[company][padre] = [];
+      groups[company][padre].push(view);
+    });
+    return groups;
+  }, [filteredViews]);
+
+  // Auto-expand all groups when searching
+  useEffect(() => {
+    if (!searchTerm.trim()) return;
+    const keys = new Set<string>();
+    Object.entries(groupedViews).forEach(([company, padres]) => {
+      keys.add(`c:${company}`);
+      Object.keys(padres).forEach((padre) => keys.add(`p:${company}:${padre}`));
+    });
+    setExpandedGroups(keys);
+  }, [searchTerm, groupedViews]);
+
+  const selectedView = useMemo(
+    () => allViews.find((v) => v.id === selectedViewId) ?? null,
+    [allViews, selectedViewId],
+  );
+
+  const totalSelected = useMemo(
+    () =>
+      Object.values(selectedPermissions).reduce((acc, s) => acc + s.size, 0),
+    [selectedPermissions],
+  );
+
+  const handleToggleGroup = (key: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
     });
   };
 
-  // Toggle individual permission selection
   const handleTogglePermission = (viewId: number, permissionId: number) => {
     setSelectedPermissions((prev) => {
-      const viewPermissions = prev[viewId] || new Set<number>();
-      const newSet = new Set(viewPermissions);
-
-      if (newSet.has(permissionId)) {
-        newSet.delete(permissionId);
-      } else {
-        newSet.add(permissionId);
-      }
-
-      return {
-        ...prev,
-        [viewId]: newSet,
-      };
+      const set = new Set(prev[viewId] ?? []);
+      set.has(permissionId) ? set.delete(permissionId) : set.add(permissionId);
+      return { ...prev, [viewId]: set };
     });
   };
 
-  // Select all permissions for a view
-  const handleSelectAllViewPermissions = (viewId: number) => {
+  const handleSelectAllView = (viewId: number) => {
     const view = allViews.find((v) => v.id === viewId);
-    if (!view || !view.permissions) return;
-
-    setSelectedPermissions((prev) => {
-      const currentPermissions = prev[viewId] || new Set<number>();
-      const allPermissionIds = view.permissions.map((p) => p.id);
-
-      // If all are selected, deselect all; otherwise, select all
-      const allSelected = allPermissionIds.every((id) =>
-        currentPermissions.has(id),
-      );
-
-      return {
-        ...prev,
-        [viewId]: allSelected ? new Set<number>() : new Set(allPermissionIds),
-      };
-    });
+    if (!view?.permissions?.length) return;
+    const allIds = view.permissions.map((p) => p.id);
+    const current = selectedPermissions[viewId] ?? new Set<number>();
+    const allSelected = allIds.every((pid) => current.has(pid));
+    setSelectedPermissions((prev) => ({
+      ...prev,
+      [viewId]: allSelected ? new Set() : new Set(allIds),
+    }));
   };
 
-  // Select all permissions from all loaded views
-  const handleSelectAllPermissions = () => {
-    const newSelectedPermissions: Record<number, Set<number>> = {};
-
-    // Check if all permissions are already selected
-    const allPermissionsSelected = allViews.every((view) => {
-      const viewPermissions = view.permissions || [];
-      const selectedPerms = selectedPermissions[view.id] || new Set();
-      return (
-        viewPermissions.length > 0 &&
-        viewPermissions.every((p) => selectedPerms.has(p.id))
-      );
-    });
-
-    if (allPermissionsSelected) {
-      // If all are selected, deselect all
-      setSelectedPermissions({});
-    } else {
-      // Otherwise, select all permissions from all views
-      allViews.forEach((view) => {
-        const viewPermissions = view.permissions || [];
-        if (viewPermissions.length > 0) {
-          newSelectedPermissions[view.id] = new Set(
-            viewPermissions.map((p) => p.id),
-          );
-        }
-      });
-      setSelectedPermissions(newSelectedPermissions);
-    }
-  };
-
-  const handleSavePermissions = async () => {
-    // Collect all selected permission IDs
-    const allPermissionIds: number[] = [];
-    Object.values(selectedPermissions).forEach((permSet) => {
-      permSet.forEach((permId) => {
-        allPermissionIds.push(permId);
-      });
-    });
-
-    if (allPermissionIds.length === 0) {
+  const handleSave = async () => {
+    const permissionIds = Object.values(selectedPermissions).flatMap((s) => [
+      ...s,
+    ]);
+    if (permissionIds.length === 0) {
       errorToast("Selecciona al menos un permiso para guardar");
       return;
     }
-
     setIsSaving(true);
     try {
       await api.post("/configuration/permission/save-permissions-to-role", {
         role_id: id,
-        permissions: allPermissionIds,
+        permissions: permissionIds,
       });
-
       successToast("Permisos sincronizados correctamente");
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message || "Error al sincronizar permisos";
-      errorToast(message);
+      errorToast(error?.response?.data?.message ?? "Error al sincronizar permisos");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Remove permission from role
-  const handleRemovePermission = async (permissionId: number) => {
-    try {
-      await api.delete(
-        "/configuration/permission/remove-permission-from-role",
-        {
-          data: {
-            role_id: id,
-            permission_id: permissionId,
-          },
-        },
-      );
-
-      successToast("Permiso eliminado correctamente");
-
-      // Actualizar el estado local para reflejar el cambio
-      setSelectedPermissions((prev) => {
-        const newState = { ...prev };
-        Object.keys(newState).forEach((viewId) => {
-          newState[Number(viewId)].delete(permissionId);
-        });
-        return newState;
-      });
-
-      // Refetch data to update UI
-      await refetch();
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message || "Error al eliminar el permiso";
-      errorToast(message);
-    }
+  const getIcon = (iconName: string | null | undefined, fallback: any) => {
+    if (!iconName) return fallback;
+    return (LucideIcons as any)[iconName] ?? fallback;
   };
-
-  // Get icon component
-  const getIconComponent = (iconName: string | null | undefined) => {
-    if (!iconName) return Layers;
-    const Icon = (LucideIcons as any)[iconName];
-    return Icon || Layers;
-  };
-
-  // Get permission icon from permission.icon field
-  const getPermissionIcon = (iconName: string | null | undefined) => {
-    if (!iconName) return ShieldCheck;
-    const Icon = (LucideIcons as any)[iconName];
-    return Icon || ShieldCheck;
-  };
-
-  // Handle pagination
-  // const handlePageChange = (newPage: number) => {
-  //   setCurrentPage(newPage);
-  // };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
-      <CardContent className="space-y-4 pt-6">
-        {/* Search bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por vista..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-10 text-base"
-            />
-          </div>
-          <Button
-            variant="tertiary"
-            size="lg"
-            onClick={handleSelectAllPermissions}
-            disabled={isLoading || allViews.length === 0}
-          >
-            <CheckCheck className="size-4 mr-2" />
-            Seleccionar Todo
-          </Button>
+    <div className="w-full max-w-7xl mx-auto space-y-3">
+      {/* Top bar */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-52 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar vista..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Badge variant="outline" className="text-sm font-normal shrink-0">
+          {totalSelected} permiso{totalSelected !== 1 ? "s" : ""} seleccionados
+        </Badge>
+        <div className="ml-auto">
           <PermissionsActions
-            onCancel={handleCancel}
-            onSave={handleSavePermissions}
+            onCancel={() => router(ABSOLUTE_ROUTE)}
+            onSave={handleSave}
             isSaving={isSaving}
           />
         </div>
+      </div>
 
-        {/* Views list */}
-        <div className="space-y-3">
-          {isLoading ? (
-            <div className="text-center py-16 border rounded-xl bg-muted/10">
-              <div className="flex flex-col items-center gap-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
-                <div>
-                  <p className="text-base font-medium text-muted-foreground">
-                    Cargando vistas y permisos...
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Por favor espera un momento
-                  </p>
-                </div>
+      {/* Two-panel layout */}
+      <div className="flex border rounded-xl overflow-hidden h-[calc(100vh-16rem)] min-h-96">
+        {/* LEFT: Grouped view tree */}
+        <div className="w-72 shrink-0 border-r flex flex-col bg-muted/20">
+          <div className="px-3 py-2 border-b text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Vistas ({filteredViews.length})
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
               </div>
-            </div>
-          ) : allViews.length === 0 ? (
-            <div className="text-center py-12 border rounded-xl">
-              <Search className="size-12 mx-auto text-muted-foreground/50 mb-3" />
-              <p className="text-sm text-muted-foreground">
-                No se encontraron vistas
-              </p>
-            </div>
-          ) : (
-            allViews.map((view) => {
-              const isExpanded = expandedViews.has(view.id);
-              const ViewIcon = getIconComponent(view.icon);
-              const viewPermissions = view.permissions || [];
-              const selectedPerms = selectedPermissions[view.id] || new Set();
-              const allSelected =
-                viewPermissions.length > 0 &&
-                viewPermissions.every((p) => selectedPerms.has(p.id));
+            ) : Object.entries(groupedViews).length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground">
+                <Search className="size-8 opacity-30" />
+                <span className="text-sm">Sin resultados</span>
+              </div>
+            ) : (
+              Object.entries(groupedViews).map(([company, padres]) => {
+                const ck = `c:${company}`;
+                const companyExpanded = expandedGroups.has(ck);
+                const companySelected = Object.values(padres)
+                  .flat()
+                  .reduce(
+                    (acc, v) => acc + (selectedPermissions[v.id]?.size ?? 0),
+                    0,
+                  );
 
-              return (
-                <div
-                  key={view.id}
-                  className="border rounded-xl bg-card hover:shadow-md transition-all"
-                >
-                  {/* View Header */}
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
-                          <ViewIcon className="size-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex gap-2">
-                            <h3 className="font-semibold text-base truncate">
-                              {view.descripcion}
-                            </h3>
-                            <Badge
-                              size="sm"
-                              variant={
-                                viewPermissions.length > 0
-                                  ? "outline"
-                                  : "default"
-                              }
+                return (
+                  <div key={company}>
+                    <button
+                      className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-muted/50 transition-colors"
+                      onClick={() => handleToggleGroup(ck)}
+                    >
+                      <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
+                      <span className="flex-1 text-sm font-medium truncate">
+                        {company}
+                      </span>
+                      {companySelected > 0 && (
+                        <Badge size="sm" className="text-[10px] shrink-0">
+                          {companySelected}
+                        </Badge>
+                      )}
+                      {companyExpanded ? (
+                        <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
+                      )}
+                    </button>
+
+                    {companyExpanded &&
+                      Object.entries(padres).map(([padre, views]) => {
+                        const pk = `p:${company}:${padre}`;
+                        const padreExpanded = expandedGroups.has(pk);
+                        const padreSelected = views.reduce(
+                          (acc, v) =>
+                            acc + (selectedPermissions[v.id]?.size ?? 0),
+                          0,
+                        );
+
+                        return (
+                          <div key={padre}>
+                            <button
+                              className="w-full flex items-center gap-2 pl-6 pr-3 py-1.5 text-left hover:bg-muted/50 transition-colors"
+                              onClick={() => handleToggleGroup(pk)}
                             >
-                              {viewPermissions.length} permiso
-                              {viewPermissions.length !== 1 ? "s" : ""}
-                            </Badge>
-                            {selectedPerms.size > 0 && (
-                              <Badge size="sm">
-                                {selectedPerms.size} seleccionado
-                                {selectedPerms.size !== 1 ? "s" : ""}
-                              </Badge>
-                            )}
+                              <FolderTree className="size-3 shrink-0 text-muted-foreground" />
+                              <span className="flex-1 text-xs text-muted-foreground truncate">
+                                {padre}
+                              </span>
+                              {padreSelected > 0 && (
+                                <Badge
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-[10px] shrink-0"
+                                >
+                                  {padreSelected}
+                                </Badge>
+                              )}
+                              {padreExpanded ? (
+                                <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="size-3 shrink-0 text-muted-foreground" />
+                              )}
+                            </button>
+
+                            {padreExpanded &&
+                              views.map((view) => {
+                                const ViewIcon = getIcon(view.icon, Layers);
+                                const count =
+                                  selectedPermissions[view.id]?.size ?? 0;
+                                const isActive = selectedViewId === view.id;
+
+                                return (
+                                  <button
+                                    key={view.id}
+                                    className={`w-full flex items-center gap-2 pl-10 pr-3 py-1.5 text-left transition-colors ${
+                                      isActive
+                                        ? "bg-primary/10 text-primary border-r-2 border-primary"
+                                        : "hover:bg-muted/50 text-foreground"
+                                    }`}
+                                    onClick={() => setSelectedViewId(view.id)}
+                                  >
+                                    <ViewIcon className="size-3 shrink-0" />
+                                    <span className="flex-1 text-xs truncate">
+                                      {view.descripcion}
+                                    </span>
+                                    {count > 0 && (
+                                      <Badge
+                                        size="sm"
+                                        variant={isActive ? "default" : "outline"}
+                                        className="text-[10px] shrink-0"
+                                      >
+                                        {count}
+                                      </Badge>
+                                    )}
+                                  </button>
+                                );
+                              })}
                           </div>
+                        );
+                      })}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
 
-                          {/* Jerarquía de módulos */}
-                          {(view.company ||
-                            view.padre ||
-                            view.subPadre ||
-                            view.hijo) && (
-                            <div className="flex flex-wrap items-center gap-1.5 mt-1.5 mb-1">
-                              {view.company && (
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
-                                  <Building2 className="size-3" />
-                                  <span>{view.company}</span>
-                                </div>
-                              )}
-                              {view.padre && (
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded">
-                                  <FolderTree className="size-3" />
-                                  <span>{view.padre}</span>
-                                </div>
-                              )}
-                              {view.subPadre && (
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-purple-50 dark:bg-purple-950/30 px-2 py-0.5 rounded">
-                                  <FolderTree className="size-3" />
-                                  <span>{view.subPadre}</span>
-                                </div>
-                              )}
-                              {view.hijo && (
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded">
-                                  <Layers className="size-3" />
-                                  <span>{view.hijo}</span>
-                                </div>
-                              )}
-
-                              {view.route && (
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-indigo-50 dark:bg-indigo-950/30 px-2 py-0.5 rounded">
-                                  <span className="font-mono">
-                                    {view.route}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4 justify-between h-full">
-                        {/* Action Buttons */}
-                        {viewPermissions.length > 0 && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="xs"
-                              onClick={() => handleToggleExpand(view.id)}
-                              className="gap-2"
-                            >
-                              {isExpanded ? (
-                                <>
-                                  <ChevronUp className="size-4" />
-                                  Ocultar Permisos
-                                </>
-                              ) : (
-                                <>
-                                  <ChevronDown className="size-4" />
-                                  Ver Permisos
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              variant={allSelected ? "secondary" : "default"}
-                              size="xs"
-                              onClick={() =>
-                                handleSelectAllViewPermissions(view.id)
-                              }
-                              className="gap-2"
-                            >
-                              {allSelected ? (
-                                <SquareX className="size-4" />
-                              ) : (
-                                <CheckSquare className="size-4" />
-                              )}
-                              Todos
-                            </Button>
-                          </>
-                        )}
-                        {viewPermissions.length === 0 && (
-                          <p className="text-sm text-muted-foreground italic">
-                            Esta vista no tiene permisos disponibles
-                          </p>
-                        )}
-                      </div>
+        {/* RIGHT: Permission detail panel */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {selectedView ? (
+            <>
+              {/* View header */}
+              <div className="p-4 border-b bg-card shrink-0">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="font-semibold text-base truncate">
+                      {selectedView.descripcion}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                      {selectedView.company && (
+                        <Badge variant="outline" className="text-xs font-normal gap-1">
+                          <Building2 className="size-3" />
+                          {selectedView.company}
+                        </Badge>
+                      )}
+                      {selectedView.padre && (
+                        <Badge variant="outline" className="text-xs font-normal gap-1">
+                          <FolderTree className="size-3" />
+                          {selectedView.padre}
+                        </Badge>
+                      )}
+                      {selectedView.route && (
+                        <Badge
+                          variant="outline"
+                          className="text-xs font-mono font-normal"
+                        >
+                          {selectedView.route}
+                        </Badge>
+                      )}
                     </div>
                   </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="text-sm font-normal">
+                      {selectedPermissions[selectedView.id]?.size ?? 0} /{" "}
+                      {selectedView.permissions?.length ?? 0}
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => handleSelectAllView(selectedView.id)}
+                      disabled={!selectedView.permissions?.length}
+                    >
+                      {(selectedPermissions[selectedView.id]?.size ?? 0) ===
+                      selectedView.permissions?.length ? (
+                        <>
+                          <SquareX className="size-3 mr-1" />
+                          Quitar todos
+                        </>
+                      ) : (
+                        <>
+                          <CheckSquare className="size-3 mr-1" />
+                          Seleccionar todos
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
 
-                  {/* Expanded Permissions */}
-                  {isExpanded && viewPermissions.length > 0 && (
-                    <div className="border-t-2 bg-muted/20 p-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                        {viewPermissions.map((permission) => {
-                          const isSelected = selectedPerms.has(permission.id);
-                          const PermIcon = getPermissionIcon(permission.icon);
-                          const isAssigned = permission.is_assigned === true;
+              {/* Permissions as compact pills */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {!selectedView.permissions?.length ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground">
+                    <ShieldCheck className="size-10 opacity-30" />
+                    <p className="text-sm">
+                      Esta vista no tiene permisos disponibles
+                    </p>
+                  </div>
+                ) : (
+                  <TooltipProvider delayDuration={200}>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedView.permissions.map((permission) => {
+                        const isSelected = (
+                          selectedPermissions[selectedView.id] ?? new Set()
+                        ).has(permission.id);
+                        const PermIcon = getIcon(permission.icon, ShieldCheck);
 
-                          return (
-                            <div
-                              key={permission.id}
-                              className={`relative flex items-start gap-3 p-3 border rounded-lg transition-all ${
-                                isSelected
-                                  ? "border-primary bg-primary/5 shadow-sm"
-                                  : "border-border bg-card hover:border-primary/50"
-                              }`}
-                            >
-                              {/* Botón eliminar - solo visible si está asignado */}
-                              {isAssigned && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="absolute top-1 right-1 h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemovePermission(permission.id);
-                                  }}
-                                  title="Eliminar permiso"
-                                >
-                                  <Trash2 className="size-3" />
-                                </Button>
-                              )}
-
-                              <div
-                                className="flex items-start gap-3 flex-1 cursor-pointer"
+                        return (
+                          <Tooltip key={permission.id}>
+                            <TooltipTrigger asChild>
+                              <button
                                 onClick={() =>
-                                  handleTogglePermission(view.id, permission.id)
+                                  handleTogglePermission(
+                                    selectedView.id,
+                                    permission.id,
+                                  )
                                 }
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all select-none ${
+                                  isSelected
+                                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                    : "border-border bg-background hover:border-primary/60 hover:bg-muted"
+                                }`}
                               >
                                 <Checkbox
                                   checked={isSelected}
-                                  onCheckedChange={() =>
-                                    handleTogglePermission(
-                                      view.id,
-                                      permission.id,
-                                    )
-                                  }
-                                  className="mt-0.5"
+                                  className="size-3 pointer-events-none"
+                                  tabIndex={-1}
                                 />
-                                <div className="flex-1 space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className={`p-1 rounded-md ${
-                                        isSelected
-                                          ? "bg-primary/20 text-primary"
-                                          : "bg-muted text-muted-foreground"
-                                      }`}
-                                    >
-                                      <PermIcon className="size-3" />
-                                    </div>
-                                    <p className="font-semibold text-sm leading-tight">
-                                      {permission.action_label}
-                                    </p>
-                                  </div>
-                                  {permission.description && (
-                                    <p className="text-[10px] text-muted-foreground leading-snug">
-                                      {permission.description}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                                <PermIcon className="size-3" />
+                                {permission.action_label}
+                              </button>
+                            </TooltipTrigger>
+                            {permission.description && (
+                              <TooltipContent
+                                side="top"
+                                className="max-w-48 text-center"
+                              >
+                                {permission.description}
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
-              );
-            })
+                  </TooltipProvider>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
+              <ShieldCheck className="size-12 opacity-20" />
+              <div className="text-center">
+                <p className="text-sm font-medium">Selecciona una vista</p>
+                <p className="text-xs mt-1 text-muted-foreground">
+                  Elige una vista del panel izquierdo para configurar sus
+                  permisos
+                </p>
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Pagination Controls */}
-        {/* {pagination && pagination.lastPage > 1 && (
-          <DataTablePagination
-            page={currentPage}
-            totalPages={pagination.lastPage}
-            onPageChange={handlePageChange}
-            per_page={perPage}
-            setPerPage={setPerPage}
-            totalData={pagination.total}
-          />
-        )} */}
-      </CardContent>
+      </div>
     </div>
   );
 }
