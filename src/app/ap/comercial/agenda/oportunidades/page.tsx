@@ -42,6 +42,7 @@ import { discardLead } from "@/features/ap/comercial/gestionar-leads/lib/manageL
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useInvalidateQuery } from "@/core/core.hook";
 import { useCommercialFiltersStore } from "@/features/ap/ap-master/lib/commercial.store";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   Carousel,
@@ -90,6 +91,7 @@ export default function OpportunitiesKanbanPage() {
   const permissions = useModulePermissions(ROUTE);
   const invalidateQuery = useInvalidateQuery();
   const { MODEL: STORE_VISITS_MODEL } = STORE_VISITS;
+  const loggedUser = useAuthStore((s) => s.user);
 
   // Get calendar state from atoms
   const [calendarMonth] = useCalendarMonth();
@@ -592,6 +594,8 @@ export default function OpportunitiesKanbanPage() {
           lockedType={TIPO_LEADS.LEADS}
           disableIncomeSector
           onCancel={() => setSalesforceModalOpen(false)}
+          canViewAdvisors={canViewAdvisors}
+          loggedWorkerId={loggedUser?.partner_id}
         />
       </GeneralModal>
     </>

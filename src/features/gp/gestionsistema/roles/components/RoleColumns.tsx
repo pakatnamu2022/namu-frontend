@@ -3,12 +3,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { RoleResource } from "../lib/role.interface";
 import { Button } from "@/components/ui/button";
-import { KeyRound, Pencil, UsersRound } from "lucide-react";
+import { Copy, KeyRound, Pencil, UsersRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { RoleUsersModal } from "./RoleUsersModal";
 import { ROLE } from "../lib/role.constants";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useDuplicateRole } from "../lib/role.hook";
 
 export type RoleColumns = ColumnDef<RoleResource>;
 
@@ -48,6 +50,8 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { mutate: duplicate } = useDuplicateRole();
       const id = row.original.id;
       const { ABSOLUTE_ROUTE } = ROLE;
 
@@ -86,6 +90,26 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
             <KeyRound className="size-5" />
             Permisos
           </Button>
+
+          {/* Duplicate */}
+          <ConfirmationDialog
+            trigger={
+              <Button
+                tooltip="Duplicar"
+                variant="outline"
+                size="icon"
+                className="size-7"
+              >
+                <Copy className="size-5" />
+              </Button>
+            }
+            title="¿Duplicar rol?"
+            description={`Se creará una copia del rol "${row.original.nombre}". ¿Deseas continuar?`}
+            confirmText="Sí, duplicar"
+            cancelText="Cancelar"
+            icon="info"
+            onConfirm={() => duplicate(id)}
+          />
 
           {/* Edit */}
           <Button
