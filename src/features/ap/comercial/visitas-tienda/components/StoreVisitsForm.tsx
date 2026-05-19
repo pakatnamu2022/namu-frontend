@@ -112,13 +112,13 @@ export const StoreVisitsForm = ({
   const isLoadingSedes = canViewAdvisors ? isLoadingAllSedes : isLoadingWorkerConfig;
   const sedes = canViewAdvisors
     ? allSedes
-    : (workerConfig?.data?.sedes ?? []).map((s) => ({
+    : (workerConfig?.sedes ?? []).map((s) => ({
         id: Number(s.id),
         description: s.localidad,
       }));
 
   const workerBrandsForSede = !canViewAdvisors && selectedSedeId
-    ? (workerConfig?.data?.brands ?? []).filter(
+    ? (workerConfig?.brands ?? []).filter(
         (b) => b.sede_id === Number(selectedSedeId),
       )
     : [];
@@ -198,10 +198,15 @@ export const StoreVisitsForm = ({
     }
   }, [validationData, form, dniData, rucData]);
 
-  // Auto-set worker_id when not canViewAdvisors and config loads
+  // Auto-set worker_id and sede_id when not canViewAdvisors and config loads
   useEffect(() => {
-    if (!canViewAdvisors && workerConfig?.data?.worker) {
-      form.setValue("worker_id", workerConfig.data.worker.id.toString() as any, {
+    if (!canViewAdvisors && workerConfig?.worker) {
+      form.setValue("worker_id", workerConfig.worker.id.toString() as any, {
+        shouldValidate: true,
+      });
+    }
+    if (!canViewAdvisors && workerConfig?.sedes?.length === 1) {
+      form.setValue("sede_id", workerConfig.sedes[0].id.toString() as any, {
         shouldValidate: true,
       });
     }
@@ -301,11 +306,11 @@ export const StoreVisitsForm = ({
               label="Asesor"
               placeholder="Asesor asignado"
               options={
-                workerConfig?.data?.worker
+                workerConfig?.worker
                   ? [
                       {
-                        label: workerConfig.data.worker.nombre_completo,
-                        value: workerConfig.data.worker.id.toString(),
+                        label: workerConfig.worker.nombre_completo,
+                        value: workerConfig.worker.id.toString(),
                       },
                     ]
                   : []

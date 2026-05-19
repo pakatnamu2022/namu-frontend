@@ -61,6 +61,4 @@ export interface WorkerConfigResource {
   brands: WorkerConfigBrand[];
 }
 
-export interface WorkerConfigResponse {
-  data: WorkerConfigResource;
-}
+export type WorkerConfigResponse = WorkerConfigResource;
