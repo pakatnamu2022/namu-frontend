@@ -35,6 +35,7 @@ import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/soli
 import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function PurchaseRequestRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -92,6 +93,7 @@ export default function PurchaseRequestRepuestoPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
     warehouse_id: warehouseId,
+    area_id: AREA_MESON,
   });
 
   const handleApprove = async () => {
