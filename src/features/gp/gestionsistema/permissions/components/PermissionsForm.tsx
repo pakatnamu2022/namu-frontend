@@ -136,10 +136,27 @@ export default function PermissionsForm({ id }: { id: number }) {
   );
 
   const totalSelected = useMemo(
-    () =>
-      Object.values(selectedPermissions).reduce((acc, s) => acc + s.size, 0),
+    () => Object.values(selectedPermissions).reduce((acc, s) => acc + s.size, 0),
     [selectedPermissions],
   );
+
+  const totalAvailable = useMemo(
+    () => allViews.reduce((acc, v) => acc + (v.permissions?.length ?? 0), 0),
+    [allViews],
+  );
+
+  const handleToggleAll = () => {
+    const allSelected = totalSelected === totalAvailable && totalAvailable > 0;
+    if (allSelected) {
+      setSelectedPermissions({});
+    } else {
+      const all: Record<number, Set<number>> = {};
+      allViews.forEach((v) => {
+        if (v.permissions?.length) all[v.id] = new Set(v.permissions.map((p) => p.id));
+      });
+      setSelectedPermissions(all);
+    }
+  };
 
   const handleToggleGroup = (key: string) => {
     setExpandedGroups((prev) => {
@@ -247,6 +264,13 @@ export default function PermissionsForm({ id }: { id: number }) {
         <Badge variant="outline" className="text-sm font-normal shrink-0">
           {totalSelected} permiso{totalSelected !== 1 ? "s" : ""} seleccionados
         </Badge>
+        <Button variant="outline" size="sm" onClick={handleToggleAll} disabled={totalAvailable === 0}>
+          {totalSelected === totalAvailable && totalAvailable > 0 ? (
+            <><SquareX className="size-3.5 mr-1.5" />Quitar todos</>
+          ) : (
+            <><CheckSquare className="size-3.5 mr-1.5" />Seleccionar todos</>
+          )}
+        </Button>
         <div className="ml-auto">
           <PermissionsActions
             onCancel={() => router(ABSOLUTE_ROUTE)}
