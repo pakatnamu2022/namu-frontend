@@ -44,6 +44,8 @@ import {
   SUPPLY_TYPES,
 } from "../lib/purchaseRequest.constants";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { IntegerInput } from "@/shared/components/IntegerInput";
+import { DecimalInput } from "@/shared/components/DecimalInput";
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
   onSubmit: (data: any) => void;
@@ -287,9 +289,12 @@ export default function PurchaseRequestTallerForm({
     setDetails(details.filter((_, i) => i !== index));
   };
 
-  const handleUpdateQuantity = (index: number, quantity: number) => {
+  const handleUpdateQuantity = (
+    index: number,
+    quantity: number | undefined,
+  ) => {
     const updatedDetails = [...details];
-    const qty = quantity > 0 ? quantity : 1;
+    const qty = quantity ?? 1;
     const unitPrice = updatedDetails[index].unit_price ?? 0;
     const discount = updatedDetails[index].discount_percentage ?? 0;
     updatedDetails[index] = {
@@ -321,14 +326,20 @@ export default function PurchaseRequestTallerForm({
     setDetails(updatedDetails);
   };
 
-  const handleUpdateUnitPrice = (index: number, unit_price: number) => {
+  const handleUpdateUnitPrice = (
+    index: number,
+    unit_price: number | undefined,
+  ) => {
     const updatedDetails = [...details];
     const discount = updatedDetails[index].discount_percentage ?? 0;
     const qty = updatedDetails[index].quantity;
     updatedDetails[index] = {
       ...updatedDetails[index],
       unit_price,
-      total_amount: unit_price * qty * (1 - discount / 100),
+      total_amount:
+        unit_price !== undefined
+          ? unit_price * qty * (1 - discount / 100)
+          : undefined,
     };
     setDetails(updatedDetails);
   };
@@ -645,16 +656,10 @@ export default function PurchaseRequestTallerForm({
                               </div>
 
                               <div className="col-span-1">
-                                <Input
-                                  type="number"
-                                  min="0.01"
-                                  step="0.01"
+                                <IntegerInput
                                   value={detail.quantity}
-                                  onChange={(e) =>
-                                    handleUpdateQuantity(
-                                      index,
-                                      Number(e.target.value),
-                                    )
+                                  onChange={(val) =>
+                                    handleUpdateQuantity(index, val)
                                   }
                                   className="h-9 text-sm"
                                   disabled={!!selectedQuotationId}
@@ -662,16 +667,11 @@ export default function PurchaseRequestTallerForm({
                               </div>
 
                               <div className="col-span-1">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={detail.unit_price ?? ""}
-                                  onChange={(e) =>
-                                    handleUpdateUnitPrice(
-                                      index,
-                                      Number(e.target.value),
-                                    )
+                                <DecimalInput
+                                  decimals={2}
+                                  value={detail.unit_price}
+                                  onChange={(val) =>
+                                    handleUpdateUnitPrice(index, val)
                                   }
                                   placeholder="0.00"
                                   className="h-9 text-sm"
@@ -799,17 +799,13 @@ export default function PurchaseRequestTallerForm({
                                   <label className="text-xs font-medium text-gray-700 mb-1 block">
                                     Cantidad
                                   </label>
-                                  <Input
-                                    type="number"
-                                    min="0.01"
-                                    step="0.01"
-                                    value={detail.quantity}
-                                    onChange={(e) =>
-                                      handleUpdateQuantity(
-                                        index,
-                                        Number(e.target.value),
-                                      )
+                                  <DecimalInput
+                                    decimals={2}
+                                    value={detail.unit_price}
+                                    onChange={(val) =>
+                                      handleUpdateUnitPrice(index, val)
                                     }
+                                    placeholder="0.00"
                                     className="h-9 text-sm w-full"
                                     disabled={!!selectedQuotationId}
                                   />
@@ -820,16 +816,11 @@ export default function PurchaseRequestTallerForm({
                                     <label className="text-xs font-medium text-gray-700 mb-1 block">
                                       Precio Unit.
                                     </label>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      step="0.01"
-                                      value={detail.unit_price ?? ""}
-                                      onChange={(e) =>
-                                        handleUpdateUnitPrice(
-                                          index,
-                                          Number(e.target.value),
-                                        )
+                                    <DecimalInput
+                                      decimals={2}
+                                      value={detail.unit_price}
+                                      onChange={(val) =>
+                                        handleUpdateUnitPrice(index, val)
                                       }
                                       placeholder="0.00"
                                       className="h-9 text-sm w-full"
