@@ -42,6 +42,7 @@ export default function PermissionsForm({ id }: { id: number }) {
     Record<number, Set<number>>
   >({});
   const [isSaving, setIsSaving] = useState(false);
+  const [initialAssigned, setInitialAssigned] = useState<Record<number, Set<number>>>({});
 
   // Load all views once — search is done client-side
   const { data: viewsData, isLoading } = useAllViewPermission({
@@ -60,6 +61,7 @@ export default function PermissionsForm({ id }: { id: number }) {
         view.permissions?.filter((p) => p.is_assigned).map((p) => p.id) ?? [];
       if (assigned.length > 0) initial[view.id] = new Set(assigned);
     });
+    setInitialAssigned(initial);
     setSelectedPermissions(initial);
   }, [viewsData]);
 
@@ -76,15 +78,16 @@ export default function PermissionsForm({ id }: { id: number }) {
     );
   }, [allViews, searchTerm]);
 
-  // Group by company → padre
+  // Group by company → parent_id (use padre string only as display label)
   const groupedViews = useMemo(() => {
-    const groups: Record<string, Record<string, View[]>> = {};
+    const groups: Record<string, Record<string, { label: string; views: View[] }>> = {};
     filteredViews.forEach((view) => {
       const company = view.company ?? "Sin empresa";
-      const padre = view.padre ?? "General";
+      const parentKey = view.parent_id != null ? String(view.parent_id) : "root";
+      const parentLabel = view.padre ?? "General";
       if (!groups[company]) groups[company] = {};
-      if (!groups[company][padre]) groups[company][padre] = [];
-      groups[company][padre].push(view);
+      if (!groups[company][parentKey]) groups[company][parentKey] = { label: parentLabel, views: [] };
+      groups[company][parentKey].views.push(view);
     });
     return groups;
   }, [filteredViews]);
@@ -95,7 +98,7 @@ export default function PermissionsForm({ id }: { id: number }) {
     const keys = new Set<string>();
     Object.entries(groupedViews).forEach(([company, padres]) => {
       keys.add(`c:${company}`);
-      Object.keys(padres).forEach((padre) => keys.add(`p:${company}:${padre}`));
+      Object.keys(padres).forEach((pk) => keys.add(`p:${company}:${pk}`));
     });
     setExpandedGroups(keys);
   }, [searchTerm, groupedViews]);
@@ -140,20 +143,35 @@ export default function PermissionsForm({ id }: { id: number }) {
   };
 
   const handleSave = async () => {
-    const permissionIds = Object.values(selectedPermissions).flatMap((s) => [
-      ...s,
-    ]);
+    const permissionIds = Object.values(selectedPermissions).flatMap((s) => [...s]);
     if (permissionIds.length === 0) {
       errorToast("Selecciona al menos un permiso para guardar");
       return;
     }
+
+    // Compute permissions that were originally assigned but are now deselected
+    const permissionsToRemove: number[] = [];
+    Object.entries(initialAssigned).forEach(([viewId, assignedSet]) => {
+      const current = selectedPermissions[Number(viewId)] ?? new Set<number>();
+      assignedSet.forEach((pid) => {
+        if (!current.has(pid)) permissionsToRemove.push(pid);
+      });
+    });
+
     setIsSaving(true);
     try {
       await api.post("/configuration/permission/save-permissions-to-role", {
         role_id: id,
         permissions: permissionIds,
+        permissions_to_remove: permissionsToRemove,
       });
       successToast("Permisos sincronizados correctamente");
+      // Update initialAssigned to reflect the saved state
+      setInitialAssigned(
+        Object.fromEntries(
+          Object.entries(selectedPermissions).map(([k, s]) => [k, new Set(s)]),
+        ),
+      );
     } catch (error: any) {
       errorToast(error?.response?.data?.message ?? "Error al sincronizar permisos");
     } finally {
@@ -213,7 +231,7 @@ export default function PermissionsForm({ id }: { id: number }) {
                 const ck = `c:${company}`;
                 const companyExpanded = expandedGroups.has(ck);
                 const companySelected = Object.values(padres)
-                  .flat()
+                  .flatMap((g) => g.views)
                   .reduce(
                     (acc, v) => acc + (selectedPermissions[v.id]?.size ?? 0),
                     0,
@@ -242,9 +260,9 @@ export default function PermissionsForm({ id }: { id: number }) {
                     </button>
 
                     {companyExpanded &&
-                      Object.entries(padres).map(([padre, views]) => {
-                        const pk = `p:${company}:${padre}`;
-                        const padreExpanded = expandedGroups.has(pk);
+                      Object.entries(padres).map(([pk, { label, views }]) => {
+                        const expandKey = `p:${company}:${pk}`;
+                        const padreExpanded = expandedGroups.has(expandKey);
                         const padreSelected = views.reduce(
                           (acc, v) =>
                             acc + (selectedPermissions[v.id]?.size ?? 0),
@@ -252,14 +270,14 @@ export default function PermissionsForm({ id }: { id: number }) {
                         );
 
                         return (
-                          <div key={padre}>
+                          <div key={pk}>
                             <button
                               className="w-full flex items-center gap-2 pl-6 pr-3 py-1.5 text-left hover:bg-muted/50 transition-colors"
-                              onClick={() => handleToggleGroup(pk)}
+                              onClick={() => handleToggleGroup(expandKey)}
                             >
                               <FolderTree className="size-3 shrink-0 text-muted-foreground" />
                               <span className="flex-1 text-xs text-muted-foreground truncate">
-                                {padre}
+                                {label}
                               </span>
                               {padreSelected > 0 && (
                                 <Badge
