@@ -10,6 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -25,7 +32,24 @@ import {
   SquareX,
   ChevronRight,
   ChevronDown,
+  PlusCircle,
+  MinusCircle,
+  Minus,
 } from "lucide-react";
+
+interface PermissionPreviewItem {
+  id: number;
+  code: string;
+  name: string;
+  module: string;
+}
+
+interface SyncPreview {
+  role: { id: number; name: string };
+  to_assign: PermissionPreviewItem[];
+  to_remove: PermissionPreviewItem[];
+  unchanged: PermissionPreviewItem[];
+}
 import { useAllViewPermission } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
 import type { View } from "@/features/gp/gestionsistema/vistas/lib/view.interface";
 import * as LucideIcons from "lucide-react";
@@ -42,7 +66,10 @@ export default function PermissionsForm({ id }: { id: number }) {
     Record<number, Set<number>>
   >({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
   const [initialAssigned, setInitialAssigned] = useState<Record<number, Set<number>>>({});
+  const [previewData, setPreviewData] = useState<SyncPreview | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Load all views once — search is done client-side
   const { data: viewsData, isLoading } = useAllViewPermission({
@@ -142,14 +169,8 @@ export default function PermissionsForm({ id }: { id: number }) {
     }));
   };
 
-  const handleSave = async () => {
+  const buildPayload = () => {
     const permissionIds = Object.values(selectedPermissions).flatMap((s) => [...s]);
-    if (permissionIds.length === 0) {
-      errorToast("Selecciona al menos un permiso para guardar");
-      return;
-    }
-
-    // Compute permissions that were originally assigned but are now deselected
     const permissionsToRemove: number[] = [];
     Object.entries(initialAssigned).forEach(([viewId, assignedSet]) => {
       const current = selectedPermissions[Number(viewId)] ?? new Set<number>();
@@ -157,7 +178,32 @@ export default function PermissionsForm({ id }: { id: number }) {
         if (!current.has(pid)) permissionsToRemove.push(pid);
       });
     });
+    return { permissionIds, permissionsToRemove };
+  };
 
+  const handleSave = async () => {
+    const { permissionIds, permissionsToRemove } = buildPayload();
+    if (permissionIds.length === 0) {
+      errorToast("Selecciona al menos un permiso para guardar");
+      return;
+    }
+    setIsPreviewing(true);
+    try {
+      const { data } = await api.post<SyncPreview>(
+        "/configuration/permission/preview-permissions-sync",
+        { role_id: id, permissions: permissionIds, permissions_to_remove: permissionsToRemove },
+      );
+      setPreviewData(data);
+      setPreviewOpen(true);
+    } catch (error: any) {
+      errorToast(error?.response?.data?.message ?? "Error al obtener vista previa");
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
+
+  const handleConfirmSave = async () => {
+    const { permissionIds, permissionsToRemove } = buildPayload();
     setIsSaving(true);
     try {
       await api.post("/configuration/permission/save-permissions-to-role", {
@@ -166,7 +212,8 @@ export default function PermissionsForm({ id }: { id: number }) {
         permissions_to_remove: permissionsToRemove,
       });
       successToast("Permisos sincronizados correctamente");
-      // Update initialAssigned to reflect the saved state
+      setPreviewOpen(false);
+      setPreviewData(null);
       setInitialAssigned(
         Object.fromEntries(
           Object.entries(selectedPermissions).map(([k, s]) => [k, new Set(s)]),
@@ -204,7 +251,7 @@ export default function PermissionsForm({ id }: { id: number }) {
           <PermissionsActions
             onCancel={() => router(ABSOLUTE_ROUTE)}
             onSave={handleSave}
-            isSaving={isSaving}
+            isSaving={isPreviewing || isSaving}
           />
         </div>
       </div>
@@ -473,6 +520,75 @@ export default function PermissionsForm({ id }: { id: number }) {
           )}
         </div>
       </div>
+
+      {/* Sync confirmation dialog */}
+      <Dialog open={previewOpen} onOpenChange={(open) => !isSaving && setPreviewOpen(open)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="size-5" />
+              Confirmar sincronización
+            </DialogTitle>
+          </DialogHeader>
+
+          {previewData && (
+            <div className="space-y-3 text-sm">
+              {previewData.to_assign.length > 0 && (
+                <div>
+                  <p className="flex items-center gap-1.5 font-medium text-green-600 mb-1.5">
+                    <PlusCircle className="size-4" />
+                    Se asignarán {previewData.to_assign.length} permiso{previewData.to_assign.length !== 1 ? "s" : ""}
+                  </p>
+                  <div className="max-h-36 overflow-y-auto space-y-1 pl-1">
+                    {previewData.to_assign.map((p) => (
+                      <div key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+                        <span className="font-mono">{p.code}</span>
+                        <span className="truncate">{p.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {previewData.to_remove.length > 0 && (
+                <div>
+                  <p className="flex items-center gap-1.5 font-medium text-destructive mb-1.5">
+                    <MinusCircle className="size-4" />
+                    Se eliminarán {previewData.to_remove.length} permiso{previewData.to_remove.length !== 1 ? "s" : ""}
+                  </p>
+                  <div className="max-h-36 overflow-y-auto space-y-1 pl-1">
+                    {previewData.to_remove.map((p) => (
+                      <div key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="size-1.5 rounded-full bg-destructive shrink-0" />
+                        <span className="font-mono">{p.code}</span>
+                        <span className="truncate">{p.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {previewData.unchanged.length > 0 && (
+                <p className="flex items-center gap-1.5 text-muted-foreground">
+                  <Minus className="size-4" />
+                  {previewData.unchanged.length} permiso{previewData.unchanged.length !== 1 ? "s" : ""} sin cambios
+                </p>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPreviewOpen(false)} disabled={isSaving}>
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmSave} disabled={isSaving}>
+              <ShieldCheck className="size-4 mr-1.5" />
+              {isSaving ? "Guardando..." : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
