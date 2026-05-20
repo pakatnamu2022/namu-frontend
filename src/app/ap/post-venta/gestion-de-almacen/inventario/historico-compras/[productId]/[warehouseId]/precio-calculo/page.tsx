@@ -1,19 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import BackButton from "@/shared/components/BackButton.tsx";
+import RadioButton from "@/shared/components/RadioButton.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import {
   INVENTORY,
   translatePriceCalculationStep,
 } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
-import { usePriceCalculationDetails } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
+import {
+  usePriceCalculationDetails,
+  useStockMovementHistory,
+} from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import { cn } from "@/lib/utils";
-import type { PriceCalculationDetailsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
+import type {
+  PriceCalculationDetailsResponse,
+  StockMovementHistoryItem,
+} from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
+import { DataTable } from "@/shared/components/DataTable.tsx";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   ShoppingCart,
   BarChart2,
@@ -28,9 +38,97 @@ import {
   Calculator,
 } from "lucide-react";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const TAB_OPTIONS = [
+  { label: "Pasos del Cálculo", value: "steps" },
+  { label: "Historial de Movimientos", value: "movements" },
+];
+
+// ─── Movement History columns ─────────────────────────────────────────────────
 
 const pen = (v: number) => `S/ ${v.toFixed(2)}`;
+
+const movementColumns: ColumnDef<StockMovementHistoryItem>[] = [
+  {
+    accessorKey: "movement_date",
+    header: "Fecha",
+    cell: ({ row }) => row.original.movement_date ?? "—",
+  },
+  {
+    accessorKey: "movement_number",
+    header: "N° Movimiento",
+  },
+  {
+    accessorKey: "movement_type_label",
+    header: "Tipo",
+    cell: ({ row }) => {
+      const isInbound = row.original.is_inbound;
+      return (
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+            isInbound === null
+              ? "bg-gray-100 text-gray-600"
+              : isInbound
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-red-50 text-red-700",
+          )}
+        >
+          {row.original.movement_type_label}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "quantity",
+    header: "Cantidad",
+    cell: ({ row }) => {
+      const q = row.original.quantity;
+      const isInbound = row.original.is_inbound;
+      if (isInbound === null) return <span className="text-gray-500">—</span>;
+      return (
+        <span className={isInbound ? "text-emerald-700" : "text-red-700"}>
+          {isInbound ? "+" : "-"}
+          {q}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "unit_cost",
+    header: "Costo unit.",
+    cell: ({ row }) => {
+      const { unit_cost, currency, exchange_rate } = row.original;
+      if (unit_cost === 0) return <span className="text-gray-400">—</span>;
+      const label =
+        currency !== "PEN" && exchange_rate
+          ? `${currency} ${unit_cost.toFixed(2)} (×${exchange_rate})`
+          : pen(unit_cost);
+      return label;
+    },
+  },
+  {
+    accessorKey: "total_cost",
+    header: "Total",
+    cell: ({ row }) =>
+      row.original.total_cost === 0 ? (
+        <span className="text-gray-400">—</span>
+      ) : (
+        pen(row.original.total_cost)
+      ),
+  },
+  {
+    accessorKey: "stock_after_movement",
+    header: "Stock resultante",
+    cell: ({ row }) => `${row.original.stock_after_movement} und.`,
+  },
+  {
+    accessorKey: "average_cost_after_movement",
+    header: "Costo prom. resultante",
+    cell: ({ row }) => pen(row.original.average_cost_after_movement),
+  },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const stepIcons = [ShoppingCart, BarChart2, Settings2, TrendingUp, Tag];
 const stepColors = [
@@ -356,6 +454,7 @@ export default function PriceCalculationPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE } = INVENTORY;
   const params = useParams();
+  const [activeTab, setActiveTab] = useState<"steps" | "movements">("steps");
 
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
@@ -365,6 +464,12 @@ export default function PriceCalculationPage() {
     warehouseId,
     { enabled: !isNaN(productId) && !isNaN(warehouseId) },
   );
+
+  const { data: movementsData, isLoading: isLoadingMovements } =
+    useStockMovementHistory(productId, warehouseId, {
+      enabled:
+        !isNaN(productId) && !isNaN(warehouseId) && activeTab === "movements",
+    });
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -391,15 +496,34 @@ export default function PriceCalculationPage() {
         />
       </HeaderTableWrapper>
 
-      {isLoading ? (
-        <PriceCalcSkeleton />
-      ) : data ? (
-        <PriceCalcContent data={data} />
-      ) : (
-        <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-400">
-          <Calculator className="h-10 w-10" />
-          <p className="text-sm">No se encontraron datos de cálculo.</p>
-        </div>
+      <RadioButton
+        options={TAB_OPTIONS}
+        active={activeTab}
+        onChange={(v) => setActiveTab(v as "steps" | "movements")}
+      />
+
+      {activeTab === "steps" && (
+        <>
+          {isLoading ? (
+            <PriceCalcSkeleton />
+          ) : data ? (
+            <PriceCalcContent data={data} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-400">
+              <Calculator className="h-10 w-10" />
+              <p className="text-sm">No se encontraron datos de cálculo.</p>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === "movements" && (
+        <DataTable
+          columns={movementColumns}
+          data={movementsData?.history ?? []}
+          isLoading={isLoadingMovements}
+          isVisibleColumnFilter={false}
+        />
       )}
     </div>
   );

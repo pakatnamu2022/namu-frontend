@@ -261,3 +261,40 @@ export interface PriceCalculationDetailsResponse {
   calculation_steps: CalculationStep[];
   generated_at: string;
 }
+
+// ─── Stock Movement History ───────────────────────────────────────────────────
+
+export interface StockMovementHistoryItem {
+  movement_id?: number;
+  movement_date: string | null;
+  movement_number: string;
+  movement_type: string;
+  movement_type_label: string;
+  is_inbound: boolean | null;
+  quantity: number;
+  unit_cost: number;
+  total_cost: number;
+  stock_after_movement: number;
+  average_cost_after_movement: number;
+  currency: string;
+  exchange_rate?: number;
+  created_at: string | null;
+}
+
+export interface StockMovementHistoryResponse {
+  success: boolean;
+  product_id: number;
+  product_code: string;
+  product_name: string;
+  warehouse_id: number;
+  warehouse_name: string;
+  current_stock_database: number;
+  current_average_cost_database: number;
+  calculated_final_stock: number;
+  calculated_final_average_cost: number;
+  stock_matches: boolean;
+  average_cost_matches: boolean;
+  total_movements: number;
+  history: StockMovementHistoryItem[];
+  generated_at: string;
+}

@@ -69,6 +69,7 @@ export interface VehiclePurchaseOrderResource {
   invoice_number: string;
   emission_date: string;
   due_date?: string;
+  invoice_date_dyn?: string;
   subtotal: string | number;
   igv: string | number;
   total: string | number;
