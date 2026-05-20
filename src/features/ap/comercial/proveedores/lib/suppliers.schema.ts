@@ -56,16 +56,16 @@ const suppliersBaseSchema = suppliersBaseObject
       // Validación de prefijo RUC según tipo de persona
       if (data.document_type_id === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID) {
         if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
-          return data.num_doc.startsWith("10");
+          return data.num_doc.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_NATURAL) || data.num_doc.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_EXTRANJERO);
         }
         if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
-          return data.num_doc.startsWith("20");
+          return data.num_doc.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_JURIDICA);
         }
       }
       return true;
     },
     {
-      message: "El RUC debe iniciar con 10 (natural) o 20 (jurídica).",
+      message: "El RUC debe iniciar con 10 o 15 (natural) o 20 (jurídica).",
       path: ["num_doc"],
     }
   );
@@ -121,16 +121,16 @@ export const suppliersSchemaUpdate = suppliersBaseObject
         data.type_person_id
       ) {
         if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
-          return data.num_doc.startsWith("10");
+          return data.num_doc.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_NATURAL) || data.num_doc.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_EXTRANJERO);
         }
         if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
-          return data.num_doc.startsWith("20");
+          return data.num_doc.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_JURIDICA);
         }
       }
       return true;
     },
     {
-      message: "El RUC debe iniciar con 10 (natural) o 20 (jurídica).",
+      message: "El RUC debe iniciar con 10 o 15 (natural) o 20 (jurídica).",
       path: ["num_doc"],
     }
   );
