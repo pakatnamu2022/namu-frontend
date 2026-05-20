@@ -20,6 +20,14 @@ export interface BonusDiscountResource {
   is_negative?: boolean;
 }
 
+export interface OtherCostResource {
+  id: number;
+  description: string;
+  type: "FIJO" | "PORCENTAJE";
+  value: string;
+  amount: string;
+}
+
 export interface AccessoryResource {
   id: number;
   type: "ACCESORIO_ADICIONAL" | "OBSEQUIO";
@@ -78,6 +86,9 @@ export interface PurchaseRequestQuoteResource {
   consultant: WorkerResource;
   bonus_discounts: BonusDiscountResource[];
   accessories: AccessoryResource[];
+  others: OtherCostResource[];
+  margin_amount: number;
+  margin_pct: number;
   sede_id: number;
   sede: string;
   down_payment?: number;
@@ -85,6 +96,12 @@ export interface PurchaseRequestQuoteResource {
   updated_at: string;
   ap_vehicle?: VehicleResource;
   model?: ModelsVnResource;
+}
+
+export interface OtherCostPayload {
+  description: string;
+  type: "FIJO" | "PORCENTAJE";
+  value: number;
 }
 
 export interface PurchaseRequestQuoteRequest {
@@ -103,6 +120,7 @@ export interface PurchaseRequestQuoteRequest {
   ap_vehicle_id?: string;
   doc_type_currency_id: string;
   down_payment?: number;
+  others?: OtherCostPayload[];
 }
 
 export interface ConceptDiscountBondResource {

@@ -36,7 +36,9 @@ import {
 import { useEffect, useState, useRef, useMemo } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
+import { OthersTable, OthersRow } from "./OthersTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
+import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
 import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
@@ -110,6 +112,7 @@ export const PurchaseRequestQuoteForm = ({
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
   const [bonusDiscountRows, setBonusDiscountRows] = useState<any[]>([]);
   const [accessoriesRows, setAccessoriesRows] = useState<any[]>([]);
+  const [othersRows, setOthersRows] = useState<OthersRow[]>([]);
   const [invoiceCurrencyId, setInvoiceCurrencyId] = useState<string>("");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [selectedFamilyId, setSelectedFamilyId] = useState<number | undefined>(
@@ -183,6 +186,7 @@ export const PurchaseRequestQuoteForm = ({
     useAllCurrencyTypes({
       enable_commercial: STATUS_ACTIVE,
     });
+  const { data: freightMaster } = useGeneralMasterByCode("FREIGHT_COMMERCIAL");
 
   // Refs
   const isFirstLoadRef = useRef(true);
@@ -210,6 +214,7 @@ export const PurchaseRequestQuoteForm = ({
   // Datos iniciales para las tablas (solo en modo update)
   const [initialBonusDiscounts, setInitialBonusDiscounts] = useState<any[]>([]);
   const [initialAccessories, setInitialAccessories] = useState<any[]>([]);
+  const [initialOthers, setInitialOthers] = useState<OthersRow[]>([]);
 
   // Effect para cargar datos iniciales en modo update
   useEffect(() => {
@@ -260,11 +265,48 @@ export const PurchaseRequestQuoteForm = ({
         setAccessoriesRows(transformedAccessories);
       }
 
+      // Transformar otros costos internos desde la respuesta del API
+      if (dataWithArrays.others && dataWithArrays.others.length > 0) {
+        const transformedOthers: OthersRow[] = dataWithArrays.others.map(
+          (other: any) => ({
+            id: other.id?.toString() || Date.now().toString(),
+            description: other.description,
+            type: other.type as "FIJO" | "PORCENTAJE",
+            value: Number(other.value),
+            isLocked: other.description === "FLETE E INMATRICULACIÓN",
+          }),
+        );
+        setInitialOthers(transformedOthers);
+        setOthersRows(transformedOthers);
+      }
+
       setIsInitialLoad(false);
     } else {
       setIsInitialLoad(false);
     }
   }, [mode]);
+
+  // En modo create, pre-cargar el flete como default locked en others
+  useEffect(() => {
+    if (mode === "create" && freightMaster && initialOthers.length === 0) {
+      const freightValue = parseFloat(freightMaster.value ?? "0") || 0;
+      if (freightValue > 0) {
+        const defaultOthers: OthersRow[] = [
+          {
+            id: "flete-default",
+            description: "FLETE E INMATRICULACIÓN",
+            type: "FIJO",
+            value: freightValue,
+            isLocked: true,
+          },
+        ];
+        // Setear también othersRows para garantizar que el flete se envíe
+        // incluso si OthersTable no se renderiza (usuario sin canManage)
+        setInitialOthers(defaultOthers);
+        setOthersRows(defaultOthers);
+      }
+    }
+  }, [mode, freightMaster]);
 
   // Obtener el vehiculo seleccionado
   const vehicleVnSelected = vehiclesVn.find(
@@ -690,11 +732,17 @@ export const PurchaseRequestQuoteForm = ({
   const handleFormSubmit = (data: any) => {
     const bonusDiscountData = transformBonusDiscountData();
     const accessoriesData = transformAccessoriesData();
+    const othersData = othersRows.map((row) => ({
+      description: row.description,
+      type: row.type,
+      value: row.value,
+    }));
 
     const finalData = {
       ...data,
       bonus_discounts: bonusDiscountData,
       accessories: accessoriesData,
+      others: othersData,
       type_currency_id: vehicleCurrency.currencyId,
       base_selling_price: round2(totals.salePrice),
       sale_price: round2(totals.salePrice + totals.accessoriesTotal),
@@ -1081,6 +1129,22 @@ export const PurchaseRequestQuoteForm = ({
               }
               getExchangeRate={getExchangeRate}
             />
+
+            {/*Seccion Otros Costos Internos — solo ADV (canManage)*/}
+            {canManage && (
+              <OthersTable
+                currencySymbol={currencySymbol}
+                salePrice={parseFloat(salePriceWatch || "0")}
+                onRowsChange={setOthersRows}
+                initialData={initialOthers}
+                showCommissionSuggestion={true}
+                freightValue={
+                  freightMaster
+                    ? parseFloat(freightMaster.value ?? "0") || undefined
+                    : undefined
+                }
+              />
+            )}
           </div>
 
           {/* Columna derecha: Resumen - sticky */}
@@ -1107,6 +1171,7 @@ export const PurchaseRequestQuoteForm = ({
             billedCost={billedCost}
             bonusDiscountRows={bonusDiscountRows}
             accessoriesRows={accessoriesRows}
+            othersRows={othersRows}
             approvedAccesories={approvedAccesories}
             canManage={canManage}
             onCancel={onCancel}
