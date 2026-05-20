@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema.ts";
+import { requiredDate, requiredStringId } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 const receptionDetailSchema = z.object({
@@ -35,7 +35,7 @@ const receptionDetailSchema = z.object({
 
 const receptionSchemaBase = z.object({
   ap_supplier_order_id: requiredStringId("Orden de compra es requerida"),
-  reception_date: z.date({ message: "Fecha de recepción es requerida" }),
+  reception_date: requiredDate("Fecha de recepción es requerida"),
   warehouse_id: requiredStringId("Almacén es requerido"),
   shipping_guide_number: z
     .string()

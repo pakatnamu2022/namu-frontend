@@ -8,6 +8,7 @@ import {
   CompareDynamicsResponse,
   InventoryResource,
   PriceCalculationDetailsResponse,
+  StockMovementHistoryResponse,
 } from "./inventory.interface.ts";
 import {
   getInventoryKardexProps,
@@ -230,6 +231,17 @@ export const getPriceCalculationDetails = async (
 ): Promise<PriceCalculationDetailsResponse> => {
   const { data } = await api.get<PriceCalculationDetailsResponse>(
     `/ap/postVenta/productWarehouseStock/price-calculation-details`,
+    { params: { product_id: productId, warehouse_id: warehouseId } },
+  );
+  return data;
+};
+
+export const getStockMovementHistory = async (
+  productId: number,
+  warehouseId: number,
+): Promise<StockMovementHistoryResponse> => {
+  const { data } = await api.get<StockMovementHistoryResponse>(
+    `/ap/postVenta/productWarehouseStock/movement-history`,
     { params: { product_id: productId, warehouse_id: warehouseId } },
   );
   return data;

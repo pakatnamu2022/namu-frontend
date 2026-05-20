@@ -7,11 +7,13 @@ import {
   getCompareDynamics,
   updateInventoryStockMinMax,
   getPriceCalculationDetails,
+  getStockMovementHistory,
 } from "./inventory.actions.ts";
 import {
   CompareDynamicsResponse,
   InventoryResponse,
   PriceCalculationDetailsResponse,
+  StockMovementHistoryResponse,
 } from "./inventory.interface.ts";
 import {
   InventoryMovementResponse,
@@ -92,6 +94,19 @@ export const usePriceCalculationDetails = (
   return useQuery<PriceCalculationDetailsResponse>({
     queryKey: ["price-calculation-details", productId, warehouseId],
     queryFn: () => getPriceCalculationDetails(productId, warehouseId),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? false,
+  });
+};
+
+export const useStockMovementHistory = (
+  productId: number,
+  warehouseId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<StockMovementHistoryResponse>({
+    queryKey: ["stock-movement-history", productId, warehouseId],
+    queryFn: () => getStockMovementHistory(productId, warehouseId),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? false,
   });

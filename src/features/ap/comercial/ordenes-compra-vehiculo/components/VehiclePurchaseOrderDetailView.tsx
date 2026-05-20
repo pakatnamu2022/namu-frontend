@@ -14,6 +14,8 @@ import {
   Info,
   ClipboardList,
   TrendingUp,
+  X,
+  Check,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -24,8 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format, parse } from "date-fns";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/core/core.function";
 
 const fmt = (value: number) =>
   new Intl.NumberFormat("es-PE", {
@@ -42,6 +44,18 @@ export default function VehiclePurchaseOrderDetailView({
 }: VehiclePurchaseOrderDetailViewProps) {
   const hasVehicle = !!purchaseOrder.vehicle;
   const { quotation } = purchaseOrder;
+
+  // Fechas: comparar Fecha Emisión y Fecha Emisión Dyn (si ambas están presentes)
+  const emissionDateStr = purchaseOrder.emission_date
+    ? formatDate(purchaseOrder.emission_date)
+    : undefined;
+  const invoiceDateDynStr = purchaseOrder.invoice_date_dyn
+    ? formatDate(purchaseOrder.invoice_date_dyn)
+    : undefined;
+  const emissionDatesMismatch =
+    !!emissionDateStr &&
+    !!invoiceDateDynStr &&
+    emissionDateStr !== invoiceDateDynStr;
 
   // Margin calculation
   let purchaseCost = 0;
@@ -87,7 +101,7 @@ export default function VehiclePurchaseOrderDetailView({
       {/* Información General */}
       <GroupFormSection
         title="Información General"
-        color="gray"
+        color="primary"
         icon={Info}
         cols={{ sm: 1, md: 2, lg: 4 }}
       >
@@ -105,34 +119,47 @@ export default function VehiclePurchaseOrderDetailView({
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Nro. Orden</p>
-          <p className="font-medium">{purchaseOrder.number}</p>
+          <CopyCell value={purchaseOrder.number} className="font-medium" />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Nro. Guía</p>
-          <p className="font-medium">{purchaseOrder.number_guide || "-"}</p>
+          <CopyCell
+            value={purchaseOrder.number_guide || "-"}
+            className="font-medium"
+          />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Sede</p>
           <p className="font-medium">{purchaseOrder.sede}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">Fecha Emisión</p>
-          <p className="font-medium">
-            {format(
-              parse(purchaseOrder.emission_date, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy",
+          <p
+            className={cn(
+              "text-xs flex items-center gap-2",
+              purchaseOrder.invoice_date_dyn && purchaseOrder.emission_date
+                ? emissionDatesMismatch
+                  ? "text-destructive"
+                  : "text-emerald-600"
+                : "text-muted-foreground",
             )}
+          >
+            Fecha Emisión
+            {purchaseOrder.invoice_date_dyn &&
+              purchaseOrder.emission_date &&
+              (emissionDatesMismatch ? (
+                <X className="w-4 h-4 ml-2" />
+              ) : (
+                <Check className="w-4 h-4 ml-2" />
+              ))}
+          </p>
+          <p className="font-medium">
+            {formatDate(purchaseOrder.emission_date)}
           </p>
         </div>
         {purchaseOrder.due_date && (
           <div>
             <p className="text-xs text-muted-foreground">Fecha Vencimiento</p>
-            <p className="font-medium">
-              {format(
-                parse(purchaseOrder.due_date, "yyyy-MM-dd", new Date()),
-                "dd/MM/yyyy",
-              )}
-            </p>
+            <p className="font-medium">{formatDate(purchaseOrder.due_date)}</p>
           </div>
         )}
       </GroupFormSection>
@@ -220,15 +247,17 @@ export default function VehiclePurchaseOrderDetailView({
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Serie Factura</p>
-          <p className="font-medium font-mono">
-            {purchaseOrder.invoice_series}
-          </p>
+          <CopyCell
+            value={purchaseOrder.invoice_series}
+            className="font-medium"
+          />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Número Factura</p>
-          <p className="font-medium font-mono">
-            {purchaseOrder.invoice_number}
-          </p>
+          <CopyCell
+            value={purchaseOrder.invoice_number}
+            className="font-medium"
+          />
         </div>
         {hasVehicle && (
           <div>
@@ -245,17 +274,19 @@ export default function VehiclePurchaseOrderDetailView({
         {purchaseOrder.invoice_dynamics && (
           <div>
             <p className="text-xs text-muted-foreground">Factura Dynamics</p>
-            <p className="font-medium font-mono">
-              {purchaseOrder.invoice_dynamics}
-            </p>
+            <CopyCell
+              value={purchaseOrder.invoice_dynamics}
+              className="font-medium"
+            />
           </div>
         )}
         {purchaseOrder.receipt_dynamics && (
           <div>
             <p className="text-xs text-muted-foreground">Recibo Dynamics</p>
-            <p className="font-medium font-mono">
-              {purchaseOrder.receipt_dynamics}
-            </p>
+            <CopyCell
+              value={purchaseOrder.receipt_dynamics}
+              className="font-medium"
+            />
           </div>
         )}
         {purchaseOrder.credit_note_dynamics && (
@@ -263,6 +294,32 @@ export default function VehiclePurchaseOrderDetailView({
             <p className="text-xs text-muted-foreground">Nota de Crédito</p>
             <p className="font-medium font-mono">
               {purchaseOrder.credit_note_dynamics}
+            </p>
+          </div>
+        )}
+        {purchaseOrder.invoice_date_dyn && (
+          <div>
+            <p
+              className={cn(
+                "text-xs flex items-center gap-2",
+                purchaseOrder.invoice_date_dyn && purchaseOrder.emission_date
+                  ? emissionDatesMismatch
+                    ? "text-destructive"
+                    : "text-emerald-600"
+                  : "text-muted-foreground",
+              )}
+            >
+              Fecha Emisión Dyn
+              {purchaseOrder.invoice_date_dyn &&
+                purchaseOrder.emission_date &&
+                (emissionDatesMismatch ? (
+                  <X className="w-4 h-4 ml-2" />
+                ) : (
+                  <Check className="w-4 h-4 ml-2" />
+                ))}
+            </p>
+            <p className="font-medium">
+              {formatDate(purchaseOrder.invoice_date_dyn)}
             </p>
           </div>
         )}
