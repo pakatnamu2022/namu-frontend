@@ -202,7 +202,7 @@ export const CustomersForm = ({
   const isRucNatural =
     validationType === "ruc" &&
     typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID &&
-    documentNumber?.startsWith("10");
+    documentNumber?.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_NATURAL);
 
   // Extraer DNI del RUC natural (10 + DNI + dígito verificador)
   const extractedDni =
@@ -217,12 +217,13 @@ export const CustomersForm = ({
     ((validationType === "dni" && shouldTriggerValidation) ||
       (isRucNatural && shouldTriggerValidation));
 
-  // Validación RUC solo para persona jurídica (20...)
+  // Validación RUC para persona jurídica (20...) o natural extranjera (15...)
   const shouldEnableRucValidation =
     !isFirstLoad &&
     hasDocumentChanged &&
     validationType === "ruc" &&
-    typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID &&
+    (typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID ||
+      documentNumber?.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_EXTRANJERO)) &&
     shouldTriggerValidation;
 
   // Hooks de validación condicional
