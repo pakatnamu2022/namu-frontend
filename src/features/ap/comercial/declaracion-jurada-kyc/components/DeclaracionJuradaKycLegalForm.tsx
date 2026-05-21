@@ -324,7 +324,7 @@ export default function DeclaracionJuradaKycLegalForm({
               label="Objeto Social"
               placeholder="Describe el objeto social de la empresa"
               rows={2}
-              optional
+              required
             />
           </div>
           <div className="md:col-span-2 xl:col-span-3">
@@ -334,7 +334,7 @@ export default function DeclaracionJuradaKycLegalForm({
               label="Beneficiarios Finales"
               placeholder="Nombres de los beneficiarios finales"
               rows={2}
-              optional
+              required
             />
           </div>
           <div className="md:col-span-2 xl:col-span-3">
@@ -344,7 +344,7 @@ export default function DeclaracionJuradaKycLegalForm({
               label="Propósito de la Relación Comercial"
               placeholder="Ej: Adquisición de vehículo para uso empresarial"
               rows={2}
-              optional
+              required
             />
           </div>
         </GroupFormSection>
@@ -361,7 +361,7 @@ export default function DeclaracionJuradaKycLegalForm({
             name="rep_full_name"
             label="Nombre Completo del Representante"
             placeholder="Nombre completo"
-            optional
+            required
             uppercase
           />
           <FormSelect
@@ -370,13 +370,14 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Seleccione..."
             options={REP_DOC_TYPES}
             control={form.control}
+            required
           />
           <FormInput
             control={form.control}
             name="rep_doc_number"
             label="N° Documento"
             placeholder="Número de documento"
-            optional
+            required
             uppercase
           />
           {repDocType === "OTRO" && (
@@ -385,7 +386,7 @@ export default function DeclaracionJuradaKycLegalForm({
               name="rep_doc_other"
               label="Especifique documento"
               placeholder="Tipo de documento"
-              optional
+              required
               uppercase
             />
           )}
@@ -395,6 +396,7 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Seleccione..."
             options={REP_REPRESENTATION_TYPES}
             control={form.control}
+            required
           />
           <FormSelect
             name="rep_instrument_type"
@@ -402,6 +404,7 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Seleccione..."
             options={REP_INSTRUMENT_TYPES}
             control={form.control}
+            required
           />
 
           {/* Campos condicionales por tipo de instrumento */}
@@ -511,7 +514,7 @@ export default function DeclaracionJuradaKycLegalForm({
               name="rep_instrument_other"
               label="Especifique instrumento"
               placeholder="Descripción del instrumento"
-              optional
+              required
               uppercase
             />
           )}
@@ -530,6 +533,7 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Seleccione..."
             options={OFFICE_STREET_TYPES}
             control={form.control}
+            required
           />
           <div className="md:col-span-1 xl:col-span-2">
             <FormInput
@@ -537,7 +541,7 @@ export default function DeclaracionJuradaKycLegalForm({
               name="office_street_name"
               label="Nombre de Vía"
               placeholder="Nombre de la calle, avenida, etc."
-              optional
+              required
               uppercase
             />
           </div>
@@ -546,7 +550,7 @@ export default function DeclaracionJuradaKycLegalForm({
             name="office_number"
             label="Número"
             placeholder="N°"
-            optional
+            required
             uppercase
           />
           <FormInput
@@ -579,7 +583,7 @@ export default function DeclaracionJuradaKycLegalForm({
               })}
               perPage={10}
               debounceMs={400}
-              allowClear
+              required
               defaultOption={districtDefaultOption}
             />
           </div>
@@ -617,7 +621,7 @@ export default function DeclaracionJuradaKycLegalForm({
                 label="Origen de Fondos Propios"
                 placeholder="Ej: Ingresos por actividad empresarial"
                 rows={2}
-                optional
+                required
               />
             </div>
           )}
@@ -629,7 +633,7 @@ export default function DeclaracionJuradaKycLegalForm({
                 name="third_full_name"
                 label="Nombre del Tercero"
                 placeholder="Nombre completo"
-                optional
+                required
                 uppercase
               />
               <FormSelect
@@ -684,7 +688,7 @@ export default function DeclaracionJuradaKycLegalForm({
                   label="Origen de Fondos del Tercero"
                   placeholder="Describa el origen de los fondos del tercero"
                   rows={2}
-                  optional
+                  required
                 />
               </div>
             </>
@@ -697,7 +701,7 @@ export default function DeclaracionJuradaKycLegalForm({
                 name="entity_name"
                 label="Nombre / Razón Social"
                 placeholder="Nombre de la entidad"
-                optional
+                required
                 uppercase
                 disabled={
                   !!entityRucData?.success && !!entityRucData.data?.valid
@@ -750,7 +754,7 @@ export default function DeclaracionJuradaKycLegalForm({
                   label="Origen de Fondos de la Entidad"
                   placeholder="Describa el origen de los fondos"
                   rows={2}
-                  optional
+                  required
                 />
               </div>
             </>
