@@ -43,6 +43,7 @@ export const SupplierOrderActionsCell = ({
 }: SupplierOrderActionsCellProps) => {
   const {
     id,
+    order_number_external,
     has_receptions,
     has_receptions_active,
     has_receptions_annulled,
@@ -55,7 +56,7 @@ export const SupplierOrderActionsCell = ({
   // Derived booleans to simplify repeated conditions
   const isActive = Boolean(status);
   const canView = permissions.canView;
-  const canApprove = permissions.canApprove;
+  const canApprove = permissions.canApprove && order_number_external === null;
   const canUpdateAndActive = permissions.canUpdate && isActive;
   const canReception = canUpdateAndActive;
   const canEdit = canUpdateAndActive && !has_receptions && Boolean(routeUpdate);

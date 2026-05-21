@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -46,6 +45,7 @@ import {
 import { IGV, STATUS_ACTIVE } from "@/core/core.constants";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -392,136 +392,131 @@ export default function PurchaseRequestForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Información General */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Información General</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FormSelect
-              name="warehouse_id"
-              label="Almacén"
-              placeholder="Seleccione un almacén"
-              options={warehouses.map((warehouse) => ({
-                label: warehouse.description,
-                value: warehouse.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              required
-            />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <FormSelect
+            name="warehouse_id"
+            label="Almacén"
+            placeholder="Seleccione un almacén"
+            options={warehouses.map((warehouse) => ({
+              label: warehouse.description,
+              value: warehouse.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+            required
+          />
 
-            <FormSelect
-              control={form.control}
-              name="currency_id"
-              options={currencyTypes.map((type) => ({
-                value: type.id.toString(),
-                label: type.name,
-              }))}
-              label="Moneda"
-              placeholder="Seleccionar moneda"
-              required
-            />
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda"
+            placeholder="Seleccionar moneda"
+            required
+          />
 
-            <DatePickerFormField
-              control={form.control}
-              name="requested_date"
-              label="Fecha de Solicitud"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-              disabledRange={{ before: new Date() }}
-            />
-          </div>
+          <DatePickerFormField
+            control={form.control}
+            name="requested_date"
+            label="Fecha de Solicitud"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabledRange={{ before: new Date() }}
+          />
+        </div>
 
-          {/* Checkbox para adjuntar cotización */}
-          {showQuotationOption && (
-            <div className="mt-4">
-              <FormField
-                control={form.control}
-                name="has_appointment"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>¿Adjuntar Cotización?</FormLabel>
-                      <p className="text-sm text-muted-foreground">
-                        Marque esta opción si desea adjuntar una cotización a la
-                        solicitud de compra.
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-
-          {/* Selector de Cotización - Solo visible si has_appointment es true */}
-          {showQuotationOption && hasAppointment && (
-            <div className="mt-4">
-              <FormField
-                control={form.control}
-                name="ap_order_quotation_id"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Cotización</FormLabel>
-                    <FormControl>
-                      <div className="space-y-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full justify-start"
-                          onClick={() => {
-                            setIsQuotationModalOpen(true);
-                          }}
-                          disabled={isLoadingQuotations}
-                        >
-                          <Search className="h-4 w-4 mr-2" />
-                          {isLoadingQuotations
-                            ? "Cargando cotizaciones..."
-                            : getSelectedQuotationLabel() ||
-                              "Buscar y seleccionar cotización"}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-
+        {/* Checkbox para adjuntar cotización */}
+        {showQuotationOption && (
           <div className="mt-4">
-            <FormTextArea
-              name="observations"
-              label="Observaciones"
-              placeholder="Notas adicionales sobre la solicitud..."
+            <FormField
               control={form.control}
+              name="has_appointment"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>¿Adjuntar Cotización?</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Marque esta opción si desea adjuntar una cotización a la
+                      solicitud de compra.
+                    </p>
+                  </div>
+                </FormItem>
+              )}
             />
           </div>
-        </Card>
+        )}
 
+        {/* Selector de Cotización - Solo visible si has_appointment es true */}
+        {showQuotationOption && hasAppointment && (
+          <div className="mt-4">
+            <FormField
+              control={form.control}
+              name="ap_order_quotation_id"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Cotización</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          setIsQuotationModalOpen(true);
+                        }}
+                        disabled={isLoadingQuotations}
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        {isLoadingQuotations
+                          ? "Cargando cotizaciones..."
+                          : getSelectedQuotationLabel() ||
+                            "Buscar y seleccionar cotización"}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        <FormTextArea
+          name="observations"
+          label="Observaciones"
+          placeholder="Notas adicionales sobre la solicitud..."
+          control={form.control}
+        />
         {/* Repuestos */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Repuestos Solicitados</h3>
-            </div>
-            {allowCreateProduct && (
+        <GroupFormSection
+          title="Repuestos a solicitar"
+          icon={Package}
+          cols={{ sm: 1 }}
+        >
+          {allowCreateProduct && (
+            <div className="sm:flex justify-end">
               <Button
                 type="button"
                 onClick={() => setIsPartModalOpen(true)}
                 size="sm"
                 variant="outline"
+                className="w-full sm:w-auto"
               >
                 <PackagePlus className="h-4 w-4 mr-2" />
                 Crear Repuesto
               </Button>
-            )}
-          </div>
+            </div>
+          )}
 
           {!selectedWarehouseId ? (
             <div className="text-center py-8 border rounded-lg bg-gray-50">
@@ -909,8 +904,6 @@ export default function PurchaseRequestForm({
             </>
           )}
 
-          <FormMessage>{form.formState.errors.details?.message}</FormMessage>
-
           {/* Resumen de Totales */}
           {details.some((d) => d.total_amount !== undefined) && (
             <div className="flex justify-end pt-4 border-t mt-4">
@@ -960,7 +953,7 @@ export default function PurchaseRequestForm({
               </div>
             </div>
           )}
-        </Card>
+        </GroupFormSection>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>

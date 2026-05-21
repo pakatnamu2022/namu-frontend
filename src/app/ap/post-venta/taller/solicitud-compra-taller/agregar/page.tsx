@@ -17,6 +17,7 @@ import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema.ts";
 import PurchaseRequestTallerForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTallerForm";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddPurchaseRequestPVPage() {
   const router = useNavigate();
@@ -54,6 +55,7 @@ export default function AddPurchaseRequestPVPage() {
           requested_date: new Date().toISOString().split("T")[0],
           observations: "",
           area_id: AREA_TALLER,
+          currency_id: CURRENCY_TYPE_IDS.SOLES,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

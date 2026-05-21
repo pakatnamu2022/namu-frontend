@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar } from "lucide-react";
-import { useForPurchaseRequest } from "../lib/proforma.hook";
+import { useForPurchaseRequestTaller } from "../lib/proforma.hook";
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
@@ -49,7 +49,7 @@ export const QuotationSelectionTallerModal = ({
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading } = useForPurchaseRequest({
+  const { data, isLoading } = useForPurchaseRequestTaller({
     page,
     per_page,
     is_take: 1,
