@@ -82,6 +82,7 @@ export default function UpdateEquipmentPage() {
       estado_uso: data.estado_uso as "NUEVO" | "USADO",
       sede_id: data.sede_id.toString(),
       pertenece_sede: Boolean(data.pertenece_sede),
+      compartido: Boolean(data.compartido),
       fecha_adquisicion: data.fecha_adquisicion
         ? parse(data.fecha_adquisicion, "yyyy-MM-dd", new Date())
         : undefined,

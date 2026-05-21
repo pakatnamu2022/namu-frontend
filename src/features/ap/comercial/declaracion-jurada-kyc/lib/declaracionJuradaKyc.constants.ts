@@ -94,3 +94,39 @@ export const THIRD_DOC_TYPE_OPTIONS = [
   { label: "Carné de Extranjería", value: "CE" },
   { label: "Pasaporte", value: "PASAPORTE" },
 ];
+
+export const PERSON_TYPES = [
+  { value: "NATURAL", label: "Persona Natural" },
+  { value: "JURIDICA", label: "Persona Jurídica" },
+];
+
+export const REP_DOC_TYPES = [
+  { value: "DNI", label: "DNI" },
+  { value: "PASAPORTE", label: "Pasaporte" },
+  { value: "CARNE_EXTRANJERIA", label: "Carné de Extranjería" },
+  { value: "OTRO", label: "Otro" },
+];
+
+export const REP_REPRESENTATION_TYPES = [
+  { value: "PODER", label: "Poder" },
+  { value: "MANDATO", label: "Mandato" },
+];
+
+export const REP_INSTRUMENT_TYPES = [
+  { value: "ESCRITURA_PUBLICA", label: "Escritura Pública" },
+  { value: "COPIA_CERTIFICADA_ACTA", label: "Copia Certificada de Acta" },
+  { value: "OTROS", label: "Otros" },
+];
+
+export const OFFICE_STREET_TYPES = [
+  { value: "JR", label: "Jr." },
+  { value: "AV", label: "Av." },
+  { value: "CALLE", label: "Calle" },
+  { value: "PASAJE", label: "Pasaje" },
+  { value: "OVALO", label: "Óvalo" },
+];
+
+export const THIRD_REPRESENTATION_TYPES_JURIDICA = [
+  { value: "PODER_ESCRITURA_PUBLICA", label: "Poder por Escritura Pública" },
+  { value: "MANDATO", label: "Mandato" },
+];
