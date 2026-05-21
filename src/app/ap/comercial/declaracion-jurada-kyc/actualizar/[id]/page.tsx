@@ -47,7 +47,11 @@ function mapNaturalToForm(
     pep_relatives: data.pep_relatives ?? [],
     pep_spouse_name: data.pep_spouse_name ?? "",
     is_pep_relative: data.is_pep_relative,
-    pep_relative_data: data.pep_relative_data ?? [],
+    pep_relative_data: (data.pep_relative_data ?? []).map((r) => ({
+      ...r,
+      cargo: r.cargo ?? undefined,
+      institution: r.institution ?? undefined,
+    })),
     beneficiary_type: data.beneficiary_type,
     own_funds_origin: data.own_funds_origin ?? "",
     third_full_name: data.third_full_name ?? "",
