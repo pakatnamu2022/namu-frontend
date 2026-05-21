@@ -14,6 +14,7 @@ export const equipmentSchemaCreate = z.object({
   estado_uso: z.enum(["NUEVO", "USADO"]),
   sede_id: z.string().min(1, "Selecciona una sede"),
   pertenece_sede: z.boolean().default(false),
+  compartido: z.boolean().default(false),
   fecha_adquisicion: optionalDate(),
   fecha_garantia: optionalDate(),
   tipo_adquisicion: z.string().max(50).optional().or(z.literal("")),

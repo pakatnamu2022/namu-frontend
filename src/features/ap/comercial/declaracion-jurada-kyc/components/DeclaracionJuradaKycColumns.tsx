@@ -83,6 +83,19 @@ export const declaracionJuradaKycColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "person_type",
+    header: "Tipo",
+    cell: ({ row }) => (
+      <Badge
+        variant="outline"
+        color={row.original.person_type === "JURIDICA" ? "blue" : "gray"}
+      >
+        {row.original.person_type === "JURIDICA" ? "Jurídica" : "Natural"}
+      </Badge>
+    ),
+    enableSorting: false,
+  },
+  {
     accessorKey: "declaration_date",
     header: "Fecha Declaración",
     cell: ({ getValue }) => {

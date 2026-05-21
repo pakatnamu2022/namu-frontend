@@ -10,6 +10,10 @@ import {
   LEGAL_REVIEW_STATUS_COLOR,
   BENEFICIARY_TYPE_OPTIONS,
   PEP_STATUS_OPTIONS,
+  REP_DOC_TYPES,
+  REP_INSTRUMENT_TYPES,
+  REP_REPRESENTATION_TYPES,
+  OFFICE_STREET_TYPES,
 } from "../lib/declaracionJuradaKyc.constants";
 import {
   User,
@@ -19,8 +23,12 @@ import {
   FileText,
   Scale,
   ExternalLink,
+  Building2,
+  MapPin,
+  CreditCard,
 } from "lucide-react";
 import { formatDate } from "@/core/core.function";
+import { CustomerKycDeclarationLegal } from "../lib/declaracionJuradaKyc.interface";
 
 interface Props {
   open: boolean;
@@ -40,25 +48,401 @@ const pepLabel = (val: string) =>
 const beneficiaryLabel = (val: string) =>
   BENEFICIARY_TYPE_OPTIONS.find((o) => o.value === val)?.label ?? val;
 
+function labelFromOptions(
+  options: { value: string; label: string }[],
+  val: string | null | undefined,
+) {
+  if (!val) return "—";
+  return options.find((o) => o.value === val)?.label ?? val;
+}
+
+function DetalleJuridicaContent({
+  decl,
+}: {
+  decl: CustomerKycDeclarationLegal;
+}) {
+  const beneficiaryLabel = (val: string) =>
+    BENEFICIARY_TYPE_OPTIONS.find((o) => o.value === val)?.label ?? val;
+
+  return (
+    <div className="space-y-4">
+      {/* Datos empresa */}
+      <GroupFormSection
+        title="Datos de la Empresa"
+        icon={Building2}
+        cols={{ sm: 2, md: 3, xl: 4 }}
+      >
+        <div className="col-span-full md:col-span-2">
+          <p className="text-xs text-muted-foreground">Razón Social</p>
+          <p className="font-semibold">{decl.bp_company_name || decl.company_name || "—"}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">RUC</p>
+          <p className="font-medium">{decl.bp_ruc || decl.ruc || "—"}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Teléfono</p>
+          <p className="font-medium">{decl.bp_phone || "—"}</p>
+        </div>
+        <div className="col-span-full">
+          <p className="text-xs text-muted-foreground">Email</p>
+          <p className="font-medium text-sm break-all">{decl.bp_email || "—"}</p>
+        </div>
+        {decl.foreign_registry_number && (
+          <div>
+            <p className="text-xs text-muted-foreground">N° Registro Extranjero</p>
+            <p className="font-medium">{decl.foreign_registry_number}</p>
+          </div>
+        )}
+        {decl.business_purpose && (
+          <div className="col-span-full">
+            <p className="text-xs text-muted-foreground">Objeto Social</p>
+            <p className="font-medium">{decl.business_purpose}</p>
+          </div>
+        )}
+        {decl.final_beneficiaries && (
+          <div className="col-span-full">
+            <p className="text-xs text-muted-foreground">Beneficiarios Finales</p>
+            <p className="font-medium">{decl.final_beneficiaries}</p>
+          </div>
+        )}
+        {decl.purpose_relationship && (
+          <div className="col-span-full">
+            <p className="text-xs text-muted-foreground">Propósito Relación Comercial</p>
+            <p className="font-medium">{decl.purpose_relationship}</p>
+          </div>
+        )}
+      </GroupFormSection>
+
+      {/* Representante Legal */}
+      {decl.rep_full_name && (
+        <GroupFormSection
+          title="Representante Legal"
+          icon={User}
+          cols={{ sm: 2, md: 3, xl: 4 }}
+        >
+          <div className="col-span-full md:col-span-2">
+            <p className="text-xs text-muted-foreground">Nombre Completo</p>
+            <p className="font-semibold">{decl.rep_full_name}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo Documento</p>
+            <p className="font-medium">
+              {labelFromOptions(REP_DOC_TYPES, decl.rep_doc_type)}{" "}
+              {decl.rep_doc_type === "OTRO" && decl.rep_doc_other
+                ? `(${decl.rep_doc_other})`
+                : ""}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">N° Documento</p>
+            <p className="font-medium">{decl.rep_doc_number || "—"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo Representación</p>
+            <p className="font-medium">
+              {labelFromOptions(REP_REPRESENTATION_TYPES, decl.rep_representation_type)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo Instrumento</p>
+            <p className="font-medium">
+              {labelFromOptions(REP_INSTRUMENT_TYPES, decl.rep_instrument_type)}
+            </p>
+          </div>
+          {decl.rep_notary_name && (
+            <div>
+              <p className="text-xs text-muted-foreground">Notario</p>
+              <p className="font-medium">{decl.rep_notary_name}</p>
+            </div>
+          )}
+          {decl.rep_escritura_date && (
+            <div>
+              <p className="text-xs text-muted-foreground">Fecha Escritura</p>
+              <p className="font-medium">{formatDate(decl.rep_escritura_date)}</p>
+            </div>
+          )}
+          {decl.rep_registry_partition && (
+            <div>
+              <p className="text-xs text-muted-foreground">Partida Registral</p>
+              <p className="font-medium">{decl.rep_registry_partition}</p>
+            </div>
+          )}
+          {decl.rep_registry_seat && (
+            <div>
+              <p className="text-xs text-muted-foreground">Asiento Registral</p>
+              <p className="font-medium">{decl.rep_registry_seat}</p>
+            </div>
+          )}
+          {decl.rep_instrument_other && (
+            <div className="col-span-full">
+              <p className="text-xs text-muted-foreground">Instrumento (otro)</p>
+              <p className="font-medium">{decl.rep_instrument_other}</p>
+            </div>
+          )}
+        </GroupFormSection>
+      )}
+
+      {/* Dirección Oficina */}
+      <GroupFormSection
+        title="Dirección de Oficina"
+        icon={MapPin}
+        cols={{ sm: 2, md: 3, xl: 4 }}
+      >
+        <div className="col-span-full">
+          <p className="text-xs text-muted-foreground">Dirección</p>
+          <p className="font-medium">
+            {[
+              decl.office_street_type
+                ? labelFromOptions(OFFICE_STREET_TYPES, decl.office_street_type)
+                : null,
+              decl.office_street_name,
+              decl.office_number ? `N° ${decl.office_number}` : null,
+              decl.office_int_number ? `Int. ${decl.office_int_number}` : null,
+              decl.office_urbanization,
+            ]
+              .filter(Boolean)
+              .join(" ") || "—"}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Distrito</p>
+          <p className="font-medium">{decl.office_district || "—"}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Provincia</p>
+          <p className="font-medium">{decl.office_province || "—"}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Departamento</p>
+          <p className="font-medium">{decl.office_department || "—"}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Teléfono Oficina</p>
+          <p className="font-medium">{decl.office_phone || "—"}</p>
+        </div>
+      </GroupFormSection>
+
+      {/* Beneficiario */}
+      <GroupFormSection
+        title="Beneficiario de la Operación"
+        icon={Banknote}
+        cols={{ sm: 1, md: 2, xl: 3 }}
+      >
+        <div>
+          <p className="text-xs text-muted-foreground">Tipo Beneficiario</p>
+          <p className="font-semibold">{beneficiaryLabel(decl.beneficiary_type)}</p>
+        </div>
+        {decl.beneficiary_type === "PROPIO" && (
+          <div className="md:col-span-2">
+            <p className="text-xs text-muted-foreground">Origen de Fondos Propios</p>
+            <p className="font-medium">{decl.own_funds_origin || "—"}</p>
+          </div>
+        )}
+        {decl.beneficiary_type === "TERCERO_NATURAL" && (
+          <>
+            <div>
+              <p className="text-xs text-muted-foreground">Nombre del Tercero</p>
+              <p className="font-medium">{decl.third_full_name || "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Documento</p>
+              <p className="font-medium">
+                {decl.third_doc_type} {decl.third_doc_number || "—"}
+              </p>
+            </div>
+            {decl.third_representation_type && (
+              <div>
+                <p className="text-xs text-muted-foreground">Representación</p>
+                <p className="font-medium">{decl.third_representation_type}</p>
+              </div>
+            )}
+            {decl.third_pep_status && (
+              <div>
+                <p className="text-xs text-muted-foreground">PEP del Tercero</p>
+                <p className="font-medium">{decl.third_pep_status}</p>
+              </div>
+            )}
+            <div className="col-span-full">
+              <p className="text-xs text-muted-foreground">Origen de Fondos</p>
+              <p className="font-medium">{decl.third_funds_origin || "—"}</p>
+            </div>
+          </>
+        )}
+        {(decl.beneficiary_type === "PERSONA_JURIDICA" ||
+          decl.beneficiary_type === "ENTE_JURIDICO") && (
+          <>
+            <div>
+              <p className="text-xs text-muted-foreground">Nombre / Razón Social</p>
+              <p className="font-medium">{decl.entity_name || "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">RUC</p>
+              <p className="font-medium">{decl.entity_ruc || "—"}</p>
+            </div>
+            {decl.entity_representation_type && (
+              <div>
+                <p className="text-xs text-muted-foreground">Tipo Representación</p>
+                <p className="font-medium">{decl.entity_representation_type}</p>
+              </div>
+            )}
+            {decl.entity_final_beneficiary && (
+              <div>
+                <p className="text-xs text-muted-foreground">Beneficiario Final</p>
+                <p className="font-medium">{decl.entity_final_beneficiary}</p>
+              </div>
+            )}
+            <div className="col-span-full">
+              <p className="text-xs text-muted-foreground">Origen de Fondos</p>
+              <p className="font-medium">{decl.entity_funds_origin || "—"}</p>
+            </div>
+          </>
+        )}
+      </GroupFormSection>
+
+      {/* Cuenta */}
+      {decl.account_number && (
+        <GroupFormSection
+          title="Datos de Cuenta"
+          icon={CreditCard}
+          cols={{ sm: 1, md: 2 }}
+        >
+          <div>
+            <p className="text-xs text-muted-foreground">Número de Cuenta</p>
+            <p className="font-medium">{decl.account_number}</p>
+          </div>
+        </GroupFormSection>
+      )}
+    </div>
+  );
+}
+
 export default function DeclaracionJuradaKycDetailSheet({
   open,
   onOpenChange,
   id,
 }: Props) {
   const { data: decl, isLoading } = useCustomerKycDeclarationById(id);
+  const isJuridica = decl?.person_type === "JURIDICA";
+
+  const legalDecl = decl as unknown as CustomerKycDeclarationLegal;
 
   return (
     <GeneralSheet
       open={open}
       onClose={() => onOpenChange(false)}
       title="Detalle — Declaración Jurada KYC"
-      subtitle={decl ? `${decl.full_name} · ${decl.num_doc}` : undefined}
+      subtitle={
+        decl
+          ? isJuridica
+            ? (legalDecl.bp_company_name ?? "Persona Jurídica")
+            : `${decl.full_name} · ${decl.num_doc}`
+          : undefined
+      }
       icon="FileCheck"
       side="right"
       size="4xl"
       isLoading={isLoading}
     >
-      {decl && (
+      {decl && isJuridica ? (
+        <div className="space-y-4">
+          {/* Información General PJ */}
+          <GroupFormSection
+            title="Información General"
+            icon={FileText}
+            cols={{ sm: 2, md: 3, xl: 4 }}
+            headerExtra={
+              <Badge
+                variant="outline"
+                color={statusColorMap[decl.status] ?? "gray"}
+              >
+                {KYC_STATUS_LABEL[decl.status] ?? decl.status}
+              </Badge>
+            }
+          >
+            <div>
+              <p className="text-xs text-muted-foreground">Fecha Declaración</p>
+              <p className="font-semibold">
+                {decl.declaration_date ? formatDate(decl.declaration_date) : "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Cotización vinculada</p>
+              <p className="font-medium">
+                {decl.purchase_request_quote_id ?? "Sin cotización"}
+              </p>
+            </div>
+            {decl.signed_file_path && (
+              <div className="col-span-full flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">PDF Firmado</p>
+                  <p className="font-medium text-sm">Documento cargado</p>
+                </div>
+                <a
+                  href={decl.signed_file_path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
+                >
+                  <ExternalLink className="size-3" />
+                  Ver documento
+                </a>
+              </div>
+            )}
+          </GroupFormSection>
+
+          {/* Revisión Legal PJ */}
+          <GroupFormSection
+            title="Revisión Legal"
+            icon={Scale}
+            cols={{ sm: 2, md: 2, xl: 4 }}
+            headerExtra={
+              decl.legal_review_status ? (
+                <Badge
+                  variant="outline"
+                  color={
+                    LEGAL_REVIEW_STATUS_COLOR[decl.legal_review_status] ?? "gray"
+                  }
+                >
+                  {LEGAL_REVIEW_STATUS_LABEL[decl.legal_review_status] ??
+                    decl.legal_review_status}
+                </Badge>
+              ) : (
+                <Badge variant="outline">Sin revisión</Badge>
+              )
+            }
+          >
+            <div>
+              <p className="text-xs text-muted-foreground">Revisado por</p>
+              <p className="font-medium">{decl.reviewed_by || "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Fecha de revisión</p>
+              <p className="font-medium">
+                {decl.legal_review_at ? formatDate(decl.legal_review_at) : "—"}
+              </p>
+            </div>
+            {decl.legal_review_comments && (
+              <div className="col-span-full">
+                <p className="text-xs text-muted-foreground">Motivo de rechazo</p>
+                <p className="mt-1 rounded border border-border bg-muted/40 px-3 py-2 text-sm font-medium">
+                  {decl.legal_review_comments}
+                </p>
+              </div>
+            )}
+            {!decl.legal_review_status && (
+              <div className="col-span-full">
+                <p className="text-sm text-muted-foreground">
+                  Pendiente de revisión por el área legal.
+                </p>
+              </div>
+            )}
+          </GroupFormSection>
+
+          <DetalleJuridicaContent decl={legalDecl} />
+        </div>
+      ) : (
+      decl && (
         <div className="space-y-4">
           {/* Información General */}
           <GroupFormSection
@@ -432,6 +816,7 @@ export default function DeclaracionJuradaKycDetailSheet({
             )}
           </GroupFormSection>
         </div>
+      )
       )}
     </GeneralSheet>
   );

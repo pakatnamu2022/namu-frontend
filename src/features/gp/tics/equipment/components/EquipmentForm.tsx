@@ -52,6 +52,7 @@ export const EquipmentForm = ({
     defaultValues: {
       ...defaultValues,
       pertenece_sede: defaultValues?.pertenece_sede ?? false,
+      compartido: defaultValues?.compartido ?? false,
     },
     mode: "onChange",
   });
@@ -281,6 +282,13 @@ export const EquipmentForm = ({
             name="pertenece_sede"
             label="Pertenencia a sede"
             text="¿El equipo pertenece a la sede seleccionada?"
+          />
+
+          <FormSwitch
+            control={form.control}
+            name="compartido"
+            label="Equipo compartido"
+            text="¿El equipo puede asignarse a más de una persona al mismo tiempo?"
           />
         </div>
 
