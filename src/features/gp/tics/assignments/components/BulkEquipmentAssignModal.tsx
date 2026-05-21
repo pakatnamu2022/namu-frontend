@@ -121,7 +121,7 @@ export default function BulkEquipmentAssignModal({
       title="Asignación masiva de equipos"
       subtitle="Selecciona el trabajador y los equipos a asignar"
       icon="UserPlus"
-      size="2xl"
+      size="3xl"
     >
       <Form {...form}>
         <form onSubmit={handleSubmit} className="space-y-4 p-2">
@@ -177,7 +177,7 @@ export default function BulkEquipmentAssignModal({
                       value: item.id.toString(),
                       description: item.tipo_equipo,
                     })}
-                    additionalParams={{ status_id: 28 }}
+                    additionalParams={{ status_id: 28, assignable: 1 }}
                     perPage={10}
                     debounceMs={500}
                     onValueChange={(_val, item) => {
