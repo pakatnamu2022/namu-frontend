@@ -7,6 +7,7 @@ import {
   BarChart3,
   Activity,
   RefreshCw,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge, BadgeColor } from "@/components/ui/badge";
@@ -17,11 +18,14 @@ import { Link } from "react-router-dom";
 import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
 import TitleComponent from "@/shared/components/TitleComponent";
 import ExportButtons from "@/shared/components/ExportButtons";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 interface EvaluationHeaderProps {
   evaluationData: EvaluationResource;
-  refetching: boolean;
+  calibrating: boolean;
+  refreshing: boolean;
   onRefresh: () => void;
+  onCalibrate: () => void;
   onExcelDownload: () => void | Promise<void>;
   onPdfDownload: () => void | Promise<void>;
 }
@@ -30,8 +34,10 @@ const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
 export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
   evaluationData,
-  refetching,
+  calibrating,
+  refreshing,
   onRefresh,
+  onCalibrate,
   onExcelDownload,
   onPdfDownload,
 }) => {
@@ -112,17 +118,36 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
 
         {/* Acciones */}
         <div className="flex flex-col sm:flex-row gap-3">
+          <ConfirmationDialog
+            trigger={
+              <Button
+                color="orange"
+                size="sm"
+                disabled={calibrating}
+                className="gap-2"
+              >
+                <Sliders className="size-4" />
+                Calibrar
+              </Button>
+            }
+            title="¿Calibrar evaluación?"
+            description="Esta acción recalculará los resultados de la evaluación. ¿Deseas continuar?"
+            confirmText="Sí, calibrar"
+            cancelText="Cancelar"
+            icon="warning"
+            onConfirm={onCalibrate}
+          />
           <Button
-            color="orange"
+            variant="outline"
             size="sm"
             onClick={onRefresh}
-            disabled={refetching}
+            disabled={refreshing}
             className="gap-2"
           >
             <RefreshCw
-              className={`size-4 ${refetching ? "animate-spin" : ""}`}
+              className={`size-4 ${refreshing ? "animate-spin" : ""}`}
             />
-            Calibrar
+            Actualizar
           </Button>
           <Link to={`${ABSOLUTE_ROUTE}/${evaluationData.id}`}>
             <Button variant="outline" size="sm" className="order-2 sm:order-1">

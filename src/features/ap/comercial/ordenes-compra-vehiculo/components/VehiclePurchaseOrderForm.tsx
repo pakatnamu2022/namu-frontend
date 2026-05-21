@@ -22,6 +22,7 @@ import {
   Package,
   FileEdit,
   Hash,
+  Eye,
 } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo, useRef, useState, useEffect } from "react";
@@ -86,6 +87,7 @@ export const VehiclePurchaseOrderForm = ({
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [modelModalMode, setModelModalMode] = useState<"create" | "update">("create");
   const [hasIsc, setHasIsc] = useState(false);
   const hasAddedInitialItem = useRef(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<
@@ -652,16 +654,35 @@ export const VehiclePurchaseOrderForm = ({
                     isFetchingQuotation
                   }
                 >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="aspect-square"
-                    onClick={() => setIsModelModalOpen(true)}
-                    title="Agregar nuevo modelo"
-                  >
-                    <Plus className="size-2 md:size-4" />
-                  </Button>
+                  {selectedModel ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="aspect-square"
+                      onClick={() => {
+                        setModelModalMode("update");
+                        setIsModelModalOpen(true);
+                      }}
+                      title="Ver/Editar modelo"
+                    >
+                      <Eye className="size-2 md:size-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="aspect-square"
+                      onClick={() => {
+                        setModelModalMode("create");
+                        setIsModelModalOpen(true);
+                      }}
+                      title="Agregar nuevo modelo"
+                    >
+                      <Plus className="size-2 md:size-4" />
+                    </Button>
+                  )}
                 </FormSelectAsync>
               </div>
 
@@ -1289,9 +1310,56 @@ export const VehiclePurchaseOrderForm = ({
       <ModelVnModal
         open={isModelModalOpen}
         onClose={() => setIsModelModalOpen(false)}
-        onSuccess={(newModel) => {
+        mode={modelModalMode}
+        modelId={selectedModel?.id}
+        defaultValues={
+          modelModalMode === "update" && selectedModel
+            ? {
+                code: selectedModel.code,
+                version: selectedModel.version,
+                power: selectedModel.power,
+                model_year: String(selectedModel.model_year),
+                wheelbase: selectedModel.wheelbase,
+                axles_number: selectedModel.axles_number,
+                width: selectedModel.width,
+                length: selectedModel.length,
+                height: selectedModel.height,
+                seats_number: Number(selectedModel.seats_number),
+                doors_number: Number(selectedModel.doors_number),
+                net_weight: selectedModel.net_weight,
+                gross_weight: selectedModel.gross_weight,
+                payload: selectedModel.payload,
+                displacement: selectedModel.displacement,
+                cylinders_number: Number(selectedModel.cylinders_number),
+                passengers_number: Number(selectedModel.passengers_number),
+                wheels_number: Number(selectedModel.wheels_number),
+                distributor_price: selectedModel.distributor_price,
+                transport_cost: selectedModel.transport_cost,
+                other_amounts: selectedModel.other_amounts,
+                purchase_discount: selectedModel.purchase_discount,
+                igv_amount: selectedModel.igv_amount,
+                total_purchase_excl_igv: selectedModel.total_purchase_excl_igv,
+                total_purchase_incl_igv: selectedModel.total_purchase_incl_igv,
+                sale_price: selectedModel.sale_price,
+                margin: selectedModel.margin,
+                brand_id: String(selectedModel.brand_id),
+                family_id: String(selectedModel.family_id),
+                class_id: String(selectedModel.class_id),
+                fuel_id: String(selectedModel.fuel_id),
+                vehicle_type_id: String(selectedModel.vehicle_type_id),
+                body_type_id: String(selectedModel.body_type_id),
+                traction_type_id: String(selectedModel.traction_type_id),
+                transmission_id: String(selectedModel.transmission_id),
+                currency_type_id: String(selectedModel.currency_type_id),
+                type_operation_id: String(selectedModel.type_operation_id),
+              }
+            : undefined
+        }
+        onSuccess={(model) => {
           queryClient.invalidateQueries({ queryKey: [MODELS_VN.QUERY_KEY] });
-          form.setValue("ap_models_vn_id", newModel.id.toString());
+          if (modelModalMode === "create") {
+            form.setValue("ap_models_vn_id", model.id.toString());
+          }
         }}
       />
     </Form>

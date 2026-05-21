@@ -7,6 +7,7 @@ import { useActivePerformanceEvaluation } from "../lib/performance-evaluation.ho
 import { exportEvaluationReport } from "../../evaluation-person/lib/evaluationPerson.actions";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useEvaluation } from "../../evaluaciones/lib/evaluation.hook";
+import { findEvaluationById } from "../../evaluaciones/lib/evaluation.actions";
 import { EvaluationResultsChart } from "../../evaluation-person/components/EvaluationResultsChart";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,12 +40,11 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const [selectedCardType, setSelectedCardType] = useState<KPICardType | null>(
     null,
   );
-  const [shouldRecalculate, setShouldRecalculate] = useState(false);
+  const [isCalibrating, setIsCalibrating] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Always call hooks unconditionally
-  const evaluationByIdQuery = useEvaluation(id, {
-    recalculate: shouldRecalculate ? 1 : undefined,
-  });
+  const evaluationByIdQuery = useEvaluation(id);
   const activeEvaluationQuery = useActivePerformanceEvaluation();
 
   // Use the appropriate data based on whether id is provided
@@ -106,18 +106,30 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
 
   const progressStats: ProgressStats = evaluationData.progress_stats!;
 
+  const handleCalibrate = async () => {
+    setIsCalibrating(true);
+    try {
+      await findEvaluationById(evaluationData.id.toString(), { recalculate: 1 });
+      await evaluationQuery.refetch();
+    } finally {
+      setIsCalibrating(false);
+    }
+  };
+
   const handleRefresh = async () => {
-    setShouldRecalculate(true);
+    setIsRefreshing(true);
     await evaluationQuery.refetch();
-    setShouldRecalculate(false);
+    setIsRefreshing(false);
   };
 
   return (
     <PageWrapper>
       <EvaluationHeader
-        onRefresh={handleRefresh}
-        refetching={evaluationQuery.isRefetching}
         evaluationData={evaluationData}
+        calibrating={isCalibrating}
+        refreshing={isRefreshing}
+        onCalibrate={handleCalibrate}
+        onRefresh={handleRefresh}
         onExcelDownload={() => handleDownload("excel")}
         onPdfDownload={() => handleDownload("pdf")}
       />
