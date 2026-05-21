@@ -10,6 +10,7 @@ import {
   LEGAL_REVIEW_STATUS_COLOR,
   BENEFICIARY_TYPE_OPTIONS,
   PEP_STATUS_OPTIONS,
+  PEP_IS_ACTIVE,
   REP_DOC_TYPES,
   REP_INSTRUMENT_TYPES,
   REP_REPRESENTATION_TYPES,
@@ -656,24 +657,23 @@ export default function DeclaracionJuradaKycDetailSheet({
                 {decl.is_pep_relative === "SI_SOY" ? "Sí" : "No"}
               </p>
             </div>
-          </GroupFormSection>
 
-          {/* Parientes con cargo público */}
-          {decl.pep_relatives && decl.pep_relatives.length > 0 && (
-            <GroupFormSection
-              title="Parientes con Cargo Público"
-              icon={Users}
-              cols={{ sm: 1 }}
-            >
-              <ul className="space-y-1">
-                {decl.pep_relatives.map((name, i) => (
-                  <li key={i} className="text-sm font-medium">
-                    {i + 1}. {name}
-                  </li>
-                ))}
-              </ul>
-            </GroupFormSection>
-          )}
+            {/* Parientes con cargo público — solo si es/fue PEP */}
+            {PEP_IS_ACTIVE(decl.pep_status) && decl.pep_relatives && decl.pep_relatives.length > 0 && (
+              <div className="col-span-full space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Parientes hasta 2° grado de consanguinidad y afinidad (Art. 10.2)
+                </p>
+                <ul className="space-y-1">
+                  {decl.pep_relatives.map((name, i) => (
+                    <li key={i} className="text-sm font-medium">
+                      {i + 1}. {name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </GroupFormSection>
 
           {/* Parientes PEP del Declarante */}
           {decl.pep_relative_data && decl.pep_relative_data.length > 0 && (

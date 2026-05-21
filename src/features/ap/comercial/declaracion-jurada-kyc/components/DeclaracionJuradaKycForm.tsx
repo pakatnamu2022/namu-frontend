@@ -360,6 +360,20 @@ export default function DeclaracionJuradaKycForm({
           icon={Shield}
           color="amber"
           cols={{ sm: 1, md: 2, xl: 4 }}
+          headerExtra={
+            pepActive ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => appendRelative("" as any)}
+              >
+                <Plus className="size-3" />
+                Agregar pariente
+              </Button>
+            ) : undefined
+          }
         >
           <FormSelect
             name="pep_status"
@@ -407,54 +421,41 @@ export default function DeclaracionJuradaKycForm({
             optional
             uppercase
           />
-        </GroupFormSection>
 
-        {/* Parientes PEP (array de strings) */}
-        <GroupFormSection
-          title="Parientes con Cargo Público"
-          icon={Users}
-          color="orange"
-          cols={{ sm: 1 }}
-          headerExtra={
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-1"
-              onClick={() => appendRelative("" as any)}
-            >
-              <Plus className="size-3" />
-              Agregar
-            </Button>
-          }
-        >
-          {relativesFields.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Sin parientes con cargo público registrados.
-            </p>
-          )}
-          {relativesFields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 items-end">
-              <div className="flex-1">
-                <FormInput
-                  control={form.control}
-                  name={`pep_relatives.${index}` as any}
-                  label={`Pariente ${index + 1}`}
-                  placeholder="Nombre completo"
-                  uppercase
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8 text-destructive"
-                onClick={() => removeRelative(index)}
-              >
-                <Trash2 className="size-4" />
-              </Button>
+          {pepActive && (
+            <div className="md:col-span-2 xl:col-span-4 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">
+                Parientes hasta 2° grado de consanguinidad y afinidad (Art. 10.2)
+              </p>
+              {relativesFields.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Sin parientes registrados.
+                </p>
+              )}
+              {relativesFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <FormInput
+                      control={form.control}
+                      name={`pep_relatives.${index}` as any}
+                      label={`Pariente ${index + 1}`}
+                      placeholder="Nombre completo"
+                      uppercase
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-destructive"
+                    onClick={() => removeRelative(index)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </GroupFormSection>
 
         {/* Pariente PEP del declarante */}
