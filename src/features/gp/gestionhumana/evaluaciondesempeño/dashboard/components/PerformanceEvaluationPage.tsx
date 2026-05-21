@@ -40,6 +40,8 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
     null,
   );
   const [shouldRecalculate, setShouldRecalculate] = useState(false);
+  const [isCalibrating, setIsCalibrating] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Always call hooks unconditionally
   const evaluationByIdQuery = useEvaluation(id, {
@@ -106,18 +108,28 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
 
   const progressStats: ProgressStats = evaluationData.progress_stats!;
 
-  const handleRefresh = async () => {
+  const handleCalibrate = async () => {
+    setIsCalibrating(true);
     setShouldRecalculate(true);
     await evaluationQuery.refetch();
     setShouldRecalculate(false);
+    setIsCalibrating(false);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await evaluationQuery.refetch();
+    setIsRefreshing(false);
   };
 
   return (
     <PageWrapper>
       <EvaluationHeader
-        onRefresh={handleRefresh}
-        refetching={evaluationQuery.isRefetching}
         evaluationData={evaluationData}
+        calibrating={isCalibrating}
+        refreshing={isRefreshing}
+        onCalibrate={handleCalibrate}
+        onRefresh={handleRefresh}
         onExcelDownload={() => handleDownload("excel")}
         onPdfDownload={() => handleDownload("pdf")}
       />
