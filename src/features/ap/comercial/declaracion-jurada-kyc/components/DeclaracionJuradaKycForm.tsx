@@ -51,6 +51,7 @@ import {
 } from "../lib/declaracionJuradaKyc.schema";
 import {
   PEP_STATUS_OPTIONS,
+  PEP_COLLABORATOR_STATUS_OPTIONS,
   IS_PEP_RELATIVE_OPTIONS,
   THIRD_PEP_STATUS_OPTIONS,
   BENEFICIARY_TYPE_OPTIONS,
@@ -364,7 +365,7 @@ export default function DeclaracionJuradaKycForm({
             name="pep_collaborator_status"
             label="¿Es / Fue colaborador PEP?"
             placeholder="Seleccione..."
-            options={PEP_STATUS_OPTIONS}
+            options={PEP_COLLABORATOR_STATUS_OPTIONS}
             control={form.control}
             required
           />

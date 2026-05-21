@@ -172,7 +172,7 @@ export const declaracionJuradaKycColumns = ({
   },
   {
     accessorKey: "legal_review_status",
-    header: "Revisión Legal",
+    header: "Oficial Revisión",
     cell: ({ getValue }) => {
       const status = getValue() as string | null;
       if (!status) {
