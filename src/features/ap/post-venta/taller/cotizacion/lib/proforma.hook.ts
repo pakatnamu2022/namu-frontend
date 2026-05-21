@@ -42,11 +42,15 @@ export const useForPurchaseRequestTaller = (params?: Record<string, any>) => {
   });
 };
 
-export const useForPurchaseRequestMeson = (params?: Record<string, any>) => {
+export const useForPurchaseRequestMeson = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [QUERY_KEY, "for-purchase-request-meson", params],
     queryFn: () => getForPurchaseRequestMeson({ params }),
     refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 };
 

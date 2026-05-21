@@ -49,15 +49,18 @@ export const QuotationSelectionModal = ({
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading } = useForPurchaseRequestMeson({
-    page,
-    per_page,
-    sede_id: sedeId,
-    quotation_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-  });
+  const { data, isLoading } = useForPurchaseRequestMeson(
+    {
+      page,
+      per_page,
+      sede_id: sedeId,
+      quotation_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+    },
+    { enabled: open },
+  );
 
   const handleRowClick = (quotation: OrderQuotationResource) => {
     onSelectQuotation(quotation.id.toString());
