@@ -323,6 +323,14 @@ export default function DeclaracionJuradaKycForm({
           />
           <FormInput
             control={form.control}
+            name="cargo"
+            label="Cargo"
+            placeholder="Ej: Gerente General"
+            optional
+            uppercase
+          />
+          <FormInput
+            control={form.control}
             name="fixed_phone"
             label="Teléfono Fijo"
             placeholder="Ej: 074-123456"
@@ -463,7 +471,7 @@ export default function DeclaracionJuradaKycForm({
                 size="sm"
                 className="gap-1"
                 onClick={() =>
-                  appendPepRelative({ pep_full_name: "", relationship: "" })
+                  appendPepRelative({ pep_full_name: "", relationship: "", cargo: "", institution: "" })
                 }
               >
                 <Plus className="size-3" />
@@ -487,7 +495,7 @@ export default function DeclaracionJuradaKycForm({
             pepRelativeDataFields.map((field, index) => (
               <div
                 key={field.id}
-                className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border rounded-lg bg-muted/30"
+                className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 p-3 border rounded-lg bg-muted/30"
               >
                 <FormInput
                   control={form.control}
@@ -497,14 +505,30 @@ export default function DeclaracionJuradaKycForm({
                   required
                   uppercase
                 />
+                <FormInput
+                  control={form.control}
+                  name={`pep_relative_data.${index}.relationship`}
+                  label="Parentesco"
+                  placeholder="Ej: Cónyuge, Padre"
+                  required
+                  uppercase
+                />
+                <FormInput
+                  control={form.control}
+                  name={`pep_relative_data.${index}.cargo`}
+                  label="Cargo"
+                  placeholder="Ej: Alcalde"
+                  optional
+                  uppercase
+                />
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
                     <FormInput
                       control={form.control}
-                      name={`pep_relative_data.${index}.relationship`}
-                      label="Parentesco"
-                      placeholder="Ej: Cónyuge, Padre"
-                      required
+                      name={`pep_relative_data.${index}.institution`}
+                      label="Institución"
+                      placeholder="Ej: Municipalidad"
+                      optional
                       uppercase
                     />
                   </div>

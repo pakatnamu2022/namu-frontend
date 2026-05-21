@@ -37,6 +37,7 @@ function mapNaturalToForm(
     business_partner_id: String(data.business_partner_id),
     sede_id: String(data.sede_id),
     occupation: data.occupation ?? "",
+    cargo: data.cargo ?? "",
     fixed_phone: data.fixed_phone ?? "",
     purpose_relationship: data.purpose_relationship ?? "",
     pep_status: data.pep_status,

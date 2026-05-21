@@ -4,6 +4,8 @@ import { z } from "zod";
 const pepRelativeDataSchema = z.object({
   pep_full_name: requiredText("Nombre del PEP es requerido", 2),
   relationship: requiredText("Parentesco es requerido", 2),
+  cargo: z.string().optional(),
+  institution: z.string().optional(),
 });
 
 export const declaracionJuradaKycSchema = z
@@ -13,6 +15,7 @@ export const declaracionJuradaKycSchema = z
     sede_id: z.string().min(1, "Sede es requerida"),
 
     occupation: z.string().optional(),
+    cargo: z.string().optional(),
     fixed_phone: z.string().optional(),
     purpose_relationship: z.string().optional(),
 

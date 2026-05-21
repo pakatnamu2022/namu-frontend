@@ -479,6 +479,10 @@ export default function DeclaracionJuradaKycDetailSheet({
               <p className="font-medium">{decl.occupation || "—"}</p>
             </div>
             <div>
+              <p className="text-xs text-muted-foreground">Cargo</p>
+              <p className="font-medium">{decl.cargo || "—"}</p>
+            </div>
+            <div>
               <p className="text-xs text-muted-foreground">Teléfono Fijo</p>
               <p className="font-medium">{decl.fixed_phone || "—"}</p>
             </div>
@@ -687,6 +691,18 @@ export default function DeclaracionJuradaKycDetailSheet({
                   <p className="text-xs text-muted-foreground">
                     {rel.relationship}
                   </p>
+                  {rel.cargo && (
+                    <p className="text-xs">
+                      <span className="text-muted-foreground">Cargo: </span>
+                      {rel.cargo}
+                    </p>
+                  )}
+                  {rel.institution && (
+                    <p className="text-xs">
+                      <span className="text-muted-foreground">Institución: </span>
+                      {rel.institution}
+                    </p>
+                  )}
                 </div>
               ))}
             </GroupFormSection>
