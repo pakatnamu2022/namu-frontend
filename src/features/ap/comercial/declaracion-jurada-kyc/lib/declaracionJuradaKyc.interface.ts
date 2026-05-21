@@ -106,8 +106,12 @@ export interface LegalReviewConfirmRequest {
   comments?: string;
 }
 
+export type CustomerKycDeclarationItem =
+  | CustomerKycDeclarationResource
+  | CustomerKycDeclarationLegal;
+
 export interface CustomerKycDeclarationResponse {
-  data: CustomerKycDeclarationResource[];
+  data: CustomerKycDeclarationItem[];
   links: Links;
   meta: Meta;
 }

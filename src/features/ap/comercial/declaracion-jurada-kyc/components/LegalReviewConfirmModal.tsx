@@ -6,12 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useConfirmLegalReview } from "../lib/declaracionJuradaKyc.hook";
-import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
+import { CustomerKycDeclarationItem } from "../lib/declaracionJuradaKyc.interface";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  declaration: CustomerKycDeclarationResource;
+  declaration: CustomerKycDeclarationItem;
   onSuccess?: () => void;
 }
 
@@ -48,7 +48,7 @@ export default function LegalReviewConfirmModal({
       open={open}
       onClose={handleClose}
       title="Confirmar revisión legal"
-      subtitle={`${declaration.full_name} — DJ #${declaration.id}`}
+      subtitle={`${declaration.person_type === "JURIDICA" ? ((declaration as any).company_name ?? (declaration as any).bp_company_name) : (declaration as any).full_name} — DJ #${declaration.id}`}
       size="xl"
       icon="CheckCircle"
       childrenFooter={

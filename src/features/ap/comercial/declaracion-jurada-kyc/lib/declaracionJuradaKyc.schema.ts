@@ -162,9 +162,13 @@ export type PepRelativeDataSchema = z.infer<typeof pepRelativeDataSchema>;
 
 export const declaracionJuradaKycLegalSchema = z.object({
   person_type: z.literal("JURIDICA"),
-  business_partner_id: z.number({ error: "Empresa es requerida" }),
-  sede_id: z.number({ error: "Sede es requerida" }),
-  purchase_request_quote_id: z.number().nullable().optional(),
+  business_partner_id: z.coerce
+    .number({ error: "Empresa es requerida" })
+    .min(1, "Empresa es requerida"),
+  sede_id: z.coerce
+    .number({ error: "Sede es requerida" })
+    .min(1, "Sede es requerida"),
+  purchase_request_quote_id: z.coerce.number().nullable().optional(),
   declaration_date: z.string().min(1, "Fecha de declaración es requerida"),
   // Campos 1-5
   company_name: z.string().max(500).optional(),

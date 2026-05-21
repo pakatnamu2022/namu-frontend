@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useRejectLegalReview } from "../lib/declaracionJuradaKyc.hook";
-import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
+import { CustomerKycDeclarationItem } from "../lib/declaracionJuradaKyc.interface";
 import { errorToast } from "@/core/core.function";
 
 const MIN_COMMENT_LENGTH = 10;
@@ -14,7 +14,7 @@ const MIN_COMMENT_LENGTH = 10;
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  declaration: CustomerKycDeclarationResource;
+  declaration: CustomerKycDeclarationItem;
   onSuccess?: () => void;
 }
 
@@ -62,7 +62,7 @@ export default function LegalReviewRejectModal({
       open={open}
       onClose={handleClose}
       title="Rechazar revisión legal"
-      subtitle={`${declaration.full_name} — DJ #${declaration.id}`}
+      subtitle={`${declaration.person_type === "JURIDICA" ? ((declaration as any).company_name ?? (declaration as any).bp_company_name) : (declaration as any).full_name} — DJ #${declaration.id}`}
       size="xl"
       icon="XCircle"
       childrenFooter={

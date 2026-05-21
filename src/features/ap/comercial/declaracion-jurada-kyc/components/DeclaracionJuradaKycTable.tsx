@@ -2,11 +2,11 @@
 
 import { DataTable } from "@/shared/components/DataTable";
 import { DeclaracionJuradaKycColumn } from "./DeclaracionJuradaKycColumns";
-import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
+import { CustomerKycDeclarationItem } from "../lib/declaracionJuradaKyc.interface";
 
 interface Props {
   columns: DeclaracionJuradaKycColumn[];
-  data: CustomerKycDeclarationResource[];
+  data: CustomerKycDeclarationItem[];
   isLoading?: boolean;
   children?: React.ReactNode;
 }

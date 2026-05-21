@@ -5,14 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Building2,
-  FileText,
-  User,
-  MapPin,
-  Banknote,
-  CreditCard,
-} from "lucide-react";
+import { Building2, FileText, User, MapPin, Banknote } from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -94,10 +87,42 @@ export default function DeclaracionJuradaKycLegalForm({
 
   const { data: allSedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
   const sedeOptions = useMemo(
-    () =>
-      allSedes.map((s) => ({ value: String(s.id), label: s.description })),
+    () => allSedes.map((s) => ({ value: String(s.id), label: s.description })),
     [allSedes],
   );
+
+  const businessPartnerId = useWatch({
+    control: form.control,
+    name: "business_partner_id",
+  });
+  const { data: selectedPartner } = useCustomersById(
+    Number(businessPartnerId) || 0,
+  );
+
+  useEffect(() => {
+    if (!selectedPartner || legalInfo) return;
+    form.setValue("company_name", selectedPartner.full_name ?? "", {
+      shouldValidate: false,
+    });
+    form.setValue("ruc", selectedPartner.num_doc ?? "", {
+      shouldValidate: false,
+    });
+    if (selectedPartner.legal_representative_full_name) {
+      form.setValue(
+        "rep_full_name",
+        selectedPartner.legal_representative_full_name,
+        { shouldValidate: false },
+      );
+    }
+    if (selectedPartner.legal_representative_num_doc) {
+      form.setValue(
+        "rep_doc_number",
+        selectedPartner.legal_representative_num_doc,
+        { shouldValidate: false },
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPartner]);
 
   const repDocType = useWatch({ control: form.control, name: "rep_doc_type" });
   const repInstrumentType = useWatch({
@@ -158,7 +183,7 @@ export default function DeclaracionJuradaKycLegalForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
         {/* Info de empresa (solo lectura en edición) */}
         {legalInfo && (
           <GroupFormSection
@@ -169,7 +194,9 @@ export default function DeclaracionJuradaKycLegalForm({
           >
             <div className="md:col-span-2">
               <p className="text-xs text-muted-foreground">Razón Social</p>
-              <p className="font-semibold">{legalInfo.bp_company_name || "—"}</p>
+              <p className="font-semibold">
+                {legalInfo.bp_company_name || "—"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">RUC</p>
@@ -184,6 +211,14 @@ export default function DeclaracionJuradaKycLegalForm({
               <p className="font-medium text-sm break-all">
                 {legalInfo.bp_email || "—"}
               </p>
+            </div>
+            <div className="md:col-span-2 xl:col-span-2">
+              <DatePickerFormField
+                control={form.control}
+                name="declaration_date"
+                label="Fecha de Declaración"
+                placeholder="Seleccione fecha"
+              />
             </div>
           </GroupFormSection>
         )}
@@ -223,40 +258,22 @@ export default function DeclaracionJuradaKycLegalForm({
               required
               options={sedeOptions}
             />
-            <div className="md:col-span-2">
-              <FormSelectAsync
-                name="purchase_request_quote_id"
-                label="Cotización vinculada"
-                placeholder="Buscar por correlativo..."
-                control={form.control}
-                useQueryHook={usePurchaseRequestQuote}
-                mapOptionFn={(q: PurchaseRequestQuoteResource) => ({
-                  value: String(q.id),
-                  label: q.correlative,
-                  description: q.holder,
-                })}
-                perPage={10}
-                debounceMs={400}
-                useFindByIdHook={useQuoteByIdForAsync}
-                allowClear
-              />
-            </div>
-            <DatePickerFormField
+            <FormSelectAsync
+              name="purchase_request_quote_id"
+              label="Cotización vinculada"
+              placeholder="Buscar por correlativo..."
               control={form.control}
-              name="declaration_date"
-              label="Fecha de Declaración"
-              placeholder="Seleccione fecha"
+              useQueryHook={usePurchaseRequestQuote}
+              mapOptionFn={(q: PurchaseRequestQuoteResource) => ({
+                value: String(q.id),
+                label: q.correlative,
+                description: q.holder,
+              })}
+              perPage={10}
+              debounceMs={400}
+              useFindByIdHook={useQuoteByIdForAsync}
+              allowClear
             />
-          </GroupFormSection>
-        )}
-
-        {legalInfo && (
-          <GroupFormSection
-            title="Fecha de Declaración"
-            icon={FileText}
-            color="gray"
-            cols={{ sm: 1, md: 2 }}
-          >
             <DatePickerFormField
               control={form.control}
               name="declaration_date"
@@ -738,20 +755,12 @@ export default function DeclaracionJuradaKycLegalForm({
               </div>
             </>
           )}
-        </GroupFormSection>
 
-        {/* Cuenta (campo 9) */}
-        <GroupFormSection
-          title="Datos de Cuenta"
-          icon={CreditCard}
-          color="gray"
-          cols={{ sm: 1, md: 2 }}
-        >
           <FormInput
             control={form.control}
             name="account_number"
-            label="Número de Cuenta"
-            placeholder="N° de cuenta bancaria"
+            label="Número de Cuenta Bancaria"
+            placeholder="N° de cuenta"
             optional
             uppercase
           />
