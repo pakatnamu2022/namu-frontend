@@ -13,8 +13,14 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
-import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
-import { NUM_DIGITS_RUC } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
+import {
+  useDniValidation,
+  useRucValidation,
+} from "@/shared/hooks/useDocumentValidation";
+import {
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
   useCustomers,
@@ -124,7 +130,14 @@ export default function DeclaracionJuradaKycLegalForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPartner]);
 
+  const repFromPartner =
+    !legalInfo && !!selectedPartner?.legal_representative_num_doc;
+
   const repDocType = useWatch({ control: form.control, name: "rep_doc_type" });
+  const repDocNumber = useWatch({
+    control: form.control,
+    name: "rep_doc_number",
+  });
   const repInstrumentType = useWatch({
     control: form.control,
     name: "rep_instrument_type",
@@ -159,6 +172,35 @@ export default function DeclaracionJuradaKycLegalForm({
       form.setValue("entity_name", "", { shouldValidate: true });
     }
   }, [entityRucData]);
+
+  const {
+    data: repDniData,
+    isLoading: isRepDniLoading,
+    error: repDniError,
+  } = useDniValidation(
+    repDocNumber ?? undefined,
+    repDocType === "DNI" &&
+      !!repDocNumber &&
+      repDocNumber.length === NUM_DIGITS_DNI &&
+      !repFromPartner,
+  );
+
+  useEffect(() => {
+    if (!repDniData) return;
+    if (repDniData.success && repDniData.data?.valid) {
+      const fullName = [
+        repDniData.data.names,
+        repDniData.data.paternal_surname,
+        repDniData.data.maternal_surname,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      form.setValue("rep_full_name", fullName, { shouldValidate: true });
+    } else {
+      form.setValue("rep_full_name", "", { shouldValidate: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repDniData]);
 
   // Pre-cargar opción del distrito si existe
   useEffect(() => {
@@ -356,14 +398,6 @@ export default function DeclaracionJuradaKycLegalForm({
           color="amber"
           cols={{ sm: 1, md: 2, xl: 3 }}
         >
-          <FormInput
-            control={form.control}
-            name="rep_full_name"
-            label="Nombre Completo del Representante"
-            placeholder="Nombre completo"
-            required
-            uppercase
-          />
           <FormSelect
             name="rep_doc_type"
             label="Tipo de Documento"
@@ -371,6 +405,7 @@ export default function DeclaracionJuradaKycLegalForm({
             options={REP_DOC_TYPES}
             control={form.control}
             required
+            disabled={repFromPartner}
           />
           <FormInput
             control={form.control}
@@ -379,6 +414,21 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Número de documento"
             required
             uppercase
+            disabled={repFromPartner}
+            addonEnd={
+              repDocType === "DNI" ? (
+                <ValidationIndicator
+                  positioned={false}
+                  show={!!repDocNumber}
+                  isValidating={isRepDniLoading}
+                  isValid={!!repDniData?.success && !!repDniData.data?.valid}
+                  hasError={
+                    !!repDniError ||
+                    (!!repDniData && !repDniData.success)
+                  }
+                />
+              ) : undefined
+            }
           />
           {repDocType === "OTRO" && (
             <FormInput
@@ -390,6 +440,20 @@ export default function DeclaracionJuradaKycLegalForm({
               uppercase
             />
           )}
+          <FormInput
+            control={form.control}
+            name="rep_full_name"
+            label="Nombre Completo del Representante"
+            placeholder="Nombre completo"
+            required
+            uppercase
+            disabled={
+              repFromPartner ||
+              (repDocType === "DNI" &&
+                !!repDniData?.success &&
+                !!repDniData.data?.valid)
+            }
+          />
           <FormSelect
             name="rep_representation_type"
             label="Tipo de Representación"
