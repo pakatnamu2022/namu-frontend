@@ -35,6 +35,7 @@ import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-c
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
 import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function PurchaseRequestPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -86,6 +87,7 @@ export default function PurchaseRequestPVPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
     warehouse_id: warehouseId,
+    area_id: AREA_TALLER,
   });
 
   useEffect(() => {

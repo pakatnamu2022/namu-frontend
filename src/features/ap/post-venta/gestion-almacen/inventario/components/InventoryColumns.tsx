@@ -4,17 +4,19 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowRightLeft, History } from "lucide-react";
+import { ArrowRightLeft, History, Pencil } from "lucide-react";
 import { CopyCell } from "@/shared/components/CopyCell";
 
 export type InventoryColumns = ColumnDef<InventoryResource>;
 
 interface Props {
+  onUpdateStockMinMax: (row: InventoryResource) => void;
   onMovements: (id: number, warehouse_id: number) => void;
   onPurchaseHistory: (id: number, warehouse_id: number) => void;
 }
 
 export const inventoryColumns = ({
+  onUpdateStockMinMax,
   onMovements,
   onPurchaseHistory,
 }: Props): InventoryColumns[] => [
@@ -47,6 +49,14 @@ export const inventoryColumns = ({
   {
     accessorKey: "product.category_name",
     header: "Categoría",
+  },
+  {
+    accessorKey: "sale_price",
+    header: "PVP (S/.)",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return Number(value).toFixed(2);
+    },
   },
   {
     accessorKey: "quantity",
@@ -168,6 +178,17 @@ export const inventoryColumns = ({
 
       return (
         <div className="flex gap-1">
+          {/* Edit */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onUpdateStockMinMax(row.original)}
+            tooltip="Actualizar Stock Mínimo/Máximo"
+          >
+            <Pencil className="size-5" />
+          </Button>
+
           <Button
             variant="outline"
             size="icon"

@@ -60,14 +60,19 @@ export default function UpdateAppointmentPlanningPage() {
     mutate(data);
   };
 
+  function toDateOnly(value: string | undefined): string {
+    if (!value) return "";
+    return value.slice(0, 10);
+  }
+
   function mapAppointmentPlanningToForm(
-    data: AppointmentPlanningResource
+    data: AppointmentPlanningResource,
   ): Partial<AppointmentPlanningSchema> {
     return {
       description: data.description,
-      delivery_date: data.delivery_date,
+      delivery_date: toDateOnly(data.delivery_date),
       delivery_time: data.delivery_time,
-      date_appointment: data.date_appointment,
+      date_appointment: toDateOnly(data.date_appointment),
       time_appointment: data.time_appointment,
       num_doc_client: data.num_doc_client,
       full_name_client: String(data.full_name_client),

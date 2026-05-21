@@ -121,7 +121,7 @@ export const workOrderColumns = ({
     header: "Tipo de Planificación",
     cell: ({ getValue }) => {
       const items = getValue() as WorkOrderItemResource[];
-      const type_planning = items[0]?.type_planning.description || "-";
+      const type_planning = items[0]?.type_planning?.description || "-";
       return type_planning;
     },
   },

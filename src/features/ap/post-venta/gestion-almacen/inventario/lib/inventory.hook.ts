@@ -1,15 +1,25 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getInventory,
   getInventoryKardex,
   getInventoryMovements,
   getProductPurchaseHistory,
+  getCompareDynamics,
+  updateInventoryStockMinMax,
+  getPriceCalculationDetails,
+  getStockMovementHistory,
 } from "./inventory.actions.ts";
-import { InventoryResponse } from "./inventory.interface.ts";
+import {
+  CompareDynamicsResponse,
+  InventoryResponse,
+  PriceCalculationDetailsResponse,
+  StockMovementHistoryResponse,
+} from "./inventory.interface.ts";
 import {
   InventoryMovementResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { errorToast, successToast } from "@/core/core.function.ts";
 
 export const useInventory = (
   params?: Record<string, any>,
@@ -49,6 +59,18 @@ export const useInventoryKardex = (
   });
 };
 
+export const useCompareDynamics = (
+  warehouseId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<CompareDynamicsResponse>({
+    queryKey: ["compare-dynamics", warehouseId],
+    queryFn: () => getCompareDynamics({ warehouse_id: warehouseId }),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
+  });
+};
+
 export const useProductPurchaseHistory = (
   productId: number,
   warehouseId: number,
@@ -61,5 +83,46 @@ export const useProductPurchaseHistory = (
       getProductPurchaseHistory({ productId, warehouseId, params }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,
+  });
+};
+
+export const usePriceCalculationDetails = (
+  productId: number,
+  warehouseId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<PriceCalculationDetailsResponse>({
+    queryKey: ["price-calculation-details", productId, warehouseId],
+    queryFn: () => getPriceCalculationDetails(productId, warehouseId),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? false,
+  });
+};
+
+export const useStockMovementHistory = (
+  productId: number,
+  warehouseId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<StockMovementHistoryResponse>({
+    queryKey: ["stock-movement-history", productId, warehouseId],
+    queryFn: () => getStockMovementHistory(productId, warehouseId),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? false,
+  });
+};
+
+export const useUpdateInventoryStockMinMax = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      updateInventoryStockMinMax(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-stock"] });
+      successToast("Stock mínimo/máximo actualizado correctamente");
+    },
+    onError: () => {
+      errorToast("Error al actualizar el stock mínimo/máximo");
+    },
   });
 };

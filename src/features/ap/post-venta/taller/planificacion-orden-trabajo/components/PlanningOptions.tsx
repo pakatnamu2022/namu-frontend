@@ -1,13 +1,7 @@
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 interface PlanningOptionsProps {
   search: string;
@@ -15,6 +9,10 @@ interface PlanningOptionsProps {
   workers: WorkerResource[];
   workerId: string;
   setWorkerId: (value: string) => void;
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
 }
 
 export default function PlanningOptions({
@@ -23,37 +21,40 @@ export default function PlanningOptions({
   workers,
   workerId,
   setWorkerId,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
 }: PlanningOptionsProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="relative flex-1 max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por orden de trabajo..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+    <div className="flex items-center gap-2 flex-wrap">
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar orden de trabajo..."
+      />
 
-      <div className="flex gap-2 items-center">
-        <Select
-          value={workerId || "all"}
-          onValueChange={(value) => setWorkerId(value === "all" ? "" : value)}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Todos los operarios" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los operarios</SelectItem>
-            {workers.map((worker) => (
-              <SelectItem key={worker.id} value={String(worker.id)}>
-                {worker.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SearchableSelect
+        options={workers.map((worker) => ({
+          label: worker.name,
+          value: String(worker.id),
+        }))}
+        value={workerId}
+        onChange={(value) => setWorkerId(value === "all" ? "" : value)}
+        placeholder="Filtrar por trabajador"
+        className="min-w-72"
+        classNameOption="text-xs"
+      />
+
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
+      />
     </div>
   );
 }

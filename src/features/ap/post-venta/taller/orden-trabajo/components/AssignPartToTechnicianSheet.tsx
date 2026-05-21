@@ -136,10 +136,15 @@ export function AssignPartToTechnicianSheet({
               name="delivered_to"
               label="Técnico"
               placeholder="Seleccione un técnico"
-              options={planningWorkers.map((w) => ({
-                value: w.worker_id.toString(),
-                label: w.worker_name,
-              }))}
+              options={planningWorkers
+                .filter(
+                  (w, i, arr) =>
+                    arr.findIndex((x) => x.worker_id === w.worker_id) === i,
+                )
+                .map((w) => ({
+                  value: w.worker_id.toString(),
+                  label: w.worker_name,
+                }))}
             />
 
             <FormInput
@@ -181,7 +186,7 @@ export function AssignPartToTechnicianSheet({
           </div>
         )}
 
-        <div className="space-y-3 rounded-lg border bg-muted/20 p-4 mt-6">
+        <div className="space-y-3 p-2 mt-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <PackageCheck className="h-4 w-4 text-primary" />

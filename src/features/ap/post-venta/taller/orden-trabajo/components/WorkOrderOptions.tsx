@@ -5,6 +5,7 @@ import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interf
 import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.interface";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import RadioButton from "@/shared/components/RadioButton";
 
 const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
@@ -32,6 +33,8 @@ interface Props {
   typeCurrencyId?: string;
   setTypeCurrencyId?: (value: string) => void;
   allowClearTypePlanning?: boolean;
+  dateField?: "opening_date" | "estimated_delivery_date";
+  setDateField?: (value: "opening_date" | "estimated_delivery_date") => void;
 }
 
 export default function WorkOrderOptions({
@@ -53,6 +56,8 @@ export default function WorkOrderOptions({
   typeCurrencyId,
   setTypeCurrencyId,
   allowClearTypePlanning = true,
+  dateField,
+  setDateField,
 }: Props) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -110,6 +115,19 @@ export default function WorkOrderOptions({
         }}
         className="w-auto min-w-56"
       />
+      {setDateField && dateField && (
+        <RadioButton
+          size="xs"
+          active={dateField}
+          options={[
+            { label: "Fecha apertura", value: "opening_date" },
+            { label: "Fecha entrega est.", value: "estimated_delivery_date" },
+          ]}
+          onChange={(val) =>
+            setDateField(val as "opening_date" | "estimated_delivery_date")
+          }
+        />
+      )}
       {setStatusFilter !== undefined && (
         <SearchableSelect
           options={STATUS_OPTIONS}

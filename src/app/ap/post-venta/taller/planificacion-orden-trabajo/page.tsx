@@ -18,6 +18,7 @@ import {
   useGetWorkOrderPlanning,
   useUpdateWorkOrderPlanning,
   useDeleteWorkOrderPlanning,
+  useSupervisorComplete,
 } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { DashboardStats } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/DashboardStats";
 import { WorkerPerformanceChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerPerformanceChart";
@@ -42,6 +43,11 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { EditPlanningModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/EditPlanningModal";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { Form } from "@/components/ui/form";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
+import { useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -57,13 +63,20 @@ export default function PlanningPage() {
     useState<WorkOrderPlanningResource | null>(null);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openSupervisorModal, setOpenSupervisorModal] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const supervisorForm = useForm<{ end_datetime: string }>({
+    defaultValues: { end_datetime: "" },
+  });
+  const supervisorCompleteMutation = useSupervisorComplete();
 
   // Estados para paginación y filtros
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [workerId, setWorkerId] = useState<string>("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
   // Estado persistente para sede
   const [sedeId, setSedeId] = useState<string>(() => {
@@ -88,18 +101,16 @@ export default function PlanningPage() {
     }
   }, [mySedes, sedeId]);
 
-  // Reiniciar página cuando cambian los filtros
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, workerId, sedeId]);
-
   // Obtener trabajadores para el filtro
   const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
   });
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
     params: {
@@ -108,8 +119,12 @@ export default function PlanningPage() {
       per_page,
       worker_id: workerId,
       ...(sedeId && { workOrder$sede_id: sedeId }),
+      planned_start_datetime:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
     },
-    enabled: !!sedeId, // Solo habilitar la consulta si hay una sede seleccionada
+    enabled: !!sedeId,
   });
 
   const updateMutation = useUpdateWorkOrderPlanning();
@@ -157,6 +172,31 @@ export default function PlanningPage() {
     const targetDate = date ?? new Date();
     localStorage.setItem("planningPage_selectedDate", targetDate.toISOString());
     navigate(`${ABSOLUTE_ROUTE}/agregar`);
+  };
+
+  const handleSupervisorComplete = (planning: WorkOrderPlanningResource) => {
+    setSelectedPlanning(planning);
+    supervisorForm.reset();
+    setOpenSupervisorModal(true);
+  };
+
+  const handleConfirmSupervisorComplete = async (values: {
+    end_datetime: string;
+  }) => {
+    if (!selectedPlanning) return;
+    try {
+      await supervisorCompleteMutation.mutateAsync({
+        id: selectedPlanning.id,
+        end_datetime: values.end_datetime,
+      });
+      successToast("Trabajo finalizado correctamente por el supervisor");
+      setOpenSupervisorModal(false);
+      setSelectedPlanning(null);
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al finalizar el trabajo",
+      );
+    }
   };
 
   const handleSedeChange = (value: string) => {
@@ -239,6 +279,7 @@ export default function PlanningPage() {
                 onView: handleViewPlanning,
                 onEdit: handleEditPlanning,
                 onDelete: handleDeletePlanning,
+                onSupervisorComplete: handleSupervisorComplete,
                 permissions: {
                   canEdit: true,
                   canDelete: true,
@@ -253,6 +294,10 @@ export default function PlanningPage() {
                 workers={workers}
                 workerId={workerId}
                 setWorkerId={setWorkerId}
+                dateFrom={dateFrom}
+                setDateFrom={setDateFrom}
+                dateTo={dateTo}
+                setDateTo={setDateTo}
               />
             </PlanningTable>
           </Card>
@@ -282,6 +327,51 @@ export default function PlanningPage() {
         onSubmit={handleUpdatePlanning}
         isSubmitting={updateMutation.isPending}
       />
+
+      {/* Modal finalización por supervisor */}
+      <GeneralModal
+        open={openSupervisorModal}
+        onClose={() => setOpenSupervisorModal(false)}
+        title="Finalizar como Supervisor"
+        icon="ShieldCheck"
+        size="md"
+        childrenFooter={
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpenSupervisorModal(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              form="supervisor-complete-form-page"
+              disabled={supervisorCompleteMutation.isPending}
+              className="gap-2"
+            >
+              {supervisorCompleteMutation.isPending && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
+              Confirmar
+            </Button>
+          </div>
+        }
+      >
+        <Form {...supervisorForm}>
+          <form
+            id="supervisor-complete-form-page"
+            onSubmit={supervisorForm.handleSubmit(
+              handleConfirmSupervisorComplete,
+            )}
+          >
+            <DateTimePickerForm
+              control={supervisorForm.control}
+              name="end_datetime"
+              label="Hora de finalización"
+            />
+          </form>
+        </Form>
+      </GeneralModal>
 
       {/* Dialog de confirmación de eliminación */}
       {deleteId !== null && (

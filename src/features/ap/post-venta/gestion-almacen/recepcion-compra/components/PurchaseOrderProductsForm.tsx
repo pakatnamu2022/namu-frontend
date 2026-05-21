@@ -868,7 +868,7 @@ export const PurchaseOrderProductsForm = ({
                 exchangeRate && (
                   <div className="flex justify-between items-center pt-2 border-t">
                     <span className="text-sm text-muted-foreground">
-                      Equivalente en Soles (T.C. S/. {exchangeRate.toFixed(4)}):
+                      Equivalente (T.C. S/. {exchangeRate.toFixed(4)}):
                     </span>
                     <span className="text-sm font-semibold text-green-700">
                       S/.{" "}
