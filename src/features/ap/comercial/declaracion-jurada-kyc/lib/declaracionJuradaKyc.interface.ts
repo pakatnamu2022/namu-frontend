@@ -24,6 +24,8 @@ export type EntityRepresentationType =
 export interface PepRelativeData {
   pep_full_name: string;
   relationship: string;
+  cargo?: string | null;
+  institution?: string | null;
 }
 
 export interface CustomerKycDeclarationResource {
@@ -54,6 +56,7 @@ export interface CustomerKycDeclarationResource {
   email: string;
 
   occupation: string | null;
+  cargo: string | null;
   fixed_phone: string | null;
   purpose_relationship: string | null;
 
@@ -106,8 +109,12 @@ export interface LegalReviewConfirmRequest {
   comments?: string;
 }
 
+export type CustomerKycDeclarationItem =
+  | CustomerKycDeclarationResource
+  | CustomerKycDeclarationLegal;
+
 export interface CustomerKycDeclarationResponse {
-  data: CustomerKycDeclarationResource[];
+  data: CustomerKycDeclarationItem[];
   links: Links;
   meta: Meta;
 }
@@ -117,6 +124,7 @@ export interface CustomerKycDeclarationRequest {
   business_partner_id: string;
   sede_id: string;
   occupation?: string;
+  cargo?: string;
   fixed_phone?: string;
   purpose_relationship?: string;
 

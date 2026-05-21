@@ -5,14 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Building2,
-  FileText,
-  User,
-  MapPin,
-  Banknote,
-  CreditCard,
-} from "lucide-react";
+import { Building2, FileText, User, MapPin, Banknote } from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -20,8 +13,14 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
-import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
-import { NUM_DIGITS_RUC } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
+import {
+  useDniValidation,
+  useRucValidation,
+} from "@/shared/hooks/useDocumentValidation";
+import {
+  NUM_DIGITS_DNI,
+  NUM_DIGITS_RUC,
+} from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
   useCustomers,
@@ -83,6 +82,7 @@ export default function DeclaracionJuradaKycLegalForm({
     defaultValues: {
       person_type: "JURIDICA",
       beneficiary_type: "PROPIO",
+      rep_doc_type: "DNI",
       ...defaultValues,
     },
     mode: "onChange",
@@ -94,12 +94,51 @@ export default function DeclaracionJuradaKycLegalForm({
 
   const { data: allSedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
   const sedeOptions = useMemo(
-    () =>
-      allSedes.map((s) => ({ value: String(s.id), label: s.description })),
+    () => allSedes.map((s) => ({ value: String(s.id), label: s.description })),
     [allSedes],
   );
 
+  const businessPartnerId = useWatch({
+    control: form.control,
+    name: "business_partner_id",
+  });
+  const { data: selectedPartner } = useCustomersById(
+    Number(businessPartnerId) || 0,
+  );
+
+  useEffect(() => {
+    if (!selectedPartner || legalInfo) return;
+    form.setValue("company_name", selectedPartner.full_name ?? "", {
+      shouldValidate: false,
+    });
+    form.setValue("ruc", selectedPartner.num_doc ?? "", {
+      shouldValidate: false,
+    });
+    if (selectedPartner.legal_representative_full_name) {
+      form.setValue(
+        "rep_full_name",
+        selectedPartner.legal_representative_full_name,
+        { shouldValidate: false },
+      );
+    }
+    if (selectedPartner.legal_representative_num_doc) {
+      form.setValue(
+        "rep_doc_number",
+        selectedPartner.legal_representative_num_doc,
+        { shouldValidate: false },
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPartner]);
+
+  const repFromPartner =
+    !legalInfo && !!selectedPartner?.legal_representative_num_doc;
+
   const repDocType = useWatch({ control: form.control, name: "rep_doc_type" });
+  const repDocNumber = useWatch({
+    control: form.control,
+    name: "rep_doc_number",
+  });
   const repInstrumentType = useWatch({
     control: form.control,
     name: "rep_instrument_type",
@@ -135,6 +174,35 @@ export default function DeclaracionJuradaKycLegalForm({
     }
   }, [entityRucData]);
 
+  const {
+    data: repDniData,
+    isLoading: isRepDniLoading,
+    error: repDniError,
+  } = useDniValidation(
+    repDocNumber ?? undefined,
+    repDocType === "DNI" &&
+      !!repDocNumber &&
+      repDocNumber.length === NUM_DIGITS_DNI &&
+      !repFromPartner,
+  );
+
+  useEffect(() => {
+    if (!repDniData) return;
+    if (repDniData.success && repDniData.data?.valid) {
+      const fullName = [
+        repDniData.data.names,
+        repDniData.data.paternal_surname,
+        repDniData.data.maternal_surname,
+      ]
+        .filter(Boolean)
+        .join(" ");
+      form.setValue("rep_full_name", fullName, { shouldValidate: true });
+    } else {
+      form.setValue("rep_full_name", "", { shouldValidate: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repDniData]);
+
   // Pre-cargar opción del distrito si existe
   useEffect(() => {
     if (legalInfo?.office_district_id && legalInfo.office_district) {
@@ -158,7 +226,7 @@ export default function DeclaracionJuradaKycLegalForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
         {/* Info de empresa (solo lectura en edición) */}
         {legalInfo && (
           <GroupFormSection
@@ -169,7 +237,9 @@ export default function DeclaracionJuradaKycLegalForm({
           >
             <div className="md:col-span-2">
               <p className="text-xs text-muted-foreground">Razón Social</p>
-              <p className="font-semibold">{legalInfo.bp_company_name || "—"}</p>
+              <p className="font-semibold">
+                {legalInfo.bp_company_name || "—"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">RUC</p>
@@ -184,6 +254,14 @@ export default function DeclaracionJuradaKycLegalForm({
               <p className="font-medium text-sm break-all">
                 {legalInfo.bp_email || "—"}
               </p>
+            </div>
+            <div className="md:col-span-2 xl:col-span-2">
+              <DatePickerFormField
+                control={form.control}
+                name="declaration_date"
+                label="Fecha de Declaración"
+                placeholder="Seleccione fecha"
+              />
             </div>
           </GroupFormSection>
         )}
@@ -223,40 +301,22 @@ export default function DeclaracionJuradaKycLegalForm({
               required
               options={sedeOptions}
             />
-            <div className="md:col-span-2">
-              <FormSelectAsync
-                name="purchase_request_quote_id"
-                label="Cotización vinculada"
-                placeholder="Buscar por correlativo..."
-                control={form.control}
-                useQueryHook={usePurchaseRequestQuote}
-                mapOptionFn={(q: PurchaseRequestQuoteResource) => ({
-                  value: String(q.id),
-                  label: q.correlative,
-                  description: q.holder,
-                })}
-                perPage={10}
-                debounceMs={400}
-                useFindByIdHook={useQuoteByIdForAsync}
-                allowClear
-              />
-            </div>
-            <DatePickerFormField
+            <FormSelectAsync
+              name="purchase_request_quote_id"
+              label="Cotización vinculada"
+              placeholder="Buscar por correlativo..."
               control={form.control}
-              name="declaration_date"
-              label="Fecha de Declaración"
-              placeholder="Seleccione fecha"
+              useQueryHook={usePurchaseRequestQuote}
+              mapOptionFn={(q: PurchaseRequestQuoteResource) => ({
+                value: String(q.id),
+                label: q.correlative,
+                description: q.holder,
+              })}
+              perPage={10}
+              debounceMs={400}
+              useFindByIdHook={useQuoteByIdForAsync}
+              allowClear
             />
-          </GroupFormSection>
-        )}
-
-        {legalInfo && (
-          <GroupFormSection
-            title="Fecha de Declaración"
-            icon={FileText}
-            color="gray"
-            cols={{ sm: 1, md: 2 }}
-          >
             <DatePickerFormField
               control={form.control}
               name="declaration_date"
@@ -307,7 +367,7 @@ export default function DeclaracionJuradaKycLegalForm({
               label="Objeto Social"
               placeholder="Describe el objeto social de la empresa"
               rows={2}
-              optional
+              required
             />
           </div>
           <div className="md:col-span-2 xl:col-span-3">
@@ -317,7 +377,7 @@ export default function DeclaracionJuradaKycLegalForm({
               label="Beneficiarios Finales"
               placeholder="Nombres de los beneficiarios finales"
               rows={2}
-              optional
+              required
             />
           </div>
           <div className="md:col-span-2 xl:col-span-3">
@@ -327,7 +387,7 @@ export default function DeclaracionJuradaKycLegalForm({
               label="Propósito de la Relación Comercial"
               placeholder="Ej: Adquisición de vehículo para uso empresarial"
               rows={2}
-              optional
+              required
             />
           </div>
         </GroupFormSection>
@@ -339,28 +399,37 @@ export default function DeclaracionJuradaKycLegalForm({
           color="amber"
           cols={{ sm: 1, md: 2, xl: 3 }}
         >
-          <FormInput
-            control={form.control}
-            name="rep_full_name"
-            label="Nombre Completo del Representante"
-            placeholder="Nombre completo"
-            optional
-            uppercase
-          />
           <FormSelect
             name="rep_doc_type"
             label="Tipo de Documento"
             placeholder="Seleccione..."
             options={REP_DOC_TYPES}
             control={form.control}
+            required
+            disabled={repFromPartner}
           />
           <FormInput
             control={form.control}
             name="rep_doc_number"
             label="N° Documento"
             placeholder="Número de documento"
-            optional
+            required
             uppercase
+            disabled={repFromPartner}
+            addonEnd={
+              repDocType === "DNI" ? (
+                <ValidationIndicator
+                  positioned={false}
+                  show={!!repDocNumber}
+                  isValidating={isRepDniLoading}
+                  isValid={!!repDniData?.success && !!repDniData.data?.valid}
+                  hasError={
+                    !!repDniError ||
+                    (!!repDniData && !repDniData.success)
+                  }
+                />
+              ) : undefined
+            }
           />
           {repDocType === "OTRO" && (
             <FormInput
@@ -368,16 +437,31 @@ export default function DeclaracionJuradaKycLegalForm({
               name="rep_doc_other"
               label="Especifique documento"
               placeholder="Tipo de documento"
-              optional
+              required
               uppercase
             />
           )}
+          <FormInput
+            control={form.control}
+            name="rep_full_name"
+            label="Nombre Completo del Representante"
+            placeholder="Nombre completo"
+            required
+            uppercase
+            disabled={
+              repFromPartner ||
+              (repDocType === "DNI" &&
+                !!repDniData?.success &&
+                !!repDniData.data?.valid)
+            }
+          />
           <FormSelect
             name="rep_representation_type"
             label="Tipo de Representación"
             placeholder="Seleccione..."
             options={REP_REPRESENTATION_TYPES}
             control={form.control}
+            required
           />
           <FormSelect
             name="rep_instrument_type"
@@ -385,6 +469,7 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Seleccione..."
             options={REP_INSTRUMENT_TYPES}
             control={form.control}
+            required
           />
 
           {/* Campos condicionales por tipo de instrumento */}
@@ -494,7 +579,7 @@ export default function DeclaracionJuradaKycLegalForm({
               name="rep_instrument_other"
               label="Especifique instrumento"
               placeholder="Descripción del instrumento"
-              optional
+              required
               uppercase
             />
           )}
@@ -513,6 +598,7 @@ export default function DeclaracionJuradaKycLegalForm({
             placeholder="Seleccione..."
             options={OFFICE_STREET_TYPES}
             control={form.control}
+            required
           />
           <div className="md:col-span-1 xl:col-span-2">
             <FormInput
@@ -520,7 +606,7 @@ export default function DeclaracionJuradaKycLegalForm({
               name="office_street_name"
               label="Nombre de Vía"
               placeholder="Nombre de la calle, avenida, etc."
-              optional
+              required
               uppercase
             />
           </div>
@@ -529,7 +615,7 @@ export default function DeclaracionJuradaKycLegalForm({
             name="office_number"
             label="Número"
             placeholder="N°"
-            optional
+            required
             uppercase
           />
           <FormInput
@@ -562,7 +648,7 @@ export default function DeclaracionJuradaKycLegalForm({
               })}
               perPage={10}
               debounceMs={400}
-              allowClear
+              required
               defaultOption={districtDefaultOption}
             />
           </div>
@@ -600,7 +686,7 @@ export default function DeclaracionJuradaKycLegalForm({
                 label="Origen de Fondos Propios"
                 placeholder="Ej: Ingresos por actividad empresarial"
                 rows={2}
-                optional
+                required
               />
             </div>
           )}
@@ -612,7 +698,7 @@ export default function DeclaracionJuradaKycLegalForm({
                 name="third_full_name"
                 label="Nombre del Tercero"
                 placeholder="Nombre completo"
-                optional
+                required
                 uppercase
               />
               <FormSelect
@@ -667,7 +753,7 @@ export default function DeclaracionJuradaKycLegalForm({
                   label="Origen de Fondos del Tercero"
                   placeholder="Describa el origen de los fondos del tercero"
                   rows={2}
-                  optional
+                  required
                 />
               </div>
             </>
@@ -680,7 +766,7 @@ export default function DeclaracionJuradaKycLegalForm({
                 name="entity_name"
                 label="Nombre / Razón Social"
                 placeholder="Nombre de la entidad"
-                optional
+                required
                 uppercase
                 disabled={
                   !!entityRucData?.success && !!entityRucData.data?.valid
@@ -733,25 +819,17 @@ export default function DeclaracionJuradaKycLegalForm({
                   label="Origen de Fondos de la Entidad"
                   placeholder="Describa el origen de los fondos"
                   rows={2}
-                  optional
+                  required
                 />
               </div>
             </>
           )}
-        </GroupFormSection>
 
-        {/* Cuenta (campo 9) */}
-        <GroupFormSection
-          title="Datos de Cuenta"
-          icon={CreditCard}
-          color="gray"
-          cols={{ sm: 1, md: 2 }}
-        >
           <FormInput
             control={form.control}
             name="account_number"
-            label="Número de Cuenta"
-            placeholder="N° de cuenta bancaria"
+            label="Número de Cuenta Bancaria"
+            placeholder="N° de cuenta"
             optional
             uppercase
           />

@@ -4,6 +4,8 @@ import { z } from "zod";
 const pepRelativeDataSchema = z.object({
   pep_full_name: requiredText("Nombre del PEP es requerido", 2),
   relationship: requiredText("Parentesco es requerido", 2),
+  cargo: z.string().optional(),
+  institution: z.string().optional(),
 });
 
 export const declaracionJuradaKycSchema = z
@@ -13,6 +15,7 @@ export const declaracionJuradaKycSchema = z
     sede_id: z.string().min(1, "Sede es requerida"),
 
     occupation: z.string().optional(),
+    cargo: z.string().optional(),
     fixed_phone: z.string().optional(),
     purpose_relationship: z.string().optional(),
 
@@ -160,77 +163,170 @@ export type DeclaracionJuradaKycSchema = z.infer<
 
 export type PepRelativeDataSchema = z.infer<typeof pepRelativeDataSchema>;
 
-export const declaracionJuradaKycLegalSchema = z.object({
-  person_type: z.literal("JURIDICA"),
-  business_partner_id: z.number({ error: "Empresa es requerida" }),
-  sede_id: z.number({ error: "Sede es requerida" }),
-  purchase_request_quote_id: z.number().nullable().optional(),
-  declaration_date: z.string().min(1, "Fecha de declaración es requerida"),
-  // Campos 1-5
-  company_name: z.string().max(500).optional(),
-  ruc: z.string().max(20).optional(),
-  foreign_registry_number: z.string().max(100).optional(),
-  business_purpose: z.string().max(2000).optional(),
-  final_beneficiaries: z.string().max(2000).optional(),
-  purpose_relationship: z.string().max(1000).optional(),
-  // Campo 6 — Representante
-  rep_full_name: z.string().max(255).optional(),
-  rep_doc_type: z
-    .enum(["DNI", "PASAPORTE", "CARNE_EXTRANJERIA", "OTRO"])
-    .optional(),
-  rep_doc_number: z.string().max(20).optional(),
-  rep_doc_other: z.string().max(100).optional(),
-  rep_representation_type: z.enum(["PODER", "MANDATO"]).optional(),
-  rep_instrument_type: z
-    .enum(["ESCRITURA_PUBLICA", "COPIA_CERTIFICADA_ACTA", "OTROS"])
-    .optional(),
-  rep_escritura_date: z.string().optional(),
-  rep_notary_name: z.string().max(255).optional(),
-  rep_acta_certified_date: z.string().optional(),
-  rep_acta_date: z.string().optional(),
-  rep_instrument_other: z.string().max(255).optional(),
-  rep_registry_partition: z.string().max(100).optional(),
-  rep_registry_seat: z.string().max(100).optional(),
-  rep_registry_section: z.string().max(100).optional(),
-  rep_registry_zone: z.string().max(100).optional(),
-  // Campo 7 — Dirección oficina
-  office_street_type: z
-    .enum(["JR", "AV", "CALLE", "PASAJE", "OVALO"])
-    .optional(),
-  office_street_name: z.string().max(255).optional(),
-  office_number: z.string().max(20).optional(),
-  office_int_number: z.string().max(20).optional(),
-  office_urbanization: z.string().max(255).optional(),
-  office_district_id: z.number().optional(),
-  office_phone: z.string().max(30).optional(),
-  // Campo 8 — Beneficiario
-  beneficiary_type: z.enum(
-    ["PROPIO", "TERCERO_NATURAL", "PERSONA_JURIDICA", "ENTE_JURIDICO"],
-    { error: "Tipo de beneficiario es requerido" },
-  ),
-  own_funds_origin: z.string().max(1000).optional(),
-  third_full_name: z.string().max(255).optional(),
-  third_doc_type: z.string().max(50).optional(),
-  third_doc_number: z.string().max(20).optional(),
-  third_representation_type: z
-    .enum(["PODER_ESCRITURA_PUBLICA", "MANDATO"])
-    .optional(),
-  third_pep_status: z
-    .enum(["SI_ES", "SI_HA_SIDO", "NO_ES", "NO_HA_SIDO"])
-    .optional(),
-  third_pep_position: z.string().max(255).optional(),
-  third_pep_institution: z.string().max(255).optional(),
-  third_funds_origin: z.string().max(1000).optional(),
-  entity_name: z.string().max(500).optional(),
-  entity_ruc: z.string().max(20).optional(),
-  entity_representation_type: z
-    .enum(["PODER_POR_ACTA", "ESCRITURA_PUBLICA", "MANDATO"])
-    .optional(),
-  entity_funds_origin: z.string().max(1000).optional(),
-  entity_final_beneficiary: z.string().max(1000).optional(),
-  // Campo 9
-  account_number: z.string().max(255).optional(),
-});
+export const declaracionJuradaKycLegalSchema = z
+  .object({
+    person_type: z.literal("JURIDICA"),
+    business_partner_id: z.coerce
+      .number({ error: "Empresa es requerida" })
+      .min(1, "Empresa es requerida"),
+    sede_id: z.coerce
+      .number({ error: "Sede es requerida" })
+      .min(1, "Sede es requerida"),
+    purchase_request_quote_id: z.coerce.number().nullable().optional(),
+    declaration_date: z.string().min(1, "Fecha de declaración es requerida"),
+    // Campos 1-5
+    company_name: z.string().max(500).optional(),
+    ruc: z.string().max(20).optional(),
+    foreign_registry_number: z.string().max(100).optional(),
+    business_purpose: z
+      .string()
+      .min(1, "Objeto social es requerido")
+      .max(2000),
+    final_beneficiaries: z
+      .string()
+      .min(1, "Beneficiarios finales es requerido")
+      .max(2000),
+    purpose_relationship: z
+      .string()
+      .min(1, "Propósito de la relación es requerido")
+      .max(1000),
+    // Campo 6 — Representante
+    rep_full_name: z
+      .string()
+      .min(1, "Nombre del representante es requerido")
+      .max(255),
+    rep_doc_type: z.enum(["DNI", "PASAPORTE", "CARNE_EXTRANJERIA", "OTRO"], {
+      error: "Tipo de documento del representante es requerido",
+    }),
+    rep_doc_number: z
+      .string()
+      .min(1, "N° de documento del representante es requerido")
+      .max(20),
+    rep_doc_other: z.string().max(100).optional(),
+    rep_representation_type: z.enum(["PODER", "MANDATO"], {
+      error: "Tipo de representación es requerido",
+    }),
+    rep_instrument_type: z.enum(
+      ["ESCRITURA_PUBLICA", "COPIA_CERTIFICADA_ACTA", "OTROS"],
+      { error: "Tipo de instrumento es requerido" },
+    ),
+    rep_escritura_date: z.string().optional(),
+    rep_notary_name: z.string().max(255).optional(),
+    rep_acta_certified_date: z.string().optional(),
+    rep_acta_date: z.string().optional(),
+    rep_instrument_other: z.string().max(255).optional(),
+    rep_registry_partition: z.string().max(100).optional(),
+    rep_registry_seat: z.string().max(100).optional(),
+    rep_registry_section: z.string().max(100).optional(),
+    rep_registry_zone: z.string().max(100).optional(),
+    // Campo 7 — Dirección oficina
+    office_street_type: z.enum(["JR", "AV", "CALLE", "PASAJE", "OVALO"], {
+      error: "Tipo de vía es requerido",
+    }),
+    office_street_name: z
+      .string()
+      .min(1, "Nombre de vía es requerido")
+      .max(255),
+    office_number: z.string().min(1, "Número de vía es requerido").max(20),
+    office_int_number: z.string().max(20).optional(),
+    office_urbanization: z.string().max(255).optional(),
+    office_district_id: z.coerce
+      .number({ error: "Distrito es requerido" })
+      .min(1, "Distrito es requerido"),
+    office_phone: z.string().max(30).optional(),
+    // Campo 8 — Beneficiario
+    beneficiary_type: z.enum(
+      ["PROPIO", "TERCERO_NATURAL", "PERSONA_JURIDICA", "ENTE_JURIDICO"],
+      { error: "Tipo de beneficiario es requerido" },
+    ),
+    own_funds_origin: z.string().max(1000).optional(),
+    third_full_name: z.string().max(255).optional(),
+    third_doc_type: z.string().max(50).optional(),
+    third_doc_number: z.string().max(20).optional(),
+    third_representation_type: z
+      .enum(["PODER_ESCRITURA_PUBLICA", "MANDATO"])
+      .optional(),
+    third_pep_status: z
+      .enum(["SI_ES", "SI_HA_SIDO", "NO_ES", "NO_HA_SIDO"])
+      .optional(),
+    third_pep_position: z.string().max(255).optional(),
+    third_pep_institution: z.string().max(255).optional(),
+    third_funds_origin: z.string().max(1000).optional(),
+    entity_name: z.string().max(500).optional(),
+    entity_ruc: z.string().max(20).optional(),
+    entity_representation_type: z
+      .enum(["PODER_POR_ACTA", "ESCRITURA_PUBLICA", "MANDATO"])
+      .optional(),
+    entity_funds_origin: z.string().max(1000).optional(),
+    entity_final_beneficiary: z.string().max(1000).optional(),
+    // Campo 9
+    account_number: z.string().max(255).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.beneficiary_type === "PROPIO" && !data.own_funds_origin?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Origen de fondos propios es requerido",
+        path: ["own_funds_origin"],
+      });
+    }
+
+    if (data.beneficiary_type === "TERCERO_NATURAL") {
+      if (!data.third_full_name?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Nombre del tercero es requerido",
+          path: ["third_full_name"],
+        });
+      }
+      if (!data.third_funds_origin?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Origen de fondos del tercero es requerido",
+          path: ["third_funds_origin"],
+        });
+      }
+    }
+
+    const isEntity =
+      data.beneficiary_type === "PERSONA_JURIDICA" ||
+      data.beneficiary_type === "ENTE_JURIDICO";
+    if (isEntity) {
+      if (!data.entity_name?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Nombre de la entidad es requerido",
+          path: ["entity_name"],
+        });
+      }
+      if (!data.entity_funds_origin?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Origen de fondos de la entidad es requerido",
+          path: ["entity_funds_origin"],
+        });
+      }
+    }
+
+    if (
+      data.rep_instrument_type === "OTROS" &&
+      !data.rep_instrument_other?.trim()
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Especifique el instrumento",
+        path: ["rep_instrument_other"],
+      });
+    }
+
+    if (data.rep_doc_type === "OTRO" && !data.rep_doc_other?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Especifique el tipo de documento",
+        path: ["rep_doc_other"],
+      });
+    }
+  });
 
 export type DeclaracionJuradaKycLegalSchema = z.infer<
   typeof declaracionJuradaKycLegalSchema

@@ -59,6 +59,13 @@ export const IS_PEP_RELATIVE_OPTIONS = [
   { label: "No soy pariente de PEP", value: "NO_SOY" },
 ];
 
+export const PEP_COLLABORATOR_STATUS_OPTIONS = [
+  { label: "Soy colaborador PEP", value: "SI_SOY" },
+  { label: "He sido colaborador PEP", value: "SI_HE_SIDO" },
+  { label: "No soy colaborador PEP", value: "NO_SOY" },
+  { label: "No he sido colaborador PEP", value: "NO_HE_SIDO" },
+];
+
 export const THIRD_PEP_STATUS_OPTIONS = [
   { label: "Es PEP", value: "SI_ES" },
   { label: "Ha sido PEP", value: "SI_HA_SIDO" },

@@ -12,7 +12,7 @@ import {
   Upload,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
+import { CustomerKycDeclarationItem } from "../lib/declaracionJuradaKyc.interface";
 import { Badge } from "@/components/ui/badge";
 import {
   KYC_STATUS_LABEL,
@@ -24,8 +24,7 @@ import { downloadCustomerKycDeclarationPdf } from "../lib/declaracionJuradaKyc.a
 import { CopyCell } from "@/shared/components/CopyCell";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 
-export type DeclaracionJuradaKycColumn =
-  ColumnDef<CustomerKycDeclarationResource>;
+export type DeclaracionJuradaKycColumn = ColumnDef<CustomerKycDeclarationItem>;
 
 const statusColorMap: Record<string, "yellow" | "blue" | "green" | "gray"> = {
   PENDIENTE: "yellow",
@@ -36,10 +35,10 @@ const statusColorMap: Record<string, "yellow" | "blue" | "green" | "gray"> = {
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
-  onViewDetail: (item: CustomerKycDeclarationResource) => void;
-  onUploadSigned: (item: CustomerKycDeclarationResource) => void;
-  onConfirmLegalReview: (item: CustomerKycDeclarationResource) => void;
-  onRejectLegalReview: (item: CustomerKycDeclarationResource) => void;
+  onViewDetail: (item: CustomerKycDeclarationItem) => void;
+  onUploadSigned: (item: CustomerKycDeclarationItem) => void;
+  onConfirmLegalReview: (item: CustomerKycDeclarationItem) => void;
+  onRejectLegalReview: (item: CustomerKycDeclarationItem) => void;
   onPdfDownloaded?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
@@ -60,19 +59,39 @@ export const declaracionJuradaKycColumns = ({
   permissions,
 }: Props): DeclaracionJuradaKycColumn[] => [
   {
-    accessorKey: "full_name",
+    id: "cliente",
     header: "Cliente",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value ? <CopyCell value={value} className="font-semibold" /> : "-";
+    cell: ({ row }) => {
+      const item = row.original;
+      const isJuridica = item.person_type === "JURIDICA";
+      const value = isJuridica
+        ? (item as any).company_name ?? (item as any).bp_company_name
+        : (item as any).full_name;
+      return value ? (
+        <CopyCell value={value} className="font-semibold" />
+      ) : (
+        "-"
+      );
     },
     enableSorting: false,
   },
   {
-    accessorKey: "num_doc",
+    id: "documento",
     header: "Documento",
     cell: ({ row }) => {
-      const { num_doc, document_type } = row.original;
+      const item = row.original;
+      const isJuridica = item.person_type === "JURIDICA";
+      if (isJuridica) {
+        const ruc = (item as any).ruc ?? (item as any).bp_ruc;
+        return (
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground">RUC</span>
+            <span className="font-medium">{ruc ?? "-"}</span>
+          </div>
+        );
+      }
+      const num_doc = (item as any).num_doc;
+      const document_type = (item as any).document_type;
       return (
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground">{document_type}</span>
@@ -127,7 +146,7 @@ export const declaracionJuradaKycColumns = ({
     accessorKey: "purchase_request_quote",
     header: "Cotización",
     cell: ({ getValue }) => {
-      const value = getValue() as number | null;
+      const value = getValue() as string | null;
       return value ? (
         <CopyCell value={String(value)} className="font-medium" />
       ) : (
@@ -153,7 +172,7 @@ export const declaracionJuradaKycColumns = ({
   },
   {
     accessorKey: "legal_review_status",
-    header: "Revisión Legal",
+    header: "Oficial Revisión",
     cell: ({ getValue }) => {
       const status = getValue() as string | null;
       if (!status) {

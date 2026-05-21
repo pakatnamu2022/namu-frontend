@@ -30,7 +30,10 @@ export default function AddDeclaracionJuradaKycPage() {
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = DECLARACION_JURADA_KYC;
 
-  const [personType, setPersonType] = useState<PersonType>("NATURAL");
+  const fromQuote = Boolean(searchParams.get("quote_id"));
+  const [personType, setPersonType] = useState<PersonType>(
+    (searchParams.get("person_type") as PersonType) || "NATURAL",
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeCustomerKycDeclaration,
@@ -70,6 +73,7 @@ export default function AddDeclaracionJuradaKycPage() {
           options={PERSON_TYPES}
           value={personType}
           onChange={(val) => setPersonType((val || "NATURAL") as PersonType)}
+          disabled={fromQuote}
         />
       </div>
 
@@ -77,13 +81,12 @@ export default function AddDeclaracionJuradaKycPage() {
         <DeclaracionJuradaKycLegalForm
           defaultValues={{
             person_type: "JURIDICA",
-            purchase_request_quote_id:
-              searchParams.get("quote_id")
-                ? Number(searchParams.get("quote_id"))
-                : undefined,
+            purchase_request_quote_id: searchParams.get("quote_id") ?? undefined,
+            business_partner_id: searchParams.get("partner_id") ?? undefined,
+            sede_id: searchParams.get("sede_id") ?? undefined,
             beneficiary_type: "PROPIO",
             declaration_date: new Date().toISOString().slice(0, 10),
-          }}
+          } as any}
           onSubmit={handleSubmitLegal}
           isSubmitting={isPending}
           mode="create"
