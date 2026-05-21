@@ -82,6 +82,7 @@ export default function DeclaracionJuradaKycLegalForm({
     defaultValues: {
       person_type: "JURIDICA",
       beneficiary_type: "PROPIO",
+      rep_doc_type: "DNI",
       ...defaultValues,
     },
     mode: "onChange",
