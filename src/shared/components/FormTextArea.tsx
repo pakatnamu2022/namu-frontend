@@ -29,6 +29,7 @@ interface FormTextAreaProps extends Omit<
   tooltip?: string | React.ReactNode;
   children?: React.ReactNode;
   required?: boolean;
+  optional?: boolean;
   error?: string;
   uppercase?: boolean;
 }
@@ -41,6 +42,7 @@ export function FormTextArea({
   tooltip,
   children,
   required,
+  optional,
   className,
   error,
   value,

@@ -109,10 +109,6 @@ export default function DeclaracionJuradaKycLegalForm({
     name: "beneficiary_type",
   });
   const entityRuc = useWatch({ control: form.control, name: "entity_ruc" });
-  const thirdDocType = useWatch({
-    control: form.control,
-    name: "third_doc_type",
-  });
 
   const showThirdBlock = beneficiaryType === "TERCERO_NATURAL";
   const showEntityBlock =
