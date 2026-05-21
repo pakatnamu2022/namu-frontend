@@ -21,6 +21,7 @@ export const TYPE_PLANNING: ModelComplete<TypesPlanningResource> = {
     id: 0,
     code: "",
     description: "",
+    notes: "",
     validate_receipt: false,
     validate_labor: false,
     type_document: "INTERNA",

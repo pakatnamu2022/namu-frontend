@@ -21,6 +21,7 @@ export const typesPlanningSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Tipo de documento es requerido",
     }),
+  notes: z.string().max(250).optional(),
   status: z.boolean().optional().default(true),
 });
 

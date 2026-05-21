@@ -49,6 +49,7 @@ export default function TypesPlanningModal({
     return {
       code: data.code,
       description: data.description,
+      notes: data.notes || "",
       validate_receipt: Boolean(data.validate_receipt),
       validate_labor: Boolean(data.validate_labor),
       type_document: data.type_document,
