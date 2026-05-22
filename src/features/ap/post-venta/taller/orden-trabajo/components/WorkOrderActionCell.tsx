@@ -8,12 +8,15 @@ import {
   Loader2,
   BookMarked,
   CarFront,
+  Handshake,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
+import { useSendToFinished } from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
 
 interface WorkOrderActionCellProps {
@@ -42,7 +45,16 @@ export function WorkOrderActionCell({
 }: WorkOrderActionCellProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
-  const { id, is_inspection_completed, status, is_delivery, items } = row;
+  const { mutateAsync: sendToFinished, isPending: isSendingToFinished } =
+    useSendToFinished();
+  const {
+    id,
+    is_inspection_completed,
+    status,
+    is_delivery,
+    is_invoiced,
+    items,
+  } = row;
   const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
   const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
   const isDelivery = is_delivery;
@@ -57,6 +69,17 @@ export function WorkOrderActionCell({
       errorToast("Error al descargar el PDF");
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleSendToFinished = async () => {
+    try {
+      await sendToFinished(id);
+      successToast("Orden enviada a facturar exitosamente");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || "Error al enviar a facturar";
+      errorToast(message);
     }
   };
 
@@ -87,6 +110,34 @@ export function WorkOrderActionCell({
         >
           <Settings className="size-5" />
         </Button>
+      )}
+
+      {!is_invoiced && firstItemPlanning?.type_document !== "INTERNA" && (
+        <ConfirmationDialog
+          title="¿Marcar como Finalizada?"
+          description="Esta acción marcará la orden de trabajo como lista para emitir la factura final. ¿Deseas continuar?"
+          confirmText="Sí, continuar"
+          cancelText="Cancelar"
+          icon="info"
+          onConfirm={handleSendToFinished}
+          trigger={
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              disabled={isSendingToFinished}
+              tooltip={
+                isSendingToFinished ? "Enviando..." : "Marcar como Finalizada"
+              }
+            >
+              {isSendingToFinished ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <Handshake className="size-5" />
+              )}
+            </Button>
+          }
+        />
       )}
 
       {isClosed && firstItemPlanning?.type_document !== "INTERNA" && (

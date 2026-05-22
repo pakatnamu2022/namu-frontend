@@ -48,13 +48,15 @@ export const WORK_ORDER_STATUS = {
   TERMINADO: "TERMINADO",
   CERRADO: "CERRADO",
   ANULADO: "ANULADO",
+  FACTURAR: "FACTURAR",
 } as const;
 
 export const WORK_ORDER_STATUS_COLORS: Record<string, BadgeColor> = {
   APERTURADO: "blue",
   RECEPCIONADO: "cyan",
   "EN TRABAJO": "amber",
-  TERMINADO: "green",
+  "FINALIZO TRABAJO": "green",
+  TERMINADO: "sky",
   CERRADO: "gray",
   ANULADO: "red",
 };
@@ -64,9 +66,10 @@ export const WORK_ORDER_STATUS_ID = {
   APERTURADO: 884,
   RECEPCIONADO: 889,
   EN_TRABAJO: 890,
-  TERMINADO: 891,
-  CERRADO: 892,
-  ANULADO: 893,
+  FIN_TRABAJO: 891,
+  TERMINADO: 892, // FACTURA FINAL
+  CERRADO: 893,
+  ANULADO: 894,
 } as const;
 
 // RUTAS PARA POSTVENTA - CAJA

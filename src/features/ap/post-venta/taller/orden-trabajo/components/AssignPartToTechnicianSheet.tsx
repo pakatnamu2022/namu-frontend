@@ -152,8 +152,7 @@ export function AssignPartToTechnicianSheet({
               name="delivered_quantity"
               label="Cantidad a entregar"
               type="number"
-              min={0.01}
-              step={0.01}
+              min={1}
               max={remainingQuantity}
               description={
                 part

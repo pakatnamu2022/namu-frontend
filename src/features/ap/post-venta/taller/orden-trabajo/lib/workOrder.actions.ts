@@ -240,3 +240,10 @@ export async function changeCurrency(
   );
   return response.data;
 }
+
+export async function sendToFinished(id: number): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/send-finished`,
+  );
+  return response.data;
+}

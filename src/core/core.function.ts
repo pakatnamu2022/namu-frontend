@@ -382,3 +382,14 @@ export const formatDateLong = (
 export const TEXT_NEW = ({ name, gender }: ModelInterface) =>
   `Nuev${gender ? "a" : "o"} ${name}`;
 export const TEXT_UPDATE = ({ name }: ModelInterface) => `Actualizar ${name}`;
+
+export const formatHours = (hours: number | string | null | undefined): string => {
+  if (hours === null || hours === undefined || hours === "") return "-";
+  const total = Number(hours);
+  if (isNaN(total) || total < 0) return "-";
+  const h = Math.floor(total);
+  const m = Math.round((total - h) * 60);
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} hora${h !== 1 ? "s" : ""}`;
+  return `${h} hora${h !== 1 ? "s" : ""} con ${m} minuto${m !== 1 ? "s" : ""}`;
+};
