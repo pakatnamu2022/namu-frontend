@@ -172,7 +172,7 @@ export default function SalesManagerDashboard() {
       {/* Header */}
       <TitleComponent
         icon="FileSignature"
-        title="Dashboard de Leads de Equ  ipo de Ventas"
+        title="Dashboard de Leads de Equipo de Ventas"
         subtitle={
           statsData
             ? `Resumen gerencial de ${statsData.data.manager_info.boss_name}`

@@ -59,6 +59,13 @@ export const IS_PEP_RELATIVE_OPTIONS = [
   { label: "No soy pariente de PEP", value: "NO_SOY" },
 ];
 
+export const PEP_COLLABORATOR_STATUS_OPTIONS = [
+  { label: "Soy colaborador PEP", value: "SI_SOY" },
+  { label: "He sido colaborador PEP", value: "SI_HE_SIDO" },
+  { label: "No soy colaborador PEP", value: "NO_SOY" },
+  { label: "No he sido colaborador PEP", value: "NO_HE_SIDO" },
+];
+
 export const THIRD_PEP_STATUS_OPTIONS = [
   { label: "Es PEP", value: "SI_ES" },
   { label: "Ha sido PEP", value: "SI_HA_SIDO" },
@@ -93,4 +100,40 @@ export const THIRD_DOC_TYPE_OPTIONS = [
   { label: "DNI", value: "DNI" },
   { label: "Carné de Extranjería", value: "CE" },
   { label: "Pasaporte", value: "PASAPORTE" },
+];
+
+export const PERSON_TYPES = [
+  { value: "NATURAL", label: "Persona Natural" },
+  { value: "JURIDICA", label: "Persona Jurídica" },
+];
+
+export const REP_DOC_TYPES = [
+  { value: "DNI", label: "DNI" },
+  { value: "PASAPORTE", label: "Pasaporte" },
+  { value: "CARNE_EXTRANJERIA", label: "Carné de Extranjería" },
+  { value: "OTRO", label: "Otro" },
+];
+
+export const REP_REPRESENTATION_TYPES = [
+  { value: "PODER", label: "Poder" },
+  { value: "MANDATO", label: "Mandato" },
+];
+
+export const REP_INSTRUMENT_TYPES = [
+  { value: "ESCRITURA_PUBLICA", label: "Escritura Pública" },
+  { value: "COPIA_CERTIFICADA_ACTA", label: "Copia Certificada de Acta" },
+  { value: "OTROS", label: "Otros" },
+];
+
+export const OFFICE_STREET_TYPES = [
+  { value: "JR", label: "Jr." },
+  { value: "AV", label: "Av." },
+  { value: "CALLE", label: "Calle" },
+  { value: "PASAJE", label: "Pasaje" },
+  { value: "OVALO", label: "Óvalo" },
+];
+
+export const THIRD_REPRESENTATION_TYPES_JURIDICA = [
+  { value: "PODER_ESCRITURA_PUBLICA", label: "Poder por Escritura Pública" },
+  { value: "MANDATO", label: "Mandato" },
 ];

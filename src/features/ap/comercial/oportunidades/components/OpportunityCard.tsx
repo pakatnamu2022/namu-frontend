@@ -9,6 +9,7 @@ import {
   OPPORTUNITIES,
   OPPORTUNITY_STATUS_COLORS,
   TEXT_OPPORTUNITY_STATUS_COLORS,
+  STATUS_ID_TO_COLUMN,
 } from "../lib/opportunities.constants";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -32,16 +33,18 @@ export const OpportunityCard = ({
   noWrapper = false,
 }: OpportunityCardProps) => {
   const router = useNavigate();
+  const statusKey = STATUS_ID_TO_COLUMN[opportunity.opportunity_status_id] ?? opportunity.opportunity_status;
+
   const statusColor =
-    OPPORTUNITY_STATUS_COLORS[opportunity.opportunity_status] ||
+    OPPORTUNITY_STATUS_COLORS[statusKey] ||
     "bg-gray-500 text-white";
 
   const textColor =
-    TEXT_OPPORTUNITY_STATUS_COLORS[opportunity.opportunity_status] ||
+    TEXT_OPPORTUNITY_STATUS_COLORS[statusKey] ||
     "bg-gray-500 text-white";
 
   const hoverTextColor =
-    HOVER_TEXT_OPPORTUNITY_STATUS_COLORS[opportunity.opportunity_status] ||
+    HOVER_TEXT_OPPORTUNITY_STATUS_COLORS[statusKey] ||
     "hover:text-gray-500 hover:bg-gray-500/5";
 
   const handleClick = (e: React.MouseEvent) => {

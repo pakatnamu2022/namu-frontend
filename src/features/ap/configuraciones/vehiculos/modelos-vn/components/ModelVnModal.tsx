@@ -6,7 +6,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { ModelsVnSchema } from "../lib/modelsVn.schema";
-import { storeModelsVn } from "../lib/modelsVn.actions";
+import { storeModelsVn, updateModelsVn } from "../lib/modelsVn.actions";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { ModelsVnForm } from "./ModelsVnForm";
 import { MODELS_VN } from "../lib/modelsVn.constanst";
@@ -16,6 +16,9 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSuccess?: (newModel: ModelsVnResource) => void;
+  mode?: "create" | "update";
+  modelId?: number;
+  defaultValues?: Partial<ModelsVnSchema>;
 }
 
 const { QUERY_KEY, MODEL } = MODELS_VN;
@@ -45,10 +48,17 @@ const EMPTY_DEFAULTS: Partial<ModelsVnSchema> = {
   margin: 0,
 };
 
-export default function ModelVnModal({ open, onClose, onSuccess }: Props) {
+export default function ModelVnModal({
+  open,
+  onClose,
+  onSuccess,
+  mode = "create",
+  modelId,
+  defaultValues,
+}: Props) {
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
+  const { mutate: createMutate, isPending: isCreating } = useMutation({
     mutationFn: (data: ModelsVnSchema) => storeModelsVn(data),
     onSuccess: async (newModel) => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
@@ -62,19 +72,36 @@ export default function ModelVnModal({ open, onClose, onSuccess }: Props) {
     },
   });
 
+  const { mutate: updateMutate, isPending: isUpdating } = useMutation({
+    mutationFn: (data: ModelsVnSchema) => updateModelsVn(modelId!, data),
+    onSuccess: async (updatedModel) => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      onSuccess?.(updatedModel);
+      onClose();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    },
+  });
+
+  const isPending = isCreating || isUpdating;
+  const formDefaults = mode === "update" ? (defaultValues ?? EMPTY_DEFAULTS) : EMPTY_DEFAULTS;
+
   return (
     <GeneralModal
       open={open}
       onClose={onClose}
-      title="Nuevo Modelo VN"
+      title={mode === "update" ? "Editar Modelo VN" : "Nuevo Modelo VN"}
       icon="Car"
       size="7xl"
     >
       <ModelsVnForm
-        defaultValues={EMPTY_DEFAULTS}
-        onSubmit={(data) => mutate(data)}
+        defaultValues={formDefaults}
+        onSubmit={(data) => mode === "update" ? updateMutate(data) : createMutate(data)}
         isSubmitting={isPending}
-        mode="create"
+        mode={mode}
         onCancel={onClose}
       />
     </GeneralModal>

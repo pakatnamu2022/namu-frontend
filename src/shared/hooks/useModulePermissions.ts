@@ -195,6 +195,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite enviar notificaciones relacionadas al módulo",
   },
   {
+    value: "salesforce",
+    label: "Salesforce",
+    icon: "Salesforce",
+    description: "Permite habilitar opciones de Salesforce",
+  },
+  {
     value: "addSparePartsOT",
     label: "Agregar Repuestos OT",
     icon: "Plus",
@@ -277,6 +283,7 @@ export function useModulePermissions(moduleCode: string) {
       "confirmCancellationReception",
     ),
     canNotify: hasModulePermission("notify"),
+    canSalesforce: hasModulePermission("salesforce"),
     canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
     canRemoveSparePartsOT: hasModulePermission("removeSparePartsOT"),
     canAssignSparePartsOT: hasModulePermission("assignSparePartsOT"),

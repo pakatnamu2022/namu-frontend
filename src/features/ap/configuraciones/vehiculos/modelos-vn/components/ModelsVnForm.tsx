@@ -255,6 +255,7 @@ export const ModelsVnForm = ({
                 value: brand.id.toString(),
               }))}
               control={form.control}
+              disabled={mode === "update"}
             />
             <FormSelect
               name="family_id"
@@ -266,14 +267,14 @@ export const ModelsVnForm = ({
               }
               options={getFamilyOptions()}
               control={form.control}
-              disabled={!marcaSeleccionada || isLoadingFamilies}
+              disabled={mode === "update" || !marcaSeleccionada || isLoadingFamilies}
             />
             <FormInput
               name="version"
               label="Versión"
               placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
               control={form.control}
-              disabled={isLoadingbrands}
+              disabled={mode === "update" || isLoadingbrands}
               uppercase
             />
             <FormSelect
@@ -285,6 +286,7 @@ export const ModelsVnForm = ({
                 value: classArticle.id.toString(),
               }))}
               control={form.control}
+              disabled={mode === "update"}
             />
           </GroupFormSection>
 

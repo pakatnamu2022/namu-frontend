@@ -87,7 +87,7 @@ export default function PhoneLineUnassignModal({
           <FormInput
             name="observacion_unassign"
             label="Observación"
-            placeholder="Motivo de la desasignación (opcional)"
+            placeholder="Motivo de la desasignación"
             control={form.control}
           />
 

@@ -6,6 +6,13 @@ export interface EquipmentResponse {
   meta: Meta;
 }
 
+export interface AssignedToItem {
+  assignment_id: number;
+  persona_id: number;
+  worker_name: string;
+  fecha: string;
+}
+
 export interface EquipmentResource {
   id: number;
   equipo: string;
@@ -15,6 +22,7 @@ export interface EquipmentResource {
   modelo: string;
   serie: string;
   status: string;
+  assignment_status?: string;
   estado_uso: string;
   detalle: string;
   sede: string;
@@ -24,6 +32,7 @@ export interface EquipmentResource {
   procesador?: string;
   stock_actual?: string;
   pertenece_sede: number;
+  compartido: boolean;
   tipo_equipo_id: number;
   sede_id: number;
   status_id: number;
@@ -34,6 +43,7 @@ export interface EquipmentResource {
   proveedor?: string;
   fecha_adquisicion?: string;
   fecha_garantia?: string;
+  assigned_to_list?: AssignedToItem[];
 }
 
 export interface EquipmentRequest {
@@ -49,6 +59,7 @@ export interface EquipmentRequest {
   estado_uso: "NUEVO" | "USADO" | undefined;
   sede_id: string;
   pertenece_sede: boolean;
+  compartido?: boolean;
   fecha_adquisicion?: string;
   fecha_garantia?: string;
   tipo_adquisicion: string;

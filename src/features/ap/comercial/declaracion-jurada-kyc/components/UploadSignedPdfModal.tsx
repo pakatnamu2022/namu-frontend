@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useUploadSignedKycDeclaration } from "../lib/declaracionJuradaKyc.hook";
-import { CustomerKycDeclarationResource } from "../lib/declaracionJuradaKyc.interface";
+import { CustomerKycDeclarationItem } from "../lib/declaracionJuradaKyc.interface";
 import { errorToast } from "@/core/core.function";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  declaration: CustomerKycDeclarationResource;
+  declaration: CustomerKycDeclarationItem;
   onSuccess?: () => void;
 }
 
@@ -58,7 +58,7 @@ export default function UploadSignedPdfModal({
       open={open}
       onClose={handleClose}
       title="Subir PDF Firmado"
-      subtitle={`${declaration.full_name} — DJ #${declaration.id}`}
+      subtitle={`${declaration.person_type === "JURIDICA" ? ((declaration as any).company_name ?? (declaration as any).bp_company_name) : (declaration as any).full_name} — DJ #${declaration.id}`}
       size="xl"
       icon="Upload"
       childrenFooter={

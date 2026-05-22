@@ -23,7 +23,7 @@ import DeclaracionJuradaKycDetailSheet from "@/features/ap/comercial/declaracion
 import UploadSignedPdfModal from "@/features/ap/comercial/declaracion-jurada-kyc/components/UploadSignedPdfModal";
 import LegalReviewRejectModal from "@/features/ap/comercial/declaracion-jurada-kyc/components/LegalReviewRejectModal";
 import LegalReviewConfirmModal from "@/features/ap/comercial/declaracion-jurada-kyc/components/LegalReviewConfirmModal";
-import { CustomerKycDeclarationResource } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.interface";
+import { CustomerKycDeclarationItem } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.interface";
 
 export default function DeclaracionJuradaKycPage() {
   const router = useNavigate();
@@ -35,24 +35,26 @@ export default function DeclaracionJuradaKycPage() {
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [personType, setPersonType] = useState("");
 
   const [detailId, setDetailId] = useState<number | null>(null);
   const [uploadItem, setUploadItem] =
-    useState<CustomerKycDeclarationResource | null>(null);
+    useState<CustomerKycDeclarationItem | null>(null);
   const [rejectItem, setRejectItem] =
-    useState<CustomerKycDeclarationResource | null>(null);
+    useState<CustomerKycDeclarationItem | null>(null);
   const [confirmItem, setConfirmItem] =
-    useState<CustomerKycDeclarationResource | null>(null);
+    useState<CustomerKycDeclarationItem | null>(null);
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, status]);
+  }, [search, per_page, status, personType]);
 
   const { data, isLoading, refetch } = useCustomerKycDeclarations({
     page,
     per_page,
     search,
     status: status || undefined,
+    person_type: personType || undefined,
   });
 
   const { mutate: deleteDeclaration } = useDeleteCustomerKycDeclaration();
@@ -98,6 +100,8 @@ export default function DeclaracionJuradaKycPage() {
           setSearch={setSearch}
           status={status}
           setStatus={setStatus}
+          personType={personType}
+          setPersonType={setPersonType}
         />
       </DeclaracionJuradaKycTable>
 

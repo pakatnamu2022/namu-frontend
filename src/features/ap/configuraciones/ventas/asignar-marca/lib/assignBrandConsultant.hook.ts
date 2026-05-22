@@ -4,11 +4,13 @@ import {
   getAllBrandsBySede,
   getAllWorkersBySedeAndBrand,
   getAssignBrandConsultant,
+  getWorkerConfig,
 } from "./assignBrandConsultant.actions";
 import { ASSIGN_BRAND_CONSULTANT } from "./assignBrandConsultant.constants";
 import {
   AssignBrandConsultantResponse,
   BrandResource,
+  WorkerConfigResponse,
 } from "./assignBrandConsultant.interface";
 
 const { QUERY_KEY } = ASSIGN_BRAND_CONSULTANT;
@@ -47,5 +49,14 @@ export const useAssignBrandConsultantById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findAssignBrandConsultantById(id),
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useWorkerConfig = (workerId?: number) => {
+  return useQuery<WorkerConfigResponse>({
+    queryKey: [QUERY_KEY, "worker-config", workerId],
+    queryFn: () => getWorkerConfig(workerId!),
+    refetchOnWindowFocus: false,
+    enabled: !!workerId,
   });
 };
