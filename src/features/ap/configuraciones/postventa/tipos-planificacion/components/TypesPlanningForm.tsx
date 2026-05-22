@@ -11,6 +11,7 @@ import {
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormSwitch } from "@/shared/components/FormSwitch.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
+import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 
 interface TypesPlanningFormProps {
   defaultValues: Partial<TypesPlanningSchema>;
@@ -65,12 +66,20 @@ export const TypesPlanningForm = ({
           <FormSwitch
             control={form.control}
             name="validate_labor"
-            label="Validar Mano de Obra"
+            label="Validar Operario"
             text={form.watch("validate_labor") ? "Si" : "No"}
           />
         </div>
 
         <div className="grid grid-cols-1 gap-4">
+          <FormTextArea
+            control={form.control}
+            name="notes"
+            label="Notas"
+            placeholder="Ingrese notas adicionales sobre el tipo de planificación"
+            rows={4}
+          />
+
           <FormSelect
             control={form.control}
             name="type_document"

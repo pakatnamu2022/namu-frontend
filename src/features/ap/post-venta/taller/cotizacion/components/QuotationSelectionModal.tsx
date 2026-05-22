@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar } from "lucide-react";
-import { useOrderQuotations } from "../lib/proforma.hook";
+import { useForPurchaseRequestMeson } from "../lib/proforma.hook";
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
@@ -15,8 +15,6 @@ import {
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
-import { STATUS_ORDER_QUOTATION } from "../lib/proforma.constants";
-import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface QuotationSelectionModalProps {
   open: boolean;
@@ -51,19 +49,18 @@ export const QuotationSelectionModal = ({
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading } = useOrderQuotations({
-    page,
-    per_page,
-    is_take: 0,
-    has_invoice_generated: 1,
-    sede_id: sedeId,
-    status: STATUS_ORDER_QUOTATION.TO_BILL,
-    area_id: AREA_MESON.toString(),
-    quotation_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-  });
+  const { data, isLoading } = useForPurchaseRequestMeson(
+    {
+      page,
+      per_page,
+      sede_id: sedeId,
+      quotation_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+    },
+    { enabled: open },
+  );
 
   const handleRowClick = (quotation: OrderQuotationResource) => {
     onSelectQuotation(quotation.id.toString());

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Search, PackagePlus, Info } from "lucide-react";
+import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -378,112 +378,106 @@ export default function PurchaseRequestTallerForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Información General */}
-        <GroupFormSection
-          title="Información General"
-          icon={Info}
-          cols={{ sm: 1 }}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FormSelect
-              name="warehouse_id"
-              label="Almacén"
-              placeholder="Seleccione un almacén"
-              options={warehouses.map((warehouse) => ({
-                label: warehouse.description,
-                value: warehouse.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="currency_id"
-              options={currencyTypes.map((type) => ({
-                value: type.id.toString(),
-                label: type.name,
-              }))}
-              label="Moneda"
-              placeholder="Seleccionar moneda"
-              required
-            />
-
-            <DatePickerFormField
-              control={form.control}
-              name="requested_date"
-              label="Fecha de Solicitud"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-              disabledRange={{ before: new Date() }}
-            />
-          </div>
-
-          {/* Checkbox para adjuntar cotización */}
-          {showQuotationOption && (
-            <FormField
-              control={form.control}
-              name="has_appointment"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>¿Adjuntar Cotización?</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Marque esta opción si desea adjuntar una cotización a la
-                      solicitud de compra.
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-          )}
-
-          {/* Selector de Cotización - Solo visible si has_appointment es true */}
-          {showQuotationOption && hasAppointment && (
-            <FormField
-              control={form.control}
-              name="ap_order_quotation_id"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Cotización</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => {
-                          setIsQuotationModalOpen(true);
-                        }}
-                        disabled={isLoadingQuotations}
-                      >
-                        <Search className="h-4 w-4 mr-2" />
-                        {isLoadingQuotations
-                          ? "Cargando cotizaciones..."
-                          : getSelectedQuotationLabel() ||
-                            "Buscar y seleccionar cotización"}
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          <FormTextArea
-            name="observations"
-            label="Observaciones"
-            placeholder="Notas adicionales sobre la solicitud..."
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <FormSelect
+            name="warehouse_id"
+            label="Almacén"
+            placeholder="Seleccione un almacén"
+            options={warehouses.map((warehouse) => ({
+              label: warehouse.description,
+              value: warehouse.id.toString(),
+            }))}
             control={form.control}
+            strictFilter={true}
           />
-        </GroupFormSection>
+
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda"
+            placeholder="Seleccionar moneda"
+            required
+          />
+
+          <DatePickerFormField
+            control={form.control}
+            name="requested_date"
+            label="Fecha de Solicitud"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabledRange={{ before: new Date() }}
+          />
+        </div>
+
+        {/* Checkbox para adjuntar cotización */}
+        {showQuotationOption && (
+          <FormField
+            control={form.control}
+            name="has_appointment"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>¿Adjuntar Cotización?</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    Marque esta opción si desea adjuntar una cotización a la
+                    solicitud de compra.
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Selector de Cotización - Solo visible si has_appointment es true */}
+        {showQuotationOption && hasAppointment && (
+          <FormField
+            control={form.control}
+            name="ap_order_quotation_id"
+            render={() => (
+              <FormItem>
+                <FormLabel>Cotización</FormLabel>
+                <FormControl>
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setIsQuotationModalOpen(true);
+                      }}
+                      disabled={isLoadingQuotations}
+                    >
+                      <Search className="h-4 w-4 mr-2" />
+                      {isLoadingQuotations
+                        ? "Cargando cotizaciones..."
+                        : getSelectedQuotationLabel() ||
+                          "Buscar y seleccionar cotización"}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <FormTextArea
+          name="observations"
+          label="Observaciones"
+          placeholder="Notas adicionales sobre la solicitud..."
+          control={form.control}
+        />
 
         {/* Repuestos */}
         <GroupFormSection
@@ -892,8 +886,6 @@ export default function PurchaseRequestTallerForm({
               </div>
             </>
           )}
-
-          <FormMessage>{form.formState.errors.details?.message}</FormMessage>
 
           {/* Resumen de Totales */}
           {details.some((d) => d.total_amount !== undefined) && (

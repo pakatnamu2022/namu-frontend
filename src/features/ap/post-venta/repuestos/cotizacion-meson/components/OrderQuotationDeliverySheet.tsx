@@ -3,8 +3,7 @@ import {
   DetailSheetTable,
   type DetailSheetTableColumn,
 } from "@/shared/components/DetailSheetTable";
-import { Separator } from "@/components/ui/separator";
-import { FileText, Loader2, PenLine, IdCard  } from "lucide-react";
+import { FileText, Loader2, PenLine, IdCard } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
 import type { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
@@ -145,7 +144,6 @@ function DeliverySheetContent({
     <div className="space-y-6 px-6">
       {/* Detalle de Repuestos */}
       <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Repuestos a Entregar</h3>
         <DetailSheetTable
           rows={orderQuotation.details ?? []}
           getKey={(detail) => detail.id}
@@ -215,8 +213,6 @@ function DeliverySheetContent({
           }
         />
       </div>
-
-      <Separator />
 
       {/* Sección de firma y DNI */}
       {alreadyDelivered ? (

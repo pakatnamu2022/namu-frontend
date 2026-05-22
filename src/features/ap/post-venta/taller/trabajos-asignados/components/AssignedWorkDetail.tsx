@@ -9,12 +9,10 @@ import {
   PLANNING_STATUS_LABELS,
   SESSION_STATUS_LABELS,
 } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
-import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
 import { User, PlayCircle } from "lucide-react";
 import { useIsTablet } from "@/hooks/use-tablet";
 import { InfoSection } from "@/shared/components/InfoSection";
-import { formatDateTime } from "@/core/core.function";
+import { formatDateTime, formatHours } from "@/core/core.function";
 
 interface AssignedWorkDetailProps {
   planning: WorkOrderPlanningResource | null;
@@ -82,11 +80,11 @@ export function AssignedWorkDetail({
             fields={[
               {
                 label: "Horas Programadas",
-                value: planning.estimated_hours,
+                value: formatHours(planning.estimated_hours),
               },
               {
                 label: "Horas Trabajadas",
-                value: planning.actual_hours,
+                value: formatHours(planning.actual_hours),
               },
               {
                 label: "Inicio Programado",
@@ -164,22 +162,14 @@ export function AssignedWorkDetail({
                           <div>
                             <p className="text-muted-foreground">Inicio</p>
                             <p className="font-medium">
-                              {format(
-                                parseISO(session.start_datetime),
-                                "dd/MM/yyyy HH:mm",
-                                { locale: es },
-                              )}
+                              {formatDateTime(session.start_datetime)}
                             </p>
                           </div>
                           <div>
                             <p className="text-muted-foreground">Fin</p>
                             <p className="font-medium">
                               {session.end_datetime ? (
-                                format(
-                                  parseISO(session.end_datetime),
-                                  "dd/MM/yyyy HH:mm",
-                                  { locale: es },
-                                )
+                                formatDateTime(session.end_datetime)
                               ) : (
                                 <span className="inline-flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
@@ -196,7 +186,7 @@ export function AssignedWorkDetail({
                           </p>
                           <p className="text-lg font-bold text-green-600">
                             {session.hours_worked ? (
-                              `${Number(session.hours_worked).toFixed(1)}h`
+                              `${formatHours(session.hours_worked)}`
                             ) : (
                               <span className="text-sm text-muted-foreground">
                                 En curso...

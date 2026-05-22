@@ -16,6 +16,7 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
+  onCancel: (id: number) => void;
   permissions: {
     canReceive: boolean;
     canManage: boolean;
@@ -30,6 +31,7 @@ export const workOrderColumns = ({
   onUpdate,
   onManage,
   onInspect,
+  onCancel,
   permissions,
 }: Props): WorkOrderColumns[] => [
   {
@@ -247,6 +249,7 @@ export const workOrderColumns = ({
         onUpdate={onUpdate}
         onManage={onManage}
         onInspect={onInspect}
+        onCancel={onCancel}
       />
     ),
   },

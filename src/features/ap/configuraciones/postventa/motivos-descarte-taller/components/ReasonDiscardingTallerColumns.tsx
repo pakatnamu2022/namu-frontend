@@ -5,9 +5,10 @@ import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Badge } from "@/components/ui/badge.tsx";
-import { TypesPlanningResource } from "../lib/typesPlanning.interface.ts";
+import { ReasonDiscardingTallerResource } from "../lib/reasonDiscardingTaller.interface";
 
-export type TypesPlanningColumns = ColumnDef<TypesPlanningResource>;
+export type ReasonDiscardingTallerColumns =
+  ColumnDef<ReasonDiscardingTallerResource>;
 
 interface Props {
   onDelete: (id: number) => void;
@@ -19,64 +20,18 @@ interface Props {
   };
 }
 
-export const typesPlanningColumns = ({
+export const reasonDiscardingTallerColumns = ({
   onUpdate,
   onDelete,
   onToggleStatus,
   permissions,
-}: Props): TypesPlanningColumns[] => [
-  {
-    accessorKey: "code",
-    header: "Cod.",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
-    },
-  },
+}: Props): ReasonDiscardingTallerColumns[] => [
   {
     accessorKey: "description",
     header: "Descripción",
-  },
-  {
-    accessorKey: "notes",
-    header: "Notas",
-  },
-  {
-    accessorKey: "validate_receipt",
-    header: "Valida Recepción",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "validate_labor",
-    header: "Valida Operario",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "type_document",
-    header: "Tipo Documento",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-
-      const typeDocumentLabels: Record<string, string> = {
-        INTERNA: "INTERNA",
-        PAYMENT_RECEIPTS: "COMPROBANTE DE PAGO",
-      };
-
-      return typeDocumentLabels[value] || value;
+      return value && <p className="font-semibold">{value}</p>;
     },
   },
   {

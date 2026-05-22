@@ -240,3 +240,26 @@ export async function changeCurrency(
   );
   return response.data;
 }
+
+export async function sendToFinished(id: number): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/send-finished`,
+  );
+  return response.data;
+}
+
+export interface CancelWorkOrderData {
+  discard_reason_id: number;
+  discarded_note?: string | null;
+}
+
+export async function cancelWorkOrder(
+  id: number,
+  data: CancelWorkOrderData,
+): Promise<GeneralResponse> {
+  const response = await api.patch<GeneralResponse>(
+    `${ENDPOINT}/${id}/cancel`,
+    data,
+  );
+  return response.data;
+}

@@ -11,6 +11,10 @@ const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
   { label: "Recepcionado", value: String(WORK_ORDER_STATUS_ID.RECEPCIONADO) },
   { label: "En Trabajo", value: String(WORK_ORDER_STATUS_ID.EN_TRABAJO) },
+  {
+    label: "Finalizo Trabajo",
+    value: String(WORK_ORDER_STATUS_ID.FIN_TRABAJO),
+  },
   { label: "Terminado", value: String(WORK_ORDER_STATUS_ID.TERMINADO) },
 ];
 

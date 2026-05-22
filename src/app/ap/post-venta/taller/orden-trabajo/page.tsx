@@ -157,6 +157,7 @@ export default function WorkOrderPage() {
           onUpdate: handleUpdate,
           onManage: handleManage,
           onInspect: handleInspect,
+          onCancel: () => refetch(),
           permissions,
         })}
         data={data?.data || []}

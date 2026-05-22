@@ -9,6 +9,7 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
+import { WorkOrderResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
 import { InfoSection } from "@/shared/components/InfoSection.tsx";
 import { translateMovementType } from "../lib/inventory.constants.ts";
@@ -31,29 +32,20 @@ export default function InventoryMovementDetailsSheet({
       // Mostrar información de ajustes si no hay referencia pero hay reason_in_out
       if (movement.reason_in_out) {
         return (
-          <div className="border rounded-lg">
-            <div className="p-4 bg-muted/50 border-b">
-              <h3 className="font-semibold text-sm">Detalles del Ajuste</h3>
-            </div>
-            <div className="p-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Motivo</p>
-                <p className="font-semibold">
-                  {movement.reason_in_out.description}
-                </p>
-              </div>
-              <div className="mt-3">
-                <p className="text-xs text-muted-foreground">Código</p>
-                <p className="font-medium">{movement.reason_in_out.code}</p>
-              </div>
-            </div>
-          </div>
+          <InfoSection
+            title="Detalles del Ajuste"
+            columns={1}
+            fields={[
+              { label: "Motivo", value: movement.reason_in_out.description },
+              { label: "Código", value: movement.reason_in_out.code },
+            ]}
+          />
         );
       }
       return null;
     }
 
-    const { movement_type } = movement;
+    const { movement_type, reference_type } = movement;
     const reference = movement.reference;
 
     switch (movement_type) {
@@ -417,6 +409,66 @@ export default function InventoryMovementDetailsSheet({
       }
 
       case "SALE": {
+        if (reference_type?.includes("ApWorkOrder")) {
+          const workOrder = reference as WorkOrderResource;
+
+          return (
+            <div className="space-y-4">
+              <div className="border rounded-lg">
+                <div className="p-4 bg-muted/50 border-b">
+                  <h3 className="font-semibold text-sm">
+                    Detalles de la Orden de Trabajo
+                  </h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      N° Orden de Trabajo
+                    </p>
+                    <p className="font-semibold">{workOrder.correlative}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Fecha</p>
+                    <p className="font-medium">
+                      {formatDate(workOrder.opening_date)}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Cliente</p>
+                    <p className="font-semibold text-base">
+                      {workOrder.full_contact_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Doc: {workOrder.num_doc_contact}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Placa</p>
+                    <p className="font-medium">{workOrder.vehicle_plate}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="font-semibold text-lg text-green-600">
+                      {Number(workOrder.final_amount).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {workOrder.observations && (
+                <div className="p-4 border rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Observaciones
+                  </p>
+                  <p className="font-medium text-sm">
+                    {workOrder.observations}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        }
+
         const quotation = reference as OrderQuotationResource;
 
         return (
