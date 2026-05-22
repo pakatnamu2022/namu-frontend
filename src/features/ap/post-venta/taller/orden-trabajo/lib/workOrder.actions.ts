@@ -247,3 +247,19 @@ export async function sendToFinished(id: number): Promise<WorkOrderResource> {
   );
   return response.data;
 }
+
+export interface CancelWorkOrderData {
+  discard_reason_id: number;
+  discarded_note?: string | null;
+}
+
+export async function cancelWorkOrder(
+  id: number,
+  data: CancelWorkOrderData,
+): Promise<GeneralResponse> {
+  const response = await api.patch<GeneralResponse>(
+    `${ENDPOINT}/${id}/cancel`,
+    data,
+  );
+  return response.data;
+}

@@ -16,29 +16,29 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { REASONS_DISCARDING_SPAREPART } from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/lib/reasonDiscardingSparePart.constants";
-import { useReasonDiscardingSparePart } from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/lib/reasonDiscardingSparePart.hook";
+import { REASONS_DISCARDING_TALLER } from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/lib/reasonDiscardingTaller.constants";
+import { useReasonDiscardingTaller } from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/lib/reasonDiscardingTaller.hook";
+import ReasonDiscardingTallerActions from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/components/ReasonDiscardingTallerActions";
+import { reasonDiscardingTallerColumns } from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/components/ReasonDiscardingTallerColumns";
+import ReasonDiscardingTallerModal from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/components/ReasonDiscardingTallerModel";
+import ReasonDiscardingTallerOptions from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/components/ReasonDiscardingTallerOptions";
+import ReasonDiscardingTallerTable from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/components/ReasonDiscardingTallerTable";
 import {
-  deleteReasonDiscardingSparePart,
-  updateReasonDiscardingSparePart,
-} from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/lib/reasonDiscardingSparePart.actions";
-import ReasonDiscardingSparePartActions from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/components/ReasonDiscardingSparePartActions";
-import ReasonDiscardingSparePartTable from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/components/ReasonDiscardingSparePartTable";
-import ReasonDiscardingSparePartOptions from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/components/ReasonDiscardingSparePartOptions";
-import { reasonDiscardingSparePartColumns } from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/components/ReasonDiscardingSparePartColumns";
-import ReasonDiscardingSparePartModal from "@/features/ap/configuraciones/postventa/motivos-descarte-repuesto/components/ReasonDiscardingSparePartModel";
+  updateReasonDiscardingTaller,
+  deleteReasonDiscardingTaller,
+} from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/lib/reasonDiscardingTaller.actions";
 
-export default function ReasonDiscardingSparePartPage() {
+export default function ReasonDiscardingTallerPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = REASONS_DISCARDING_SPAREPART;
+  const { MODEL, ROUTE } = REASONS_DISCARDING_TALLER;
   const permissions = useModulePermissions(ROUTE);
 
-  const { data, isLoading, refetch } = useReasonDiscardingSparePart({
+  const { data, isLoading, refetch } = useReasonDiscardingTaller({
     page,
     search,
     per_page,
@@ -46,7 +46,7 @@ export default function ReasonDiscardingSparePartPage() {
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateReasonDiscardingSparePart(id, { status: newStatus });
+      await updateReasonDiscardingTaller(id, { status: newStatus });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {
@@ -57,7 +57,7 @@ export default function ReasonDiscardingSparePartPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteReasonDiscardingSparePart(deleteId);
+      await deleteReasonDiscardingTaller(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -77,14 +77,14 @@ export default function ReasonDiscardingSparePartPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={"Motivos de Ajuste de Repuestos"}
+          subtitle={"Motivos de Ajuste de Taller"}
           icon={currentView.icon}
         />
-        <ReasonDiscardingSparePartActions permissions={permissions} />
+        <ReasonDiscardingTallerActions permissions={permissions} />
       </HeaderTableWrapper>
-      <ReasonDiscardingSparePartTable
+      <ReasonDiscardingTallerTable
         isLoading={isLoading}
-        columns={reasonDiscardingSparePartColumns({
+        columns={reasonDiscardingTallerColumns({
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
           onUpdate: setUpdateId,
@@ -92,11 +92,8 @@ export default function ReasonDiscardingSparePartPage() {
         })}
         data={data?.data || []}
       >
-        <ReasonDiscardingSparePartOptions
-          search={search}
-          setSearch={setSearch}
-        />
-      </ReasonDiscardingSparePartTable>
+        <ReasonDiscardingTallerOptions search={search} setSearch={setSearch} />
+      </ReasonDiscardingTallerTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -107,7 +104,7 @@ export default function ReasonDiscardingSparePartPage() {
       )}
 
       {updateId !== null && (
-        <ReasonDiscardingSparePartModal
+        <ReasonDiscardingTallerModal
           id={updateId}
           title={"Actualizar Motivo"}
           open={true}

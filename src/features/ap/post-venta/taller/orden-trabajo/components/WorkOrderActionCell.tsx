@@ -9,6 +9,7 @@ import {
   BookMarked,
   CarFront,
   Handshake,
+  Ban,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -18,6 +19,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
 import { useSendToFinished } from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
+import { CancelWorkOrderModal } from "./CancelWorkOrderModal";
 
 interface WorkOrderActionCellProps {
   row: WorkOrderResource;
@@ -32,6 +34,7 @@ interface WorkOrderActionCellProps {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
+  onCancel: (id: number) => void;
 }
 
 export function WorkOrderActionCell({
@@ -42,9 +45,11 @@ export function WorkOrderActionCell({
   onUpdate,
   onManage,
   onInspect,
+  onCancel,
 }: WorkOrderActionCellProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
   const { mutateAsync: sendToFinished, isPending: isSendingToFinished } =
     useSendToFinished();
   const {
@@ -199,10 +204,29 @@ export function WorkOrderActionCell({
         <DeleteButton onClick={() => onDelete(id)} />
       )}
 
+      {isOpen && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Cancelar Orden"
+          onClick={() => setIsCancelOpen(true)}
+        >
+          <Ban className="size-5" />
+        </Button>
+      )}
+
       <WorkOrderDeliverySheet
         open={isDeliveryOpen}
         onClose={() => setIsDeliveryOpen(false)}
         workOrderId={id}
+      />
+
+      <CancelWorkOrderModal
+        open={isCancelOpen}
+        onClose={() => setIsCancelOpen(false)}
+        workOrderId={id}
+        onSuccess={() => onCancel(id)}
       />
     </div>
   );
