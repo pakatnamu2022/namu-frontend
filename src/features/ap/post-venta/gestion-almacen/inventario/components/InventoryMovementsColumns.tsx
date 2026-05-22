@@ -14,6 +14,7 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
+import { WorkOrderResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -87,12 +88,12 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       const movementType = movement.movement_type;
 
       // Si no hay referencia, verificar si hay reason_in_out para ajustes
-      if (!reference && movement.reason_in_out) {
+      if (!reference && movement.movement_number_dyn) {
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">Ajuste de inventario</span>
             <span className="text-xs text-gray-500">
-              {movement.reason_in_out.description || "-"}
+              {movement.movement_number_dyn || "-"}
             </span>
           </div>
         );
@@ -192,6 +193,23 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         );
       }
 
+      // SALE - Mostrar cliente de la orden de trabajo
+      if (movementType === "SALE" && referenceType?.includes("ApWorkOrder")) {
+        const workOrder = reference as WorkOrderResource;
+
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">{workOrder.full_contact_name}</span>
+            <span className="text-xs text-gray-500">
+              Doc: {workOrder.num_doc_contact}
+            </span>
+            <span className="text-xs text-gray-500">
+              OT: {workOrder.correlative}
+            </span>
+          </div>
+        );
+      }
+
       // SALE - Mostrar cliente de la cotización
       if (
         movementType === "SALE" &&
@@ -248,12 +266,12 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         }
 
         // Si tiene reason_in_out, mostrar como ajuste
-        if (movement.reason_in_out) {
+        if (movement.movement_number_dyn) {
           return (
             <div className="flex flex-col text-sm">
               <span className="font-medium">Ajuste de inventario</span>
               <span className="text-xs text-gray-500">
-                {movement.reason_in_out.description || "-"}
+                {movement.movement_number_dyn || "-"}
               </span>
             </div>
           );
@@ -261,12 +279,12 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       // ADJUSTMENT_IN con reason_in_out
-      if (movementType === "ADJUSTMENT_IN" && movement.reason_in_out) {
+      if (movementType === "ADJUSTMENT_IN" && movement.movement_number_dyn) {
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">Ajuste de inventario</span>
             <span className="text-xs text-gray-500">
-              {movement.reason_in_out.description || "-"}
+              {movement.movement_number_dyn || "-"}
             </span>
           </div>
         );
