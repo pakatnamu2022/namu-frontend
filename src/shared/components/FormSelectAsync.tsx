@@ -108,6 +108,7 @@ export function FormSelectAsync({
     defaultOption ? [defaultOption] : [],
   );
   const rawItemsRef = useRef<Map<string, any>>(new Map());
+  const notifiedByIdRef = useRef<Set<string>>(new Set());
   const [selectedOption, setSelectedOption] = useState<Option | null>(
     defaultOption || null,
   );
@@ -172,12 +173,20 @@ export function FormSelectAsync({
     };
   }, [search, debounceMs, debouncedSearch, open]);
 
+  // Actualizar rawItemsRef durante el render (sincrónico) para que onSelect pueda leerlo
+  if (data?.data) {
+    data.data.forEach((item) => {
+      const option = mapOptionFn(item);
+      rawItemsRef.current.set(option.value, item);
+    });
+  }
+
   // Agregar nuevas opciones cuando llegan datos
   useEffect(() => {
     if (data?.data) {
       const newOptions = data.data.map(mapOptionFn);
 
-      // Guardar items crudos en el ref para tenerlos disponibles al seleccionar
+      // Guardar items crudos en el ref para tenerlos disponibles al seleccionar (también en effect para findById)
       data.data.forEach((item) => {
         const option = mapOptionFn(item);
         rawItemsRef.current.set(option.value, item);
@@ -206,7 +215,14 @@ export function FormSelectAsync({
     }
   }, [data, page, mapOptionFn, defaultOption]);
 
+  // Actualizar rawItemsRef con findByIdData durante el render también
+  if (findByIdData) {
+    const option = mapOptionFn(findByIdData);
+    rawItemsRef.current.set(option.value, findByIdData);
+  }
+
   // Agregar a allOptions el item encontrado por useFindByIdHook
+  // y notificar onValueChange si el padre aún no tiene el item completo
   useEffect(() => {
     if (!findByIdData) return;
     const option = mapOptionFn(findByIdData);
@@ -215,7 +231,17 @@ export function FormSelectAsync({
       const exists = prev.some((opt) => opt.value === option.value);
       return exists ? prev : [option, ...prev];
     });
-  }, [findByIdData, mapOptionFn]);
+    // Notificar al padre con el item completo solo una vez por ID
+    if (
+      onValueChange &&
+      currentFieldValue &&
+      currentFieldValue === option.value &&
+      !notifiedByIdRef.current.has(option.value)
+    ) {
+      notifiedByIdRef.current.add(option.value);
+      onValueChange(currentFieldValue, findByIdData);
+    }
+  }, [findByIdData, mapOptionFn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-paginar hasta encontrar la opción con preloadId
   useEffect(() => {
@@ -390,11 +416,13 @@ export function FormSelectAsync({
                                     ? ""
                                     : option.value;
                                 field.onChange(newValue);
-                                // Llamar onValueChange si existe, pasando el item completo desde el ref
                                 if (onValueChange) {
                                   const selectedItem = newValue
                                     ? rawItemsRef.current.get(option.value)
                                     : undefined;
+                                  // Si tenemos el item, marcamos como notificado para que useFindByIdHook no duplique
+                                  if (newValue && selectedItem) notifiedByIdRef.current.add(newValue);
+                                  else notifiedByIdRef.current.clear();
                                   onValueChange(newValue, selectedItem);
                                 }
                                 setOpen(false);

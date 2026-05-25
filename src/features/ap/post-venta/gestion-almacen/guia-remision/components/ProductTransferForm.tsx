@@ -28,11 +28,15 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
 import {
-  useAllSuppliers,
   useSuppliers,
+  useSuppliersById,
 } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook.ts";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook.ts";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface.ts";
 import { EstablishmentsResource } from "@/features/ap/comercial/establecimientos/lib/establishments.interface.ts";
 import { EstablishmentSelectorModal } from "@/features/ap/comercial/envios-recepciones/components/EstablishmentSelectorModal.tsx";
 import {
@@ -166,23 +170,9 @@ export const ProductTransferForm = ({
     name: "details",
   });
 
-  const watchTransmitterOriginId = form.watch("transmitter_origin_id");
-  const watchReceiverDestinationId = form.watch("receiver_destination_id");
   const watchTransferReasonId = form.watch("transfer_reason_id");
 
   // Obtener clientes y proveedores
-  const { data: customers = [], isLoading: isLoadingCustomers } =
-    useAllCustomers({
-      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-      status_ap: 1,
-    });
-
-  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
-    useAllSuppliers({
-      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-      status_ap: 1,
-    });
-
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
     useAllTypeClient();
 
@@ -334,59 +324,6 @@ export const ProductTransferForm = ({
     }
   }, [selectedOriginEstablishment?.sede_id, filteredSeries, form, mode]);
 
-  // Actualizar el proveedor seleccionado cuando cambie el campo
-  useEffect(() => {
-    if (watchTransmitterOriginId && suppliers.length > 0) {
-      const supplier = suppliers.find(
-        (s) => s.id.toString() === watchTransmitterOriginId,
-      );
-      if (supplier && selectedSupplier?.id !== supplier.id) {
-        setSelectedSupplier({
-          id: supplier.id,
-          name: supplier.full_name,
-        });
-      }
-    } else if (!watchTransmitterOriginId && selectedSupplier !== null) {
-      setSelectedSupplier(null);
-      setSelectedOriginEstablishment(null);
-      // Limpiar transmitter_id
-      const currentTransmitterId = form.getValues("transmitter_id");
-      if (currentTransmitterId !== "") {
-        form.setValue("transmitter_id", "", {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
-      }
-    }
-  }, [watchTransmitterOriginId, suppliers, selectedSupplier, form]);
-
-  // Actualizar el cliente seleccionado cuando cambie el campo
-  useEffect(() => {
-    if (watchReceiverDestinationId && customers.length > 0) {
-      const customer = customers.find(
-        (c) => c.id.toString() === watchReceiverDestinationId,
-      );
-      if (customer && selectedCustomer?.id !== customer.id) {
-        setSelectedCustomer({
-          id: customer.id,
-          name: customer.full_name,
-        });
-      }
-    } else if (!watchReceiverDestinationId && selectedCustomer !== null) {
-      setSelectedCustomer(null);
-      setSelectedDestinationEstablishment(null);
-      // Limpiar receiver_id
-      const currentReceiverId = form.getValues("receiver_id");
-      if (currentReceiverId !== "") {
-        form.setValue("receiver_id", "", {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
-      }
-    }
-  }, [watchReceiverDestinationId, customers, selectedCustomer, form]);
 
   // Limpiar detalles cuando cambia el tipo de transferencia (PRODUCTO <-> SERVICIO)
   useEffect(() => {
@@ -469,9 +406,7 @@ export const ProductTransferForm = ({
   if (
     isLoadingSunatConcepts ||
     isLoadingSeries ||
-    isLoadingTypesPerson ||
-    isLoadingCustomers ||
-    isLoadingSuppliers
+    isLoadingTypesPerson
   ) {
     return <FormSkeleton />;
   }
@@ -504,31 +439,51 @@ export const ProductTransferForm = ({
 
           {/* Ubicación Origen */}
           <div className="space-y-2">
-            <FormSelect
-              name="transmitter_origin_id"
-              label={() => (
-                <div className="flex items-center gap-2 relative">
-                  <FormLabel>Ubicación Origen</FormLabel>
-                  {selectedSupplier && (
-                    <button
-                      type="button"
-                      onClick={() => setIsOriginModalOpen(true)}
-                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                      title="Seleccionar establecimiento"
-                    >
-                      <Search className="h-4 w-4 text-primary" />
-                    </button>
-                  )}
-                </div>
+            <div className="flex items-center gap-2 relative">
+              <FormLabel className="leading-none">Ubicación Origen</FormLabel>
+              {selectedSupplier && (
+                <button
+                  type="button"
+                  onClick={() => setIsOriginModalOpen(true)}
+                  className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                  title="Seleccionar establecimiento"
+                >
+                  <Search className="h-4 w-4 text-primary" />
+                </button>
               )}
-              placeholder="Selecciona proveedor"
-              options={suppliers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
+            </div>
+            <FormSelectAsync
+              name="transmitter_origin_id"
+              placeholder="Buscar proveedor..."
               control={form.control}
-              strictFilter={true}
-              disabled={true}
+              useQueryHook={useSuppliers}
+              mapOptionFn={(item: SuppliersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name}`,
+              })}
+              additionalParams={{
+                type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                status_ap: 1,
+              }}
+              perPage={10}
+              debounceMs={500}
+              useFindByIdHook={useSuppliersById}
+              onValueChange={(value, item: SuppliersResource | undefined) => {
+                if (value && item) {
+                  setSelectedSupplier({ id: item.id, name: item.full_name });
+                } else if (value && !item) {
+                  // item aún no disponible en rawItemsRef; el useFindByIdHook lo cargará
+                  setSelectedSupplier({ id: Number(value), name: "" });
+                } else if (!value) {
+                  setSelectedSupplier(null);
+                  setSelectedOriginEstablishment(null);
+                  form.setValue("transmitter_id", "", {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                    shouldTouch: false,
+                  });
+                }
+              }}
             />
             {selectedOriginEstablishment && (
               <div className="text-xs text-primary space-y-0.5">
@@ -548,34 +503,60 @@ export const ProductTransferForm = ({
 
           {/* Ubicación Destino */}
           <div className="space-y-2">
-            <FormSelect
-              name="receiver_destination_id"
-              label={() => (
-                <div className="flex items-center gap-2 relative">
-                  <FormLabel>Ubicación Destino</FormLabel>
-                  {selectedCustomer && (
-                    <button
-                      type="button"
-                      onClick={() => setIsDestinationModalOpen(true)}
-                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                      title="Seleccionar establecimiento"
-                    >
-                      <Search className="h-4 w-4 text-primary" />
-                    </button>
-                  )}
-                </div>
+            <div className="flex items-center gap-2 relative">
+              <FormLabel className="leading-none">Ubicación Destino</FormLabel>
+              {selectedCustomer && (
+                <button
+                  type="button"
+                  onClick={() => setIsDestinationModalOpen(true)}
+                  className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                  title="Seleccionar establecimiento"
+                >
+                  <Search className="h-4 w-4 text-primary" />
+                </button>
               )}
-              placeholder="Selecciona cliente"
-              options={customers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
+            </div>
+            <FormSelectAsync
+              name="receiver_destination_id"
+              placeholder="Buscar cliente..."
               control={form.control}
-              strictFilter={true}
+              useQueryHook={useCustomers}
+              mapOptionFn={(item: CustomersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name}`,
+              })}
+              additionalParams={{
+                type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                status_ap: 1,
+              }}
+              perPage={10}
+              debounceMs={500}
+              useFindByIdHook={useCustomersById}
+              defaultOption={
+                selectedCustomer
+                  ? {
+                      value: selectedCustomer.id.toString(),
+                      label: selectedCustomer.name,
+                    }
+                  : undefined
+              }
               disabled={
                 watchTransferReasonId ===
                 SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
               }
+              onValueChange={(value, item: CustomersResource | undefined) => {
+                if (value && item) {
+                  setSelectedCustomer({ id: item.id, name: item.full_name });
+                } else if (!value) {
+                  setSelectedCustomer(null);
+                  setSelectedDestinationEstablishment(null);
+                  form.setValue("receiver_id", "", {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                    shouldTouch: false,
+                  });
+                }
+              }}
             />
             {selectedDestinationEstablishment && (
               <div className="text-xs text-primary space-y-0.5">
