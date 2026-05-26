@@ -462,15 +462,12 @@ export const productTransferColumns = ({
         isAcceptedBySunat;
       //&& !isReceived;
       const canEdit =
-        isOrigin &&
-        permissions.canUpdate &&
-        !!routeUpdate &&
-        !isAcceptedBySunat;
+        isOrigin && permissions.canUpdate && !!routeUpdate && !isSent;
       const canCancel =
         permissions.canAnnul &&
         ((isAccounted && !!onCancel && isCancelled) ||
           (item_type === "SERVICIO" && isReceived));
-      const canDelete = isOrigin && permissions.canDelete && !isAcceptedBySunat;
+      const canDelete = isOrigin && permissions.canDelete && !isSent;
 
       return (
         <div className="flex items-center gap-2">
