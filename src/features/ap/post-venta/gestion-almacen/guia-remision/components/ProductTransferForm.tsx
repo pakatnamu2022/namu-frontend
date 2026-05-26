@@ -436,13 +436,14 @@ export const ProductTransferForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode === "update"}
           />
 
           {/* Ubicación Origen */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 relative">
               <FormLabel className="leading-none">Ubicación Origen</FormLabel>
-              {selectedSupplier && (
+              {selectedSupplier && mode === "create" && (
                 <button
                   type="button"
                   onClick={() => setIsOriginModalOpen(true)}
@@ -466,6 +467,7 @@ export const ProductTransferForm = ({
                 type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
                 status_ap: 1,
               }}
+              disabled={true}
               perPage={10}
               debounceMs={500}
               useFindByIdHook={useSuppliersById}
@@ -506,7 +508,7 @@ export const ProductTransferForm = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 relative">
               <FormLabel className="leading-none">Ubicación Destino</FormLabel>
-              {selectedCustomer && (
+              {selectedCustomer && mode === "create" && (
                 <button
                   type="button"
                   onClick={() => setIsDestinationModalOpen(true)}
@@ -765,7 +767,7 @@ export const ProductTransferForm = ({
           />
         </GroupFormSection>
 
-        {/* Sección: Detalles de Repuestos */}
+        {/* Sección: Detalles de Repuestos/Servicios */}
         <Card className="p-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
@@ -775,86 +777,141 @@ export const ProductTransferForm = ({
                   ? "Repuestos a Transferir"
                   : "Servicios a Transferir"}
               </h3>
-            </div>
-
-            <div className="flex items-center gap-4 flex-wrap">
-              {/* Toggle PRODUCTO/SERVICIO */}
-              <div className="flex items-center gap-3 bg-slate-100 rounded-lg p-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => form.setValue("item_type", "PRODUCTO")}
-                  disabled={
-                    mode === "update" || !bothEstablishmentsHaveWarehouse
-                  }
-                  title={
-                    !bothEstablishmentsHaveWarehouse
-                      ? "Ambos establecimientos deben tener almacén para transferir repuestos"
-                      : ""
-                  }
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${
-                    isRepuesto
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  } ${
-                    mode === "update" || !bothEstablishmentsHaveWarehouse
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                >
-                  <Box className="h-4 w-4" />
-                  <span className="font-medium text-sm">Repuesto</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => form.setValue("item_type", "SERVICIO")}
-                  disabled={mode === "update"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${
-                    isServicio
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  } ${
-                    mode === "update"
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                >
-                  <FileText className="h-4 w-4" />
-                  <span className="font-medium text-sm">Servicio</span>
-                </button>
-              </div>
-
-              {/* Mensaje de advertencia si no tienen almacén */}
-              {!bothEstablishmentsHaveWarehouse && mode === "create" && (
-                <div className="text-xs text-amber-600 flex items-center gap-1">
-                  <span>
-                    Ambos establecimientos deben tener almacén para transferir
-                    repuestos
-                  </span>
-                </div>
+              {mode === "update" && (
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  Solo lectura
+                </span>
               )}
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddDetail}
-                disabled={mode === "update"}
-                className="flex items-center sm:flex-row flex-col sm:items-center w-full sm:w-auto mx-auto"
-              >
-                <div className="flex items-center gap-2">
-                  <Plus className="h-4 w-4 sm:mr-2 sm:mb-0" />
-                  <span className="text-sm text-center">
-                    Agregar {isRepuesto ? "Repuesto" : "Servicio"}
-                  </span>
-                </div>
-              </Button>
             </div>
+
+            {mode === "create" && (
+              <div className="flex items-center gap-4 flex-wrap">
+                {/* Toggle PRODUCTO/SERVICIO */}
+                <div className="flex items-center gap-3 bg-slate-100 rounded-lg p-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => form.setValue("item_type", "PRODUCTO")}
+                    disabled={!bothEstablishmentsHaveWarehouse}
+                    title={
+                      !bothEstablishmentsHaveWarehouse
+                        ? "Ambos establecimientos deben tener almacén para transferir repuestos"
+                        : ""
+                    }
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${
+                      isRepuesto
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    } ${
+                      !bothEstablishmentsHaveWarehouse
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    <Box className="h-4 w-4" />
+                    <span className="font-medium text-sm">Repuesto</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => form.setValue("item_type", "SERVICIO")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap cursor-pointer ${
+                      isServicio
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span className="font-medium text-sm">Servicio</span>
+                  </button>
+                </div>
+
+                {/* Mensaje de advertencia si no tienen almacén */}
+                {!bothEstablishmentsHaveWarehouse && (
+                  <div className="text-xs text-amber-600 flex items-center gap-1">
+                    <span>
+                      Ambos establecimientos deben tener almacén para transferir
+                      repuestos
+                    </span>
+                  </div>
+                )}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddDetail}
+                  className="flex items-center sm:flex-row flex-col sm:items-center w-full sm:w-auto mx-auto"
+                >
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 sm:mr-2 sm:mb-0" />
+                    <span className="text-sm text-center">
+                      Agregar {isRepuesto ? "Repuesto" : "Servicio"}
+                    </span>
+                  </div>
+                </Button>
+              </div>
+            )}
           </div>
 
           {fields.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>No hay {isRepuesto ? "repuestos" : "servicios"} agregados</p>
+            </div>
+          ) : mode === "update" && isRepuesto ? (
+            /* Vista de solo lectura para repuestos en modo edición */
+            <div className="rounded-md border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 border-b border-border">
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-10">
+                      #
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">
+                      Repuesto
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-28">
+                      Código
+                    </th>
+                    <th className="text-right px-4 py-2.5 font-medium text-muted-foreground w-24">
+                      Cantidad
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fields.map((field, index) => (
+                    <tr
+                      key={field.id}
+                      className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {transferData?.details?.[index]?.product?.name || "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {transferData?.details?.[index]?.product?.code ? (
+                          <CopyCell
+                            className="text-xs font-mono text-muted-foreground"
+                            value={transferData.details[index].product.code}
+                            label={transferData.details[index].product.code}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums font-medium">
+                        {(transferData?.details?.[index]?.quantity ??
+                        fields[index])
+                          ? form.getValues(`details.${index}.quantity`) || "—"
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="space-y-3">
@@ -867,112 +924,82 @@ export const ProductTransferForm = ({
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                       {index + 1}
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      color="red"
-                      onClick={() => handleRemoveDetail(index)}
-                      disabled={mode === "update"}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {mode === "create" && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        color="red"
+                        onClick={() => handleRemoveDetail(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
                   {isRepuesto ? (
-                    /* Campos para PRODUCTO */
+                    /* Campos para PRODUCTO en modo create */
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-                      {mode === "update" ? (
-                        // Modo edición: Mostrar nombre del repuesto (solo lectura)
-                        <div className="space-y-1">
-                          <FormLabel>Repuesto *</FormLabel>
-                          <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm">
-                            <div className="flex flex-col gap-2">
-                              <span className="font-medium text-sm">
-                                {transferData?.details?.[index]?.product
-                                  ?.name || "Repuesto no disponible"}
-                              </span>
-                              {transferData?.details?.[index]?.product
-                                ?.code && (
-                                <div className="flex items-center gap-2">
-                                  <CopyCell
-                                    className="text-xs font-medium"
-                                    value={
-                                      transferData.details[index].product.code
-                                    }
-                                    label={`Cód: ${transferData.details[index].product.code}`}
-                                  />
-                                </div>
-                              )}
-                            </div>
+                      <div className="space-y-1">
+                        <FormSelectAsync
+                          name={`details.${index}.product_id`}
+                          label="Repuesto"
+                          placeholder="Buscar repuesto..."
+                          control={form.control}
+                          useQueryHook={useInventory}
+                          mapOptionFn={(inventory: InventoryResource) => ({
+                            label: () => (
+                              <div className="flex items-center justify-between gap-2 w-full">
+                                <span className="font-medium truncate">
+                                  {inventory.product_name}
+                                </span>
+                                <span
+                                  className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                    inventory.available_quantity > 0
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-red-100 text-red-700"
+                                  }`}
+                                >
+                                  Stock: {inventory.available_quantity}
+                                </span>
+                              </div>
+                            ),
+                            value: inventory.product_id.toString(),
+                          })}
+                          additionalParams={{
+                            warehouse_id:
+                              selectedOriginEstablishment?.warehouse_id,
+                            available_quantity: 0,
+                          }}
+                          perPage={10}
+                          debounceMs={500}
+                          onValueChange={(value, item) => {
+                            if (value && item) {
+                              setSelectedProducts((prev) => {
+                                const newMap = new Map(prev);
+                                newMap.set(index, item as InventoryResource);
+                                return newMap;
+                              });
+                            } else {
+                              setSelectedProducts((prev) => {
+                                const newMap = new Map(prev);
+                                newMap.delete(index);
+                                return newMap;
+                              });
+                            }
+                          }}
+                          required
+                        />
+                        {selectedProducts.get(index) && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <CopyCell
+                              className="text-xs font-medium"
+                              value={selectedProducts.get(index)!.product.code}
+                              label={`Cód: ${selectedProducts.get(index)!.product.code}`}
+                            />
                           </div>
-                        </div>
-                      ) : (
-                        // Modo creación: Selector asíncrono
-                        <div className="space-y-1">
-                          <FormSelectAsync
-                            name={`details.${index}.product_id`}
-                            label="Repuesto"
-                            placeholder="Buscar repuesto..."
-                            control={form.control}
-                            useQueryHook={useInventory}
-                            mapOptionFn={(inventory: InventoryResource) => ({
-                              label: () => (
-                                <div className="flex items-center justify-between gap-2 w-full">
-                                  <span className="font-medium truncate">
-                                    {inventory.product_name}
-                                  </span>
-                                  <span
-                                    className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                      inventory.available_quantity > 0
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-red-100 text-red-700"
-                                    }`}
-                                  >
-                                    Stock: {inventory.available_quantity}
-                                  </span>
-                                </div>
-                              ),
-                              value: inventory.product_id.toString(),
-                            })}
-                            additionalParams={{
-                              warehouse_id:
-                                selectedOriginEstablishment?.warehouse_id,
-                              available_quantity: 0,
-                            }}
-                            perPage={10}
-                            debounceMs={500}
-                            onValueChange={(value, item) => {
-                              if (value && item) {
-                                setSelectedProducts((prev) => {
-                                  const newMap = new Map(prev);
-                                  newMap.set(index, item as InventoryResource);
-                                  return newMap;
-                                });
-                              } else {
-                                // Si se limpia el valor, eliminar del mapa
-                                setSelectedProducts((prev) => {
-                                  const newMap = new Map(prev);
-                                  newMap.delete(index);
-                                  return newMap;
-                                });
-                              }
-                            }}
-                            required
-                          />
-                          {selectedProducts.get(index) && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <CopyCell
-                                className="text-xs font-medium"
-                                value={
-                                  selectedProducts.get(index)!.product.code
-                                }
-                                label={`Cód: ${selectedProducts.get(index)!.product.code}`}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
+                        )}
+                      </div>
 
                       <div className="justify-start">
                         <FormInput
@@ -982,7 +1009,6 @@ export const ProductTransferForm = ({
                           min="1"
                           placeholder="1"
                           control={form.control}
-                          disabled={mode === "update"}
                           required
                         />
                       </div>
@@ -993,7 +1019,6 @@ export const ProductTransferForm = ({
                           label="Notas"
                           placeholder="Observaciones"
                           control={form.control}
-                          disabled={mode === "update"}
                           className="justify-start"
                         />
                       </div>
