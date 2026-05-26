@@ -22,8 +22,8 @@ import { TableHeaderWithTooltip } from "@/shared/components/TableHeaderWithToolt
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import ShippingGuideHistory from "@/features/ap/comercial/envios-recepciones/components/ShippingGuideHistory";
 import { CopyCell } from "@/shared/components/CopyCell";
+import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 
 export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
 

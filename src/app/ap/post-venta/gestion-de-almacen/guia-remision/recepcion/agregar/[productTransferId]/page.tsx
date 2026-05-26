@@ -85,6 +85,7 @@ export default function CreateTransferReceptionPage() {
           quantity: Number(detail.quantity),
           unit_cost: detail.unit_cost,
         }))}
+        dateGuideDate={productTransfer.movement_date}
       />
     </FormWrapper>
   );

@@ -19,6 +19,7 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
     ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
+
 // Tipos de documento
 export const DOCUMENT_TYPES = [
   { value: "GUIA_REMISION", label: "Guía de Remisión" },

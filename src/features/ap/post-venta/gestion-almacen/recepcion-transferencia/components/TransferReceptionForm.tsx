@@ -44,6 +44,7 @@ interface TransferReceptionFormProps {
     quantity: number;
     unit_cost: number;
   }>;
+  dateGuideDate?: string;
 }
 
 export const TransferReceptionForm = ({
@@ -54,6 +55,7 @@ export const TransferReceptionForm = ({
   onCancel,
   itemType = "PRODUCTO",
   productTransferItems = [],
+  dateGuideDate = "",
 }: TransferReceptionFormProps) => {
   const isServicio = itemType === "SERVICIO";
   const form = useForm({
@@ -149,7 +151,10 @@ export const TransferReceptionForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabled
+            disabledRange={{
+              before: new Date(dateGuideDate),
+              after: new Date(),
+            }}
           />
 
           <FormSelect

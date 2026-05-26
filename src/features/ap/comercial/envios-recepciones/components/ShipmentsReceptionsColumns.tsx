@@ -26,7 +26,6 @@ import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.int
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import ShippingGuideHistory from "./ShippingGuideHistory";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +36,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
+import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
