@@ -131,7 +131,7 @@ export const ProductTransferForm = ({
     name: string;
   } | null>(null);
 
-  // Estado para almacenar los productos seleccionados (en modo create)
+  // Estado para almacenar los repuestos seleccionados (en modo create)
   const [selectedProducts, setSelectedProducts] = useState<
     Map<number, InventoryResource>
   >(new Map());
@@ -142,11 +142,11 @@ export const ProductTransferForm = ({
   const isPersonaJuridica =
     typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
 
-  // Determinar si es producto o servicio
-  const isProducto = transferType === "PRODUCTO";
+  // Determinar si es repuesto o servicio
+  const isRepuesto = transferType === "PRODUCTO";
   const isServicio = transferType === "SERVICIO";
 
-  // Validar si ambos establecimientos tienen almacén para habilitar "Producto"
+  // Validar si ambos establecimientos tienen almacén para habilitar "Repuesto"
   const bothEstablishmentsHaveWarehouse =
     selectedOriginEstablishment?.warehouse_id !== null &&
     selectedOriginEstablishment?.warehouse_id !== undefined &&
@@ -273,7 +273,13 @@ export const ProductTransferForm = ({
         { shouldValidate: true },
       );
     }
-  }, [transferModalityId, isFirstLoad, form, isTransportPrivate, isTransportPublic]);
+  }, [
+    transferModalityId,
+    isFirstLoad,
+    form,
+    isTransportPrivate,
+    isTransportPublic,
+  ]);
 
   // UseEffect para limpiar campos cuando cambia el tipo de persona
   useEffect(() => {
@@ -324,7 +330,6 @@ export const ProductTransferForm = ({
     }
   }, [selectedOriginEstablishment?.sede_id, filteredSeries, form, mode]);
 
-
   // Limpiar detalles cuando cambia el tipo de transferencia (PRODUCTO <-> SERVICIO)
   useEffect(() => {
     if (isFirstLoad) return;
@@ -336,7 +341,7 @@ export const ProductTransferForm = ({
       fields.length > 0
     ) {
       form.setValue("details", []);
-      // Limpiar productos seleccionados
+      // Limpiar repuestos seleccionados
       setSelectedProducts(new Map());
     }
 
@@ -352,10 +357,10 @@ export const ProductTransferForm = ({
       form.setValue("item_type", "SERVICIO", {
         shouldValidate: true,
       });
-      // Limpiar detalles de productos
+      // Limpiar detalles de repuestos
       if (fields.length > 0) {
         form.setValue("details", []);
-        // Limpiar productos seleccionados
+        // Limpiar repuestos seleccionados
         setSelectedProducts(new Map());
       }
     }
@@ -368,7 +373,7 @@ export const ProductTransferForm = ({
   ]);
 
   const handleAddDetail = () => {
-    if (isProducto) {
+    if (isRepuesto) {
       append({
         product_id: "",
         quantity: 1,
@@ -386,11 +391,11 @@ export const ProductTransferForm = ({
 
   const handleRemoveDetail = (index: number) => {
     remove(index);
-    // Limpiar el producto seleccionado del mapa
+    // Limpiar el repuesto seleccionado del mapa
     setSelectedProducts((prev) => {
       const newMap = new Map(prev);
       newMap.delete(index);
-      // Reindexar los productos que vienen después del eliminado
+      // Reindexar los repuestos que vienen después del eliminado
       const reindexedMap = new Map();
       newMap.forEach((value, key) => {
         if (key > index) {
@@ -403,11 +408,7 @@ export const ProductTransferForm = ({
     });
   };
 
-  if (
-    isLoadingSunatConcepts ||
-    isLoadingSeries ||
-    isLoadingTypesPerson
-  ) {
+  if (isLoadingSunatConcepts || isLoadingSeries || isLoadingTypesPerson) {
     return <FormSkeleton />;
   }
 
@@ -764,14 +765,14 @@ export const ProductTransferForm = ({
           />
         </GroupFormSection>
 
-        {/* Sección: Detalles de Productos */}
+        {/* Sección: Detalles de Repuestos */}
         <Card className="p-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">
-                {isProducto
-                  ? "Productos a Transferir"
+                {isRepuesto
+                  ? "Repuestos a Transferir"
                   : "Servicios a Transferir"}
               </h3>
             </div>
@@ -787,11 +788,11 @@ export const ProductTransferForm = ({
                   }
                   title={
                     !bothEstablishmentsHaveWarehouse
-                      ? "Ambos establecimientos deben tener almacén para transferir productos"
+                      ? "Ambos establecimientos deben tener almacén para transferir repuestos"
                       : ""
                   }
                   className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                    isProducto
+                    isRepuesto
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   } ${
@@ -801,7 +802,7 @@ export const ProductTransferForm = ({
                   }`}
                 >
                   <Box className="h-4 w-4" />
-                  <span className="font-medium text-sm">Producto</span>
+                  <span className="font-medium text-sm">Repuesto</span>
                 </button>
                 <button
                   type="button"
@@ -827,7 +828,7 @@ export const ProductTransferForm = ({
                 <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                   <span>
                     Ambos establecimientos deben tener almacén para transferir
-                    productos
+                    repuestos
                   </span>
                 </div>
               )}
@@ -840,7 +841,7 @@ export const ProductTransferForm = ({
                 disabled={mode === "update"}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Agregar {isProducto ? "Producto" : "Servicio"}
+                Agregar {isRepuesto ? "Repuesto" : "Servicio"}
               </Button>
             </div>
           </div>
@@ -848,19 +849,19 @@ export const ProductTransferForm = ({
           {fields.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No hay {isProducto ? "productos" : "servicios"} agregados</p>
+              <p>No hay {isRepuesto ? "repuestos" : "servicios"} agregados</p>
             </div>
           ) : (
             <div className="space-y-3">
               {fields.map((field, index) => (
                 <Card
                   key={field.id}
-                  className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200"
+                  className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 gap-1"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-sm">
-                      {isProducto ? "Producto" : "Servicio"} {index + 1}
-                    </h4>
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
+                      {index + 1}
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"
@@ -873,18 +874,18 @@ export const ProductTransferForm = ({
                     </Button>
                   </div>
 
-                  {isProducto ? (
+                  {isRepuesto ? (
                     /* Campos para PRODUCTO */
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
                       {mode === "update" ? (
-                        // Modo edición: Mostrar nombre del producto (solo lectura)
+                        // Modo edición: Mostrar nombre del repuesto (solo lectura)
                         <div className="space-y-1">
-                          <FormLabel>Producto *</FormLabel>
+                          <FormLabel>Repuesto *</FormLabel>
                           <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm">
                             <div className="flex flex-col gap-2">
                               <span className="font-medium text-sm">
                                 {transferData?.details?.[index]?.product
-                                  ?.name || "Producto no disponible"}
+                                  ?.name || "Repuesto no disponible"}
                               </span>
                               {transferData?.details?.[index]?.product
                                 ?.code && (
@@ -906,8 +907,8 @@ export const ProductTransferForm = ({
                         <div className="space-y-1">
                           <FormSelectAsync
                             name={`details.${index}.product_id`}
-                            label="Producto *"
-                            placeholder="Buscar producto..."
+                            label="Repuesto *"
+                            placeholder="Buscar repuesto..."
                             control={form.control}
                             useQueryHook={useInventory}
                             mapOptionFn={(inventory: InventoryResource) => ({
