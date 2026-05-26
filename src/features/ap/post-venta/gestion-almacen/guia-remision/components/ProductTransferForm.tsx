@@ -286,17 +286,24 @@ export const ProductTransferForm = ({
     if (isFirstLoad) return;
 
     // Limpiar campos de persona natural cuando se selecciona jurídica
-    if (isPersonaJuridica) {
+    if (isPersonaJuridica && mode === "create") {
       form.setValue("driver_doc", "");
       form.setValue("driver_name", "");
       form.setValue("license", "");
     }
 
     // Limpiar campos de persona jurídica cuando se selecciona natural
-    if (isPersonaNatural) {
+    if (isPersonaNatural && mode === "create") {
       form.setValue("transport_company_id", "");
     }
-  }, [typePersonId, isFirstLoad, form, isPersonaNatural, isPersonaJuridica]);
+  }, [
+    typePersonId,
+    isFirstLoad,
+    form,
+    isPersonaNatural,
+    isPersonaJuridica,
+    mode,
+  ]);
 
   // Setear valores por defecto en modo create
   useEffect(() => {
@@ -488,13 +495,24 @@ export const ProductTransferForm = ({
                 }
               }}
             />
-            {selectedOriginEstablishment && (
+            {(selectedOriginEstablishment ||
+              (mode === "update" &&
+                transferData?.reference?.transmitter_establishment)) && (
               <div className="text-xs text-primary space-y-0.5">
                 <p className="font-medium">
-                  {selectedOriginEstablishment.description ||
-                    selectedOriginEstablishment.code}
+                  {selectedOriginEstablishment
+                    ? selectedOriginEstablishment.description ||
+                      selectedOriginEstablishment.code
+                    : transferData.reference.transmitter_establishment
+                        .description ||
+                      transferData.reference.transmitter_establishment.code}
                 </p>
-                <p>{selectedOriginEstablishment.full_address}</p>
+                <p>
+                  {selectedOriginEstablishment
+                    ? selectedOriginEstablishment.full_address
+                    : transferData.reference.transmitter_establishment
+                        .full_address}
+                </p>
               </div>
             )}
             {form.formState.errors.transmitter_id && (
@@ -561,13 +579,24 @@ export const ProductTransferForm = ({
                 }
               }}
             />
-            {selectedDestinationEstablishment && (
+            {(selectedDestinationEstablishment ||
+              (mode === "update" &&
+                transferData?.reference?.receiver_establishment)) && (
               <div className="text-xs text-primary space-y-0.5">
                 <p className="font-medium">
-                  {selectedDestinationEstablishment.description ||
-                    selectedDestinationEstablishment.code}
+                  {selectedDestinationEstablishment
+                    ? selectedDestinationEstablishment.description ||
+                      selectedDestinationEstablishment.code
+                    : transferData.reference.receiver_establishment
+                        .description ||
+                      transferData.reference.receiver_establishment.code}
                 </p>
-                <p>{selectedDestinationEstablishment.full_address}</p>
+                <p>
+                  {selectedDestinationEstablishment
+                    ? selectedDestinationEstablishment.full_address
+                    : transferData.reference.receiver_establishment
+                        .full_address}
+                </p>
               </div>
             )}
             {form.formState.errors.receiver_id && (
