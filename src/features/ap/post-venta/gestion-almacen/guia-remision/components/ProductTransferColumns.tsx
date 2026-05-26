@@ -96,17 +96,15 @@ export const productTransferColumns = ({
         row.original;
       if (!reference) return "-";
 
-      const dynSeries =
-        cancelled_inventory_movement_id !== null &&
-        !reference.dyn_series?.endsWith("*")
-          ? `${reference.dyn_series}*`
-          : reference.dyn_series;
-
       return (
         <>
           {item_type === "PRODUCTO" ? (
             <CopyCell
-              value={dynSeries || ""}
+              value={
+                cancelled_inventory_movement_id === null
+                  ? (reference.dyn_series?.replace(/\*$/, "") ?? "")
+                  : (reference.dyn_series ?? "")
+              }
               className="font-mono text-sm font-semibold"
             />
           ) : (
