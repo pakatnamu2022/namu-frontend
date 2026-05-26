@@ -270,15 +270,15 @@ export default function ShippingGuideHistory({
               {logsData && (
                 <>
                   {/* Header Info */}
-                  <div className="rounded-lg border bg-card p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">
+                  <div className="rounded-xl border bg-card px-5 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+                          Guía de Remisión
+                        </p>
+                        <h3 className="text-xl font-semibold tracking-tight">
                           {logsData.data.shipping_guide.document_number}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Serie: {logsData.data.shipping_guide.document_series}
-                        </p>
                       </div>
                       {getStatusBadge(
                         logsData.data.shipping_guide.migration_status,
@@ -287,17 +287,21 @@ export default function ShippingGuideHistory({
                         ),
                       )}
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Creado</p>
-                        <p className="font-medium">
+                    <Separator className="my-3" />
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          Creado
+                        </p>
+                        <p className="font-medium tabular-nums">
                           {formatDate(logsData.data.shipping_guide.created_at)}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Migrado</p>
-                        <p className="font-medium">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          Migrado
+                        </p>
+                        <p className="font-medium tabular-nums">
                           {formatDate(logsData.data.shipping_guide.migrated_at)}
                         </p>
                       </div>
@@ -319,16 +323,15 @@ export default function ShippingGuideHistory({
               {historyData && (
                 <>
                   {/* Header Info */}
-                  <div className="rounded-lg border bg-card p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">
+                  <div className="rounded-xl border bg-card px-5 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+                          Guía de Remisión
+                        </p>
+                        <h3 className="text-xl font-semibold tracking-tight">
                           {historyData.data.shipping_guide.document_number}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Serie:{" "}
-                          {historyData.data.shipping_guide.document_series}
-                        </p>
                       </div>
                       {getStatusBadge(
                         historyData.data.shipping_guide.migration_status,
