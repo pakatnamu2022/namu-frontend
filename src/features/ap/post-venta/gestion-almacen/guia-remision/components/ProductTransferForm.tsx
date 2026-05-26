@@ -779,7 +779,7 @@ export const ProductTransferForm = ({
 
             <div className="flex items-center gap-4 flex-wrap">
               {/* Toggle PRODUCTO/SERVICIO */}
-              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 shrink-0">
+              <div className="flex items-center gap-3 bg-slate-100 rounded-lg p-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => form.setValue("item_type", "PRODUCTO")}
@@ -825,7 +825,7 @@ export const ProductTransferForm = ({
 
               {/* Mensaje de advertencia si no tienen almacén */}
               {!bothEstablishmentsHaveWarehouse && mode === "create" && (
-                <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                <div className="text-xs text-amber-600 flex items-center gap-1">
                   <span>
                     Ambos establecimientos deben tener almacén para transferir
                     repuestos
@@ -912,7 +912,7 @@ export const ProductTransferForm = ({
                         <div className="space-y-1">
                           <FormSelectAsync
                             name={`details.${index}.product_id`}
-                            label="Repuesto *"
+                            label="Repuesto"
                             placeholder="Buscar repuesto..."
                             control={form.control}
                             useQueryHook={useInventory}
@@ -958,6 +958,7 @@ export const ProductTransferForm = ({
                                 });
                               }
                             }}
+                            required
                           />
                           {selectedProducts.get(index) && (
                             <div className="flex items-center gap-2 mt-2">
@@ -976,12 +977,13 @@ export const ProductTransferForm = ({
                       <div className="justify-start">
                         <FormInput
                           name={`details.${index}.quantity`}
-                          label="Cantidad *"
+                          label="Cantidad"
                           type="number"
                           min="1"
                           placeholder="1"
                           control={form.control}
                           disabled={mode === "update"}
+                          required
                         />
                       </div>
 
@@ -1001,21 +1003,23 @@ export const ProductTransferForm = ({
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                       <FormInput
                         name={`details.${index}.notes`}
-                        label="Descripción * (mín. 6 caracteres)"
+                        label="Descripción (mín. 6 caracteres)"
                         placeholder="Ej: Sobres de documentos, celulares, etc."
                         control={form.control}
                         disabled={mode === "update"}
                         minLength={6}
+                        required
                       />
 
                       <FormInput
                         name={`details.${index}.quantity`}
-                        label="Cantidad *"
+                        label="Cantidad"
                         type="number"
                         min="1"
                         placeholder="1"
                         control={form.control}
                         disabled={mode === "update"}
+                        required
                       />
                     </div>
                   )}
