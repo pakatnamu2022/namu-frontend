@@ -634,7 +634,7 @@ export const ProductTransferForm = ({
         <GroupFormSection
           icon={Truck}
           title="Conductor y Transporte"
-          color="blue"
+          color="gray"
           cols={{
             sm: 1,
             md: 2,
@@ -777,9 +777,9 @@ export const ProductTransferForm = ({
               </h3>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               {/* Toggle PRODUCTO/SERVICIO */}
-              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => form.setValue("item_type", "PRODUCTO")}
@@ -791,7 +791,7 @@ export const ProductTransferForm = ({
                       ? "Ambos establecimientos deben tener almacén para transferir repuestos"
                       : ""
                   }
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${
                     isRepuesto
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -808,7 +808,7 @@ export const ProductTransferForm = ({
                   type="button"
                   onClick={() => form.setValue("item_type", "SERVICIO")}
                   disabled={mode === "update"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${
                     isServicio
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -839,9 +839,14 @@ export const ProductTransferForm = ({
                 size="sm"
                 onClick={handleAddDetail}
                 disabled={mode === "update"}
+                className="flex items-center sm:flex-row flex-col sm:items-center w-full sm:w-auto mx-auto"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar {isRepuesto ? "Repuesto" : "Servicio"}
+                <div className="flex items-center gap-2">
+                  <Plus className="h-4 w-4 sm:mr-2 sm:mb-0" />
+                  <span className="text-sm text-center">
+                    Agregar {isRepuesto ? "Repuesto" : "Servicio"}
+                  </span>
+                </div>
               </Button>
             </div>
           </div>
