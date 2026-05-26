@@ -223,11 +223,8 @@ export default function TransferReceptionsCards({
                         {shippingGuide.document_number}
                       </p>
                       {shippingGuide.aceptada_por_sunat && (
-                        <Badge
-                          variant="outline"
-                          className="h-5 bg-green-50 text-green-700 border-green-200 mt-1"
-                        >
-                          SUNAT: {shippingGuide.sunat_description}
+                        <Badge variant="outline" color="green">
+                          SUNAT
                         </Badge>
                       )}
                     </div>

@@ -44,6 +44,7 @@ interface TransferReceptionFormProps {
     quantity: number;
     unit_cost: number;
   }>;
+  dateGuideDate?: string;
 }
 
 export const TransferReceptionForm = ({
@@ -54,6 +55,7 @@ export const TransferReceptionForm = ({
   onCancel,
   itemType = "PRODUCTO",
   productTransferItems = [],
+  dateGuideDate = "",
 }: TransferReceptionFormProps) => {
   const isServicio = itemType === "SERVICIO";
   const form = useForm({
@@ -111,9 +113,6 @@ export const TransferReceptionForm = ({
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<any>(null);
-  const confirmDescription = isServicio
-    ? "¿Está seguro de guardar esta recepción?"
-    : "Esta información será migrada a DYNAMICS. ¿Deseas continuar?";
 
   const handlePreSubmit = (data: any) => {
     setPendingData(data);
@@ -149,7 +148,10 @@ export const TransferReceptionForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabled
+            disabledRange={{
+              before: new Date(dateGuideDate),
+              after: new Date(),
+            }}
           />
 
           <FormSelect
@@ -368,7 +370,7 @@ export const TransferReceptionForm = ({
             open={confirmOpen}
             onOpenChange={setConfirmOpen}
             title="Confirmar guardado"
-            description={confirmDescription}
+            description="¿Está seguro de guardar esta recepción?"
             confirmText="Sí, guardar"
             cancelText="No, cancelar"
             onConfirm={handleConfirm}
