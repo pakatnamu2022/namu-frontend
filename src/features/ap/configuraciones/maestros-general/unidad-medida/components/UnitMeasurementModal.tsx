@@ -40,15 +40,17 @@ export default function UnitMeasurementModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useUnitMeasurementById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useUnitMeasurementById(id!);
 
   function mapUnitMeasurementToForm(
-    data: UnitMeasurementResource
+    data: UnitMeasurementResource,
   ): Partial<UnitMeasurementSchema> {
     return {
       dyn_code: data.dyn_code,
       nubefac_code: data.nubefac_code,
       description: data.description,
+      number_decimals: data.number_decimals,
     };
   }
 

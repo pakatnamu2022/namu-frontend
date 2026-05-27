@@ -1043,6 +1043,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         }}
         workOrderId={workOrderId}
         part={assignPart}
+        permission={permissions.canRemoveAssignSparePartsOT}
       />
 
       {/* Modal Solicitar Descuento */}

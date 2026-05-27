@@ -218,6 +218,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Link",
     description: "Permite asignar repuestos a una orden de trabajo",
   },
+  {
+    value: "removeAssignSparePartsOT",
+    label: "Eliminar Asignación Repuestos OT",
+    icon: "XCircle",
+    description:
+      "Permite eliminar la asignación de repuestos a una orden de trabajo",
+  },
 ];
 
 /**
@@ -287,5 +294,8 @@ export function useModulePermissions(moduleCode: string) {
     canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
     canRemoveSparePartsOT: hasModulePermission("removeSparePartsOT"),
     canAssignSparePartsOT: hasModulePermission("assignSparePartsOT"),
+    canRemoveAssignSparePartsOT: hasModulePermission(
+      "removeAssignSparePartsOT",
+    ),
   };
 }
