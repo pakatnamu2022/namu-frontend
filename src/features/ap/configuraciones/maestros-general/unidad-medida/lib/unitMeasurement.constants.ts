@@ -22,6 +22,7 @@ export const UNIT_MEASUREMENT: ModelComplete<UnitMeasurementResource> = {
     dyn_code: "",
     nubefac_code: "",
     description: "",
+    number_decimals: 0,
     status: true,
   },
 };

@@ -7,17 +7,10 @@ import {
   unitMeasurementSchemaUpdate,
 } from "../lib/unitMeasurement.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface UnitMeasurementFormProps {
   defaultValues: Partial<UnitMeasurementSchema>;
@@ -38,7 +31,7 @@ export const UnitMeasurementForm = ({
     resolver: zodResolver(
       mode === "create"
         ? unitMeasurementSchemaCreate
-        : unitMeasurementSchemaUpdate
+        : unitMeasurementSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -50,46 +43,34 @@ export const UnitMeasurementForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="dyn_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod. Dynamic</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: UNS" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod. Dynamic"
+            placeholder="Ej: UNS"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="nubefac_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod. Nubefac</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: ZZ" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod. Nubefac"
+            placeholder="Ej: 999"
           />
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          <FormField
+        <div className="grid grid-cols-2 gap-4">
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Servicio" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Servicio"
+          />
+
+          <FormInput
+            control={form.control}
+            name="number_decimals"
+            label="Número de decimales"
+            placeholder="Ej: 2"
+            type="number"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
