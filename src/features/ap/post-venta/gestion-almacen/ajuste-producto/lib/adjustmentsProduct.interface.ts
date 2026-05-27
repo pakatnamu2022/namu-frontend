@@ -22,6 +22,7 @@ export interface AdjustmentsProductDetailResource {
 export interface AdjustmentsProductResource {
   id: number;
   movement_number?: string;
+  movement_number_dyn?: string;
   movement_type: MovementType;
   reason_in_out_id?: number;
   warehouse_origin_id: number;
