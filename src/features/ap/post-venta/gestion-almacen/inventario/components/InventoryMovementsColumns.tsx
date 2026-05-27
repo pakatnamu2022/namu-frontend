@@ -177,7 +177,6 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const warehouseOrigin =
           transferReception.shipping_guide.transmitter_establishment;
         const shippingGuide = transferReception.shipping_guide;
-        const isAnnulled = shippingGuide.is_annulled;
 
         return (
           <div className="flex flex-col text-sm">
@@ -186,7 +185,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
             </span>
             {shippingGuide?.document_number && (
               <span className="text-xs text-gray-500">
-                Guía: {shippingGuide.document_number} {isAnnulled && "*"}
+                Guía: {shippingGuide.document_number}
               </span>
             )}
           </div>
