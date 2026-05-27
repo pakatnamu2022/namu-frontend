@@ -360,8 +360,16 @@ export const productTransferColumns = ({
     id: "status_dynamics",
     header: "Dynamics",
     cell: ({ row }) => {
-      const { reference } = row.original;
+      const { reference, item_type } = row.original;
       if (!reference) return "-";
+
+      if (item_type === "SERVICIO") {
+        return (
+          <Badge variant="outline" color="gray" icon={Ban}>
+            <span>No Permitido</span>
+          </Badge>
+        );
+      }
 
       const key = reference.migration_status as MigrationStatusKey;
       const statusInfo = MIGRATION_STATUS[key] ?? {
