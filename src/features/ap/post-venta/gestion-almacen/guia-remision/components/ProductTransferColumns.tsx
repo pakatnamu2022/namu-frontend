@@ -92,25 +92,25 @@ export const productTransferColumns = ({
     id: "nro_reference_dyn",
     header: "Serie Dyn",
     cell: ({ row }) => {
-      const { reference, cancelled_inventory_movement_id, item_type } =
+      const { reference, cancelled_inventory_movement_id, item_type, status } =
         row.original;
-      if (!reference) return "-";
+      if (!reference || item_type !== "PRODUCTO") return "-";
+
+      const dynSeries = reference.dyn_series ?? "";
+      const normalizedStatus = String(status ?? "").toLowerCase();
+      const isCancelledMovement =
+        cancelled_inventory_movement_id != null ||
+        normalizedStatus.includes("anulado") ||
+        normalizedStatus.includes("cancelado");
+
+      const baseSeries = dynSeries.replace(/\*+$/, "");
+      const displaySeries = isCancelledMovement ? `${baseSeries}*` : baseSeries;
 
       return (
-        <>
-          {item_type === "PRODUCTO" ? (
-            <CopyCell
-              value={
-                cancelled_inventory_movement_id === null
-                  ? (reference.dyn_series?.replace(/\*$/, "") ?? "")
-                  : (reference.dyn_series ?? "")
-              }
-              className="font-mono text-sm font-semibold"
-            />
-          ) : (
-            "-"
-          )}
-        </>
+        <CopyCell
+          value={displaySeries}
+          className="font-mono text-sm font-semibold"
+        />
       );
     },
   },
@@ -360,8 +360,16 @@ export const productTransferColumns = ({
     id: "status_dynamics",
     header: "Dynamics",
     cell: ({ row }) => {
-      const { reference } = row.original;
+      const { reference, item_type } = row.original;
       if (!reference) return "-";
+
+      if (item_type === "SERVICIO") {
+        return (
+          <Badge variant="outline" color="gray" icon={Ban}>
+            <span>No Permitido</span>
+          </Badge>
+        );
+      }
 
       const key = reference.migration_status as MigrationStatusKey;
       const statusInfo = MIGRATION_STATUS[key] ?? {

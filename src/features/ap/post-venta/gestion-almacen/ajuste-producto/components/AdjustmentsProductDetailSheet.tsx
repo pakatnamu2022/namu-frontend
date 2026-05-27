@@ -53,6 +53,10 @@ export function AdjustmentsProductDetailSheet({
                 value: data.movement_number,
               },
               {
+                label: "N° Movimiento Dyn",
+                value: data.movement_number_dyn,
+              },
+              {
                 label: "Tipo Movimiento",
                 value: (
                   <Badge
@@ -84,10 +88,6 @@ export function AdjustmentsProductDetailSheet({
                     {translateInventoryMovement(data.status) || "-"}
                   </Badge>
                 ),
-              },
-              {
-                label: "Total Ítems",
-                value: data.total_items || 0,
               },
               {
                 label: "Cantidad Total",
