@@ -120,3 +120,12 @@ export async function confirmPartsDelivery(
   );
   return data;
 }
+
+export async function unassignPartFromTechnician(
+  deliveryId: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${deliveryId}/unassign`,
+  );
+  return data;
+}

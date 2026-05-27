@@ -64,25 +64,8 @@ export function FormInput({
       if (onChange) {
         if (isNumberType) {
           const val = e.target.value;
-          let numValue = val === "" ? "" : Number(val);
+          const numValue = val === "" ? "" : Number(val);
 
-          // Aplicar límites min/max si están definidos
-          if (typeof numValue === "number" && !isNaN(numValue)) {
-            if (
-              inputProps.max !== undefined &&
-              numValue > Number(inputProps.max)
-            ) {
-              numValue = Number(inputProps.max);
-            }
-            if (
-              inputProps.min !== undefined &&
-              numValue < Number(inputProps.min)
-            ) {
-              numValue = Number(inputProps.min);
-            }
-          }
-
-          // Crear un evento sintético con el valor numérico
           const syntheticEvent = {
             ...e,
             target: {
@@ -186,24 +169,7 @@ export function FormInput({
 
           if (isNumberType) {
             const val = e.target.value;
-            let numValue = val === "" ? "" : Number(val);
-
-            // Aplicar límites min/max si están definidos
-            if (typeof numValue === "number" && !isNaN(numValue)) {
-              if (
-                inputProps.max !== undefined &&
-                numValue > Number(inputProps.max)
-              ) {
-                numValue = Number(inputProps.max);
-              }
-              if (
-                inputProps.min !== undefined &&
-                numValue < Number(inputProps.min)
-              ) {
-                numValue = Number(inputProps.min);
-              }
-            }
-
+            const numValue = val === "" ? "" : Number(val);
             field.onChange(numValue);
           } else {
             const val = uppercase
@@ -261,6 +227,19 @@ export function FormInput({
                     {...field}
                     {...inputProps}
                     onChange={handleChange}
+                    onBlur={(e) => {
+                      if (isNumberType) {
+                        let numValue = e.target.value === "" ? "" : Number(e.target.value);
+                        if (typeof numValue === "number" && !isNaN(numValue)) {
+                          if (inputProps.max !== undefined && numValue > Number(inputProps.max))
+                            numValue = Number(inputProps.max);
+                          if (inputProps.min !== undefined && numValue < Number(inputProps.min))
+                            numValue = Number(inputProps.min);
+                        }
+                        field.onChange(numValue);
+                      }
+                      field.onBlur();
+                    }}
                     value={value !== undefined ? value : (field.value ?? "")}
                   />
                 </FormControl>
