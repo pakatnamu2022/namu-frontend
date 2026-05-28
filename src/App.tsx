@@ -370,9 +370,6 @@ import UploadDepositPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/dep
 import AccountantDistrictAssignmentPage from "./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
-import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos/page";
-import AddPayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/agregar/page";
-import UpdatePayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
 import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
 import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
@@ -406,6 +403,7 @@ import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asis
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
+import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1738,7 +1736,6 @@ function App() {
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<UpdateWorkerSignaturePage />}
               />
-
               <Route
                 path="viaticos"
                 element={
@@ -1822,38 +1819,32 @@ function App() {
                   element={<UploadDepositPage />}
                 />
               </Route>
-
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones"
                 element={<PositionsPage />}
               />
-
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones/agregar"
                 element={<AddPositionPage />}
               />
-
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones/actualizar/:id"
                 element={<UpdatePositionPage />}
               />
-
               {/* Evaluaciones de Desempeño */}
               <Route
                 path="evaluaciones-de-desempeno"
                 element={<ModulePerformanceEvaluationPage />}
               />
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/categorias-jerarquicas",
                 <HierarchicalCategoryPage />,
                 <AddHierarchicalCategoryPage />,
                 <UpdateHierarchicalCategoryPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/ciclos",
                 <CyclePage />,
@@ -1861,14 +1852,12 @@ function App() {
                 <UpdateCyclePage />,
                 <CyclePersonDetailPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/competencias",
                 <CompetencesPage />,
                 <AddCompetencePage />,
                 <UpdateCompetencePage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/evaluaciones",
                 <EvaluationPage />,
@@ -1876,75 +1865,57 @@ function App() {
                 <UpdateEvaluationPage />,
                 <EvaluationPersonPage />,
               )}
-
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones/detalles/:id"
                 element={<EvaluationDetailPage />}
               />
-
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/:person"
                 element={<EvaluationDetailPersonPage />}
               />
-
               <Route
                 path="evaluaciones-de-desempeno/excluidos"
                 element={<ExcludedPage />}
               />
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/metricas",
                 <MetricPage />,
                 <AddMetricPage />,
                 <UpdateMetricPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/objetivos",
                 <ObjectivePage />,
                 <AddObjectivePage />,
                 <UpdateObjectivePage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/parametros",
                 <ParameterPage />,
                 <AddParameterPage />,
                 <UpdateParameterPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/periodos",
                 <PeriodPage />,
                 <AddPeriodPage />,
                 <UpdatePeriodPage />,
               )}
-
               <Route
                 path="evaluaciones-de-desempeno/asignacion-pares"
                 element={<EvaluatorParPage />}
               />
-
               <Route
                 path="evaluaciones-de-desempeno/reportes-evaluaciones"
                 element={<ReportByPeriodsEvaluationPage />}
               />
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/modelo-evaluacion",
                 <EvaluationModelPage />,
                 <AddEvaluationModelPage />,
                 <UpdateEvaluationModelPage />,
               )}
-
               {/* Planillas */}
-              {/* Conceptos */}
-              {RouterCrud(
-                "planillas/conceptos",
-                <PayrollConceptsPage />,
-                <AddPayrollConceptPage />,
-                <UpdatePayrollConceptPage />,
-              )}
               {/* Dia Trabajo */}
               {RouterCrud(
                 "planillas/dia-trabajo",
@@ -1963,7 +1934,6 @@ function App() {
                 path="planillas/periodos/calcular/:id"
                 element={<PayrollCalculationPage />}
               />
-
               {/* Reglas de Asistencia */}
               {RouterCrud(
                 "planillas/reglas-asistencia",
@@ -1971,11 +1941,15 @@ function App() {
                 <AddAttendanceRulePage />,
                 <UpdateAttendanceRulePage />,
               )}
-
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"
                 element={<PayrollParameterPage />}
+              />
+              {/* Tasas y Porcentajes de Planilla */}
+              <Route
+                path="planillas/tasas-porcentajes"
+                element={<PayrollRatesPercentagesPage />}
               />
             </Route>
 

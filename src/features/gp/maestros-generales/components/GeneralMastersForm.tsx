@@ -20,6 +20,7 @@ interface GeneralMastersFormProps {
   onCancel?: () => void;
   lockedCode?: boolean;
   lockedType?: boolean;
+  allowedTypes?: string[];
 }
 
 export default function GeneralMastersForm({
@@ -30,17 +31,24 @@ export default function GeneralMastersForm({
   onCancel,
   lockedCode,
   lockedType,
+  allowedTypes,
 }: GeneralMastersFormProps) {
   const { data: typesData, isLoading: isLoadingTypes } =
     useGeneralMastersTypes();
 
   const typeOptions = useMemo(() => {
+    if (allowedTypes) {
+      return allowedTypes.map((type) => ({
+        value: type,
+        label: type.replace(/_/g, " "),
+      }));
+    }
     if (!typesData?.data) return [];
     return typesData.data.map((type) => ({
       value: type,
       label: type.replace(/_/g, " "),
     }));
-  }, [typesData]);
+  }, [typesData, allowedTypes]);
 
   const form = useForm<GeneralMastersSchema>({
     resolver: zodResolver(generalMastersSchemaCreate) as any,
@@ -76,11 +84,11 @@ export default function GeneralMastersForm({
             control={form.control}
             name="type"
             label="Tipo"
-            placeholder="Seleccione o escriba un tipo"
+            placeholder={allowedTypes ? "Seleccione un tipo" : "Seleccione o escriba un tipo"}
             options={typeOptions}
-            isLoadingOptions={isLoadingTypes}
+            isLoadingOptions={allowedTypes ? false : isLoadingTypes}
             required
-            allowCreate={true}
+            allowCreate={!allowedTypes}
           />
         )}
 

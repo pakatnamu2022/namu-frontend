@@ -55,6 +55,34 @@ export const PAYROLL_CONSTANTS: ModelComplete<GeneralMastersResource> = {
   },
 };
 
+// TASAS Y PORCENTAJES DE PLANILLA
+const ROUTE_PAYROLL_RATES_PERCENTAJES = "tasas-porcentajes";
+const ABSOLUTE_ROUTE_PAYROLL_RATES_PERCENTAJES = `/gp/gestionhumana/planillas/${ROUTE_PAYROLL_RATES_PERCENTAJES}`;
+
+export const PAYROLL_RATES_PERCENTAJES: ModelComplete<GeneralMastersResource> =
+  {
+    MODEL: {
+      name: "Constante de Planilla",
+      plural: "Constantes de Planilla",
+      gender: false,
+    },
+    ICON: "Settings",
+    ENDPOINT: GENERAL_MASTERS_ENDPOINT,
+    QUERY_KEY: "payrollConstants",
+    ROUTE: ROUTE_PAYROLL,
+    ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_PAYROLL_RATES_PERCENTAJES,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE_PAYROLL_RATES_PERCENTAJES}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE_PAYROLL_RATES_PERCENTAJES}/actualizar`,
+    EMPTY: {
+      id: 0,
+      code: "",
+      description: "",
+      type: "",
+      value: "",
+      status: 1,
+    },
+  };
+
 // COSTANTES DE POSTVENTA
 const ROUTE_POST_SALE = "parametros-postventa";
 const ABSOLUTE_ROUTE_POST_SALE = `/gp/postventa/${ROUTE_POST_SALE}`;
@@ -84,3 +112,6 @@ export const POST_SALE_MASTERS: ModelComplete<GeneralMastersResource> = {
 
 export const PAYROLL_CONSTANTS_TYPE = "SPREADSHEET_PARAMETERS";
 export const AFTER_SALES_PARAMETERS_TYPE = "AFTER_SALES_PARAMETERS";
+export const MANDATORY_CONTRIBUTION_TYPE = "APORTE_OBLIGATORIO";
+export const INSURANCE_PREMIUM_TYPE = "PRIMA_SEGURO";
+export const VARIABLE_COMMISSION_TYPE = "COMISION_VARIABLE";
