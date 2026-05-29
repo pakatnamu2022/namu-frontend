@@ -10,6 +10,7 @@ import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import DatePicker from "@/shared/components/DatePicker";
+import SearchInput from "@/shared/components/SearchInput";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -126,6 +127,7 @@ export default function AttendanceInternalReport() {
     date_from: firstOfMonth,
     date_to: today,
   });
+  const [search, setSearch] = useState("");
   const [submittedFilters, setSubmittedFilters] =
     useState<AttendanceReportFilters | null>(null);
   const [page, setPage] = useState(1);
@@ -133,7 +135,7 @@ export default function AttendanceInternalReport() {
   const [exporting, setExporting] = useState(false);
 
   const activeFilters: AttendanceReportFilters | null = submittedFilters
-    ? { ...submittedFilters, page, per_page: perPage }
+    ? { ...submittedFilters, search: search || undefined, page, per_page: perPage }
     : null;
 
   const { data, isLoading } = useInternalReport(activeFilters);
@@ -203,6 +205,11 @@ export default function AttendanceInternalReport() {
           }
           placeholder="Hasta"
         />
+        <SearchInput
+          value={search}
+          onChange={(v) => { setSearch(v); setPage(1); }}
+          placeholder="Buscar colaborador..."
+        />
         <Button
           size="sm"
           variant="outline"
@@ -223,8 +230,8 @@ export default function AttendanceInternalReport() {
         <DataTablePagination
           page={page}
           per_page={perPage}
-          totalPages={data?.last_page ?? 1}
-          totalData={data?.total ?? 0}
+          totalPages={data?.meta.last_page ?? 1}
+          totalData={data?.meta.total ?? 0}
           onPageChange={setPage}
           setPerPage={(pp) => {
             setPerPage(pp);
