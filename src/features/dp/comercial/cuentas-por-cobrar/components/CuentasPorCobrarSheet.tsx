@@ -41,7 +41,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 function CommentItem({ comment }: { comment: CuentaPorCobrarComment }) {
   return (
     <div className="flex gap-2 py-2">
-      <div className="flex-shrink-0 mt-0.5 bg-primary/10 rounded-full p-1.5">
+      <div className="shrink-0 mt-0.5 bg-primary/10 rounded-full p-1.5">
         <User className="size-3 text-primary" />
       </div>
       <div className="flex-1 min-w-0">
@@ -53,7 +53,7 @@ function CommentItem({ comment }: { comment: CuentaPorCobrarComment }) {
             </Badge>
           )}
         </div>
-        <p className="text-xs text-foreground/80 break-words">{comment.comment}</p>
+        <p className="text-xs text-foreground/80 wrap-break-word">{comment.comment}</p>
         <p className="text-[10px] text-muted-foreground mt-1">
           {formatDateTime(comment.created_at)}
         </p>
