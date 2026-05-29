@@ -6,6 +6,7 @@ interface GeneralMastersOptionsProps {
   setSearch: (value: string) => void;
   showTypeSelect?: boolean;
   typeOptions?: string[];
+  typeLabels?: Record<string, string>;
   selectedType?: string;
   setSelectedType?: (value: string) => void;
 }
@@ -15,6 +16,7 @@ export default function GeneralMastersOptions({
   setSearch,
   showTypeSelect = false,
   typeOptions = [],
+  typeLabels,
   selectedType = "",
   setSelectedType,
 }: GeneralMastersOptionsProps) {
@@ -30,7 +32,7 @@ export default function GeneralMastersOptions({
         <SearchableSelect
           options={typeOptions.map((type) => ({
             value: type,
-            label: type,
+            label: typeLabels?.[type] ?? type,
           }))}
           value={selectedType}
           onChange={(value) => setSelectedType?.(value)}

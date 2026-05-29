@@ -401,9 +401,22 @@ import PayrollCalculationPage from "./app/gp/gestion-humana/planillas/periodos/c
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
+import LiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquidacion-bbss/page.tsx";
+import AddLiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquidacion-bbss/agregar/page.tsx";
+import UpdateLiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquidacion-bbss/actualizar/[id]/page.tsx";
+import LoanPage from "./app/gp/gestion-humana/planillas/prestamos/page.tsx";
+import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/page.tsx";
+import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
+import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
+import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
+import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
+import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
+import AddBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx";
+import UpdateBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
+import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1941,6 +1954,34 @@ function App() {
                 <AddAttendanceRulePage />,
                 <UpdateAttendanceRulePage />,
               )}
+              {/* Liquidación BBSS */}
+              {RouterCrud(
+                "planillas/liquidacion-bbss",
+                <LiquidacionBbssPage />,
+                <AddLiquidacionBbssPage />,
+                <UpdateLiquidacionBbssPage />,
+              )}
+              {/* Préstamos */}
+              {RouterCrud(
+                "planillas/prestamos",
+                <LoanPage />,
+                <AddLoanPage />,
+                <UpdateLoanPage />,
+              )}
+              {/* Seguros */}
+              {RouterCrud(
+                "planillas/seguros",
+                <InsurancePage />,
+                <AddInsurancePage />,
+                <UpdateInsurancePage />,
+              )}
+              {/* Bonificaciones */}
+              {RouterCrud(
+                "planillas/bonificaciones",
+                <BonusPage />,
+                <AddBonusPage />,
+                <UpdateBonusPage />,
+              )}
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"
@@ -1950,6 +1991,11 @@ function App() {
               <Route
                 path="planillas/tasas-porcentajes"
                 element={<PayrollRatesPercentagesPage />}
+              />
+              {/* Conceptos de Planilla */}
+              <Route
+                path="planillas/conceptos-planilla"
+                element={<PayrollConceptsPage />}
               />
             </Route>
 

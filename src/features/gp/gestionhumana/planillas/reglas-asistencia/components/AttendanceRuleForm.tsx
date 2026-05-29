@@ -2,17 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   AttendanceRuleSchema,
   attendanceRuleSchemaUpdate,
@@ -23,6 +14,7 @@ import { ATTENDANCE_RULE } from "../lib/attendance-rule.constant";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Option } from "@/core/core.interface";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 const HOUR_TYPE_OPTIONS: Option[] = [
   { label: "Diurno", value: "DIURNO" },
@@ -86,93 +78,43 @@ export const AttendanceRuleForm = ({
             required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="hours"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Horas</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={24}
-                    step="0.01"
-                    placeholder="Ej: 8.5"
-                    {...field}
-                    value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? null : Number(e.target.value),
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Horas"
+            type="number"
+            min={0}
+            max={24}
+            step="0.01"
+            placeholder="Ej: 8.5"
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
-            name="multiplier"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Multiplicador</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    placeholder="Ej: 1.5"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div>
+            <FormInput
+              name="multiplier"
+              label="Multiplicador"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="Ej: 1.5"
+              control={form.control}
+            />
+          </div>
 
-          <FormField
-            control={form.control}
+          <FormSwitch
             name="pay"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>¿Se paga?</FormLabel>
-                  <p className="text-xs text-muted-foreground">
-                    Indica si esta regla genera pago al trabajador
-                  </p>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
+            label="¿Se paga?"
+            description="Indica si esta regla genera pago al trabajador"
+            text={form.watch("pay") ? "Sí" : "No"}
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
+          <FormSwitch
             name="use_shift"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>¿Usa turno?</FormLabel>
-                  <p className="text-xs text-muted-foreground">
-                    Indica si esta regla aplica según el turno asignado
-                  </p>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
+            label="¿Usa turno?"
+            description="Indica si esta regla aplica según el turno asignado"
+            text={form.watch("use_shift") ? "Sí" : "No"}
+            control={form.control}
           />
         </div>
 
