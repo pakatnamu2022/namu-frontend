@@ -4,17 +4,27 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { differenceInDays, parseISO } from "date-fns";
+import { differenceInDays, format, parseISO } from "date-fns";
 import { CalendarRange, Loader2 } from "lucide-react";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { GeneralModal } from "@/shared/components/GeneralModal";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { errorToast, successToast } from "@/core/core.function";
 import { syncAttendanceRange } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+const todayStr = format(new Date(), "yyyy-MM-dd");
 
 const schema = z
   .object({
@@ -68,65 +78,90 @@ export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
     }
   };
 
-  const footer = (
-    <div className="flex justify-end gap-2 pt-2">
-      <Button variant="ghost" onClick={handleClose} disabled={form.formState.isSubmitting}>
-        Cancelar
-      </Button>
-      <Button
-        onClick={form.handleSubmit(onSubmit)}
-        disabled={form.formState.isSubmitting}
-      >
-        {form.formState.isSubmitting ? (
-          <>
-            <Loader2 className="size-4 mr-1.5 animate-spin" />
-            Sincronizando…
-          </>
-        ) : (
-          "Sincronizar"
-        )}
-      </Button>
-    </div>
-  );
-
   return (
-    <>
-      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        <CalendarRange className="size-4 mr-1.5" />
-        Sincronizar rango
-      </Button>
+    <Popover open={open} onOpenChange={(v) => (v ? setOpen(true) : handleClose())}>
+      <PopoverTrigger asChild>
+        <Button size="sm" variant="outline">
+          <CalendarRange className="size-4 mr-1.5" />
+          Sincronizar rango
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-4" align="end">
+        <div className="mb-3">
+          <p className="text-sm font-medium">Sincronizar por rango</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Despacha un job por día. Máximo 90 días.
+          </p>
+        </div>
 
-      <GeneralModal
-        open={open}
-        onClose={handleClose}
-        title="Sincronizar por rango"
-        subtitle="Despacha un job por día en el rango seleccionado. Máximo 90 días."
-        icon="CalendarRange"
-        size="md"
-        childrenFooter={footer}
-      >
         <Form {...form}>
-          <div className="grid gap-4">
-            <DatePickerFormField
+          <div className="grid gap-3">
+            <FormField
               control={form.control}
               name="date_from"
-              label="Fecha inicio"
-              disabledRange={{ after: today }}
-              captionLayout="dropdown"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs">Fecha inicio</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      max={todayStr}
+                      className="text-xs"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
             />
-            <DatePickerFormField
+
+            <FormField
               control={form.control}
               name="date_to"
-              label="Fecha fin"
-              disabledRange={[
-                { after: today },
-                ...(dateFrom ? [{ before: parseISO(dateFrom) }] : []),
-              ]}
-              captionLayout="dropdown"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs">Fecha fin</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      min={dateFrom || undefined}
+                      max={todayStr}
+                      className="text-xs"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
             />
           </div>
         </Form>
-      </GeneralModal>
-    </>
+
+        <div className="flex justify-end gap-2 pt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+            disabled={form.formState.isSubmitting}
+          >
+            Cancelar
+          </Button>
+          <Button
+            size="sm"
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader2 className="size-4 mr-1.5 animate-spin" />
+                Sincronizando…
+              </>
+            ) : (
+              "Sincronizar"
+            )}
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
