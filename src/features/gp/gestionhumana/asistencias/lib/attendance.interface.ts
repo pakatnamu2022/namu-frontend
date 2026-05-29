@@ -25,13 +25,21 @@ export interface AttendanceMeta {
 }
 
 export interface AttendanceResponse {
-  current_page: number;
   data: AttendanceRecord[];
-  from: number | null;
-  last_page: number;
-  per_page: number;
-  to: number | null;
-  total: number;
+  links: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
+  meta: {
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    per_page: number;
+    to: number | null;
+    total: number;
+  };
 }
 
 export interface AttendanceFilters {
