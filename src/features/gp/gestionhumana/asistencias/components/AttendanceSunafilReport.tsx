@@ -19,7 +19,10 @@ import { errorToast } from "@/core/core.function";
 import { ATTENDANCE } from "../lib/attendance.constants";
 import { useSunafilReport } from "../lib/attendance.hook";
 import { exportSunafilReport } from "../lib/attendance.actions";
-import type { AttendanceSunafilRow, AttendanceSunafilFilters } from "../lib/attendance.interface";
+import type {
+  AttendanceSunafilRow,
+  AttendanceSunafilFilters,
+} from "../lib/attendance.interface";
 
 const today = format(new Date(), "yyyy-MM-dd");
 const firstOfMonth = format(startOfMonth(new Date()), "yyyy-MM-dd");
@@ -66,21 +69,27 @@ const columns: ColumnDef<AttendanceSunafilRow>[] = [
     accessorKey: "check_in",
     header: "Entrada",
     cell: ({ row }) => (
-      <span className="tabular-nums text-sm">{timeStr(row.original.check_in)}</span>
+      <span className="tabular-nums text-sm">
+        {timeStr(row.original.check_in)}
+      </span>
     ),
   },
   {
     accessorKey: "check_out",
     header: "Salida",
     cell: ({ row }) => (
-      <span className="tabular-nums text-sm">{timeStr(row.original.check_out)}</span>
+      <span className="tabular-nums text-sm">
+        {timeStr(row.original.check_out)}
+      </span>
     ),
   },
   {
     accessorKey: "hours_worked",
     header: "H. Trabajadas",
     cell: ({ row }) => (
-      <span className="tabular-nums text-sm">{hoursStr(row.original.hours_worked)}</span>
+      <span className="tabular-nums text-sm">
+        {hoursStr(row.original.hours_worked)}
+      </span>
     ),
   },
 ];
@@ -96,13 +105,21 @@ export default function AttendanceSunafilReport() {
   const [dateFrom, setDateFrom] = useState(firstOfMonth);
   const [dateTo, setDateTo] = useState(today);
   const [search, setSearch] = useState("");
-  const [submittedFilters, setSubmittedFilters] = useState<{ date_from: string; date_to: string } | null>(null);
+  const [submittedFilters, setSubmittedFilters] = useState<{
+    date_from: string;
+    date_to: string;
+  } | null>(null);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
   const [loading, setLoading] = useState<"csv" | "xlsx" | null>(null);
 
   const activeFilters: AttendanceSunafilFilters | null = submittedFilters
-    ? { ...submittedFilters, search: search || undefined, page, per_page: perPage }
+    ? {
+        ...submittedFilters,
+        search: search || undefined,
+        page,
+        per_page: perPage,
+      }
     : null;
 
   const { data, isLoading } = useSunafilReport(activeFilters);
@@ -124,7 +141,10 @@ export default function AttendanceSunafilReport() {
     if (!canAction) return;
     setLoading(exportFormat);
     try {
-      await exportSunafilReport({ date_from: dateFrom, date_to: dateTo }, exportFormat);
+      await exportSunafilReport(
+        { date_from: dateFrom, date_to: dateTo },
+        exportFormat,
+      );
     } catch {
       errorToast("Error al exportar el reporte SUNAFIL");
     } finally {
@@ -169,46 +189,49 @@ export default function AttendanceSunafilReport() {
         </div>
       </HeaderTableWrapper>
 
-      <FilterWrapper>
-        <DatePicker
-          value={dateFrom}
-          onChange={(d) => setDateFrom(toStr(d) ?? firstOfMonth)}
-          placeholder="Desde"
-        />
-        <DatePicker
-          value={dateTo}
-          onChange={(d) => setDateTo(toStr(d) ?? today)}
-          placeholder="Hasta"
-        />
-        <SearchInput
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Buscar colaborador..."
-        />
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!canAction || isLoading}
-          onClick={handleLoad}
-        >
-          <Search className="size-4 mr-1.5" />
-          Cargar
-        </Button>
-      </FilterWrapper>
-
       <div className="space-y-2">
         <DataTable
           columns={columns}
           data={data?.data ?? []}
           isLoading={isLoading}
-        />
+        >
+          <FilterWrapper>
+            <DatePicker
+              value={dateFrom}
+              onChange={(d) => setDateFrom(toStr(d) ?? firstOfMonth)}
+              placeholder="Desde"
+            />
+            <DatePicker
+              value={dateTo}
+              onChange={(d) => setDateTo(toStr(d) ?? today)}
+              placeholder="Hasta"
+            />
+            <SearchInput
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Buscar colaborador..."
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!canAction || isLoading}
+              onClick={handleLoad}
+            >
+              <Search className="size-4 mr-1.5" />
+              Cargar
+            </Button>
+          </FilterWrapper>
+        </DataTable>
         <DataTablePagination
           page={page}
           per_page={perPage}
           totalPages={data?.meta.last_page ?? 1}
           totalData={data?.meta.total ?? 0}
           onPageChange={setPage}
-          setPerPage={(pp) => { setPerPage(pp); setPage(1); }}
+          setPerPage={(pp) => {
+            setPerPage(pp);
+            setPage(1);
+          }}
         />
       </div>
     </div>
