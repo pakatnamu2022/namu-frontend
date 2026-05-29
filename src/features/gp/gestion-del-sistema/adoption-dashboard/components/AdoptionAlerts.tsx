@@ -37,6 +37,7 @@ const typeLabel: Record<string, string> = {
   inactive_user: "Usuario inactivo",
   lagging_sede: "Sede rezagada",
   activity_drop: "Caída de actividad",
+  underused_module: "Módulo subutilizado",
   low_module_usage: "Módulo subutilizado",
 };
 
@@ -78,10 +79,11 @@ export default function AdoptionAlerts({ data }: Props) {
                   <IconComp className={`size-4 mt-0.5 shrink-0 ${cfg.iconColor}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className="text-sm font-semibold">{alert.entity}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {alert.sede && `· ${alert.sede}`}
-                      </span>
+                      {(alert.sede || alert.module) && (
+                        <span className="text-sm font-semibold">
+                          {alert.sede ?? alert.module}
+                        </span>
+                      )}
                       <span
                         className={`text-xs px-1.5 py-0.5 rounded font-medium ${
                           alert.severity === "high"

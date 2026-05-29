@@ -408,6 +408,7 @@ import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asis
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
+import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1979,6 +1980,9 @@ function App() {
                 path="planillas/parametros-planilla"
                 element={<PayrollParameterPage />}
               />
+
+              {/* Asistencias */}
+              <Route path="asistencias/asistencias" element={<AttendancePage />} />
             </Route>
 
             {/* ======================================================== */}
