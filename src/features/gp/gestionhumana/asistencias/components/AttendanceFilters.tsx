@@ -1,8 +1,10 @@
 import { X } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
+import DatePicker from "@/shared/components/DatePicker";
 import { MARK_TYPE_OPTIONS } from "../lib/attendance.constants";
 import type { AttendanceFilters } from "../lib/attendance.interface";
 
@@ -16,6 +18,10 @@ const MARK_TYPE_SELECT_OPTIONS = MARK_TYPE_OPTIONS.map((o) => ({
   value: o.value,
   label: o.label,
 }));
+
+function toDateString(date: Date | undefined): string | undefined {
+  return date ? format(date, "yyyy-MM-dd") : undefined;
+}
 
 export default function AttendanceFiltersBar({
   filters,
@@ -42,41 +48,41 @@ export default function AttendanceFiltersBar({
 
       <FilterWrapper>
         {/* Fecha exacta */}
-        <div className="flex items-center gap-1">
-          <Input
-            type="date"
-            value={filters.date ?? ""}
-            onChange={(e) =>
+        <div className="w-40">
+          <DatePicker
+            value={filters.date}
+            onChange={(date) =>
               onFiltersChange({
-                date: e.target.value || undefined,
+                date: toDateString(date),
                 date_from: undefined,
                 date_to: undefined,
               })
             }
-            className="h-9 w-[150px]"
-            title="Fecha exacta"
+            placeholder="Fecha exacta"
           />
         </div>
 
-        {/* Rango de fechas */}
-        <Input
-          type="date"
-          value={filters.date_from ?? ""}
-          onChange={(e) =>
-            onFiltersChange({ date_from: e.target.value || undefined, date: undefined })
-          }
-          className="h-9 w-[150px]"
-          title="Desde"
-        />
-        <Input
-          type="date"
-          value={filters.date_to ?? ""}
-          onChange={(e) =>
-            onFiltersChange({ date_to: e.target.value || undefined, date: undefined })
-          }
-          className="h-9 w-[150px]"
-          title="Hasta"
-        />
+        {/* Rango desde */}
+        <div className="w-[150px]">
+          <DatePicker
+            value={filters.date_from}
+            onChange={(date) =>
+              onFiltersChange({ date_from: toDateString(date), date: undefined })
+            }
+            placeholder="Desde"
+          />
+        </div>
+
+        {/* Rango hasta */}
+        <div className="w-[150px]">
+          <DatePicker
+            value={filters.date_to}
+            onChange={(date) =>
+              onFiltersChange({ date_to: toDateString(date), date: undefined })
+            }
+            placeholder="Hasta"
+          />
+        </div>
 
         {/* Tipo de marcación */}
         <SearchableSelect

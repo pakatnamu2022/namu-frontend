@@ -16,9 +16,13 @@ import { getAttendanceColumns } from "@/features/gp/gestionhumana/asistencias/co
 import AttendanceFiltersBar from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
 import AttendanceTable from "@/features/gp/gestionhumana/asistencias/components/AttendanceTable";
 import AttendanceSheet from "@/features/gp/gestionhumana/asistencias/components/AttendanceSheet";
+import { format } from "date-fns";
 import type { AttendanceFilters, AttendanceRecord } from "@/features/gp/gestionhumana/asistencias/lib/attendance.interface";
 
+const today = format(new Date(), "yyyy-MM-dd");
+
 const DEFAULT_FILTERS: AttendanceFilters = {
+  date: today,
   per_page: 50,
   page: 1,
 };
