@@ -117,6 +117,7 @@ export function DatePickerFormField<T extends FieldValues>({
       const day = String(date.getDate()).padStart(2, "0");
       field.onChange(`${year}-${month}-${day}`);
       if (isMobile) setDrawerOpen(false);
+      else setPopoverOpen(false);
     } else {
       field.onChange("");
     }
@@ -183,7 +184,7 @@ export function DatePickerFormField<T extends FieldValues>({
           </DrawerContent>
         </Drawer>
       ) : (
-        <Popover>
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <FormControl>
               <Button
