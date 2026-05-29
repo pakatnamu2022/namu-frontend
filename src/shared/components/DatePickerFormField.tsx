@@ -123,6 +123,7 @@ export function DatePickerFormField<T extends FieldValues>({
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   return (
     <FormItem className="flex flex-col justify-between">
