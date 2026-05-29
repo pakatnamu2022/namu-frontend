@@ -155,3 +155,16 @@ export interface AdoptionTrendPoint {
   updates: number;
   deletes: number;
 }
+
+// /all endpoint
+export interface AdoptionAllData {
+  last_updated: string | null;
+  summary: AdoptionSummary;
+  trend: AdoptionTrendPoint[];
+  modules: AdoptionModule[];
+  sedes: AdoptionSede[];
+  users: AdoptionUser[];
+  compliance: AdoptionCompliance;
+  champions: AdoptionChampions;
+  alerts: AdoptionAlert[];
+}

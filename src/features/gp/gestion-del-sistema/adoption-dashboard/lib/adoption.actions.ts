@@ -10,6 +10,7 @@ import type {
   AdoptionChampions,
   AdoptionAlert,
   AdoptionTrendPoint,
+  AdoptionAllData,
 } from "./adoption.interface";
 
 const BASE = "/adoption-dashboard";
@@ -64,4 +65,17 @@ export async function getAdoptionAlerts(filters: AdoptionFilters): Promise<Adopt
 export async function getAdoptionTrend(filters: AdoptionFilters): Promise<AdoptionTrendPoint[]> {
   const { data } = await api.get<AdoptionTrendPoint[]>(`${BASE}/trend`, toConfig(filters));
   return data;
+}
+
+export async function getAdoptionAll(filters: AdoptionFilters): Promise<AdoptionAllData> {
+  const { data } = await api.get<{ data: AdoptionAllData }>(`${BASE}/all`, toConfig(filters));
+  return data.data;
+}
+
+export async function refreshAdoptionDashboard(filters: AdoptionFilters): Promise<void> {
+  const body: Record<string, unknown> = {};
+  if (filters.date_from) body.date_from = filters.date_from;
+  if (filters.date_to) body.date_to = filters.date_to;
+  if (filters.sede_id) body.sede_id = filters.sede_id;
+  await api.post(`${BASE}/refresh`, body);
 }
