@@ -66,13 +66,13 @@ export default function AdoptionUsersRanking({ data }: Props) {
                   const badgeCss = badgeVariantFor(user.badge);
                   return (
                     <tr
-                      key={user.user_id}
+                      key={user.user_id ?? `anon-${idx}`}
                       className="border-b last:border-0 hover:bg-muted/40 transition-colors"
                     >
                       <td className="px-4 py-2 text-muted-foreground font-mono">
                         {idx + 1}
                       </td>
-                      <td className="px-4 py-2 font-medium">{user.user_name}</td>
+                      <td className="px-4 py-2 font-medium">{user.user_name ?? "Sin usuario"}</td>
                       <td className="px-4 py-2 text-muted-foreground">{user.sede_name}</td>
                       <td className="px-4 py-2 text-right tabular-nums">
                         {user.total_ops.toLocaleString()}

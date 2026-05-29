@@ -68,8 +68,8 @@ export async function getAdoptionTrend(filters: AdoptionFilters): Promise<Adopti
 }
 
 export async function getAdoptionAll(filters: AdoptionFilters): Promise<AdoptionAllData> {
-  const { data } = await api.get<{ data: AdoptionAllData }>(`${BASE}/all`, toConfig(filters));
-  return data.data;
+  const { data } = await api.get<AdoptionAllData>(`${BASE}/all`, toConfig(filters));
+  return data;
 }
 
 export async function refreshAdoptionDashboard(filters: AdoptionFilters): Promise<void> {

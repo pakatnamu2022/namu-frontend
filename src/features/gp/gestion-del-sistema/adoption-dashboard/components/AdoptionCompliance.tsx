@@ -75,7 +75,7 @@ export default function AdoptionCompliance({ data }: Props) {
                   className="flex items-center gap-3 text-sm border rounded-lg px-3 py-2"
                 >
                   <div className="flex-1 min-w-0">
-                    <span className="font-medium truncate block">{user.user_name}</span>
+                    <span className="font-medium truncate block">{user.user_name ?? "Sin usuario"}</span>
                     <span className="text-xs text-muted-foreground">{user.sede_name}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
