@@ -62,7 +62,7 @@ function buildColumns(
       header: "H. Esperadas",
       cell: ({ row }) => (
         <span className="tabular-nums text-sm">
-          {row.original.expected_hours.toFixed(2)}h
+          {parseFloat(row.original.expected_hours).toFixed(2)}h
         </span>
       ),
     },
@@ -71,7 +71,7 @@ function buildColumns(
       header: "H. Trabajadas",
       cell: ({ row }) => (
         <span className="tabular-nums text-sm">
-          {row.original.hours_worked.toFixed(2)}h
+          {parseFloat(row.original.hours_worked).toFixed(2)}h
         </span>
       ),
     },
@@ -79,7 +79,7 @@ function buildColumns(
       accessorKey: "balance",
       header: "Balance",
       cell: ({ row }) => {
-        const b = row.original.balance;
+        const b = parseFloat(row.original.balance);
         return (
           <span
             className={cn(
@@ -129,7 +129,10 @@ export default function AttendanceInternalReport() {
   });
   const [search, setSearch] = useState("");
   const [submittedFilters, setSubmittedFilters] =
-    useState<AttendanceReportFilters | null>(null);
+    useState<AttendanceReportFilters | null>({
+      date_from: firstOfMonth,
+      date_to: today,
+    });
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [exporting, setExporting] = useState(false);
@@ -195,46 +198,46 @@ export default function AttendanceInternalReport() {
         </Button>
       </HeaderTableWrapper>
 
-      <FilterWrapper>
-        <DatePicker
-          value={filters.date_from}
-          onChange={(d) =>
-            setFilters((prev) => ({ ...prev, date_from: toStr(d) }))
-          }
-          placeholder="Desde"
-        />
-        <DatePicker
-          value={filters.date_to}
-          onChange={(d) =>
-            setFilters((prev) => ({ ...prev, date_to: toStr(d) }))
-          }
-          placeholder="Hasta"
-        />
-        <SearchInput
-          value={search}
-          onChange={(v) => {
-            setSearch(v);
-            setPage(1);
-          }}
-          placeholder="Buscar colaborador..."
-        />
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={!canAction || isLoading}
-          onClick={handleLoad}
-        >
-          <Search className="size-4 mr-1.5" />
-          Cargar
-        </Button>
-      </FilterWrapper>
-
       <div className="space-y-2">
         <DataTable
           columns={columns}
           data={data?.data ?? []}
           isLoading={isLoading}
-        />
+        >
+          <FilterWrapper>
+            <DatePicker
+              value={filters.date_from}
+              onChange={(d) =>
+                setFilters((prev) => ({ ...prev, date_from: toStr(d) }))
+              }
+              placeholder="Desde"
+            />
+            <DatePicker
+              value={filters.date_to}
+              onChange={(d) =>
+                setFilters((prev) => ({ ...prev, date_to: toStr(d) }))
+              }
+              placeholder="Hasta"
+            />
+            <SearchInput
+              value={search}
+              onChange={(v) => {
+                setSearch(v);
+                setPage(1);
+              }}
+              placeholder="Buscar colaborador..."
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!canAction || isLoading}
+              onClick={handleLoad}
+            >
+              <Search className="size-4 mr-1.5" />
+              Cargar
+            </Button>
+          </FilterWrapper>
+        </DataTable>
         <DataTablePagination
           page={page}
           per_page={perPage}

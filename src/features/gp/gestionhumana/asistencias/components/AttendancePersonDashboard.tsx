@@ -27,9 +27,9 @@ function timeStr(t: string | null | undefined) {
   return t ? t.slice(0, 5) : "-";
 }
 
-function hoursStr(h: number | null | undefined) {
+function hoursStr(h: string | null | undefined) {
   if (h == null) return "-";
-  return `${h >= 0 ? "+" : ""}${h.toFixed(2)}h`;
+  return h;
 }
 
 const dailyColumns: ColumnDef<AttendanceDailyRecord>[] = [
@@ -72,7 +72,7 @@ const dailyColumns: ColumnDef<AttendanceDailyRecord>[] = [
     accessorKey: "expected_hours",
     header: "H. Esperadas",
     cell: ({ row }) => (
-      <span className="tabular-nums text-sm">{row.original.expected_hours.toFixed(2)}h</span>
+      <span className="tabular-nums text-sm">{row.original.expected_hours}</span>
     ),
   },
   {
@@ -88,11 +88,12 @@ const dailyColumns: ColumnDef<AttendanceDailyRecord>[] = [
     cell: ({ row }) => {
       const b = row.original.balance;
       if (b == null) return <span className="text-sm text-muted-foreground">-</span>;
+      const isNegative = b.startsWith("-");
       return (
         <span
           className={cn(
             "tabular-nums text-sm font-medium",
-            b >= 0 ? "text-green-600" : "text-red-600",
+            isNegative ? "text-red-600" : "text-green-600",
           )}
         >
           {hoursStr(b)}
@@ -124,8 +125,8 @@ export default function AttendancePersonDashboard() {
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
-  const balance = data?.balance ?? 0;
-  const balancePositive = balance >= 0;
+  const balance = data?.balance ?? null;
+  const balancePositive = balance == null || !balance.startsWith("-");
 
   return (
     <div className="space-y-4">
@@ -161,13 +162,13 @@ export default function AttendancePersonDashboard() {
         />
         <DashboardCard
           title="H. Esperadas"
-          value={isLoading ? "-" : `${(data?.expected_hours ?? 0).toFixed(1)}h`}
+          value={isLoading ? "-" : (data?.expected_hours ?? "-")}
           icon={Clock}
           color="slate"
         />
         <DashboardCard
           title="H. Trabajadas"
-          value={isLoading ? "-" : `${(data?.hours_worked ?? 0).toFixed(1)}h`}
+          value={isLoading ? "-" : (data?.hours_worked ?? "-")}
           icon={Clock}
           color="indigo"
         />
