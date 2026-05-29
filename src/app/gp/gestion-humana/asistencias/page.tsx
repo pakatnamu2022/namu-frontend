@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -40,17 +40,7 @@ export default function AttendancePage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const { data, isLoading, refetch } = useAttendanceRecords(filters);
-
-  useEffect(() => {
-    setFilters((prev) => ({ ...prev, page: 1 }));
-  }, [
-    filters.date,
-    filters.date_from,
-    filters.date_to,
-    filters.emp_code,
-    filters.mark_type,
-  ]);
+  const { data, isLoading, isFetching, refetch } = useAttendanceRecords(filters);
 
   const handleFiltersChange = (partial: Partial<AttendanceFilters>) => {
     setFilters((prev) => ({ ...prev, ...partial, page: 1 }));
@@ -95,9 +85,9 @@ export default function AttendancePage() {
             variant="outline"
             size="sm"
             onClick={() => refetch()}
-            disabled={isLoading}
+            disabled={isFetching}
           >
-            <RefreshCw className="size-4 mr-1.5" />
+            <RefreshCw className={`size-4 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
             Actualizar
           </Button>
           <AttendanceSyncRangeDialog onSynced={refetch} />
@@ -116,8 +106,8 @@ export default function AttendancePage() {
         isLoading={isLoading}
         page={filters.page ?? 1}
         perPage={filters.per_page ?? 10}
-        totalPages={data?.last_page ?? 1}
-        total={data?.total ?? 0}
+        totalPages={data?.meta?.last_page ?? 1}
+        total={data?.meta?.total ?? 0}
         onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
         onPerPageChange={(per_page) =>
           setFilters((prev) => ({ ...prev, per_page, page: 1 }))
@@ -137,3 +127,4 @@ export default function AttendancePage() {
     </PageWrapper>
   );
 }
+

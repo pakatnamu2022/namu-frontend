@@ -4,27 +4,21 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { differenceInDays, format, parseISO } from "date-fns";
+import { differenceInDays, parseISO } from "date-fns";
 import { CalendarRange, Loader2 } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { errorToast, successToast } from "@/core/core.function";
 import { syncAttendanceRange } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
 
-const todayStr = format(new Date(), "yyyy-MM-dd");
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 const schema = z
   .object({
@@ -51,6 +45,7 @@ interface Props {
 
 export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
   const [open, setOpen] = useState(false);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -86,80 +81,65 @@ export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
           Sincronizar rango
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-4" align="end">
-        <div className="mb-3">
-          <p className="text-sm font-medium">Sincronizar por rango</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Despacha un job por día. Máximo 90 días.
-          </p>
-        </div>
-
-        <Form {...form}>
-          <div className="grid gap-3">
-            <FormField
-              control={form.control}
-              name="date_from"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">Fecha inicio</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      max={todayStr}
-                      className="text-xs"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="date_to"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs">Fecha fin</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      min={dateFrom || undefined}
-                      max={todayStr}
-                      className="text-xs"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+      <PopoverContent className="w-80 p-4" align="end">
+        {/* Los calendarios de DatePickerFormField se renderizan como portal
+            dentro de este div, evitando el problema de "click outside" */}
+        <div ref={setContainer}>
+          <div className="mb-3">
+            <p className="text-sm font-medium">Sincronizar por rango</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Despacha un job por día. Máximo 90 días.
+            </p>
           </div>
-        </Form>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            disabled={form.formState.isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button
-            size="sm"
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting ? (
-              <>
-                <Loader2 className="size-4 mr-1.5 animate-spin" />
-                Sincronizando…
-              </>
-            ) : (
-              "Sincronizar"
-            )}
-          </Button>
+          <Form {...form}>
+            <div className="grid gap-4">
+              <DatePickerFormField
+                control={form.control}
+                name="date_from"
+                label="Fecha inicio"
+                disabledRange={{ after: today }}
+                captionLayout="dropdown"
+                container={container}
+              />
+              <DatePickerFormField
+                control={form.control}
+                name="date_to"
+                label="Fecha fin"
+                disabledRange={[
+                  { after: today },
+                  ...(dateFrom ? [{ before: parseISO(dateFrom) }] : []),
+                ]}
+                captionLayout="dropdown"
+                container={container}
+              />
+            </div>
+          </Form>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              disabled={form.formState.isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 mr-1.5 animate-spin" />
+                  Sincronizando…
+                </>
+              ) : (
+                "Sincronizar"
+              )}
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
