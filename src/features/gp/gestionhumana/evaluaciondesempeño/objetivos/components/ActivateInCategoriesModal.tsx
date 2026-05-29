@@ -237,7 +237,7 @@ export function ActivateInCategoriesModal({
         )}
         Confirmar activación
         {selectedIds.size > 0 && (
-          <Badge variant="secondary" className="ml-1 text-xs">
+          <Badge variant="outline" className="ml-1 text-xs">
             {selectedIds.size}
           </Badge>
         )}
