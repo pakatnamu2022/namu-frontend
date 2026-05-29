@@ -17,6 +17,7 @@ import { getAttendanceColumns } from "@/features/gp/gestionhumana/asistencias/co
 import AttendanceFiltersBar from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
 import AttendanceTable from "@/features/gp/gestionhumana/asistencias/components/AttendanceTable";
 import AttendanceSheet from "@/features/gp/gestionhumana/asistencias/components/AttendanceSheet";
+import AttendanceSyncRangeDialog from "@/features/gp/gestionhumana/asistencias/components/AttendanceSyncRangeDialog";
 import type {
   AttendanceFilters,
   AttendanceRecord,
@@ -99,6 +100,7 @@ export default function AttendancePage() {
             <RefreshCw className="size-4 mr-1.5" />
             Actualizar
           </Button>
+          <AttendanceSyncRangeDialog onSynced={refetch} />
           <Button size="sm" onClick={handleSync} disabled={isSyncing}>
             <RefreshCw
               className={`size-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`}

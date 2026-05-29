@@ -52,6 +52,16 @@ export interface AttendanceSyncResponse {
   total_for_day: number;
 }
 
+export interface AttendanceSyncRangePayload {
+  date_from: string;
+  date_to: string;
+}
+
+export interface AttendanceSyncRangeResponse {
+  message: string;
+  days: number;
+}
+
 export interface AttendanceReportFilters {
   date_from: string;
   date_to: string;

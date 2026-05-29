@@ -5,6 +5,8 @@ import type {
   AttendanceRecord,
   AttendanceFilters,
   AttendanceSyncResponse,
+  AttendanceSyncRangePayload,
+  AttendanceSyncRangeResponse,
   AttendanceReportFilters,
   AttendanceInternalResponse,
   AttendanceSunafilResponse,
@@ -34,6 +36,16 @@ export async function getAttendanceById(id: number): Promise<AttendanceRecord> {
 
 export async function syncAttendance(): Promise<AttendanceSyncResponse> {
   const { data } = await api.post<AttendanceSyncResponse>(`${ENDPOINT}/sync`);
+  return data;
+}
+
+export async function syncAttendanceRange(
+  payload: AttendanceSyncRangePayload,
+): Promise<AttendanceSyncRangeResponse> {
+  const { data } = await api.post<AttendanceSyncRangeResponse>(
+    `${ENDPOINT}/sync-range`,
+    payload,
+  );
   return data;
 }
 

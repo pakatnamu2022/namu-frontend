@@ -135,7 +135,12 @@ export default function AttendanceInternalReport() {
   const [exporting, setExporting] = useState(false);
 
   const activeFilters: AttendanceReportFilters | null = submittedFilters
-    ? { ...submittedFilters, search: search || undefined, page, per_page: perPage }
+    ? {
+        ...submittedFilters,
+        search: search || undefined,
+        page,
+        per_page: perPage,
+      }
     : null;
 
   const { data, isLoading } = useInternalReport(activeFilters);
@@ -207,7 +212,10 @@ export default function AttendanceInternalReport() {
         />
         <SearchInput
           value={search}
-          onChange={(v) => { setSearch(v); setPage(1); }}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
           placeholder="Buscar colaborador..."
         />
         <Button
