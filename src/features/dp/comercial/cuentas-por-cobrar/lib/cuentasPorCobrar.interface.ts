@@ -61,6 +61,7 @@ export interface CuentasPorCobrarResponse {
 export interface CuentasPorCobrarFilters {
   search?: string;
   sede_id?: number | string | null;
+  year?: number | string | null;
   company?: string;
   currency?: string;
   overdue_status?: string;

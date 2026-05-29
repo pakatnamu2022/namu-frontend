@@ -105,7 +105,7 @@ export function getCuentasPorCobrarColumns({
       accessorKey: "currency",
       header: "Moneda",
       cell: ({ row }) => (
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant="ghost" color="muted" className="text-xs">
           {row.original.currency}
         </Badge>
       ),

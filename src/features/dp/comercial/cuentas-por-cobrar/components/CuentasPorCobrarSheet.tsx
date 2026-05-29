@@ -12,7 +12,7 @@ import {
   OVERDUE_STATUS_COLORS,
   DEFAULT_OVERDUE_STATUS_COLOR,
 } from "../lib/cuentasPorCobrar.constants";
-import type { CuentaPorCobrar, CuentaPorCobrarComment } from "../lib/cuentasPorCobrar.interface";
+import type { CuentaPorCobrarComment } from "../lib/cuentasPorCobrar.interface";
 import { cn } from "@/lib/utils";
 
 interface Props {

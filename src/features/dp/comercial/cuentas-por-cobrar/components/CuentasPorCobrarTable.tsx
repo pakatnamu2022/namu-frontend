@@ -1,4 +1,4 @@
-import type { ColumnDef, SortingState } from "@tanstack/react-table";
+import type { ColumnDef, SortingState, Updater } from "@tanstack/react-table";
 import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import type { CuentaPorCobrar } from "../lib/cuentasPorCobrar.interface";
@@ -39,7 +39,9 @@ export default function CuentasPorCobrarTable({
         data={data}
         isLoading={isLoading}
         sorting={sorting}
-        onSortingChange={onSortingChange}
+        onSortingChange={(updater: Updater<SortingState>) => {
+          onSortingChange(typeof updater === "function" ? updater(sorting) : updater);
+        }}
         manualSorting
         initialColumnVisibility={{
           cashier: false,
