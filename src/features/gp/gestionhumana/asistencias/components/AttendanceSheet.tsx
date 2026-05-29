@@ -1,4 +1,4 @@
-import { Clock, User, Hash, MapPin, Calendar, RefreshCw } from "lucide-react";
+import { Clock, User, MapPin } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -32,9 +32,9 @@ export default function AttendanceSheet({ selectedId, onClose }: Props) {
   return (
     <GeneralSheet
       open={!!selectedId}
-      onOpenChange={(open) => !open && onClose()}
+      onClose={onClose}
       title="Detalle de marcación"
-      description={record?.full_name ?? "Cargando..."}
+      subtitle={record?.full_name ?? "Cargando..."}
     >
       {isLoading ? (
         <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">
