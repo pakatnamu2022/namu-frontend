@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoanResource } from "../lib/loan.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Banknote, Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { useNavigate } from "react-router-dom";
 import { LOAN } from "../lib/loan.constant";
@@ -13,29 +13,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 
 export type LoanColumns = ColumnDef<LoanResource>;
 
-const STATUS_VARIANT: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  ACTIVO: "default",
-  COMPLETADO: "secondary",
-  ANULADO: "destructive",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVO: "Activo",
-  COMPLETADO: "Completado",
-  ANULADO: "Anulado",
-};
-
 export const loanColumns = ({
   onDelete,
+  onAmortize,
+  onDetail,
 }: {
   onDelete: (id: number) => void;
+  onAmortize: (id: number) => void;
+  onDetail: (id: number) => void;
 }): LoanColumns[] => [
   {
     accessorKey: "worker",
@@ -48,7 +36,9 @@ export const loanColumns = ({
     accessorKey: "concept",
     header: "Concepto",
     cell: ({ getValue }) => (
-      <span className="text-wrap line-clamp-1">{(getValue() as string) ?? "—"}</span>
+      <span className="text-wrap line-clamp-1">
+        {(getValue() as string) ?? "—"}
+      </span>
     ),
   },
   {
@@ -97,18 +87,6 @@ export const loanColumns = ({
     },
   },
   {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const val = getValue() as string;
-      return (
-        <Badge variant={STATUS_VARIANT[val] ?? "outline"}>
-          {STATUS_LABELS[val] ?? val}
-        </Badge>
-      );
-    },
-  },
-  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -119,6 +97,42 @@ export const loanColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => onDetail(id)}
+                >
+                  <Eye className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Ver detalle</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => onAmortize(id)}
+                >
+                  <Banknote className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Amortizar deuda</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

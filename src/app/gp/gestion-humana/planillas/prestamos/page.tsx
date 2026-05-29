@@ -12,6 +12,8 @@ import LoanOptions from "@/features/gp/gestionhumana/planillas/loans/components/
 import LoanActions from "@/features/gp/gestionhumana/planillas/loans/components/LoanActions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { deleteLoan } from "@/features/gp/gestionhumana/planillas/loans/lib/loan.actions";
+import { LoanAmortizeDialog } from "@/features/gp/gestionhumana/planillas/loans/components/LoanAmortizeDialog";
+import { LoanDetailDialog } from "@/features/gp/gestionhumana/planillas/loans/components/LoanDetailDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -30,6 +32,8 @@ export default function LoanPage() {
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [amortizeId, setAmortizeId] = useState<number | null>(null);
+  const [detailId, setDetailId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -69,7 +73,11 @@ export default function LoanPage() {
 
       <LoanTable
         isLoading={isLoading}
-        columns={loanColumns({ onDelete: setDeleteId })}
+        columns={loanColumns({
+          onDelete: setDeleteId,
+          onAmortize: setAmortizeId,
+          onDetail: setDetailId,
+        })}
         data={data?.data || []}
       >
         <LoanOptions search={search} setSearch={setSearch} />
@@ -80,6 +88,23 @@ export default function LoanPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
+        />
+      )}
+
+      {detailId !== null && (
+        <LoanDetailDialog
+          loanId={detailId}
+          open={true}
+          onOpenChange={(open) => !open && setDetailId(null)}
+        />
+      )}
+
+      {amortizeId !== null && (
+        <LoanAmortizeDialog
+          loanId={amortizeId}
+          open={true}
+          onOpenChange={(open) => !open && setAmortizeId(null)}
+          onSuccess={refetch}
         />
       )}
 

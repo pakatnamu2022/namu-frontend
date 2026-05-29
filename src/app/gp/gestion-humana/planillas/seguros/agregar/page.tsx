@@ -16,29 +16,11 @@ import { InsuranceSchema } from "@/features/gp/gestionhumana/planillas/insurance
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { INSURANCE } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { useAllPayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
-import { Option } from "@/core/core.interface";
 
 export default function AddInsurancePage() {
   const { MODEL, ABSOLUTE_ROUTE, ROUTE } = INSURANCE;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-
-  const { data: workers = [] } = useAllWorkers();
-  const { data: periods = [] } = useAllPayrollPeriods();
-
-  const workerOptions: Option[] = workers.map((w) => ({
-    label: w.name,
-    value: String(w.id),
-  }));
-
-  const periodOptions: Option[] = periods.map((p) => ({
-    label: p.name,
-    value: String(p.id),
-  }));
-
-  const businessPartnerOptions: Option[] = [];
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeInsurance,
@@ -71,9 +53,6 @@ export default function AddInsurancePage() {
         defaultValues={{ status: "ACTIVO" }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
-        workerOptions={workerOptions}
-        periodOptions={periodOptions}
-        businessPartnerOptions={businessPartnerOptions}
       />
     </FormWrapper>
   );

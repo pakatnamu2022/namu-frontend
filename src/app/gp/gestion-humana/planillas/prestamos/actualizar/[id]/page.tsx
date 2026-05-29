@@ -17,9 +17,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { LOAN } from "@/features/gp/gestionhumana/planillas/loans/lib/loan.constant";
-import { useLoanById, useLoanConcepts } from "@/features/gp/gestionhumana/planillas/loans/lib/loan.hook";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { Option } from "@/core/core.interface";
+import { useLoanById } from "@/features/gp/gestionhumana/planillas/loans/lib/loan.hook";
 
 export default function UpdateLoanPage() {
   const { MODEL, ABSOLUTE_ROUTE, QUERY_KEY, ROUTE } = LOAN;
@@ -29,18 +27,6 @@ export default function UpdateLoanPage() {
   const { currentView, checkRouteExists } = useCurrentModule();
 
   const { data: loan, isLoading: loadingLoan } = useLoanById(Number(id));
-  const { data: workers = [] } = useAllWorkers();
-  const { data: concepts = [] } = useLoanConcepts();
-
-  const workerOptions: Option[] = workers.map((w) => ({
-    label: w.name,
-    value: String(w.id),
-  }));
-
-  const conceptOptions: Option[] = concepts.map((c) => ({
-    label: c.description,
-    value: String(c.id),
-  }));
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: LoanSchema) => updateLoan(Number(id), data),
@@ -62,15 +48,14 @@ export default function UpdateLoanPage() {
 
   function mapToForm(data: LoanResource): Partial<LoanSchema> {
     return {
-      concept_id: data.concept_id,
-      worker_id: data.worker_id,
+      concept_id: String(data.concept_id),
+      worker_id: String(data.worker_id),
       delivery_date: data.delivery_date,
       reason: data.reason,
       payment_start: data.payment_start,
       loan_amount: data.loan_amount,
       installments_count: data.installments_count,
       installment_amount: data.installment_amount,
-      status: data.status,
     };
   }
 
@@ -91,8 +76,6 @@ export default function UpdateLoanPage() {
         defaultValues={mapToForm(loan)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
-        workerOptions={workerOptions}
-        conceptOptions={conceptOptions}
       />
     </FormWrapper>
   );

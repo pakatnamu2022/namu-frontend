@@ -10,12 +10,12 @@ import { Link } from "react-router-dom";
 import { INSURANCE } from "../lib/insurance.constant";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
+import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
 import { Option } from "@/core/core.interface";
-
-const STATUS_OPTIONS: Option[] = [
-  { label: "Activo", value: "ACTIVO" },
-  { label: "Inactivo", value: "INACTIVO" },
-];
 
 const GENDER_OPTIONS: Option[] = [
   { label: "Masculino", value: "M" },
@@ -40,18 +40,12 @@ interface InsuranceFormProps {
   defaultValues: Partial<InsuranceSchema>;
   onSubmit: (data: InsuranceSchema) => void;
   isSubmitting?: boolean;
-  workerOptions: Option[];
-  periodOptions: Option[];
-  businessPartnerOptions: Option[];
 }
 
 export const InsuranceForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
-  workerOptions,
-  periodOptions,
-  businessPartnerOptions,
 }: InsuranceFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = INSURANCE;
 
@@ -82,10 +76,10 @@ export const InsuranceForm = ({
       rate_with_tax: defaultValues.rate_with_tax ?? 0,
       period_from: defaultValues.period_from ?? "",
       period_until: defaultValues.period_until ?? "",
-      affiliation_continuity_date: defaultValues.affiliation_continuity_date ?? "",
+      affiliation_continuity_date:
+        defaultValues.affiliation_continuity_date ?? "",
       affiliation_from: defaultValues.affiliation_from ?? "",
       affiliation_until: defaultValues.affiliation_until ?? "",
-      status: defaultValues.status ?? "ACTIVO",
     },
     mode: "onChange",
   });
@@ -94,31 +88,43 @@ export const InsuranceForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
-          <FormSelect
+          <FormSelectAsync
             name="worker_id"
             label="Trabajador"
             placeholder="Seleccione trabajador"
-            options={workerOptions}
             control={form.control}
             required
+            useQueryHook={useWorkers}
+            mapOptionFn={(item) => ({
+              label: item.name,
+              value: String(item.id),
+            })}
           />
 
-          <FormSelect
+          <FormSelectAsync
             name="period_id"
             label="Periodo"
             placeholder="Seleccione periodo"
-            options={periodOptions}
             control={form.control}
             required
+            useQueryHook={usePayrollPeriods}
+            mapOptionFn={(item) => ({
+              label: item.name + " - " + item.company.name,
+              value: String(item.id),
+            })}
           />
 
-          <FormSelect
+          <FormSelectAsync
             name="business_partner_id"
             label="Socio de Negocio"
             placeholder="Seleccione socio de negocio"
-            options={businessPartnerOptions}
             control={form.control}
             required
+            useQueryHook={useSuppliers}
+            mapOptionFn={(item) => ({
+              label: item.full_name,
+              value: String(item.id),
+            })}
           />
 
           <FormInput
@@ -194,20 +200,16 @@ export const InsuranceForm = ({
             control={form.control}
           />
 
-          <FormInput
+          <DatePickerFormField
             name="entry_date"
             label="Fecha de Ingreso"
-            type="date"
             control={form.control}
-            required
           />
 
-          <FormInput
+          <DatePickerFormField
             name="birth_date"
             label="Fecha de Nacimiento"
-            type="date"
             control={form.control}
-            required
           />
 
           <FormInput
@@ -284,52 +286,34 @@ export const InsuranceForm = ({
             required
           />
 
-          <FormInput
+          <DatePickerFormField
             name="period_from"
             label="Periodo Desde"
-            type="date"
             control={form.control}
-            required
           />
 
-          <FormInput
+          <DatePickerFormField
             name="period_until"
             label="Periodo Hasta"
-            type="date"
             control={form.control}
-            required
           />
 
-          <FormInput
+          <DatePickerFormField
             name="affiliation_continuity_date"
             label="Fecha Continuidad Afiliación"
-            type="date"
             control={form.control}
           />
 
-          <FormInput
+          <DatePickerFormField
             name="affiliation_from"
             label="Afiliación Desde"
-            type="date"
             control={form.control}
-            required
           />
 
-          <FormInput
+          <DatePickerFormField
             name="affiliation_until"
             label="Afiliación Hasta"
-            type="date"
             control={form.control}
-            required
-          />
-
-          <FormSelect
-            name="status"
-            label="Estado"
-            placeholder="Seleccione estado"
-            options={STATUS_OPTIONS}
-            control={form.control}
-            required
           />
         </div>
 

@@ -18,9 +18,6 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { INSURANCE } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.constant";
 import { useInsuranceById } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.hook";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { useAllPayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
-import { Option } from "@/core/core.interface";
 
 export default function UpdateInsurancePage() {
   const { MODEL, ABSOLUTE_ROUTE, QUERY_KEY, ROUTE } = INSURANCE;
@@ -29,21 +26,9 @@ export default function UpdateInsurancePage() {
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
 
-  const { data: insurance, isLoading: loadingInsurance } = useInsuranceById(Number(id));
-  const { data: workers = [] } = useAllWorkers();
-  const { data: periods = [] } = useAllPayrollPeriods();
-
-  const workerOptions: Option[] = workers.map((w) => ({
-    label: w.name,
-    value: String(w.id),
-  }));
-
-  const periodOptions: Option[] = periods.map((p) => ({
-    label: p.name,
-    value: String(p.id),
-  }));
-
-  const businessPartnerOptions: Option[] = [];
+  const { data: insurance, isLoading: loadingInsurance } = useInsuranceById(
+    Number(id),
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: InsuranceSchema) => updateInsurance(Number(id), data),
@@ -65,9 +50,9 @@ export default function UpdateInsurancePage() {
 
   function mapToForm(data: InsuranceResource): Partial<InsuranceSchema> {
     return {
-      worker_id: data.worker_id,
-      period_id: data.period_id,
-      business_partner_id: data.business_partner_id,
+      worker_id: String(data.worker_id),
+      period_id: String(data.period_id),
+      business_partner_id: String(data.business_partner_id),
       family_group_number: data.family_group_number ?? "",
       relationship: data.relationship ?? "",
       doc_type_affiliate: data.doc_type_affiliate ?? "",
@@ -92,7 +77,6 @@ export default function UpdateInsurancePage() {
       affiliation_continuity_date: data.affiliation_continuity_date ?? "",
       affiliation_from: data.affiliation_from ?? "",
       affiliation_until: data.affiliation_until ?? "",
-      status: data.status,
     };
   }
 
@@ -113,9 +97,6 @@ export default function UpdateInsurancePage() {
         defaultValues={mapToForm(insurance)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
-        workerOptions={workerOptions}
-        periodOptions={periodOptions}
-        businessPartnerOptions={businessPartnerOptions}
       />
     </FormWrapper>
   );

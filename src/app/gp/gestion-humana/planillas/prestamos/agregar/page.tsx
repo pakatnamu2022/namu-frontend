@@ -16,27 +16,11 @@ import { LoanSchema } from "@/features/gp/gestionhumana/planillas/loans/lib/loan
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { LOAN } from "@/features/gp/gestionhumana/planillas/loans/lib/loan.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { useLoanConcepts } from "@/features/gp/gestionhumana/planillas/loans/lib/loan.hook";
-import { Option } from "@/core/core.interface";
 
 export default function AddLoanPage() {
   const { MODEL, ABSOLUTE_ROUTE, ROUTE } = LOAN;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-
-  const { data: workers = [] } = useAllWorkers();
-  const { data: concepts = [] } = useLoanConcepts();
-
-  const workerOptions: Option[] = workers.map((w) => ({
-    label: w.name,
-    value: String(w.id),
-  }));
-
-  const conceptOptions: Option[] = concepts.map((c) => ({
-    label: c.description,
-    value: String(c.id),
-  }));
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeLoan,
@@ -67,15 +51,12 @@ export default function AddLoanPage() {
       />
       <LoanForm
         defaultValues={{
-          status: "ACTIVO",
           installments_count: 1,
           installment_amount: 0,
           loan_amount: 0,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
-        workerOptions={workerOptions}
-        conceptOptions={conceptOptions}
       />
     </FormWrapper>
   );

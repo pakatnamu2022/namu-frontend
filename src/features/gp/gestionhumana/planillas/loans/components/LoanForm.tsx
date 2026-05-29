@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -8,31 +8,28 @@ import { LoanSchema, loanSchema } from "../lib/loan.schema";
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LOAN } from "../lib/loan.constant";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
-import { Option } from "@/core/core.interface";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { useGpMasters } from "@/features/gp/gp-master/lib/gpMaster.hook";
+import { GP_MASTER_TYPE } from "@/features/gp/gp-master/lib/gpMaster.constants";
+import { useEffect } from "react";
 
-const STATUS_OPTIONS: Option[] = [
-  { label: "Activo", value: "ACTIVO" },
-  { label: "Completado", value: "COMPLETADO" },
-  { label: "Anulado", value: "ANULADO" },
-];
+const useLoanConceptsAsync = (params: Record<string, any>) =>
+  useGpMasters({ params: { ...params, type: GP_MASTER_TYPE.PAYROLL_LOAN } });
 
 interface LoanFormProps {
   defaultValues: Partial<LoanSchema>;
   onSubmit: (data: LoanSchema) => void;
   isSubmitting?: boolean;
-  conceptOptions: Option[];
-  workerOptions: Option[];
 }
 
 export const LoanForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
-  conceptOptions,
-  workerOptions,
 }: LoanFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = LOAN;
 
@@ -47,47 +44,60 @@ export const LoanForm = ({
       loan_amount: defaultValues.loan_amount ?? 0,
       installments_count: defaultValues.installments_count ?? 1,
       installment_amount: defaultValues.installment_amount ?? 0,
-      status: defaultValues.status ?? "ACTIVO",
     },
     mode: "onChange",
   });
+
+  const loanAmount = useWatch({ control: form.control, name: "loan_amount" });
+  const installmentsCount = useWatch({ control: form.control, name: "installments_count" });
+
+  useEffect(() => {
+    const amount = Number(loanAmount) || 0;
+    const count = Number(installmentsCount) || 1;
+    const installment = count > 0 ? parseFloat((amount / count).toFixed(2)) : 0;
+    form.setValue("installment_amount", installment, { shouldValidate: true });
+  }, [loanAmount, installmentsCount, form]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
-          <FormSelect
+          <FormSelectAsync
             name="concept_id"
             label="Concepto"
             placeholder="Seleccione concepto"
-            options={conceptOptions}
             control={form.control}
             required
+            useQueryHook={useLoanConceptsAsync}
+            mapOptionFn={(item) => ({
+              label: item.description,
+              value: String(item.id),
+            })}
           />
 
-          <FormSelect
+          <FormSelectAsync
             name="worker_id"
             label="Trabajador"
             placeholder="Seleccione trabajador"
-            options={workerOptions}
             control={form.control}
             required
+            useQueryHook={useWorkers}
+            mapOptionFn={(item) => ({
+              label: item.name,
+              value: String(item.id),
+            })}
           />
 
-          <FormInput
+          <DatePickerFormField
             name="delivery_date"
             label="Fecha de Entrega"
-            type="date"
             control={form.control}
-            required
           />
 
-          <FormInput
+          <DatePickerFormField
             name="payment_start"
             label="Inicio de Pago"
-            type="date"
             control={form.control}
-            required
           />
 
           <FormInput
@@ -120,15 +130,7 @@ export const LoanForm = ({
             step="0.01"
             placeholder="Ej: 250.00"
             control={form.control}
-            required
-          />
-
-          <FormSelect
-            name="status"
-            label="Estado"
-            placeholder="Seleccione estado"
-            options={STATUS_OPTIONS}
-            control={form.control}
+            readOnly
             required
           />
 

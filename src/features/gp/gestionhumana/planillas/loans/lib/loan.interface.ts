@@ -34,3 +34,28 @@ export interface LoanRequest {
   installment_amount: number;
   status: LoanStatus;
 }
+
+export interface LoanExtraDiscountRequest {
+  loan_id: number;
+  concept_type_id: string;
+  amount: number;
+  month_number?: number | null;
+  applied?: boolean | null;
+}
+
+export interface LoanExtraDiscountResource {
+  id: number;
+  loan_id: number;
+  loan: string | null;
+  concept_type: string;
+  amount: number;
+  month_number: number | null;
+  applied: boolean;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoanDetailResource extends LoanResource {
+  extra_discounts: LoanExtraDiscountResource[];
+}

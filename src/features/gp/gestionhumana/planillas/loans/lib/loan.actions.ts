@@ -1,7 +1,7 @@
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
-import { LoanResource, LoanResponse } from "./loan.interface";
+import type { LoanDetailResource, LoanExtraDiscountRequest, LoanExtraDiscountResource, LoanResource, LoanResponse } from "./loan.interface";
 import { LOAN, LOAN_CONCEPT_TYPE } from "./loan.constant";
 import { GENERAL_MASTERS_ENDPOINT } from "@/features/gp/lib/gp.constants";
 import { GeneralMastersResource } from "@/features/gp/maestros-generales/lib/generalMasters.interface";
@@ -20,9 +20,9 @@ export async function getLoans(
   return data;
 }
 
-export async function findLoanById(id: number): Promise<LoanResource> {
+export async function findLoanById(id: number): Promise<LoanDetailResource> {
   const { data } = await api.get<any>(`${ENDPOINT}/${id}`);
-  return unwrap<LoanResource>(data);
+  return unwrap<LoanDetailResource>(data);
 }
 
 export async function storeLoan(payload: any): Promise<LoanResource> {
@@ -41,6 +41,13 @@ export async function updateLoan(
 export async function deleteLoan(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
+}
+
+export async function storeLoanExtraDiscount(
+  payload: LoanExtraDiscountRequest,
+): Promise<LoanExtraDiscountResource> {
+  const { data } = await api.post<any>("/gp/gh/payroll/loan-extra-discounts", payload);
+  return unwrap<LoanExtraDiscountResource>(data);
 }
 
 export async function getLoanConcepts(): Promise<GeneralMastersResource[]> {
