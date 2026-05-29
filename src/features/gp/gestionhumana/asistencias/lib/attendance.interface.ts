@@ -86,9 +86,9 @@ export interface AttendanceDailyRecord {
   lunch_out: string | null;
   lunch_in: string | null;
   check_out: string | null;
-  hours_worked: number | null;
-  expected_hours: number;
-  balance: number | null;
+  hours_worked: string | null;
+  expected_hours: string;
+  balance: string | null;
 }
 
 export interface AttendanceInternalRow {
@@ -96,9 +96,9 @@ export interface AttendanceInternalRow {
   emp_code: string;
   full_name: string;
   days_present: number;
-  expected_hours: number;
-  hours_worked: number;
-  balance: number;
+  expected_hours: string;
+  hours_worked: string;
+  balance: string;
   daily: AttendanceDailyRecord[];
 }
 
@@ -166,8 +166,8 @@ export interface AttendancePersonDashboard {
   date_from: string;
   date_to: string;
   days_present: number;
-  expected_hours: number;
-  hours_worked: number;
-  balance: number;
+  expected_hours: string;
+  hours_worked: string;
+  balance: string | null;
   daily: AttendanceDailyRecord[];
 }
