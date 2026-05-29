@@ -393,6 +393,8 @@ import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
+import CuentasPorCobrarPage from "./app/dp/comercial/cuentas-por-cobrar/page.tsx";
+import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
@@ -2068,6 +2070,25 @@ function App() {
               <Route
                 path="control-asignacionVehiculos"
                 element={<ControlVehicleAssignmentPage />}
+              />
+            </Route>
+
+            {/* ======================================================== */}
+            {/* DP - COMERCIAL */}
+            {/* ======================================================== */}
+            <Route
+              path="/dp/comercial"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <DPComercialLayout>
+                    <Outlet />
+                  </DPComercialLayout>
+                </Suspense>
+              }
+            >
+              <Route
+                path="cuentas-por-cobrar"
+                element={<CuentasPorCobrarPage />}
               />
             </Route>
 
