@@ -35,6 +35,7 @@ export interface AttendanceResponse {
 }
 
 export interface AttendanceFilters {
+  search?: string;
   date?: string;
   date_from?: string;
   date_to?: string;
@@ -49,4 +50,106 @@ export interface AttendanceSyncResponse {
   message: string;
   new_records: number;
   total_for_day: number;
+}
+
+export interface AttendanceReportFilters {
+  date_from: string;
+  date_to: string;
+  search?: string;
+  emp_code?: string;
+  person_id?: number;
+  per_page?: number;
+  page?: number;
+}
+
+export interface AttendanceDailyRecord {
+  date: string;
+  check_in: string | null;
+  lunch_out: string | null;
+  lunch_in: string | null;
+  check_out: string | null;
+  hours_worked: number | null;
+  expected_hours: number;
+  balance: number | null;
+}
+
+export interface AttendanceInternalRow {
+  person_id: number | null;
+  emp_code: string;
+  full_name: string;
+  days_present: number;
+  expected_hours: number;
+  hours_worked: number;
+  balance: number;
+  daily: AttendanceDailyRecord[];
+}
+
+export interface AttendanceInternalResponse {
+  data: AttendanceInternalRow[];
+  links: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
+  meta: {
+    current_page: number;
+    from: number;
+    last_page: number;
+    per_page: number;
+    to: number;
+    total: number;
+  };
+}
+
+export interface AttendanceSunafilRow {
+  date: string;
+  emp_code: string;
+  vat: string | null;
+  full_name: string;
+  check_in: string;
+  check_out: string | null;
+  hours_worked: number | null;
+}
+
+export interface AttendanceSunafilResponse {
+  data: AttendanceSunafilRow[];
+  meta: {
+    current_page: number;
+    from: number;
+    last_page: number;
+    per_page: number;
+    to: number;
+    total: number;
+  };
+  links: {
+    first: string;
+    last: string;
+    prev: string | null;
+    next: string | null;
+  };
+}
+
+export interface AttendanceSunafilFilters {
+  date_from: string;
+  date_to: string;
+  search?: string;
+  emp_code?: string;
+  person_id?: number;
+  per_page?: number;
+  page?: number;
+}
+
+export interface AttendancePersonDashboard {
+  person_id: number;
+  emp_code: string;
+  full_name: string;
+  vat: string;
+  date_from: string;
+  date_to: string;
+  days_present: number;
+  expected_hours: number;
+  hours_worked: number;
+  balance: number;
+  daily: AttendanceDailyRecord[];
 }

@@ -23,6 +23,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { ObjectiveModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/components/ObjectiveModal";
+import { ActivateInCategoriesModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/components/ActivateInCategoriesModal";
 import { ObjectiveResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.interface";
 import { ObjectiveSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.schema";
 
@@ -36,6 +37,8 @@ export default function ObjectivePage() {
   const [editingObjective, setEditingObjective] =
     useState<ObjectiveResource | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activatingObjective, setActivatingObjective] =
+    useState<ObjectiveResource | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -139,6 +142,7 @@ export default function ObjectivePage() {
           onEdit: handleOpenEdit,
           onUpdateGoal: handleUpdateGoalCell,
           onUpdateWeight: handleUpdateWeightCell,
+          onActivateInCategories: setActivatingObjective,
         })}
         data={data?.data || []}
       >
@@ -161,6 +165,16 @@ export default function ObjectivePage() {
         per_page={per_page}
         setPerPage={setPerPage}
       />
+
+      {activatingObjective && (
+        <ActivateInCategoriesModal
+          open={true}
+          onClose={() => setActivatingObjective(null)}
+          objectiveId={activatingObjective.id}
+          objectiveName={activatingObjective.name}
+          onSuccess={refetch}
+        />
+      )}
 
       <ObjectiveModal
         open={modalOpen}

@@ -408,6 +408,9 @@ import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-a
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
+import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
+import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
+import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1977,7 +1980,22 @@ function App() {
               />
 
               {/* Asistencias */}
-              <Route path="asistencias/asistencias" element={<AttendancePage />} />
+              <Route
+                path="asistencias/asistencias"
+                element={<AttendancePage />}
+              />
+              <Route
+                path="asistencias/asistencias/:personId"
+                element={<AttendancePersonPage />}
+              />
+              <Route
+                path="asistencias/sunafil"
+                element={<SunafilReportPage />}
+              />
+              <Route
+                path="asistencias/interno"
+                element={<InternalReportPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

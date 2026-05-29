@@ -5,6 +5,9 @@ export const ATTENDANCE = {
   QUERY_KEY: "gp-attendance",
   ROUTE: "asistencias",
   ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/asistencias",
+  SUNAFIL_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/sunafil",
+  INTERNAL_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/interno",
+  PERSON_ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/asistencias",
 } as const;
 
 export const MARK_TYPE_LABELS: Record<MarkType, string> = {

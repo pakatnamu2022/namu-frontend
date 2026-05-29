@@ -5,6 +5,8 @@ import {
   getObjectivesProps,
   ObjectiveResource,
   ObjectiveResponse,
+  ActivateInCategoriesPreviewResponse,
+  ActivateInCategoriesResponse,
 } from "./objective.interface";
 import { OBJECTIVE } from "./objective.constants";
 
@@ -73,5 +75,26 @@ export async function updateWeightObjective(
 
 export async function deleteObjective(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function getActivateInCategoriesPreview(
+  id: number
+): Promise<ActivateInCategoriesPreviewResponse> {
+  const { data } = await api.get<ActivateInCategoriesPreviewResponse>(
+    `${ENDPOINT}/${id}/activate-in-categories/preview`
+  );
+  return data;
+}
+
+export async function activateObjectiveInCategories(
+  id: number,
+  categoryIds?: number[]
+): Promise<ActivateInCategoriesResponse> {
+  const body = categoryIds ? { category_ids: categoryIds } : undefined;
+  const { data } = await api.post<ActivateInCategoriesResponse>(
+    `${ENDPOINT}/${id}/activate-in-categories`,
+    body
+  );
   return data;
 }

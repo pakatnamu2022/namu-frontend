@@ -1,15 +1,20 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
+import { User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { AttendanceRecord } from "../lib/attendance.interface";
 import { MARK_TYPE_LABELS, MARK_TYPE_COLORS } from "../lib/attendance.constants";
 
 interface ColumnsOptions {
   onRowClick: (row: AttendanceRecord) => void;
+  personBaseRoute: string;
 }
 
 export function getAttendanceColumns({
   onRowClick,
+  personBaseRoute,
 }: ColumnsOptions): ColumnDef<AttendanceRecord>[] {
   return [
     {
@@ -89,6 +94,22 @@ export function getAttendanceColumns({
           {row.original.person_id ? "Sí" : "Sin match"}
         </span>
       ),
+    },
+    {
+      id: "acciones",
+      header: "Acciones",
+      cell: ({ row }) => {
+        const pid = row.original.person_id;
+        if (!pid) return null;
+        return (
+          <Button asChild size="sm" variant="ghost" className="h-7 px-2">
+            <Link to={`${personBaseRoute}/${pid}`}>
+              <User className="size-3.5 mr-1" />
+              Ver persona
+            </Link>
+          </Button>
+        );
+      },
     },
   ];
 }
