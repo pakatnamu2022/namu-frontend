@@ -72,7 +72,8 @@ export type PlanningStatus =
   | "planned"
   | "in_progress"
   | "completed"
-  | "canceled";
+  | "canceled"
+  | "pending";
 export type SessionStatus = "in_progress" | "paused" | "completed";
 
 export interface getWorkOrderPlanningProps {
@@ -84,6 +85,7 @@ export const PLANNING_STATUS_LABELS: Record<PlanningStatus, string> = {
   in_progress: "En Progreso",
   completed: "Completado",
   canceled: "Cancelado",
+  pending: "Pendiente",
 };
 
 export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
@@ -119,6 +121,12 @@ export const PLANNING_STATUS_COLORS: Record<
     text: "text-red-800",
     border: "border-red-300",
     color: "red",
+  },
+  pending: {
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    border: "border-gray-300",
+    color: "gray",
   },
 };
 
