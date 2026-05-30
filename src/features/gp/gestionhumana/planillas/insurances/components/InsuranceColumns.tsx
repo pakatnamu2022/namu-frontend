@@ -13,23 +13,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 
 export type InsuranceColumns = ColumnDef<InsuranceResource>;
-
-const STATUS_VARIANT: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  ACTIVO: "default",
-  INACTIVO: "destructive",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVO: "Activo",
-  INACTIVO: "Inactivo",
-};
-
 export const insuranceColumns = ({
   onDelete,
 }: {
@@ -46,29 +31,25 @@ export const insuranceColumns = ({
     accessorKey: "business_partner",
     header: "Socio de Negocio",
     cell: ({ getValue }) => (
-      <span className="text-wrap line-clamp-1">{(getValue() as string) ?? "—"}</span>
+      <span className="text-wrap line-clamp-1">
+        {(getValue() as string) ?? "—"}
+      </span>
     ),
   },
   {
     accessorKey: "paternal_surname",
     header: "Apellido Paterno",
-    cell: ({ getValue }) => (
-      <span>{(getValue() as string) ?? "—"}</span>
-    ),
+    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
   },
   {
     accessorKey: "maternal_surname",
     header: "Apellido Materno",
-    cell: ({ getValue }) => (
-      <span>{(getValue() as string) ?? "—"}</span>
-    ),
+    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
   },
   {
     accessorKey: "first_name",
     header: "Nombres",
-    cell: ({ getValue }) => (
-      <span>{(getValue() as string) ?? "—"}</span>
-    ),
+    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
   },
   {
     accessorKey: "doc_number_affiliate",
@@ -80,9 +61,7 @@ export const insuranceColumns = ({
   {
     accessorKey: "plan",
     header: "Plan",
-    cell: ({ getValue }) => (
-      <span>{(getValue() as string) ?? "—"}</span>
-    ),
+    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
   },
   {
     accessorKey: "rate_with_tax",
@@ -91,7 +70,8 @@ export const insuranceColumns = ({
       const val = getValue() as number;
       return (
         <span className="font-mono">
-          S/ {val?.toLocaleString("es-PE", { minimumFractionDigits: 2 }) ?? "0.00"}
+          S/{" "}
+          {val?.toLocaleString("es-PE", { minimumFractionDigits: 2 }) ?? "0.00"}
         </span>
       );
     },
@@ -109,18 +89,6 @@ export const insuranceColumns = ({
     cell: ({ getValue }) => (
       <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
     ),
-  },
-  {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const val = getValue() as string;
-      return (
-        <Badge variant={STATUS_VARIANT[val] ?? "outline"}>
-          {STATUS_LABELS[val] ?? val}
-        </Badge>
-      );
-    },
   },
   {
     id: "actions",

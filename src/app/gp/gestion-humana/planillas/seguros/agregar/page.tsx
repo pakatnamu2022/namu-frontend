@@ -50,7 +50,7 @@ export default function AddInsurancePage() {
         icon={currentView.icon}
       />
       <InsuranceForm
-        defaultValues={{ status: "ACTIVO" }}
+        defaultValues={{}}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
       />
