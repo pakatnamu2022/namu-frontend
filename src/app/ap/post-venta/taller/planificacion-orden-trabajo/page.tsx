@@ -149,10 +149,12 @@ export default function PlanningPage() {
 
     try {
       await deleteMutation.mutateAsync(deleteId);
+
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
       setDeleteId(null);
-    } catch {
-      errorToast(ERROR_MESSAGE(MODEL, "delete"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
     }
   };
 

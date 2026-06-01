@@ -204,17 +204,15 @@ export function WorkOrderActionCell({
         <DeleteButton onClick={() => onDelete(id)} />
       )}
 
-      {isOpen && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-7"
-          tooltip="Cancelar Orden"
-          onClick={() => setIsCancelOpen(true)}
-        >
-          <Ban className="size-5" />
-        </Button>
-      )}
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-7"
+        tooltip="Cancelar Orden"
+        onClick={() => setIsCancelOpen(true)}
+      >
+        <Ban className="size-5" />
+      </Button>
 
       <WorkOrderDeliverySheet
         open={isDeliveryOpen}

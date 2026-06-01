@@ -1,12 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { WorkOrderResource } from "../lib/workOrder.interface";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { StickyNote } from "lucide-react";
 import { WorkOrderActionCell } from "./WorkOrderActionCell";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
+import { formatDate } from "@/core/core.function";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -69,8 +68,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value.replace(" ", "T"));
-        return format(date, "dd/MM/yyyy", { locale: es });
+        return formatDate(value);
       } catch {
         return value;
       }
@@ -83,8 +81,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value.replace(" ", "T"));
-        return format(date, "dd/MM/yyyy", { locale: es });
+        return formatDate(value);
       } catch {
         return value;
       }
@@ -110,8 +107,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value.replace(" ", "T"));
-        return format(date, "dd/MM/yyyy", { locale: es });
+        return formatDate(value);
       } catch {
         return value;
       }
