@@ -419,6 +419,9 @@ import UpdateControlUnitsPage from "./app/ap/comercial/control-unidades/actualiz
 import ControlUnitCheckListPage from "./app/ap/comercial/control-unidades/checklist/[id]/page.tsx";
 import ControlUnitsPage from "./app/ap/comercial/control-unidades/page.tsx";
 import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/controlUnits.constants.ts";
+import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
+import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
+import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -470,6 +473,8 @@ function App() {
     <BrowserRouter>
       <TitleUpdater />
       <AuthInitializer />
+      <LocationTracker />
+      <DeviceInactiveAlert />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* ============================================================ */}
@@ -2054,6 +2059,7 @@ function App() {
                 path="control-asignacionVehiculos"
                 element={<ControlVehicleAssignmentPage />}
               />
+              <Route path="monitoreo" element={<MonitoreoPage />} />
             </Route>
 
             {/* ======================================================== */}
