@@ -169,7 +169,7 @@ export function InvoiceDocumentInfoSection({
               {isInvalidWithQuote
                 ? "La cotización asociada no tiene todos los ítems de mano de obra o repuestos cargados en la orden de trabajo. Por esta razón, solo se permite registrar un anticipo."
                 : isTerminado
-                  ? "La orden de trabajo está terminada. Se generará la factura final (venta interna)."
+                  ? "La orden de trabajo está terminada. Puede generar un anticipo por el saldo pendiente o la factura final (venta interna)."
                   : "La orden de trabajo aún no está terminada. Solo se permite registrar anticipos hasta que el asesor lo marque como TERMINADO."}
             </p>
           </div>
@@ -235,9 +235,7 @@ export function InvoiceDocumentInfoSection({
                 ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
                 : "Tipo de operación: Venta Interna (código 01)"
           }
-          disabled={
-            isInvalidWithQuote || isMassiveBilling || isTerminado !== undefined
-          }
+          disabled={isInvalidWithQuote || isMassiveBilling}
         />
 
         <FormSelect
