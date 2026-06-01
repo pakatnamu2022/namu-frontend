@@ -4,38 +4,62 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { differenceInDays, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { CalendarRange, Loader2 } from "lucide-react";
-import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { Form } from "@/components/ui/form";
 import { errorToast, successToast } from "@/core/core.function";
-import { syncAttendanceRange } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
+import { syncAttendanceUnified } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
+import type { AttendanceSyncRangeKey } from "@/features/gp/gestionhumana/asistencias/lib/attendance.interface";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import type { Option } from "@/core/core.interface";
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+const RANGE_KEYS = [
+  "today",
+  "yesterday",
+  "this_week",
+  "this_month",
+  "last_month",
+  "last_3_months",
+  "last_6_months",
+  "custom",
+] as const;
+
+const RANGE_OPTIONS: Option[] = [
+  { value: "today", label: "Hoy" },
+  { value: "yesterday", label: "Ayer" },
+  { value: "this_week", label: "Esta semana" },
+  { value: "this_month", label: "Este mes" },
+  { value: "last_month", label: "Mes anterior" },
+  { value: "last_3_months", label: "Últimos 3 meses" },
+  { value: "last_6_months", label: "Últimos 6 meses" },
+  { value: "custom", label: "Rango personalizado" },
+];
 
 const schema = z
   .object({
-    date_from: z.string().min(1, "Requerido"),
-    date_to: z.string().min(1, "Requerido"),
+    range: z.enum(RANGE_KEYS),
+    date_from: z.string().optional(),
+    date_to: z.string().optional(),
   })
-  .refine((d) => !d.date_from || !d.date_to || d.date_to >= d.date_from, {
-    message: "Debe ser mayor o igual a la fecha inicio",
-    path: ["date_to"],
-  })
-  .refine(
-    (d) => {
-      if (!d.date_from || !d.date_to) return true;
-      return differenceInDays(parseISO(d.date_to), parseISO(d.date_from)) < 90;
-    },
-    { message: "El rango máximo es 90 días", path: ["date_to"] },
-  );
+  .superRefine((data, ctx) => {
+    if (data.range !== "custom") return;
+    if (!data.date_from) {
+      ctx.addIssue({ code: "custom", message: "Requerido", path: ["date_from"] });
+    }
+    if (!data.date_to) {
+      ctx.addIssue({ code: "custom", message: "Requerido", path: ["date_to"] });
+    }
+    if (data.date_from && data.date_to && data.date_to < data.date_from) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Debe ser mayor o igual a la fecha inicio",
+        path: ["date_to"],
+      });
+    }
+  });
 
 type FormValues = z.infer<typeof schema>;
 
@@ -45,15 +69,18 @@ interface Props {
 
 export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
   const [open, setOpen] = useState(false);
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { date_from: "", date_to: "" },
-    mode: "onChange",
+    defaultValues: { range: "today", date_from: "", date_to: "" },
   });
 
+  const range = form.watch("range");
   const dateFrom = form.watch("date_from");
+
+  const disabledFuture = { after: new Date() };
+  const disabledBeforeFrom =
+    dateFrom ? { before: parseISO(dateFrom) } : undefined;
 
   const handleClose = () => {
     setOpen(false);
@@ -62,75 +89,62 @@ export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const result = await syncAttendanceRange(values);
-      successToast(result.message ?? `Se despacharon ${result.days} jobs`);
+      const payload =
+        values.range === "custom"
+          ? { range: values.range, date_from: values.date_from!, date_to: values.date_to! }
+          : { range: values.range as AttendanceSyncRangeKey };
+
+      const result = await syncAttendanceUnified(payload);
+
+      const detail =
+        result.new_records !== undefined
+          ? `${result.new_records} registros nuevos`
+          : result.days !== undefined
+            ? `${result.days} jobs despachados`
+            : "";
+
+      successToast(
+        result.message ?? `Sincronización completada${detail ? `: ${detail}` : ""}`,
+      );
       handleClose();
       onSynced?.();
-    } catch (error: any) {
-      errorToast(
-        error?.response?.data?.message ?? "Error al sincronizar el rango",
-      );
+    } catch (err: any) {
+      errorToast(err?.response?.data?.message ?? "Error al sincronizar");
     }
   };
 
+  const isSubmitting = form.formState.isSubmitting;
+
   return (
-    <Popover open={open} onOpenChange={(v) => (v ? setOpen(true) : handleClose())}>
-      <PopoverTrigger asChild>
-        <Button size="sm" variant="outline">
-          <CalendarRange className="size-4 mr-1.5" />
-          Sincronizar rango
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-4" align="end">
-        {/* Los calendarios de DatePickerFormField se renderizan como portal
-            dentro de este div, evitando el problema de "click outside" */}
-        <div ref={setContainer}>
-          <div className="mb-3">
-            <p className="text-sm font-medium">Sincronizar por rango</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Despacha un job por día. Máximo 90 días.
-            </p>
-          </div>
+    <>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <CalendarRange className="size-4 mr-1.5" />
+        Sincronizar
+      </Button>
 
-          <Form {...form}>
-            <div className="grid gap-4">
-              <DatePickerFormField
-                control={form.control}
-                name="date_from"
-                label="Fecha inicio"
-                disabledRange={{ after: today }}
-                captionLayout="dropdown"
-                container={container}
-              />
-              <DatePickerFormField
-                control={form.control}
-                name="date_to"
-                label="Fecha fin"
-                disabledRange={[
-                  { after: today },
-                  ...(dateFrom ? [{ before: parseISO(dateFrom) }] : []),
-                ]}
-                captionLayout="dropdown"
-                container={container}
-              />
-            </div>
-          </Form>
-
-          <div className="flex justify-end gap-2 pt-4">
+      <GeneralModal
+        open={open}
+        onClose={handleClose}
+        title="Sincronizar asistencias"
+        subtitle='"Hoy" es síncrono · el resto despacha jobs async'
+        size="md"
+        icon="CalendarRange"
+        childrenFooter={
+          <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              disabled={form.formState.isSubmitting}
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button
               size="sm"
               onClick={form.handleSubmit(onSubmit)}
-              disabled={form.formState.isSubmitting}
+              disabled={isSubmitting}
             >
-              {form.formState.isSubmitting ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 mr-1.5 animate-spin" />
                   Sincronizando…
@@ -140,8 +154,43 @@ export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
               )}
             </Button>
           </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+        }
+      >
+        <Form {...form}>
+          <div className="grid gap-4 py-2">
+            <FormSelect
+              name="range"
+              label="Rango"
+              control={form.control}
+              options={RANGE_OPTIONS}
+              required
+            />
+
+            {range === "custom" && (
+              <>
+                <DatePickerFormField
+                  name="date_from"
+                  label="Desde"
+                  control={form.control}
+                  disabledRange={disabledFuture}
+                  captionLayout="dropdown"
+                />
+                <DatePickerFormField
+                  name="date_to"
+                  label="Hasta"
+                  control={form.control}
+                  disabledRange={
+                    disabledBeforeFrom
+                      ? [disabledFuture, disabledBeforeFrom]
+                      : disabledFuture
+                  }
+                  captionLayout="dropdown"
+                />
+              </>
+            )}
+          </div>
+        </Form>
+      </GeneralModal>
+    </>
   );
 }

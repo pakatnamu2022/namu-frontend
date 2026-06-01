@@ -9,10 +9,8 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { Button } from "@/components/ui/button";
-import { errorToast, successToast } from "@/core/core.function";
 import { ATTENDANCE } from "@/features/gp/gestionhumana/asistencias/lib/attendance.constants";
 import { useAttendanceRecords } from "@/features/gp/gestionhumana/asistencias/lib/attendance.hook";
-import { syncAttendance } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
 import { getAttendanceColumns } from "@/features/gp/gestionhumana/asistencias/components/AttendanceColumns";
 import AttendanceFiltersBar from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
 import AttendanceTable from "@/features/gp/gestionhumana/asistencias/components/AttendanceTable";
@@ -38,7 +36,6 @@ export default function AttendancePage() {
 
   const [filters, setFilters] = useState<AttendanceFilters>(DEFAULT_FILTERS);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   const { data, isLoading, isFetching, refetch } = useAttendanceRecords(filters);
 
@@ -47,21 +44,6 @@ export default function AttendancePage() {
   };
 
   const handleReset = () => setFilters(DEFAULT_FILTERS);
-
-  const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      const result = await syncAttendance();
-      successToast(result.message ?? "Sincronización completada");
-      await refetch();
-    } catch (error: any) {
-      errorToast(
-        error?.response?.data?.message ?? "Error al sincronizar asistencias",
-      );
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   const columns = getAttendanceColumns({
     onRowClick: (row: AttendanceRecord) => setSelectedId(row.id),
@@ -91,12 +73,6 @@ export default function AttendancePage() {
             Actualizar
           </Button>
           <AttendanceSyncRangeDialog onSynced={refetch} />
-          <Button size="sm" onClick={handleSync} disabled={isSyncing}>
-            <RefreshCw
-              className={`size-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`}
-            />
-            Sincronizar hoy
-          </Button>
         </div>
       </HeaderTableWrapper>
 

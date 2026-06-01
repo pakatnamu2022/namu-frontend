@@ -60,6 +60,28 @@ export interface AttendanceSyncResponse {
   total_for_day: number;
 }
 
+export type AttendanceSyncRangeKey =
+  | "today"
+  | "yesterday"
+  | "this_week"
+  | "this_month"
+  | "last_month"
+  | "last_3_months"
+  | "last_6_months"
+  | "custom";
+
+export interface AttendanceSyncPayload {
+  range: AttendanceSyncRangeKey;
+  date_from?: string;
+  date_to?: string;
+}
+
+export interface AttendanceSyncUnifiedResponse {
+  message: string;
+  new_records?: number;
+  days?: number;
+}
+
 export interface AttendanceSyncRangePayload {
   date_from: string;
   date_to: string;
