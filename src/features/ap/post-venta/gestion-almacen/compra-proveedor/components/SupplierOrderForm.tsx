@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { DecimalInput } from "@/shared/components/DecimalInput";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Table,
@@ -1034,23 +1035,16 @@ export const SupplierOrderForm = ({
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="0"
-                                            step="0.1"
+                                          <DecimalInput
                                             placeholder="0.00"
                                             className="text-end"
-                                            value={field.value ?? ""}
-                                            onChange={(e) => {
-                                              const num = parseFloat(
-                                                e.target.value,
-                                              );
-                                              field.onChange(
-                                                isNaN(num) ? "" : num,
-                                              );
-
-                                              // Calcular precio unitario inmediatamente
-                                              if (!isNaN(num) && num >= 0) {
+                                            decimals={2}
+                                            value={
+                                              field.value as number | undefined
+                                            }
+                                            onChange={(num) => {
+                                              field.onChange(num ?? "");
+                                              if (num != null && num >= 0) {
                                                 const quantity =
                                                   Number(
                                                     form.getValues(

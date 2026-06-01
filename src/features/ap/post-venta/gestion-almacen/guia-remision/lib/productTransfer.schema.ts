@@ -151,8 +151,10 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     },
   );
 
-// Schema para actualización (todos los campos opcionales)
-export const productTransferSchemaUpdate = productTransferSchemaBase.partial();
+// Schema para actualización: todos opcionales excepto transmitter/receiver ids que no se envían a la API
+export const productTransferSchemaUpdate = productTransferSchemaBase
+  .omit({ transmitter_id: true, receiver_id: true, transmitter_origin_id: true, receiver_destination_id: true })
+  .partial();
 
 export type ProductTransferSchema = z.infer<typeof productTransferSchemaCreate>;
 export type ProductTransferDetailSchema = z.infer<

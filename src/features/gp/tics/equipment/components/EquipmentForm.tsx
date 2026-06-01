@@ -2,16 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 import { Button } from "@/components/ui/button";
 import {
   EquipmentSchema,
@@ -52,6 +44,7 @@ export const EquipmentForm = ({
     defaultValues: {
       ...defaultValues,
       pertenece_sede: defaultValues?.pertenece_sede ?? false,
+      compartido: defaultValues?.compartido ?? false,
     },
     mode: "onChange",
   });
@@ -66,30 +59,22 @@ export const EquipmentForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormItem>
-            <FormLabel>Nombre del equipo</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Ej: Laptop HP ProBook"
-                value={`${marca} ${modelo} ${serie}`}
-                disabled
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <FormInput
+            name="nombre_equipo"
+            label="Nombre del equipo"
+            placeholder="Ej: Laptop HP ProBook"
+            value={`${marca} ${modelo} ${serie}`}
+            disabled
+          />
 
           {/* Por el momento | No debe ir, solo se deja debido a que ya hay en la base este campo y no hay Marca y Modelo */}
-          <FormItem>
-            <FormLabel>Marca | Modelo</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Ej: Laptop HP ProBook"
-                value={`${marca} ${modelo}`}
-                disabled
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <FormInput
+            name="marca_modelo"
+            label="Marca | Modelo"
+            placeholder="Ej: Laptop HP ProBook"
+            value={`${marca} ${modelo}`}
+            disabled
+          />
 
           <FormSelect
             control={form.control}
@@ -113,46 +98,25 @@ export const EquipmentForm = ({
             }))}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="serie"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Serie del equipo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: KAHET1538FHSG173" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Serie del equipo"
+            placeholder="Ej: KAHET1538FHSG173"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="marca"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Marca</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: HP" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Marca"
+            placeholder="Ej: HP"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="modelo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Modelo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: ProBook 450 G7" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Modelo"
+            placeholder="Ej: ProBook 450 G7"
           />
 
           <FormSelect
@@ -169,64 +133,32 @@ export const EquipmentForm = ({
 
         {[1, 3, 5, 6].includes(Number(tipoEquipoId)) && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
+            <FormInput
               control={form.control}
               name="almacenamiento"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Almacenamiento</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: HDD 480GB" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Almacenamiento"
+              placeholder="Ej: HDD 480GB"
             />
-            <FormField
+            <FormInput
               control={form.control}
               name="ram"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RAM</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 8GB" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="RAM"
+              placeholder="Ej: 8GB"
             />
-
-            <FormField
+            <FormInput
               control={form.control}
               name="procesador"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Procesador</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: i3-10250U" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Procesador"
+              placeholder="Ej: i3-10250U"
             />
           </div>
         )}
 
-        <FormField
+        <FormTextArea
           control={form.control}
           name="detalle"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Detalle</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Observaciones, condición, etc."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Detalle"
+          placeholder="Observaciones, condición, etc."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -281,6 +213,13 @@ export const EquipmentForm = ({
             name="pertenece_sede"
             label="Pertenencia a sede"
             text="¿El equipo pertenece a la sede seleccionada?"
+          />
+
+          <FormSwitch
+            control={form.control}
+            name="compartido"
+            label="Equipo compartido"
+            text="¿El equipo puede asignarse a más de una persona al mismo tiempo?"
           />
         </div>
 

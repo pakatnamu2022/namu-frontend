@@ -80,6 +80,7 @@ export default function UpdatePurchaseRequestQuotePage() {
       // Pasar los arrays tal como vienen del API
       bonus_discounts: data.bonus_discounts || [],
       accessories: data.accessories || [],
+      others: data.others || [],
     };
   }
 

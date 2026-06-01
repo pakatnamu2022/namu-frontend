@@ -15,6 +15,7 @@ import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { DECLARACION_JURADA_KYC } from "../../declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
+import { NUM_DIGITS_RUC } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { Badge } from "@/components/ui/badge";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ExportButtons from "@/shared/components/ExportButtons";
@@ -53,6 +54,14 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
+    },
+  },
+  {
+    accessorKey: "created_at",
+    header: "Fecha",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return <span>{new Date(value).toLocaleDateString("es-PE")}</span>;
     },
   },
   {
@@ -175,9 +184,10 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, is_approved, holder_id, sede_id } = row.original;
+      const { id, is_approved, holder_id, sede_id, holder_document_number } = row.original;
       const { ROUTE_UPDATE } = PURCHASE_REQUEST_QUOTE;
       const { ROUTE_ADD: KYC_ROUTE_ADD } = DECLARACION_JURADA_KYC;
+      const holderPersonType = holder_document_number?.length === NUM_DIGITS_RUC ? "JURIDICA" : "NATURAL";
       const isApproved = Boolean(is_approved);
       const hasVehicle = Boolean(row.original.ap_vehicle_id);
 
@@ -186,8 +196,7 @@ export const purchaseRequestQuoteColumns = ({
         permissions.canAssign && hasVehicle && !row.original.is_paid;
       const canSwapVehicle =
         permissions.canAssign && hasVehicle && !row.original.is_paid;
-      const canEdit =
-        permissions.canUpdate && !row.original.is_invoiced;
+      const canEdit = permissions.canUpdate && !row.original.is_invoiced;
 
       return (
         <div className="flex items-center gap-2">
@@ -254,7 +263,7 @@ export const purchaseRequestQuoteColumns = ({
               tooltip="Generar DJ KYC"
               onClick={() =>
                 router(
-                  `${KYC_ROUTE_ADD}?quote_id=${id}&partner_id=${holder_id}&sede_id=${sede_id}`,
+                  `${KYC_ROUTE_ADD}?quote_id=${id}&partner_id=${holder_id}&sede_id=${sede_id}&person_type=${holderPersonType}`,
                 )
               }
             >

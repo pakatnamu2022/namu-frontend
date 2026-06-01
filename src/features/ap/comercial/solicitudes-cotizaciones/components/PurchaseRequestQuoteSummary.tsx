@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
+import { OthersRow } from "./OthersTable";
 import { FileCheck, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -80,6 +80,7 @@ interface PurchaseRequestQuoteSummaryProps {
   billedCost?: number;
   bonusDiscountRows?: BonusDiscountRow[];
   accessoriesRows?: AccessoryRow[];
+  othersRows?: OthersRow[];
   approvedAccesories?: ApprovedAccesoriesResource[];
   canManage?: boolean;
   onCancel: () => void;
@@ -108,14 +109,13 @@ export function PurchaseRequestQuoteSummary({
   billedCost = 0,
   bonusDiscountRows = [],
   accessoriesRows = [],
+  othersRows = [],
   approvedAccesories = [],
   canManage = false,
   onCancel,
   onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
   const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
-  const { data: freightMaster } = useGeneralMasterByCode("FREIGHT_COMMERCIAL");
-  const freightCost = parseFloat(freightMaster?.value ?? "0") || 0;
   const [isMarginModalOpen, setIsMarginModalOpen] = useState(false);
   const [simulationAdj, setSimulationAdj] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -227,8 +227,12 @@ export function PurchaseRequestQuoteSummary({
   const vehicleCosts = billedCost + giftTotal;
   const grossDiff = totalIncome - vehicleCosts;
   const netDiff = grossDiff / 1.18;
-  const realMarginAmount = hasMarginData ? netDiff - freightCost : 0;
   const netSalePrice = totals.salePrice / 1.18;
+  const othersNetTotal = othersRows.reduce((sum, row) => {
+    const amt = row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
+    return sum + amt;
+  }, 0);
+  const realMarginAmount = hasMarginData ? netDiff - othersNetTotal : 0;
   const realMarginPct = hasMarginData ? (realMarginAmount / netSalePrice) * 100 : 0;
 
   // Simulación hipotética
@@ -578,15 +582,6 @@ export function PurchaseRequestQuoteSummary({
                 </span>
               </div>
 
-              {freightCost > 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Flete Comercial</span>
-                  <span className="font-medium text-red-600">
-                    − {vehicleCurrency.symbol} {fmt(freightCost)}
-                  </span>
-                </div>
-              )}
-
               {/* Obsequios (costo para el dealer) */}
               {giftAccessories.map((acc) => (
                 <div key={acc.id} className="flex justify-between items-center text-sm">
@@ -621,12 +616,15 @@ export function PurchaseRequestQuoteSummary({
                 <span className="text-muted-foreground">(Ingresos − Costos) ÷ 1.18</span>
                 <span className="font-medium">{vehicleCurrency.symbol} {fmt(netDiff)}</span>
               </div>
-              {freightCost > 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Flete Comercial</span>
-                  <span className="font-medium text-red-600">− {vehicleCurrency.symbol} {fmt(freightCost)}</span>
-                </div>
-              )}
+              {othersRows.map((row) => {
+                const amt = row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
+                return (
+                  <div key={row.id} className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">{row.description}</span>
+                    <span className="font-medium text-red-600">− {vehicleCurrency.symbol} {fmt(amt)}</span>
+                  </div>
+                );
+              })}
               <Separator className="my-1.5" />
               <div className="flex justify-between items-center text-sm font-bold">
                 <span>Utilidad Neta</span>

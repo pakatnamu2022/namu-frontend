@@ -5,6 +5,7 @@ import {
   AssignBrandConsultantResponse,
   BrandResource,
   getAssignBrandConsultantProps,
+  WorkerConfigResponse,
 } from "./assignBrandConsultant.interface";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
@@ -76,5 +77,14 @@ export async function deleteAssignBrandConsultant(
   id: number
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function getWorkerConfig(
+  workerId: number
+): Promise<WorkerConfigResponse> {
+  const { data } = await api.get<WorkerConfigResponse>(
+    `${ENDPOINT}/worker/${workerId}/config`
+  );
   return data;
 }

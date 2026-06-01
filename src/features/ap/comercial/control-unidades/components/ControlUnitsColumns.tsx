@@ -37,8 +37,8 @@ import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import ShippingGuideHistory from "@/features/ap/comercial/envios-recepciones/components/ShippingGuideHistory";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 
 export type ControlUnitsColumns = ColumnDef<ControlUnitsResource>;
 

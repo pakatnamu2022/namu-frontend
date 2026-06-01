@@ -223,11 +223,8 @@ export default function TransferReceptionsCards({
                         {shippingGuide.document_number}
                       </p>
                       {shippingGuide.aceptada_por_sunat && (
-                        <Badge
-                          variant="outline"
-                          className="h-5 bg-green-50 text-green-700 border-green-200 mt-1"
-                        >
-                          SUNAT: {shippingGuide.sunat_description}
+                        <Badge variant="outline" color="green">
+                          SUNAT
                         </Badge>
                       )}
                     </div>
@@ -383,101 +380,111 @@ export default function TransferReceptionsCards({
                       isSingleCard ? "max-h-80" : "max-h-64"
                     } overflow-y-auto pr-1`}
                   >
-                    {reception.details.map((detail) => (
-                      <div
-                        key={detail.id}
-                        className={`p-3 rounded-lg border bg-card ${
-                          isSingleCard ? "text-sm" : "text-xs"
-                        }`}
-                      >
-                        <div className="flex justify-between items-start gap-3 mb-2">
-                          <div className="flex-1 min-w-0">
-                            <p
-                              className={`font-semibold truncate ${
-                                isSingleCard ? "text-base" : "text-sm"
-                              }`}
-                            >
-                              {detail.product?.name || "Repuesto sin nombre"}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              {detail.product?.code && (
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    isSingleCard ? "text-xs" : "text-[10px]"
-                                  }
-                                >
-                                  <Tag className="size-3 mr-1" />
-                                  <CopyCell
-                                    value={detail.product.code}
-                                    label={`Cód: ${detail.product.code}`}
-                                  />
-                                </Badge>
-                              )}
-
-                              {detail.product?.dyn_code && (
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    isSingleCard ? "text-xs" : "text-[10px]"
-                                  }
-                                >
-                                  <Tag className="size-3 mr-1" />
-                                  <CopyCell
-                                    value={detail.product.dyn_code}
-                                    label={`Cód Dyn: ${detail.product.dyn_code}`}
-                                  />
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <Badge
-                              color="default"
-                              className={
-                                isSingleCard ? "text-sm h-7" : "text-xs h-6"
-                              }
-                            >
-                              {Number(detail.quantity_received).toFixed(2)}
-                            </Badge>
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              Enviado: {Number(detail.quantity_sent).toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Observaciones del detalle */}
-                        {detail.observed_quantity &&
-                          Number(detail.observed_quantity) > 0 && (
-                            <div className="mt-2 pt-2 border-t bg-yellow-500/10 -mx-3 -mb-3 px-3 py-2 rounded-b-lg">
-                              <div className="flex items-start gap-2">
-                                <AlertCircle className="size-4 text-yellow-600 shrink-0 mt-0.5" />
-                                <div className="flex-1">
-                                  <p className="font-medium text-yellow-900 text-xs mb-1">
-                                    Cantidad Observada:{" "}
-                                    {Number(detail.observed_quantity).toFixed(
-                                      2,
-                                    )}
-                                  </p>
-                                  {detail.reason_observation && (
-                                    <p className="text-yellow-700 text-xs">
-                                      Razón:{" "}
-                                      {translateReasonObservation(
-                                        detail.reason_observation,
-                                      )}
-                                    </p>
+                    {reception.details.map((detail) => {
+                      const isServicio = reception.item_type === "SERVICIO";
+                      return (
+                        <div
+                          key={detail.id}
+                          className={`p-3 rounded-lg border bg-card ${
+                            isSingleCard ? "text-sm" : "text-xs"
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-3 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <p
+                                className={`font-semibold truncate ${
+                                  isSingleCard ? "text-base" : "text-sm"
+                                }`}
+                              >
+                                {isServicio
+                                  ? detail.observation_notes ||
+                                    "Servicio sin nombre"
+                                  : detail.product?.name ||
+                                    "Repuesto sin nombre"}
+                              </p>
+                              {!isServicio && (
+                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                  {detail.product?.code && (
+                                    <Badge
+                                      variant="outline"
+                                      className={
+                                        isSingleCard ? "text-xs" : "text-[10px]"
+                                      }
+                                    >
+                                      <Tag className="size-3 mr-1" />
+                                      <CopyCell
+                                        value={detail.product.code}
+                                        label={`Cód: ${detail.product.code}`}
+                                      />
+                                    </Badge>
                                   )}
-                                  {detail.observation_notes && (
-                                    <p className="text-yellow-700 text-xs mt-1">
-                                      {detail.observation_notes}
-                                    </p>
+
+                                  {detail.product?.dyn_code && (
+                                    <Badge
+                                      variant="outline"
+                                      className={
+                                        isSingleCard ? "text-xs" : "text-[10px]"
+                                      }
+                                    >
+                                      <Tag className="size-3 mr-1" />
+                                      <CopyCell
+                                        value={detail.product.dyn_code}
+                                        label={`Cód Dyn: ${detail.product.dyn_code}`}
+                                      />
+                                    </Badge>
                                   )}
                                 </div>
-                              </div>
+                              )}
                             </div>
-                          )}
-                      </div>
-                    ))}
+                            <div className="text-right shrink-0">
+                              <Badge
+                                color="default"
+                                className={
+                                  isSingleCard ? "text-sm h-7" : "text-xs h-6"
+                                }
+                              >
+                                {Number(detail.quantity_received).toFixed(2)}
+                              </Badge>
+                              <p className="text-[10px] text-muted-foreground mt-1">
+                                Enviado:{" "}
+                                {Number(detail.quantity_sent).toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Observaciones del detalle */}
+                          {detail.observed_quantity &&
+                            Number(detail.observed_quantity) > 0 && (
+                              <div className="mt-2 pt-2 border-t bg-yellow-500/10 -mx-3 -mb-3 px-3 py-2 rounded-b-lg">
+                                <div className="flex items-start gap-2">
+                                  <AlertCircle className="size-4 text-yellow-600 shrink-0 mt-0.5" />
+                                  <div className="flex-1">
+                                    <p className="font-medium text-yellow-900 text-xs mb-1">
+                                      Cantidad Observada:{" "}
+                                      {Number(detail.observed_quantity).toFixed(
+                                        2,
+                                      )}
+                                    </p>
+                                    {detail.reason_observation && (
+                                      <p className="text-yellow-700 text-xs">
+                                        Razón:{" "}
+                                        {translateReasonObservation(
+                                          detail.reason_observation,
+                                        )}
+                                      </p>
+                                    )}
+                                    {detail.observation_notes && (
+                                      <p className="text-yellow-700 text-xs mt-1">
+                                        {detail.observation_notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

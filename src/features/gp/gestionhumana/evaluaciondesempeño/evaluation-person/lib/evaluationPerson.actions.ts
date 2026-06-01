@@ -157,8 +157,11 @@ export async function regenerateEvaluationPerson(
 
 export async function deleteEvaluationPerson(
   id: number,
+  params?: { also_remove_from_cycle?: boolean },
 ): Promise<MessageResponse> {
-  const { data } = await api.delete<MessageResponse>(`${ENDPOINT}/${id}`);
+  const { data } = await api.delete<MessageResponse>(`${ENDPOINT}/${id}`, {
+    params,
+  });
   return data;
 }
 

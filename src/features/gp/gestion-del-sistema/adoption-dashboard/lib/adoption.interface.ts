@@ -34,9 +34,9 @@ export interface AdoptionUserBreakdown {
 }
 
 export interface AdoptionUser {
-  user_id: number;
-  user_name: string;
-  sede_id: number;
+  user_id: number | null;
+  user_name: string | null;
+  sede_id: number | null;
   sede_name: string;
   total_ops: number;
   creates: number;
@@ -86,8 +86,8 @@ export interface AdoptionModule {
 
 // Compliance
 export interface ComplianceUser {
-  user_id: number;
-  user_name: string;
+  user_id: number | null;
+  user_name: string | null;
   sede_name: string;
   actual_ops: number;
   expected_ops: number;
@@ -109,8 +109,8 @@ export interface AdoptionCompliance {
 
 // Champions
 export interface AdoptionChampion {
-  user_id: number;
-  user_name: string;
+  user_id: number | null;
+  user_name: string | null;
   sede_name: string;
   adoption_score: number;
   total_ops: number;
@@ -120,8 +120,8 @@ export interface AdoptionChampion {
 }
 
 export interface AdoptionAtRiskUser {
-  user_id: number;
-  user_name: string;
+  user_id: number | null;
+  user_name: string | null;
   sede_name: string;
   adoption_score: number;
   total_ops: number;
@@ -142,8 +142,10 @@ export interface AdoptionAlert {
   type: string;
   severity: "high" | "medium" | "low";
   message: string;
-  entity: string;
-  sede: string;
+  entity?: string;
+  sede?: string;
+  module?: string;
+  drop_pct?: number;
 }
 
 // Trend
@@ -154,4 +156,17 @@ export interface AdoptionTrendPoint {
   creates: number;
   updates: number;
   deletes: number;
+}
+
+// /all endpoint
+export interface AdoptionAllData {
+  last_updated: string | null;
+  summary: AdoptionSummary;
+  trend: AdoptionTrendPoint[];
+  modules: AdoptionModule[];
+  sedes: AdoptionSede[];
+  users: AdoptionUser[];
+  compliance: AdoptionCompliance;
+  champions: AdoptionChampions;
+  alerts: AdoptionAlert[];
 }

@@ -22,14 +22,27 @@ export async function getOrderQuotations({
   return data;
 }
 
-export async function getForPurchaseRequest({
+export async function getForPurchaseRequestTaller({
   params,
 }: getOrderQuotationProps): Promise<OrderQuotationResponse> {
   const config: AxiosRequestConfig = {
     params,
   };
   const { data } = await api.get<OrderQuotationResponse>(
-    `${ENDPOINT}/for-purchase-request/list`,
+    `${ENDPOINT}/for-purchase-request-taller/list`,
+    config,
+  );
+  return data;
+}
+
+export async function getForPurchaseRequestMeson({
+  params,
+}: getOrderQuotationProps): Promise<OrderQuotationResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<OrderQuotationResponse>(
+    `${ENDPOINT}/for-purchase-request-meson/list`,
     config,
   );
   return data;

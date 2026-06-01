@@ -8,13 +8,18 @@ import {
   Loader2,
   BookMarked,
   CarFront,
+  Handshake,
+  Ban,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
+import { useSendToFinished } from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
+import { CancelWorkOrderModal } from "./CancelWorkOrderModal";
 
 interface WorkOrderActionCellProps {
   row: WorkOrderResource;
@@ -29,6 +34,7 @@ interface WorkOrderActionCellProps {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
+  onCancel: (id: number) => void;
 }
 
 export function WorkOrderActionCell({
@@ -39,13 +45,25 @@ export function WorkOrderActionCell({
   onUpdate,
   onManage,
   onInspect,
+  onCancel,
 }: WorkOrderActionCellProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
-  const { id, is_inspection_completed, status, is_delivery, items } = row;
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const { mutateAsync: sendToFinished, isPending: isSendingToFinished } =
+    useSendToFinished();
+  const {
+    id,
+    is_inspection_completed,
+    status,
+    is_delivery,
+    is_invoiced,
+    items,
+  } = row;
   const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
   const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
   const isDelivery = is_delivery;
+  const firstItemPlanning = items?.[0]?.type_planning;
 
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
@@ -59,12 +77,23 @@ export function WorkOrderActionCell({
     }
   };
 
+  const handleSendToFinished = async () => {
+    try {
+      await sendToFinished(id);
+      successToast("Orden enviada a facturar exitosamente");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || "Error al enviar a facturar";
+      errorToast(message);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       {permissions.canReceive &&
         !is_inspection_completed &&
         !isClosed &&
-        items[0].type_planning.validate_receipt && (
+        firstItemPlanning?.validate_receipt && (
           <Button
             variant="outline"
             size="icon"
@@ -88,7 +117,35 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {isClosed && items[0].type_planning.type_document !== "INTERNA" && (
+      {!is_invoiced && firstItemPlanning?.type_document !== "INTERNA" && (
+        <ConfirmationDialog
+          title="¿Marcar como Finalizada?"
+          description="Esta acción marcará la orden de trabajo como lista para emitir la factura final. ¿Deseas continuar?"
+          confirmText="Sí, continuar"
+          cancelText="Cancelar"
+          icon="info"
+          onConfirm={handleSendToFinished}
+          trigger={
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              disabled={isSendingToFinished}
+              tooltip={
+                isSendingToFinished ? "Enviando..." : "Marcar como Finalizada"
+              }
+            >
+              {isSendingToFinished ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <Handshake className="size-5" />
+              )}
+            </Button>
+          }
+        />
+      )}
+
+      {isClosed && firstItemPlanning?.type_document !== "INTERNA" && (
         <Button
           variant="outline"
           size="icon"
@@ -107,7 +164,7 @@ export function WorkOrderActionCell({
 
       {isClosed &&
         !isDelivery &&
-        items[0].type_planning.type_document !== "INTERNA" && (
+        firstItemPlanning?.type_document !== "INTERNA" && (
           <Button
             variant="outline"
             size="icon"
@@ -119,7 +176,7 @@ export function WorkOrderActionCell({
           </Button>
         )}
 
-      {!isClosed && items[0].type_planning.type_document === "INTERNA" && (
+      {!isClosed && firstItemPlanning?.type_document === "INTERNA" && (
         <Button
           variant="outline"
           size="icon"
@@ -147,10 +204,29 @@ export function WorkOrderActionCell({
         <DeleteButton onClick={() => onDelete(id)} />
       )}
 
+      {isOpen && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Cancelar Orden"
+          onClick={() => setIsCancelOpen(true)}
+        >
+          <Ban className="size-5" />
+        </Button>
+      )}
+
       <WorkOrderDeliverySheet
         open={isDeliveryOpen}
         onClose={() => setIsDeliveryOpen(false)}
         workOrderId={id}
+      />
+
+      <CancelWorkOrderModal
+        open={isCancelOpen}
+        onClose={() => setIsCancelOpen(false)}
+        workOrderId={id}
+        onSuccess={() => onCancel(id)}
       />
     </div>
   );

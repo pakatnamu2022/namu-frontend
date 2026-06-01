@@ -117,6 +117,7 @@ interface ShippingGuideResource {
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  is_annulled: boolean;
 }
 
 // Interface para movimiento de transferencia

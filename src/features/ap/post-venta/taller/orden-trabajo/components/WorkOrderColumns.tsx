@@ -16,6 +16,7 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
+  onCancel: (id: number) => void;
   permissions: {
     canReceive: boolean;
     canManage: boolean;
@@ -30,6 +31,7 @@ export const workOrderColumns = ({
   onUpdate,
   onManage,
   onInspect,
+  onCancel,
   permissions,
 }: Props): WorkOrderColumns[] => [
   {
@@ -121,7 +123,7 @@ export const workOrderColumns = ({
     header: "Tipo de Planificación",
     cell: ({ getValue }) => {
       const items = getValue() as WorkOrderItemResource[];
-      const type_planning = items[0]?.type_planning.description || "-";
+      const type_planning = items[0]?.type_planning?.description || "-";
       return type_planning;
     },
   },
@@ -247,6 +249,7 @@ export const workOrderColumns = ({
         onUpdate={onUpdate}
         onManage={onManage}
         onInspect={onInspect}
+        onCancel={onCancel}
       />
     ),
   },

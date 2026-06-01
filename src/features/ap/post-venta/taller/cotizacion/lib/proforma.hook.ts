@@ -12,7 +12,8 @@ import {
   deleteOrderQuotation,
   getOrderQuotations,
   findOrderQuotationById,
-  getForPurchaseRequest,
+  getForPurchaseRequestTaller,
+  getForPurchaseRequestMeson,
 } from "./proforma.actions";
 import { OrderQuotationRequest } from "./proforma.interface";
 
@@ -33,11 +34,23 @@ export const useOrderQuotations = (params?: Record<string, any>) => {
   });
 };
 
-export const useForPurchaseRequest = (params?: Record<string, any>) => {
+export const useForPurchaseRequestTaller = (params?: Record<string, any>) => {
   return useQuery({
-    queryKey: [QUERY_KEY, "for-purchase-request", params],
-    queryFn: () => getForPurchaseRequest({ params }),
+    queryKey: [QUERY_KEY, "for-purchase-request-taller", params],
+    queryFn: () => getForPurchaseRequestTaller({ params }),
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useForPurchaseRequestMeson = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "for-purchase-request-meson", params],
+    queryFn: () => getForPurchaseRequestMeson({ params }),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 };
 

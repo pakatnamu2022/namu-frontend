@@ -25,6 +25,7 @@ export interface WorkOrderPartsResource {
   tax_amount?: string;
   discount_percentage: number;
   net_amount?: string;
+  part_fully_delivered: boolean;
 }
 
 export interface WorkOrderPartsRequest {

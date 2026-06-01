@@ -24,6 +24,7 @@ export interface InventoryMovementResource {
   movement_date: string;
   movement_type: string;
   movement_number: string;
+  movement_number_dyn: string;
   quantity_in: number;
   quantity_out: number;
   notes?: string;

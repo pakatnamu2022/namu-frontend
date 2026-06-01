@@ -8,11 +8,17 @@ interface Props {
   active: string;
   options: Option[];
   onChange?: (value: string) => void;
+  size?: "default" | "xs" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg";
 }
 
-export default function RadioButton({ options, active, onChange }: Props) {
+export default function RadioButton({
+  options,
+  active,
+  onChange,
+  size,
+}: Props) {
   return (
-    <div className="relative bg-muted rounded-lg border h-9 flex items-center gap-2 p-[2px]">
+    <div className="relative bg-muted rounded-lg border flex items-center gap-2 p-0.5">
       {options.map((option) => {
         const isActive = active === option.value;
 
@@ -27,7 +33,7 @@ export default function RadioButton({ options, active, onChange }: Props) {
             )}
             <Button
               variant={isActive ? "neutral" : "ghost"}
-              size="sm"
+              size={size ? size : "sm"}
               className="h-full w-full relative z-10"
               onClick={() => onChange?.(option.value)}
             >

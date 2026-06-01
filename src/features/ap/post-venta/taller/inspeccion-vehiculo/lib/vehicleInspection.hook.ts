@@ -24,7 +24,9 @@ export interface UseVehicleInspectionParams {
   inspection_date?: [string | undefined, string | undefined];
   is_associated?: number;
   is_cancelled: number;
-  workOrder$sede_id: number;
+  createdByWorkOrder$sede_id: number;
+  createdByWorkOrder$vehicle_id?: number;
+  createdByWorkOrder$is_delivery?: boolean;
 }
 
 export function useVehicleInspection(params: UseVehicleInspectionParams) {

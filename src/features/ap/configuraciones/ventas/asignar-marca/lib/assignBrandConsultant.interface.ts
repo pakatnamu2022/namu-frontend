@@ -39,3 +39,26 @@ export interface BrandResource {
 export interface getAssignBrandConsultantProps {
   params?: Record<string, any>;
 }
+
+export interface WorkerConfigSede {
+  id: number;
+  localidad: string;
+  abreviatura: string;
+}
+
+export interface WorkerConfigBrand {
+  id: number;
+  name: string;
+  code: string;
+  sede_id: number;
+  sede: string;
+}
+
+export interface WorkerConfigResource {
+  worker: { id: number; nombre_completo: string };
+  period: { year: number; month: number };
+  sedes: WorkerConfigSede[];
+  brands: WorkerConfigBrand[];
+}
+
+export type WorkerConfigResponse = WorkerConfigResource;

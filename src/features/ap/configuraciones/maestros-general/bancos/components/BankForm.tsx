@@ -2,15 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
@@ -18,6 +10,7 @@ import {
   bankSchemaCreate,
   bankSchemaUpdate,
 } from "../lib/bank.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface BankFormProps {
   defaultValues: Partial<BankSchema>;
@@ -36,7 +29,7 @@ export const BankForm = ({
 }: BankFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? bankSchemaCreate : bankSchemaUpdate
+      mode === "create" ? bankSchemaCreate : bankSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -48,31 +41,17 @@ export const BankForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Abreviatura</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: BN" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Abreviatura"
+            placeholder="Ej: BN"
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Banco de la Nación" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre"
+            placeholder="Ej: Banco de la Nación"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

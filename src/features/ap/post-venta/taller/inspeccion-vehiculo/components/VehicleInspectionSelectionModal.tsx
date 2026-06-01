@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 interface VehicleInspectionSelectionModalProps {
   open: boolean;
   sedeId: number;
+  vehicleId: number | undefined;
   onOpenChange: (open: boolean) => void;
   onSelectInspection: (inspection: VehicleInspectionResource) => void;
 }
@@ -24,6 +25,7 @@ interface VehicleInspectionSelectionModalProps {
 export const VehicleInspectionSelectionModal = ({
   open,
   sedeId,
+  vehicleId,
   onOpenChange,
   onSelectInspection,
 }: VehicleInspectionSelectionModalProps) => {
@@ -43,11 +45,6 @@ export const VehicleInspectionSelectionModal = ({
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [per_page, search, dateFrom, dateTo]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
@@ -62,7 +59,9 @@ export const VehicleInspectionSelectionModal = ({
       dateFrom || dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    workOrder$sede_id: sedeId,
+    createdByWorkOrder$sede_id: sedeId,
+    createdByWorkOrder$vehicle_id: vehicleId || undefined,
+    createdByWorkOrder$is_delivery: false,
   });
 
   const handleRowClick = (inspection: VehicleInspectionResource) => {

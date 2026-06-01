@@ -6,7 +6,7 @@ import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { INVENTORY } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -17,6 +17,7 @@ import {
   TrendingUp,
   TrendingDown,
   Activity,
+  Calculator,
 } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
 import {
@@ -36,6 +37,7 @@ export default function PurchaseHistoryPage() {
   const [search, setSearch] = useState("");
   const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
   const params = useParams();
+  const navigate = useNavigate();
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
@@ -105,6 +107,18 @@ export default function PurchaseHistoryPage() {
           icon={currentView.icon}
         />
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              navigate(
+                `/ap/post-venta/gestion-de-almacen/inventario/historico-compras/${productId}/${warehouseId}/precio-calculo`,
+              )
+            }
+          >
+            <Calculator className="h-4 w-4 mr-2" />
+            Cálculo de Precio
+          </Button>
           <ExportButtons
             onExcelDownload={() =>
               exportProductPurchaseHistory(productId, warehouseId, {

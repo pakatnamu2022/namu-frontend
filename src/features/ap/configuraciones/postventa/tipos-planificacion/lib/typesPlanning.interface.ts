@@ -10,6 +10,7 @@ export interface TypesPlanningResource {
   id: number;
   code: string;
   description: string;
+  notes: string | null;
   validate_receipt: boolean;
   validate_labor: boolean;
   type_document: string;

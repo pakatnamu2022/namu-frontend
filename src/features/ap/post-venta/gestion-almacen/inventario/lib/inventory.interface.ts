@@ -148,3 +148,153 @@ export interface InventoryResponse {
 export interface getInventoryProps {
   params?: Record<string, any>;
 }
+
+// --- Comparativa Dynamics ---
+
+export interface CompareDynamicsProduct {
+  product_dyn_code: string;
+  product_code: string | null;
+  product_name: string | null;
+  warehouse_dynamics: string | null;
+  local_quantity: string | null;
+  local_available: string | null;
+  local_in_transit: string | null;
+  local_reserved: string | null;
+  local_pending_credit_note: string | null;
+  dynamics_stock: number | null;
+  difference: number | null;
+  match: boolean;
+  found_in: "SOLO_LOCAL" | "SOLO_DYNAMICS" | "AMBOS";
+}
+
+export interface CompareDynamicsData {
+  warehouse_id: number;
+  warehouse_code: string;
+  warehouse_description: string;
+  comparison_date: string;
+  total_products: number;
+  matching_products: number;
+  products: CompareDynamicsProduct[];
+}
+
+export interface CompareDynamicsResponse {
+  success: boolean;
+  data: CompareDynamicsData;
+}
+
+/** Fila unificada (merge de la entrada local + la entrada de Dynamics) */
+export interface CompareDynamicsMergedRow {
+  product_dyn_code: string;
+  product_code: string | null;
+  product_name: string | null;
+  warehouse_dynamics: string | null;
+  local_quantity: string | null;
+  local_available: string | null;
+  local_in_transit: string | null;
+  local_reserved: string | null;
+  local_pending_credit_note: string | null;
+  dynamics_stock: number | null;
+  difference: number | null;
+  match: boolean;
+  found_in: "SOLO_LOCAL" | "SOLO_DYNAMICS" | "AMBOS";
+}
+
+/**Interface para modificar stock minimo y maximo del inventario */
+export interface InventoryStockMinMaxResource {
+  minimum_stock: string;
+  maximum_stock: string;
+  product_id: string;
+  warehouse_id: string;
+}
+
+// ─── Price Calculation Details ────────────────────────────────────────────────
+
+export interface PriceCalculationPrices {
+  last_purchase_price: number;
+  average_cost: number;
+  public_sale_price: number;
+  calculated_pvp: number;
+  minimum_sale_price: number;
+  price_matches: boolean;
+}
+
+export interface PriceCalculationConfiguration {
+  profit_margin: number;
+  profit_margin_percent: string;
+  freight_commission: number;
+  freight_commission_percent: string;
+  minimum_discount: number;
+  minimum_discount_percent: string;
+  calculation_method: number;
+}
+
+export interface PriceCalculationSummary {
+  product_id: number;
+  product_code: string;
+  product_name: string;
+  warehouse_id: number;
+  warehouse_name: string;
+  currency: string;
+  current_stock: number;
+  prices: PriceCalculationPrices;
+  configuration: PriceCalculationConfiguration;
+}
+
+export interface CalculationStepData {
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+export interface CalculationStep {
+  step: number;
+  title: string;
+  description: string;
+  data: CalculationStepData;
+  development?: Record<string, string | number | boolean | null | undefined>;
+  formula?: string;
+  calculation_details?: string;
+  message: string;
+}
+
+export interface PriceCalculationDetailsResponse {
+  success: boolean;
+  summary: PriceCalculationSummary;
+  calculation_steps: CalculationStep[];
+  generated_at: string;
+}
+
+// ─── Stock Movement History ───────────────────────────────────────────────────
+
+export interface StockMovementHistoryItem {
+  movement_id?: number;
+  movement_date: string | null;
+  movement_number: string;
+  movement_type: string;
+  movement_type_label: string;
+  is_inbound: boolean | null;
+  quantity: number;
+  unit_cost: number;
+  total_cost: number;
+  stock_after_movement: number;
+  average_cost_after_movement: number;
+  currency: string;
+  exchange_rate?: number;
+  created_at: string | null;
+}
+
+export interface StockMovementHistoryResponse {
+  success: boolean;
+  product_id: number;
+  product_code: string;
+  product_name: string;
+  warehouse_id: number;
+  warehouse_name: string;
+  current_stock_database: number;
+  current_average_cost_database: number;
+  calculated_final_stock: number;
+  calculated_final_average_cost: number;
+  stock_matches: boolean;
+  average_cost_matches: boolean;
+  total_movements: number;
+  history: StockMovementHistoryItem[];
+  generated_at: string;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
@@ -13,7 +13,6 @@ import {
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
-import { FormInput } from "@/shared/components/FormInput";
 import { WorkOrderPlanningResource } from "../lib/workOrderPlanning.interface";
 import { parseISO } from "date-fns";
 
@@ -22,17 +21,7 @@ const editPlanningSchema = z.object({
   planned_start_datetime: z
     .string()
     .min(1, "La fecha y hora de inicio es requerida"),
-  estimated_hours: z
-    .union([z.string(), z.number()])
-    .transform((val) => String(val))
-    .refine(
-      (val) => {
-        if (!val || val.trim() === "") return false;
-        const num = Number(val);
-        return !isNaN(num) && num >= 0.5;
-      },
-      { message: "Las horas estimadas deben ser un número mayor o igual a 0.5" }
-    ),
+  planned_end_datetime: z.string().min(1, "La fecha y hora fin es requerida"),
 });
 
 type EditPlanningFormData = z.infer<typeof editPlanningSchema>;
@@ -56,7 +45,7 @@ export function EditPlanningModal({
     resolver: zodResolver(editPlanningSchema),
     defaultValues: {
       planned_start_datetime: "",
-      estimated_hours: "",
+      planned_end_datetime: "",
     },
   });
 
@@ -77,10 +66,38 @@ export function EditPlanningModal({
 
       form.reset({
         planned_start_datetime: formattedDateTime,
-        estimated_hours: planning.estimated_hours?.toString() || "",
+        planned_end_datetime: planning.planned_end_datetime
+          ? parseISO(planning.planned_end_datetime).toISOString().slice(0, 16)
+          : "",
       });
     }
   }, [planning, open, form]);
+
+  const startDatetime = useWatch({
+    control: form.control,
+    name: "planned_start_datetime",
+  });
+
+  // Auto-calcular hora fin cuando cambia la hora inicio (usando estimated_hours del planning)
+  useEffect(() => {
+    if (!startDatetime || !planning?.estimated_hours) return;
+
+    const start = new Date(startDatetime);
+    if (isNaN(start.getTime())) return;
+
+    const end = new Date(
+      start.getTime() + planning.estimated_hours * 60 * 60 * 1000,
+    );
+    const year = end.getFullYear();
+    const month = String(end.getMonth() + 1).padStart(2, "0");
+    const day = String(end.getDate()).padStart(2, "0");
+    const hours = String(end.getHours()).padStart(2, "0");
+    const minutes = String(end.getMinutes()).padStart(2, "0");
+    form.setValue(
+      "planned_end_datetime",
+      `${year}-${month}-${day}T${hours}:${minutes}`,
+    );
+  }, [startDatetime, planning?.estimated_hours, form]);
 
   const handleSubmit = (data: any): void => {
     if (planning) {
@@ -109,14 +126,11 @@ export function EditPlanningModal({
               description="Horario permitido: 8:00 AM - 6:00 PM (excluyendo 1:00 PM - 2:24 PM)"
             />
 
-            {/* Duración */}
-            <FormInput
-              name="estimated_hours"
-              label="Duración del Trabajo (horas)"
-              placeholder="Ej: 2.5"
+            <DateTimePickerForm
+              name="planned_end_datetime"
+              label="Fecha y Hora de Fin"
               control={form.control}
-              type="text"
-              description="Ingrese la duración real del trabajo en horas (puede usar decimales)"
+              placeholder="Seleccione fecha y hora"
             />
 
             <div className="flex justify-end gap-2 pt-4">

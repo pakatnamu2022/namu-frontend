@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { EquipmentResource } from "../lib/equipment.interface";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, History, Pencil, Sparkles, XCircle } from "lucide-react";
+import { CheckCircle, History, Pencil, Share2, Sparkles, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EQUIPMENT } from "../lib/equipment.constants";
@@ -61,8 +61,27 @@ export const equipmentColumns = ({
   {
     accessorKey: "status",
     header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
+    cell: ({ row }) => {
+      const { compartido, assigned_to_list } = row.original;
+      const assignedCount = assigned_to_list?.length ?? 0;
+
+      if (compartido && assignedCount >= 1) {
+        return (
+          <Badge variant="outline" className="gap-2">
+            <Share2 className="size-4 text-blue-500" />
+            Compartido
+          </Badge>
+        );
+      }
+      if (compartido && assignedCount === 0) {
+        return (
+          <Badge variant="outline" className="gap-2">
+            <Share2 className="size-4 text-blue-500" />
+            Compartido / Disponible
+          </Badge>
+        );
+      }
+      const value = row.original.status;
       return (
         <Badge variant="outline" className="capitalize gap-2">
           {value === "ASIGNADO" ? (

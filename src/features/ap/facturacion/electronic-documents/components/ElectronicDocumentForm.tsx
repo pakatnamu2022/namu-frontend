@@ -347,12 +347,11 @@ export function ElectronicDocumentForm({
           descripcion = `VENTA DE VEHICULO
 AÑO MODELO: ${vehicle?.year || ""}
 COLOR: ${vehicle?.vehicle_color || ""}
-SERIE: ${vehicle?.vin || ""}
 MOTOR: ${vehicle?.engine_number || ""}
 MARCA: ${vehicle?.model?.brand || ""}
-CARROCERIA: ${vehicle?.vin || ""}
+CARROCERIA: ${vehicle?.model?.body_type || ""}
 NUM. EJES: ${vehicle?.model?.axles_number || ""}
-VERSION: ${vehicle?.model?.version || ""}
+MODELO: ${vehicle?.model?.version || ""}
 NUM. ASIENTOS: ${vehicle?.model?.seats_number || ""}
 CAP. PASAJEROS: ${vehicle?.model?.passengers_number || ""}
 VIN: ${vehicle?.vin || ""}
@@ -363,7 +362,6 @@ LARGO: ${vehicle?.model?.length || ``}
 ANCHO: ${vehicle?.model?.width || ``}
 NUM. DE CILINDROS: ${vehicle?.model?.cylinders_number || ``}
 CILINDRADA: ${vehicle?.model?.displacement || ``}
-MODELO: ${vehicle?.model?.version || ``}
 `;
         }
 

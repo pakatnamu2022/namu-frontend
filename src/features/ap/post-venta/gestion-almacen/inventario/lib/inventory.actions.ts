@@ -5,6 +5,10 @@ import {
   getInventoryProps,
   InventoryResponse,
   StockByProductIdsResponse,
+  CompareDynamicsResponse,
+  InventoryResource,
+  PriceCalculationDetailsResponse,
+  StockMovementHistoryResponse,
 } from "./inventory.interface.ts";
 import {
   getInventoryKardexProps,
@@ -13,6 +17,7 @@ import {
   InventoryMovementResponse,
   PurchaseHistoryResponse,
 } from "./inventoryMovements.interface.ts";
+import { InventoryStockMinMaxSchema } from "./inventoryStockMinMaxSchema.ts";
 
 const { ENDPOINT } = INVENTORY;
 
@@ -40,7 +45,7 @@ export const getInventoryMovements = async ({
   };
   const { data } = await api.get<InventoryMovementResponse>(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/history`,
-    config
+    config,
   );
   return data;
 };
@@ -55,25 +60,25 @@ export const getInventoryKardex = async ({
   };
   const { data } = await api.get<InventoryMovementResponse>(
     `/ap/postVenta/inventoryMovements/kardex`,
-    config
+    config,
   );
   return data;
 };
 
 export async function createSaleFromQuotation(
-  quotationId: number
+  quotationId: number,
 ): Promise<void> {
   await api.post(
-    `/ap/postVenta/inventoryMovements/sales/quotation/${quotationId}`
+    `/ap/postVenta/inventoryMovements/sales/quotation/${quotationId}`,
   );
 }
 
 export async function getStockByProductIds(
-  productIds: number[]
+  productIds: number[],
 ): Promise<StockByProductIdsResponse> {
   const { data } = await api.post<StockByProductIdsResponse>(
     `${ENDPOINT}/by-product-ids`,
-    { product_ids: productIds }
+    { product_ids: productIds },
   );
   return data;
 }
@@ -90,7 +95,7 @@ export const getProductPurchaseHistory = async ({
   };
   const { data } = await api.get<PurchaseHistoryResponse>(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/purchase-history`,
-    config
+    config,
   );
   return data;
 };
@@ -101,7 +106,7 @@ export const exportProductPurchaseHistory = async (
   params?: {
     date_from?: string;
     date_to?: string;
-  }
+  },
 ): Promise<void> => {
   const config: AxiosRequestConfig = {
     params: {
@@ -112,7 +117,7 @@ export const exportProductPurchaseHistory = async (
 
   const response = await api.get(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/purchase-history/export`,
-    config
+    config,
   );
 
   const blob = new Blob([response.data], {
@@ -123,7 +128,7 @@ export const exportProductPurchaseHistory = async (
   link.href = url;
   link.setAttribute(
     "download",
-    `historico-compras-${productId}-${warehouseId}.xlsx`
+    `historico-compras-${productId}-${warehouseId}.xlsx`,
   );
 
   document.body.appendChild(link);
@@ -171,13 +176,24 @@ export const exportInventory = async (params: {
   window.URL.revokeObjectURL(url);
 };
 
+export const getCompareDynamics = async (params: {
+  warehouse_id: number;
+}): Promise<CompareDynamicsResponse> => {
+  const config: AxiosRequestConfig = { params };
+  const { data } = await api.get<CompareDynamicsResponse>(
+    `/ap/postVenta/productWarehouseStock/compare-dynamics`,
+    config,
+  );
+  return data;
+};
+
 export const exportProductMovementHistory = async (
   productId: number,
   warehouseId: number,
   params?: {
     date_from?: string;
     date_to?: string;
-  }
+  },
 ): Promise<void> => {
   const config: AxiosRequestConfig = {
     params: {
@@ -188,7 +204,7 @@ export const exportProductMovementHistory = async (
 
   const response = await api.get(
     `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/history/export`,
-    config
+    config,
   );
 
   const blob = new Blob([response.data], {
@@ -199,7 +215,7 @@ export const exportProductMovementHistory = async (
   link.href = url;
   link.setAttribute(
     "download",
-    `movimientos-producto-${productId}-${warehouseId}.xlsx`
+    `movimientos-producto-${productId}-${warehouseId}.xlsx`,
   );
 
   document.body.appendChild(link);
@@ -208,3 +224,36 @@ export const exportProductMovementHistory = async (
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
 };
+
+export const getPriceCalculationDetails = async (
+  productId: number,
+  warehouseId: number,
+): Promise<PriceCalculationDetailsResponse> => {
+  const { data } = await api.get<PriceCalculationDetailsResponse>(
+    `/ap/postVenta/productWarehouseStock/price-calculation-details`,
+    { params: { product_id: productId, warehouse_id: warehouseId } },
+  );
+  return data;
+};
+
+export const getStockMovementHistory = async (
+  productId: number,
+  warehouseId: number,
+): Promise<StockMovementHistoryResponse> => {
+  const { data } = await api.get<StockMovementHistoryResponse>(
+    `/ap/postVenta/productWarehouseStock/movement-history`,
+    { params: { product_id: productId, warehouse_id: warehouseId } },
+  );
+  return data;
+};
+
+export async function updateInventoryStockMinMax(
+  id: number,
+  data: InventoryStockMinMaxSchema,
+): Promise<InventoryResource> {
+  const response = await api.put(
+    `/ap/postVenta/productWarehouseStock/${id}`,
+    data,
+  );
+  return response.data;
+}

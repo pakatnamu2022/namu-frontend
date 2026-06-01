@@ -4,14 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge, BadgeColor } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clock,
@@ -23,15 +15,16 @@ import {
   FileClock,
   RefreshCw,
 } from "lucide-react";
-import {
-  getShippingGuideLogs,
-  getShippingGuideHistory,
-} from "../lib/shipmentsReceptions.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
+import { SHIPPING_GUIDES } from "../lib/shippingGuides.constants";
+import {
+  getShippingGuideHistory,
+  getShippingGuideLogs,
+} from "../lib/shippingGuides.actions";
 
 interface ShippingGuideHistoryProps {
   shippingGuideId: number;
@@ -40,12 +33,13 @@ interface ShippingGuideHistoryProps {
 export default function ShippingGuideHistory({
   shippingGuideId,
 }: ShippingGuideHistoryProps) {
-  const { ICON } = SHIPMENTS_RECEPTIONS;
+  const { ICON } = SHIPPING_GUIDES;
   const [open, setOpen] = useState(false);
 
   const {
     data: logsData,
     isLoading: isLoadingLogs,
+    isFetching: isFetchingLogs,
     refetch: refetchLogs,
   } = useQuery({
     queryKey: ["shippingGuideLogs", shippingGuideId],
@@ -56,6 +50,7 @@ export default function ShippingGuideHistory({
   const {
     data: historyData,
     isLoading: isLoadingHistory,
+    isFetching: isFetchingHistory,
     refetch: refetchHistory,
   } = useQuery({
     queryKey: ["shippingGuideHistory", shippingGuideId],
@@ -170,9 +165,60 @@ export default function ShippingGuideHistory({
     }
   };
 
+  const isFetching = isFetchingLogs || isFetchingHistory;
+
   const handleRefresh = async () => {
     await Promise.all([refetchLogs(), refetchHistory()]);
   };
+
+  const logColumns = [
+    {
+      header: "Paso",
+      render: (log: any) => (
+        <div className="flex items-center gap-2">
+          {getStatusIcon(log.status)}
+          <div>
+            <p className="font-medium">{log.step_name}</p>
+            <p className="text-xs text-muted-foreground">{log.step}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Tabla",
+      render: (log: any) => (
+        <div className="flex items-center gap-1">
+          <Database className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs font-mono">{log.table_name}</span>
+        </div>
+      ),
+    },
+    {
+      header: "ID Externo",
+      render: (log: any) => (
+        <span className="text-xs font-mono">{log.external_id}</span>
+      ),
+    },
+    {
+      header: "Estado",
+      render: (log: any) => getStatusBadge(log.status, log.status_name),
+    },
+    {
+      header: "Proceso",
+      render: (log: any) =>
+        getProcesoEstadoBadge(log.proceso_estado, log.proceso_estado_name),
+    },
+    {
+      header: "Intentos",
+      render: (log: any) => <Badge variant="outline">{log.attempts}</Badge>,
+    },
+    {
+      header: "Completado",
+      className: "text-xs",
+      render: (log: any) =>
+        log.completed_at ? formatDate(log.completed_at) : "-",
+    },
+  ];
 
   return (
     <div>
@@ -194,28 +240,27 @@ export default function ShippingGuideHistory({
         icon={ICON}
         size="7xl"
       >
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRefresh}
-          disabled={isLoadingLogs || isLoadingHistory}
-          className="gap-2"
-        >
-          <RefreshCw
-            className={cn(
-              "h-4 w-4",
-              (isLoadingLogs || isLoadingHistory) && "animate-spin",
-            )}
-          />
-          Actualizar
-        </Button>
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isFetching}
+            className="gap-2"
+          >
+            <RefreshCw
+              className={cn("h-4 w-4", isFetching && "animate-spin")}
+            />
+            Actualizar
+          </Button>
+        </div>
 
         {isLoadingLogs || isLoadingHistory ? (
           <div className="flex items-center justify-center h-96">
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
           </div>
         ) : (
-          <Tabs defaultValue="resumen" className="mt-6">
+          <Tabs defaultValue="resumen" className="mt-4">
             <TabsList>
               <TabsTrigger value="resumen">Resumen</TabsTrigger>
               <TabsTrigger value="timeline">Línea de Tiempo</TabsTrigger>
@@ -225,15 +270,15 @@ export default function ShippingGuideHistory({
               {logsData && (
                 <>
                   {/* Header Info */}
-                  <div className="rounded-lg border bg-card p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">
+                  <div className="rounded-xl border bg-card px-5 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+                          Guía de Remisión
+                        </p>
+                        <h3 className="text-xl font-semibold tracking-tight">
                           {logsData.data.shipping_guide.document_number}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Serie: {logsData.data.shipping_guide.document_series}
-                        </p>
                       </div>
                       {getStatusBadge(
                         logsData.data.shipping_guide.migration_status,
@@ -242,85 +287,33 @@ export default function ShippingGuideHistory({
                         ),
                       )}
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Creado</p>
-                        <p className="font-medium">
+                    <Separator className="my-3" />
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          Creado
+                        </p>
+                        <p className="font-medium tabular-nums">
                           {formatDate(logsData.data.shipping_guide.created_at)}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Migrado</p>
-                        <p className="font-medium">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          Migrado
+                        </p>
+                        <p className="font-medium tabular-nums">
                           {formatDate(logsData.data.shipping_guide.migrated_at)}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Logs Table */}
-                  <ScrollArea className="h-[calc(100vh-300px)]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Paso</TableHead>
-                          <TableHead>Tabla</TableHead>
-                          <TableHead>ID Externo</TableHead>
-                          <TableHead>Estado</TableHead>
-                          <TableHead>Proceso</TableHead>
-                          <TableHead>Intentos</TableHead>
-                          <TableHead>Completado</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {logsData.data.logs.map((log: any) => (
-                          <TableRow key={log.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                {getStatusIcon(log.status)}
-                                <div>
-                                  <p className="font-medium">{log.step_name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {log.step}
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1">
-                                <Database className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-xs font-mono">
-                                  {log.table_name}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-xs font-mono">
-                                {log.external_id}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(log.status, log.status_name)}
-                            </TableCell>
-                            <TableCell>
-                              {getProcesoEstadoBadge(
-                                log.proceso_estado,
-                                log.proceso_estado_name,
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{log.attempts}</Badge>
-                            </TableCell>
-                            <TableCell className="text-xs">
-                              {log.completed_at
-                                ? formatDate(log.completed_at)
-                                : "-"}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                  <ScrollArea className="h-[calc(100vh-380px)]">
+                    <DetailSheetTable
+                      rows={logsData.data.logs}
+                      columns={logColumns}
+                      getKey={(log) => log.id}
+                    />
                   </ScrollArea>
                 </>
               )}
@@ -330,16 +323,15 @@ export default function ShippingGuideHistory({
               {historyData && (
                 <>
                   {/* Header Info */}
-                  <div className="rounded-lg border bg-card p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">
+                  <div className="rounded-xl border bg-card px-5 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+                          Guía de Remisión
+                        </p>
+                        <h3 className="text-xl font-semibold tracking-tight">
                           {historyData.data.shipping_guide.document_number}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Serie:{" "}
-                          {historyData.data.shipping_guide.document_series}
-                        </p>
                       </div>
                       {getStatusBadge(
                         historyData.data.shipping_guide.migration_status,

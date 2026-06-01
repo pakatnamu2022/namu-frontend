@@ -201,6 +201,7 @@ import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/p
 import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
 import AfterSalesParameterPage from "./app/ap/configuraciones/postventa/parametros/page.tsx";
 import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
+import ReasonDiscardingTallerPage from "./app/ap/configuraciones/postventa/motivos-descarte-taller/page.tsx";
 import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
 import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
 import TypesPlanningPage from "./app/ap/configuraciones/postventa/tipos-planificacion/page.tsx";
@@ -241,6 +242,8 @@ import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/pag
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
 import PurchaseHistoryPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx";
+import PriceCalculationPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/precio-calculo/page.tsx";
+import ComparativaDynamicsPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/comparativa-dynamics/page.tsx";
 import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/[supplierOrderId]/page.tsx";
 import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
 import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx";
@@ -390,6 +393,8 @@ import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
+import CuentasPorCobrarPage from "./app/dp/comercial/cuentas-por-cobrar/page.tsx";
+import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
@@ -403,6 +408,10 @@ import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asis
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
+import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
+import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
+import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
+import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1101,6 +1110,10 @@ function App() {
                 element={<ReasonsAdjustmentPage />}
               />
               <Route
+                path="postventa/motivos-descarte-taller"
+                element={<ReasonDiscardingTallerPage />}
+              />
+              <Route
                 path="postventa/motivos-descarte-repuesto"
                 element={<ReasonDiscardingSparePartPage />}
               />
@@ -1304,6 +1317,14 @@ function App() {
               <Route
                 path="gestion-de-almacen/inventario/historico-compras/:productId/:warehouseId"
                 element={<PurchaseHistoryPage />}
+              />
+              <Route
+                path="gestion-de-almacen/inventario/historico-compras/:productId/:warehouseId/precio-calculo"
+                element={<PriceCalculationPage />}
+              />
+              <Route
+                path="gestion-de-almacen/inventario/comparativa-dynamics"
+                element={<ComparativaDynamicsPage />}
               />
               <Route
                 path="gestion-de-almacen/compra-proveedor"
@@ -1967,6 +1988,24 @@ function App() {
                 path="planillas/parametros-planilla"
                 element={<PayrollParameterPage />}
               />
+
+              {/* Asistencias */}
+              <Route
+                path="asistencias/asistencias"
+                element={<AttendancePage />}
+              />
+              <Route
+                path="asistencias/asistencias/:personId"
+                element={<AttendancePersonPage />}
+              />
+              <Route
+                path="asistencias/sunafil"
+                element={<SunafilReportPage />}
+              />
+              <Route
+                path="asistencias/interno"
+                element={<InternalReportPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -2060,6 +2099,25 @@ function App() {
                 element={<ControlVehicleAssignmentPage />}
               />
               <Route path="monitoreo" element={<MonitoreoPage />} />
+            </Route>
+
+            {/* ======================================================== */}
+            {/* DP - COMERCIAL */}
+            {/* ======================================================== */}
+            <Route
+              path="/dp/comercial"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <DPComercialLayout>
+                    <Outlet />
+                  </DPComercialLayout>
+                </Suspense>
+              }
+            >
+              <Route
+                path="cuentas-por-cobrar"
+                element={<CuentasPorCobrarPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

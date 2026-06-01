@@ -28,11 +28,15 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
 import {
-  useAllSuppliers,
   useSuppliers,
+  useSuppliersById,
 } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook.ts";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook.ts";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface.ts";
 import { EstablishmentsResource } from "@/features/ap/comercial/establecimientos/lib/establishments.interface.ts";
 import { EstablishmentSelectorModal } from "@/features/ap/comercial/envios-recepciones/components/EstablishmentSelectorModal.tsx";
 import {
@@ -127,7 +131,7 @@ export const ProductTransferForm = ({
     name: string;
   } | null>(null);
 
-  // Estado para almacenar los productos seleccionados (en modo create)
+  // Estado para almacenar los repuestos seleccionados (en modo create)
   const [selectedProducts, setSelectedProducts] = useState<
     Map<number, InventoryResource>
   >(new Map());
@@ -138,11 +142,11 @@ export const ProductTransferForm = ({
   const isPersonaJuridica =
     typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
 
-  // Determinar si es producto o servicio
-  const isProducto = transferType === "PRODUCTO";
+  // Determinar si es repuesto o servicio
+  const isRepuesto = transferType === "PRODUCTO";
   const isServicio = transferType === "SERVICIO";
 
-  // Validar si ambos establecimientos tienen almacén para habilitar "Producto"
+  // Validar si ambos establecimientos tienen almacén para habilitar "Repuesto"
   const bothEstablishmentsHaveWarehouse =
     selectedOriginEstablishment?.warehouse_id !== null &&
     selectedOriginEstablishment?.warehouse_id !== undefined &&
@@ -166,23 +170,9 @@ export const ProductTransferForm = ({
     name: "details",
   });
 
-  const watchTransmitterOriginId = form.watch("transmitter_origin_id");
-  const watchReceiverDestinationId = form.watch("receiver_destination_id");
   const watchTransferReasonId = form.watch("transfer_reason_id");
 
   // Obtener clientes y proveedores
-  const { data: customers = [], isLoading: isLoadingCustomers } =
-    useAllCustomers({
-      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-      status_ap: 1,
-    });
-
-  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
-    useAllSuppliers({
-      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-      status_ap: 1,
-    });
-
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
     useAllTypeClient();
 
@@ -283,24 +273,37 @@ export const ProductTransferForm = ({
         { shouldValidate: true },
       );
     }
-  }, [transferModalityId, isFirstLoad, form, isTransportPrivate, isTransportPublic]);
+  }, [
+    transferModalityId,
+    isFirstLoad,
+    form,
+    isTransportPrivate,
+    isTransportPublic,
+  ]);
 
   // UseEffect para limpiar campos cuando cambia el tipo de persona
   useEffect(() => {
     if (isFirstLoad) return;
 
     // Limpiar campos de persona natural cuando se selecciona jurídica
-    if (isPersonaJuridica) {
+    if (isPersonaJuridica && mode === "create") {
       form.setValue("driver_doc", "");
       form.setValue("driver_name", "");
       form.setValue("license", "");
     }
 
     // Limpiar campos de persona jurídica cuando se selecciona natural
-    if (isPersonaNatural) {
+    if (isPersonaNatural && mode === "create") {
       form.setValue("transport_company_id", "");
     }
-  }, [typePersonId, isFirstLoad, form, isPersonaNatural, isPersonaJuridica]);
+  }, [
+    typePersonId,
+    isFirstLoad,
+    form,
+    isPersonaNatural,
+    isPersonaJuridica,
+    mode,
+  ]);
 
   // Setear valores por defecto en modo create
   useEffect(() => {
@@ -334,60 +337,6 @@ export const ProductTransferForm = ({
     }
   }, [selectedOriginEstablishment?.sede_id, filteredSeries, form, mode]);
 
-  // Actualizar el proveedor seleccionado cuando cambie el campo
-  useEffect(() => {
-    if (watchTransmitterOriginId && suppliers.length > 0) {
-      const supplier = suppliers.find(
-        (s) => s.id.toString() === watchTransmitterOriginId,
-      );
-      if (supplier && selectedSupplier?.id !== supplier.id) {
-        setSelectedSupplier({
-          id: supplier.id,
-          name: supplier.full_name,
-        });
-      }
-    } else if (!watchTransmitterOriginId && selectedSupplier !== null) {
-      setSelectedSupplier(null);
-      setSelectedOriginEstablishment(null);
-      // Limpiar transmitter_id
-      const currentTransmitterId = form.getValues("transmitter_id");
-      if (currentTransmitterId !== "") {
-        form.setValue("transmitter_id", "", {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
-      }
-    }
-  }, [watchTransmitterOriginId, suppliers, selectedSupplier, form]);
-
-  // Actualizar el cliente seleccionado cuando cambie el campo
-  useEffect(() => {
-    if (watchReceiverDestinationId && customers.length > 0) {
-      const customer = customers.find(
-        (c) => c.id.toString() === watchReceiverDestinationId,
-      );
-      if (customer && selectedCustomer?.id !== customer.id) {
-        setSelectedCustomer({
-          id: customer.id,
-          name: customer.full_name,
-        });
-      }
-    } else if (!watchReceiverDestinationId && selectedCustomer !== null) {
-      setSelectedCustomer(null);
-      setSelectedDestinationEstablishment(null);
-      // Limpiar receiver_id
-      const currentReceiverId = form.getValues("receiver_id");
-      if (currentReceiverId !== "") {
-        form.setValue("receiver_id", "", {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
-      }
-    }
-  }, [watchReceiverDestinationId, customers, selectedCustomer, form]);
-
   // Limpiar detalles cuando cambia el tipo de transferencia (PRODUCTO <-> SERVICIO)
   useEffect(() => {
     if (isFirstLoad) return;
@@ -399,7 +348,7 @@ export const ProductTransferForm = ({
       fields.length > 0
     ) {
       form.setValue("details", []);
-      // Limpiar productos seleccionados
+      // Limpiar repuestos seleccionados
       setSelectedProducts(new Map());
     }
 
@@ -415,10 +364,10 @@ export const ProductTransferForm = ({
       form.setValue("item_type", "SERVICIO", {
         shouldValidate: true,
       });
-      // Limpiar detalles de productos
+      // Limpiar detalles de repuestos
       if (fields.length > 0) {
         form.setValue("details", []);
-        // Limpiar productos seleccionados
+        // Limpiar repuestos seleccionados
         setSelectedProducts(new Map());
       }
     }
@@ -431,7 +380,7 @@ export const ProductTransferForm = ({
   ]);
 
   const handleAddDetail = () => {
-    if (isProducto) {
+    if (isRepuesto) {
       append({
         product_id: "",
         quantity: 1,
@@ -449,11 +398,11 @@ export const ProductTransferForm = ({
 
   const handleRemoveDetail = (index: number) => {
     remove(index);
-    // Limpiar el producto seleccionado del mapa
+    // Limpiar el repuesto seleccionado del mapa
     setSelectedProducts((prev) => {
       const newMap = new Map(prev);
       newMap.delete(index);
-      // Reindexar los productos que vienen después del eliminado
+      // Reindexar los repuestos que vienen después del eliminado
       const reindexedMap = new Map();
       newMap.forEach((value, key) => {
         if (key > index) {
@@ -466,13 +415,7 @@ export const ProductTransferForm = ({
     });
   };
 
-  if (
-    isLoadingSunatConcepts ||
-    isLoadingSeries ||
-    isLoadingTypesPerson ||
-    isLoadingCustomers ||
-    isLoadingSuppliers
-  ) {
+  if (isLoadingSunatConcepts || isLoadingSeries || isLoadingTypesPerson) {
     return <FormSkeleton />;
   }
 
@@ -500,43 +443,76 @@ export const ProductTransferForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode === "update"}
           />
 
           {/* Ubicación Origen */}
           <div className="space-y-2">
-            <FormSelect
-              name="transmitter_origin_id"
-              label={() => (
-                <div className="flex items-center gap-2 relative">
-                  <FormLabel>Ubicación Origen</FormLabel>
-                  {selectedSupplier && (
-                    <button
-                      type="button"
-                      onClick={() => setIsOriginModalOpen(true)}
-                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                      title="Seleccionar establecimiento"
-                    >
-                      <Search className="h-4 w-4 text-primary" />
-                    </button>
-                  )}
-                </div>
+            <div className="flex items-center gap-2 relative">
+              <FormLabel className="leading-none">Ubicación Origen</FormLabel>
+              {selectedSupplier && mode === "create" && (
+                <button
+                  type="button"
+                  onClick={() => setIsOriginModalOpen(true)}
+                  className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                  title="Seleccionar establecimiento"
+                >
+                  <Search className="h-4 w-4 text-primary" />
+                </button>
               )}
-              placeholder="Selecciona proveedor"
-              options={suppliers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
+            </div>
+            <FormSelectAsync
+              name="transmitter_origin_id"
+              placeholder="Buscar proveedor..."
               control={form.control}
-              strictFilter={true}
+              useQueryHook={useSuppliers}
+              mapOptionFn={(item: SuppliersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name}`,
+              })}
+              additionalParams={{
+                type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                status_ap: 1,
+              }}
               disabled={true}
+              perPage={10}
+              debounceMs={500}
+              useFindByIdHook={useSuppliersById}
+              onValueChange={(value, item: SuppliersResource | undefined) => {
+                if (value && item) {
+                  setSelectedSupplier({ id: item.id, name: item.full_name });
+                } else if (value && !item) {
+                  // item aún no disponible en rawItemsRef; el useFindByIdHook lo cargará
+                  setSelectedSupplier({ id: Number(value), name: "" });
+                } else if (!value) {
+                  setSelectedSupplier(null);
+                  setSelectedOriginEstablishment(null);
+                  form.setValue("transmitter_id", "", {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                    shouldTouch: false,
+                  });
+                }
+              }}
             />
-            {selectedOriginEstablishment && (
+            {(selectedOriginEstablishment ||
+              (mode === "update" &&
+                transferData?.reference?.transmitter_establishment)) && (
               <div className="text-xs text-primary space-y-0.5">
                 <p className="font-medium">
-                  {selectedOriginEstablishment.description ||
-                    selectedOriginEstablishment.code}
+                  {selectedOriginEstablishment
+                    ? selectedOriginEstablishment.description ||
+                      selectedOriginEstablishment.code
+                    : transferData.reference.transmitter_establishment
+                        .description ||
+                      transferData.reference.transmitter_establishment.code}
                 </p>
-                <p>{selectedOriginEstablishment.full_address}</p>
+                <p>
+                  {selectedOriginEstablishment
+                    ? selectedOriginEstablishment.full_address
+                    : transferData.reference.transmitter_establishment
+                        .full_address}
+                </p>
               </div>
             )}
             {form.formState.errors.transmitter_id && (
@@ -548,42 +524,79 @@ export const ProductTransferForm = ({
 
           {/* Ubicación Destino */}
           <div className="space-y-2">
-            <FormSelect
-              name="receiver_destination_id"
-              label={() => (
-                <div className="flex items-center gap-2 relative">
-                  <FormLabel>Ubicación Destino</FormLabel>
-                  {selectedCustomer && (
-                    <button
-                      type="button"
-                      onClick={() => setIsDestinationModalOpen(true)}
-                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                      title="Seleccionar establecimiento"
-                    >
-                      <Search className="h-4 w-4 text-primary" />
-                    </button>
-                  )}
-                </div>
+            <div className="flex items-center gap-2 relative">
+              <FormLabel className="leading-none">Ubicación Destino</FormLabel>
+              {selectedCustomer && mode === "create" && (
+                <button
+                  type="button"
+                  onClick={() => setIsDestinationModalOpen(true)}
+                  className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                  title="Seleccionar establecimiento"
+                >
+                  <Search className="h-4 w-4 text-primary" />
+                </button>
               )}
-              placeholder="Selecciona cliente"
-              options={customers.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
+            </div>
+            <FormSelectAsync
+              name="receiver_destination_id"
+              placeholder="Buscar cliente..."
               control={form.control}
-              strictFilter={true}
+              useQueryHook={useCustomers}
+              mapOptionFn={(item: CustomersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name}`,
+              })}
+              additionalParams={{
+                type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+                status_ap: 1,
+              }}
+              perPage={10}
+              debounceMs={500}
+              useFindByIdHook={useCustomersById}
+              defaultOption={
+                selectedCustomer
+                  ? {
+                      value: selectedCustomer.id.toString(),
+                      label: selectedCustomer.name,
+                    }
+                  : undefined
+              }
               disabled={
                 watchTransferReasonId ===
                 SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
               }
+              onValueChange={(value, item: CustomersResource | undefined) => {
+                if (value && item) {
+                  setSelectedCustomer({ id: item.id, name: item.full_name });
+                } else if (!value) {
+                  setSelectedCustomer(null);
+                  setSelectedDestinationEstablishment(null);
+                  form.setValue("receiver_id", "", {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                    shouldTouch: false,
+                  });
+                }
+              }}
             />
-            {selectedDestinationEstablishment && (
+            {(selectedDestinationEstablishment ||
+              (mode === "update" &&
+                transferData?.reference?.receiver_establishment)) && (
               <div className="text-xs text-primary space-y-0.5">
                 <p className="font-medium">
-                  {selectedDestinationEstablishment.description ||
-                    selectedDestinationEstablishment.code}
+                  {selectedDestinationEstablishment
+                    ? selectedDestinationEstablishment.description ||
+                      selectedDestinationEstablishment.code
+                    : transferData.reference.receiver_establishment
+                        .description ||
+                      transferData.reference.receiver_establishment.code}
                 </p>
-                <p>{selectedDestinationEstablishment.full_address}</p>
+                <p>
+                  {selectedDestinationEstablishment
+                    ? selectedDestinationEstablishment.full_address
+                    : transferData.reference.receiver_establishment
+                        .full_address}
+                </p>
               </div>
             )}
             {form.formState.errors.receiver_id && (
@@ -652,7 +665,7 @@ export const ProductTransferForm = ({
         <GroupFormSection
           icon={Truck}
           title="Conductor y Transporte"
-          color="blue"
+          color="gray"
           cols={{
             sm: 1,
             md: 2,
@@ -783,218 +796,292 @@ export const ProductTransferForm = ({
           />
         </GroupFormSection>
 
-        {/* Sección: Detalles de Productos */}
+        {/* Sección: Detalles de Repuestos/Servicios */}
         <Card className="p-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">
-                {isProducto
-                  ? "Productos a Transferir"
+                {isRepuesto
+                  ? "Repuestos a Transferir"
                   : "Servicios a Transferir"}
               </h3>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {/* Toggle PRODUCTO/SERVICIO */}
-              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                <button
-                  type="button"
-                  onClick={() => form.setValue("item_type", "PRODUCTO")}
-                  disabled={
-                    mode === "update" || !bothEstablishmentsHaveWarehouse
-                  }
-                  title={
-                    !bothEstablishmentsHaveWarehouse
-                      ? "Ambos establecimientos deben tener almacén para transferir productos"
-                      : ""
-                  }
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                    isProducto
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  } ${
-                    mode === "update" || !bothEstablishmentsHaveWarehouse
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                >
-                  <Box className="h-4 w-4" />
-                  <span className="font-medium text-sm">Producto</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => form.setValue("item_type", "SERVICIO")}
-                  disabled={mode === "update"}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                    isServicio
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  } ${
-                    mode === "update"
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                >
-                  <FileText className="h-4 w-4" />
-                  <span className="font-medium text-sm">Servicio</span>
-                </button>
-              </div>
-
-              {/* Mensaje de advertencia si no tienen almacén */}
-              {!bothEstablishmentsHaveWarehouse && mode === "create" && (
-                <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                  <span>
-                    Ambos establecimientos deben tener almacén para transferir
-                    productos
-                  </span>
-                </div>
+              {mode === "update" && (
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  Solo lectura
+                </span>
               )}
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddDetail}
-                disabled={mode === "update"}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar {isProducto ? "Producto" : "Servicio"}
-              </Button>
             </div>
+
+            {mode === "create" && (
+              <div className="flex items-center gap-4 flex-wrap">
+                {/* Toggle PRODUCTO/SERVICIO */}
+                <div className="flex items-center gap-3 bg-slate-100 rounded-lg p-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => form.setValue("item_type", "PRODUCTO")}
+                    disabled={!bothEstablishmentsHaveWarehouse}
+                    title={
+                      !bothEstablishmentsHaveWarehouse
+                        ? "Ambos establecimientos deben tener almacén para transferir repuestos"
+                        : ""
+                    }
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap ${
+                      isRepuesto
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    } ${
+                      !bothEstablishmentsHaveWarehouse
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    <Box className="h-4 w-4" />
+                    <span className="font-medium text-sm">Repuesto</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => form.setValue("item_type", "SERVICIO")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all whitespace-nowrap cursor-pointer ${
+                      isServicio
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span className="font-medium text-sm">Servicio</span>
+                  </button>
+                </div>
+
+                {/* Mensaje de advertencia si no tienen almacén */}
+                {!bothEstablishmentsHaveWarehouse && (
+                  <div className="text-xs text-amber-600 flex items-center gap-1">
+                    <span>
+                      Ambos establecimientos deben tener almacén para transferir
+                      repuestos
+                    </span>
+                  </div>
+                )}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddDetail}
+                  className="flex items-center sm:flex-row flex-col sm:items-center w-full sm:w-auto mx-auto"
+                >
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 sm:mr-2 sm:mb-0" />
+                    <span className="text-sm text-center">
+                      Agregar {isRepuesto ? "Repuesto" : "Servicio"}
+                    </span>
+                  </div>
+                </Button>
+              </div>
+            )}
           </div>
 
           {fields.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No hay {isProducto ? "productos" : "servicios"} agregados</p>
+              <p>No hay {isRepuesto ? "repuestos" : "servicios"} agregados</p>
+            </div>
+          ) : mode === "update" && isRepuesto ? (
+            /* Vista de solo lectura para repuestos en modo edición */
+            <div className="rounded-md border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 border-b border-border">
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-10">
+                      #
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">
+                      Repuesto
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-28">
+                      Código
+                    </th>
+                    <th className="text-right px-4 py-2.5 font-medium text-muted-foreground w-24">
+                      Cantidad
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fields.map((field, index) => (
+                    <tr
+                      key={field.id}
+                      className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {transferData?.details?.[index]?.product?.name || "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {transferData?.details?.[index]?.product?.code ? (
+                          <CopyCell
+                            className="text-xs font-mono text-muted-foreground"
+                            value={transferData.details[index].product.code}
+                            label={transferData.details[index].product.code}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums font-medium">
+                        {(transferData?.details?.[index]?.quantity ??
+                        fields[index])
+                          ? form.getValues(`details.${index}.quantity`) || "—"
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : mode === "update" && isServicio ? (
+            /* Vista de solo lectura para servicios en modo edición */
+            <div className="rounded-md border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 border-b border-border">
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-10">
+                      #
+                    </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">
+                      Descripción
+                    </th>
+                    <th className="text-right px-4 py-2.5 font-medium text-muted-foreground w-24">
+                      Cantidad
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fields.map((field, index) => (
+                    <tr
+                      key={field.id}
+                      className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {transferData?.details?.[index]?.notes ||
+                          form.getValues(`details.${index}.notes`) ||
+                          "—"}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums font-medium">
+                        {transferData?.details?.[index]?.quantity ||
+                          form.getValues(`details.${index}.quantity`) ||
+                          "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="space-y-3">
               {fields.map((field, index) => (
                 <Card
                   key={field.id}
-                  className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200"
+                  className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 gap-1"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-sm">
-                      {isProducto ? "Producto" : "Servicio"} {index + 1}
-                    </h4>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      color="red"
-                      onClick={() => handleRemoveDetail(index)}
-                      disabled={mode === "update"}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
+                      {index + 1}
+                    </div>
+                    {mode === "create" && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        color="red"
+                        onClick={() => handleRemoveDetail(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
-                  {isProducto ? (
-                    /* Campos para PRODUCTO */
+                  {isRepuesto ? (
+                    /* Campos para PRODUCTO en modo create */
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-                      {mode === "update" ? (
-                        // Modo edición: Mostrar nombre del producto (solo lectura)
-                        <div className="space-y-1">
-                          <FormLabel>Producto *</FormLabel>
-                          <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm">
-                            <div className="flex flex-col gap-2">
-                              <span className="font-medium text-sm">
-                                {transferData?.details?.[index]?.product
-                                  ?.name || "Producto no disponible"}
-                              </span>
-                              {transferData?.details?.[index]?.product
-                                ?.code && (
-                                <div className="flex items-center gap-2">
-                                  <CopyCell
-                                    className="text-xs font-medium"
-                                    value={
-                                      transferData.details[index].product.code
-                                    }
-                                    label={`Cód: ${transferData.details[index].product.code}`}
-                                  />
-                                </div>
-                              )}
-                            </div>
+                      <div className="space-y-1">
+                        <FormSelectAsync
+                          name={`details.${index}.product_id`}
+                          label="Repuesto"
+                          placeholder="Buscar repuesto..."
+                          control={form.control}
+                          useQueryHook={useInventory}
+                          mapOptionFn={(inventory: InventoryResource) => ({
+                            label: () => (
+                              <div className="flex items-center justify-between gap-2 w-full">
+                                <span className="font-medium truncate">
+                                  {inventory.product_name}
+                                </span>
+                                <span
+                                  className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                    inventory.available_quantity > 0
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-red-100 text-red-700"
+                                  }`}
+                                >
+                                  Stock: {inventory.available_quantity}
+                                </span>
+                              </div>
+                            ),
+                            value: inventory.product_id.toString(),
+                          })}
+                          additionalParams={{
+                            warehouse_id:
+                              selectedOriginEstablishment?.warehouse_id,
+                            available_quantity: 0,
+                          }}
+                          perPage={10}
+                          debounceMs={500}
+                          onValueChange={(value, item) => {
+                            if (value && item) {
+                              setSelectedProducts((prev) => {
+                                const newMap = new Map(prev);
+                                newMap.set(index, item as InventoryResource);
+                                return newMap;
+                              });
+                            } else {
+                              setSelectedProducts((prev) => {
+                                const newMap = new Map(prev);
+                                newMap.delete(index);
+                                return newMap;
+                              });
+                            }
+                          }}
+                          required
+                        />
+                        {selectedProducts.get(index) && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <CopyCell
+                              className="text-xs font-medium"
+                              value={selectedProducts.get(index)!.product.code}
+                              label={`Cód: ${selectedProducts.get(index)!.product.code}`}
+                            />
                           </div>
-                        </div>
-                      ) : (
-                        // Modo creación: Selector asíncrono
-                        <div className="space-y-1">
-                          <FormSelectAsync
-                            name={`details.${index}.product_id`}
-                            label="Producto *"
-                            placeholder="Buscar producto..."
-                            control={form.control}
-                            useQueryHook={useInventory}
-                            mapOptionFn={(inventory: InventoryResource) => ({
-                              label: () => (
-                                <div className="flex items-center justify-between gap-2 w-full">
-                                  <span className="font-medium truncate">
-                                    {inventory.product_name}
-                                  </span>
-                                  <span
-                                    className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                      inventory.available_quantity > 0
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-red-100 text-red-700"
-                                    }`}
-                                  >
-                                    Stock: {inventory.available_quantity}
-                                  </span>
-                                </div>
-                              ),
-                              value: inventory.product_id.toString(),
-                            })}
-                            additionalParams={{
-                              warehouse_id:
-                                selectedOriginEstablishment?.warehouse_id,
-                              available_quantity: 0,
-                            }}
-                            perPage={10}
-                            debounceMs={500}
-                            onValueChange={(value, item) => {
-                              if (value && item) {
-                                setSelectedProducts((prev) => {
-                                  const newMap = new Map(prev);
-                                  newMap.set(index, item as InventoryResource);
-                                  return newMap;
-                                });
-                              } else {
-                                // Si se limpia el valor, eliminar del mapa
-                                setSelectedProducts((prev) => {
-                                  const newMap = new Map(prev);
-                                  newMap.delete(index);
-                                  return newMap;
-                                });
-                              }
-                            }}
-                          />
-                          {selectedProducts.get(index) && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <CopyCell
-                                className="text-xs font-medium"
-                                value={
-                                  selectedProducts.get(index)!.product.code
-                                }
-                                label={`Cód: ${selectedProducts.get(index)!.product.code}`}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
+                        )}
+                      </div>
 
                       <div className="justify-start">
                         <FormInput
                           name={`details.${index}.quantity`}
-                          label="Cantidad *"
+                          label="Cantidad"
                           type="number"
                           min="1"
                           placeholder="1"
                           control={form.control}
-                          disabled={mode === "update"}
+                          required
                         />
                       </div>
 
@@ -1004,7 +1091,6 @@ export const ProductTransferForm = ({
                           label="Notas"
                           placeholder="Observaciones"
                           control={form.control}
-                          disabled={mode === "update"}
                           className="justify-start"
                         />
                       </div>
@@ -1014,21 +1100,23 @@ export const ProductTransferForm = ({
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                       <FormInput
                         name={`details.${index}.notes`}
-                        label="Descripción * (mín. 6 caracteres)"
+                        label="Descripción (mín. 6 caracteres)"
                         placeholder="Ej: Sobres de documentos, celulares, etc."
                         control={form.control}
                         disabled={mode === "update"}
                         minLength={6}
+                        required
                       />
 
                       <FormInput
                         name={`details.${index}.quantity`}
-                        label="Cantidad *"
+                        label="Cantidad"
                         type="number"
                         min="1"
                         placeholder="1"
                         control={form.control}
                         disabled={mode === "update"}
+                        required
                       />
                     </div>
                   )}

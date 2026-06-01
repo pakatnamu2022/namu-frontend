@@ -30,5 +30,6 @@ export const useSuppliersById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findSuppliersById(id),
     refetchOnWindowFocus: false,
+    enabled: id > 0,
   });
 };

@@ -48,9 +48,10 @@ export const ProformaMesonActionsCell = ({
   onUpdate,
   onDelete,
 }: ActionsCellProps) => {
-  const { id, is_fully_paid, status, has_invoice_generated } = row;
+  const { id, is_fully_paid, status, has_invoice_generated, delivery_document_number } = row;
   const isDiscarded = status === "Descartado";
   const isForInvoicing = status === "Por Facturar";
+  const isDelivered = !!delivery_document_number;
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isSendingLink, setIsSendingLink] = useState(false);
@@ -141,7 +142,7 @@ export const ProformaMesonActionsCell = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {!isDiscarded && is_fully_paid && (
+        {!isDiscarded && is_fully_paid && !isDelivered && (
           <Button
             variant="outline"
             size="icon"
@@ -217,12 +218,14 @@ export const ProformaMesonActionsCell = ({
           )}
       </div>
 
-      <DiscardQuotationModal
-        open={showDiscardModal}
-        onClose={() => setShowDiscardModal(false)}
-        quotationId={id}
-        onSuccess={onRefresh}
-      />
+      {showDiscardModal && (
+        <DiscardQuotationModal
+          open={showDiscardModal}
+          onClose={() => setShowDiscardModal(false)}
+          quotationId={id}
+          onSuccess={onRefresh}
+        />
+      )}
 
       {virtualConfirmationData && (
         <VirtualConfirmationDialog

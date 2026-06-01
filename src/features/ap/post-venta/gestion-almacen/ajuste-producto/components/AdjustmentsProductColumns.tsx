@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type AdjustmentsProductColumns = ColumnDef<AdjustmentsProductListItem>;
 
@@ -24,6 +25,14 @@ export const adjustmentsProductColumns = ({
   {
     accessorKey: "movement_number",
     header: "N° Movimiento",
+  },
+  {
+    accessorKey: "movement_number_dyn",
+    header: "N° Movimiento Dyn",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return <CopyCell value={value} />;
+    },
   },
   {
     accessorKey: "movement_date",
@@ -46,10 +55,17 @@ export const adjustmentsProductColumns = ({
   {
     accessorKey: "user_name",
     header: "Registrado Por",
+    cell: ({ getValue, row }) => {
+      const userName = getValue() as string;
+      if (userName) return userName;
+      const notes = row.original.notes ?? "";
+      const match = notes.match(/USUARIO:\s*([^\s]+)/i);
+      return match ? match[1] : "-";
+    },
   },
   {
     accessorKey: "notes",
-    header: "Observaciones",
+    header: "Motivo",
   },
   {
     accessorKey: "movement_type",

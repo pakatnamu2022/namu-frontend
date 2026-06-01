@@ -163,6 +163,7 @@ export const WorkOrderForm = ({
   const watchedAppointmentId = form.watch("appointment_planning_id");
   const watchedHasInspection = form.watch("has_inspection");
   const watchedInspectionId = form.watch("vehicle_inspection_id");
+  const watchedVehicleId = form.watch("vehicle_id");
   const watchedNumDocContact = form.watch("num_doc_contact");
   const watchedItems = useWatch({
     control: form.control,
@@ -947,6 +948,7 @@ export const WorkOrderForm = ({
         <VehicleInspectionSelectionModal
           open={isInspectionModalOpen}
           sedeId={Number(form.getValues("sede_id"))}
+          vehicleId={watchedVehicleId ? Number(watchedVehicleId) : undefined}
           onOpenChange={setIsInspectionModalOpen}
           onSelectInspection={handleSelectInspection}
         />

@@ -33,6 +33,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { OT_UNBILLED_IDS } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -87,7 +88,7 @@ export default function WorkOrderCajaPage() {
     sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
 
   const efecctiveTypeCurrencyId =
-    typeCurrencyId || (allTypesCurrency[0]?.id.toString() ?? "");
+    typeCurrencyId || CURRENCY_TYPE_IDS.SOLES;
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);

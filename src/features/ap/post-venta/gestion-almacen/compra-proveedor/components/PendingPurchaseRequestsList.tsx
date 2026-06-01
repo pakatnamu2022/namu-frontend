@@ -134,7 +134,7 @@ export const PendingPurchaseRequestsList = ({
                             {detail.product_name}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {detail.product_code}
+                            Cód: {detail.product_code}
                           </p>
                           <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
                             <span>

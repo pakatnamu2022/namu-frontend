@@ -11,6 +11,7 @@ export interface UnitMeasurementResource {
   dyn_code: string;
   nubefac_code: string;
   description: string;
+  number_decimals: number;
   status: boolean;
 }
 
@@ -18,6 +19,7 @@ export interface UnitMeasurementRequest {
   dyn_code: string;
   nubefac_code: string;
   description: string;
+  number_decimals: number;
   status: boolean;
 }
 

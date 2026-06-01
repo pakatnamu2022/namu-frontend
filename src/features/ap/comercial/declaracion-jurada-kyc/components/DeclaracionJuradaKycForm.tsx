@@ -51,6 +51,7 @@ import {
 } from "../lib/declaracionJuradaKyc.schema";
 import {
   PEP_STATUS_OPTIONS,
+  PEP_COLLABORATOR_STATUS_OPTIONS,
   IS_PEP_RELATIVE_OPTIONS,
   THIRD_PEP_STATUS_OPTIONS,
   BENEFICIARY_TYPE_OPTIONS,
@@ -322,6 +323,14 @@ export default function DeclaracionJuradaKycForm({
           />
           <FormInput
             control={form.control}
+            name="cargo"
+            label="Cargo"
+            placeholder="Ej: Gerente General"
+            optional
+            uppercase
+          />
+          <FormInput
+            control={form.control}
             name="fixed_phone"
             label="Teléfono Fijo"
             placeholder="Ej: 074-123456"
@@ -351,6 +360,20 @@ export default function DeclaracionJuradaKycForm({
           icon={Shield}
           color="amber"
           cols={{ sm: 1, md: 2, xl: 4 }}
+          headerExtra={
+            pepActive ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => appendRelative("" as any)}
+              >
+                <Plus className="size-3" />
+                Agregar pariente
+              </Button>
+            ) : undefined
+          }
         >
           <FormSelect
             name="pep_status"
@@ -364,7 +387,7 @@ export default function DeclaracionJuradaKycForm({
             name="pep_collaborator_status"
             label="¿Es / Fue colaborador PEP?"
             placeholder="Seleccione..."
-            options={PEP_STATUS_OPTIONS}
+            options={PEP_COLLABORATOR_STATUS_OPTIONS}
             control={form.control}
             required
           />
@@ -398,54 +421,41 @@ export default function DeclaracionJuradaKycForm({
             optional
             uppercase
           />
-        </GroupFormSection>
 
-        {/* Parientes PEP (array de strings) */}
-        <GroupFormSection
-          title="Parientes con Cargo Público"
-          icon={Users}
-          color="orange"
-          cols={{ sm: 1 }}
-          headerExtra={
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-1"
-              onClick={() => appendRelative("" as any)}
-            >
-              <Plus className="size-3" />
-              Agregar
-            </Button>
-          }
-        >
-          {relativesFields.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Sin parientes con cargo público registrados.
-            </p>
-          )}
-          {relativesFields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 items-end">
-              <div className="flex-1">
-                <FormInput
-                  control={form.control}
-                  name={`pep_relatives.${index}` as any}
-                  label={`Pariente ${index + 1}`}
-                  placeholder="Nombre completo"
-                  uppercase
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8 text-destructive"
-                onClick={() => removeRelative(index)}
-              >
-                <Trash2 className="size-4" />
-              </Button>
+          {pepActive && (
+            <div className="md:col-span-2 xl:col-span-4 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">
+                Parientes hasta 2° grado de consanguinidad y afinidad (Art. 10.2)
+              </p>
+              {relativesFields.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Sin parientes registrados.
+                </p>
+              )}
+              {relativesFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <FormInput
+                      control={form.control}
+                      name={`pep_relatives.${index}` as any}
+                      label={`Pariente ${index + 1}`}
+                      placeholder="Nombre completo"
+                      uppercase
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-destructive"
+                    onClick={() => removeRelative(index)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </GroupFormSection>
 
         {/* Pariente PEP del declarante */}
@@ -462,7 +472,7 @@ export default function DeclaracionJuradaKycForm({
                 size="sm"
                 className="gap-1"
                 onClick={() =>
-                  appendPepRelative({ pep_full_name: "", relationship: "" })
+                  appendPepRelative({ pep_full_name: "", relationship: "", cargo: "", institution: "" })
                 }
               >
                 <Plus className="size-3" />
@@ -486,7 +496,7 @@ export default function DeclaracionJuradaKycForm({
             pepRelativeDataFields.map((field, index) => (
               <div
                 key={field.id}
-                className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border rounded-lg bg-muted/30"
+                className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 p-3 border rounded-lg bg-muted/30"
               >
                 <FormInput
                   control={form.control}
@@ -496,14 +506,30 @@ export default function DeclaracionJuradaKycForm({
                   required
                   uppercase
                 />
+                <FormInput
+                  control={form.control}
+                  name={`pep_relative_data.${index}.relationship`}
+                  label="Parentesco"
+                  placeholder="Ej: Cónyuge, Padre"
+                  required
+                  uppercase
+                />
+                <FormInput
+                  control={form.control}
+                  name={`pep_relative_data.${index}.cargo`}
+                  label="Cargo"
+                  placeholder="Ej: Alcalde"
+                  optional
+                  uppercase
+                />
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
                     <FormInput
                       control={form.control}
-                      name={`pep_relative_data.${index}.relationship`}
-                      label="Parentesco"
-                      placeholder="Ej: Cónyuge, Padre"
-                      required
+                      name={`pep_relative_data.${index}.institution`}
+                      label="Institución"
+                      placeholder="Ej: Municipalidad"
+                      optional
                       uppercase
                     />
                   </div>

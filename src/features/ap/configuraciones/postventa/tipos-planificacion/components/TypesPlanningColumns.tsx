@@ -38,6 +38,10 @@ export const typesPlanningColumns = ({
     header: "Descripción",
   },
   {
+    accessorKey: "notes",
+    header: "Notas",
+  },
+  {
     accessorKey: "validate_receipt",
     header: "Valida Recepción",
     cell: ({ getValue }) => {
@@ -51,7 +55,7 @@ export const typesPlanningColumns = ({
   },
   {
     accessorKey: "validate_labor",
-    header: "Valida Mano de Obra",
+    header: "Valida Operario",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (

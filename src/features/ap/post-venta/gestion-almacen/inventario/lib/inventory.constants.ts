@@ -49,3 +49,38 @@ export function translateInventoryMovement(status?: string | null): string {
   };
   return status ? (translations[status] ?? status) : "-";
 }
+
+/**
+ * Traducciones para calculo de precio
+ */
+
+export function translatePriceCalculationStep(step: string): string {
+  const translations: Record<string, string> = {
+    movement_number: "Número de movimiento",
+    movement_date: "Fecha del movimiento",
+    quantity_purchased: "Cantidad comprada",
+    unit_cost_original: "Costo unitario original",
+    original_currency: "Moneda original",
+    exchange_rate: "Tipo de cambio",
+    unit_cost_in_pen: "Costo unitario en PEN",
+    last_purchase_price: "Último precio de compra",
+    current_stock: "Stock actual antes de la compra",
+    average_cost: "Costo promedio antes de la compra",
+    stock_before_last_purchase: "Stock antes de la última compra",
+    last_purchase_quantity: "Cantidad de la última compra",
+    previous_average_cost: "Costo promedio antes de la última compra",
+    profit_margin: "Margen de ganancia",
+    profit_margin_percent: "Margen de ganancia (%)",
+    freight_commission: "Flete/Comisión",
+    freight_commission_percent: "Flete/Comisión (%)",
+    calculation_method: "Cálculo utilizado",
+    calculated_pvp: "PVP calculado",
+    stored_sale_price: "Precio de venta almacenado",
+    matches: "¿El precio calculado coincide con el precio de venta almacenado?",
+    public_sale_price: "Precio de venta al público",
+    minimum_discount: "Descuento mínimo",
+    minimum_discount_percent: "Descuento mínimo (%)",
+    minimum_sale_price: "Precio mínimo de venta",
+  };
+  return translations[step] ?? `Paso ${step}`;
+}

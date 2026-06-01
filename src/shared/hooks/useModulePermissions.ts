@@ -189,16 +189,41 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite confirmar la anulación de una recepción",
   },
   {
+    value: "notify",
+    label: "Notificar",
+    icon: "Bell",
+    description: "Permite enviar notificaciones relacionadas al módulo",
+  },
+  {
+    value: "salesforce",
+    label: "Salesforce",
+    icon: "Salesforce",
+    description: "Permite habilitar opciones de Salesforce",
+  },
+  {
     value: "addSparePartsOT",
     label: "Agregar Repuestos OT",
     icon: "Plus",
     description: "Permite agregar repuestos a una orden de trabajo",
   },
   {
-    value: "notify",
-    label: "Notificar",
-    icon: "Bell",
-    description: "Permite enviar notificaciones relacionadas al módulo",
+    value: "removeSparePartsOT",
+    label: "Eliminar Repuestos OT",
+    icon: "Trash2",
+    description: "Permite eliminar repuestos de una orden de trabajo",
+  },
+  {
+    value: "assignSparePartsOT",
+    label: "Asignar Repuestos OT",
+    icon: "Link",
+    description: "Permite asignar repuestos a una orden de trabajo",
+  },
+  {
+    value: "removeAssignSparePartsOT",
+    label: "Eliminar Asignación Repuestos OT",
+    icon: "XCircle",
+    description:
+      "Permite eliminar la asignación de repuestos a una orden de trabajo",
   },
 ];
 
@@ -264,7 +289,13 @@ export function useModulePermissions(moduleCode: string) {
     canConfirmCancellationReception: hasModulePermission(
       "confirmCancellationReception",
     ),
-    canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
     canNotify: hasModulePermission("notify"),
+    canSalesforce: hasModulePermission("salesforce"),
+    canAddSparePartsOT: hasModulePermission("addSparePartsOT"),
+    canRemoveSparePartsOT: hasModulePermission("removeSparePartsOT"),
+    canAssignSparePartsOT: hasModulePermission("assignSparePartsOT"),
+    canRemoveAssignSparePartsOT: hasModulePermission(
+      "removeAssignSparePartsOT",
+    ),
   };
 }
