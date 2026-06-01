@@ -9,10 +9,8 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { Button } from "@/components/ui/button";
-import { errorToast, successToast } from "@/core/core.function";
 import { ATTENDANCE } from "@/features/gp/gestionhumana/asistencias/lib/attendance.constants";
 import { useAttendanceRecords } from "@/features/gp/gestionhumana/asistencias/lib/attendance.hook";
-import { syncAttendance } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
 import { getAttendanceColumns } from "@/features/gp/gestionhumana/asistencias/components/AttendanceColumns";
 import AttendanceFiltersBar from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
 import AttendanceTable from "@/features/gp/gestionhumana/asistencias/components/AttendanceTable";
@@ -24,43 +22,41 @@ import type {
 } from "@/features/gp/gestionhumana/asistencias/lib/attendance.interface";
 import PageWrapper from "@/shared/components/PageWrapper";
 
-const today = format(new Date(), "yyyy-MM-dd");
+function toDateStr(d: Date | undefined): string | undefined {
+  return d ? format(d, "yyyy-MM-dd") : undefined;
+}
 
-const DEFAULT_FILTERS: AttendanceFilters = {
-  date: today,
-  per_page: 10,
-  page: 1,
-};
+const DEFAULT_PER_PAGE = 10;
 
 export default function AttendancePage() {
   const { ROUTE, PERSON_ABSOLUTE_ROUTE } = ATTENDANCE;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
 
-  const [filters, setFilters] = useState<AttendanceFilters>(DEFAULT_FILTERS);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [filters, setFilters] = useState<Omit<AttendanceFilters, "date" | "date_from" | "date_to">>({
+    per_page: DEFAULT_PER_PAGE,
+    page: 1,
+  });
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
 
-  const { data, isLoading, isFetching, refetch } = useAttendanceRecords(filters);
+  const { data, isLoading, isFetching, refetch } = useAttendanceRecords({
+    ...filters,
+    date: toDateStr(date),
+    date_from: toDateStr(dateFrom),
+    date_to: toDateStr(dateTo),
+  });
 
-  const handleFiltersChange = (partial: Partial<AttendanceFilters>) => {
+  const handleFiltersChange = (partial: Partial<typeof filters>) => {
     setFilters((prev) => ({ ...prev, ...partial, page: 1 }));
   };
 
-  const handleReset = () => setFilters(DEFAULT_FILTERS);
-
-  const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      const result = await syncAttendance();
-      successToast(result.message ?? "Sincronización completada");
-      await refetch();
-    } catch (error: any) {
-      errorToast(
-        error?.response?.data?.message ?? "Error al sincronizar asistencias",
-      );
-    } finally {
-      setIsSyncing(false);
-    }
+  const handleReset = () => {
+    setDate(new Date());
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setFilters({ per_page: DEFAULT_PER_PAGE, page: 1 });
   };
 
   const columns = getAttendanceColumns({
@@ -91,12 +87,6 @@ export default function AttendancePage() {
             Actualizar
           </Button>
           <AttendanceSyncRangeDialog onSynced={refetch} />
-          <Button size="sm" onClick={handleSync} disabled={isSyncing}>
-            <RefreshCw
-              className={`size-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`}
-            />
-            Sincronizar hoy
-          </Button>
         </div>
       </HeaderTableWrapper>
 
@@ -105,7 +95,7 @@ export default function AttendancePage() {
         data={data?.data ?? []}
         isLoading={isLoading}
         page={filters.page ?? 1}
-        perPage={filters.per_page ?? 10}
+        perPage={filters.per_page ?? DEFAULT_PER_PAGE}
         totalPages={data?.meta?.last_page ?? 1}
         total={data?.meta?.total ?? 0}
         onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
@@ -115,6 +105,12 @@ export default function AttendancePage() {
       >
         <AttendanceFiltersBar
           filters={filters}
+          date={date}
+          setDate={setDate}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
           onFiltersChange={handleFiltersChange}
           onReset={handleReset}
         />
@@ -127,4 +123,3 @@ export default function AttendancePage() {
     </PageWrapper>
   );
 }
-
