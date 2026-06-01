@@ -107,7 +107,6 @@ export function WorkerTimeline({
   onEstimatedHoursChange,
   fullPage = false,
   sedeId,
-  onRefresh,
   readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
@@ -310,14 +309,15 @@ export function WorkerTimeline({
   });
 
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
-  const { data: ownPlanningData } = useGetWorkOrderPlanning({
-    params: {
-      per_page: 100,
-      ...(sedeId && { workOrder$sede_id: sedeId }),
-      planned_date: selectedDateStr,
-    },
-    enabled: !!sedeId,
-  });
+  const { data: ownPlanningData, refetch: refetchPlanning } =
+    useGetWorkOrderPlanning({
+      params: {
+        per_page: 100,
+        ...(sedeId && { workOrder$sede_id: sedeId }),
+        planned_date: selectedDateStr,
+      },
+      enabled: !!sedeId,
+    });
 
   const dayPlannings = (ownPlanningData?.data ?? []).filter((planning) => {
     if (!planning.planned_start_datetime) return false;
@@ -738,9 +738,8 @@ export function WorkerTimeline({
         <div className="flex gap-2 ml-auto">
           <Button
             variant="outline"
-            onClick={onRefresh}
+            onClick={() => refetchPlanning()}
             className="gap-2"
-            disabled={!onRefresh}
           >
             <RefreshCw className="h-4 w-4" />
             Actualizar
@@ -1322,13 +1321,25 @@ export function WorkerTimeline({
                                   <span className="text-muted-foreground">
                                     Estimado:
                                   </span>
-                                  <p>{planning.estimated_hours != null ? formatDecimalHours(planning.estimated_hours) : "N/A"}</p>
+                                  <p>
+                                    {planning.estimated_hours != null
+                                      ? formatDecimalHours(
+                                          planning.estimated_hours,
+                                        )
+                                      : "N/A"}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">
                                     Real:
                                   </span>
-                                  <p>{planning.actual_hours != null ? formatDecimalHours(planning.actual_hours) : "N/A"}</p>
+                                  <p>
+                                    {planning.actual_hours != null
+                                      ? formatDecimalHours(
+                                          planning.actual_hours,
+                                        )
+                                      : "N/A"}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">

@@ -1,3 +1,4 @@
+import { BadgeColor } from "@/components/ui/badge";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface WorkOrderPlanningResponse {
@@ -137,36 +138,48 @@ export type PlanningVisualState =
   | "paused" // status === "in_progress" + sesión pausada (sin sesión activa)
   | "in_progress" // status === "in_progress" + sesión activa
   | "overtime" // status === "in_progress" + sesión activa + tiempo excedido
-  | "completed"; // status === "completed"
+  | "completed" // status === "completed"
+  | "canceled"; // status === "canceled"
 
 export const PLANNING_VISUAL_STATE_COLORS: Record<
   PlanningVisualState,
-  { bg: string; text: string; border: string }
+  { bg: string; text: string; border: string; color: BadgeColor }
 > = {
   planned: {
     bg: "bg-blue-100",
     text: "text-blue-800",
     border: "border-blue-400",
+    color: "blue",
   },
   paused: {
     bg: "bg-yellow-100",
     text: "text-yellow-800",
     border: "border-yellow-400",
+    color: "yellow",
   },
   in_progress: {
     bg: "bg-green-100",
     text: "text-green-800",
     border: "border-green-400",
+    color: "green",
   },
   overtime: {
     bg: "bg-red-100",
     text: "text-red-800",
     border: "border-red-400",
+    color: "red",
   },
   completed: {
     bg: "bg-gray-900",
     text: "text-white",
     border: "border-gray-900",
+    color: "gray",
+  },
+  canceled: {
+    bg: "bg-red-100",
+    text: "text-red-800",
+    border: "border-red-400",
+    color: "red",
   },
 };
 
@@ -177,6 +190,7 @@ export const PLANNING_VISUAL_STATE_LABELS: Record<PlanningVisualState, string> =
     in_progress: "En Progreso",
     overtime: "Excediendo Tiempo",
     completed: "Completado",
+    canceled: "Cancelado",
   };
 
 /**
@@ -198,6 +212,7 @@ export function getPlanningVisualState(
 
   if (status === "completed") return "completed";
   if (status === "planned") return "planned";
+  if (status === "canceled") return "canceled";
 
   if (status === "in_progress") {
     const hasPausedSession =
