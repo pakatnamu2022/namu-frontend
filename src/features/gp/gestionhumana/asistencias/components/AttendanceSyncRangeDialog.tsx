@@ -4,16 +4,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { parseISO } from "date-fns";
 import { CalendarRange, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { errorToast, successToast } from "@/core/core.function";
 import { syncAttendanceUnified } from "@/features/gp/gestionhumana/asistencias/lib/attendance.actions";
 import type { AttendanceSyncRangeKey } from "@/features/gp/gestionhumana/asistencias/lib/attendance.interface";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import type { Option } from "@/core/core.interface";
 
 const RANGE_KEYS = [
@@ -76,11 +75,7 @@ export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
   });
 
   const range = form.watch("range");
-  const dateFrom = form.watch("date_from");
-
-  const disabledFuture = { after: new Date() };
-  const disabledBeforeFrom =
-    dateFrom ? { before: parseISO(dateFrom) } : undefined;
+  const todayStr = new Date().toISOString().split("T")[0];
 
   const handleClose = () => {
     setOpen(false);
@@ -167,26 +162,42 @@ export default function AttendanceSyncRangeDialog({ onSynced }: Props) {
             />
 
             {range === "custom" && (
-              <>
-                <DatePickerFormField
-                  name="date_from"
-                  label="Desde"
-                  control={form.control}
-                  disabledRange={disabledFuture}
-                  captionLayout="dropdown"
-                />
-                <DatePickerFormField
-                  name="date_to"
-                  label="Hasta"
-                  control={form.control}
-                  disabledRange={
-                    disabledBeforeFrom
-                      ? [disabledFuture, disabledBeforeFrom]
-                      : disabledFuture
-                  }
-                  captionLayout="dropdown"
-                />
-              </>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="sync-date-from" className="text-xs md:text-sm">
+                    Desde
+                  </Label>
+                  <input
+                    id="sync-date-from"
+                    type="date"
+                    max={todayStr}
+                    {...form.register("date_from")}
+                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                  {form.formState.errors.date_from && (
+                    <p className="text-xs text-destructive">
+                      {form.formState.errors.date_from.message}
+                    </p>
+                  )}
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="sync-date-to" className="text-xs md:text-sm">
+                    Hasta
+                  </Label>
+                  <input
+                    id="sync-date-to"
+                    type="date"
+                    max={todayStr}
+                    {...form.register("date_to")}
+                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                  {form.formState.errors.date_to && (
+                    <p className="text-xs text-destructive">
+                      {form.formState.errors.date_to.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </Form>
