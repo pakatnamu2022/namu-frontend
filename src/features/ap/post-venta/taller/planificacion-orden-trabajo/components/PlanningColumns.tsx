@@ -8,7 +8,7 @@ import {
   PLANNING_STATUS_COLORS,
 } from "../lib/workOrderPlanning.interface";
 import { PLANNING_TYPE_LABELS } from "../lib/workOrderPlanning.constants";
-import { Clock, Calendar, User, FileText } from "lucide-react";
+import { Clock, Calendar, User, FileText, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil, ShieldCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -22,9 +22,11 @@ interface PlanningColumnsProps {
   onEdit?: (planning: WorkOrderPlanningResource) => void;
   onDelete?: (id: number) => void;
   onSupervisorComplete?: (planning: WorkOrderPlanningResource) => void;
+  onCancel?: (planning: WorkOrderPlanningResource) => void;
   permissions?: {
     canEdit: boolean;
     canDelete: boolean;
+    canAnnul: boolean;
   };
 }
 
@@ -33,7 +35,8 @@ export const planningColumns = ({
   onEdit,
   onDelete,
   onSupervisorComplete,
-  permissions = { canEdit: false, canDelete: false },
+  onCancel,
+  permissions = { canEdit: false, canDelete: false, canAnnul: false },
 }: PlanningColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
   {
     accessorKey: "work_order_correlative",
@@ -198,6 +201,17 @@ export const planningColumns = ({
           )}
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete?.(row.original.id)} />
+          )}
+          {permissions.canAnnul && (
+            <Button
+              variant="outline"
+              size="icon"
+              color="red"
+              onClick={() => onCancel?.(row.original)}
+              tooltip="Cancelar planificación"
+            >
+              <Ban className="h-4 w-4" />
+            </Button>
           )}
         </div>
       );

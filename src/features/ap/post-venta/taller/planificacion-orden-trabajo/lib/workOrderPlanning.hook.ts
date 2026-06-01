@@ -5,7 +5,6 @@ import {
   startSession,
   pauseWork,
   completeWork,
-  cancelPlanning,
   storeWorkOrderPlanning,
   getWorkOrderPlanning,
   getConsolidatedWorkers,
@@ -127,18 +126,6 @@ export function useCompleteWork() {
 
   return useMutation({
     mutationFn: (id: number) => completeWork(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-    },
-  });
-}
-
-// Hook para cancelar planificación
-export function useCancelPlanning() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => cancelPlanning(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

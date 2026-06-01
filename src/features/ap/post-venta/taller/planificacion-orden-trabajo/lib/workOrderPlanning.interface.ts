@@ -14,7 +14,7 @@ export interface WorkOrderPlanningResource {
   worker_name: string;
   description: string;
   estimated_hours: number;
-  planned_start_datetime: string | null;
+  planned_start_datetime: string;
   planned_end_datetime: string | null;
   actual_hours: number;
   actual_start_datetime: string | null;
