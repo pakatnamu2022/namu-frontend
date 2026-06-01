@@ -73,6 +73,24 @@ const columns: ColumnDef<AttendanceSunafilRow>[] = [
     ),
   },
   {
+    accessorKey: "lunch_out",
+    header: "Salida Almuerzo",
+    cell: ({ row }) => (
+      <span className="tabular-nums text-sm">
+        {timeStr(row.original.lunch_out)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "lunch_in",
+    header: "Retorno Almuerzo",
+    cell: ({ row }) => (
+      <span className="tabular-nums text-sm">
+        {timeStr(row.original.lunch_in)}
+      </span>
+    ),
+  },
+  {
     accessorKey: "check_out",
     header: "Salida",
     cell: ({ row }) => (

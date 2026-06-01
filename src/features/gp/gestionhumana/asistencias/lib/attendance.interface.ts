@@ -148,6 +148,8 @@ export interface AttendanceSunafilRow {
   vat: string | null;
   full_name: string;
   check_in: string;
+  lunch_out: string | null;
+  lunch_in: string | null;
   check_out: string | null;
   hours_worked: number | null;
 }
