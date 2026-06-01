@@ -50,6 +50,7 @@ import {
 } from "@/core/core.function";
 import { CancelWorkOrderPlanningModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/CancelWorkOrderPlanningModal";
 import { SupervisorCompleteModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/SupervisorCompleteModal";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function PlanningPage() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ export default function PlanningPage() {
   });
 
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORK_ORDER_PLANNING;
+  const permissions = useModulePermissions(ROUTE);
 
   // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
   useEffect(() => {
@@ -261,11 +263,7 @@ export default function PlanningPage() {
                 onDelete: handleDeletePlanning,
                 onSupervisorComplete: handleSupervisorComplete,
                 onCancel: handleCancelPlanning,
-                permissions: {
-                  canEdit: true,
-                  canDelete: true,
-                  canAnnul: true,
-                },
+                permissions,
               })}
               data={plannings}
               isLoading={isLoading || isLoadingWorkers}

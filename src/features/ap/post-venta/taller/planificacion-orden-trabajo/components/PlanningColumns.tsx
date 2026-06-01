@@ -24,9 +24,10 @@ interface PlanningColumnsProps {
   onSupervisorComplete?: (planning: WorkOrderPlanningResource) => void;
   onCancel?: (planning: WorkOrderPlanningResource) => void;
   permissions?: {
-    canEdit: boolean;
+    canUpdate: boolean;
     canDelete: boolean;
     canAnnul: boolean;
+    canCompletePlannedWork: boolean;
   };
 }
 
@@ -36,7 +37,12 @@ export const planningColumns = ({
   onDelete,
   onSupervisorComplete,
   onCancel,
-  permissions = { canEdit: false, canDelete: false, canAnnul: false },
+  permissions = {
+    canUpdate: false,
+    canDelete: false,
+    canAnnul: false,
+    canCompletePlannedWork: false,
+  },
 }: PlanningColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
   {
     accessorKey: "work_order_correlative",
@@ -168,6 +174,16 @@ export const planningColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      const visibleEdit =
+        permissions.canUpdate && row.original.status === "planned";
+      const visibleDelete =
+        permissions.canDelete && row.original.status === "planned";
+      const visibleCancel =
+        permissions.canAnnul && row.original.status === "in_progress";
+      const visibleSupervisorComplete =
+        permissions.canCompletePlannedWork &&
+        row.original.status === "in_progress";
+
       return (
         <div className="flex items-center gap-2">
           <Button
@@ -178,7 +194,7 @@ export const planningColumns = ({
           >
             <Eye className="h-4 w-4" />
           </Button>
-          {permissions.canEdit && (
+          {visibleEdit && (
             <Button
               variant="outline"
               size="icon"
@@ -188,7 +204,7 @@ export const planningColumns = ({
               <Pencil className="h-4 w-4" />
             </Button>
           )}
-          {row.original.status === "in_progress" && (
+          {visibleSupervisorComplete && (
             <Button
               variant="outline"
               size="icon"
@@ -199,10 +215,10 @@ export const planningColumns = ({
               <ShieldCheck className="h-4 w-4" />
             </Button>
           )}
-          {permissions.canDelete && (
+          {visibleDelete && (
             <DeleteButton onClick={() => onDelete?.(row.original.id)} />
           )}
-          {permissions.canAnnul && (
+          {visibleCancel && (
             <Button
               variant="outline"
               size="icon"

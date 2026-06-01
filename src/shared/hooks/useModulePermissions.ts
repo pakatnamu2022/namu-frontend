@@ -225,6 +225,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite eliminar la asignación de repuestos a una orden de trabajo",
   },
+  {
+    value: "completePlannedWork",
+    label: "Finalizar Trabajo Planificado",
+    icon: "CheckCircle",
+    description: "Permite finalizar un trabajo planificado como supervisor",
+  },
 ];
 
 /**
@@ -297,5 +303,6 @@ export function useModulePermissions(moduleCode: string) {
     canRemoveAssignSparePartsOT: hasModulePermission(
       "removeAssignSparePartsOT",
     ),
+    canCompletePlannedWork: hasModulePermission("completePlannedWork"),
   };
 }
