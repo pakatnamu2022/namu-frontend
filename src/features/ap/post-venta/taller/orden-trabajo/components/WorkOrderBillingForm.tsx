@@ -28,7 +28,7 @@ import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_TRANSACTIONS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { WORKER_ORDER } from "../lib/workOrder.constants";
+import { WORKER_ORDER, WORK_ORDER_STATUS_ID } from "../lib/workOrder.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderBillingFormProps {
@@ -199,6 +199,8 @@ export default function WorkOrderBillingForm({
   });
 
   const isInvalidWithQuote = workOrder?.is_invalid_with_quote ?? false;
+  const isTerminado =
+    Number(workOrder?.status_id) === WORK_ORDER_STATUS_ID.TERMINADO;
 
   const handleCreateInvoice = () => {
     if (!selectedGroupNumber) {
@@ -208,12 +210,11 @@ export default function WorkOrderBillingForm({
 
     // Setear moneda por defecto (PEN)
     const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
-
-    // Si is_invalid_with_quote, forzar anticipo y usar tipo de transacción ANTICIPOS
-    const isAdvance = isInvalidWithQuote ? true : false;
-    const transactionTypeId = isInvalidWithQuote
-      ? SUNAT_TRANSACTIONS_ID.ANTICIPOS.toString()
-      : SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString();
+    const isAdvance = !(isTerminado && !isInvalidWithQuote);
+    const transactionTypeId =
+      isTerminado && !isInvalidWithQuote
+        ? SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString()
+        : SUNAT_TRANSACTIONS_ID.ANTICIPOS.toString();
 
     form.reset({
       sunat_concept_document_type_id: "",
@@ -438,6 +439,7 @@ export default function WorkOrderBillingForm({
               checkbooks={checkbooks}
               workOrder={workOrder!}
               isInvalidWithQuote={isInvalidWithQuote}
+              isTerminado={isTerminado}
             />
           ) : (
             /* Facturas del grupo */

@@ -36,6 +36,7 @@ interface InvoiceFormProps {
   checkbooks: ApBankResource[];
   workOrder: WorkOrderResource;
   isInvalidWithQuote?: boolean;
+  isTerminado?: boolean;
 }
 
 export default function InvoiceForm({
@@ -52,6 +53,7 @@ export default function InvoiceForm({
   checkbooks,
   workOrder,
   isInvalidWithQuote = false,
+  isTerminado = false,
 }: InvoiceFormProps) {
   // Cliente por defecto desde la orden de trabajo y otros datos necesarios
   const defaultCustomer = workOrder.invoice_to_client;
@@ -422,6 +424,7 @@ export default function InvoiceForm({
               defaultCustomer={defaultCustomer!}
               isAdvancePayment={isAdvancePayment}
               isInvalidWithQuote={isInvalidWithQuote}
+              isTerminado={isTerminado}
             />
             {/* Items (solo lectura, cargados automáticamente; editable en modo anticipo) */}
             <ItemsSection

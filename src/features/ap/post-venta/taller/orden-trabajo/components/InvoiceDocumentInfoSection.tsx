@@ -24,6 +24,7 @@ interface InvoiceDocumentInfoSectionProps {
   isAdvancePayment: boolean;
   isInvalidWithQuote?: boolean;
   isMassiveBilling?: boolean;
+  isTerminado?: boolean;
 }
 
 export function InvoiceDocumentInfoSection({
@@ -36,6 +37,7 @@ export function InvoiceDocumentInfoSection({
   isAdvancePayment,
   isInvalidWithQuote = false,
   isMassiveBilling = false,
+  isTerminado = false,
 }: InvoiceDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -166,7 +168,9 @@ export function InvoiceDocumentInfoSection({
             >
               {isInvalidWithQuote
                 ? "La cotización asociada no tiene todos los ítems de mano de obra o repuestos cargados en la orden de trabajo. Por esta razón, solo se permite registrar un anticipo."
-                : "Los ítems de mano de obra y repuestos se cargaron correctamente en la orden de trabajo. Puede continuar con una venta directa o registrar un anticipo."}
+                : isTerminado
+                  ? "La orden de trabajo está terminada. Se generará la factura final (venta interna)."
+                  : "La orden de trabajo aún no está terminada. Solo se permite registrar anticipos hasta que el asesor lo marque como TERMINADO."}
             </p>
           </div>
         </div>
@@ -231,7 +235,9 @@ export function InvoiceDocumentInfoSection({
                 ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
                 : "Tipo de operación: Venta Interna (código 01)"
           }
-          disabled={isInvalidWithQuote || isMassiveBilling}
+          disabled={
+            isInvalidWithQuote || isMassiveBilling || isTerminado !== undefined
+          }
         />
 
         <FormSelect
