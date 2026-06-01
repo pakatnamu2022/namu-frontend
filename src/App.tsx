@@ -390,6 +390,8 @@ import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
+import CuentasPorCobrarPage from "./app/dp/comercial/cuentas-por-cobrar/page.tsx";
+import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
@@ -417,6 +419,10 @@ import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/pag
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
 import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx";
+import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
+import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
+import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
+import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -433,6 +439,9 @@ import UpdateControlUnitsPage from "./app/ap/comercial/control-unidades/actualiz
 import ControlUnitCheckListPage from "./app/ap/comercial/control-unidades/checklist/[id]/page.tsx";
 import ControlUnitsPage from "./app/ap/comercial/control-unidades/page.tsx";
 import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/controlUnits.constants.ts";
+import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
+import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
+import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -484,6 +493,8 @@ function App() {
     <BrowserRouter>
       <TitleUpdater />
       <AuthInitializer />
+      <LocationTracker />
+      <DeviceInactiveAlert />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* ============================================================ */}
@@ -1997,6 +2008,24 @@ function App() {
                 path="planillas/conceptos-planilla"
                 element={<PayrollConceptsPage />}
               />
+
+              {/* Asistencias */}
+              <Route
+                path="asistencias/asistencias"
+                element={<AttendancePage />}
+              />
+              <Route
+                path="asistencias/asistencias/:personId"
+                element={<AttendancePersonPage />}
+              />
+              <Route
+                path="asistencias/sunafil"
+                element={<SunafilReportPage />}
+              />
+              <Route
+                path="asistencias/interno"
+                element={<InternalReportPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -2088,6 +2117,26 @@ function App() {
               <Route
                 path="control-asignacionVehiculos"
                 element={<ControlVehicleAssignmentPage />}
+              />
+              <Route path="monitoreo" element={<MonitoreoPage />} />
+            </Route>
+
+            {/* ======================================================== */}
+            {/* DP - COMERCIAL */}
+            {/* ======================================================== */}
+            <Route
+              path="/dp/comercial"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <DPComercialLayout>
+                    <Outlet />
+                  </DPComercialLayout>
+                </Suspense>
+              }
+            >
+              <Route
+                path="cuentas-por-cobrar"
+                element={<CuentasPorCobrarPage />}
               />
             </Route>
 

@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ObjectiveResource } from "../lib/objective.interface";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, ArrowUp, Pencil } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, PlayCircle } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EditableCell } from "@/shared/components/EditableCell";
 import { Badge } from "@/components/ui/badge";
@@ -15,11 +15,13 @@ export const objectiveColumns = ({
   onEdit,
   onUpdateGoal,
   onUpdateWeight,
+  onActivateInCategories,
 }: {
   onDelete: (id: number) => void;
   onEdit: (objective: ObjectiveResource) => void;
   onUpdateGoal: (id: number, goal: number) => void;
   onUpdateWeight: (id: number, weight: number) => void;
+  onActivateInCategories: (objective: ObjectiveResource) => void;
 }): ObjectiveColumns[] => [
   {
     accessorKey: "name",
@@ -96,6 +98,15 @@ export const objectiveColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Activar en categorías"
+            onClick={() => onActivateInCategories(objective)}
+          >
+            <PlayCircle className="size-5 text-green-600" />
+          </Button>
           <Button
             variant="outline"
             size="icon"

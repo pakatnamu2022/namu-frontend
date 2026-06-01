@@ -42,7 +42,7 @@ export default function AdoptionChampions({ data }: Props) {
                 : null;
               return (
                 <div
-                  key={champion.user_id}
+                  key={champion.user_id ?? `champ-${idx}`}
                   className="flex items-center gap-3 rounded-xl border p-3 bg-linear-to-r from-violet-50/60 to-background dark:from-violet-950/20"
                 >
                   <div className="flex items-center justify-center size-8 rounded-full bg-violet-100 text-violet-700 font-bold text-sm shrink-0">
@@ -50,7 +50,7 @@ export default function AdoptionChampions({ data }: Props) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm truncate">{champion.user_name}</span>
+                      <span className="font-semibold text-sm truncate">{champion.user_name ?? "Sin usuario"}</span>
                       {bStyle && champion.badge && (
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${bStyle.bg} ${bStyle.text}`}>
                           {bStyle.icon} {champion.badge}
@@ -95,16 +95,16 @@ export default function AdoptionChampions({ data }: Props) {
               Sin usuarios en riesgo en el período
             </p>
           ) : (
-            data.at_risk.map((user) => {
+            data.at_risk.map((user, idx) => {
               const rStyle = riskStyles[user.risk_level] ?? riskStyles.bajo;
               return (
                 <div
-                  key={user.user_id}
+                  key={user.user_id ?? `risk-${idx}`}
                   className={`rounded-lg border p-3 ${rStyle.border} ${rStyle.bg}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <span className="font-semibold text-sm">{user.user_name}</span>
+                      <span className="font-semibold text-sm">{user.user_name ?? "Sin usuario"}</span>
                       <p className="text-xs text-muted-foreground">{user.sede_name}</p>
                     </div>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${rStyle.badge}`}>

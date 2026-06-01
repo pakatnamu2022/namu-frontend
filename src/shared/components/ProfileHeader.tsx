@@ -9,16 +9,44 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Moon, Sun, Monitor } from "lucide-react";
+import { LogOut, User, Moon, Sun, Monitor, Loader2, CheckCircle, XCircle, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useTheme } from "@/components/theme-provider";
 import NotificationBell from "@/features/notifications/components/NotificationBell";
+import { useState } from "react";
+import { useAutoActivateDevice, useDeviceStatus } from "@/features/tp/comercial/Monitoreo/lib/monitoreo.hooks";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { DeviceStatusBell } from "@/features/tp/comercial/Monitoreo/components/DeviceStatusBell";
 
 export default function ProfileHeader() {
   const { user } = useAuthStore();
   const push = useNavigate();
   const { setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+
+  const { data: deviceStatus, refetch: refetchStatus, isLoading: isLoadingStatus } = useDeviceStatus();
+  const { mutate: autoActivate, isPending: isActivating } = useAutoActivateDevice();
+
+  const isDeviceActive = deviceStatus?.is_active ?? false;
+  const deviceSerial = deviceStatus?.serial ?? null;
+  const deviceName = deviceStatus?.equipment_name ?? null;
+
+
+  const handleAutoActivate = () => {
+    autoActivate(undefined, {
+      onSuccess: (data) => {
+        if (data.success) {
+          setOpen(false);
+          refetchStatus();
+        }
+      },
+    });
+  };
+
+
+
 
   const handleLogout = async () => {
     await useAuthStore.getState().logout();
@@ -49,7 +77,7 @@ export default function ProfileHeader() {
           <AvatarFallback>
             {user?.name
               ? user.name.charAt(0).toUpperCase() +
-                user.name.charAt(1).toUpperCase()
+              user.name.charAt(1).toUpperCase()
               : "U"}
           </AvatarFallback>
         </Avatar>
@@ -57,9 +85,34 @@ export default function ProfileHeader() {
     );
   };
 
+  const isConductor = user?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION"
+
   return (
     <div className="flex items-center gap-1">
       <NotificationBell />
+      {isConductor && <DeviceStatusBell />}
+      {isConductor && (
+        <div className="hidden lg:flex items-center gap-1 mr-1">
+          {isLoadingStatus ? (
+            <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">
+              <Loader2 className="h-3 w-3 animate-spin text-gray-500" />
+              <span className="text-xs text-gray-500">Cargando...</span>
+            </div>
+          ) : isDeviceActive ? (
+            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+              <CheckCircle className="h-3 w-3 text-green-600" />
+              <span className="text-xs text-green-700 dark:text-green-400">
+                {deviceName ? ` ${deviceName}` : "Dispositivo Activo"}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <XCircle className="h-3 w-3 text-red-600" />
+              <span className="text-xs text-red-700 dark:text-red-400">Sin dispositivo</span>
+            </div>
+          )}
+        </div>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger>
           <ProfileHeaderButton />
@@ -74,6 +127,61 @@ export default function ProfileHeader() {
             <User className="w-4 h-4" />
             <p>Ver Perfil</p>
           </DropdownMenuItem>
+
+          {isConductor && (
+            <>
+              <DropdownMenuSeparator />
+              {!isDeviceActive && (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="gap-2">
+                      <Smartphone className="w-4 h-4" />
+                      <p>Activar dispositivo</p>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>
+                        Activar dispositivo
+                      </DialogTitle>
+                      <DialogDescription>
+                        El sistema buscará automáticamente el dispositivo que tiene asignado en el sistema TICS.
+                        {deviceSerial && (
+                          <p className="mt-2 text-sm">
+                            Dispositivo actual: <span className="font-mono">{deviceSerial}</span>
+                            {deviceName && <span className="text-muted-foreground"> ({deviceName})</span>}
+                          </p>
+                        )}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <p className="text-sm text-muted-foreground">
+                        Al hacer clic en "Activar", el sistema verificará si tiene un dispositivo asignado
+                        y lo activará automáticamente para el monitoreo de ubicación.
+                      </p>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setOpen(false)}>
+                        Cancelar
+                      </Button>
+                      <Button onClick={handleAutoActivate} disabled={isActivating}>
+                        {isActivating ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Activando...
+                          </>
+                        ) : (
+                          "Activar dispositivo"
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )
+              }
+
+            </>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Tema</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">

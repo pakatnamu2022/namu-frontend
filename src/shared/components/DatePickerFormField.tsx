@@ -60,6 +60,7 @@ interface DatePickerFormFieldProps<T extends FieldValues> {
   captionLayout?: "label" | "dropdown" | "dropdown-months" | "dropdown-years";
   endMonth?: Date;
   size?: "sm" | "default" | "lg";
+  container?: HTMLElement | null;
 }
 
 export function DatePickerFormField<T extends FieldValues>({
@@ -80,6 +81,7 @@ export function DatePickerFormField<T extends FieldValues>({
     new Date().getDate(),
   ),
   size,
+  container,
 }: DatePickerFormFieldProps<T>) {
   const isMobile = useIsMobile();
   const { field, fieldState } = useController({ control, name });
@@ -117,12 +119,14 @@ export function DatePickerFormField<T extends FieldValues>({
       const day = String(date.getDate()).padStart(2, "0");
       field.onChange(`${year}-${month}-${day}`);
       if (isMobile) setDrawerOpen(false);
+      else setPopoverOpen(false);
     } else {
       field.onChange("");
     }
   };
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   return (
     <FormItem className="flex flex-col justify-between">
@@ -182,7 +186,7 @@ export function DatePickerFormField<T extends FieldValues>({
           </DrawerContent>
         </Drawer>
       ) : (
-        <Popover>
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <FormControl>
               <Button
@@ -203,6 +207,7 @@ export function DatePickerFormField<T extends FieldValues>({
           <PopoverContent
             className="w-auto p-0 max-h-none overflow-hidden"
             align="start"
+            container={container}
           >
             <Calendar
               mode="single"
