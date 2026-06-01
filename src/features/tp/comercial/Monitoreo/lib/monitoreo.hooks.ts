@@ -4,6 +4,7 @@ import {
     adminRemoveDevice,
     adminValidateSerial,
     assignDevice,
+    autoActivateDevice,
     getDeviceStatus,
     getDriverStats,
     getDrivers,
@@ -574,5 +575,25 @@ export const useAdminRemoveDevice = () => {
 export const useAdminValidateSerial = () => {
     return useMutation({
         mutationFn: ({ serial }: { serial: string }) => adminValidateSerial(serial),
+    });
+};
+
+
+export const useAutoActivateDevice = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => autoActivateDevice(),
+        onSuccess: (data) => {
+            if (data.success) {
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEY, "device-status"] });
+                successToast(data.message || "Dispositivo activado correctamente");
+            } else {
+                errorToast(data.message || "Error al activar dispositivo");
+            }
+        },
+        onError: (error: any) => {
+            errorToast(error?.response?.data?.message || "Error al activar dispositivo");
+        },
     });
 };

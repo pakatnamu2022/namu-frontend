@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react";
 import { Smartphone, Loader2, CheckCircle, XCircle, Battery, Signal, Locate } from "lucide-react";
 import {
     Popover,
@@ -9,90 +8,43 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useDeviceStatus, useLocationByDriver, useRegisterDevice, useValidateSerial } from "../lib/monitoreo.hooks";
+import { useDeviceStatus, useLocationByDriver, useAutoActivateDevice } from "../lib/monitoreo.hooks";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
-
+import { useState } from "react";
 
 export function DeviceStatusBell() {
     const { user } = useAuthStore();
     const [open, setOpen] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [serial, setSerial] = useState("");
-    const [serialError, setSerialError] = useState("");
-    const [isValidating, setIsValidating] = useState(false);
-    const [validatedEquipment, setValidatedEquipment] = useState<{ name: string; serial: string } | null>(null);
     const driverId = user?.partner_id;
 
-
     const { data: deviceStatus, refetch: refetchStatus, isLoading: isLoadingStatus } = useDeviceStatus();
+    const { mutate: autoActivate, isPending: isActivating } = useAutoActivateDevice();
+
     const isDeviceActive = deviceStatus?.is_active ?? false;
     const deviceSerial = deviceStatus?.serial ?? null;
     const deviceName = deviceStatus?.equipment_name ?? null;
 
-    const { data: lastLocation, isLoading: isLoadingLocation, refetch: _refetchLocation } = useLocationByDriver(
+    const { data: lastLocation, isLoading: isLoadingLocation } = useLocationByDriver(
         isDeviceActive ? driverId : undefined
     );
-    const { mutate: registerDevice, isPending: isRegistering } = useRegisterDevice();
-    const { mutateAsync: validateSerial } = useValidateSerial();
-
-
 
     const batteryLevel = lastLocation?.battery_level;
     const timeAgo = lastLocation?.time_ago;
     const hasRecentLocation = lastLocation && timeAgo && !timeAgo.includes("Nunca");
 
-
-    const handleValidateSerial = async () => {
-        if (!serial.trim()) {
-            setSerialError("Ingrese el número de IMEI del dispositivo");
-            return;
-        }
-
-        setIsValidating(true);
-        setSerialError("");
-        setValidatedEquipment(null);
-
-        try {
-            const result = await validateSerial({ serial });
-            if (result.valid && result.data) {
-                setValidatedEquipment({
-                    name: result.data.equipment_name,
-                    serial: result.data.serial,
-                });
-                setSerialError("");
-            } else {
-                setSerialError(result.message || "Dispositivo no válido");
-                setValidatedEquipment(null);
-            }
-        } catch (error: any) {
-            setSerialError(error?.message || "Error al validar dispositivo");
-            setValidatedEquipment(null);
-        } finally {
-            setIsValidating(false);
-        }
-    };
-
-    const handleRegister = () => {
-        if (!validatedEquipment) {
-            setSerialError("Primero valide el dispositivo");
-            return;
-        }
-
-        registerDevice({ serial }, {
-            onSuccess: () => {
-                setDialogOpen(false);
-                setSerial("");
-                setSerialError("");
-                setValidatedEquipment(null);
-                refetchStatus();
-                setOpen(false);
+    const handleAutoActivate = () => {
+        autoActivate(undefined, {
+            onSuccess: (data) => {
+                if (data.success) {
+                    setDialogOpen(false);
+                    refetchStatus();
+                    setOpen(false);
+                }
             },
         });
     };
-
 
     const getStatusIcon = () => {
         if (isLoadingStatus) {
@@ -183,27 +135,11 @@ export function DeviceStatusBell() {
                             </span>
                         </div>
 
-                        {/* Velocidad actual */}
-                        {/* <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Gauge className="h-3.5 w-3.5 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground">Velocidad actual:</span>
-                            </div>
-                            <span className="text-xs font-medium text-foreground">
-                                {lastLocation?.speed !== null && lastLocation?.speed !== undefined ? (
-                                    `${lastLocation.speed} km/h`
-                                ) : (
-                                    "No disponible"
-                                )}
-                            </span>
-                        </div> */}
-
                         {/* Ultima actualizacion */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Signal className="h-3.5 w-3.5 text-muted-foreground" />
                                 <span className="text-xs text-muted-foreground"> Última actualización:</span>
-
                             </div>
                             <span className={`text-xs font-medium ${getSignalColor()}`}>
                                 {lastLocation?.reported_at ? (
@@ -220,7 +156,7 @@ export function DeviceStatusBell() {
                             </span>
                         </div>
 
-                        {/*Precision GPS */}
+                        {/* Precision GPS */}
                         {lastLocation?.accuracy && (
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -260,24 +196,17 @@ export function DeviceStatusBell() {
                 </PopoverContent>
             </Popover>
 
-            {/* Diálogo de gestión de dispositivo */}
-            <Dialog open={dialogOpen} onOpenChange={(newOpen) => {
-                if (!newOpen) {
-                    setSerial("");
-                    setSerialError("");
-                    setValidatedEquipment(null);
-                }
-                setDialogOpen(newOpen);
-            }}>
+            {/* Diálogo de activación automática (sin input de IMEI) */}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             <Smartphone className="h-5 w-5" />
-                            {isDeviceActive ? "Cambiar dispositivo" : "Activar dispositivo"}
+                            Activar dispositivo
                         </DialogTitle>
                         <DialogDescription>
-                            Ingrese el número de IMEI del dispositivo móvil que le fue asignado.
-                            {isDeviceActive && deviceSerial && (
+                            El sistema buscará automáticamente el dispositivo que tiene asignado en el sistema TICS.
+                            {deviceSerial && (
                                 <p className="mt-2 text-sm">
                                     Dispositivo actual: <span className="font-mono">{deviceSerial}</span>
                                     {deviceName && <span className="text-muted-foreground"> ({deviceName})</span>}
@@ -285,58 +214,24 @@ export function DeviceStatusBell() {
                             )}
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="device-serial">Número de IMEI del dispositivo</Label>
-                            <div className="flex gap-2">
-                                <Input
-                                    id="device-serial"
-                                    placeholder="Ej: 123456789012345"
-                                    value={serial}
-                                    onChange={(e) => {
-                                        setSerial(e.target.value.toUpperCase());
-                                        setSerialError("");
-                                        setValidatedEquipment(null);
-                                    }}
-                                    className="flex-1"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleValidateSerial}
-                                    disabled={isValidating || !serial.trim()}
-                                >
-                                    {isValidating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Validar"}
-                                </Button>
-                            </div>
-                            {serialError && (
-                                <p className="text-sm text-red-500">{serialError}</p>
-                            )}
-                            {validatedEquipment && (
-                                <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200">
-                                    <p className="text-sm text-green-700 dark:text-green-400">
-                                        Dispositivo válido: <strong>{validatedEquipment.name}</strong>
-                                    </p>
-                                    <p className="text-xs text-green-600">IMEI: {validatedEquipment.serial}</p>
-                                </div>
-                            )}
-                        </div>
+                    <div className="py-4">
+                        <p className="text-sm text-muted-foreground">
+                            Al hacer clic en "Activar", el sistema verificará si tiene un dispositivo asignado
+                            y lo activará automáticamente para el monitoreo de ubicación.
+                        </p>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDialogOpen(false)}>
                             Cancelar
                         </Button>
-                        <Button
-                            onClick={handleRegister}
-                            disabled={isRegistering || !validatedEquipment}
-                        >
-                            {isRegistering ? (
+                        <Button onClick={handleAutoActivate} disabled={isActivating}>
+                            {isActivating ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Registrando...
+                                    Activando...
                                 </>
                             ) : (
-                                isDeviceActive ? "Cambiar" : "Activar"
+                                "Activar dispositivo"
                             )}
                         </Button>
                     </DialogFooter>
@@ -344,6 +239,4 @@ export function DeviceStatusBell() {
             </Dialog>
         </>
     );
-
-
 }

@@ -309,3 +309,28 @@ export async function adminValidateSerial(serial: string): Promise<ValidateSeria
         };
     }
 }
+
+export async function autoActivateDevice(): Promise<{
+    success: boolean;
+    message: string;
+    data?: {
+        is_active: boolean;
+        serial: string;
+        equipment_name: string;
+        equipment_id: number;
+    };
+}> {
+    try {
+        const response = await api.post<{
+            success: boolean;
+            message: string;
+            data: any;
+        }>(`${ENDPOINT}/device/auto-activate`);
+        return response.data;
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || "Error al activar dispositivo"
+        };
+    }
+}

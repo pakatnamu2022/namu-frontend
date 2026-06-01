@@ -15,10 +15,8 @@ import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useTheme } from "@/components/theme-provider";
 import NotificationBell from "@/features/notifications/components/NotificationBell";
 import { useState } from "react";
-import { useDeviceStatus, useRegisterDevice, useValidateSerial } from "@/features/tp/comercial/Monitoreo/lib/monitoreo.hooks";
+import { useAutoActivateDevice, useDeviceStatus } from "@/features/tp/comercial/Monitoreo/lib/monitoreo.hooks";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeviceStatusBell } from "@/features/tp/comercial/Monitoreo/components/DeviceStatusBell";
 
@@ -27,66 +25,28 @@ export default function ProfileHeader() {
   const push = useNavigate();
   const { setTheme } = useTheme();
   const [open, setOpen] = useState(false);
-  const [serial, setSerial] = useState("");
-  const [serialError, setSerialError] = useState("");
-  const [isValidating, setIsValidating] = useState(false);
-  const [validatedEquipment, setValidatedEquipment] = useState<{ name: string; serial: string } | null>(null);
-
 
   const { data: deviceStatus, refetch: refetchStatus, isLoading: isLoadingStatus } = useDeviceStatus();
-  const { mutate: registerDevice, isPending: isRegistering } = useRegisterDevice();
-  const { mutateAsync: validateSerial } = useValidateSerial();
+  const { mutate: autoActivate, isPending: isActivating } = useAutoActivateDevice();
 
   const isDeviceActive = deviceStatus?.is_active ?? false;
   const deviceSerial = deviceStatus?.serial ?? null;
   const deviceName = deviceStatus?.equipment_name ?? null;
 
-  const handleValidateSerial = async () => {
-    if (!serial.trim()) {
-      setSerialError("Ingrese el número de IMEI del dispositivo");
-      return;
-    }
 
-    setIsValidating(true);
-    setSerialError("");
-    setValidatedEquipment(null);
-
-    try {
-      const result = await validateSerial({ serial });
-      if (result.valid && result.data) {
-        setValidatedEquipment({
-          name: result.data.equipment_name,
-          serial: result.data.serial,
-        });
-        setSerialError("");
-      } else {
-        setSerialError(result.message || "Dispositivo no válido");
-        setValidatedEquipment(null);
-      }
-    } catch (error: any) {
-      setSerialError(error?.message || "Error al validar dispositivo");
-      setValidatedEquipment(null);
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  const handleRegister = () => {
-    if (!validatedEquipment) {
-      setSerialError("Primero valide el dispositivo");
-      return;
-    }
-
-    registerDevice({ serial }, {
-      onSuccess: () => {
-        setOpen(false);
-        setSerial("");
-        setSerialError("");
-        setValidatedEquipment(null);
-        refetchStatus();
+  const handleAutoActivate = () => {
+    autoActivate(undefined, {
+      onSuccess: (data) => {
+        if (data.success) {
+          setOpen(false);
+          refetchStatus();
+        }
       },
     });
   };
+
+
+
 
   const handleLogout = async () => {
     await useAuthStore.getState().logout();
@@ -172,14 +132,7 @@ export default function ProfileHeader() {
             <>
               <DropdownMenuSeparator />
               {!isDeviceActive && (
-                <Dialog open={open} onOpenChange={(newOpen) => {
-                  if (!newOpen) {
-                    setSerial("");
-                    setSerialError("");
-                    setValidatedEquipment(null);
-                  }
-                  setOpen(newOpen);
-                }}>
+                <Dialog open={open} onOpenChange={setOpen}>
                   <DialogTrigger asChild>
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="gap-2">
                       <Smartphone className="w-4 h-4" />
@@ -192,8 +145,8 @@ export default function ProfileHeader() {
                         Activar dispositivo
                       </DialogTitle>
                       <DialogDescription>
-                        Ingrese el número de IMEI del dispositivo móvil que le fue asignado.
-                        {isDeviceActive && deviceSerial && (
+                        El sistema buscará automáticamente el dispositivo que tiene asignado en el sistema TICS.
+                        {deviceSerial && (
                           <p className="mt-2 text-sm">
                             Dispositivo actual: <span className="font-mono">{deviceSerial}</span>
                             {deviceName && <span className="text-muted-foreground"> ({deviceName})</span>}
@@ -201,60 +154,24 @@ export default function ProfileHeader() {
                         )}
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="serial">Número de IMEI del dispositivo</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="serial"
-                            placeholder="Ej: ABC123XYZ789"
-                            value={serial}
-                            onChange={(e) => {
-                              setSerial(e.target.value.toUpperCase());
-                              setSerialError("");
-                              setValidatedEquipment(null);
-                            }}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleValidateSerial}
-                            disabled={isValidating || !serial.trim()}
-                          >
-                            {isValidating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Validar"}
-                          </Button>
-                        </div>
-                        {serialError && (
-                          <p className="text-sm text-red-500">{serialError}</p>
-                        )}
-                        {validatedEquipment && (
-                          <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                            <p className="text-sm text-green-700 dark:text-green-400">
-                              Dispositivo válido: <strong>{validatedEquipment.name}</strong>
-                            </p>
-                            <p className="text-xs text-green-600 dark:text-green-500">
-                              IMEI: {validatedEquipment.serial}
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                    <div className="py-4">
+                      <p className="text-sm text-muted-foreground">
+                        Al hacer clic en "Activar", el sistema verificará si tiene un dispositivo asignado
+                        y lo activará automáticamente para el monitoreo de ubicación.
+                      </p>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancelar
                       </Button>
-                      <Button
-                        onClick={handleRegister}
-                        disabled={isRegistering || !validatedEquipment}
-                      >
-                        {isRegistering ? (
+                      <Button onClick={handleAutoActivate} disabled={isActivating}>
+                        {isActivating ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Registrando...
+                            Activando...
                           </>
                         ) : (
-                          "Activar"
+                          "Activar dispositivo"
                         )}
                       </Button>
                     </DialogFooter>

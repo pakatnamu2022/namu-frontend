@@ -1,15 +1,14 @@
-import { MapPin, Battery, Gauge, Smartphone } from "lucide-react";
+import { MapPin, Battery, Gauge } from "lucide-react";
 import { DriverRowProps } from "../lib/monitoreo.interface";
 import { StatusBadge } from "./StatusBadge";
 import { DriverAvatar } from "./DriverAvatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { DeviceManagementDialog } from "./DeviceManagementDialog";
+//import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 
 
-export function DriverRow({ driver, onViewOnMap, onRefresh }: DriverRowProps) {
+export function DriverRow({ driver, onViewOnMap }: DriverRowProps) {
     const { last_location } = driver;
 
     const coords = last_location?.coordinates || "No disponible";
@@ -17,8 +16,7 @@ export function DriverRow({ driver, onViewOnMap, onRefresh }: DriverRowProps) {
     const batteryLevel = last_location?.battery_level;
 
     //permisos
-    const permissions = useModulePermissions("monitoreo");
-    const { canUpdate } = permissions;
+    //const permissions = useModulePermissions("monitoreo");
 
     return (
         <tr className="border-b border-border transition-colors hover:bg-muted/50">
@@ -85,7 +83,7 @@ export function DriverRow({ driver, onViewOnMap, onRefresh }: DriverRowProps) {
                         <span className="text-xs text-muted-foreground">—</span>
                     )}
 
-                    {canUpdate && (
+                    {/* {canUpdate && (
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <DeviceManagementDialog
@@ -105,7 +103,7 @@ export function DriverRow({ driver, onViewOnMap, onRefresh }: DriverRowProps) {
                                 <p>{driver.device_id ? "Cambiar dispositivo" : "Activar dispositivo"}</p>
                             </TooltipContent>
                         </Tooltip>
-                    )}
+                    )} */}
                 </div>
             </td>
         </tr>
