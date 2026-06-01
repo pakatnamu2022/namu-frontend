@@ -77,7 +77,7 @@ export default function ReasonDiscardingSparePartPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={"Motivos de Ajuste"}
+          subtitle={"Motivos de Ajuste de Repuestos"}
           icon={currentView.icon}
         />
         <ReasonDiscardingSparePartActions permissions={permissions} />

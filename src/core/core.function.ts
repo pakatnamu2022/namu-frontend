@@ -269,7 +269,11 @@ export const toDateOrUndefined = (
   const parsedIsoDate = parseISO(isoDate);
   if (isValid(parsedIsoDate)) return parsedIsoDate;
 
-  const parsedDateTime = parse(normalizedDate, "yyyy-MM-dd HH:mm:ss", new Date());
+  const parsedDateTime = parse(
+    normalizedDate,
+    "yyyy-MM-dd HH:mm:ss",
+    new Date(),
+  );
   if (isValid(parsedDateTime)) return parsedDateTime;
 
   const parsedDate = parse(normalizedDate, "yyyy-MM-dd", new Date());
@@ -382,3 +386,16 @@ export const formatDateLong = (
 export const TEXT_NEW = ({ name, gender }: ModelInterface) =>
   `Nuev${gender ? "a" : "o"} ${name}`;
 export const TEXT_UPDATE = ({ name }: ModelInterface) => `Actualizar ${name}`;
+
+export const formatHours = (
+  hours: number | string | null | undefined,
+): string => {
+  if (hours === null || hours === undefined || hours === "") return "-";
+  const total = Number(hours);
+  if (isNaN(total) || total < 0) return "-";
+  const h = Math.floor(total);
+  const m = Math.round((total - h) * 60);
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
+};

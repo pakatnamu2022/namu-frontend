@@ -968,33 +968,37 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             ) : null}
                           </>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenAssignSheet(part)}
-                          className={
-                            part.part_fully_delivered
-                              ? "h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                              : "h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          }
-                          tooltip={
-                            part.part_fully_delivered
-                              ? "Entrega completa"
-                              : "Asignar a técnico"
-                          }
-                        >
-                          <UserCheck className="h-4 w-4" />
-                        </Button>
-                        {!globalRequest && !partialRequest && (
+                        {permissions.canAssignSparePartsOT && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setDeleteId(part.id)}
-                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleOpenAssignSheet(part)}
+                            className={
+                              part.part_fully_delivered
+                                ? "h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                : "h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            }
+                            tooltip={
+                              part.part_fully_delivered
+                                ? "Entrega completa"
+                                : "Asignar a técnico"
+                            }
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <UserCheck className="h-4 w-4" />
                           </Button>
                         )}
+                        {permissions.canRemoveSparePartsOT &&
+                          !globalRequest &&
+                          !partialRequest && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteId(part.id)}
+                              className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -1039,6 +1043,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         }}
         workOrderId={workOrderId}
         part={assignPart}
+        permission={permissions.canRemoveAssignSparePartsOT}
       />
 
       {/* Modal Solicitar Descuento */}

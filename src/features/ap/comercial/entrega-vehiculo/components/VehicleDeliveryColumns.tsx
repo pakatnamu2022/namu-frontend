@@ -26,8 +26,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
-import ShippingGuideHistory from "../../envios-recepciones/components/ShippingGuideHistory";
 import { ButtonAction } from "@/shared/components/ButtonAction";
+import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -338,6 +338,7 @@ export const vehicleDeliveryColumns = ({
         checklist_status,
       } = row.original;
       const migrationStatus = row.original.shipping_guide?.migration_status;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
       const { canViewHistory, canGenerate, canSend, canMigrate, canDelete } =

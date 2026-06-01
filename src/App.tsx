@@ -201,6 +201,7 @@ import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/p
 import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
 import AfterSalesParameterPage from "./app/ap/configuraciones/postventa/parametros/page.tsx";
 import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
+import ReasonDiscardingTallerPage from "./app/ap/configuraciones/postventa/motivos-descarte-taller/page.tsx";
 import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
 import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
 import TypesPlanningPage from "./app/ap/configuraciones/postventa/tipos-planificacion/page.tsx";
@@ -427,6 +428,9 @@ import UpdateControlUnitsPage from "./app/ap/comercial/control-unidades/actualiz
 import ControlUnitCheckListPage from "./app/ap/comercial/control-unidades/checklist/[id]/page.tsx";
 import ControlUnitsPage from "./app/ap/comercial/control-unidades/page.tsx";
 import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/controlUnits.constants.ts";
+import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
+import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
+import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -478,6 +482,8 @@ function App() {
     <BrowserRouter>
       <TitleUpdater />
       <AuthInitializer />
+      <LocationTracker />
+      <DeviceInactiveAlert />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* ============================================================ */}
@@ -1102,6 +1108,10 @@ function App() {
               <Route
                 path="postventa/motivos-ajuste"
                 element={<ReasonsAdjustmentPage />}
+              />
+              <Route
+                path="postventa/motivos-descarte-taller"
+                element={<ReasonDiscardingTallerPage />}
               />
               <Route
                 path="postventa/motivos-descarte-repuesto"
@@ -2088,6 +2098,7 @@ function App() {
                 path="control-asignacionVehiculos"
                 element={<ControlVehicleAssignmentPage />}
               />
+              <Route path="monitoreo" element={<MonitoreoPage />} />
             </Route>
 
             {/* ======================================================== */}

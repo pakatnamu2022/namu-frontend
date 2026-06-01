@@ -129,6 +129,7 @@ export function WorkOrderDeliverySheet({
             label="Fecha y Hora de Entrega"
             control={form.control}
             placeholder="Seleccione fecha y hora"
+            disabledRange={{ before: new Date() }}
           />
 
           {/* Day selector */}

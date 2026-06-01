@@ -17,6 +17,8 @@ import {
   MessageSquare,
   ShieldCheck,
   Plus,
+  IdCard,
+  PackageCheck,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -995,6 +997,49 @@ function BillingSheetContent({
         }}
         title="Agregar Nuevo Cliente"
       />
+
+      {/* Datos de Entrega */}
+      {orderQuotation.delivery_document_number && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <PackageCheck className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-lg">Entrega Registrada</h3>
+            </div>
+            <div className="bg-blue-50 border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <IdCard className="h-4 w-4 text-primary shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    DNI del Receptor
+                  </p>
+                  <p className="text-sm font-semibold">
+                    {orderQuotation.delivery_document_number}
+                  </p>
+                </div>
+              </div>
+              {orderQuotation.customer_signature_delivery_url && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <PenLine className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-xs text-muted-foreground">
+                      Firma del Receptor
+                    </p>
+                  </div>
+                  <div className="flex justify-center items-center bg-white border border-blue-200 rounded-lg p-4 min-h-[120px]">
+                    <img
+                      src={orderQuotation.customer_signature_delivery_url}
+                      alt="Firma del receptor"
+                      className="h-24 w-auto object-contain"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Sección de Firma del Cliente */}
       {shouldShowSignature && (

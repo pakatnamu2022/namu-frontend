@@ -129,49 +129,61 @@
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-accordion-content-height);
     }
   }
+
   @keyframes accordion-up {
     from {
       height: var(--radix-accordion-content-height);
     }
+
     to {
       height: 0;
     }
   }
+
   @keyframes spin-slow {
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
     }
   }
+
   @keyframes progress {
     0% {
       transform: translateX(0) scaleX(0);
     }
+
     40% {
       transform: translateX(0) scaleX(0.4);
     }
+
     100% {
       transform: translateX(100%) scaleX(0.5);
     }
   }
+
   @keyframes collapsible-down {
     from {
       height: 0;
     }
+
     to {
       height: var(--radix-collapsible-content-height);
     }
   }
+
   @keyframes collapsible-up {
     from {
       height: var(--radix-collapsible-content-height);
     }
+
     to {
       height: 0;
     }
@@ -181,10 +193,12 @@
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
-  @media (width >= --theme(--breakpoint-sm)) {
+
+  @media (width >=--theme(--breakpoint-sm)) {
     max-width: none;
   }
-  @media (width >= 1400px) {
+
+  @media (width >=1400px) {
     max-width: 1400px;
   }
 }
@@ -198,6 +212,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -258,7 +273,33 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.leaflet-touch .leaflet-control-zoom {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 640px) {
+  .driver-card {
+    padding: 0.75rem;
+  }
+
+  .driver-card .text-sm {
+    font-size: 0.75rem;
+  }
+
+  .driver-card .text-xs {
+    font-size: 0.7rem;
   }
 }

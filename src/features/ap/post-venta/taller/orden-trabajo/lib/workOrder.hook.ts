@@ -9,6 +9,7 @@ import {
   downloadWorkOrderPdf,
   getPaymentSummary,
   getWorkOrderWithInternalNotes,
+  sendToFinished,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -109,6 +110,17 @@ export function useDownloadWorkOrderPdf() {
       const errorMessage =
         error?.response?.data?.message || "Error al descargar el PDF";
       errorToast(errorMessage);
+    },
+  });
+}
+
+export function useSendToFinished() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => sendToFinished(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
   });
 }

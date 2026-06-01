@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema.ts";
+import { requiredDate, requiredStringId } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 const transferReceptionDetailSchema = z.object({
@@ -37,7 +37,7 @@ const transferReceptionSchemaBase = z.object({
   transfer_movement_id: requiredStringId(
     "Transferencia de producto es requerida",
   ),
-  reception_date: z.date({ message: "Fecha de recepción es requerida" }),
+  reception_date: requiredDate("Fecha de recepción es requerida"),
   warehouse_id: requiredStringId("Almacén es requerido"),
   notes: z.string().optional().or(z.literal("")),
   details: z
