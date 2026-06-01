@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, User } from "lucide-react";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import {
   findWorkOrderById,
   updateInvoiceTo,
@@ -28,10 +29,6 @@ import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hoo
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
-
-// const getGroupColor = (groupNumber: number) => {
-//   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
-// };
 
 interface OpeningTabProps {
   workOrderId: number;
@@ -141,10 +138,6 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
     setIsDialogOpen(false);
   };
 
-  // const handleDeleteClick = (itemId: number) => {
-  //   setItemToDelete(itemId);
-  // };
-
   const handleConfirmDelete = async () => {
     if (itemToDelete) {
       deleteMutation.mutate(itemToDelete);
@@ -198,80 +191,36 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
 
       {/* Items by Group */}
       {items.length > 0 && (
-        <div className="border rounded-lg overflow-hidden">
-          <div className="overflow-x-auto scrollbar-hide w-full">
-            <table className="w-full min-w-[640px]">
-              <thead>
-                <tr className="border-b bg-gray-50">
-                  {/* <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
-                    Grupo
-                  </th> */}
-                  <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
-                    Planificación
-                  </th>
-                  <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
-                    Operación
-                  </th>
-                  <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
-                    Descripción
-                  </th>
-                  {/* <th className="text-center py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
-                    Acciones
-                  </th> */}
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => {
-                  // const colors = getGroupColor(item.group_number);
-                  return (
-                    <tr
-                      key={item.id}
-                      className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
-                    >
-                      {/* <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
-                        <Badge
-                          className="text-white text-xs"
-                          style={{ backgroundColor: colors.badge }}
-                        >
-                          Grupo {item.group_number}
-                        </Badge>
-                      </td> */}
-                      <td className="py-3 px-3 sm:px-4">
-                        <Badge
-                          variant="outline"
-                          className="text-xs whitespace-nowrap"
-                        >
-                          {item.type_planning.description}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-3 sm:px-4">
-                        <Badge
-                          variant="outline"
-                          className="text-xs whitespace-nowrap"
-                        >
-                          {item.type_operation_name}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-900 max-w-xs">
-                        <div className="line-clamp-2">{item.description}</div>
-                      </td>
-                      {/* <td className="py-3 px-3 sm:px-4 text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDeleteClick(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </td> */}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <DetailSheetTable
+          rows={items}
+          getKey={(item) => item.id}
+          columns={[
+            {
+              header: "Planificación",
+              render: (item) => (
+                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                  {item.type_planning.description}
+                </Badge>
+              ),
+            },
+            {
+              header: "Operación",
+              render: (item) => (
+                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                  {item.type_operation_name}
+                </Badge>
+              ),
+            },
+            {
+              header: "Descripción",
+              render: (item) => (
+                <div className="text-xs sm:text-sm text-gray-900 max-w-xs line-clamp-2">
+                  {item.description}
+                </div>
+              ),
+            },
+          ]}
+        />
       )}
 
       {/* Sección: Facturar a */}

@@ -62,6 +62,7 @@ export function WorkOrderActionCell({
   } = row;
   const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
   const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
+  const isCancelled = status?.description === WORK_ORDER_STATUS.ANULADO;
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
@@ -88,24 +89,45 @@ export function WorkOrderActionCell({
     }
   };
 
+  const isVisibleReceive =
+    permissions.canReceive &&
+    !is_inspection_completed &&
+    !isClosed &&
+    firstItemPlanning?.validate_receipt;
+
+  const isVisibleManage = permissions.canManage;
+
+  const isVisibleFinish =
+    !is_invoiced && !isClosed && firstItemPlanning?.type_document !== "INTERNA";
+
+  const isVisibleDelivery =
+    isClosed && !isDelivery && firstItemPlanning?.type_document !== "INTERNA";
+
+  const isVisiblePdfDelivery =
+    isClosed && firstItemPlanning?.type_document !== "INTERNA";
+
+  const isVisibleGenerateInternalNote =
+    !isClosed && firstItemPlanning?.type_document === "INTERNA";
+
+  const isOpenForEdit = permissions.canUpdate && isOpen;
+
+  const isOpenForDelete = permissions.canDelete && isOpen;
+
   return (
     <div className="flex items-center gap-2">
-      {permissions.canReceive &&
-        !is_inspection_completed &&
-        !isClosed &&
-        firstItemPlanning?.validate_receipt && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onInspect(id)}
-            tooltip="Recepción de Vehículo"
-          >
-            <ClipboardCheck className="size-5" />
-          </Button>
-        )}
+      {isVisibleReceive && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          onClick={() => onInspect(id)}
+          tooltip="Recepción de Vehículo"
+        >
+          <ClipboardCheck className="size-5" />
+        </Button>
+      )}
 
-      {permissions.canManage && (
+      {isVisibleManage && (
         <Button
           variant="outline"
           size="icon"
@@ -117,7 +139,7 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {!is_invoiced && firstItemPlanning?.type_document !== "INTERNA" && (
+      {isVisibleFinish && (
         <ConfirmationDialog
           title="¿Marcar como Finalizada?"
           description="Esta acción marcará la orden de trabajo como lista para emitir la factura final. ¿Deseas continuar?"
@@ -145,7 +167,7 @@ export function WorkOrderActionCell({
         />
       )}
 
-      {isClosed && firstItemPlanning?.type_document !== "INTERNA" && (
+      {isVisiblePdfDelivery && (
         <Button
           variant="outline"
           size="icon"
@@ -162,21 +184,19 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {isClosed &&
-        !isDelivery &&
-        firstItemPlanning?.type_document !== "INTERNA" && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Entrega de Vehículo"
-            onClick={() => setIsDeliveryOpen(true)}
-          >
-            <CarFront className="size-5" />
-          </Button>
-        )}
+      {isVisibleDelivery && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Entrega de Vehículo"
+          onClick={() => setIsDeliveryOpen(true)}
+        >
+          <CarFront className="size-5" />
+        </Button>
+      )}
 
-      {!isClosed && firstItemPlanning?.type_document === "INTERNA" && (
+      {isVisibleGenerateInternalNote && (
         <Button
           variant="outline"
           size="icon"
@@ -188,7 +208,7 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {permissions.canUpdate && isOpen && (
+      {isOpenForEdit && (
         <Button
           variant="outline"
           size="icon"
@@ -200,11 +220,9 @@ export function WorkOrderActionCell({
         </Button>
       )}
 
-      {permissions.canDelete && isOpen && (
-        <DeleteButton onClick={() => onDelete(id)} />
-      )}
+      {isOpenForDelete && <DeleteButton onClick={() => onDelete(id)} />}
 
-      {isOpen && (
+      {!isCancelled && (
         <Button
           variant="outline"
           size="icon"

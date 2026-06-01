@@ -13,7 +13,10 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import {
+  WORK_ORDER_STATUS_ID,
+  WORKER_ORDER_CAJA,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import {
   useGetWorkOrder,
   useGetWorkOrderWithInternalNotes,
@@ -87,8 +90,7 @@ export default function WorkOrderCajaPage() {
   const effectiveSedeId =
     sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
 
-  const efecctiveTypeCurrencyId =
-    typeCurrencyId || CURRENCY_TYPE_IDS.SOLES;
+  const efecctiveTypeCurrencyId = typeCurrencyId || CURRENCY_TYPE_IDS.SOLES;
 
   const handleDateFromChange = (date: Date | undefined) => {
     setDateFrom(date);
@@ -130,6 +132,12 @@ export default function WorkOrderCajaPage() {
       currency_id: efecctiveTypeCurrencyId || undefined,
       items$typePlanning$type_document: "PAYMENT_RECEIPTS",
       items$typePlanning$id: typePlanningId || undefined,
+      status_id: [
+        WORK_ORDER_STATUS_ID.APERTURADO,
+        WORK_ORDER_STATUS_ID.RECEPCIONADO,
+        WORK_ORDER_STATUS_ID.EN_TRABAJO,
+        WORK_ORDER_STATUS_ID.TERMINADO,
+      ],
     },
     enabled: activeView === "OT" && !!effectiveSedeId,
   });

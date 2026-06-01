@@ -652,16 +652,10 @@ export default function GeneralInformationPage() {
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          Grupo
-                        </th>
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
                           Descripción
                         </th>
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
                           Tiempo
-                        </th>
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          Técnico
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Tarifa/h
@@ -680,22 +674,11 @@ export default function GeneralInformationPage() {
                           key={labour.id}
                           className="border-b border-gray-100 hover:bg-gray-50"
                         >
-                          <td className="py-2 px-3">
-                            <span
-                              className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold"
-                              style={{ backgroundColor: "#1A388B" }}
-                            >
-                              {labour.group_number}
-                            </span>
-                          </td>
                           <td className="py-2 px-3 font-medium">
                             {labour.description}
                           </td>
                           <td className="py-2 px-3 text-gray-600">
                             {labour.time_spent}
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {labour.worker_full_name || "—"}
                           </td>
                           <td className="py-2 px-3 text-right">
                             {workOrder.type_currency?.symbol || "S/"}{" "}
@@ -717,7 +700,7 @@ export default function GeneralInformationPage() {
                     <tfoot>
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
                         <td
-                          colSpan={6}
+                          colSpan={4}
                           className="py-2 px-3 text-right font-semibold text-gray-700"
                         >
                           Total Mano de Obra:
@@ -754,9 +737,6 @@ export default function GeneralInformationPage() {
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          Grupo
-                        </th>
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
                           Producto
                         </th>
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
@@ -779,14 +759,6 @@ export default function GeneralInformationPage() {
                           key={part.id}
                           className="border-b border-gray-100 hover:bg-gray-50"
                         >
-                          <td className="py-2 px-3">
-                            <span
-                              className="inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold"
-                              style={{ backgroundColor: "#1A388B" }}
-                            >
-                              {part.group_number}
-                            </span>
-                          </td>
                           <td className="py-2 px-3 font-medium">
                             {part.product_name}
                           </td>
@@ -810,7 +782,7 @@ export default function GeneralInformationPage() {
                     <tfoot>
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
                         <td
-                          colSpan={5}
+                          colSpan={4}
                           className="py-2 px-3 text-right font-semibold text-gray-700"
                         >
                           Total Repuestos:
@@ -875,9 +847,7 @@ export default function GeneralInformationPage() {
                     </p>
                   </div>
                   <div className="bg-primary/10 p-3 rounded-lg border-2 border-primary">
-                    <p className="text-xs text-gray-500 mb-1">
-                      Total General
-                    </p>
+                    <p className="text-xs text-gray-500 mb-1">Total General</p>
                     <p className="text-lg font-bold text-primary">
                       {workOrder.type_currency?.symbol || "S/"}{" "}
                       {(

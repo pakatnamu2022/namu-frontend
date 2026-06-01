@@ -115,9 +115,14 @@ export async function completeWork(
 
 export async function cancelPlanning(
   id: number,
+  data: {
+    actual_end_datetime: string;
+    canceled_note: string | null;
+  },
 ): Promise<WorkOrderPlanningResource> {
   const response = await api.post<WorkOrderPlanningResource>(
     `${ENDPOINT}/${id}/cancel`,
+    data,
   );
   return response.data;
 }

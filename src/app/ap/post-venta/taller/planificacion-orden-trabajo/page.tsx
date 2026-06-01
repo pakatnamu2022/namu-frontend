@@ -18,7 +18,6 @@ import {
   useGetWorkOrderPlanning,
   useUpdateWorkOrderPlanning,
   useDeleteWorkOrderPlanning,
-  useSupervisorComplete,
 } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { DashboardStats } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/DashboardStats";
 import { WorkerPerformanceChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerPerformanceChart";
@@ -43,17 +42,15 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { EditPlanningModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/EditPlanningModal";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { GeneralModal } from "@/shared/components/GeneralModal";
-import { Form } from "@/components/ui/form";
-import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
-import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
+import { CancelWorkOrderPlanningModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/CancelWorkOrderPlanningModal";
+import { SupervisorCompleteModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/SupervisorCompleteModal";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function PlanningPage() {
   const navigate = useNavigate();
@@ -65,10 +62,7 @@ export default function PlanningPage() {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openSupervisorModal, setOpenSupervisorModal] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const supervisorForm = useForm<{ end_datetime: string }>({
-    defaultValues: { end_datetime: "" },
-  });
-  const supervisorCompleteMutation = useSupervisorComplete();
+  const [cancelId, setCancelId] = useState<number | null>(null);
 
   // Estados para paginación y filtros
   const [page, setPage] = useState(1);
@@ -90,6 +84,7 @@ export default function PlanningPage() {
   });
 
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORK_ORDER_PLANNING;
+  const permissions = useModulePermissions(ROUTE);
 
   // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
   useEffect(() => {
@@ -149,10 +144,12 @@ export default function PlanningPage() {
 
     try {
       await deleteMutation.mutateAsync(deleteId);
+
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
       setDeleteId(null);
-    } catch {
-      errorToast(ERROR_MESSAGE(MODEL, "delete"));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
     }
   };
 
@@ -176,27 +173,12 @@ export default function PlanningPage() {
 
   const handleSupervisorComplete = (planning: WorkOrderPlanningResource) => {
     setSelectedPlanning(planning);
-    supervisorForm.reset();
     setOpenSupervisorModal(true);
   };
 
-  const handleConfirmSupervisorComplete = async (values: {
-    end_datetime: string;
-  }) => {
-    if (!selectedPlanning) return;
-    try {
-      await supervisorCompleteMutation.mutateAsync({
-        id: selectedPlanning.id,
-        end_datetime: values.end_datetime,
-      });
-      successToast("Trabajo finalizado correctamente por el supervisor");
-      setOpenSupervisorModal(false);
-      setSelectedPlanning(null);
-    } catch (error: any) {
-      errorToast(
-        error?.response?.data?.message || "Error al finalizar el trabajo",
-      );
-    }
+  const handleCancelPlanning = (planning: WorkOrderPlanningResource) => {
+    setSelectedPlanning(planning);
+    setCancelId(planning.id);
   };
 
   const handleSedeChange = (value: string) => {
@@ -280,10 +262,8 @@ export default function PlanningPage() {
                 onEdit: handleEditPlanning,
                 onDelete: handleDeletePlanning,
                 onSupervisorComplete: handleSupervisorComplete,
-                permissions: {
-                  canEdit: true,
-                  canDelete: true,
-                },
+                onCancel: handleCancelPlanning,
+                permissions,
               })}
               data={plannings}
               isLoading={isLoading || isLoadingWorkers}
@@ -329,49 +309,20 @@ export default function PlanningPage() {
       />
 
       {/* Modal finalización por supervisor */}
-      <GeneralModal
+      <SupervisorCompleteModal
         open={openSupervisorModal}
         onClose={() => setOpenSupervisorModal(false)}
-        title="Finalizar como Supervisor"
-        icon="ShieldCheck"
-        size="md"
-        childrenFooter={
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setOpenSupervisorModal(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              form="supervisor-complete-form-page"
-              disabled={supervisorCompleteMutation.isPending}
-              className="gap-2"
-            >
-              {supervisorCompleteMutation.isPending && (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              )}
-              Confirmar
-            </Button>
-          </div>
+        workOrderPlanningId={selectedPlanning?.id ?? 0}
+        dateOrderWorkPlanning={
+          selectedPlanning
+            ? new Date(selectedPlanning.planned_start_datetime)
+            : new Date()
         }
-      >
-        <Form {...supervisorForm}>
-          <form
-            id="supervisor-complete-form-page"
-            onSubmit={supervisorForm.handleSubmit(
-              handleConfirmSupervisorComplete,
-            )}
-          >
-            <DateTimePickerForm
-              control={supervisorForm.control}
-              name="end_datetime"
-              label="Hora de finalización"
-            />
-          </form>
-        </Form>
-      </GeneralModal>
+        onSuccess={() => {
+          setOpenSupervisorModal(false);
+          setSelectedPlanning(null);
+        }}
+      />
 
       {/* Dialog de confirmación de eliminación */}
       {deleteId !== null && (
@@ -379,6 +330,22 @@ export default function PlanningPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {/* Dialog de confirmación de cancelación */}
+      {cancelId !== null && (
+        <CancelWorkOrderPlanningModal
+          open={true}
+          onClose={() => setCancelId(null)}
+          workOrderPlanningId={cancelId}
+          dateOrderWorkPlanning={
+            new Date(selectedPlanning!.planned_start_datetime)
+          }
+          onSuccess={() => {
+            refetch();
+            setCancelId(null);
+          }}
         />
       )}
     </div>
