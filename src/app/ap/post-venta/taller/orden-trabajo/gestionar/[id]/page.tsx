@@ -15,6 +15,7 @@ import {
   FileText,
   Paperclip,
   Unlink,
+  Ban,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -35,7 +36,7 @@ import PartsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/t
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
 import { WorkOrderQuotationSelectionModal } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderQuotationSelectionModal";
 import { useParams, useNavigate } from "react-router-dom";
-import { successToast, errorToast } from "@/core/core.function";
+import { successToast, errorToast, formatDateTime } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Badge } from "@/components/ui/badge";
 
@@ -125,6 +126,7 @@ export default function ManageWorkOrderPage() {
 
   // Verificar si ya tiene cotización adjuntada
   const hasQuotation = workOrder?.order_quotation_id !== null;
+  const isCancelled = !!workOrder?.discarded_at;
 
   if (isLoading) {
     return <FormSkeleton />;
@@ -186,6 +188,40 @@ export default function ManageWorkOrderPage() {
               </div>
             </div>
 
+            {/* Banner de anulación */}
+            {isCancelled && (
+              <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                <Ban className="h-4 w-4 mt-0.5 shrink-0 text-red-600" />
+                <div className="space-y-1">
+                  <p className="font-semibold">Orden anulada</p>
+                  {workOrder.discard_reason && (
+                    <p>
+                      <span className="font-medium">Motivo:</span>{" "}
+                      {workOrder.discard_reason}
+                    </p>
+                  )}
+                  {workOrder.discarded_note && (
+                    <p>
+                      <span className="font-medium">Nota:</span>{" "}
+                      {workOrder.discarded_note}
+                    </p>
+                  )}
+                  {workOrder.discarded_by_name && (
+                    <p>
+                      <span className="font-medium">Anulado por:</span>{" "}
+                      {workOrder.discarded_by_name}
+                    </p>
+                  )}
+                  {workOrder.discarded_at && (
+                    <p>
+                      <span className="font-medium">Fecha:</span>{" "}
+                      {formatDateTime(workOrder.discarded_at)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Segunda fila: Botones de acción */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Button
@@ -202,7 +238,9 @@ export default function ManageWorkOrderPage() {
                   {isDownloading ? "..." : "Preliq."}
                 </span>
               </Button>
-              {!hasQuotation && workOrder.status.description !== "CERRADO" ? (
+              {!isCancelled &&
+              !hasQuotation &&
+              workOrder.status.description !== "CERRADO" ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -214,7 +252,7 @@ export default function ManageWorkOrderPage() {
                   <span className="hidden sm:inline">Adjuntar Cotización</span>
                   <span className="sm:hidden">Cotización</span>
                 </Button>
-              ) : hasQuotation ? (
+              ) : !isCancelled && hasQuotation ? (
                 <Button
                   variant="outline"
                   size="sm"

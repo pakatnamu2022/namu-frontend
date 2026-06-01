@@ -72,6 +72,10 @@ export interface WorkOrderResource {
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
   internal_note?: InternalNoteResource;
+  discard_reason: string | null;
+  discarded_note: string | null;
+  discarded_by_name: string | null;
+  discarded_at: string | null;
 }
 
 export interface InternalNoteResource {

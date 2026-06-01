@@ -10,7 +10,6 @@ import {
   getConsolidatedWorkers,
   getConsolidatedPlanning,
   continueWork,
-  supervisorComplete,
 } from "./workOrderPlanning.actions";
 import {
   WorkOrderPlanningRequest,
@@ -126,19 +125,6 @@ export function useCompleteWork() {
 
   return useMutation({
     mutationFn: (id: number) => completeWork(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-    },
-  });
-}
-
-// Hook para finalización por supervisor
-export function useSupervisorComplete() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, end_datetime }: { id: number; end_datetime: string }) =>
-      supervisorComplete(id, end_datetime),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

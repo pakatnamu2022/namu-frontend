@@ -250,7 +250,7 @@ export function AssignPartToTechnicianSheet({
                               Pendiente
                             </Badge>
                           )}
-                          {!delivery.is_received && permission && (
+                          {permission && (
                             <Button
                               type="button"
                               variant="ghost"
