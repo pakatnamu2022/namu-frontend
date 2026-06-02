@@ -393,7 +393,7 @@ import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
-import CuentasPorCobrarPage from "./app/dp/comercial/cuentas-por-cobrar/page.tsx";
+import AccountsReceivablePage from "./app/dp/comercial/accounts-receivable/page.tsx";
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
@@ -2116,7 +2116,7 @@ function App() {
             >
               <Route
                 path="cuentas-por-cobrar"
-                element={<CuentasPorCobrarPage />}
+                element={<AccountsReceivablePage />}
               />
             </Route>
 

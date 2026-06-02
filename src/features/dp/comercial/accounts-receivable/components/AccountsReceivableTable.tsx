@@ -1,11 +1,11 @@
 import type { ColumnDef, SortingState, Updater } from "@tanstack/react-table";
 import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import type { CuentaPorCobrar } from "../lib/cuentasPorCobrar.interface";
+import type { AccountReceivable } from "../lib/accountsReceivable.interface";
 
 interface Props {
-  columns: ColumnDef<CuentaPorCobrar, any>[];
-  data: CuentaPorCobrar[];
+  columns: ColumnDef<AccountReceivable, any>[];
+  data: AccountReceivable[];
   isLoading: boolean;
   page: number;
   perPage: number;
@@ -18,7 +18,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export default function CuentasPorCobrarTable({
+export default function AccountsReceivableTable({
   columns,
   data,
   isLoading,

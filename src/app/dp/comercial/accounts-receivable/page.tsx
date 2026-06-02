@@ -7,20 +7,20 @@ import { Button } from "@/components/ui/button";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { successToast, errorToast } from "@/core/core.function";
-import { useCuentasPorCobrar } from "@/features/dp/comercial/cuentas-por-cobrar/lib/cuentasPorCobrar.hook";
-import { syncCuentasPorCobrar } from "@/features/dp/comercial/cuentas-por-cobrar/lib/cuentasPorCobrar.actions";
-import { getCuentasPorCobrarColumns } from "@/features/dp/comercial/cuentas-por-cobrar/components/CuentasPorCobrarColumns";
-import CuentasPorCobrarTable from "@/features/dp/comercial/cuentas-por-cobrar/components/CuentasPorCobrarTable";
-import CuentasPorCobrarFiltersBar from "@/features/dp/comercial/cuentas-por-cobrar/components/CuentasPorCobrarFilters";
-import CuentasPorCobrarSheet from "@/features/dp/comercial/cuentas-por-cobrar/components/CuentasPorCobrarSheet";
-import type { CuentasPorCobrarFilters } from "@/features/dp/comercial/cuentas-por-cobrar/lib/cuentasPorCobrar.interface";
-import { CUENTAS_POR_COBRAR } from "@/features/dp/comercial/cuentas-por-cobrar/lib/cuentasPorCobrar.constants";
-import type { CuentaPorCobrar } from "@/features/dp/comercial/cuentas-por-cobrar/lib/cuentasPorCobrar.interface";
+import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.hook";
+import { syncAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
+import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
+import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
+import AccountsReceivableFiltersBar from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableFilters";
+import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableSheet";
+import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
+import { ACCOUNTS_RECEIVABLE } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
+import type { AccountReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
 
-const INITIAL_FILTERS: CuentasPorCobrarFilters = {
+const INITIAL_FILTERS: AccountsReceivableFilters = {
   page: 1,
   per_page: 100,
-  company: CUENTAS_POR_COBRAR.COMPANY,
+  company: ACCOUNTS_RECEIVABLE.COMPANY,
 };
 
 function parseSyncedAt(value: string | undefined): string {
@@ -33,13 +33,13 @@ function parseSyncedAt(value: string | undefined): string {
   }
 }
 
-export default function CuentasPorCobrarPage() {
-  const [filters, setFilters] = useState<CuentasPorCobrarFilters>(INITIAL_FILTERS);
+export default function AccountsReceivablePage() {
+  const [filters, setFilters] = useState<AccountsReceivableFilters>(INITIAL_FILTERS);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const queryFilters: CuentasPorCobrarFilters = {
+  const queryFilters: AccountsReceivableFilters = {
     ...filters,
     ...(sorting.length > 0 && {
       sort_by: sorting[0].id,
@@ -47,14 +47,14 @@ export default function CuentasPorCobrarPage() {
     }),
   };
 
-  const { data, isLoading } = useCuentasPorCobrar(queryFilters);
+  const { data, isLoading } = useAccountsReceivable(queryFilters);
 
   const records = data?.data ?? [];
   const meta = data?.meta;
   const syncedAt = records[0]?.synced_at;
 
   const handleFiltersChange = useCallback(
-    (partial: Partial<CuentasPorCobrarFilters>) => {
+    (partial: Partial<AccountsReceivableFilters>) => {
       setFilters((prev) => ({ ...prev, ...partial, page: 1 }));
     },
     [],
@@ -68,7 +68,7 @@ export default function CuentasPorCobrarPage() {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await syncCuentasPorCobrar();
+      await syncAccountsReceivable();
       successToast(
         "Sincronización iniciada.",
         "Los datos se actualizarán en breve.",
@@ -80,11 +80,11 @@ export default function CuentasPorCobrarPage() {
     }
   };
 
-  const handleRowClick = useCallback((row: CuentaPorCobrar) => {
+  const handleRowClick = useCallback((row: AccountReceivable) => {
     setSelectedId(row.id);
   }, []);
 
-  const columns = getCuentasPorCobrarColumns({ onRowClick: handleRowClick });
+  const columns = getAccountsReceivableColumns({ onRowClick: handleRowClick });
 
   return (
     <div className="space-y-4">
@@ -114,7 +114,7 @@ export default function CuentasPorCobrarPage() {
         </Button>
       </HeaderTableWrapper>
 
-      <CuentasPorCobrarTable
+      <AccountsReceivableTable
         columns={columns}
         data={records}
         isLoading={isLoading}
@@ -129,14 +129,14 @@ export default function CuentasPorCobrarPage() {
         }
         onSortingChange={setSorting}
       >
-        <CuentasPorCobrarFiltersBar
+        <AccountsReceivableFiltersBar
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onReset={handleReset}
         />
-      </CuentasPorCobrarTable>
+      </AccountsReceivableTable>
 
-      <CuentasPorCobrarSheet
+      <AccountsReceivableSheet
         selectedId={selectedId}
         onClose={() => setSelectedId(null)}
       />

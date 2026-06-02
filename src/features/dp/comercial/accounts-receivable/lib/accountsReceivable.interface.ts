@@ -4,7 +4,7 @@ export interface Sede {
   abreviatura: string;
 }
 
-export interface CuentaPorCobrarComment {
+export interface AccountReceivableComment {
   id: number;
   comment: string;
   sede_id: number;
@@ -14,7 +14,7 @@ export interface CuentaPorCobrarComment {
   created_at: string;
 }
 
-export interface CuentaPorCobrar {
+export interface AccountReceivable {
   id: number;
   company: string;
   sede_id: number;
@@ -41,24 +41,24 @@ export interface CuentaPorCobrar {
   collection_date: string | null;
   synced_at: string;
   comments_count?: number;
-  comments?: CuentaPorCobrarComment[];
+  comments?: AccountReceivableComment[];
   created_at: string;
   updated_at: string;
 }
 
-export interface CuentasPorCobrarMeta {
+export interface AccountsReceivableMeta {
   current_page: number;
   last_page: number;
   per_page: number;
   total: number;
 }
 
-export interface CuentasPorCobrarResponse {
-  data: CuentaPorCobrar[];
-  meta: CuentasPorCobrarMeta;
+export interface AccountsReceivableResponse {
+  data: AccountReceivable[];
+  meta: AccountsReceivableMeta;
 }
 
-export interface CuentasPorCobrarFilters {
+export interface AccountsReceivableFilters {
   search?: string;
   sede_id?: number | string | null;
   year?: number | string | null;
