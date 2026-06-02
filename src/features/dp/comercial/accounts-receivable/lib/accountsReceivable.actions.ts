@@ -42,6 +42,14 @@ export async function getFilterTree(): Promise<FilterTreeNode[]> {
   return data;
 }
 
+export async function sendDueReports(company?: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ data: { message: string } }>(
+    `${ENDPOINT}/send-due-reports`,
+    { company: company ?? COMPANY },
+  );
+  return data.data;
+}
+
 export async function getAccountsReceivableDashboard(
   company: string,
 ): Promise<AccountsReceivableDashboardResponse> {
