@@ -1,8 +1,8 @@
-export const CUENTAS_POR_COBRAR = {
-  ENDPOINT: "/dp/commercial/cuentasPorCobrar",
-  QUERY_KEY: "dp-cuentas-por-cobrar",
-  ROUTE: "cuentas-por-cobrar",
-  ABSOLUTE_ROUTE: "/dp/comercial/cuentas-por-cobrar",
+export const ACCOUNTS_RECEIVABLE = {
+  ENDPOINT: "/dp/commercial/accountsReceivable",
+  QUERY_KEY: "dp-accounts-receivable",
+  ROUTE: "accounts-receivable",
+  ABSOLUTE_ROUTE: "/dp/comercial/accounts-receivable",
   COMPANY: "deposito",
 } as const;
 

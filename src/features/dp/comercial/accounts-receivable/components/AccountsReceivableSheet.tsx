@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { formatDate, formatDateTime, errorToast, successToast } from "@/core/core.function";
-import { useCuentaPorCobrarById } from "../lib/cuentasPorCobrar.hook";
-import { addCuentaComment } from "../lib/cuentasPorCobrar.actions";
+import { useAccountReceivableById } from "../lib/accountsReceivable.hook";
+import { addAccountComment } from "../lib/accountsReceivable.actions";
 import {
   OVERDUE_STATUS_COLORS,
   DEFAULT_OVERDUE_STATUS_COLOR,
-} from "../lib/cuentasPorCobrar.constants";
-import type { CuentaPorCobrarComment } from "../lib/cuentasPorCobrar.interface";
+} from "../lib/accountsReceivable.constants";
+import type { AccountReceivableComment } from "../lib/accountsReceivable.interface";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -38,7 +38,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   );
 }
 
-function CommentItem({ comment }: { comment: CuentaPorCobrarComment }) {
+function CommentItem({ comment }: { comment: AccountReceivableComment }) {
   return (
     <div className="flex gap-2 py-2">
       <div className="shrink-0 mt-0.5 bg-primary/10 rounded-full p-1.5">
@@ -62,17 +62,17 @@ function CommentItem({ comment }: { comment: CuentaPorCobrarComment }) {
   );
 }
 
-export default function CuentasPorCobrarSheet({ selectedId, onClose }: Props) {
+export default function AccountsReceivableSheet({ selectedId, onClose }: Props) {
   const [newComment, setNewComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [localComments, setLocalComments] = useState<CuentaPorCobrarComment[]>([]);
+  const [localComments, setLocalComments] = useState<AccountReceivableComment[]>([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
 
-  const { data: cuenta, isLoading } = useCuentaPorCobrarById(selectedId);
+  const { data: account, isLoading } = useAccountReceivableById(selectedId);
 
   const comments = commentsLoaded
     ? localComments
-    : cuenta?.comments ?? [];
+    : account?.comments ?? [];
 
   const handleClose = () => {
     setNewComment("");
@@ -85,17 +85,17 @@ export default function CuentasPorCobrarSheet({ selectedId, onClose }: Props) {
     if (!newComment.trim() || !selectedId) return;
     setIsSaving(true);
     try {
-      await addCuentaComment(selectedId, newComment.trim());
-      const optimistic: CuentaPorCobrarComment = {
+      await addAccountComment(selectedId, newComment.trim());
+      const optimistic: AccountReceivableComment = {
         id: Date.now(),
         comment: newComment.trim(),
-        sede_id: cuenta?.sede_id ?? 0,
-        sede: cuenta?.sede ?? { id: 0, localidad: "", abreviatura: "" },
+        sede_id: account?.sede_id ?? 0,
+        sede: account?.sede ?? { id: 0, localidad: "", abreviatura: "" },
         user_id: 0,
         user: { id: 0, name: "Tú" },
         created_at: new Date().toISOString(),
       };
-      const base = commentsLoaded ? localComments : (cuenta?.comments ?? []);
+      const base = commentsLoaded ? localComments : (account?.comments ?? []);
       setLocalComments([optimistic, ...base]);
       setCommentsLoaded(true);
       setNewComment("");
@@ -107,8 +107,8 @@ export default function CuentasPorCobrarSheet({ selectedId, onClose }: Props) {
     }
   };
 
-  const statusColor = cuenta
-    ? (OVERDUE_STATUS_COLORS[cuenta.overdue_status] ?? DEFAULT_OVERDUE_STATUS_COLOR)
+  const statusColor = account
+    ? (OVERDUE_STATUS_COLORS[account.overdue_status] ?? DEFAULT_OVERDUE_STATUS_COLOR)
     : "";
 
   return (
@@ -116,95 +116,95 @@ export default function CuentasPorCobrarSheet({ selectedId, onClose }: Props) {
       open={!!selectedId}
       onClose={handleClose}
       title="Detalle de cuenta por cobrar"
-      subtitle={cuenta?.document_number}
+      subtitle={account?.document_number}
       icon="FileText"
       size="2xl"
       isLoading={isLoading}
     >
-      {cuenta && (
+      {account && (
         <div className="space-y-4">
-          {/* Encabezado */}
+          {/* Header */}
           <div className="flex items-center justify-between">
             <Badge variant="outline" className={cn("border", statusColor)}>
-              {cuenta.overdue_status}
+              {account.overdue_status}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              Días vencidos: <strong>{cuenta.overdue_days}</strong>
+              Días vencidos: <strong>{account.overdue_days}</strong>
             </span>
           </div>
 
-          {/* Sección: Documento */}
+          {/* Document */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
               <Hash className="size-3" /> Documento
             </h3>
             <div className="rounded-lg border bg-card p-2">
-              <DetailRow label="Número" value={cuenta.document_number} />
-              <DetailRow label="Cajero" value={cuenta.cashier} />
-              <DetailRow label="Fecha documento" value={formatDate(cuenta.document_date)} />
-              <DetailRow label="Fecha vencimiento" value={formatDate(cuenta.document_due_date)} />
-              <DetailRow label="Mes vencimiento" value={`${cuenta.due_month} ${cuenta.due_year}`} />
+              <DetailRow label="Número" value={account.document_number} />
+              <DetailRow label="Cajero" value={account.cashier} />
+              <DetailRow label="Fecha documento" value={formatDate(account.document_date)} />
+              <DetailRow label="Fecha vencimiento" value={formatDate(account.document_due_date)} />
+              <DetailRow label="Mes vencimiento" value={`${account.due_month} ${account.due_year}`} />
               <DetailRow
                 label="Fecha cobro"
-                value={cuenta.collection_date ? formatDate(cuenta.collection_date) : null}
+                value={account.collection_date ? formatDate(account.collection_date) : null}
               />
             </div>
           </section>
 
-          {/* Sección: Cliente */}
+          {/* Client */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
               <User className="size-3" /> Cliente
             </h3>
             <div className="rounded-lg border bg-card p-2">
-              <DetailRow label="RUC / DNI" value={cuenta.client_id} />
-              <DetailRow label="Razón social" value={cuenta.client_name} />
-              {cuenta.client_id_real && (
-                <DetailRow label="RUC real" value={cuenta.client_id_real} />
+              <DetailRow label="RUC / DNI" value={account.client_id} />
+              <DetailRow label="Razón social" value={account.client_name} />
+              {account.client_id_real && (
+                <DetailRow label="RUC real" value={account.client_id_real} />
               )}
-              {cuenta.client_name_real && (
-                <DetailRow label="Nombre real" value={cuenta.client_name_real} />
+              {account.client_name_real && (
+                <DetailRow label="Nombre real" value={account.client_name_real} />
               )}
             </div>
           </section>
 
-          {/* Sección: Importes */}
+          {/* Amounts */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
               <Calendar className="size-3" /> Importes
             </h3>
             <div className="rounded-lg border bg-card p-2">
-              <DetailRow label="Moneda" value={cuenta.currency} />
-              <DetailRow label="Tipo de cambio" value={parseFloat(cuenta.exchange_rate).toFixed(5)} />
-              <DetailRow label="Importe original" value={`${cuenta.currency} ${formatAmount(cuenta.amount)}`} />
+              <DetailRow label="Moneda" value={account.currency} />
+              <DetailRow label="Tipo de cambio" value={parseFloat(account.exchange_rate).toFixed(5)} />
+              <DetailRow label="Importe original" value={`${account.currency} ${formatAmount(account.amount)}`} />
               <DetailRow
                 label="Saldo pendiente"
                 value={
                   <span className="font-bold text-primary">
-                    {cuenta.currency} {formatAmount(cuenta.balance)}
+                    {account.currency} {formatAmount(account.balance)}
                   </span>
                 }
               />
             </div>
           </section>
 
-          {/* Sección: Sucursal */}
+          {/* Branch */}
           <section>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
               <Building2 className="size-3" /> Sucursal
             </h3>
             <div className="rounded-lg border bg-card p-2">
-              <DetailRow label="Vendedor" value={cuenta.seller} />
-              <DetailRow label="Sede" value={cuenta.sede?.localidad} />
-              <DetailRow label="Sucursal" value={cuenta.branch} />
-              {cuenta.observations && (
-                <DetailRow label="Observaciones" value={cuenta.observations} />
+              <DetailRow label="Vendedor" value={account.seller} />
+              <DetailRow label="Sede" value={account.sede?.localidad} />
+              <DetailRow label="Sucursal" value={account.branch} />
+              {account.observations && (
+                <DetailRow label="Observaciones" value={account.observations} />
               )}
-              <DetailRow label="Última sincronización" value={formatDateTime(cuenta.synced_at)} />
+              <DetailRow label="Última sincronización" value={formatDateTime(account.synced_at)} />
             </div>
           </section>
 
-          {/* Sección: Comentarios */}
+          {/* Comments */}
           <section>
             <Separator />
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-3 mb-2 flex items-center gap-1">
@@ -223,7 +223,6 @@ export default function CuentasPorCobrarSheet({ selectedId, onClose }: Props) {
               </p>
             )}
 
-            {/* Agregar comentario */}
             <div className="mt-3 space-y-2">
               <Textarea
                 placeholder="Escribir un comentario..."
