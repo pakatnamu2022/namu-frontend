@@ -26,6 +26,7 @@ import {
 } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
 import { InteractivePieChart } from "@/shared/charts/InteractivePieChart";
+import { ChartBarLabelCustom } from "@/shared/charts/ChartBarLabelCustom";
 import { Link } from "react-router-dom";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -167,64 +168,6 @@ function StatusDonut({ chart }: { chart: DashboardChart }) {
   );
 }
 
-// ── Horizontal Bar (sede & top_sellers) ───────────────────────────────────────
-function HorizontalBar({ chart }: { chart: DashboardChart }) {
-  const rawData = chart.labels.map((label, i) => ({
-    name: label,
-    value: chart.datasets[0]?.data[i] ?? 0,
-  }));
-  const data =
-    chart.id === "top_sellers"
-      ? [...rawData].sort((a, b) => b.value - a.value)
-      : rawData;
-
-  const chartHeight = Math.max(160, data.length * 36 + 20);
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">{chart.title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <BarChart
-            data={data}
-            layout="vertical"
-            margin={{ left: 0, right: 16, top: 0, bottom: 0 }}
-          >
-            <CartesianGrid horizontal={false} strokeDasharray="3 3" />
-            <YAxis
-              dataKey="name"
-              type="category"
-              width={130}
-              tick={{ fontSize: 11 }}
-              tickLine={false}
-              axisLine={false}
-            />
-            <XAxis
-              type="number"
-              tickFormatter={formatAxisShort}
-              tick={{ fontSize: 10 }}
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip
-              content={<CurrencyTooltip />}
-              cursor={{ fill: "var(--muted)" }}
-            />
-            <Bar
-              dataKey="value"
-              name="Saldo (S/)"
-              fill="var(--primary)"
-              radius={[0, 4, 4, 0]}
-              barSize={22}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
 
 // ── Month Area Chart ──────────────────────────────────────────────────────────
 function MonthArea({ chart }: { chart: DashboardChart }) {
@@ -583,18 +526,40 @@ export default function AccountsReceivableDashboard() {
           {getChart("balance_by_status") && (
             <StatusDonut chart={getChart("balance_by_status")!} />
           )}
-          {getChart("balance_by_sede") && (
-            <HorizontalBar chart={getChart("balance_by_sede")!} />
-          )}
+          {getChart("balance_by_sede") && (() => {
+            const chart = getChart("balance_by_sede")!;
+            const data = chart.labels.map((label, i) => ({
+              name: label,
+              value: chart.datasets[0]?.data[i] ?? 0,
+            }));
+            return (
+              <ChartBarLabelCustom
+                title={chart.title}
+                data={data}
+                valueFormatter={formatPEN}
+                color="var(--chart-4)"
+              />
+            );
+          })()}
           {getChart("balance_by_month") && (
             <MonthArea chart={getChart("balance_by_month")!} />
           )}
           {getChart("aging") && <AgingBar chart={getChart("aging")!} />}
-          {getChart("top_sellers") && (
-            <div className="md:col-span-2">
-              <HorizontalBar chart={getChart("top_sellers")!} />
-            </div>
-          )}
+          {getChart("top_sellers") && (() => {
+            const chart = getChart("top_sellers")!;
+            const data = chart.labels
+              .map((label, i) => ({ name: label, value: chart.datasets[0]?.data[i] ?? 0 }))
+              .sort((a, b) => b.value - a.value);
+            return (
+              <div className="md:col-span-2">
+                <ChartBarLabelCustom
+                  title={chart.title}
+                  data={data}
+                  valueFormatter={formatPEN}
+                />
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
