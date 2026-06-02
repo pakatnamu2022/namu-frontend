@@ -19,7 +19,7 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { promiseToast } from "@/core/core.function";
 import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.hook";
-import { syncAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
+import { syncAccountsReceivable, sendDueReports } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
 import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
 import AccountsReceivableTreeFilter from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTreeFilter";
@@ -57,6 +57,7 @@ export default function AccountsReceivablePage() {
   ]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const queryFilters: AccountsReceivableFilters = {
     ...filters,
@@ -109,6 +110,23 @@ export default function AccountsReceivablePage() {
     }
   };
 
+  const handleSendReports = async () => {
+    setIsSending(true);
+    const sendPromise = sendDueReports();
+    promiseToast(sendPromise, {
+      loading: "Enviando reportes...",
+      success: (res) => res.message,
+      error: "No se pudo enviar los reportes.",
+    });
+    try {
+      await sendPromise;
+    } catch {
+      // error shown by promiseToast
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const handleRowClick = useCallback((row: AccountReceivable) => {
     setSelectedId(row.id);
   }, []);
@@ -137,6 +155,17 @@ export default function AccountsReceivablePage() {
             <span className="hidden sm:inline">Dashboard</span>
           </Button>
         </Link>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={handleSendReports}
+          disabled={isSending}
+        >
+          <Send className={`size-4 ${isSending ? "animate-pulse" : ""}`} />
+          <span className="hidden sm:inline">Enviar reportes</span>
+        </Button>
 
         <Button
           variant="outline"
@@ -178,7 +207,7 @@ export default function AccountsReceivablePage() {
           isLoading={isLoading}
         />
         <MetricCard
-          title="Saldo vigente"
+          title="Saldo por vencer"
           value={summary ? formatPEN(summary.current_balance_pen) : undefined}
           icon={TrendingUp}
           color="green"

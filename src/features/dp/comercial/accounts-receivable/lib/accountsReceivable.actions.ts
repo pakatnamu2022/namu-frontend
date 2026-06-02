@@ -43,11 +43,11 @@ export async function getFilterTree(): Promise<FilterTreeNode[]> {
 }
 
 export async function sendDueReports(company?: string): Promise<{ message: string }> {
-  const { data } = await api.post<{ data: { message: string } }>(
+  const { data } = await api.post<{ message: string }>(
     `${ENDPOINT}/send-due-reports`,
     { company: company ?? COMPANY },
   );
-  return data.data;
+  return data;
 }
 
 export async function getAccountsReceivableDashboard(

@@ -9,6 +9,7 @@ import {
   TrendingUp,
   AlertCircle,
   BarChart2,
+  Send,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -32,24 +33,17 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { MetricCard } from "@/shared/components/MetricCard";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { successToast, errorToast } from "@/core/core.function";
 
 import { useAccountsReceivableDashboard } from "../lib/accountsReceivable.hook";
-import { syncAccountsReceivable } from "../lib/accountsReceivable.actions";
+import { syncAccountsReceivable, sendDueReports } from "../lib/accountsReceivable.actions";
 import { ACCOUNTS_RECEIVABLE } from "../lib/accountsReceivable.constants";
 import type { DashboardChart } from "../lib/accountsReceivable.interface";
 
-const COMPANIES = [{ value: "deposito", label: "Depósito Pakatnamu" }];
 const COMPANY_STORAGE_KEY = "ar-dashboard-company";
 const PIE_COLORS = [
   "var(--chart-1)",
@@ -231,19 +225,13 @@ function AgingBar({ chart }: { chart: DashboardChart }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function AccountsReceivableDashboard() {
-  const [company, setCompany] = useState<string>(getStoredCompany);
+  const [company] = useState<string>(getStoredCompany);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError, refetch } =
     useAccountsReceivableDashboard(company);
-
-  const handleCompanyChange = (value: string) => {
-    setCompany(value);
-    try {
-      localStorage.setItem(COMPANY_STORAGE_KEY, value);
-    } catch {}
-  };
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -260,6 +248,18 @@ export default function AccountsReceivableDashboard() {
       errorToast("No se pudo sincronizar los datos.");
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleSendReports = async () => {
+    setIsSending(true);
+    try {
+      const res = await sendDueReports(company);
+      successToast("Reportes enviados.", res.message);
+    } catch {
+      errorToast("No se pudo enviar los reportes.");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -324,22 +324,18 @@ export default function AccountsReceivableDashboard() {
             </Button>
           </Link>
 
-          <Select
-            value={company}
-            onValueChange={handleCompanyChange}
-            disabled={isSyncing}
+
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleSendReports}
+            disabled={isSending || isLoading}
           >
-            <SelectTrigger className="w-40 h-9 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {COMPANIES.map((c) => (
-                <SelectItem key={c.value} value={c.value}>
-                  {c.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Send className={`size-4 ${isSending ? "animate-pulse" : ""}`} />
+            <span className="hidden sm:inline">Enviar reportes</span>
+          </Button>
 
           <Button
             variant="outline"
