@@ -11,7 +11,6 @@ import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivab
 import { syncAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
 import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
-import AccountsReceivableFiltersBar from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableFilters";
 import AccountsReceivableTreeFilter from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTreeFilter";
 import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableSheet";
 import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
@@ -35,7 +34,8 @@ function parseSyncedAt(value: string | undefined): string {
 }
 
 export default function AccountsReceivablePage() {
-  const [filters, setFilters] = useState<AccountsReceivableFilters>(INITIAL_FILTERS);
+  const [filters, setFilters] =
+    useState<AccountsReceivableFilters>(INITIAL_FILTERS);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -115,12 +115,6 @@ export default function AccountsReceivablePage() {
         </Button>
       </HeaderTableWrapper>
 
-      <AccountsReceivableTreeFilter
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        onReset={handleReset}
-      />
-
       <AccountsReceivableTable
         columns={columns}
         data={records}
@@ -136,7 +130,7 @@ export default function AccountsReceivablePage() {
         }
         onSortingChange={setSorting}
       >
-        <AccountsReceivableFiltersBar
+        <AccountsReceivableTreeFilter
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onReset={handleReset}
