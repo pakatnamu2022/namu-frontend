@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
@@ -8,9 +7,17 @@ import SearchInput from "@/shared/components/SearchInput";
 import { MARK_TYPE_OPTIONS } from "../lib/attendance.constants";
 import type { AttendanceFilters } from "../lib/attendance.interface";
 
+type OtherFilters = Omit<AttendanceFilters, "date" | "date_from" | "date_to">;
+
 interface Props {
-  filters: AttendanceFilters;
-  onFiltersChange: (filters: Partial<AttendanceFilters>) => void;
+  filters: OtherFilters;
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
+  onFiltersChange: (filters: Partial<OtherFilters>) => void;
   onReset: () => void;
 }
 
@@ -19,20 +26,22 @@ const MARK_TYPE_SELECT_OPTIONS = MARK_TYPE_OPTIONS.map((o) => ({
   label: o.label,
 }));
 
-function toDateString(date: Date | undefined): string | undefined {
-  return date ? format(date, "yyyy-MM-dd") : undefined;
-}
-
 export default function AttendanceFiltersBar({
   filters,
+  date,
+  setDate,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
   onFiltersChange,
   onReset,
 }: Props) {
   const hasActiveFilters = !!(
     filters.search ||
-    filters.date ||
-    filters.date_from ||
-    filters.date_to ||
+    date ||
+    dateFrom ||
+    dateTo ||
     filters.emp_code ||
     filters.mark_type
   );
@@ -45,33 +54,30 @@ export default function AttendanceFiltersBar({
         placeholder="Buscar..."
       />
       <DatePicker
-        value={filters.date}
-        onChange={(date) =>
-          onFiltersChange({
-            date: toDateString(date),
-            date_from: undefined,
-            date_to: undefined,
-          })
-        }
+        value={date}
+        onChange={(d) => {
+          setDate(d);
+          setDateFrom(undefined);
+          setDateTo(undefined);
+        }}
         placeholder="Fecha exacta"
       />
-
       <DatePicker
-        value={filters.date_from}
-        onChange={(date) =>
-          onFiltersChange({ date_from: toDateString(date), date: undefined })
-        }
+        value={dateFrom}
+        onChange={(d) => {
+          setDateFrom(d);
+          setDate(undefined);
+        }}
         placeholder="Desde"
       />
-
       <DatePicker
-        value={filters.date_to}
-        onChange={(date) =>
-          onFiltersChange({ date_to: toDateString(date), date: undefined })
-        }
+        value={dateTo}
+        onChange={(d) => {
+          setDateTo(d);
+          setDate(undefined);
+        }}
         placeholder="Hasta"
       />
-
       <SearchableSelect
         options={MARK_TYPE_SELECT_OPTIONS}
         value={filters.mark_type ?? ""}
@@ -82,7 +88,6 @@ export default function AttendanceFiltersBar({
         }
         placeholder="Tipo"
       />
-
       {hasActiveFilters && (
         <Button variant="ghost" size="sm" onClick={onReset} className="gap-1">
           <X className="size-4" />

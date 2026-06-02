@@ -2,11 +2,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/core/core.function";
-import type { CuentaPorCobrar } from "../lib/cuentasPorCobrar.interface";
+import type { AccountReceivable } from "../lib/accountsReceivable.interface";
 import {
   OVERDUE_STATUS_COLORS,
   DEFAULT_OVERDUE_STATUS_COLOR,
-} from "../lib/cuentasPorCobrar.constants";
+} from "../lib/accountsReceivable.constants";
 import { cn } from "@/lib/utils";
 
 function formatAmount(value: string | number): string {
@@ -16,12 +16,12 @@ function formatAmount(value: string | number): string {
 }
 
 interface ColumnsOptions {
-  onRowClick: (row: CuentaPorCobrar) => void;
+  onRowClick: (row: AccountReceivable) => void;
 }
 
-export function getCuentasPorCobrarColumns({
+export function getAccountsReceivableColumns({
   onRowClick,
-}: ColumnsOptions): ColumnDef<CuentaPorCobrar>[] {
+}: ColumnsOptions): ColumnDef<AccountReceivable>[] {
   return [
     {
       id: "document_number",
@@ -133,7 +133,7 @@ export function getCuentasPorCobrarColumns({
       ),
     },
     {
-      id: "comments_count",
+      id: "actions",
       header: "Comentarios",
       cell: ({ row }) => {
         const count = row.original.comments_count ?? 0;

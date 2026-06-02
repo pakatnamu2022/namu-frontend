@@ -24,3 +24,5 @@ export const ROLE: ModelComplete<RoleResource> = {
     users: 0,
   },
 };
+
+export const TICS_ROLE = 98;

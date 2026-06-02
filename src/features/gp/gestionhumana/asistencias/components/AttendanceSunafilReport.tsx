@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { FileDown, FileSpreadsheet, Search } from "lucide-react";
+import { FileDown, FileSpreadsheet } from "lucide-react";
 import { format, startOfMonth } from "date-fns";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import FilterWrapper from "@/shared/components/FilterWrapper";
-import DatePicker from "@/shared/components/DatePicker";
-import SearchInput from "@/shared/components/SearchInput";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -23,6 +20,7 @@ import type {
   AttendanceSunafilRow,
   AttendanceSunafilFilters,
 } from "../lib/attendance.interface";
+import AttendanceReportFilterBar from "./AttendanceReportFilterBar";
 
 const today = format(new Date(), "yyyy-MM-dd");
 const firstOfMonth = format(startOfMonth(new Date()), "yyyy-MM-dd");
@@ -75,6 +73,24 @@ const columns: ColumnDef<AttendanceSunafilRow>[] = [
     ),
   },
   {
+    accessorKey: "lunch_out",
+    header: "Salida Almuerzo",
+    cell: ({ row }) => (
+      <span className="tabular-nums text-sm">
+        {timeStr(row.original.lunch_out)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "lunch_in",
+    header: "Retorno Almuerzo",
+    cell: ({ row }) => (
+      <span className="tabular-nums text-sm">
+        {timeStr(row.original.lunch_in)}
+      </span>
+    ),
+  },
+  {
     accessorKey: "check_out",
     header: "Salida",
     cell: ({ row }) => (
@@ -93,10 +109,6 @@ const columns: ColumnDef<AttendanceSunafilRow>[] = [
     ),
   },
 ];
-
-function toStr(d: Date | undefined): string | undefined {
-  return d ? format(d, "yyyy-MM-dd") : undefined;
-}
 
 export default function AttendanceSunafilReport() {
   const { ROUTE } = ATTENDANCE;
@@ -195,32 +207,17 @@ export default function AttendanceSunafilReport() {
           data={data?.data ?? []}
           isLoading={isLoading}
         >
-          <FilterWrapper>
-            <DatePicker
-              value={dateFrom}
-              onChange={(d) => setDateFrom(toStr(d) ?? firstOfMonth)}
-              placeholder="Desde"
-            />
-            <DatePicker
-              value={dateTo}
-              onChange={(d) => setDateTo(toStr(d) ?? today)}
-              placeholder="Hasta"
-            />
-            <SearchInput
-              value={search}
-              onChange={handleSearchChange}
-              placeholder="Buscar colaborador..."
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!canAction || isLoading}
-              onClick={handleLoad}
-            >
-              <Search className="size-4 mr-1.5" />
-              Cargar
-            </Button>
-          </FilterWrapper>
+          <AttendanceReportFilterBar
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            search={search}
+            onDateFromChange={(v) => setDateFrom(v ?? firstOfMonth)}
+            onDateToChange={(v) => setDateTo(v ?? today)}
+            onSearchChange={handleSearchChange}
+            onLoad={handleLoad}
+            canLoad={canAction}
+            isLoading={isLoading}
+          />
         </DataTable>
         <DataTablePagination
           page={page}
