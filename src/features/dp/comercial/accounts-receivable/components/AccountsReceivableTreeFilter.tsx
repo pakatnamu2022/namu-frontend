@@ -22,6 +22,7 @@ export default function AccountsReceivableTreeFilter({
 
   const [sedeExpanded, setSedeExpanded] = useState(true);
   const [statusExpanded, setStatusExpanded] = useState(true);
+  const [yearExpanded, setYearExpanded] = useState(true);
 
   const selectedSedeId = filters.sede_id ? Number(filters.sede_id) : null;
   const selectedStatus = filters.overdue_status ?? null;
@@ -40,6 +41,7 @@ export default function AccountsReceivableTreeFilter({
     }
     setSedeExpanded(false);
     setStatusExpanded(true);
+    setYearExpanded(true);
     onFiltersChange({ sede_id: sedeId, overdue_status: undefined, year: null });
   }
 
@@ -49,16 +51,23 @@ export default function AccountsReceivableTreeFilter({
       return;
     }
     setStatusExpanded(false);
+    setYearExpanded(true);
     onFiltersChange({ overdue_status: status, year: null });
   }
 
   function selectYear(year: number) {
-    onFiltersChange({ year: selectedYear === year ? null : year });
+    if (selectedYear === year && !yearExpanded) {
+      setYearExpanded(true);
+      return;
+    }
+    setYearExpanded(false);
+    onFiltersChange({ year });
   }
 
   function handleReset() {
     setSedeExpanded(true);
     setStatusExpanded(true);
+    setYearExpanded(true);
     onReset();
   }
 
@@ -159,14 +168,17 @@ export default function AccountsReceivableTreeFilter({
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
             <Level label="Año">
-              <div className="flex flex-wrap gap-1.5 max-w-[300px]">
+              <div className="flex flex-wrap gap-1.5">
                 <AnimatePresence mode="popLayout">
-                  {selectedStatusNode.years.map((year, i) => (
+                  {(yearExpanded
+                    ? selectedStatusNode.years
+                    : selectedStatusNode.years.filter((y) => y === selectedYear)
+                  ).map((year, i) => (
                     <Chip
                       key={year}
                       index={i}
                       active={selectedYear === year}
-                      collapsed={false}
+                      collapsed={selectedYear === year && !yearExpanded}
                       onClick={() => selectYear(year)}
                     >
                       {year}
