@@ -13,11 +13,9 @@ import {
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  PieChart,
-  Pie,
-  Cell,
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,6 +24,8 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import type { ChartConfig } from "@/components/ui/chart";
+import { InteractivePieChart } from "@/shared/charts/InteractivePieChart";
 import { Link } from "react-router-dom";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,14 +51,20 @@ import type { DashboardChart } from "../lib/accountsReceivable.interface";
 const COMPANIES = [{ value: "deposito", label: "Depósito Pakatnamu" }];
 const COMPANY_STORAGE_KEY = "ar-dashboard-company";
 const PIE_COLORS = [
-  "#ef4444",
-  "#22c55e",
-  "#3b82f6",
-  "#f59e0b",
-  "#8b5cf6",
-  "#ec4899",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-6)",
 ];
-const AGING_COLORS = ["#22c55e", "#84cc16", "#eab308", "#f97316", "#ef4444"];
+const AGING_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
 
 const formatPEN = (value: number): string =>
   `S/ ${new Intl.NumberFormat("en-US", {
@@ -141,48 +147,23 @@ function StatusDonut({ chart }: { chart: DashboardChart }) {
   const data = chart.labels.map((label, i) => ({
     name: label,
     value: chart.datasets[0]?.data[i] ?? 0,
+    fill: PIE_COLORS[i % PIE_COLORS.length],
   }));
 
+  const config: ChartConfig = Object.fromEntries(
+    data.map((item) => [item.name, { label: item.name, color: item.fill }]),
+  );
+
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">{chart.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center">
-        <ResponsiveContainer width="100%" height={220}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={95}
-              paddingAngle={3}
-              dataKey="value"
-            >
-              {data.map((_, i) => (
-                <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip content={<CurrencyTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="flex flex-wrap gap-x-4 gap-y-1.5 justify-center mt-1">
-          {data.map((entry, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground"
-            >
-              <span
-                className="inline-block size-2.5 rounded-full shrink-0"
-                style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-              />
-              {entry.name}
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <InteractivePieChart
+      id={chart.id}
+      title={chart.title}
+      data={data}
+      config={config}
+      valueLabel="S/"
+      showCenterLabel={false}
+      showSelectionFooter
+    />
   );
 }
 
@@ -229,12 +210,12 @@ function HorizontalBar({ chart }: { chart: DashboardChart }) {
             />
             <Tooltip
               content={<CurrencyTooltip />}
-              cursor={{ fill: "hsl(var(--muted))" }}
+              cursor={{ fill: "var(--muted)" }}
             />
             <Bar
               dataKey="value"
               name="Saldo (S/)"
-              fill="hsl(var(--primary))"
+              fill="var(--primary)"
               radius={[0, 4, 4, 0]}
               barSize={22}
             />
@@ -267,12 +248,12 @@ function MonthArea({ chart }: { chart: DashboardChart }) {
               <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="hsl(var(--primary))"
+                  stopColor="var(--primary)"
                   stopOpacity={0.25}
                 />
                 <stop
                   offset="95%"
-                  stopColor="hsl(var(--primary))"
+                  stopColor="var(--primary)"
                   stopOpacity={0}
                 />
               </linearGradient>
@@ -295,7 +276,7 @@ function MonthArea({ chart }: { chart: DashboardChart }) {
             <Tooltip
               content={<CurrencyTooltip />}
               cursor={{
-                stroke: "hsl(var(--primary))",
+                stroke: "var(--primary)",
                 strokeWidth: 1,
                 strokeDasharray: "3 3",
               }}
@@ -304,10 +285,10 @@ function MonthArea({ chart }: { chart: DashboardChart }) {
               type="monotone"
               dataKey="value"
               name="Saldo (S/)"
-              stroke="hsl(var(--primary))"
+              stroke="var(--primary)"
               fill="url(#areaGrad)"
               strokeWidth={2}
-              dot={{ r: 3, fill: "hsl(var(--primary))", strokeWidth: 0 }}
+              dot={{ r: 3, fill: "var(--primary)", strokeWidth: 0 }}
               activeDot={{ r: 5 }}
             />
           </AreaChart>
@@ -352,7 +333,7 @@ function AgingBar({ chart }: { chart: DashboardChart }) {
             />
             <Tooltip
               content={<CurrencyTooltip />}
-              cursor={{ fill: "hsl(var(--muted))" }}
+              cursor={{ fill: "var(--muted)" }}
             />
             <Bar dataKey="value" name="Saldo (S/)" radius={[4, 4, 0, 0]}>
               {data.map((entry, i) => (
