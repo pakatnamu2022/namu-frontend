@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { ACCOUNTS_RECEIVABLE } from "./accountsReceivable.constants";
 import {
   getAccountsReceivable,
@@ -14,6 +14,7 @@ export const useAccountsReceivable = (filters: AccountsReceivableFilters) => {
   return useQuery({
     queryKey: [QUERY_KEY, filters],
     queryFn: () => getAccountsReceivable(filters),
+    placeholderData: keepPreviousData,
   });
 };
 

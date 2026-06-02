@@ -1,6 +1,14 @@
 import { useState, useCallback } from "react";
 import type { SortingState } from "@tanstack/react-table";
-import { RefreshCw, Clock, BarChart2, FileText, Banknote, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  RefreshCw,
+  Clock,
+  BarChart2,
+  FileText,
+  Banknote,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -18,10 +26,11 @@ import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts
 import { ACCOUNTS_RECEIVABLE } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
 import type { AccountReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
 import { MetricCard } from "@/shared/components/MetricCard";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 
 const INITIAL_FILTERS: AccountsReceivableFilters = {
   page: 1,
-  per_page: 100,
+  per_page: DEFAULT_PER_PAGE,
   company: ACCOUNTS_RECEIVABLE.COMPANY,
 };
 
@@ -50,7 +59,7 @@ export default function AccountsReceivablePage() {
     }),
   };
 
-  const { data, isLoading } = useAccountsReceivable(queryFilters);
+  const { data, isLoading, isFetching } = useAccountsReceivable(queryFilters);
 
   const records = data?.data ?? [];
   const meta = data?.meta;
@@ -128,47 +137,51 @@ export default function AccountsReceivablePage() {
         </Button>
       </HeaderTableWrapper>
 
-      {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <MetricCard
-            title="Total documentos"
-            value={summary.total_documents.toLocaleString("en-US")}
-            icon={FileText}
-            color="blue"
-          />
-          <MetricCard
-            title="Saldo total"
-            value={formatPEN(summary.total_balance_pen)}
-            icon={Banknote}
-            color="indigo"
-          />
-          <MetricCard
-            title="Saldo vencido"
-            value={formatPEN(summary.overdue_balance_pen)}
-            icon={TrendingDown}
-            color="red"
-            showProgress
-            progressValue={summary.overdue_balance_pen}
-            progressMax={summary.total_balance_pen}
-          />
-          <MetricCard
-            title="Saldo vigente"
-            value={formatPEN(summary.current_balance_pen)}
-            icon={TrendingUp}
-            color="green"
-            showProgress
-            progressValue={summary.current_balance_pen}
-            progressMax={summary.total_balance_pen}
-          />
-        </div>
-      )}
+      <div
+        className={`grid grid-cols-2 md:grid-cols-4 gap-3 transition-opacity duration-200 ${isFetching ? "opacity-60" : "opacity-100"}`}
+      >
+        <MetricCard
+          title="Total documentos"
+          value={summary?.total_documents.toLocaleString("en-US")}
+          icon={FileText}
+          color="blue"
+          isLoading={isLoading}
+        />
+        <MetricCard
+          title="Saldo total"
+          value={summary ? formatPEN(summary.total_balance_pen) : undefined}
+          icon={Banknote}
+          color="indigo"
+          isLoading={isLoading}
+        />
+        <MetricCard
+          title="Saldo vencido"
+          value={summary ? formatPEN(summary.overdue_balance_pen) : undefined}
+          icon={TrendingDown}
+          color="red"
+          showProgress
+          progressValue={summary?.overdue_balance_pen}
+          progressMax={summary?.total_balance_pen}
+          isLoading={isLoading}
+        />
+        <MetricCard
+          title="Saldo vigente"
+          value={summary ? formatPEN(summary.current_balance_pen) : undefined}
+          icon={TrendingUp}
+          color="green"
+          showProgress
+          progressValue={summary?.current_balance_pen}
+          progressMax={summary?.total_balance_pen}
+          isLoading={isLoading}
+        />
+      </div>
 
       <AccountsReceivableTable
         columns={columns}
         data={records}
         isLoading={isLoading}
         page={filters.page ?? 1}
-        perPage={filters.per_page ?? 100}
+        perPage={filters.per_page ?? DEFAULT_PER_PAGE}
         totalPages={meta?.last_page ?? 1}
         total={meta?.total ?? 0}
         sorting={sorting}
