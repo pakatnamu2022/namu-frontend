@@ -68,6 +68,7 @@ export interface WorkOrderResource {
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
   advances: ElectronicDocumentResource[];
+  advances_cancelled: ElectronicDocumentResource[];
   status: ApMastersResource;
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;

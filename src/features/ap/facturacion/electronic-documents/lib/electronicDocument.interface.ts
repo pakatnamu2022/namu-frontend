@@ -41,7 +41,9 @@ export interface ElectronicDocumentResource {
   order_quotation_id?: number;
   work_order_id?: number;
   credit_note_id?: number;
+  credit_note_number?: string;
   debit_note_id?: number;
+  debit_note_number?: string;
   client_id: number;
   sunat_concept_identity_document_type_id: number;
   cliente_numero_de_documento: string;

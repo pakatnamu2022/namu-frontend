@@ -231,11 +231,13 @@ export function InvoiceDocumentInfoSection({
           description={
             isInvalidWithQuote
               ? "Solo se permiten anticipos (cotización con diferencias)"
-              : isAdvancePayment
-                ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-                : "Tipo de operación: Venta Interna (código 01)"
+              : !isTerminado
+                ? "Solo se permiten anticipos hasta que la OT esté TERMINADA"
+                : isAdvancePayment
+                  ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                  : "Tipo de operación: Venta Interna (código 01)"
           }
-          disabled={isInvalidWithQuote || isMassiveBilling}
+          disabled={isInvalidWithQuote || !isTerminado || isMassiveBilling}
         />
 
         <FormSelect

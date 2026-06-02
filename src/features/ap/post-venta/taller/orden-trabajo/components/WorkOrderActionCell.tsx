@@ -14,7 +14,10 @@ import {
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
-import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
+import {
+  finishAllowedStatuses,
+  WORK_ORDER_STATUS_ID,
+} from "../lib/workOrder.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
 import { useSendToFinished } from "../lib/workOrder.hook";
@@ -55,14 +58,14 @@ export function WorkOrderActionCell({
   const {
     id,
     is_inspection_completed,
-    status,
+    status_id,
     is_delivery,
     is_invoiced,
     items,
   } = row;
-  const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
-  const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
-  const isCancelled = status?.description === WORK_ORDER_STATUS.ANULADO;
+  const isClosed = status_id === String(WORK_ORDER_STATUS_ID.CERRADO);
+  const isOpen = status_id === String(WORK_ORDER_STATUS_ID.APERTURADO);
+  const isCancelled = status_id === String(WORK_ORDER_STATUS_ID.ANULADO);
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
@@ -98,7 +101,10 @@ export function WorkOrderActionCell({
   const isVisibleManage = permissions.canManage;
 
   const isVisibleFinish =
-    !is_invoiced && !isClosed && firstItemPlanning?.type_document !== "INTERNA";
+    !is_invoiced &&
+    !isClosed &&
+    firstItemPlanning?.type_document !== "INTERNA" &&
+    finishAllowedStatuses.includes(Number(status_id));
 
   const isVisibleDelivery =
     isClosed && !isDelivery && firstItemPlanning?.type_document !== "INTERNA";

@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { FileText, Plus, Receipt, AlertCircle } from "lucide-react";
 import { findWorkOrderById } from "../lib/workOrder.actions";
 import { useGetPaymentSummary } from "../lib/workOrder.hook";
@@ -23,6 +22,7 @@ import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import InvoiceForm from "./InvoiceForm";
+import InvoiceList from "./InvoiceList";
 import { errorToast, successToast } from "@/core/core.function";
 import {
   SUNAT_CONCEPTS_TYPE,
@@ -314,8 +314,9 @@ export default function WorkOrderBillingForm({
     );
   }
 
-  // Obtener facturas de adelanto (advances) del resumen de pago
+  // Obtener facturas del resumen de pago
   const advances = workOrder?.advances || [];
+  const advancesCancelled = workOrder?.advances_cancelled || [];
 
   return (
     <div className="space-y-6">
@@ -358,11 +359,6 @@ export default function WorkOrderBillingForm({
                   <span className="font-medium text-gray-900">
                     Resumen de Costos
                   </span>
-                  {selectedGroupNumber && (
-                    <Badge variant="outline" className="ml-2">
-                      Grupo {selectedGroupNumber}
-                    </Badge>
-                  )}
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-bold text-primary">
@@ -442,7 +438,6 @@ export default function WorkOrderBillingForm({
               isTerminado={isTerminado}
             />
           ) : (
-            /* Facturas del grupo */
             <Card className="p-4">
               {/* Resumen compacto con progreso */}
               <div className="space-y-4">
@@ -471,125 +466,12 @@ export default function WorkOrderBillingForm({
                   )}
                 </div>
 
-                {advances.length === 0 ? (
-                  <div className="text-center py-6">
-                    <FileText className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600 mb-1">
-                      No hay facturas para este grupo
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Crea la primera factura haciendo clic en "Nueva Factura"
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Barra de Progreso */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-foreground">
-                          Progreso de Facturación
-                        </span>
-                        <span className="text-sm font-semibold text-primary">
-                          {paymentSummary
-                            ? (
-                                (advances.reduce(
-                                  (sum, advance) => sum + Number(advance.total),
-                                  0,
-                                ) /
-                                  paymentSummary.payment_summary.total_amount) *
-                                100
-                              ).toFixed(1)
-                            : "0.0"}
-                          %
-                        </span>
-                      </div>
-                      <Progress
-                        value={
-                          paymentSummary
-                            ? (advances.reduce(
-                                (sum, advance) => sum + Number(advance.total),
-                                0,
-                              ) /
-                                paymentSummary.payment_summary.total_amount) *
-                              100
-                            : 0
-                        }
-                        className="h-3"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>
-                          {workOrder?.type_currency?.symbol || "S/"}{" "}
-                          {advances
-                            .reduce(
-                              (sum, advance) => sum + Number(advance.total),
-                              0,
-                            )
-                            .toFixed(2)}
-                        </span>
-                        <span>
-                          {workOrder?.type_currency?.symbol || "S/"}{" "}
-                          {paymentSummary
-                            ? paymentSummary.payment_summary.total_amount.toFixed(
-                                2,
-                              )
-                            : "0.00"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Lista de facturas - Más compacta */}
-                    <div className="space-y-2">
-                      {advances.map((advance) => (
-                        <div
-                          key={advance.id}
-                          className="flex items-center justify-between p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="font-semibold text-gray-900 text-sm">
-                                  {advance.full_number}
-                                </p>
-                                <Badge
-                                  variant="default"
-                                  color={
-                                    advance.sunat_responsecode === "0"
-                                      ? "green"
-                                      : "default"
-                                  }
-                                >
-                                  {advance.sunat_responsecode === "0"
-                                    ? "Aceptado"
-                                    : "Pendiente"}
-                                </Badge>
-                                {advance.is_advance_payment && (
-                                  <Badge variant="default" color="secondary">
-                                    Anticipo
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-3 mt-1">
-                                <p className="text-xs text-gray-600">
-                                  {advance.fecha_de_emision}
-                                </p>
-                                <span className="text-xs text-gray-400">•</span>
-                                <p className="text-xs text-gray-600">
-                                  {advance.document_type?.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-primary">
-                              {workOrder?.type_currency?.symbol || "S/"}{" "}
-                              {Number(advance.total).toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
+                <InvoiceList
+                  advances={advances}
+                  advancesCancelled={advancesCancelled}
+                  currencySymbol={workOrder?.type_currency?.symbol || "S/"}
+                  paymentSummary={paymentSummary ?? undefined}
+                />
               </div>
             </Card>
           )}

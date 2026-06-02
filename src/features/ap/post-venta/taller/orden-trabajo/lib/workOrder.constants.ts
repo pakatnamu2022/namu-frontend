@@ -40,17 +40,6 @@ export const WORKER_ORDER_RECEPCION: ModelComplete<WorkOrderResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_RECEPCION}/actualizar`,
 };
 
-// ESTADOS DE ORDEN DE TRABAJO
-export const WORK_ORDER_STATUS = {
-  APERTURADO: "APERTURADO",
-  RECEPCIONADO: "RECEPCIONADO",
-  EN_TRABAJO: "EN TRABAJO",
-  TERMINADO: "TERMINADO",
-  CERRADO: "CERRADO",
-  ANULADO: "ANULADO",
-  FACTURAR: "FACTURAR",
-} as const;
-
 export const WORK_ORDER_STATUS_COLORS: Record<string, BadgeColor> = {
   APERTURADO: "blue",
   RECEPCIONADO: "cyan",
@@ -71,6 +60,13 @@ export const WORK_ORDER_STATUS_ID = {
   CERRADO: 893,
   ANULADO: 894,
 } as const;
+
+export const finishAllowedStatuses: number[] = [
+  WORK_ORDER_STATUS_ID.APERTURADO,
+  WORK_ORDER_STATUS_ID.RECEPCIONADO,
+  WORK_ORDER_STATUS_ID.EN_TRABAJO,
+  WORK_ORDER_STATUS_ID.FIN_TRABAJO,
+];
 
 // RUTAS PARA POSTVENTA - CAJA
 const ROUTE_CAJA = "orden-trabajo-taller-caja";
