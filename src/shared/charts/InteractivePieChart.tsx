@@ -32,8 +32,10 @@ interface Props {
   config: ChartConfig;
   valueLabel?: string;
   showCenterLabel?: boolean;
+  centerLabelAsPercent?: boolean;
   showLegend?: boolean;
   showSelectionFooter?: boolean;
+  valueFormatter?: (value: number) => string;
   footerInfo?: {
     label: string;
     value: string | number;
@@ -50,8 +52,10 @@ export function InteractivePieChart({
   config,
   valueLabel = "Cantidad",
   showCenterLabel = true,
+  centerLabelAsPercent = false,
   showLegend = false,
   showSelectionFooter = false,
+  valueFormatter,
   footerInfo,
 }: Props) {
   const [activeItem, setActiveItem] = useState(data[0]?.name || "");
@@ -152,6 +156,14 @@ export function InteractivePieChart({
                 <Label
                   content={({ viewBox }) => {
                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      const activeValue = data[activeIndex]?.value ?? 0;
+                      const total = data.reduce(
+                        (sum, item) => sum + item.value,
+                        0,
+                      );
+                      const centerText = centerLabelAsPercent
+                        ? `${total > 0 ? ((activeValue / total) * 100).toFixed(1) : "0.0"}%`
+                        : activeValue.toLocaleString();
                       return (
                         <text
                           x={viewBox.cx}
@@ -164,14 +176,18 @@ export function InteractivePieChart({
                             y={viewBox.cy}
                             className="fill-foreground text-3xl font-bold"
                           >
-                            {data[activeIndex]?.value.toLocaleString()}
+                            {centerText}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
                             y={(viewBox.cy || 0) + 24}
                             className="fill-muted-foreground"
                           >
-                            {valueLabel}
+                            {centerLabelAsPercent
+                              ? (config[data[activeIndex]?.name ?? ""]?.label ??
+                                data[activeIndex]?.name ??
+                                valueLabel)
+                              : valueLabel}
                           </tspan>
                         </text>
                       );
@@ -217,8 +233,11 @@ export function InteractivePieChart({
         ) : showSelectionFooter && data[activeIndex] ? (
           <CardFooter className="flex-col gap-1 text-sm">
             <div className="flex items-center gap-2 font-medium leading-none">
-              {config[data[activeIndex].name]?.label || data[activeIndex].name}:{" "}
-              {data[activeIndex].value.toLocaleString()}
+              {config[data[activeIndex].name]?.label || data[activeIndex].name}
+              {": "}
+              {valueFormatter
+                ? valueFormatter(data[activeIndex].value)
+                : data[activeIndex].value.toLocaleString()}
             </div>
             <div className="text-muted-foreground text-xs">
               Representa el{" "}
@@ -228,9 +247,17 @@ export function InteractivePieChart({
                     data.reduce((sum, item) => sum + item.value, 0)) *
                   100
                 ).toFixed(1)}
-                %{" "}
-              </strong>
-              del total
+                %
+              </strong>{" "}
+              del total (
+              {valueFormatter
+                ? valueFormatter(
+                    data.reduce((sum, item) => sum + item.value, 0),
+                  )
+                : data
+                    .reduce((sum, item) => sum + item.value, 0)
+                    .toLocaleString()}
+              )
             </div>
           </CardFooter>
         ) : null}

@@ -21,12 +21,12 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  AreaChart,
-  Area,
 } from "recharts";
 import type { ChartConfig } from "@/components/ui/chart";
 import { InteractivePieChart } from "@/shared/charts/InteractivePieChart";
 import { ChartBarLabelCustom } from "@/shared/charts/ChartBarLabelCustom";
+import { ChartBarMixed } from "@/shared/charts/ChartBarMixed";
+import { ChartAreaDefault } from "@/shared/charts/ChartAreaDefault";
 import { Link } from "react-router-dom";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,7 +103,7 @@ function getStoredCompany(): string {
 function CurrencyTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border bg-background p-2.5 shadow-lg text-xs space-y-1 min-w-[160px]">
+    <div className="rounded-lg border bg-background p-2.5 shadow-lg text-xs space-y-1 min-w-40">
       {label && (
         <p className="font-semibold text-foreground border-b pb-1 mb-1">
           {label}
@@ -126,9 +126,6 @@ function CurrencyTooltip({ active, payload, label }: any) {
 }
 
 // ── Skeletons ─────────────────────────────────────────────────────────────────
-function KpiSkeleton() {
-  return <Skeleton className="h-[100px] rounded-xl" />;
-}
 
 function ChartSkeleton() {
   return (
@@ -161,83 +158,11 @@ function StatusDonut({ chart }: { chart: DashboardChart }) {
       title={chart.title}
       data={data}
       config={config}
-      valueLabel="S/"
-      showCenterLabel={false}
+      showCenterLabel
+      centerLabelAsPercent
       showSelectionFooter
+      valueFormatter={formatPEN}
     />
-  );
-}
-
-
-// ── Month Area Chart ──────────────────────────────────────────────────────────
-function MonthArea({ chart }: { chart: DashboardChart }) {
-  const data = chart.labels.map((label, i) => ({
-    name: label,
-    value: chart.datasets[0]?.data[i] ?? 0,
-  }));
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">{chart.title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={280}>
-          <AreaChart
-            data={data}
-            margin={{ left: 0, right: 16, top: 4, bottom: 0 }}
-          >
-            <defs>
-              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--primary)"
-                  stopOpacity={0.25}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--primary)"
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tick={{ fontSize: 10 }}
-              tickLine={false}
-              axisLine={false}
-              interval="preserveStartEnd"
-            />
-            <YAxis
-              tickFormatter={formatAxisShort}
-              tick={{ fontSize: 10 }}
-              tickLine={false}
-              axisLine={false}
-              width={58}
-            />
-            <Tooltip
-              content={<CurrencyTooltip />}
-              cursor={{
-                stroke: "var(--primary)",
-                strokeWidth: 1,
-                strokeDasharray: "3 3",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              name="Saldo (S/)"
-              stroke="var(--primary)"
-              fill="url(#areaGrad)"
-              strokeWidth={2}
-              dot={{ r: 3, fill: "var(--primary)", strokeWidth: 0 }}
-              activeDot={{ r: 5 }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -404,7 +329,7 @@ export default function AccountsReceivableDashboard() {
             onValueChange={handleCompanyChange}
             disabled={isSyncing}
           >
-            <SelectTrigger className="w-[160px] h-9 text-sm">
+            <SelectTrigger className="w-40 h-9 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -522,44 +447,73 @@ export default function AccountsReceivableDashboard() {
         </div>
       )}
       {!isLoading && !isError && !isEmpty && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {getChart("balance_by_status") && (
-            <StatusDonut chart={getChart("balance_by_status")!} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-3">
+            {getChart("balance_by_month") &&
+              (() => {
+                const chart = getChart("balance_by_month")!;
+                const data = chart.labels.map((label, i) => ({
+                  name: label,
+                  value: chart.datasets[0]?.data[i] ?? 0,
+                }));
+                return (
+                  <ChartAreaDefault
+                    title={chart.title}
+                    data={data}
+                    valueFormatter={formatPEN}
+                    valueLabel="Saldo (S/)"
+                  />
+                );
+              })()}
+          </div>
+          <div className="lg:col-span-1">
+            {getChart("balance_by_status") && (
+              <StatusDonut chart={getChart("balance_by_status")!} />
+            )}
+          </div>
+
+          {getChart("balance_by_sede") &&
+            (() => {
+              const chart = getChart("balance_by_sede")!;
+              const data = chart.labels.map((label, i) => ({
+                name: label,
+                value: chart.datasets[0]?.data[i] ?? 0,
+              }));
+              return (
+                <div className="lg:col-span-1">
+                  <ChartBarMixed
+                    title={chart.title}
+                    data={data}
+                    valueFormatter={formatPEN}
+                    valueLabel="Saldo (S/)"
+                  />
+                </div>
+              );
+            })()}
+          {getChart("top_sellers") &&
+            (() => {
+              const chart = getChart("top_sellers")!;
+              const data = chart.labels
+                .map((label, i) => ({
+                  name: label,
+                  value: chart.datasets[0]?.data[i] ?? 0,
+                }))
+                .sort((a, b) => b.value - a.value);
+              return (
+                <div className="lg:col-span-1">
+                  <ChartBarLabelCustom
+                    title={chart.title}
+                    data={data}
+                    valueFormatter={formatPEN}
+                  />
+                </div>
+              );
+            })()}
+          {getChart("aging") && (
+            <div className="lg:col-span-2">
+              <AgingBar chart={getChart("aging")!} />
+            </div>
           )}
-          {getChart("balance_by_sede") && (() => {
-            const chart = getChart("balance_by_sede")!;
-            const data = chart.labels.map((label, i) => ({
-              name: label,
-              value: chart.datasets[0]?.data[i] ?? 0,
-            }));
-            return (
-              <ChartBarLabelCustom
-                title={chart.title}
-                data={data}
-                valueFormatter={formatPEN}
-                color="var(--chart-4)"
-              />
-            );
-          })()}
-          {getChart("balance_by_month") && (
-            <MonthArea chart={getChart("balance_by_month")!} />
-          )}
-          {getChart("aging") && <AgingBar chart={getChart("aging")!} />}
-          {getChart("top_sellers") && (() => {
-            const chart = getChart("top_sellers")!;
-            const data = chart.labels
-              .map((label, i) => ({ name: label, value: chart.datasets[0]?.data[i] ?? 0 }))
-              .sort((a, b) => b.value - a.value);
-            return (
-              <div className="md:col-span-2">
-                <ChartBarLabelCustom
-                  title={chart.title}
-                  data={data}
-                  valueFormatter={formatPEN}
-                />
-              </div>
-            );
-          })()}
         </div>
       )}
     </div>
