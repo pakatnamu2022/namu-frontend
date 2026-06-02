@@ -12,6 +12,7 @@ import { syncAccountsReceivable } from "@/features/dp/comercial/accounts-receiva
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
 import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
 import AccountsReceivableFiltersBar from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableFilters";
+import AccountsReceivableTreeFilter from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTreeFilter";
 import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableSheet";
 import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
 import { ACCOUNTS_RECEIVABLE } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
@@ -113,6 +114,12 @@ export default function AccountsReceivablePage() {
           Sincronizar
         </Button>
       </HeaderTableWrapper>
+
+      <AccountsReceivableTreeFilter
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onReset={handleReset}
+      />
 
       <AccountsReceivableTable
         columns={columns}

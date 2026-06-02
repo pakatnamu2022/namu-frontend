@@ -58,6 +58,17 @@ export interface AccountsReceivableResponse {
   meta: AccountsReceivableMeta;
 }
 
+export interface FilterTreeStatus {
+  status: string;
+  years: number[];
+}
+
+export interface FilterTreeNode {
+  sede_id: number;
+  sede_name: string;
+  statuses: FilterTreeStatus[];
+}
+
 export interface AccountsReceivableFilters {
   search?: string;
   sede_id?: number | string | null;

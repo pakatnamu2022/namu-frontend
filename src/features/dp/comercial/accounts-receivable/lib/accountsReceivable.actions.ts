@@ -4,6 +4,7 @@ import type {
   AccountsReceivableResponse,
   AccountReceivable,
   AccountsReceivableFilters,
+  FilterTreeNode,
 } from "./accountsReceivable.interface";
 
 const { ENDPOINT, COMPANY } = ACCOUNTS_RECEIVABLE;
@@ -32,4 +33,9 @@ export async function syncAccountsReceivable(): Promise<void> {
 
 export async function addAccountComment(id: number, comment: string): Promise<void> {
   await api.post(`${ENDPOINT}/${id}/comments`, { comment });
+}
+
+export async function getFilterTree(): Promise<FilterTreeNode[]> {
+  const { data } = await api.get<FilterTreeNode[]>(`${ENDPOINT}/filterTree`);
+  return data;
 }

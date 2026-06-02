@@ -133,7 +133,7 @@ export function getAccountsReceivableColumns({
       ),
     },
     {
-      id: "comments_count",
+      id: "actions",
       header: "Comentarios",
       cell: ({ row }) => {
         const count = row.original.comments_count ?? 0;

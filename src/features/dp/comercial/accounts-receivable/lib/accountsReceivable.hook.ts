@@ -3,6 +3,7 @@ import { ACCOUNTS_RECEIVABLE } from "./accountsReceivable.constants";
 import {
   getAccountsReceivable,
   getAccountReceivableById,
+  getFilterTree,
 } from "./accountsReceivable.actions";
 import type { AccountsReceivableFilters } from "./accountsReceivable.interface";
 
@@ -22,5 +23,14 @@ export const useAccountReceivableById = (id: number | null) => {
     queryFn: () => getAccountReceivableById(id!),
     refetchOnWindowFocus: false,
     enabled: !!id,
+  });
+};
+
+export const useFilterTree = () => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "filterTree"],
+    queryFn: getFilterTree,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
