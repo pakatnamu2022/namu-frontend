@@ -9,7 +9,8 @@ import {
 } from "../lib/accountsReceivable.constants";
 import { cn } from "@/lib/utils";
 
-function formatAmount(value: string | number): string {
+function formatAmount(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) return "-";
   const num = typeof value === "string" ? parseFloat(value) : value;
   if (isNaN(num)) return "-";
   return num.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -129,6 +130,17 @@ export function getAccountsReceivableColumns({
       cell: ({ row }) => (
         <span className="text-right block tabular-nums font-semibold text-primary">
           {formatAmount(row.original.balance)}
+        </span>
+      ),
+    },
+    {
+      id: "balance_pen",
+      accessorKey: "balance_pen",
+      header: "Saldo PEN",
+      enableSorting: true,
+      cell: ({ row }) => (
+        <span className="text-right block tabular-nums font-semibold text-primary">
+          {formatAmount(row.original.balance_pen)}
         </span>
       ),
     },

@@ -1,8 +1,9 @@
 import { useState, useCallback } from "react";
 import type { SortingState } from "@tanstack/react-table";
-import { RefreshCw, Clock } from "lucide-react";
+import { RefreshCw, Clock, BarChart2, FileText, Banknote, TrendingDown, TrendingUp } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -16,6 +17,7 @@ import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable
 import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
 import { ACCOUNTS_RECEIVABLE } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
 import type { AccountReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
+import { MetricCard } from "@/shared/components/MetricCard";
 
 const INITIAL_FILTERS: AccountsReceivableFilters = {
   page: 1,
@@ -52,7 +54,11 @@ export default function AccountsReceivablePage() {
 
   const records = data?.data ?? [];
   const meta = data?.meta;
+  const summary = data?.summary;
   const syncedAt = records[0]?.synced_at;
+
+  const formatPEN = (value: number) =>
+    `S/ ${new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}`;
 
   const handleFiltersChange = useCallback(
     (partial: Partial<AccountsReceivableFilters>) => {
@@ -103,6 +109,13 @@ export default function AccountsReceivablePage() {
           )}
         </TitleComponent>
 
+        <Link to="/dp/comercial/cuentas-por-cobrar/dashboard">
+          <Button variant="outline" size="sm" className="gap-1.5">
+            <BarChart2 className="size-4" />
+            <span className="hidden sm:inline">Dashboard</span>
+          </Button>
+        </Link>
+
         <Button
           variant="outline"
           size="sm"
@@ -114,6 +127,41 @@ export default function AccountsReceivablePage() {
           Sincronizar
         </Button>
       </HeaderTableWrapper>
+
+      {summary && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <MetricCard
+            title="Total documentos"
+            value={summary.total_documents.toLocaleString("en-US")}
+            icon={FileText}
+            color="blue"
+          />
+          <MetricCard
+            title="Saldo total"
+            value={formatPEN(summary.total_balance_pen)}
+            icon={Banknote}
+            color="indigo"
+          />
+          <MetricCard
+            title="Saldo vencido"
+            value={formatPEN(summary.overdue_balance_pen)}
+            icon={TrendingDown}
+            color="red"
+            showProgress
+            progressValue={summary.overdue_balance_pen}
+            progressMax={summary.total_balance_pen}
+          />
+          <MetricCard
+            title="Saldo vigente"
+            value={formatPEN(summary.current_balance_pen)}
+            icon={TrendingUp}
+            color="green"
+            showProgress
+            progressValue={summary.current_balance_pen}
+            progressMax={summary.total_balance_pen}
+          />
+        </div>
+      )}
 
       <AccountsReceivableTable
         columns={columns}
