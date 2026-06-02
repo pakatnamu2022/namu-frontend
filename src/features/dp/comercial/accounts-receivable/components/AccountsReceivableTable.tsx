@@ -40,12 +40,15 @@ export default function AccountsReceivableTable({
         isLoading={isLoading}
         sorting={sorting}
         onSortingChange={(updater: Updater<SortingState>) => {
-          onSortingChange(typeof updater === "function" ? updater(sorting) : updater);
+          onSortingChange(
+            typeof updater === "function" ? updater(sorting) : updater,
+          );
         }}
         manualSorting
         initialColumnVisibility={{
           cashier: false,
           branch: false,
+          sede: false,
         }}
       >
         {children}

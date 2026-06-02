@@ -26,7 +26,7 @@ export default function AccountsReceivableTreeFilter({
 
   const selectedSedeId = filters.sede_id ? Number(filters.sede_id) : null;
   const selectedStatus = filters.overdue_status ?? null;
-  const selectedYear = filters.year ? Number(filters.year) : null;
+  const selectedYear = filters.due_year ? Number(filters.due_year) : null;
 
   const selectedSede = tree.find((s) => s.sede_id === selectedSedeId) ?? null;
   const selectedStatusNode =
@@ -40,7 +40,7 @@ export default function AccountsReceivableTreeFilter({
     setSedeExpanded(false);
     setStatusExpanded(true);
     setYearExpanded(true);
-    onFiltersChange({ sede_id: sedeId, overdue_status: undefined, year: null });
+    onFiltersChange({ sede_id: sedeId, overdue_status: undefined, due_year: null });
   }
 
   function selectStatus(status: string) {
@@ -50,7 +50,7 @@ export default function AccountsReceivableTreeFilter({
     }
     setStatusExpanded(false);
     setYearExpanded(true);
-    onFiltersChange({ overdue_status: status, year: null });
+    onFiltersChange({ overdue_status: status, due_year: null });
   }
 
   function selectYear(year: number) {
@@ -59,7 +59,7 @@ export default function AccountsReceivableTreeFilter({
       return;
     }
     setYearExpanded(false);
-    onFiltersChange({ year });
+    onFiltersChange({ due_year: year });
   }
 
   function clearSede() {
@@ -72,12 +72,12 @@ export default function AccountsReceivableTreeFilter({
   function clearStatus() {
     setStatusExpanded(true);
     setYearExpanded(true);
-    onFiltersChange({ overdue_status: undefined, year: null });
+    onFiltersChange({ overdue_status: undefined, due_year: null });
   }
 
   function clearYear() {
     setYearExpanded(true);
-    onFiltersChange({ year: null });
+    onFiltersChange({ due_year: null });
   }
 
   const sedesVisible = sedeExpanded

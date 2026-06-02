@@ -50,7 +50,14 @@ import type { DashboardChart } from "../lib/accountsReceivable.interface";
 
 const COMPANIES = [{ value: "deposito", label: "Depósito Pakatnamu" }];
 const COMPANY_STORAGE_KEY = "ar-dashboard-company";
-const PIE_COLORS = ["#ef4444", "#22c55e", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899"];
+const PIE_COLORS = [
+  "#ef4444",
+  "#22c55e",
+  "#3b82f6",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ec4899",
+];
 const AGING_COLORS = ["#22c55e", "#84cc16", "#eab308", "#f97316", "#ef4444"];
 
 const formatPEN = (value: number): string =>
@@ -67,7 +74,9 @@ const formatAxisShort = (value: number): string => {
 
 function formatSyncedAt(raw: string): string {
   try {
-    return format(parseISO(raw.replace(" ", "T")), "dd/MM/yyyy HH:mm", { locale: es });
+    return format(parseISO(raw.replace(" ", "T")), "dd/MM/yyyy HH:mm", {
+      locale: es,
+    });
   } catch {
     return raw;
   }
@@ -75,7 +84,9 @@ function formatSyncedAt(raw: string): string {
 
 function getStoredCompany(): string {
   try {
-    return localStorage.getItem(COMPANY_STORAGE_KEY) ?? ACCOUNTS_RECEIVABLE.COMPANY;
+    return (
+      localStorage.getItem(COMPANY_STORAGE_KEY) ?? ACCOUNTS_RECEIVABLE.COMPANY
+    );
   } catch {
     return ACCOUNTS_RECEIVABLE.COMPANY;
   }
@@ -87,7 +98,9 @@ function CurrencyTooltip({ active, payload, label }: any) {
   return (
     <div className="rounded-lg border bg-background p-2.5 shadow-lg text-xs space-y-1 min-w-[160px]">
       {label && (
-        <p className="font-semibold text-foreground border-b pb-1 mb-1">{label}</p>
+        <p className="font-semibold text-foreground border-b pb-1 mb-1">
+          {label}
+        </p>
       )}
       {payload.map((p: any, i: number) => (
         <div key={i} className="flex items-center justify-between gap-4">
@@ -156,7 +169,10 @@ function StatusDonut({ chart }: { chart: DashboardChart }) {
         </ResponsiveContainer>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 justify-center mt-1">
           {data.map((entry, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div
+              key={i}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
               <span
                 className="inline-block size-2.5 rounded-full shrink-0"
                 style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
@@ -243,11 +259,22 @@ function MonthArea({ chart }: { chart: DashboardChart }) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={data} margin={{ left: 0, right: 16, top: 4, bottom: 0 }}>
+          <AreaChart
+            data={data}
+            margin={{ left: 0, right: 16, top: 4, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--primary))"
+                  stopOpacity={0.25}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--primary))"
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -267,7 +294,11 @@ function MonthArea({ chart }: { chart: DashboardChart }) {
             />
             <Tooltip
               content={<CurrencyTooltip />}
-              cursor={{ stroke: "hsl(var(--primary))", strokeWidth: 1, strokeDasharray: "3 3" }}
+              cursor={{
+                stroke: "hsl(var(--primary))",
+                strokeWidth: 1,
+                strokeDasharray: "3 3",
+              }}
             />
             <Area
               type="monotone"
@@ -301,7 +332,10 @@ function AgingBar({ chart }: { chart: DashboardChart }) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} margin={{ left: 0, right: 16, top: 4, bottom: 0 }}>
+          <BarChart
+            data={data}
+            margin={{ left: 0, right: 16, top: 4, bottom: 0 }}
+          >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="name"
@@ -329,7 +363,10 @@ function AgingBar({ chart }: { chart: DashboardChart }) {
         </ResponsiveContainer>
         <div className="flex flex-wrap gap-3 justify-center mt-3">
           {data.map((entry, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div
+              key={i}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
               <span
                 className="inline-block size-2.5 rounded-sm shrink-0"
                 style={{ background: entry.color }}
@@ -349,7 +386,8 @@ export default function AccountsReceivableDashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, refetch } = useAccountsReceivableDashboard(company);
+  const { data, isLoading, isError, refetch } =
+    useAccountsReceivableDashboard(company);
 
   const handleCompanyChange = (value: string) => {
     setCompany(value);
@@ -365,7 +403,10 @@ export default function AccountsReceivableDashboard() {
       await queryClient.invalidateQueries({
         queryKey: [ACCOUNTS_RECEIVABLE.QUERY_KEY, "dashboard"],
       });
-      successToast("Sincronización completa.", "Los datos del dashboard se han actualizado.");
+      successToast(
+        "Sincronización completa.",
+        "Los datos del dashboard se han actualizado.",
+      );
     } catch {
       errorToast("No se pudo sincronizar los datos.");
     } finally {
@@ -401,7 +442,9 @@ export default function AccountsReceivableDashboard() {
       {isSyncing && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl bg-background/80 backdrop-blur-sm min-h-40">
           <RefreshCw className="size-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground font-medium">Sincronizando datos…</p>
+          <p className="text-sm text-muted-foreground font-medium">
+            Sincronizando datos…
+          </p>
         </div>
       )}
 
@@ -422,13 +465,21 @@ export default function AccountsReceivableDashboard() {
 
         <div className="flex items-center gap-2">
           <Link to="/dp/comercial/cuentas-por-cobrar">
-            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-muted-foreground"
+            >
               <FileText className="size-4" />
               <span className="hidden sm:inline">Ver tabla</span>
             </Button>
           </Link>
 
-          <Select value={company} onValueChange={handleCompanyChange} disabled={isSyncing}>
+          <Select
+            value={company}
+            onValueChange={handleCompanyChange}
+            disabled={isSyncing}
+          >
             <SelectTrigger className="w-[160px] h-9 text-sm">
               <SelectValue />
             </SelectTrigger>
@@ -448,7 +499,9 @@ export default function AccountsReceivableDashboard() {
             onClick={handleSync}
             disabled={isSyncing || isLoading}
           >
-            <RefreshCw className={`size-4 ${isSyncing ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`size-4 ${isSyncing ? "animate-spin" : ""}`}
+            />
             <span className="hidden sm:inline">Sincronizar</span>
           </Button>
         </div>
@@ -522,8 +575,15 @@ export default function AccountsReceivableDashboard() {
           <p className="text-muted-foreground text-sm">
             Sin datos, haz una sincronización
           </p>
-          <Button variant="outline" size="sm" onClick={handleSync} disabled={isSyncing}>
-            <RefreshCw className={`size-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSync}
+            disabled={isSyncing}
+          >
+            <RefreshCw
+              className={`size-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`}
+            />
             Sincronizar ahora
           </Button>
         </div>
@@ -548,9 +608,7 @@ export default function AccountsReceivableDashboard() {
           {getChart("balance_by_month") && (
             <MonthArea chart={getChart("balance_by_month")!} />
           )}
-          {getChart("aging") && (
-            <AgingBar chart={getChart("aging")!} />
-          )}
+          {getChart("aging") && <AgingBar chart={getChart("aging")!} />}
           {getChart("top_sellers") && (
             <div className="md:col-span-2">
               <HorizontalBar chart={getChart("top_sellers")!} />

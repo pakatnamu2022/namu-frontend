@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { SortingState } from "@tanstack/react-table";
 import {
   RefreshCw,
@@ -15,7 +16,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { successToast, errorToast } from "@/core/core.function";
+import { promiseToast } from "@/core/core.function";
 import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.hook";
 import { syncAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
@@ -47,18 +48,24 @@ function parseSyncedAt(value: string | undefined): string {
 export default function AccountsReceivablePage() {
   const [filters, setFilters] =
     useState<AccountsReceivableFilters>(INITIAL_FILTERS);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: "overdue_days",
+      desc: true,
+    },
+  ]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const queryFilters: AccountsReceivableFilters = {
     ...filters,
     ...(sorting.length > 0 && {
-      sort_by: sorting[0].id,
-      sort_order: sorting[0].desc ? "desc" : "asc",
+      sort: sorting[0].id,
+      direction: sorting[0].desc ? "desc" : "asc",
     }),
   };
 
+  const queryClient = useQueryClient();
   const { data, isLoading, isFetching } = useAccountsReceivable(queryFilters);
 
   const records = data?.data ?? [];
@@ -83,14 +90,19 @@ export default function AccountsReceivablePage() {
 
   const handleSync = async () => {
     setIsSyncing(true);
+    const syncPromise = syncAccountsReceivable();
+    promiseToast(syncPromise, {
+      loading: "Sincronizando datos...",
+      success: (res) => `${res.message} (${res.synced} registros)`,
+      error: "No se pudo completar la sincronización.",
+    });
     try {
-      await syncAccountsReceivable();
-      successToast(
-        "Sincronización iniciada.",
-        "Los datos se actualizarán en breve.",
-      );
+      await syncPromise;
+      await queryClient.invalidateQueries({
+        queryKey: [ACCOUNTS_RECEIVABLE.QUERY_KEY],
+      });
     } catch {
-      errorToast("No se pudo iniciar la sincronización.");
+      // error shown by promiseToast
     } finally {
       setIsSyncing(false);
     }

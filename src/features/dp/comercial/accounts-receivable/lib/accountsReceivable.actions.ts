@@ -28,8 +28,9 @@ export async function getAccountReceivableById(id: number): Promise<AccountRecei
   return data;
 }
 
-export async function syncAccountsReceivable(): Promise<void> {
-  await api.post(`${ENDPOINT}/sync`, { company: COMPANY });
+export async function syncAccountsReceivable(): Promise<{ message: string; synced: number }> {
+  const { data } = await api.post<{ message: string; synced: number }>(`${ENDPOINT}/sync`, { company: COMPANY });
+  return data;
 }
 
 export async function addAccountComment(id: number, comment: string): Promise<void> {

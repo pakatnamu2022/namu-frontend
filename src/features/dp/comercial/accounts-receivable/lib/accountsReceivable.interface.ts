@@ -109,7 +109,7 @@ export interface AccountsReceivableDashboardResponse {
 export interface AccountsReceivableFilters {
   search?: string;
   sede_id?: number | string | null;
-  year?: number | string | null;
+  due_year?: number | string | null;
   company?: string;
   currency?: string;
   overdue_status?: string;
