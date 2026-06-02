@@ -25,6 +25,8 @@ export const MONTHS: MonthOption[] = [
 
 export const DEFAULT_PER_PAGE = 10;
 
+export const FILTER_YEAR_START = 2025;
+
 export const STATUS_ACTIVE = 1;
 
 export const STATUS_INACTIVE = 0;

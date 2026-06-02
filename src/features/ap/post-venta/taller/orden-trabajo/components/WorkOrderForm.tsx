@@ -56,17 +56,7 @@ import { DataCard } from "@/components/DataCard";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
-import { formatDate } from "@/core/core.function";
-
-const formatDateTimeLocalInput = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
+import { formatDate, formatDateTimeLocalInput } from "@/core/core.function";
 
 interface WorkOrderFormProps {
   defaultValues: Partial<WorkOrderSchema>;

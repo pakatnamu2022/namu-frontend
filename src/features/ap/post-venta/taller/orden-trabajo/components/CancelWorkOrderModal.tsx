@@ -2,13 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loader } from "lucide-react";
@@ -18,6 +11,7 @@ import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllReasonDiscardingTaller } from "@/features/ap/configuraciones/postventa/motivos-descarte-taller/lib/reasonDiscardingTaller.hook";
 import { cancelWorkOrder } from "../lib/workOrder.actions";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 
 const cancelWorkOrderSchema = z.object({
   discard_reason_id: z.string().min(1, "El motivo es requerido"),
@@ -67,7 +61,8 @@ export const CancelWorkOrderModal = ({
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || "Error al cancelar la orden de trabajo";
+        error?.response?.data?.message ||
+        "Error al cancelar la orden de trabajo";
       errorToast(message);
     },
   });
@@ -82,63 +77,54 @@ export const CancelWorkOrderModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleCancel}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Cancelar Orden de Trabajo</DialogTitle>
-          <DialogDescription>
-            Seleccione el motivo por el cual desea cancelar esta orden de
-            trabajo. Puede agregar notas adicionales si lo desea.
-          </DialogDescription>
-        </DialogHeader>
+    <GeneralModal
+      open={open}
+      onClose={handleCancel}
+      title="Cancelar Orden de Trabajo"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <FormSelect
+            control={form.control}
+            name="discard_reason_id"
+            label="Motivo de Descarte"
+            placeholder="Seleccione un motivo"
+            options={reasons.map((reason) => ({
+              label: reason.description,
+              value: reason.id.toString(),
+            }))}
+            required
+            disabled={loadingReasons}
+          />
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
-            <FormSelect
-              control={form.control}
-              name="discard_reason_id"
-              label="Motivo de Descarte"
-              placeholder="Seleccione un motivo"
-              options={reasons.map((reason) => ({
-                label: reason.description,
-                value: reason.id.toString(),
-              }))}
-              required
-              disabled={loadingReasons}
-            />
+          <FormTextArea
+            control={form.control}
+            name="discarded_note"
+            label="Notas (Opcional)"
+            placeholder="Agregar notas adicionales..."
+            rows={3}
+          />
 
-            <FormTextArea
-              control={form.control}
-              name="discarded_note"
-              label="Notas (Opcional)"
-              placeholder="Agregar notas adicionales..."
-              rows={3}
-            />
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
-                disabled={isPending}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={isPending || !form.formState.isValid}
-                variant="destructive"
-              >
-                {isPending && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-                {isPending ? "Cancelando..." : "Cancelar Orden"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || !form.formState.isValid}
+              variant="destructive"
+            >
+              {isPending && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending ? "Cancelando..." : "Cancelar Orden"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </GeneralModal>
   );
 };

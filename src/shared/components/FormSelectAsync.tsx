@@ -144,9 +144,7 @@ export function FormSelectAsync({
   // Hook para cargar el recurso actual por ID (evita auto-paginar)
   const currentFieldValue = useWatch({ control, name });
   const effectiveFindByIdHook = useFindByIdHook ?? noopFindById;
-  const { data: findByIdData } = effectiveFindByIdHook(
-    currentFieldValue || 0,
-  );
+  const { data: findByIdData } = effectiveFindByIdHook(currentFieldValue || 0);
 
   // Debounce para el search
   useEffect(() => {
@@ -421,7 +419,8 @@ export function FormSelectAsync({
                                     ? rawItemsRef.current.get(option.value)
                                     : undefined;
                                   // Si tenemos el item, marcamos como notificado para que useFindByIdHook no duplique
-                                  if (newValue && selectedItem) notifiedByIdRef.current.add(newValue);
+                                  if (newValue && selectedItem)
+                                    notifiedByIdRef.current.add(newValue);
                                   else notifiedByIdRef.current.clear();
                                   onValueChange(newValue, selectedItem);
                                 }

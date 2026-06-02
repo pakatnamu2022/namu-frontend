@@ -175,7 +175,7 @@ export const assignedWorkColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          <Badge className={`${colors.bg} ${colors.text} hover:${colors.bg}`}>
+          <Badge variant="outline" color={colors.color}>
             {PLANNING_VISUAL_STATE_LABELS[visualState]}
           </Badge>
           {status === "in_progress" && hasActive && <Play className="size-5" />}

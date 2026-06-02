@@ -370,9 +370,6 @@ import UploadDepositPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/dep
 import AccountantDistrictAssignmentPage from "./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
-import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos/page";
-import AddPayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/agregar/page";
-import UpdatePayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
 import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
 import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
@@ -406,8 +403,22 @@ import PayrollCalculationPage from "./app/gp/gestion-humana/planillas/periodos/c
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
+import LiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquidacion-bbss/page.tsx";
+import AddLiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquidacion-bbss/agregar/page.tsx";
+import UpdateLiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquidacion-bbss/actualizar/[id]/page.tsx";
+import LoanPage from "./app/gp/gestion-humana/planillas/prestamos/page.tsx";
+import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/page.tsx";
+import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
+import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
+import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
+import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
+import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
+import AddBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx";
+import UpdateBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
+import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
+import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos-planilla/page.tsx";
 import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
 import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
 import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
@@ -1749,7 +1760,6 @@ function App() {
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<UpdateWorkerSignaturePage />}
               />
-
               <Route
                 path="viaticos"
                 element={
@@ -1833,38 +1843,32 @@ function App() {
                   element={<UploadDepositPage />}
                 />
               </Route>
-
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones"
                 element={<PositionsPage />}
               />
-
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones/agregar"
                 element={<AddPositionPage />}
               />
-
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones/actualizar/:id"
                 element={<UpdatePositionPage />}
               />
-
               {/* Evaluaciones de Desempeño */}
               <Route
                 path="evaluaciones-de-desempeno"
                 element={<ModulePerformanceEvaluationPage />}
               />
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/categorias-jerarquicas",
                 <HierarchicalCategoryPage />,
                 <AddHierarchicalCategoryPage />,
                 <UpdateHierarchicalCategoryPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/ciclos",
                 <CyclePage />,
@@ -1872,14 +1876,12 @@ function App() {
                 <UpdateCyclePage />,
                 <CyclePersonDetailPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/competencias",
                 <CompetencesPage />,
                 <AddCompetencePage />,
                 <UpdateCompetencePage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/evaluaciones",
                 <EvaluationPage />,
@@ -1887,75 +1889,57 @@ function App() {
                 <UpdateEvaluationPage />,
                 <EvaluationPersonPage />,
               )}
-
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones/detalles/:id"
                 element={<EvaluationDetailPage />}
               />
-
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/:person"
                 element={<EvaluationDetailPersonPage />}
               />
-
               <Route
                 path="evaluaciones-de-desempeno/excluidos"
                 element={<ExcludedPage />}
               />
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/metricas",
                 <MetricPage />,
                 <AddMetricPage />,
                 <UpdateMetricPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/objetivos",
                 <ObjectivePage />,
                 <AddObjectivePage />,
                 <UpdateObjectivePage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/parametros",
                 <ParameterPage />,
                 <AddParameterPage />,
                 <UpdateParameterPage />,
               )}
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/periodos",
                 <PeriodPage />,
                 <AddPeriodPage />,
                 <UpdatePeriodPage />,
               )}
-
               <Route
                 path="evaluaciones-de-desempeno/asignacion-pares"
                 element={<EvaluatorParPage />}
               />
-
               <Route
                 path="evaluaciones-de-desempeno/reportes-evaluaciones"
                 element={<ReportByPeriodsEvaluationPage />}
               />
-
               {RouterCrud(
                 "evaluaciones-de-desempeno/modelo-evaluacion",
                 <EvaluationModelPage />,
                 <AddEvaluationModelPage />,
                 <UpdateEvaluationModelPage />,
               )}
-
               {/* Planillas */}
-              {/* Conceptos */}
-              {RouterCrud(
-                "planillas/conceptos",
-                <PayrollConceptsPage />,
-                <AddPayrollConceptPage />,
-                <UpdatePayrollConceptPage />,
-              )}
               {/* Dia Trabajo */}
               {RouterCrud(
                 "planillas/dia-trabajo",
@@ -1974,7 +1958,6 @@ function App() {
                 path="planillas/periodos/calcular/:id"
                 element={<PayrollCalculationPage />}
               />
-
               {/* Reglas de Asistencia */}
               {RouterCrud(
                 "planillas/reglas-asistencia",
@@ -1982,11 +1965,48 @@ function App() {
                 <AddAttendanceRulePage />,
                 <UpdateAttendanceRulePage />,
               )}
-
+              {/* Liquidación BBSS */}
+              {RouterCrud(
+                "planillas/liquidacion-bbss",
+                <LiquidacionBbssPage />,
+                <AddLiquidacionBbssPage />,
+                <UpdateLiquidacionBbssPage />,
+              )}
+              {/* Préstamos */}
+              {RouterCrud(
+                "planillas/prestamos",
+                <LoanPage />,
+                <AddLoanPage />,
+                <UpdateLoanPage />,
+              )}
+              {/* Seguros */}
+              {RouterCrud(
+                "planillas/seguros",
+                <InsurancePage />,
+                <AddInsurancePage />,
+                <UpdateInsurancePage />,
+              )}
+              {/* Bonificaciones */}
+              {RouterCrud(
+                "planillas/bonificaciones",
+                <BonusPage />,
+                <AddBonusPage />,
+                <UpdateBonusPage />,
+              )}
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"
                 element={<PayrollParameterPage />}
+              />
+              {/* Tasas y Porcentajes de Planilla */}
+              <Route
+                path="planillas/tasas-porcentajes"
+                element={<PayrollRatesPercentagesPage />}
+              />
+              {/* Conceptos de Planilla */}
+              <Route
+                path="planillas/conceptos-planilla"
+                element={<PayrollConceptsPage />}
               />
 
               {/* Asistencias */}

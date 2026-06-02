@@ -25,6 +25,7 @@ interface GeneralMastersModalProps {
   lockedCode?: boolean;
   defaultType?: string;
   lockedType?: boolean;
+  allowedTypes?: string[];
 }
 
 export default function GeneralMastersModal({
@@ -36,6 +37,7 @@ export default function GeneralMastersModal({
   lockedCode,
   defaultType,
   lockedType,
+  allowedTypes,
 }: GeneralMastersModalProps) {
   const { MODEL, EMPTY } = GENERAL_MASTERS;
   const emptyWithCode = {
@@ -104,6 +106,7 @@ export default function GeneralMastersModal({
           onCancel={onClose}
           lockedCode={lockedCode}
           lockedType={lockedType}
+          allowedTypes={allowedTypes}
         />
       ) : (
         <FormSkeleton />
