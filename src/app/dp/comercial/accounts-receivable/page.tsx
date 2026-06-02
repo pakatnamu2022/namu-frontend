@@ -9,6 +9,7 @@ import {
   Banknote,
   TrendingDown,
   TrendingUp,
+  Send,
 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
