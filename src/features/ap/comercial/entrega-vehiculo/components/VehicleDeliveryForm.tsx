@@ -43,6 +43,7 @@ import {
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormTextArea } from "@/shared/components/FormTextArea";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
@@ -60,44 +61,6 @@ const InfoItem = ({
     <p className="text-xs font-medium text-gray-800 leading-snug">{value ?? "—"}</p>
   </div>
 );
-
-type SectionColor = "blue" | "violet" | "amber" | "emerald" | "cyan" | "slate" | "red" | "indigo";
-
-const sectionColorMap: Record<SectionColor, { bg: string; icon: string }> = {
-  blue:    { bg: "bg-blue-50",    icon: "text-blue-400" },
-  violet:  { bg: "bg-violet-50",  icon: "text-violet-400" },
-  amber:   { bg: "bg-amber-50",   icon: "text-amber-500" },
-  emerald: { bg: "bg-emerald-50", icon: "text-emerald-500" },
-  cyan:    { bg: "bg-cyan-50",    icon: "text-cyan-500" },
-  slate:   { bg: "bg-slate-100",  icon: "text-slate-400" },
-  red:     { bg: "bg-red-50",     icon: "text-red-400" },
-  indigo:  { bg: "bg-indigo-50",  icon: "text-indigo-400" },
-};
-
-const SectionLabel = ({
-  icon: Icon,
-  title,
-  badge,
-  color = "slate",
-}: {
-  icon: React.ElementType;
-  title: string;
-  badge?: React.ReactNode;
-  color?: SectionColor;
-}) => {
-  const { bg, icon: iconCls } = sectionColorMap[color];
-  return (
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">
-        <div className={`p-1.5 rounded-lg ${bg}`}>
-          <Icon className={`h-3.5 w-3.5 ${iconCls}`} />
-        </div>
-        <span className="text-xs font-semibold text-gray-700">{title}</span>
-      </div>
-      {badge}
-    </div>
-  );
-};
 
 // ── Photo Modal ──────────────────────────────────────────────────────────────
 
@@ -121,7 +84,10 @@ const PhotoModal = ({
         <img src={img.url} alt={img.label} className="w-full object-contain max-h-[80vh]" />
         <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/60 to-transparent px-4 py-3 flex items-center justify-between">
           <span className="text-white text-sm font-semibold">{img.label}</span>
-          <button onClick={onClose} className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+          >
             <X className="h-4 w-4 text-white" />
           </button>
         </div>
@@ -231,8 +197,9 @@ export const VehicleDeliveryForm = ({
   return (
     <Form {...form}>
       <PhotoModal img={modalImg} onClose={() => setModalImg(null)} />
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 w-full">
-        {/* Selección */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+
+        {/* ── Selección ─────────────────────────────────────────────── */}
         <div className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <FormSelect
@@ -312,18 +279,19 @@ export const VehicleDeliveryForm = ({
           </div>
         </div>
 
-        {/* Panel de vehículo */}
+        {/* ── Panel de vehículo ──────────────────────────────────────── */}
         {selectedVehicleId && (
           <>
             {isLoadingDebtInfo ? (
-              <div className="flex items-center gap-3 py-6 px-5 rounded-2xl bg-gray-50 text-sm text-gray-400">
+              <div className="flex items-center gap-3 py-6 px-5 rounded-xl bg-gray-50 text-sm text-gray-400">
                 <Loader className="h-4 w-4 animate-spin" />
                 Cargando información del vehículo…
               </div>
             ) : debtInfo ? (
               <div className="space-y-3">
-                {/* ── Hero ─────────────────────────────────────────────── */}
-                <div className="rounded-2xl bg-white shadow-md p-4">
+
+                {/* ── Hero ──────────────────────────────────────────────── */}
+                <div className="rounded-xl bg-white shadow-md p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="shrink-0 p-2.5 rounded-xl bg-slate-100">
@@ -336,7 +304,7 @@ export const VehicleDeliveryForm = ({
                         </p>
                         <p className="text-xs text-gray-400 truncate">
                           <span className="font-medium text-gray-600">{debtInfo.vehicle.model.brand}</span>
-                          {" "}· {debtInfo.vehicle.model.version} · {debtInfo.vehicle.year}
+                          {" · "}{debtInfo.vehicle.model.version}{" · "}{debtInfo.vehicle.year}
                         </p>
                       </div>
                     </div>
@@ -364,17 +332,15 @@ export const VehicleDeliveryForm = ({
                       </span>
                     </div>
                   </div>
-
-                  {/* Financial chips */}
                   <div className="grid grid-cols-3 gap-2 mt-3">
-                    <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+                    <div className="rounded-lg bg-gray-50 px-3 py-2">
                       <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">Precio Venta</p>
                       <p className="text-sm font-bold text-gray-900 tabular-nums">
                         S/ {debtInfo.debt_summary.total_sale_price.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
                       </p>
                       <p className="text-[10px] text-gray-400">Cot. #{debtInfo.purchase_quote.correlative}</p>
                     </div>
-                    <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+                    <div className="rounded-lg bg-gray-50 px-3 py-2">
                       <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">Total Pagado</p>
                       <p className="text-sm font-bold text-emerald-600 tabular-nums">
                         S/ {debtInfo.debt_summary.total_paid.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
@@ -383,7 +349,7 @@ export const VehicleDeliveryForm = ({
                         {debtInfo.documents_summary.total_documents} doc{debtInfo.documents_summary.total_documents !== 1 ? "s" : ""}
                       </p>
                     </div>
-                    <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+                    <div className="rounded-lg bg-gray-50 px-3 py-2">
                       <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">Estado</p>
                       <p className={`text-sm font-bold tabular-nums ${isPaid ? "text-emerald-600" : "text-red-500"}`}>
                         {debtInfo.debt_summary.status}
@@ -393,9 +359,9 @@ export const VehicleDeliveryForm = ({
                   </div>
                 </div>
 
-                {/* ── Alerta sin recepción ─────────────────────────── */}
+                {/* ── Sin recepción ──────────────────────────────────────── */}
                 {!hasReception && (
-                  <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-amber-50">
+                  <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50">
                     <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-semibold text-amber-800">Sin recepción registrada</p>
@@ -406,89 +372,94 @@ export const VehicleDeliveryForm = ({
                   </div>
                 )}
 
-                {/* ── Identificación + Cliente (lado a lado) ────────── */}
+                {/* ── Identificación + Cliente ─────────────────────────── */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-white shadow-sm p-4">
-                    <SectionLabel icon={Hash} title="Identificación" color="blue" />
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                      <InfoItem label="VIN" value={debtInfo.vehicle.vin} span={2} />
-                      <InfoItem label="Placa" value={debtInfo.vehicle.plate ?? "—"} />
-                      <InfoItem label="Año" value={debtInfo.vehicle.year} />
-                      <InfoItem label="Color" value={debtInfo.vehicle.vehicle_color} />
-                      <InfoItem label="Tipo Motor" value={debtInfo.vehicle.engine_type} />
-                      <InfoItem label="N° Motor" value={debtInfo.vehicle.engine_number} span={2} />
-                      <InfoItem label="Sede" value={debtInfo.vehicle.sede_name_warehouse ?? "—"} />
-                      <InfoItem label="Almacén" value={debtInfo.vehicle.warehouse_name ?? "—"} />
-                    </div>
-                  </div>
+                  <GroupFormSection
+                    icon={Hash}
+                    title="Identificación"
+                    color="blue"
+                    cols={{ sm: 2, md: 2 }}
+                    gap="gap-x-4 gap-y-3"
+                  >
+                    <InfoItem label="VIN" value={debtInfo.vehicle.vin} span={2} />
+                    <InfoItem label="Placa" value={debtInfo.vehicle.plate ?? "—"} />
+                    <InfoItem label="Año" value={debtInfo.vehicle.year} />
+                    <InfoItem label="Color" value={debtInfo.vehicle.vehicle_color} />
+                    <InfoItem label="Tipo Motor" value={debtInfo.vehicle.engine_type} />
+                    <InfoItem label="N° Motor" value={debtInfo.vehicle.engine_number} span={2} />
+                    <InfoItem label="Sede" value={debtInfo.vehicle.sede_name_warehouse ?? "—"} />
+                    <InfoItem label="Almacén" value={debtInfo.vehicle.warehouse_name ?? "—"} />
+                  </GroupFormSection>
 
-                  <div className="rounded-2xl bg-white shadow-sm p-4">
-                    <SectionLabel icon={User} title="Cliente" color="violet" />
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                      <InfoItem label="N° Documento" value={debtInfo.client.num_doc} />
-                      <InfoItem label="Email" value={debtInfo.client.email} />
-                      <InfoItem label="Razón Social / Nombre" value={debtInfo.client.full_name} span={2} />
-                      <InfoItem label="Dirección" value={debtInfo.client.direction} span={2} />
-                    </div>
-                  </div>
+                  <GroupFormSection
+                    icon={User}
+                    title="Cliente"
+                    color="violet"
+                    cols={{ sm: 2, md: 2 }}
+                    gap="gap-x-4 gap-y-3"
+                  >
+                    <InfoItem label="N° Documento" value={debtInfo.client.num_doc} />
+                    <InfoItem label="Email" value={debtInfo.client.email} />
+                    <InfoItem label="Razón Social / Nombre" value={debtInfo.client.full_name} span={2} />
+                    <InfoItem label="Dirección" value={debtInfo.client.direction} span={2} />
+                  </GroupFormSection>
                 </div>
 
-                {/* ── Especificaciones del modelo ────────────────────── */}
-                <div className="rounded-2xl bg-white shadow-sm p-4">
-                  <SectionLabel
-                    icon={Wrench}
-                    title="Especificaciones del Modelo"
-                    color="amber"
-                    badge={
-                      <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                        {debtInfo.vehicle.model.code}
-                      </span>
-                    }
-                  />
-                  <div className="grid grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-3">
-                    <InfoItem label="Marca" value={debtInfo.vehicle.model.brand} />
-                    <InfoItem label="Familia" value={debtInfo.vehicle.model.family} />
-                    <InfoItem label="Clase" value={debtInfo.vehicle.model.class} />
-                    <InfoItem label="Año Modelo" value={debtInfo.vehicle.model.model_year} />
-                    <InfoItem label="Tipo" value={debtInfo.vehicle.model.vehicle_type} />
-                    <InfoItem label="Carrocería" value={debtInfo.vehicle.model.body_type} />
-                    <InfoItem label="Tracción" value={debtInfo.vehicle.model.traction_type} />
-                    <InfoItem label="Transmisión" value={debtInfo.vehicle.model.transmission} />
-                    <InfoItem label="Combustible" value={debtInfo.vehicle.model.fuel} />
-                    <InfoItem label="Potencia" value={debtInfo.vehicle.model.power} />
-                    <InfoItem label="Cilindros" value={debtInfo.vehicle.model.cylinders_number} />
-                    <InfoItem label="Pasajeros" value={debtInfo.vehicle.model.passengers_number} />
-                    <InfoItem label="Ruedas" value={debtInfo.vehicle.model.wheels_number} />
-                    <InfoItem label="Peso Neto" value={`${debtInfo.vehicle.model.net_weight} kg`} />
-                    <InfoItem label="Peso Bruto" value={`${debtInfo.vehicle.model.gross_weight} kg`} />
-                  </div>
-                </div>
+                {/* ── Especificaciones ─────────────────────────────────── */}
+                <GroupFormSection
+                  icon={Wrench}
+                  title="Especificaciones del Modelo"
+                  color="amber"
+                  cols={{ sm: 3, md: 5 }}
+                  gap="gap-x-4 gap-y-3"
+                  headerExtra={
+                    <span className="text-[10px] font-semibold text-gray-600 bg-white/60 px-2 py-0.5 rounded-full">
+                      {debtInfo.vehicle.model.code}
+                    </span>
+                  }
+                >
+                  <InfoItem label="Marca" value={debtInfo.vehicle.model.brand} />
+                  <InfoItem label="Familia" value={debtInfo.vehicle.model.family} />
+                  <InfoItem label="Clase" value={debtInfo.vehicle.model.class} />
+                  <InfoItem label="Año Modelo" value={debtInfo.vehicle.model.model_year} />
+                  <InfoItem label="Tipo" value={debtInfo.vehicle.model.vehicle_type} />
+                  <InfoItem label="Carrocería" value={debtInfo.vehicle.model.body_type} />
+                  <InfoItem label="Tracción" value={debtInfo.vehicle.model.traction_type} />
+                  <InfoItem label="Transmisión" value={debtInfo.vehicle.model.transmission} />
+                  <InfoItem label="Combustible" value={debtInfo.vehicle.model.fuel} />
+                  <InfoItem label="Potencia" value={debtInfo.vehicle.model.power} />
+                  <InfoItem label="Cilindros" value={debtInfo.vehicle.model.cylinders_number} />
+                  <InfoItem label="Pasajeros" value={debtInfo.vehicle.model.passengers_number} />
+                  <InfoItem label="Ruedas" value={debtInfo.vehicle.model.wheels_number} />
+                  <InfoItem label="Peso Neto" value={`${debtInfo.vehicle.model.net_weight} kg`} />
+                  <InfoItem label="Peso Bruto" value={`${debtInfo.vehicle.model.gross_weight} kg`} />
+                </GroupFormSection>
 
-                {/* ── Documentos de venta ────────────────────────────── */}
+                {/* ── Documentos de venta ──────────────────────────────── */}
                 {debtInfo.facturas.length > 0 && (
-                  <div className="rounded-2xl bg-white shadow-sm p-4">
-                    <SectionLabel
-                      icon={Receipt}
-                      title="Documentos de Venta"
-                      color="emerald"
-                      badge={
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                            {debtInfo.documents_summary.total_facturas} Factura{debtInfo.documents_summary.total_facturas !== 1 ? "s" : ""}
+                  <GroupFormSection
+                    icon={Receipt}
+                    title="Documentos de Venta"
+                    color="emerald"
+                    cols={{ sm: 1, md: 1 }}
+                    headerExtra={
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-semibold bg-white/60 text-gray-600 px-2 py-0.5 rounded-full">
+                          {debtInfo.documents_summary.total_facturas} Factura{debtInfo.documents_summary.total_facturas !== 1 ? "s" : ""}
+                        </span>
+                        {debtInfo.documents_summary.total_notas_credito > 0 && (
+                          <span className="text-[10px] font-semibold bg-white/60 text-emerald-800 px-2 py-0.5 rounded-full">
+                            {debtInfo.documents_summary.total_notas_credito} N. Crédito
                           </span>
-                          {debtInfo.documents_summary.total_notas_credito > 0 && (
-                            <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                              {debtInfo.documents_summary.total_notas_credito} N. Crédito
-                            </span>
-                          )}
-                          {debtInfo.documents_summary.total_notas_debito > 0 && (
-                            <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                              {debtInfo.documents_summary.total_notas_debito} N. Débito
-                            </span>
-                          )}
-                        </div>
-                      }
-                    />
+                        )}
+                        {debtInfo.documents_summary.total_notas_debito > 0 && (
+                          <span className="text-[10px] font-semibold bg-white/60 text-amber-800 px-2 py-0.5 rounded-full">
+                            {debtInfo.documents_summary.total_notas_debito} N. Débito
+                          </span>
+                        )}
+                      </div>
+                    }
+                  >
                     <table className="w-full">
                       <thead>
                         <tr>
@@ -519,219 +490,220 @@ export const VehicleDeliveryForm = ({
                         ))}
                       </tbody>
                     </table>
-                  </div>
+                  </GroupFormSection>
                 )}
 
-                {/* ── Recepción del vehículo ─────────────────────────── */}
+                {/* ── Recepción del vehículo ───────────────────────────── */}
                 {debtInfo.reception && (
-                  <div className="rounded-2xl bg-white shadow-sm p-4 space-y-4">
-                    <SectionLabel
-                      icon={Truck}
-                      title="Recepción del Vehículo"
-                      color="cyan"
-                      badge={
-                        <span className="text-[10px] font-semibold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
-                          {debtInfo.reception.document_number}
-                        </span>
-                      }
-                    />
+                  <GroupFormSection
+                    icon={Truck}
+                    title="Recepción del Vehículo"
+                    color="cyan"
+                    cols={{ sm: 1, md: 1 }}
+                    headerExtra={
+                      <span className="text-[10px] font-semibold text-cyan-800 bg-white/60 px-2 py-0.5 rounded-full">
+                        {debtInfo.reception.document_number}
+                      </span>
+                    }
+                  >
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
+                        <InfoItem label="Guía de Remisión" value={debtInfo.reception.document_number} />
+                        <InfoItem label="Fecha Emisión" value={debtInfo.reception.issue_date} />
+                        <InfoItem
+                          label="Fecha Recepción"
+                          value={
+                            debtInfo.reception.received_date
+                              ? new Date(debtInfo.reception.received_date).toLocaleDateString("es-PE", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                              : "—"
+                          }
+                        />
+                        <InfoItem label="Recibido por" value={debtInfo.reception.received_by} />
+                      </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
-                      <InfoItem label="Guía de Remisión" value={debtInfo.reception.document_number} />
-                      <InfoItem label="Fecha Emisión" value={debtInfo.reception.issue_date} />
-                      <InfoItem
-                        label="Fecha Recepción"
-                        value={
-                          debtInfo.reception.received_date
-                            ? new Date(debtInfo.reception.received_date).toLocaleDateString("es-PE", {
-                                day: "2-digit", month: "short", year: "numeric",
-                              })
-                            : "—"
-                        }
-                      />
-                      <InfoItem label="Recibido por" value={debtInfo.reception.received_by} />
-                    </div>
+                      {debtInfo.reception.note_received && (
+                        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50">
+                          <FileText className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[10px] font-semibold text-amber-500 uppercase mb-0.5">
+                              Nota de Recepción
+                            </p>
+                            <p className="text-xs text-amber-800 font-medium leading-snug">
+                              {debtInfo.reception.note_received}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                    {debtInfo.reception.note_received && (
-                      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50">
-                        <FileText className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      {debtInfo.reception.checklist_items.length > 0 && (
                         <div>
-                          <p className="text-[10px] font-semibold text-amber-500 uppercase mb-0.5">
-                            Nota de Recepción
-                          </p>
-                          <p className="text-xs text-amber-800 font-medium leading-snug">
-                            {debtInfo.reception.note_received}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {debtInfo.reception.checklist_items.length > 0 && (
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="p-1.5 rounded-lg bg-slate-100">
+                          <div className="flex items-center gap-2 mb-2">
                             <Package className="h-3.5 w-3.5 text-slate-400" />
+                            <span className="text-xs font-semibold text-gray-700">Checklist de accesorios</span>
+                            <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                              {debtInfo.reception.checklist_items.length}
+                            </span>
                           </div>
-                          <span className="text-xs font-semibold text-gray-700">Checklist de accesorios</span>
-                          <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                            {debtInfo.reception.checklist_items.length}
-                          </span>
-                        </div>
-                        <table className="w-full">
-                          <thead>
-                            <tr>
-                              {["Accesorio", "Cant.", "Km"].map((h) => (
-                                <th key={h} className="text-left pb-1.5 text-[10px] font-semibold text-gray-400 uppercase">
-                                  {h}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {debtInfo.reception.checklist_items.map((item, i) => (
-                              <tr key={item.id} className={i % 2 === 0 ? "bg-gray-50/60" : ""}>
-                                <td className="px-2 py-1.5 text-xs font-medium text-gray-700 rounded-l-lg">
-                                  {item.description}
-                                </td>
-                                <td className="px-2 py-1.5 text-xs text-gray-500 text-center">{item.quantity}</td>
-                                <td className="px-2 py-1.5 text-xs text-gray-500 rounded-r-lg">
-                                  {Number(item.kilometers).toLocaleString("es-PE")} km
-                                </td>
+                          <table className="w-full">
+                            <thead>
+                              <tr>
+                                {["Accesorio", "Cant.", "Km"].map((h) => (
+                                  <th key={h} className="text-left pb-1.5 text-[10px] font-semibold text-gray-400 uppercase">
+                                    {h}
+                                  </th>
+                                ))}
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-
-                    {/* Inspección visual */}
-                    {debtInfo.reception.inspection && (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-indigo-50">
-                            <Eye className="h-3.5 w-3.5 text-indigo-400" />
-                          </div>
-                          <span className="text-xs font-semibold text-gray-700">Inspección Visual</span>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
-                          <InfoItem
-                            label="Inspeccionado por"
-                            value={debtInfo.reception.inspection.inspected_by}
-                            span={2}
-                          />
-                          <InfoItem
-                            label="Fecha Inspección"
-                            value={new Date(debtInfo.reception.inspection.created_at).toLocaleString("es-PE", {
-                              day: "2-digit", month: "short", year: "numeric",
-                              hour: "2-digit", minute: "2-digit",
-                            })}
-                            span={2}
-                          />
-                        </div>
-
-                        {debtInfo.reception.inspection.general_observations && (
-                          <div className="p-3 rounded-xl bg-gray-50">
-                            <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
-                              Observaciones generales
-                            </p>
-                            <p className="text-xs font-medium text-gray-700 leading-snug">
-                              {debtInfo.reception.inspection.general_observations}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Fotos 2×2 — clic → modal */}
-                        <div className="grid grid-cols-4 gap-2">
-                          {[
-                            { url: debtInfo.reception.inspection.photo_front_url, label: "Frontal" },
-                            { url: debtInfo.reception.inspection.photo_back_url, label: "Trasero" },
-                            { url: debtInfo.reception.inspection.photo_left_url, label: "Lateral Izq." },
-                            { url: debtInfo.reception.inspection.photo_right_url, label: "Lateral Der." },
-                          ].map(({ url, label }) => (
-                            <button
-                              key={label}
-                              type="button"
-                              onClick={() => setModalImg({ url, label })}
-                              className="relative rounded-xl overflow-hidden aspect-4/3 bg-gray-100 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                            >
-                              <img
-                                src={url}
-                                alt={label}
-                                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                              />
-                              <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
-                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <ZoomIn className="h-5 w-5 text-white drop-shadow" />
-                              </div>
-                              <span className="absolute bottom-1.5 left-2 text-white text-[9px] font-bold uppercase drop-shadow">
-                                {label}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Daños */}
-                        {debtInfo.reception.inspection.damages.length > 0 && (
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <div className="p-1.5 rounded-lg bg-red-50">
-                                <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
-                              </div>
-                              <span className="text-xs font-semibold text-gray-700">Daños registrados</span>
-                              <span className="text-[10px] font-semibold bg-red-100 text-red-500 px-2 py-0.5 rounded-full">
-                                {debtInfo.reception.inspection.damages.length}
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {debtInfo.reception.inspection.damages.map((damage) => (
-                                <div key={damage.id} className="flex items-start gap-2.5 p-2.5 rounded-xl bg-red-50">
-                                  <button
-                                    type="button"
-                                    onClick={() => setModalImg({ url: damage.photo_url, label: damage.damage_type })}
-                                    className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-red-100 group cursor-pointer focus:outline-none"
-                                  >
-                                    <img
-                                      src={damage.photo_url}
-                                      alt={damage.damage_type}
-                                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
-                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-                                      <ZoomIn className="h-4 w-4 text-white" />
-                                    </div>
-                                  </button>
-                                  <div className="min-w-0 pt-0.5">
-                                    <p className="text-[10px] font-bold text-red-700 uppercase">{damage.damage_type}</p>
-                                    {damage.description && (
-                                      <p className="text-[11px] text-red-600 mt-0.5 leading-snug">{damage.description}</p>
-                                    )}
-                                    <p className="text-[10px] text-red-400 mt-1 tabular-nums">
-                                      ({Number(damage.x_coordinate).toFixed(1)}, {Number(damage.y_coordinate).toFixed(1)})
-                                    </p>
-                                  </div>
-                                </div>
+                            </thead>
+                            <tbody>
+                              {debtInfo.reception.checklist_items.map((item, i) => (
+                                <tr key={item.id} className={i % 2 === 0 ? "bg-gray-50/60" : ""}>
+                                  <td className="px-2 py-1.5 text-xs font-medium text-gray-700 rounded-l-lg">
+                                    {item.description}
+                                  </td>
+                                  <td className="px-2 py-1.5 text-xs text-gray-500 text-center">{item.quantity}</td>
+                                  <td className="px-2 py-1.5 text-xs text-gray-500 rounded-r-lg">
+                                    {Number(item.kilometers).toLocaleString("es-PE")} km
+                                  </td>
+                                </tr>
                               ))}
-                            </div>
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+
+                      {/* Inspección visual */}
+                      {debtInfo.reception.inspection && (
+                        <div className="space-y-3 pt-1">
+                          <div className="flex items-center gap-2">
+                            <Eye className="h-3.5 w-3.5 text-indigo-500" />
+                            <span className="text-xs font-semibold text-gray-700">Inspección Visual</span>
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
+                            <InfoItem
+                              label="Inspeccionado por"
+                              value={debtInfo.reception.inspection.inspected_by}
+                              span={2}
+                            />
+                            <InfoItem
+                              label="Fecha Inspección"
+                              value={new Date(debtInfo.reception.inspection.created_at).toLocaleString("es-PE", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                              span={2}
+                            />
+                          </div>
+
+                          {debtInfo.reception.inspection.general_observations && (
+                            <div className="p-3 rounded-lg bg-gray-50">
+                              <p className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">
+                                Observaciones generales
+                              </p>
+                              <p className="text-xs font-medium text-gray-700 leading-snug">
+                                {debtInfo.reception.inspection.general_observations}
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-4 gap-2">
+                            {[
+                              { url: debtInfo.reception.inspection.photo_front_url, label: "Frontal" },
+                              { url: debtInfo.reception.inspection.photo_back_url, label: "Trasero" },
+                              { url: debtInfo.reception.inspection.photo_left_url, label: "Lateral Izq." },
+                              { url: debtInfo.reception.inspection.photo_right_url, label: "Lateral Der." },
+                            ].map(({ url, label }) => (
+                              <button
+                                key={label}
+                                type="button"
+                                onClick={() => setModalImg({ url, label })}
+                                className="relative rounded-xl overflow-hidden aspect-4/3 bg-gray-100 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                              >
+                                <img
+                                  src={url}
+                                  alt={label}
+                                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ZoomIn className="h-5 w-5 text-white drop-shadow" />
+                                </div>
+                                <span className="absolute bottom-1.5 left-2 text-white text-[9px] font-bold uppercase drop-shadow">
+                                  {label}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+
+                          {debtInfo.reception.inspection.damages.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <ShieldAlert className="h-3.5 w-3.5 text-red-400" />
+                                <span className="text-xs font-semibold text-gray-700">Daños registrados</span>
+                                <span className="text-[10px] font-semibold bg-red-100 text-red-500 px-2 py-0.5 rounded-full">
+                                  {debtInfo.reception.inspection.damages.length}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {debtInfo.reception.inspection.damages.map((damage) => (
+                                  <div key={damage.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-red-50">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setModalImg({ url: damage.photo_url, label: damage.damage_type })
+                                      }
+                                      className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-red-100 group cursor-pointer focus:outline-none"
+                                    >
+                                      <img
+                                        src={damage.photo_url}
+                                        alt={damage.damage_type}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
+                                      />
+                                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+                                        <ZoomIn className="h-4 w-4 text-white" />
+                                      </div>
+                                    </button>
+                                    <div className="min-w-0 pt-0.5">
+                                      <p className="text-[10px] font-bold text-red-700 uppercase">{damage.damage_type}</p>
+                                      {damage.description && (
+                                        <p className="text-[11px] text-red-600 mt-0.5 leading-snug">{damage.description}</p>
+                                      )}
+                                      <p className="text-[10px] text-red-400 mt-1 tabular-nums">
+                                        ({Number(damage.x_coordinate).toFixed(1)},{" "}
+                                        {Number(damage.y_coordinate).toFixed(1)})
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </GroupFormSection>
                 )}
 
-                {/* ── Historial de movimientos ───────────────────────── */}
+                {/* ── Historial de movimientos ─────────────────────────── */}
                 {debtInfo.vehicle.movements.length > 0 && (
-                  <div className="rounded-2xl bg-white shadow-sm p-4">
-                    <SectionLabel
-                      icon={Activity}
-                      title="Historial de Movimientos"
-                      color="slate"
-                      badge={
-                        <span className="text-[10px] font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                          {debtInfo.vehicle.movements.length}
-                        </span>
-                      }
-                    />
+                  <GroupFormSection
+                    icon={Activity}
+                    title="Historial de Movimientos"
+                    color="slate"
+                    cols={{ sm: 1, md: 1 }}
+                    headerExtra={
+                      <span className="text-[10px] font-semibold bg-white/60 text-gray-600 px-2 py-0.5 rounded-full">
+                        {debtInfo.vehicle.movements.length}
+                      </span>
+                    }
+                  >
                     <div className="space-y-0">
                       {debtInfo.vehicle.movements.map((mov, i) => (
                         <div key={mov.id} className="flex gap-2.5">
@@ -746,14 +718,20 @@ export const VehicleDeliveryForm = ({
                           </div>
                           <div className="pb-3 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[10px] font-bold uppercase" style={{ color: mov.status_color }}>
+                              <span
+                                className="text-[10px] font-bold uppercase"
+                                style={{ color: mov.status_color }}
+                              >
                                 {mov.status}
                               </span>
                               <span className="flex items-center gap-1 text-[10px] text-gray-400">
                                 <Clock className="h-2.5 w-2.5" />
                                 {new Date(mov.date).toLocaleString("es-PE", {
-                                  day: "2-digit", month: "short", year: "numeric",
-                                  hour: "2-digit", minute: "2-digit",
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </span>
                             </div>
@@ -764,11 +742,11 @@ export const VehicleDeliveryForm = ({
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </GroupFormSection>
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3 py-5 px-4 rounded-2xl bg-gray-50 text-sm text-gray-400">
+              <div className="flex items-center gap-3 py-5 px-4 rounded-xl bg-gray-50 text-sm text-gray-400">
                 <AlertCircle className="h-4 w-4 text-gray-300 shrink-0" />
                 No se encontró información para el vehículo seleccionado.
               </div>
@@ -776,7 +754,7 @@ export const VehicleDeliveryForm = ({
           </>
         )}
 
-        {/* Observaciones */}
+        {/* ── Observaciones ─────────────────────────────────────────── */}
         <FormTextArea
           name="observations"
           label="Observaciones"
