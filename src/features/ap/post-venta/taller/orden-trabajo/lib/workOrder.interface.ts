@@ -69,6 +69,16 @@ export interface WorkOrderResource {
   parts: WorkOrderPartsResource[];
   advances: ElectronicDocumentResource[];
   advances_cancelled: ElectronicDocumentResource[];
+  vouchers: WorkOrderDocumentsTreeResource;
+  payment_summary: {
+    paid_amount: number;
+    pending_amount: number;
+    remaining_balance: number;
+    payment_percentage: number;
+    is_fully_paid: boolean;
+    has_final_invoice: boolean;
+    advances_count: number;
+  };
   status: ApMastersResource;
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
@@ -98,22 +108,6 @@ export interface WorkOrderRequest {
   estimated_delivery_time: string | Date;
   diagnosis_date: string | Date;
   observations: string;
-}
-
-export interface WorkOrderPaymentSummary {
-  work_order_id: number;
-  correlative: string;
-  payment_summary: {
-    labour_cost: number;
-    parts_cost: number;
-    total_cost: number;
-    net_amount: number;
-    discount_amount: number;
-    tax_amount: number;
-    total_amount: number;
-    total_advances: number;
-    remaining_balance: number;
-  };
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {
@@ -210,4 +204,63 @@ export interface VehicleWorkOrderHistoryResponse {
 
 export interface GenerateWorkOrderResponse {
   message: string;
+}
+
+export interface WorkOrderBasicInfoResource {
+  id: number;
+  correlative: string;
+  total_labor_cost: number;
+  total_parts_cost: number;
+  subtotal: number;
+  discount_percentage: number;
+  discount_amount: number;
+  tax_amount: number;
+  final_amount: number;
+  vehicle_plate: string;
+  opening_date: string;
+  observations: string;
+
+  //Relations
+  invoice_to_client: CustomersResource | null;
+  valid_documents: ElectronicDocumentResource[];
+}
+
+export interface WorkOrderDocumentsTreeResource {
+  cancelled: WorkOrderDocumentTreeItemResource[];
+  active: WorkOrderDocumentTreeItemResource[];
+}
+
+export interface WorkOrderDocumentTreeItemResource {
+  id: number;
+  document_type: string;
+  number: string;
+  serie: string;
+  numero: number;
+  total: number;
+  issue_date: string | null;
+  client_name: string | null;
+  client_document: string | null;
+  status: string;
+  sunat_responsecode: string | null;
+  enlace_del_pdf: string | null;
+  cancellation_reason?: string | null;
+  net_amount?: number;
+  has_modifications?: boolean;
+  is_advance_payment: boolean;
+  modifications?: WorkOrderDocumentModificationResource[];
+}
+
+export interface WorkOrderDocumentModificationResource {
+  id: number;
+  type: "credit_note" | "debit_note";
+  concept_type: string | null;
+  concept_type_id: number | null;
+  number: string;
+  serie: string;
+  numero: string;
+  total: number;
+  issue_date: string | null;
+  original_document_id: number;
+  observaciones: string | null;
+  enlace_del_pdf: string | null;
 }

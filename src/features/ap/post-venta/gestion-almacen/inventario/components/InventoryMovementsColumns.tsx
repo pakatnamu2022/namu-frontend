@@ -14,7 +14,7 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
-import { WorkOrderResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
+import { WorkOrderBasicInfoResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -194,17 +194,27 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
 
       // SALE - Mostrar cliente de la orden de trabajo
       if (movementType === "SALE" && referenceType?.includes("ApWorkOrder")) {
-        const workOrder = reference as WorkOrderResource;
+        const workOrder = reference as WorkOrderBasicInfoResource;
+        const finalInvoice = workOrder.valid_documents?.find(
+          (a) => !a.is_advance_payment,
+        );
 
         return (
           <div className="flex flex-col text-sm">
-            <span className="font-medium">{workOrder.full_contact_name}</span>
-            <span className="text-xs text-gray-500">
-              Doc: {workOrder.num_doc_contact}
+            <span className="font-medium">
+              {workOrder.invoice_to_client!.full_name}
             </span>
             <span className="text-xs text-gray-500">
-              OT: {workOrder.correlative}
+              RUC: {workOrder.invoice_to_client!.num_doc}
             </span>
+            <span className="text-xs text-gray-500">
+              {workOrder.correlative}
+            </span>
+            {finalInvoice && (
+              <span className="text-xs text-gray-500">
+                Factura: {finalInvoice.full_number}
+              </span>
+            )}
           </div>
         );
       }
@@ -285,6 +295,16 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
             <span className="text-xs text-gray-500">
               {movement.movement_number_dyn || "-"}
             </span>
+          </div>
+        );
+      }
+
+      if (movementType === "RETURN_IN") {
+        const doc = reference as { full_number?: string; cliente_denominacion?: string; cliente_numero_de_documento?: string };
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">{doc.cliente_denominacion || "-"}</span>
+            <span className="text-xs text-gray-500">{doc.full_number || "-"}</span>
           </div>
         );
       }

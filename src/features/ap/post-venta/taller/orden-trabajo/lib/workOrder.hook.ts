@@ -7,7 +7,6 @@ import {
   getWorkOrder,
   storeWorkOrder,
   downloadWorkOrderPdf,
-  getPaymentSummary,
   getWorkOrderWithInternalNotes,
   sendToFinished,
 } from "./workOrder.actions";
@@ -122,16 +121,5 @@ export function useSendToFinished() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
-  });
-}
-
-export function useGetPaymentSummary(
-  workOrderId: number,
-  groupNumber?: number,
-) {
-  return useQuery({
-    queryKey: [QUERY_KEY, "payment-summary", workOrderId, groupNumber],
-    queryFn: () => getPaymentSummary(workOrderId, groupNumber),
-    enabled: !!workOrderId,
   });
 }

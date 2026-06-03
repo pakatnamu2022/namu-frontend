@@ -237,6 +237,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         queryKey: ["workOrderParts", workOrderId],
       });
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+      successToast("Repuesto actualizado exitosamente");
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -432,9 +433,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             <Button
               onClick={() => setShowAddForm(true)}
               className="gap-2"
-              disabled={
-                items.length === 0 || (workOrder?.advances?.length ?? 0) > 0
-              }
+              // disabled={
+              //   items.length === 0 || (workOrder?.advances?.length ?? 0) > 0
+              // }
             >
               <Plus className="h-4 w-4" />
               Agregar Repuesto

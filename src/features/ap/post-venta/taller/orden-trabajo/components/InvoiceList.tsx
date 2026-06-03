@@ -1,19 +1,20 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Ban } from "lucide-react";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
-import { WorkOrderPaymentSummary } from "../lib/workOrder.interface";
-import { formatDate } from "@/core/core.function";
+import { FileText, Ban, Download } from "lucide-react";
+import {
+  WorkOrderDocumentsTreeResource,
+  WorkOrderDocumentTreeItemResource,
+} from "../lib/workOrder.interface";
 
 interface InvoiceListProps {
-  advances: ElectronicDocumentResource[];
-  advancesCancelled: ElectronicDocumentResource[];
+  vouchers: WorkOrderDocumentsTreeResource;
   currencySymbol: string;
-  paymentSummary?: WorkOrderPaymentSummary;
+  totalAmount: number;
 }
 
 interface InvoiceRowProps {
-  invoice: ElectronicDocumentResource;
+  invoice: WorkOrderDocumentTreeItemResource;
   currencySymbol: string;
   cancelled?: boolean;
 }
@@ -40,7 +41,7 @@ function InvoiceRow({
                 cancelled ? "line-through text-gray-400" : "text-gray-900"
               }`}
             >
-              {invoice.full_number}
+              {invoice.number}
             </p>
             {cancelled ? (
               <Badge
@@ -52,11 +53,9 @@ function InvoiceRow({
             ) : (
               <>
                 <Badge variant="default">
-                  {invoice.sunat_responsecode === "0"
-                    ? "Aceptado"
-                    : "Pendiente"}
+                  {invoice.status === "accepted" ? "Aceptado" : "Pendiente"}
                 </Badge>
-                {invoice.is_advance_payment && (
+                {Boolean(invoice.is_advance_payment) && (
                   <Badge variant="default" color="secondary">
                     Anticipo
                   </Badge>
@@ -64,43 +63,42 @@ function InvoiceRow({
               </>
             )}
           </div>
-          <div className="flex items-center gap-3 mt-1">
-            <p className="text-xs text-gray-500">
-              {formatDate(invoice.fecha_de_emision)}
-            </p>
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
+            {invoice.issue_date && (
+              <p className="text-xs text-gray-500">{invoice.issue_date}</p>
+            )}
             <span className="text-xs text-gray-300">•</span>
-            <p className="text-xs text-gray-500">
-              {invoice.document_type?.description}
-            </p>
+            <p className="text-xs text-gray-500">{invoice.document_type}</p>
+            {invoice.client_name && (
+              <>
+                <span className="text-xs text-gray-300">•</span>
+                <p className="text-xs text-gray-500">{invoice.client_name}</p>
+              </>
+            )}
           </div>
-          {cancelled && (
-            <div className="flex items-center gap-1 mt-0.5">
-              {invoice.credit_note_id != null ? (
-                <>
-                  <span className="text-xs text-gray-400">
-                    Nota de crédito:
-                  </span>
-                  <span className="text-xs font-medium text-gray-500">
-                    {invoice.credit_note_number}
-                  </span>
-                </>
-              ) : invoice.debit_note_id != null ? (
-                <>
-                  <span className="text-xs text-gray-400">Nota de débito:</span>
-                  <span className="text-xs font-medium text-gray-500">
-                    {invoice.debit_note_number}
-                  </span>
-                </>
-              ) : (
-                <span className="text-xs text-gray-400 italic">
-                  Anulada sin nota de crédito/débito
+          {cancelled &&
+            invoice.modifications &&
+            invoice.modifications.length > 0 && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className="text-xs text-gray-400">
+                  {invoice.modifications[0].type === "credit_note"
+                    ? "Nota de crédito:"
+                    : "Nota de débito:"}
                 </span>
-              )}
-            </div>
-          )}
+                <span className="text-xs font-medium text-gray-500">
+                  {invoice.modifications[0].number}
+                </span>
+              </div>
+            )}
+          {cancelled &&
+            (!invoice.modifications || invoice.modifications.length === 0) && (
+              <span className="text-xs text-gray-400 italic">
+                Anulada sin nota de crédito/débito
+              </span>
+            )}
         </div>
       </div>
-      <div className="text-right">
+      <div className="flex items-center gap-2">
         <p
           className={`font-bold text-sm ${
             cancelled ? "line-through text-gray-400" : "text-primary"
@@ -108,18 +106,37 @@ function InvoiceRow({
         >
           {currencySymbol} {Number(invoice.total).toFixed(2)}
         </p>
+        {invoice.enlace_del_pdf && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 shrink-0"
+            tooltip="Descargar PDF"
+            asChild
+          >
+            <a
+              href={invoice.enlace_del_pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
+              <Download className="h-4 w-4 text-gray-500" />
+            </a>
+          </Button>
+        )}
       </div>
     </div>
   );
 }
 
 export default function InvoiceList({
-  advances,
-  advancesCancelled,
+  vouchers,
   currencySymbol,
-  paymentSummary,
+  totalAmount,
 }: InvoiceListProps) {
-  const hasAny = advances.length > 0 || advancesCancelled.length > 0;
+  const active = vouchers.active;
+  const cancelled = vouchers.cancelled;
+  const hasAny = active.length > 0 || cancelled.length > 0;
 
   if (!hasAny) {
     return (
@@ -135,8 +152,10 @@ export default function InvoiceList({
     );
   }
 
-  const totalBilled = advances.reduce((sum, adv) => sum + Number(adv.total), 0);
-  const totalAmount = paymentSummary?.payment_summary.total_amount ?? 0;
+  const totalBilled = active.reduce(
+    (sum, doc) => sum + Number(doc.net_amount ?? doc.total),
+    0,
+  );
   const progressPercent =
     totalAmount > 0 ? (totalBilled / totalAmount) * 100 : 0;
 
@@ -164,12 +183,12 @@ export default function InvoiceList({
       </div>
 
       {/* Facturas emitidas vigentes */}
-      {advances.length > 0 && (
+      {active.length > 0 && (
         <div className="space-y-2">
-          {advances.map((advance) => (
+          {active.map((doc) => (
             <InvoiceRow
-              key={advance.id}
-              invoice={advance}
+              key={doc.id}
+              invoice={doc}
               currencySymbol={currencySymbol}
             />
           ))}
@@ -177,18 +196,18 @@ export default function InvoiceList({
       )}
 
       {/* Facturas anuladas */}
-      {advancesCancelled.length > 0 && (
+      {cancelled.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-2 pt-2 border-t">
             <Ban className="h-4 w-4 text-gray-400" />
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-              Anuladas ({advancesCancelled.length})
+              Anuladas ({cancelled.length})
             </span>
           </div>
-          {advancesCancelled.map((invoice) => (
+          {cancelled.map((doc) => (
             <InvoiceRow
-              key={invoice.id}
-              invoice={invoice}
+              key={doc.id}
+              invoice={doc}
               currencySymbol={currencySymbol}
               cancelled
             />

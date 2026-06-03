@@ -137,6 +137,7 @@ export default function WorkOrderCajaPage() {
         WORK_ORDER_STATUS_ID.RECEPCIONADO,
         WORK_ORDER_STATUS_ID.EN_TRABAJO,
         WORK_ORDER_STATUS_ID.TERMINADO,
+        WORK_ORDER_STATUS_ID.CERRADO,
       ],
     },
     enabled: activeView === "OT" && !!effectiveSedeId,

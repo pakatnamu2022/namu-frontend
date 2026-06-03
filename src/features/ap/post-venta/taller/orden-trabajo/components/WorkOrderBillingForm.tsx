@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Plus, Receipt, AlertCircle } from "lucide-react";
 import { findWorkOrderById } from "../lib/workOrder.actions";
-import { useGetPaymentSummary } from "../lib/workOrder.hook";
 import { useWorkOrderContext } from "../contexts/WorkOrderContext";
 import {
   ElectronicDocumentSchema,
@@ -43,10 +42,6 @@ export default function WorkOrderBillingForm({
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [showForm, setShowForm] = useState(false);
   const { QUERY_KEY } = WORKER_ORDER;
-
-  // Obtener resumen de pago del grupo seleccionado
-  const { data: paymentSummary, isLoading: isLoadingPaymentSummary } =
-    useGetPaymentSummary(workOrderId, undefined); //selectedGroupNumber || undefined
 
   // Obtener todos los conceptos SUNAT necesarios en una sola consulta
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
@@ -176,14 +171,6 @@ export default function WorkOrderBillingForm({
         queryKey: [QUERY_KEY, workOrderId],
       });
       queryClient.invalidateQueries({
-        queryKey: [
-          QUERY_KEY,
-          "payment-summary",
-          workOrderId,
-          selectedGroupNumber,
-        ],
-      });
-      queryClient.invalidateQueries({
         queryKey: ["workOrder", workOrderId],
       });
       setShowForm(false);
@@ -259,12 +246,10 @@ export default function WorkOrderBillingForm({
         saldoPendiente = Number(
           (totalOrdenTrabajo - totalFacturado).toFixed(2),
         );
-      } else if (paymentSummary) {
-        totalOrdenTrabajo = Number(
-          paymentSummary.payment_summary.total_amount.toFixed(2),
-        );
+      } else if (workOrder?.payment_summary) {
+        totalOrdenTrabajo = Number(workOrder.final_amount.toFixed(2));
         saldoPendiente = Number(
-          paymentSummary.payment_summary.remaining_balance.toFixed(2),
+          workOrder.payment_summary.remaining_balance.toFixed(2),
         );
       } else {
         // Sin datos de referencia, no se puede validar
@@ -303,7 +288,7 @@ export default function WorkOrderBillingForm({
     form.reset();
   };
 
-  if (isLoading || isLoadingPaymentSummary) {
+  if (isLoading) {
     return (
       <Card className="p-12">
         <div className="flex flex-col items-center justify-center text-center">
@@ -314,9 +299,8 @@ export default function WorkOrderBillingForm({
     );
   }
 
-  // Obtener facturas del resumen de pago
-  const advances = workOrder?.advances || [];
-  const advancesCancelled = workOrder?.advances_cancelled || [];
+  const vouchers = workOrder?.vouchers;
+  const currencySymbol = workOrder?.type_currency?.symbol || "S/";
 
   return (
     <div className="space-y-6">
@@ -350,7 +334,7 @@ export default function WorkOrderBillingForm({
           )}
 
           {/* Resumen de Costos - Diseño compacto tipo tabla */}
-          {paymentSummary && (
+          {workOrder && (
             <Card className="p-2">
               {/* Header con título y total */}
               <div className="flex items-center justify-between px-4 py-3 border-b">
@@ -362,8 +346,7 @@ export default function WorkOrderBillingForm({
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-bold text-primary">
-                    {workOrder?.type_currency?.symbol || "S/"}{" "}
-                    {paymentSummary.payment_summary.total_amount.toFixed(2)}
+                    {currencySymbol} {workOrder.final_amount.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -375,15 +358,13 @@ export default function WorkOrderBillingForm({
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Mano de Obra</span>
                     <span className="font-medium">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {paymentSummary.payment_summary.labour_cost.toFixed(2)}
+                      {currencySymbol} {workOrder.total_labor_cost.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Repuestos</span>
                     <span className="font-medium">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {paymentSummary.payment_summary.parts_cost.toFixed(2)}
+                      {currencySymbol} {workOrder.total_parts_cost.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -393,26 +374,22 @@ export default function WorkOrderBillingForm({
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {paymentSummary.payment_summary.total_cost.toFixed(2)}
+                      {currencySymbol} {workOrder.subtotal.toFixed(2)}
                     </span>
                   </div>
-                  {paymentSummary.payment_summary.discount_amount > 0 && (
+                  {workOrder.discount_amount > 0 && (
                     <div className="flex justify-between px-4 py-1.5">
                       <span className="text-green-700">Descuento</span>
                       <span className="font-medium text-green-700">
-                        - {workOrder?.type_currency?.symbol || "S/"}{" "}
-                        {paymentSummary.payment_summary.discount_amount.toFixed(
-                          2,
-                        )}
+                        - {currencySymbol}{" "}
+                        {workOrder.discount_amount.toFixed(2)}
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">IGV (18%)</span>
                     <span className="font-medium">
-                      {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {paymentSummary.payment_summary.tax_amount.toFixed(2)}
+                      {currencySymbol} {workOrder.tax_amount.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -448,9 +425,9 @@ export default function WorkOrderBillingForm({
                     <h4 className="font-semibold text-gray-900">
                       Facturas Emitidas
                     </h4>
-                    {advances.length > 0 && (
+                    {vouchers && vouchers.active.length > 0 && (
                       <Badge variant="outline" className="bg-primary/5">
-                        {advances.length}
+                        {vouchers.active.length}
                       </Badge>
                     )}
                   </div>
@@ -467,10 +444,9 @@ export default function WorkOrderBillingForm({
                 </div>
 
                 <InvoiceList
-                  advances={advances}
-                  advancesCancelled={advancesCancelled}
-                  currencySymbol={workOrder?.type_currency?.symbol || "S/"}
-                  paymentSummary={paymentSummary ?? undefined}
+                  vouchers={vouchers ?? { active: [], cancelled: [] }}
+                  currencySymbol={currencySymbol}
+                  totalAmount={workOrder?.final_amount ?? 0}
                 />
               </div>
             </Card>

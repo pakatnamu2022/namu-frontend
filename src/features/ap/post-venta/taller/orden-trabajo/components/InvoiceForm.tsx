@@ -59,7 +59,7 @@ export default function InvoiceForm({
   const defaultCustomer = workOrder.invoice_to_client;
   const labours = workOrder.labours;
   const parts = workOrder.parts;
-  const advances = workOrder.advances;
+  const advances = workOrder.vouchers?.active ?? [];
 
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
@@ -252,8 +252,8 @@ export default function InvoiceForm({
               unidad_de_medida: "ZZ",
               codigo: advance.id?.toString(),
               descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
-                advance.fecha_de_emision
-                  ? new Date(advance.fecha_de_emision).toLocaleDateString(
+                advance.issue_date
+                  ? new Date(advance.issue_date).toLocaleDateString(
                       "es-PE",
                     )
                   : ""
