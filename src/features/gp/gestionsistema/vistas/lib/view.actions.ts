@@ -6,6 +6,7 @@ import {
   View,
   ViewResource,
   ViewResponse,
+  ViewRoleItem,
 } from "./view.interface";
 import { VIEW } from "./view.constants";
 
@@ -74,4 +75,9 @@ export async function deleteView(id: number): Promise<GeneralResponse> {
 export async function duplicateView(id: number): Promise<ViewResource> {
   const response = await api.post<ViewResource>(`${ENDPOINT}/${id}/duplicate`);
   return response.data;
+}
+
+export async function getViewRoles(id: number): Promise<ViewRoleItem[]> {
+  const { data } = await api.get<ViewRoleItem[]>(`${ENDPOINT}/${id}/roles`);
+  return data ?? [];
 }
