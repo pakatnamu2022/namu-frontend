@@ -20,3 +20,5 @@ export const INCOME_SECTOR: ModelComplete<IncomeSectorResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: { id: 0, description: "", type: "", status: true },
 };
+
+export const INCOME_SECTOR_SALESFORCE = 991;
