@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -191,24 +190,36 @@ export default function ViewPermissionsSheet({ viewId, open, onClose }: Props) {
                   return (
                     <Tooltip key={action.value}>
                       <TooltipTrigger asChild>
-                        <button
+                        <div
+                          role="checkbox"
+                          aria-checked={isSelected}
+                          tabIndex={0}
                           onClick={() => handleToggleAction(action.value)}
-                          className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all select-none ${
+                          onKeyDown={(e) => e.key === " " || e.key === "Enter" ? handleToggleAction(action.value) : undefined}
+                          className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-all select-none cursor-pointer ${
                             isSelected
                               ? "border-primary bg-primary text-primary-foreground shadow-sm"
                               : "border-border bg-background hover:border-primary/60 hover:bg-muted"
                           }`}
                         >
-                          <Checkbox
-                            checked={isSelected}
-                            className="size-3 pointer-events-none"
-                            tabIndex={-1}
-                          />
+                          <span
+                            className={`size-3 rounded-sm border shrink-0 flex items-center justify-center ${
+                              isSelected
+                                ? "border-primary-foreground bg-primary-foreground/20"
+                                : "border-current opacity-50"
+                            }`}
+                          >
+                            {isSelected && (
+                              <svg viewBox="0 0 10 8" className="size-2 fill-current">
+                                <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </span>
                           {action.label}
                           {existsInCurrent && (
                             <span className="size-1.5 rounded-full bg-current opacity-60 ml-0.5" />
                           )}
-                        </button>
+                        </div>
                       </TooltipTrigger>
                       {action.description && (
                         <TooltipContent side="top" className="max-w-48 text-center">

@@ -14,6 +14,7 @@ import ViewOptions from "@/features/gp/gestionsistema/vistas/components/ViewOpti
 import ViewActions from "@/features/gp/gestionsistema/vistas/components/ViewActions";
 import { viewColumns } from "@/features/gp/gestionsistema/vistas/components/ViewColumns";
 import ViewPermissionsSheet from "@/features/gp/gestionsistema/vistas/components/ViewPermissionsSheet";
+import ViewRolesSheet from "@/features/gp/gestionsistema/vistas/components/ViewRolesSheet";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import {
   deleteView,
@@ -43,6 +44,7 @@ export default function ViewPage() {
   const [parentId, setParentId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [permissionsViewId, setPermissionsViewId] = useState<number | null>(null);
+  const [rolesViewId, setRolesViewId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -121,6 +123,7 @@ export default function ViewPage() {
           onUpdateCell: handleUpdateCell,
           onDuplicate: handleDuplicate,
           onOpenPermissions: setPermissionsViewId,
+          onOpenRoles: setRolesViewId,
         })}
         data={data?.data || []}
       >
@@ -145,6 +148,13 @@ export default function ViewPage() {
         viewId={permissionsViewId}
         open={permissionsViewId !== null}
         onClose={() => setPermissionsViewId(null)}
+      />
+
+      <ViewRolesSheet
+        viewId={rolesViewId}
+        viewName={data?.data.find((v) => v.id === rolesViewId)?.descripcion}
+        open={rolesViewId !== null}
+        onClose={() => setRolesViewId(null)}
       />
 
       <DataTablePagination

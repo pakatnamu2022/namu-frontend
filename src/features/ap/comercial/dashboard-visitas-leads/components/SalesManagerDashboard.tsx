@@ -49,7 +49,7 @@ const getLastMonthRange = () => {
 
 export default function SalesManagerDashboard() {
   const ROUTE = "dashboard-equipo-leads";
-  const { canViewAdvisors } = useModulePermissions(ROUTE);
+  const { canViewAdvisors, canAssign } = useModulePermissions(ROUTE);
 
   const lastMonthRange = getLastMonthRange();
 
@@ -190,14 +190,16 @@ export default function SalesManagerDashboard() {
           variant="grouped"
         />
 
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowReassignModal(true)}
-        >
-          <Shuffle className="mr-2 h-4 w-4" />
-          Reasignación de leads
-        </Button>
+        {canAssign && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowReassignModal(true)}
+          >
+            <Shuffle className="mr-2 h-4 w-4" />
+            Reasignación de leads
+          </Button>
+        )}
 
         {canViewAdvisors && (
           <SearchableSelect
