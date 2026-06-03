@@ -91,7 +91,9 @@ export interface AssignWorkersResponse {
 export interface TransferLeadsRequest {
   from_worker_id: number;
   to_worker_id: number;
-  potential_buyer_ids: number[];
+  potential_buyer_ids?: number[];
+  date_from?: string;
+  date_to?: string;
 }
 
 export interface TransferLeadsResponse {
