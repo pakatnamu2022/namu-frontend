@@ -31,6 +31,7 @@ const getDescriptionOptions = (conceptId: string): string[] | null => {
       "BONO ESPECIAL",
       "PLAN NORTE",
       "BONO ADICIONAL (DERCO)",
+      "BONO BTB",
     ];
   return null;
 };
