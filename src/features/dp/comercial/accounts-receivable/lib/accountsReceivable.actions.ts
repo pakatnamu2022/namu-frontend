@@ -5,6 +5,7 @@ import type {
   AccountReceivable,
   AccountsReceivableFilters,
   FilterTreeNode,
+  AccountsReceivableDashboardResponse,
 } from "./accountsReceivable.interface";
 
 const { ENDPOINT, COMPANY } = ACCOUNTS_RECEIVABLE;
@@ -27,8 +28,9 @@ export async function getAccountReceivableById(id: number): Promise<AccountRecei
   return data;
 }
 
-export async function syncAccountsReceivable(): Promise<void> {
-  await api.post(`${ENDPOINT}/sync`, { company: COMPANY });
+export async function syncAccountsReceivable(): Promise<{ message: string; synced: number }> {
+  const { data } = await api.post<{ message: string; synced: number }>(`${ENDPOINT}/sync`, { company: COMPANY });
+  return data;
 }
 
 export async function addAccountComment(id: number, comment: string): Promise<void> {
@@ -37,5 +39,23 @@ export async function addAccountComment(id: number, comment: string): Promise<vo
 
 export async function getFilterTree(): Promise<FilterTreeNode[]> {
   const { data } = await api.get<FilterTreeNode[]>(`${ENDPOINT}/filterTree`);
+  return data;
+}
+
+export async function sendDueReports(company?: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>(
+    `${ENDPOINT}/send-due-reports`,
+    { company: company ?? COMPANY },
+  );
+  return data;
+}
+
+export async function getAccountsReceivableDashboard(
+  company: string,
+): Promise<AccountsReceivableDashboardResponse> {
+  const { data } = await api.get<AccountsReceivableDashboardResponse>(
+    `${ENDPOINT}/dashboard`,
+    { params: { company } },
+  );
   return data;
 }

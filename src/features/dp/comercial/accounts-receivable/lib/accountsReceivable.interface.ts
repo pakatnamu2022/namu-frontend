@@ -36,6 +36,8 @@ export interface AccountReceivable {
   exchange_rate: string;
   amount: string;
   balance: string;
+  amount_pen: string;
+  balance_pen: string;
   branch: string;
   observations: string | null;
   collection_date: string | null;
@@ -53,9 +55,17 @@ export interface AccountsReceivableMeta {
   total: number;
 }
 
+export interface AccountsReceivableSummary {
+  total_documents: number;
+  total_balance_pen: number;
+  overdue_balance_pen: number;
+  current_balance_pen: number;
+}
+
 export interface AccountsReceivableResponse {
   data: AccountReceivable[];
   meta: AccountsReceivableMeta;
+  summary?: AccountsReceivableSummary;
 }
 
 export interface FilterTreeStatus {
@@ -69,10 +79,37 @@ export interface FilterTreeNode {
   statuses: FilterTreeStatus[];
 }
 
+export interface DashboardChartDataset {
+  label: string;
+  data: number[];
+}
+
+export interface DashboardChart {
+  id: string;
+  title: string;
+  type: "pie" | "bar" | "line";
+  labels: string[];
+  datasets: DashboardChartDataset[];
+}
+
+export interface DashboardSummary {
+  total_documents: number;
+  total_amount_pen: number;
+  total_balance_pen: number;
+  overdue_balance_pen: number;
+  current_balance_pen: number;
+}
+
+export interface AccountsReceivableDashboardResponse {
+  synced_at: string;
+  summary: DashboardSummary;
+  charts: DashboardChart[];
+}
+
 export interface AccountsReceivableFilters {
   search?: string;
   sede_id?: number | string | null;
-  year?: number | string | null;
+  due_year?: number | string | null;
   company?: string;
   currency?: string;
   overdue_status?: string;

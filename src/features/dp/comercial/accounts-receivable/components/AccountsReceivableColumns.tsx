@@ -8,11 +8,16 @@ import {
   DEFAULT_OVERDUE_STATUS_COLOR,
 } from "../lib/accountsReceivable.constants";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-function formatAmount(value: string | number): string {
+function formatAmount(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) return "-";
   const num = typeof value === "string" ? parseFloat(value) : value;
   if (isNaN(num)) return "-";
-  return num.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return num.toLocaleString("es-PE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 interface ColumnsOptions {
@@ -39,11 +44,14 @@ export function getAccountsReceivableColumns({
     {
       id: "client_name",
       accessorKey: "client_name",
+      enableSorting: true,
       header: "Cliente",
       cell: ({ row }) => (
         <div className="max-w-[200px]">
           <p className="font-medium truncate">{row.original.client_name}</p>
-          <p className="text-xs text-muted-foreground">{row.original.client_id}</p>
+          <p className="text-xs text-muted-foreground">
+            {row.original.client_id}
+          </p>
         </div>
       ),
     },
@@ -56,7 +64,8 @@ export function getAccountsReceivableColumns({
     {
       id: "sede",
       header: "Sede",
-      cell: ({ row }) => row.original.sede?.localidad ?? row.original.branch ?? "-",
+      cell: ({ row }) =>
+        row.original.sede?.localidad ?? row.original.branch ?? "-",
     },
     {
       id: "document_date",
@@ -80,7 +89,12 @@ export function getAccountsReceivableColumns({
       cell: ({ row }) => {
         const days = row.original.overdue_days;
         return (
-          <span className={cn("font-medium", days > 0 ? "text-red-600" : "text-green-600")}>
+          <span
+            className={cn(
+              "font-medium",
+              days > 0 ? "text-red-600" : "text-green-600",
+            )}
+          >
             {days}
           </span>
         );
@@ -92,7 +106,8 @@ export function getAccountsReceivableColumns({
       header: "Estado",
       cell: ({ row }) => {
         const status = row.original.overdue_status;
-        const colorClass = OVERDUE_STATUS_COLORS[status] ?? DEFAULT_OVERDUE_STATUS_COLOR;
+        const colorClass =
+          OVERDUE_STATUS_COLORS[status] ?? DEFAULT_OVERDUE_STATUS_COLOR;
         return (
           <Badge variant="outline" className={cn("text-xs border", colorClass)}>
             {status}
@@ -133,18 +148,31 @@ export function getAccountsReceivableColumns({
       ),
     },
     {
+      id: "balance_pen",
+      accessorKey: "balance_pen",
+      header: "Saldo PEN",
+      enableSorting: true,
+      cell: ({ row }) => (
+        <span className="text-right block tabular-nums font-semibold text-primary">
+          {formatAmount(row.original.balance_pen)}
+        </span>
+      ),
+    },
+    {
       id: "actions",
       header: "Comentarios",
       cell: ({ row }) => {
         const count = row.original.comments_count ?? 0;
         return (
-          <button
-            className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+          <Button
+            size="sm"
+            variant="outline"
+            color="blue"
             onClick={() => onRowClick(row.original)}
           >
-            <MessageSquare className="size-4" />
-            <span className="text-xs">{count}</span>
-          </button>
+            <MessageSquare />
+            <span>{count}</span>
+          </Button>
         );
       },
     },

@@ -26,13 +26,11 @@ export default function AccountsReceivableTreeFilter({
 
   const selectedSedeId = filters.sede_id ? Number(filters.sede_id) : null;
   const selectedStatus = filters.overdue_status ?? null;
-  const selectedYear = filters.year ? Number(filters.year) : null;
+  const selectedYear = filters.due_year ? Number(filters.due_year) : null;
 
   const selectedSede = tree.find((s) => s.sede_id === selectedSedeId) ?? null;
   const selectedStatusNode =
     selectedSede?.statuses.find((s) => s.status === selectedStatus) ?? null;
-
-  const hasAnyFilter = !!(selectedSedeId || selectedStatus || selectedYear);
 
   function selectSede(sedeId: number) {
     if (selectedSedeId === sedeId && !sedeExpanded) {
@@ -42,7 +40,7 @@ export default function AccountsReceivableTreeFilter({
     setSedeExpanded(false);
     setStatusExpanded(true);
     setYearExpanded(true);
-    onFiltersChange({ sede_id: sedeId, overdue_status: undefined, year: null });
+    onFiltersChange({ sede_id: sedeId, overdue_status: undefined, due_year: null });
   }
 
   function selectStatus(status: string) {
@@ -52,7 +50,7 @@ export default function AccountsReceivableTreeFilter({
     }
     setStatusExpanded(false);
     setYearExpanded(true);
-    onFiltersChange({ overdue_status: status, year: null });
+    onFiltersChange({ overdue_status: status, due_year: null });
   }
 
   function selectYear(year: number) {
@@ -61,14 +59,25 @@ export default function AccountsReceivableTreeFilter({
       return;
     }
     setYearExpanded(false);
-    onFiltersChange({ year });
+    onFiltersChange({ due_year: year });
   }
 
-  function handleReset() {
+  function clearSede() {
     setSedeExpanded(true);
     setStatusExpanded(true);
     setYearExpanded(true);
     onReset();
+  }
+
+  function clearStatus() {
+    setStatusExpanded(true);
+    setYearExpanded(true);
+    onFiltersChange({ overdue_status: undefined, due_year: null });
+  }
+
+  function clearYear() {
+    setYearExpanded(true);
+    onFiltersChange({ due_year: null });
   }
 
   const sedesVisible = sedeExpanded
@@ -98,7 +107,7 @@ export default function AccountsReceivableTreeFilter({
   return (
     <div className="flex items-start gap-0 flex-wrap">
       {/* Nivel 1 — Sede */}
-      <Level label="Sede">
+      <Level label="Sede" onClear={selectedSedeId ? clearSede : undefined}>
         <AnimatePresence mode="popLayout">
           {sedesVisible.map((sede, i) => (
             <Chip
@@ -131,7 +140,7 @@ export default function AccountsReceivableTreeFilter({
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <Level label="Estado">
+            <Level label="Estado" onClear={selectedStatus ? clearStatus : undefined}>
               <AnimatePresence mode="popLayout">
                 {(statusesVisible ?? []).map((s, i) => (
                   <Chip
@@ -167,7 +176,7 @@ export default function AccountsReceivableTreeFilter({
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <Level label="Año">
+            <Level label="Año" onClear={selectedYear ? clearYear : undefined}>
               <div className="flex flex-wrap gap-1.5">
                 <AnimatePresence mode="popLayout">
                   {(yearExpanded
@@ -191,35 +200,35 @@ export default function AccountsReceivableTreeFilter({
         )}
       </AnimatePresence>
 
-      {/* Limpiar */}
-      <AnimatePresence>
-        {hasAnyFilter && (
-          <motion.button
-            key="clear"
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.7 }}
-            transition={{ duration: 0.15 }}
-            onClick={handleReset}
-            className="flex items-center gap-1 px-2 py-0.5 mt-5 ml-2 text-xs text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10"
-          >
-            <X className="size-3" />
-            Limpiar
-          </motion.button>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
 
 /* ── Sub-components ── */
 
-function Level({ label, children }: { label: string; children: React.ReactNode }) {
+function Level({ label, children, onClear }: { label: string; children: React.ReactNode; onClear?: () => void }) {
   return (
     <div className="flex flex-col gap-1 min-w-0">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 px-0.5">
-        {label}
-      </span>
+      <div className="flex items-center gap-1 px-0.5">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+          {label}
+        </span>
+        <AnimatePresence>
+          {onClear && (
+            <motion.button
+              key="clear"
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.7 }}
+              transition={{ duration: 0.15 }}
+              onClick={onClear}
+              className="text-muted-foreground/50 hover:text-destructive transition-colors"
+            >
+              <X className="size-2.5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
       <div className="flex flex-wrap gap-1.5">{children}</div>
     </div>
   );
