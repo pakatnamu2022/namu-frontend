@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, Plus, Trash2, DollarSign } from "lucide-react";
+import { Plus, Trash2, DollarSign } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import {
   Select,
@@ -172,42 +172,29 @@ export function OthersTable({
                 key={row.id}
                 className="grid grid-cols-[1fr_140px_120px_90px_36px] gap-2 items-center"
               >
-                {row.isLocked ? (
-                  <div className="flex items-center gap-1.5 h-8 px-3 rounded-md border bg-muted/40 text-sm font-medium text-foreground">
-                    <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="truncate">{row.description}</span>
-                  </div>
-                ) : (
-                  <Input
-                    value={row.description}
-                    onChange={(e) =>
-                      updateRow(row.id, { description: e.target.value.toUpperCase() })
-                    }
-                    placeholder="COMISION VENDEDOR"
-                    className="h-8 text-sm uppercase"
-                  />
-                )}
+                <Input
+                  value={row.description}
+                  onChange={(e) =>
+                    updateRow(row.id, { description: e.target.value.toUpperCase() })
+                  }
+                  placeholder="COMISION VENDEDOR"
+                  className="h-8 text-sm uppercase"
+                />
 
-                {row.isLocked ? (
-                  <div className="h-8 px-3 rounded-md border bg-muted/40 flex items-center text-sm text-muted-foreground">
-                    {row.type === "PORCENTAJE" ? "Porcentaje" : "Fijo"}
-                  </div>
-                ) : (
-                  <Select
-                    value={row.type}
-                    onValueChange={(v) =>
-                      updateRow(row.id, { type: v as "FIJO" | "PORCENTAJE" })
-                    }
-                  >
-                    <SelectTrigger className="h-8 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PORCENTAJE">Porcentaje</SelectItem>
-                      <SelectItem value="FIJO">Fijo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                <Select
+                  value={row.type}
+                  onValueChange={(v) =>
+                    updateRow(row.id, { type: v as "FIJO" | "PORCENTAJE" })
+                  }
+                >
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PORCENTAJE">Porcentaje</SelectItem>
+                    <SelectItem value="FIJO">Fijo</SelectItem>
+                  </SelectContent>
+                </Select>
 
                 <div className="relative">
                   <Input
@@ -216,12 +203,10 @@ export function OthersTable({
                     step={0.01}
                     value={row.value || ""}
                     onChange={(e) =>
-                      !row.isLocked &&
                       updateRow(row.id, { value: parseFloat(e.target.value) || 0 })
                     }
-                    readOnly={row.isLocked}
                     placeholder="0.00"
-                    className={`h-8 text-sm pr-6 ${row.isLocked ? "bg-muted/40 text-muted-foreground cursor-default" : ""}`}
+                    className="h-8 text-sm pr-6"
                   />
                   <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
                     {row.type === "PORCENTAJE" ? "%" : currencySymbol}
@@ -237,19 +222,15 @@ export function OthersTable({
                     : "—"}
                 </span>
 
-                {row.isLocked ? (
-                  <div className="h-8 w-8" />
-                ) : (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => removeRow(row.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  onClick={() => removeRow(row.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             ))}
 
