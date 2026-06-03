@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
@@ -48,7 +49,7 @@ type ColorIntensity =
 
 interface MetricCardProps {
   title: string;
-  value: string | number;
+  value?: string | number;
   subtitle?: string;
   footer?: string;
   icon?: LucideIcon;
@@ -59,6 +60,7 @@ interface MetricCardProps {
   progressValue?: number;
   progressMax?: number;
   className?: string;
+  isLoading?: boolean;
 }
 
 // Mapeo de colores de background
@@ -706,6 +708,7 @@ export function MetricCard({
   progressValue = 0,
   progressMax = 100,
   className,
+  isLoading = false,
 }: MetricCardProps) {
   const progressPercentage =
     progressMax > 0 ? (progressValue / progressMax) * 100 : 0;
@@ -748,23 +751,32 @@ export function MetricCard({
           )}
         </div>
 
-        <CardTitle
-          className={cn(
-            "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl mb-0",
-            valueClass,
-          )}
-        >
-          {value}
-        </CardTitle>
-        {subtitle && (
-          <p
-            className={cn(
-              "text-xs line-clamp-1",
-              variant === "default" ? textClass : "text-muted-foreground",
+        {isLoading ? (
+          <div className="space-y-2 pt-1">
+            <Skeleton className="h-7 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+        ) : (
+          <>
+            <CardTitle
+              className={cn(
+                "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl mb-0",
+                valueClass,
+              )}
+            >
+              {value}
+            </CardTitle>
+            {subtitle && (
+              <p
+                className={cn(
+                  "text-xs line-clamp-1",
+                  variant === "default" ? textClass : "text-muted-foreground",
+                )}
+              >
+                {subtitle}
+              </p>
             )}
-          >
-            {subtitle}
-          </p>
+          </>
         )}
       </CardHeader>
       {(footer || showProgress) && (
