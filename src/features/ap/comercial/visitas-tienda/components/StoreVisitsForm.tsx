@@ -42,6 +42,7 @@ import {
   NUM_DIGITS_RUC,
 } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { INCOME_SECTOR_SALESFORCE } from "../../sectores-ingreso/lib/incomeSector.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -256,10 +257,12 @@ export const StoreVisitsForm = ({
             name="income_sector_id"
             label="Ingreso Por"
             placeholder="Selecciona ingreso"
-            options={incomeSector.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
+            options={incomeSector
+              .filter((item) => item.id !== INCOME_SECTOR_SALESFORCE)
+              .map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
             control={form.control}
             strictFilter={true}
             disabled={disableIncomeSector}

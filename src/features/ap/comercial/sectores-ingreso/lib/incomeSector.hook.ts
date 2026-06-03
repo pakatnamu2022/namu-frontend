@@ -12,7 +12,6 @@ export const useIncomeSector = (params?: Record<string, any>) => {
   return useQuery<IncomeSectorResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getIncomeSector({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -20,7 +19,6 @@ export const useAllIncomeSector = (params?: Record<string, any>) => {
   return useQuery<IncomeSectorResource[]>({
     queryKey: [QUERY_KEY],
     queryFn: () => getAllIncomeSector({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
