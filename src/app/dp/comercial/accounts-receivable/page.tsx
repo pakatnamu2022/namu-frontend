@@ -19,7 +19,10 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { promiseToast } from "@/core/core.function";
 import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.hook";
-import { syncAccountsReceivable, sendDueReports } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
+import {
+  syncAccountsReceivable,
+  sendDueReports,
+} from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
 import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
 import AccountsReceivableTreeFilter from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTreeFilter";
