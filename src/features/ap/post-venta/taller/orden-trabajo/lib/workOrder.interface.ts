@@ -67,8 +67,6 @@ export interface WorkOrderResource {
   order_quotation?: OrderQuotationResource;
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
-  advances: ElectronicDocumentResource[];
-  advances_cancelled: ElectronicDocumentResource[];
   vouchers: WorkOrderDocumentsTreeResource;
   payment_summary: {
     paid_amount: number;

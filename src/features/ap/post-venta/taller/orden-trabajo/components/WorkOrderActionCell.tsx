@@ -63,9 +63,9 @@ export function WorkOrderActionCell({
     is_invoiced,
     items,
   } = row;
-  const isClosed = status_id === String(WORK_ORDER_STATUS_ID.CERRADO);
-  const isOpen = status_id === String(WORK_ORDER_STATUS_ID.APERTURADO);
-  const isCancelled = status_id === String(WORK_ORDER_STATUS_ID.ANULADO);
+  const isClosed = status_id == String(WORK_ORDER_STATUS_ID.CERRADO);
+  const isOpen = status_id == String(WORK_ORDER_STATUS_ID.APERTURADO);
+  const isCancelled = status_id == String(WORK_ORDER_STATUS_ID.ANULADO);
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
@@ -118,6 +118,8 @@ export function WorkOrderActionCell({
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
   const isOpenForDelete = permissions.canDelete && isOpen;
+
+  const idVisibleCancel = !isCancelled && !isClosed && !isDelivery;
 
   return (
     <div className="flex items-center gap-2">
@@ -228,7 +230,7 @@ export function WorkOrderActionCell({
 
       {isOpenForDelete && <DeleteButton onClick={() => onDelete(id)} />}
 
-      {!isCancelled && (
+      {idVisibleCancel && (
         <Button
           variant="outline"
           size="icon"

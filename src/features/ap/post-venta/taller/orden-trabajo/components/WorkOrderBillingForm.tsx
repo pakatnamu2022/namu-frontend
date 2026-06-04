@@ -236,17 +236,7 @@ export default function WorkOrderBillingForm({
       let totalOrdenTrabajo: number;
       let saldoPendiente: number;
 
-      if (isInvalidWithQuote && workOrder) {
-        // Cuando la cotización es inválida, usar los montos directamente de la orden de trabajo
-        totalOrdenTrabajo = Number(workOrder.final_amount.toFixed(2));
-        const totalFacturado = workOrder.advances.reduce(
-          (sum, adv) => sum + Number(adv.total),
-          0,
-        );
-        saldoPendiente = Number(
-          (totalOrdenTrabajo - totalFacturado).toFixed(2),
-        );
-      } else if (workOrder?.payment_summary) {
+      if (workOrder?.payment_summary) {
         totalOrdenTrabajo = Number(workOrder.final_amount.toFixed(2));
         saldoPendiente = Number(
           workOrder.payment_summary.remaining_balance.toFixed(2),

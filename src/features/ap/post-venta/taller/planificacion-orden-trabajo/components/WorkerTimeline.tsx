@@ -65,12 +65,7 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  AT_WORK_WORK_ORDER_ID,
-  FINISHED_WORK_ORDER_ID,
-  OPENING_WORK_ORDER_ID,
-  RECEIVED_WORK_ORDER_ID,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
+import { STATUS_WORK_ORDER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
 
 interface WorkerTimelineProps {
@@ -145,15 +140,15 @@ export function WorkerTimeline({
       params: {
         search: debouncedSearch,
         page: pageWorkOrder,
-        per_page: 20,
+        per_page: 10,
         status_id: [
-          OPENING_WORK_ORDER_ID,
-          RECEIVED_WORK_ORDER_ID,
-          AT_WORK_WORK_ORDER_ID,
-          FINISHED_WORK_ORDER_ID,
+          STATUS_WORK_ORDER.OPENING_ID,
+          STATUS_WORK_ORDER.RECEIVED_ID,
+          STATUS_WORK_ORDER.AT_WORK_ID,
         ],
         sede_id: sedeId,
       },
+      enabled: !!sedeId,
     });
 
   // Acumular órdenes de trabajo de todas las páginas usando reducer pattern
@@ -1675,11 +1670,13 @@ export function WorkerTimeline({
       {renderTimeline()}
 
       {/* Sheet para Caso Excepcional */}
-      <ExceptionalCaseSheet
-        open={isExceptionalCaseOpen}
-        onOpenChange={setIsExceptionalCaseOpen}
-        sedeId={sedeId}
-      />
+      {isExceptionalCaseOpen && (
+        <ExceptionalCaseSheet
+          open={isExceptionalCaseOpen}
+          onOpenChange={setIsExceptionalCaseOpen}
+          sedeId={sedeId}
+        />
+      )}
     </>
   );
 }

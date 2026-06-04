@@ -65,7 +65,10 @@ import {
   MODEL_PART,
 } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.constants";
 import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.interface";
-import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import {
+  WORK_ORDER_STATUS_ID,
+  WORKER_ORDER,
+} from "../../lib/workOrder.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface PartsTabProps {
@@ -130,6 +133,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   const associatedQuotation = workOrder?.order_quotation || null;
   const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
+  const isClosed = workOrder?.status_id == String(WORK_ORDER_STATUS_ID.CERRADO);
+  const isCancelled =
+    workOrder?.status_id == String(WORK_ORDER_STATUS_ID.ANULADO);
 
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {
@@ -433,9 +439,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             <Button
               onClick={() => setShowAddForm(true)}
               className="gap-2"
-              // disabled={
-              //   items.length === 0 || (workOrder?.advances?.length ?? 0) > 0
-              // }
+              disabled={isClosed || isCancelled}
             >
               <Plus className="h-4 w-4" />
               Agregar Repuesto
