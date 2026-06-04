@@ -7,7 +7,9 @@ import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import VehicleMovements from "./VehicleMovements";
 import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
+import ChangeLocationModal from "./ChangeLocationModal";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
 
@@ -19,6 +21,7 @@ interface Props {
     canMaintenance: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canChangeLocation?: boolean;
   };
 }
 
@@ -119,7 +122,7 @@ export const vehicleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, plate, movements, type_operation_id } = row.original;
+      const { id, plate, movements, type_operation_id, vin, ap_vehicle_status_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -127,6 +130,12 @@ export const vehicleColumns = ({
           {permissions.canViewHistory && (
             <VehicleMovements movements={movements || []} />
           )}
+
+          {/* Change Location */}
+          {(permissions.canChangeLocation ?? true) &&
+            ap_vehicle_status_id === VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO && (
+              <ChangeLocationModal vehicleId={id} vehicleVin={vin} />
+            )}
 
           {/* Work Order History */}
           {permissions.canMaintenance &&
