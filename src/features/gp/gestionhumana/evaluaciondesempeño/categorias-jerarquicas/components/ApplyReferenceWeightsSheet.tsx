@@ -21,6 +21,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 import { applyReferenceWeights } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.actions";
 import { CATEGORY_OBJECTIVE } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
 import {
@@ -28,7 +29,11 @@ import {
   CategoryWeightReport,
   type CategoryReferenceObjective,
 } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.interface";
-import { errorToast, getErrorMessage, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  getErrorMessage,
+  successToast,
+} from "@/core/core.function";
 
 interface Props {
   open: boolean;
@@ -56,29 +61,36 @@ export function ApplyReferenceWeightsSheet({
     referenceObjectives.map((o) => ({
       objective_id: o.objective_id,
       weight: o.weight,
-      goal: 0,
-    }))
+      goal: o.goal_reference,
+      active: true,
+    })),
   );
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const totalWeight = rows.reduce((sum, r) => sum + (Number(r.weight) || 0), 0);
+  const totalWeight = rows.reduce(
+    (sum, r) => sum + ((r.active ?? true) ? Number(r.weight) || 0 : 0),
+    0,
+  );
   const isValid = Math.abs(totalWeight - 100) < 0.01;
 
-  const updateRow = (
-    idx: number,
-    field: "weight" | "goal",
-    value: string
-  ) => {
+  const updateRow = (idx: number, field: "weight" | "goal", value: string) => {
     setRows((prev) =>
       prev.map((r, i) =>
-        i === idx ? { ...r, [field]: value === "" ? 0 : Number(value) } : r
-      )
+        i === idx ? { ...r, [field]: value === "" ? 0 : Number(value) } : r,
+      ),
+    );
+  };
+
+  const toggleActive = (idx: number) => {
+    setRows((prev) =>
+      prev.map((r, i) =>
+        i === idx ? { ...r, active: !(r.active ?? true) } : r,
+      ),
     );
   };
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () =>
-      applyReferenceWeights(categoryId, { objectives: rows }),
+    mutationFn: () => applyReferenceWeights(categoryId, { objectives: rows }),
     onSuccess: async (report) => {
       successToast("Pesos aplicados a todos los trabajadores");
       await queryClient.invalidateQueries({
@@ -126,7 +138,7 @@ export function ApplyReferenceWeightsSheet({
               "text-sm font-semibold px-3 py-2 rounded-md w-fit",
               isValid
                 ? "bg-green-50 text-green-700"
-                : "bg-amber-50 text-amber-700"
+                : "bg-amber-50 text-amber-700",
             )}
           >
             Suma de pesos: {totalWeight.toFixed(0)} / 100
@@ -139,35 +151,52 @@ export function ApplyReferenceWeightsSheet({
                   <TableHead className="h-8">Objetivo</TableHead>
                   <TableHead className="h-8 w-28">Peso (%)</TableHead>
                   <TableHead className="h-8 w-28">Meta</TableHead>
+                  <TableHead className="h-8 w-20 text-center">Activo</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((row, idx) => {
-                  const name =
-                    referenceObjectives[idx]?.objective_name ?? `#${row.objective_id}`;
+                  const ref = referenceObjectives[idx];
+                  const name = ref?.objective_name ?? `#${row.objective_id}`;
+                  const active = row.active ?? true;
                   return (
-                    <TableRow key={row.objective_id}>
+                    <TableRow
+                      key={row.objective_id}
+                      className={cn(!active && "opacity-50")}
+                    >
                       <TableCell className="py-1">{name}</TableCell>
                       <TableCell className="py-1">
                         <Input
                           type="number"
                           min={0}
                           max={100}
+                          disabled={!active}
                           className={cn(
                             "h-7 w-24 text-sm",
-                            row.weight === 0 && "border-destructive"
+                            active && row.weight === 0 && "border-destructive",
                           )}
                           value={row.weight}
-                          onChange={(e) => updateRow(idx, "weight", e.target.value)}
+                          onChange={(e) =>
+                            updateRow(idx, "weight", e.target.value)
+                          }
                         />
                       </TableCell>
                       <TableCell className="py-1">
                         <Input
                           type="number"
                           min={0}
+                          disabled={!active}
                           className="h-7 w-24 text-sm"
                           value={row.goal}
-                          onChange={(e) => updateRow(idx, "goal", e.target.value)}
+                          onChange={(e) =>
+                            updateRow(idx, "goal", e.target.value)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell className="py-1 text-center">
+                        <Switch
+                          checked={active}
+                          onCheckedChange={() => toggleActive(idx)}
                         />
                       </TableCell>
                     </TableRow>

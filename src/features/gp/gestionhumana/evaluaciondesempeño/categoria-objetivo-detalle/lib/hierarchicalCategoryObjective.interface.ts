@@ -76,6 +76,7 @@ export interface ApplyReferenceWeightsObjective {
   objective_id: number;
   weight: number;
   goal: number;
+  active?: boolean;
 }
 
 export interface ApplyReferenceWeightsPayload {

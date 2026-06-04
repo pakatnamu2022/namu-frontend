@@ -12,15 +12,15 @@ import {
   ChevronRight,
   FolderOpen,
   Loader2,
-  PlayCircle,
+  PowerOff,
   Users,
   XCircle,
   ArrowRight,
 } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import {
-  getActivateInCategoriesPreview,
-  activateObjectiveInCategories,
+  getDeactivateInCategoriesPreview,
+  deactivateObjectiveInCategories,
 } from "../lib/objective.actions";
 import type {
   ActivateInCategoriesPreviewResponse,
@@ -28,7 +28,7 @@ import type {
 } from "../lib/objective.interface";
 import { errorToast, successToast } from "@/core/core.function";
 
-interface ActivateInCategoriesModalProps {
+interface DeactivateInCategoriesModalProps {
   open: boolean;
   onClose: () => void;
   objectiveId: number;
@@ -52,9 +52,9 @@ function WeightRow({
     <div
       className={`flex items-center justify-between text-xs py-1.5 px-2.5 rounded-lg ${
         isTarget
-          ? "bg-emerald-100 text-emerald-900"
+          ? "bg-amber-100 text-amber-900"
           : changed
-            ? "bg-amber-100 text-amber-900"
+            ? "bg-slate-100 text-slate-700"
             : "bg-slate-100"
       }`}
     >
@@ -70,9 +70,9 @@ function WeightRow({
         {changed && (
           <>
             <ArrowRight
-              className={`size-3 ${isTarget ? "text-emerald-600" : "text-amber-600"}`}
+              className={`size-3 ${isTarget ? "text-amber-600" : "text-slate-500"}`}
             />
-            <span className={`font-semibold ${isTarget ? "text-emerald-700" : "text-amber-700"}`}>
+            <span className={`font-semibold ${isTarget ? "text-amber-700" : "text-slate-600"}`}>
               {projected.toFixed(1)}%
             </span>
           </>
@@ -129,20 +129,20 @@ function WorkerWeights({
   );
 }
 
-export function ActivateInCategoriesModal({
+export function DeactivateInCategoriesModal({
   open,
   onClose,
   objectiveId,
   objectiveName,
   onSuccess,
-}: ActivateInCategoriesModalProps) {
+}: DeactivateInCategoriesModalProps) {
   const [previewData, setPreviewData] =
     useState<ActivateInCategoriesPreviewResponse | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 
   const previewMutation = useMutation({
-    mutationFn: () => getActivateInCategoriesPreview(objectiveId),
+    mutationFn: () => getDeactivateInCategoriesPreview(objectiveId),
     onSuccess: (data) => {
       if (!data?.categories) return;
       setPreviewData(data);
@@ -151,18 +151,18 @@ export function ActivateInCategoriesModal({
     },
   });
 
-  const activateMutation = useMutation({
+  const deactivateMutation = useMutation({
     mutationFn: () =>
-      activateObjectiveInCategories(objectiveId, Array.from(selectedIds)),
+      deactivateObjectiveInCategories(objectiveId, Array.from(selectedIds)),
     onSuccess: (data) => {
       successToast(
-        `Objetivo activado en ${data.affected_categories} categorías (${data.affected_workers} trabajadores).`,
+        `Objetivo desactivado en ${data.affected_categories} categorías (${data.affected_workers} trabajadores).`,
       );
       onSuccess();
       onClose();
     },
     onError: () => {
-      errorToast("Error al activar el objetivo en las categorías.");
+      errorToast("Error al desactivar el objetivo en las categorías.");
     },
   });
 
@@ -218,29 +218,30 @@ export function ActivateInCategoriesModal({
       <Button
         variant="outline"
         onClick={onClose}
-        disabled={activateMutation.isPending}
+        disabled={deactivateMutation.isPending}
       >
         Cancelar
       </Button>
       <Button
-        onClick={() => activateMutation.mutate()}
+        variant="destructive"
+        onClick={() => deactivateMutation.mutate()}
         disabled={
           !previewData ||
           previewData.affected_categories_count === 0 ||
           selectedIds.size === 0 ||
           previewMutation.isPending ||
-          activateMutation.isPending
+          deactivateMutation.isPending
         }
         className="gap-2"
       >
-        {activateMutation.isPending ? (
+        {deactivateMutation.isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
-          <PlayCircle className="size-4" />
+          <PowerOff className="size-4" />
         )}
-        Confirmar activación
+        Confirmar desactivación
         {selectedIds.size > 0 && (
-          <Badge variant="outline" className="ml-1 text-xs">
+          <Badge variant="outline" className="ml-1 text-xs border-white/40 text-white">
             {selectedIds.size}
           </Badge>
         )}
@@ -252,10 +253,10 @@ export function ActivateInCategoriesModal({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title="Activar objetivo en categorías"
-      subtitle={`Vista previa del efecto dominó para "${objectiveName}"`}
+      title="Desactivar objetivo en categorías"
+      subtitle={`Vista previa del efecto para "${objectiveName}"`}
       size="4xl"
-      icon="PlayCircle"
+      icon="PowerOff"
       childrenFooter={footer}
     >
       <div className="space-y-4">
@@ -279,33 +280,32 @@ export function ActivateInCategoriesModal({
 
         {previewData && (
           <>
-            {/* Resumen */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-indigo-50 shadow-sm p-4 flex items-center gap-3">
-                <div className="rounded-xl bg-indigo-500 p-2.5 shadow-sm">
+              <div className="rounded-xl bg-amber-50 shadow-sm p-4 flex items-center gap-3">
+                <div className="rounded-xl bg-amber-500 p-2.5 shadow-sm">
                   <FolderOpen className="size-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-indigo-500 font-semibold uppercase tracking-wide">
+                  <p className="text-xs text-amber-500 font-semibold uppercase tracking-wide">
                     Categorías
                   </p>
-                  <p className="text-2xl font-bold text-indigo-900 leading-tight">
+                  <p className="text-2xl font-bold text-amber-900 leading-tight">
                     {selectedIds.size}
-                    <span className="text-sm font-normal text-indigo-300 ml-1">
+                    <span className="text-sm font-normal text-amber-300 ml-1">
                       / {previewData.affected_categories_count}
                     </span>
                   </p>
                 </div>
               </div>
-              <div className="rounded-xl bg-violet-50 shadow-sm p-4 flex items-center gap-3">
-                <div className="rounded-xl bg-violet-500 p-2.5 shadow-sm">
+              <div className="rounded-xl bg-red-50 shadow-sm p-4 flex items-center gap-3">
+                <div className="rounded-xl bg-red-500 p-2.5 shadow-sm">
                   <Users className="size-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-violet-500 font-semibold uppercase tracking-wide">
+                  <p className="text-xs text-red-500 font-semibold uppercase tracking-wide">
                     Trabajadores
                   </p>
-                  <p className="text-2xl font-bold text-violet-900 leading-tight">
+                  <p className="text-2xl font-bold text-red-900 leading-tight">
                     {affectedWorkers}
                   </p>
                 </div>
@@ -316,22 +316,21 @@ export function ActivateInCategoriesModal({
               <Alert>
                 <CheckCircle2 className="size-4 text-muted-foreground" />
                 <AlertDescription>
-                  Este objetivo ya está activo en todas las categorías
+                  Este objetivo ya está desactivado en todas las categorías
                   relacionadas o no tiene categorías asignadas.
                 </AlertDescription>
               </Alert>
             ) : (
               <>
-                {/* Seleccionar todo */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">
-                    Selecciona las categorías donde aplicar la activación
+                    Selecciona las categorías donde aplicar la desactivación
                   </span>
                   <button
                     onClick={toggleAll}
                     className={`text-xs px-3 py-1 rounded-full font-medium transition-colors ${
                       allSelected
-                        ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
+                        ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
@@ -339,7 +338,6 @@ export function ActivateInCategoriesModal({
                   </button>
                 </div>
 
-                {/* Categorías */}
                 <div className="space-y-2">
                   {previewData.categories.map((category) => {
                     const isSelected = selectedIds.has(category.category_id);
@@ -350,11 +348,10 @@ export function ActivateInCategoriesModal({
                         key={category.category_id}
                         className={`rounded-xl transition-all duration-150 ${
                           isSelected
-                            ? "bg-indigo-50 shadow-md"
+                            ? "bg-amber-50 shadow-md"
                             : "bg-slate-50 shadow-sm hover:bg-white hover:shadow-md"
                         }`}
                       >
-                        {/* Header de categoría — click para seleccionar */}
                         <div
                           className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
                           onClick={() => toggleCategory(category.category_id)}
@@ -367,21 +364,21 @@ export function ActivateInCategoriesModal({
                             onClick={(e) => e.stopPropagation()}
                             className={
                               isSelected
-                                ? "data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                                ? "data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
                                 : ""
                             }
                           />
                           <FolderOpen
-                            className={`size-4 shrink-0 ${isSelected ? "text-indigo-500" : "text-slate-400"}`}
+                            className={`size-4 shrink-0 ${isSelected ? "text-amber-500" : "text-slate-400"}`}
                           />
                           <span
-                            className={`font-semibold text-sm flex-1 ${isSelected ? "text-indigo-900" : "text-slate-700"}`}
+                            className={`font-semibold text-sm flex-1 ${isSelected ? "text-amber-900" : "text-slate-700"}`}
                           >
                             {category.category_name}
                           </span>
                           <Badge
                             variant={isSelected ? "default" : "outline"}
-                            className={`text-xs shrink-0 ${isSelected ? "bg-indigo-500 hover:bg-indigo-600" : ""}`}
+                            className={`text-xs shrink-0 ${isSelected ? "bg-amber-500 hover:bg-amber-600" : ""}`}
                           >
                             <Users className="size-3 mr-1" />
                             {category.affected_workers_count} trabajador
@@ -390,7 +387,7 @@ export function ActivateInCategoriesModal({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className={`size-6 shrink-0 ${isSelected ? "hover:bg-indigo-100 text-indigo-500" : "text-slate-400"}`}
+                            className={`size-6 shrink-0 ${isSelected ? "hover:bg-amber-100 text-amber-500" : "text-slate-400"}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleExpand(category.category_id);
@@ -409,7 +406,6 @@ export function ActivateInCategoriesModal({
                           </Button>
                         </div>
 
-                        {/* Detalle expandible */}
                         {isExpanded && (
                           <div className="px-4 pb-3 pt-1 space-y-3">
                             {category.workers.map((worker) => (
@@ -418,7 +414,7 @@ export function ActivateInCategoriesModal({
                                 className="rounded-xl bg-white shadow-sm p-3 space-y-1"
                               >
                                 <div className="flex items-center gap-2">
-                                  <Users className="size-3.5 text-violet-400 shrink-0" />
+                                  <Users className="size-3.5 text-amber-400 shrink-0" />
                                   <span className="text-sm font-medium text-slate-700">
                                     {worker.worker_name}
                                   </span>

@@ -87,6 +87,15 @@ export async function getActivateInCategoriesPreview(
   return data;
 }
 
+export async function getDeactivateInCategoriesPreview(
+  id: number
+): Promise<ActivateInCategoriesPreviewResponse> {
+  const { data } = await api.get<ActivateInCategoriesPreviewResponse>(
+    `${ENDPOINT}/${id}/deactivate-in-categories/preview`
+  );
+  return data;
+}
+
 export async function activateObjectiveInCategories(
   id: number,
   categoryIds?: number[]
@@ -94,6 +103,18 @@ export async function activateObjectiveInCategories(
   const body = categoryIds ? { category_ids: categoryIds } : undefined;
   const { data } = await api.post<ActivateInCategoriesResponse>(
     `${ENDPOINT}/${id}/activate-in-categories`,
+    body
+  );
+  return data;
+}
+
+export async function deactivateObjectiveInCategories(
+  id: number,
+  categoryIds?: number[]
+): Promise<ActivateInCategoriesResponse> {
+  const body = categoryIds ? { category_ids: categoryIds } : undefined;
+  const { data } = await api.post<ActivateInCategoriesResponse>(
+    `${ENDPOINT}/${id}/deactivate-in-categories`,
     body
   );
   return data;

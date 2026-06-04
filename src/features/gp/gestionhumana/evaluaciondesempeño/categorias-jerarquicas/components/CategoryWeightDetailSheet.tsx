@@ -17,7 +17,18 @@ import { useCategoryWeightReport } from "../../categoria-objetivo-detalle/lib/hi
 import { CategoryWeightReport } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ApplyReferenceWeightsSheet } from "./ApplyReferenceWeightsSheet";
-import { Check, Scale, X } from "lucide-react";
+import { ButtonAction } from "@/shared/components/ButtonAction";
+import { Check, RefreshCw, Scale, X } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import {
+  homogeneousWeightsPerson,
+  regeneratePersonObjectives,
+} from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.actions";
+import {
+  errorToast,
+  getErrorMessage,
+  successToast,
+} from "@/core/core.function";
 
 interface Props {
   open: boolean;
@@ -37,12 +48,41 @@ export function CategoryWeightDetailSheet({
     open,
   );
   const [applyOpen, setApplyOpen] = useState(false);
+  const [pendingPersonId, setPendingPersonId] = useState<number | null>(null);
 
   const referenceObjectives = data?.objectives ?? [];
 
   const handleApplySuccess = (_report: CategoryWeightReport) => {
     refetch();
   };
+
+  const { mutate: regenerate, isPending: isRegenerating } = useMutation({
+    mutationFn: (personId: number) =>
+      regeneratePersonObjectives(categoryId, personId),
+    onMutate: (personId) => setPendingPersonId(personId),
+    onSuccess: async () => {
+      successToast("Objetivos faltantes agregados correctamente");
+      await refetch();
+    },
+    onError: (error: any) => {
+      errorToast(getErrorMessage(error) || "No se pudieron agregar los objetivos faltantes");
+    },
+    onSettled: () => setPendingPersonId(null),
+  });
+
+  const { mutate: homogenize, isPending: isHomogenizing } = useMutation({
+    mutationFn: (personId: number) =>
+      homogeneousWeightsPerson(categoryId, personId),
+    onMutate: (personId) => setPendingPersonId(personId),
+    onSuccess: async () => {
+      successToast("Pesos homogeneizados correctamente");
+      await refetch();
+    },
+    onError: (error: any) => {
+      errorToast(getErrorMessage(error) || "No se pudieron homogeneizar los pesos");
+    },
+    onSettled: () => setPendingPersonId(null),
+  });
 
   return (
     <>
@@ -52,7 +92,7 @@ export function CategoryWeightDetailSheet({
         title={`Pesos por trabajador · ${categoryName}`}
         subtitle="Detalle de validez de pesos para cada trabajador de esta categoría"
         icon="BarChart2"
-        size="5xl"
+        size="7xl"
         childrenFooter={
           <div className="w-full flex justify-between items-center gap-2 mt-4">
             <Button variant="outline" onClick={onClose}>
@@ -91,17 +131,27 @@ export function CategoryWeightDetailSheet({
                     {referenceObjectives.map((obj) => (
                       <TableHead
                         key={obj.objective_id}
-                        className="h-8 text-center whitespace-nowrap"
+                        className="h-8 text-center whitespace-nowrap max-w-32 truncate"
                       >
                         {obj.objective_name}
                       </TableHead>
                     ))}
                     <TableHead className="h-8 text-center">Suma</TableHead>
                     <TableHead className="h-8 text-center">Estado</TableHead>
+                    <TableHead className="h-8 text-center">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.workers.map((worker) => (
+                  {data.workers.map((worker) => {
+                    const hasMissing =
+                      worker.objectives.length < referenceObjectives.length;
+                    const isNotHomogeneous =
+                      Math.abs(worker.total_weight - 100) > 0.01 ||
+                      worker.objectives.some((o) => o.weight === 0);
+                    const isPending = pendingPersonId === worker.person_id;
+                    const difference = 100 - worker.total_weight;
+
+                    return (
                     <TableRow
                       key={worker.person_id}
                       className={cn(!worker.valid && "bg-red-50")}
@@ -151,8 +201,27 @@ export function CategoryWeightDetailSheet({
                           {worker.valid ? "OK" : "Error"}
                         </Badge>
                       </TableCell>
+                      <TableCell className="py-1 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <ButtonAction
+                            icon={RefreshCw}
+                            canRender={hasMissing}
+                            disabled={isPending || isRegenerating || isHomogenizing}
+                            onClick={() => regenerate(worker.person_id)}
+                            tooltip="Agregar objetivos faltantes"
+                          />
+                          <ButtonAction
+                            icon={Scale}
+                            canRender={isNotHomogeneous}
+                            disabled={isPending || isRegenerating || isHomogenizing}
+                            onClick={() => homogenize(worker.person_id)}
+                            tooltip={`Homogenizar pesos · ${difference > 0 ? "+" : ""}${difference.toFixed(0)}%`}
+                          />
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
