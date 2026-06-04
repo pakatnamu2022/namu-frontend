@@ -27,6 +27,7 @@ import { CATEGORY_OBJECTIVE } from "../../categoria-objetivo-detalle/lib/hierarc
 import {
   ApplyReferenceWeightsObjective,
   CategoryWeightReport,
+  CategoryWeightReportWorker,
   type CategoryReferenceObjective,
 } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.interface";
 import {
@@ -34,6 +35,45 @@ import {
   getErrorMessage,
   successToast,
 } from "@/core/core.function";
+import { Sparkles } from "lucide-react";
+
+function suggestWeights(
+  workers: CategoryWeightReportWorker[],
+  referenceObjectives: CategoryReferenceObjective[],
+): number[] {
+  const n = referenceObjectives.length;
+  if (n === 0) return [];
+
+  const weightsByObjective = referenceObjectives.map((refObj) =>
+    workers
+      .flatMap((w) => w.objectives)
+      .filter((o) => o.objective_id === refObj.objective_id && o.weight > 0)
+      .map((o) => o.weight),
+  );
+
+  const modes = weightsByObjective.map((weights, i) => {
+    if (weights.length === 0) {
+      // fallback: split equally in multiples of 10
+      return Math.round((100 / n) / 10) * 10;
+    }
+    const freq: Record<number, number> = {};
+    for (const w of weights) freq[w] = (freq[w] || 0) + 1;
+    return Number(Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0]);
+  });
+
+  const sum = modes.reduce((a, b) => a + b, 0);
+  if (Math.abs(sum - 100) < 0.01) return modes;
+
+  // Normalize proportionally then round to multiples of 10
+  const normalized = modes.map((m) => Math.round((m / sum) * 10) * 10);
+  const normalizedSum = normalized.reduce((a, b) => a + b, 0);
+  const diff = 100 - normalizedSum;
+  if (diff !== 0) {
+    const maxIdx = normalized.indexOf(Math.max(...normalized));
+    normalized[maxIdx] = Math.max(0, normalized[maxIdx] + diff);
+  }
+  return normalized;
+}
 
 interface Props {
   open: boolean;
@@ -42,6 +82,7 @@ interface Props {
   categoryName: string;
   totalWorkers: number;
   referenceObjectives: CategoryReferenceObjective[];
+  workers: CategoryWeightReportWorker[];
   onSuccess: (report: CategoryWeightReport) => void;
 }
 
@@ -52,6 +93,7 @@ export function ApplyReferenceWeightsSheet({
   categoryName,
   totalWorkers,
   referenceObjectives,
+  workers,
   onSuccess,
 }: Props) {
   const { QUERY_KEY } = CATEGORY_OBJECTIVE;
@@ -66,6 +108,23 @@ export function ApplyReferenceWeightsSheet({
     })),
   );
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const applySuggestion = () => {
+    const activeReferenceObjectives = referenceObjectives.filter((refObj) =>
+      rows.find((r) => r.objective_id === refObj.objective_id)?.active ?? true,
+    );
+    const suggested = suggestWeights(workers, activeReferenceObjectives);
+    const suggestionMap = new Map(
+      activeReferenceObjectives.map((obj, i) => [obj.objective_id, suggested[i]]),
+    );
+    setRows((prev) =>
+      prev.map((r) => {
+        const active = r.active ?? true;
+        if (!active) return { ...r, weight: 0 };
+        return { ...r, weight: suggestionMap.get(r.objective_id) ?? r.weight };
+      }),
+    );
+  };
 
   const totalWeight = rows.reduce(
     (sum, r) => sum + ((r.active ?? true) ? Number(r.weight) || 0 : 0),
@@ -133,15 +192,28 @@ export function ApplyReferenceWeightsSheet({
         }
       >
         <div className="space-y-4">
-          <div
-            className={cn(
-              "text-sm font-semibold px-3 py-2 rounded-md w-fit",
-              isValid
-                ? "bg-green-50 text-green-700"
-                : "bg-amber-50 text-amber-700",
+          <div className="flex items-center gap-3 flex-wrap">
+            <div
+              className={cn(
+                "text-sm font-semibold px-3 py-2 rounded-md",
+                isValid
+                  ? "bg-green-50 text-green-700"
+                  : "bg-amber-50 text-amber-700",
+              )}
+            >
+              Suma de pesos: {totalWeight.toFixed(0)} / 100
+            </div>
+            {workers.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-xs"
+                onClick={applySuggestion}
+              >
+                <Sparkles className="size-3.5" />
+                Sugerir pesos
+              </Button>
             )}
-          >
-            Suma de pesos: {totalWeight.toFixed(0)} / 100
           </div>
 
           <div className="rounded overflow-hidden shadow-sm">

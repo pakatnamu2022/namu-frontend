@@ -239,6 +239,7 @@ export function CategoryWeightDetailSheet({
           categoryName={categoryName}
           totalWorkers={data.total_workers}
           referenceObjectives={referenceObjectives}
+          workers={data.workers}
           onSuccess={handleApplySuccess}
         />
       )}
