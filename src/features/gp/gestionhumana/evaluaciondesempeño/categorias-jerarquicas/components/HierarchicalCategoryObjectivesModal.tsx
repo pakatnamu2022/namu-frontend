@@ -21,6 +21,11 @@ import {
   storeHierarchicalCategoryObjective,
   updateHierarchicalCategoryObjective,
 } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.actions";
+import {
+  activateObjectiveInCategories,
+  deactivateObjectiveInCategories,
+} from "../../objetivos/lib/objective.actions";
+import { DeactivateInCategoriesModal } from "../../objetivos/components/DeactivateInCategoriesModal";
 import { CATEGORY_OBJECTIVE } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { HierarchicalCategoryResource } from "../lib/hierarchicalCategory.interface";
@@ -63,8 +68,15 @@ export function HierarchicalCategoryObjectivesModal({
   const [adding, setAdding] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [deleteDetailId, setDeleteDetailId] = useState<number | null>(null);
+  const [deactivateModal, setDeactivateModal] = useState<{
+    objectiveId: number;
+    objectiveName: string;
+  } | null>(null);
   const [activeView, setActiveView] = useState<"objectives" | "asignations">(
     "objectives",
+  );
+  const [pendingObjectiveId, setPendingObjectiveId] = useState<number | null>(
+    null,
   );
 
   const { data = [], isLoading: isLoadingWorkers } =
@@ -220,6 +232,37 @@ export function HierarchicalCategoryObjectivesModal({
     mutate(data);
   };
 
+  const { mutate: toggleActiveInCategory } = useMutation({
+    mutationFn: ({
+      objectiveId,
+      active,
+    }: {
+      objectiveId: number;
+      active: boolean;
+    }) => {
+      if (active) {
+        return activateObjectiveInCategories(objectiveId, [category.id]);
+      }
+      return deactivateObjectiveInCategories(objectiveId, [category.id]);
+    },
+    onMutate: ({ objectiveId }) => setPendingObjectiveId(objectiveId),
+    onSuccess: async (_, { active }) => {
+      successToast(
+        active
+          ? "Objetivo activado en esta categoría"
+          : "Objetivo desactivado en esta categoría",
+      );
+      await invalidateQueryObjectives();
+    },
+    onError: (error: any) => {
+      errorToast(
+        getErrorMessage(error) || "No se pudo cambiar el estado del objetivo",
+      );
+    },
+    onSettled: () => setPendingObjectiveId(null),
+  });
+
+
   return (
     <GeneralSheet
       title={`Objetivos de ${name}`}
@@ -285,6 +328,13 @@ export function HierarchicalCategoryObjectivesModal({
               <CategoryObjectivesList
                 categoryObjectives={categoryObjectives}
                 setDeleteDetailId={setDeleteDetailId}
+                onToggleActive={(objectiveId, active) =>
+                  toggleActiveInCategory({ objectiveId, active })
+                }
+                onOpenDeactivateModal={(objectiveId, objectiveName) =>
+                  setDeactivateModal({ objectiveId, objectiveName })
+                }
+                pendingObjectiveId={pendingObjectiveId}
               />
             </>
           )}
@@ -311,12 +361,21 @@ export function HierarchicalCategoryObjectivesModal({
         </div>
       )}
 
-      {/* Delete Dialog */}
       {deleteDetailId !== null && (
         <SimpleDeleteDialog
           open={true}
           onOpenChange={(open) => !open && setDeleteDetailId(null)}
           onConfirm={handleDeleteObjective}
+        />
+      )}
+
+      {deactivateModal && (
+        <DeactivateInCategoriesModal
+          open={true}
+          onClose={() => setDeactivateModal(null)}
+          objectiveId={deactivateModal.objectiveId}
+          objectiveName={deactivateModal.objectiveName}
+          onSuccess={invalidateQueryObjectives}
         />
       )}
     </GeneralSheet>
