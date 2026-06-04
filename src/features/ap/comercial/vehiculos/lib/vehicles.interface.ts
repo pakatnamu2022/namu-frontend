@@ -132,6 +132,39 @@ export interface VehicleClientDebtInfo {
   }>;
   notas_credito: any[];
   notas_debito: any[];
+  reception: {
+    shipping_guide_id: number;
+    document_number: string;
+    issue_date: string;
+    received_date: string;
+    note_received: string;
+    received_by: string;
+    checklist_items: Array<{
+      id: number;
+      description: string;
+      quantity: number;
+      kilometers: string;
+    }>;
+    inspection: {
+      id: number;
+      photo_front_url: string;
+      photo_back_url: string;
+      photo_left_url: string;
+      photo_right_url: string;
+      general_observations: string;
+      inspected_by: string;
+      created_at: string;
+      damages: Array<{
+        id: number;
+        damage_type: string;
+        x_coordinate: string;
+        y_coordinate: string;
+        description: string | null;
+        photo_url: string;
+      }>;
+    } | null;
+    accessories: any[];
+  } | null;
 }
 
 export interface VinMatchSummary {

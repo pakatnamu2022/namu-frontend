@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ViewResource } from "../lib/view.interface";
 import { Button } from "@/components/ui/button";
-import { Copy, Pencil, ShieldCheck } from "lucide-react";
+import { Copy, Pencil, ShieldCheck, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -20,6 +20,7 @@ interface Props {
   onDelete: (id: number) => void;
   onDuplicate: (id: number) => void;
   onOpenPermissions: (id: number) => void;
+  onOpenRoles: (id: number) => void;
 }
 
 export const viewColumns = ({
@@ -28,6 +29,7 @@ export const viewColumns = ({
   onDelete,
   onDuplicate,
   onOpenPermissions,
+  onOpenRoles,
 }: Props): ViewColumns[] => [
   {
     accessorKey: "id",
@@ -195,6 +197,16 @@ export const viewColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {/* Roles */}
+          <Button
+            tooltip="Ver Roles con Acceso"
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onOpenRoles(id)}
+          >
+            <Users className="size-5" />
+          </Button>
           {/* Permissions */}
           <Button
             tooltip="Gestionar Permisos"

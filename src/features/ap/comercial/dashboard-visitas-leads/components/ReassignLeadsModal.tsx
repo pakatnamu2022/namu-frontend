@@ -149,16 +149,25 @@ export default function ReassignLeadsModal({
     setIsSubmitting(true);
     setErrorMsg("");
     try {
-      const response = await transferWorkerLeads({
+      const baseBody = {
         from_worker_id: fromWorkerIdNum,
         to_worker_id: parseInt(toWorkerId, 10),
-        potential_buyer_ids:
-          scope === "specific"
-            ? selectedLeadIds
-            : scope === "quantity"
-              ? pendingLeads.slice(0, quantity).map((l) => l.id)
-              : [],
-      });
+      };
+      const body =
+        scope === "all"
+          ? {
+              ...baseBody,
+              date_from: format(dateFrom!, "yyyy-MM-dd"),
+              date_to: format(dateTo!, "yyyy-MM-dd"),
+            }
+          : {
+              ...baseBody,
+              potential_buyer_ids:
+                scope === "quantity"
+                  ? pendingLeads.slice(0, quantity).map((l) => l.id)
+                  : selectedLeadIds,
+            };
+      const response = await transferWorkerLeads(body);
       successToast(response.message);
       queryClient.invalidateQueries({ queryKey: ["salesManagerStats"] });
       handleClose();
@@ -190,7 +199,7 @@ export default function ReassignLeadsModal({
   const showScopeStep = step1Done && pendingLeads.length > 0;
   const step2Done =
     !showScopeStep ||
-    scope === "all" ||
+    (scope === "all" && !!dateFrom && !!dateTo) ||
     (scope === "quantity" && quantity >= 1) ||
     selectedLeadIds.length > 0;
   const canConfirm = step1Done && step2Done;

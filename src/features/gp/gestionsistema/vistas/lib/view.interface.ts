@@ -72,3 +72,19 @@ export interface View {
   hijo: string | null;
   permissions: Permission[];
 }
+
+export interface ViewRolePermissionItem {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+  granted: boolean;
+}
+
+export interface ViewRoleItem {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  permissions: ViewRolePermissionItem[];
+}
+
