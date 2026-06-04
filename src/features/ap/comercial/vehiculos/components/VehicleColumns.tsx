@@ -122,7 +122,14 @@ export const vehicleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, plate, movements, type_operation_id, vin, ap_vehicle_status_id } = row.original;
+      const {
+        id,
+        plate,
+        movements,
+        type_operation_id,
+        vin,
+        ap_vehicle_status_id,
+      } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -134,7 +141,11 @@ export const vehicleColumns = ({
           {/* Change Location */}
           {(permissions.canChangeLocation ?? true) &&
             ap_vehicle_status_id === VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO && (
-              <ChangeLocationModal vehicleId={id} vehicleVin={vin} />
+              <ChangeLocationModal
+                vehicleId={id}
+                vehicleVin={vin}
+                apClassArticleId={row.original.model.class_id}
+              />
             )}
 
           {/* Work Order History */}

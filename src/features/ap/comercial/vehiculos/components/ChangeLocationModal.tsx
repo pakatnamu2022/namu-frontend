@@ -26,9 +26,10 @@ type FormValues = z.infer<typeof schema>;
 interface Props {
   vehicleId: number;
   vehicleVin?: string;
+  apClassArticleId: number;
 }
 
-export default function ChangeLocationModal({ vehicleId, vehicleVin }: Props) {
+export default function ChangeLocationModal({ vehicleId, vehicleVin, apClassArticleId }: Props) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
@@ -47,7 +48,7 @@ export default function ChangeLocationModal({ vehicleId, vehicleVin }: Props) {
       is_received: 0,
       empresa_id: EMPRESA_AP.id,
       type_operation_id: CM_COMERCIAL_ID,
-      ap_class_article_id: undefined,
+      ap_class_article_id: apClassArticleId.toString(),
     });
 
   const handleClose = () => {
@@ -61,6 +62,7 @@ export default function ChangeLocationModal({ vehicleId, vehicleVin }: Props) {
       await createInternalShippingGuide({
         ap_vehicle_id: vehicleId,
         sede_receiver_id: Number(values.sede_receiver_id),
+        ap_class_article_id: apClassArticleId,
       });
       toast.success("Guía interna creada exitosamente");
       queryClient.invalidateQueries({
