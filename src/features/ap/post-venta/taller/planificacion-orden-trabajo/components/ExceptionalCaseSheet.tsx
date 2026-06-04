@@ -132,6 +132,15 @@ export function ExceptionalCaseSheet({
     }
   }, [activeGroup, form]);
 
+  // Auto-seleccionar item si solo hay uno en el grupo activo
+  useEffect(() => {
+    if (filteredItems.length === 1) {
+      setSelectedItemId(filteredItems[0].id);
+      form.setValue("description", filteredItems[0].description);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredItems]);
+
   // Calcula las horas trabajadas excluyendo el almuerzo
   const calculateWorkingHours = (start: string, end: string): number => {
     const { LUNCH_START, LUNCH_END } = WORK_SCHEDULE;

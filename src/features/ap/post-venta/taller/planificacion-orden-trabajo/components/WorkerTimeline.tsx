@@ -242,6 +242,9 @@ export function WorkerTimeline({
     );
   }, [selectedWorkOrder, activeGroup]);
 
+  const effectiveSelectedItemId =
+    filteredItems.length === 1 ? filteredItems[0].id : selectedItemId;
+
   // Horarios en minutos desde medianoche (definidos en workOrderPlanning.constants.ts)
   const {
     MORNING_START,
@@ -658,12 +661,12 @@ export function WorkerTimeline({
       selectedTime &&
       onTimeSelect &&
       selectedWorkOrderId &&
-      selectedItemId !== null &&
+      effectiveSelectedItemId !== null &&
       activeGroup !== null
     ) {
       // Obtener la descripción del item seleccionado
       const selectedItem = filteredItems.find(
-        (item) => item.id === selectedItemId,
+        (item) => item.id === effectiveSelectedItemId,
       );
       const description = selectedItem?.description || "";
 
@@ -693,7 +696,7 @@ export function WorkerTimeline({
   const canConfirm =
     selectedTime &&
     selectedWorkOrderId &&
-    selectedItemId !== null &&
+    effectiveSelectedItemId !== null &&
     activeGroup !== null;
 
   // Posición de la hora actual en el timeline (solo relevante si selectedDate es hoy)
@@ -929,7 +932,7 @@ export function WorkerTimeline({
                 Seleccionar Descripción de Trabajo
               </Label>
               <RadioGroup
-                value={selectedItemId?.toString() || ""}
+                value={effectiveSelectedItemId?.toString() || ""}
                 onValueChange={(value) => setSelectedItemId(Number(value))}
               >
                 <div className="space-y-1 max-h-56 overflow-y-auto">
@@ -938,7 +941,7 @@ export function WorkerTimeline({
                       <div
                         key={item.id}
                         className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
-                          selectedItemId === item.id
+                          effectiveSelectedItemId === item.id
                             ? "bg-blue-50 border-blue-300"
                             : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
                         }`}
