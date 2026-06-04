@@ -14,7 +14,7 @@ import {
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import {
-  WORK_ORDER_STATUS_ID,
+  STATUS_WORK_ORDER,
   WORKER_ORDER_CAJA,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import {
@@ -133,11 +133,12 @@ export default function WorkOrderCajaPage() {
       items$typePlanning$type_document: "PAYMENT_RECEIPTS",
       items$typePlanning$id: typePlanningId || undefined,
       status_id: [
-        WORK_ORDER_STATUS_ID.APERTURADO,
-        WORK_ORDER_STATUS_ID.RECEPCIONADO,
-        WORK_ORDER_STATUS_ID.EN_TRABAJO,
-        WORK_ORDER_STATUS_ID.TERMINADO,
-        WORK_ORDER_STATUS_ID.CERRADO,
+        STATUS_WORK_ORDER.APERTURADO,
+        STATUS_WORK_ORDER.RECEPCIONADO,
+        STATUS_WORK_ORDER.EN_TRABAJO,
+        STATUS_WORK_ORDER.FIN_TRABAJO,
+        STATUS_WORK_ORDER.TERMINADO,
+        STATUS_WORK_ORDER.CERRADO,
       ],
     },
     enabled: activeView === "OT" && !!effectiveSedeId,

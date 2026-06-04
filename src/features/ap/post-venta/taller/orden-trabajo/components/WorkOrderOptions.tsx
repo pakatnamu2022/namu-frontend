@@ -1,5 +1,5 @@
 import SearchInput from "@/shared/components/SearchInput";
-import { WORK_ORDER_STATUS_ID } from "../lib/workOrder.constants";
+import { STATUS_WORK_ORDER } from "../lib/workOrder.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.interface";
@@ -9,13 +9,13 @@ import RadioButton from "@/shared/components/RadioButton";
 
 const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
-  { label: "Recepcionado", value: String(WORK_ORDER_STATUS_ID.RECEPCIONADO) },
-  { label: "En Trabajo", value: String(WORK_ORDER_STATUS_ID.EN_TRABAJO) },
+  { label: "Recepcionado", value: String(STATUS_WORK_ORDER.RECEPCIONADO) },
+  { label: "En Trabajo", value: String(STATUS_WORK_ORDER.EN_TRABAJO) },
   {
     label: "Finalizo Trabajo",
-    value: String(WORK_ORDER_STATUS_ID.FIN_TRABAJO),
+    value: String(STATUS_WORK_ORDER.FIN_TRABAJO),
   },
-  { label: "Terminado", value: String(WORK_ORDER_STATUS_ID.TERMINADO) },
+  { label: "Terminado", value: String(STATUS_WORK_ORDER.TERMINADO) },
 ];
 
 interface Props {

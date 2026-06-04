@@ -27,7 +27,7 @@ import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_TRANSACTIONS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { WORKER_ORDER, WORK_ORDER_STATUS_ID } from "../lib/workOrder.constants";
+import { WORKER_ORDER, STATUS_WORK_ORDER } from "../lib/workOrder.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderBillingFormProps {
@@ -187,7 +187,7 @@ export default function WorkOrderBillingForm({
 
   const isInvalidWithQuote = workOrder?.is_invalid_with_quote ?? false;
   const isTerminado =
-    Number(workOrder?.status_id) === WORK_ORDER_STATUS_ID.TERMINADO;
+    Number(workOrder?.status_id) === STATUS_WORK_ORDER.TERMINADO;
 
   const handleCreateInvoice = () => {
     if (!selectedGroupNumber) {

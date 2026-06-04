@@ -233,6 +233,13 @@ export async function sendToFinished(id: number): Promise<WorkOrderResource> {
   return response.data;
 }
 
+export async function revertFinished(id: number): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/revertir`,
+  );
+  return response.data;
+}
+
 export interface CancelWorkOrderData {
   discard_reason_id: number;
   discarded_note?: string | null;

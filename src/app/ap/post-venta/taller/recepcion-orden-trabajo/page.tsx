@@ -13,7 +13,7 @@ import {
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import {
-  WORK_ORDER_STATUS_ID,
+  STATUS_WORK_ORDER,
   WORKER_ORDER_RECEPCION,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
@@ -79,9 +79,9 @@ export default function WorkOrderReceptionPage() {
       status_id:
         statusFilter === "all"
           ? [
-              WORK_ORDER_STATUS_ID.RECEPCIONADO,
-              WORK_ORDER_STATUS_ID.EN_TRABAJO,
-              WORK_ORDER_STATUS_ID.FIN_TRABAJO,
+              STATUS_WORK_ORDER.RECEPCIONADO,
+              STATUS_WORK_ORDER.EN_TRABAJO,
+              STATUS_WORK_ORDER.FIN_TRABAJO,
             ]
           : [Number(statusFilter)],
       sort: "estimated_delivery_date",

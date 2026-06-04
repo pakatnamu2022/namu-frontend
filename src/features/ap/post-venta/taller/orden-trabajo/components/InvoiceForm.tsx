@@ -253,9 +253,7 @@ export default function InvoiceForm({
               codigo: advance.id?.toString(),
               descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
                 advance.issue_date
-                  ? new Date(advance.issue_date).toLocaleDateString(
-                      "es-PE",
-                    )
+                  ? new Date(advance.issue_date).toLocaleDateString("es-PE")
                   : ""
               }`,
               cantidad: 1,

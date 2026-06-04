@@ -115,14 +115,3 @@ export const ON_SELECT_AREA = [
   { label: "COMERCIAL", value: AREA_COMERCIAL.toString() },
   { label: "POSTVENTA", value: AREA_POSTVENTA.toString() },
 ];
-
-// ESTADOS DE ORDEN DE TRABAJO
-export const STATUS_WORK_ORDER = {
-  OPENING_ID: 884,
-  RECEIVED_ID: 889,
-  AT_WORK_ID: 890,
-  END_WORK_ID: 891,
-  FINISHED_ID: 892,
-  CLOSED_ID: 893,
-  CANCELED_ID: 894,
-};

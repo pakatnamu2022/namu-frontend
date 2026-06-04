@@ -65,10 +65,7 @@ import {
   MODEL_PART,
 } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.constants";
 import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.interface";
-import {
-  WORK_ORDER_STATUS_ID,
-  WORKER_ORDER,
-} from "../../lib/workOrder.constants";
+import { STATUS_WORK_ORDER, WORKER_ORDER } from "../../lib/workOrder.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface PartsTabProps {
@@ -133,9 +130,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   const associatedQuotation = workOrder?.order_quotation || null;
   const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
-  const isClosed = workOrder?.status_id == String(WORK_ORDER_STATUS_ID.CERRADO);
-  const isCancelled =
-    workOrder?.status_id == String(WORK_ORDER_STATUS_ID.ANULADO);
+  const isClosed = workOrder?.status_id == String(STATUS_WORK_ORDER.CERRADO);
+  const isCancelled = workOrder?.status_id == String(STATUS_WORK_ORDER.ANULADO);
 
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {

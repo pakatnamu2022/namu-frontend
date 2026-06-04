@@ -36,8 +36,8 @@ import { Label } from "@/components/ui/label";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { errorToast, successToast } from "@/core/core.function";
 import { useIsTablet } from "@/hooks/use-tablet";
-import { STATUS_WORK_ORDER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { STATUS_WORK_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
 
 interface ExceptionalCaseSheetProps {
   open: boolean;
@@ -58,9 +58,9 @@ function useWorkOrderAsync(params: {
       page: params.page,
       per_page: params.per_page,
       status_id: [
-        STATUS_WORK_ORDER.OPENING_ID,
-        STATUS_WORK_ORDER.RECEIVED_ID,
-        STATUS_WORK_ORDER.AT_WORK_ID,
+        STATUS_WORK_ORDER.APERTURADO,
+        STATUS_WORK_ORDER.RECEPCIONADO,
+        STATUS_WORK_ORDER.EN_TRABAJO,
       ],
       sede_id: params.sede_id,
     },

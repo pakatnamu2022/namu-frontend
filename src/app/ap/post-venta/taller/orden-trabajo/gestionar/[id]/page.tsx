@@ -66,8 +66,7 @@ export default function ManageWorkOrderPage() {
     enabled: !!id,
   });
 
-  const color =
-    WORK_ORDER_STATUS_COLORS[workOrder?.status.description || ""] ?? "gray";
+  const color = WORK_ORDER_STATUS_COLORS[workOrder?.status.id || 0] ?? "gray";
 
   // Mutación para adjuntar cotización
   const attachQuotationMutation = useMutation({

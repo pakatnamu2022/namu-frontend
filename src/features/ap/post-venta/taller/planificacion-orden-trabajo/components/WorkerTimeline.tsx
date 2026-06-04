@@ -65,8 +65,8 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { STATUS_WORK_ORDER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
+import { STATUS_WORK_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -142,9 +142,9 @@ export function WorkerTimeline({
         page: pageWorkOrder,
         per_page: 10,
         status_id: [
-          STATUS_WORK_ORDER.OPENING_ID,
-          STATUS_WORK_ORDER.RECEIVED_ID,
-          STATUS_WORK_ORDER.AT_WORK_ID,
+          STATUS_WORK_ORDER.APERTURADO,
+          STATUS_WORK_ORDER.RECEPCIONADO,
+          STATUS_WORK_ORDER.EN_TRABAJO,
         ],
         sede_id: sedeId,
       },

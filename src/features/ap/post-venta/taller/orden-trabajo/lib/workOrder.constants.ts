@@ -40,18 +40,18 @@ export const WORKER_ORDER_RECEPCION: ModelComplete<WorkOrderResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_RECEPCION}/actualizar`,
 };
 
-export const WORK_ORDER_STATUS_COLORS: Record<string, BadgeColor> = {
-  APERTURADO: "blue",
-  RECEPCIONADO: "cyan",
-  "EN TRABAJO": "amber",
-  "FINALIZO TRABAJO": "green",
-  TERMINADO: "sky",
-  CERRADO: "gray",
-  ANULADO: "red",
+export const WORK_ORDER_STATUS_COLORS: Record<number, BadgeColor> = {
+  884: "blue", // APERTURADO
+  889: "cyan", // RECEPCIONADO
+  890: "amber", // EN TRABAJO
+  891: "green", // FINALIZO TRABAJO
+  892: "sky", // TERMINADO
+  893: "gray", // CERRADO
+  894: "red", // ANULADO
 };
 
 // IDs DE ESTADOS DE ORDEN DE TRABAJO
-export const WORK_ORDER_STATUS_ID = {
+export const STATUS_WORK_ORDER = {
   APERTURADO: 884,
   RECEPCIONADO: 889,
   EN_TRABAJO: 890,
@@ -62,10 +62,10 @@ export const WORK_ORDER_STATUS_ID = {
 } as const;
 
 export const finishAllowedStatuses: number[] = [
-  WORK_ORDER_STATUS_ID.APERTURADO,
-  WORK_ORDER_STATUS_ID.RECEPCIONADO,
-  WORK_ORDER_STATUS_ID.EN_TRABAJO,
-  WORK_ORDER_STATUS_ID.FIN_TRABAJO,
+  STATUS_WORK_ORDER.APERTURADO,
+  STATUS_WORK_ORDER.RECEPCIONADO,
+  STATUS_WORK_ORDER.EN_TRABAJO,
+  STATUS_WORK_ORDER.FIN_TRABAJO,
 ];
 
 // RUTAS PARA POSTVENTA - CAJA

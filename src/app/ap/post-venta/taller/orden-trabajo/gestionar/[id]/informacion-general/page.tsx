@@ -35,9 +35,11 @@ import {
   errorToast,
   formatDate,
   formatDateTime,
+  formatHours,
   successToast,
 } from "@/core/core.function";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export default function GeneralInformationPage() {
   const params = useParams();
@@ -679,7 +681,7 @@ export default function GeneralInformationPage() {
                             {labour.description}
                           </td>
                           <td className="py-2 px-3 text-gray-600">
-                            {labour.time_spent}
+                            {formatHours(labour.time_spent)}
                           </td>
                           <td className="py-2 px-3 text-right">
                             {workOrder.type_currency?.symbol || "S/"}{" "}
@@ -738,6 +740,9 @@ export default function GeneralInformationPage() {
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Cód.
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
                           Producto
                         </th>
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
@@ -761,6 +766,18 @@ export default function GeneralInformationPage() {
                           className="border-b border-gray-100 hover:bg-gray-50"
                         >
                           <td className="py-2 px-3 font-medium">
+                            <CopyCell
+                              value={part.product_code || "N/A"}
+                              label={`Cód: ${part.product_code}`}
+                              className="inline-flex items-center gap-1 text-gray-700"
+                            />
+                            <CopyCell
+                              value={part.product_dyn_code || "N/A"}
+                              label={`Cód Dyn: ${part.product_dyn_code}`}
+                              className="inline-flex items-center gap-1 text-gray-700"
+                            />
+                          </td>
+                          <td className="py-2 px-3 font-medium">
                             {part.product_name}
                           </td>
                           <td className="py-2 px-3 text-gray-600">
@@ -783,7 +800,7 @@ export default function GeneralInformationPage() {
                     <tfoot>
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
                         <td
-                          colSpan={4}
+                          colSpan={5}
                           className="py-2 px-3 text-right font-semibold text-gray-700"
                         >
                           Total Repuestos:

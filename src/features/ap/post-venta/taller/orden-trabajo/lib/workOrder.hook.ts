@@ -9,6 +9,7 @@ import {
   downloadWorkOrderPdf,
   getWorkOrderWithInternalNotes,
   sendToFinished,
+  revertFinished,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -118,6 +119,17 @@ export function useSendToFinished() {
 
   return useMutation({
     mutationFn: (id: number) => sendToFinished(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+}
+
+export function useRevertFinished() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => revertFinished(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
