@@ -51,7 +51,7 @@ function suggestWeights(
       .map((o) => o.weight),
   );
 
-  const modes = weightsByObjective.map((weights, i) => {
+  const modes = weightsByObjective.map((weights) => {
     if (weights.length === 0) {
       // fallback: split equally in multiples of 10
       return Math.round((100 / n) / 10) * 10;
