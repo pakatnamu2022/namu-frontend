@@ -342,6 +342,8 @@ export default function PlanningPage() {
           dateOrderWorkPlanning={
             new Date(selectedPlanning!.planned_start_datetime)
           }
+          status={selectedPlanning!.status}
+          actualEndDatetime={selectedPlanning!.actual_end_datetime}
           onSuccess={() => {
             refetch();
             setCancelId(null);

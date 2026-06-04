@@ -8,7 +8,7 @@ import {
   PLANNING_STATUS_COLORS,
 } from "../lib/workOrderPlanning.interface";
 import { PLANNING_TYPE_LABELS } from "../lib/workOrderPlanning.constants";
-import { Clock, Calendar, User, FileText, Ban } from "lucide-react";
+import { Clock, User, FileText, Ban, Play, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil, ShieldCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -78,15 +78,30 @@ export const planningColumns = ({
     ),
   },
   {
-    accessorKey: "planned_start_datetime",
-    header: "Fecha Planificada",
+    id: "planned_range",
+    header: "Planificación",
     cell: ({ row }) => {
-      const datetime = row.original.planned_start_datetime;
-      if (!datetime) return <span className="text-muted-foreground">-</span>;
+      const startDatetime = row.original.planned_start_datetime;
+      const endDatetime = row.original.planned_end_datetime;
+
+      if (!startDatetime && !endDatetime) {
+        return <span className="text-muted-foreground">-</span>;
+      }
+
       return (
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">{formatDateTime(datetime)}</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Play className="h-4 w-4 text-emerald-600" />
+            <span className="text-sm">
+              {startDatetime ? formatDateTime(startDatetime) : "-"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Flag className="h-4 w-4 text-rose-600" />
+            <span className="text-sm">
+              {endDatetime ? formatDateTime(endDatetime) : "-"}
+            </span>
+          </div>
         </div>
       );
     },
@@ -179,7 +194,9 @@ export const planningColumns = ({
       const visibleDelete =
         permissions.canDelete && row.original.status === "planned";
       const visibleCancel =
-        permissions.canAnnul && row.original.status === "in_progress";
+        permissions.canAnnul &&
+        row.original.status !== "canceled" &&
+        row.original.status !== "planned";
       const visibleSupervisorComplete =
         permissions.canCompletePlannedWork &&
         row.original.status === "in_progress";

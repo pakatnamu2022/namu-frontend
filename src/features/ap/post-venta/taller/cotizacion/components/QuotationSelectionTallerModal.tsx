@@ -49,16 +49,19 @@ export const QuotationSelectionTallerModal = ({
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading } = useForPurchaseRequestTaller({
-    page,
-    per_page,
-    is_take: 1,
-    sede_id: sedeId,
-    quotation_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-  });
+  const { data, isLoading } = useForPurchaseRequestTaller(
+    {
+      page,
+      per_page,
+      is_take: 1,
+      sede_id: sedeId,
+      quotation_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+    },
+    { enabled: open },
+  );
 
   const handleRowClick = (quotation: OrderQuotationResource) => {
     onSelectQuotation(quotation.id.toString());

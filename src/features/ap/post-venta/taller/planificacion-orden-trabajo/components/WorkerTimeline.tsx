@@ -65,13 +65,8 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  AT_WORK_WORK_ORDER_ID,
-  FINISHED_WORK_ORDER_ID,
-  OPENING_WORK_ORDER_ID,
-  RECEIVED_WORK_ORDER_ID,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
+import { STATUS_WORK_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -145,15 +140,15 @@ export function WorkerTimeline({
       params: {
         search: debouncedSearch,
         page: pageWorkOrder,
-        per_page: 20,
+        per_page: 10,
         status_id: [
-          OPENING_WORK_ORDER_ID,
-          RECEIVED_WORK_ORDER_ID,
-          AT_WORK_WORK_ORDER_ID,
-          FINISHED_WORK_ORDER_ID,
+          STATUS_WORK_ORDER.APERTURADO,
+          STATUS_WORK_ORDER.RECEPCIONADO,
+          STATUS_WORK_ORDER.EN_TRABAJO,
         ],
         sede_id: sedeId,
       },
+      enabled: !!sedeId,
     });
 
   // Acumular órdenes de trabajo de todas las páginas usando reducer pattern
@@ -246,6 +241,9 @@ export function WorkerTimeline({
       (item) => item.group_number === activeGroup,
     );
   }, [selectedWorkOrder, activeGroup]);
+
+  const effectiveSelectedItemId =
+    filteredItems.length === 1 ? filteredItems[0].id : selectedItemId;
 
   // Horarios en minutos desde medianoche (definidos en workOrderPlanning.constants.ts)
   const {
@@ -663,12 +661,12 @@ export function WorkerTimeline({
       selectedTime &&
       onTimeSelect &&
       selectedWorkOrderId &&
-      selectedItemId !== null &&
+      effectiveSelectedItemId !== null &&
       activeGroup !== null
     ) {
       // Obtener la descripción del item seleccionado
       const selectedItem = filteredItems.find(
-        (item) => item.id === selectedItemId,
+        (item) => item.id === effectiveSelectedItemId,
       );
       const description = selectedItem?.description || "";
 
@@ -698,7 +696,7 @@ export function WorkerTimeline({
   const canConfirm =
     selectedTime &&
     selectedWorkOrderId &&
-    selectedItemId !== null &&
+    effectiveSelectedItemId !== null &&
     activeGroup !== null;
 
   // Posición de la hora actual en el timeline (solo relevante si selectedDate es hoy)
@@ -934,7 +932,7 @@ export function WorkerTimeline({
                 Seleccionar Descripción de Trabajo
               </Label>
               <RadioGroup
-                value={selectedItemId?.toString() || ""}
+                value={effectiveSelectedItemId?.toString() || ""}
                 onValueChange={(value) => setSelectedItemId(Number(value))}
               >
                 <div className="space-y-1 max-h-56 overflow-y-auto">
@@ -943,7 +941,7 @@ export function WorkerTimeline({
                       <div
                         key={item.id}
                         className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
-                          selectedItemId === item.id
+                          effectiveSelectedItemId === item.id
                             ? "bg-blue-50 border-blue-300"
                             : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
                         }`}
@@ -1675,11 +1673,13 @@ export function WorkerTimeline({
       {renderTimeline()}
 
       {/* Sheet para Caso Excepcional */}
-      <ExceptionalCaseSheet
-        open={isExceptionalCaseOpen}
-        onOpenChange={setIsExceptionalCaseOpen}
-        sedeId={sedeId}
-      />
+      {isExceptionalCaseOpen && (
+        <ExceptionalCaseSheet
+          open={isExceptionalCaseOpen}
+          onOpenChange={setIsExceptionalCaseOpen}
+          sedeId={sedeId}
+        />
+      )}
     </>
   );
 }

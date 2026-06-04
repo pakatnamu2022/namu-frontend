@@ -25,6 +25,7 @@ import {
   findWorkOrderById,
   changeCurrency,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import InvoiceList from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceList";
 import { getAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.actions";
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { useParams, useNavigate } from "react-router-dom";
@@ -34,9 +35,11 @@ import {
   errorToast,
   formatDate,
   formatDateTime,
+  formatHours,
   successToast,
 } from "@/core/core.function";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export default function GeneralInformationPage() {
   const params = useParams();
@@ -678,7 +681,7 @@ export default function GeneralInformationPage() {
                             {labour.description}
                           </td>
                           <td className="py-2 px-3 text-gray-600">
-                            {labour.time_spent}
+                            {formatHours(labour.time_spent)}
                           </td>
                           <td className="py-2 px-3 text-right">
                             {workOrder.type_currency?.symbol || "S/"}{" "}
@@ -737,6 +740,9 @@ export default function GeneralInformationPage() {
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
+                          Cód.
+                        </th>
+                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
                           Producto
                         </th>
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
@@ -760,6 +766,18 @@ export default function GeneralInformationPage() {
                           className="border-b border-gray-100 hover:bg-gray-50"
                         >
                           <td className="py-2 px-3 font-medium">
+                            <CopyCell
+                              value={part.product_code || "N/A"}
+                              label={`Cód: ${part.product_code}`}
+                              className="inline-flex items-center gap-1 text-gray-700"
+                            />
+                            <CopyCell
+                              value={part.product_dyn_code || "N/A"}
+                              label={`Cód Dyn: ${part.product_dyn_code}`}
+                              className="inline-flex items-center gap-1 text-gray-700"
+                            />
+                          </td>
+                          <td className="py-2 px-3 font-medium">
                             {part.product_name}
                           </td>
                           <td className="py-2 px-3 text-gray-600">
@@ -782,7 +800,7 @@ export default function GeneralInformationPage() {
                     <tfoot>
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
                         <td
-                          colSpan={4}
+                          colSpan={5}
                           className="py-2 px-3 text-right font-semibold text-gray-700"
                         >
                           Total Repuestos:
@@ -872,79 +890,23 @@ export default function GeneralInformationPage() {
 
           {/* Card 2 — Información de Facturación */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-              <CircleDollarSign className="h-5 w-5 text-gray-500" />
-              Información de Facturación
-            </h3>
-
-            {/* Estado */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-sm text-gray-600">Estado:</span>
-              <Badge color={workOrder.is_invoiced ? "default" : "secondary"}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <CircleDollarSign className="h-5 w-5 text-gray-500" />
+                Documentos de Facturación
+              </h3>
+              <Badge
+                variant="default"
+                color={workOrder.is_invoiced ? "primary" : "secondary"}
+              >
                 {workOrder.is_invoiced ? "Facturado" : "No Facturado"}
               </Badge>
             </div>
-
-            {/* Facturas */}
-            {workOrder.advances && workOrder.advances.length > 0 ? (
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <CircleDollarSign className="h-4 w-4" />
-                  Facturas ({workOrder.advances.length})
-                </h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200">
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          Nro. Documento
-                        </th>
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          Cliente
-                        </th>
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          F. Emisión
-                        </th>
-                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
-                          Total
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {workOrder.advances.map((adv) => (
-                        <tr
-                          key={adv.id}
-                          className="border-b border-gray-100 hover:bg-gray-50"
-                        >
-                          <td className="py-2 px-3 font-medium">
-                            {adv.full_number}
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {adv.cliente_denominacion}
-                          </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {formatDate(adv.fecha_de_emision)}
-                          </td>
-                          <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            S/ {adv.total.toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <CircleDollarSign className="h-4 w-4" />
-                  Facturas
-                </h4>
-                <p className="text-sm text-gray-500 italic">
-                  Sin facturas registradas.
-                </p>
-              </div>
-            )}
+            <InvoiceList
+              vouchers={workOrder.vouchers}
+              currencySymbol={workOrder.type_currency?.symbol || "S/"}
+              totalAmount={workOrder.final_amount}
+            />
           </Card>
         </div>
 

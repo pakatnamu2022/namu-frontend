@@ -1,7 +1,6 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
@@ -67,7 +66,16 @@ export interface WorkOrderResource {
   order_quotation?: OrderQuotationResource;
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
-  advances: ElectronicDocumentResource[];
+  vouchers: WorkOrderDocumentsTreeResource;
+  payment_summary: {
+    paid_amount: number;
+    pending_amount: number;
+    remaining_balance: number;
+    payment_percentage: number;
+    is_fully_paid: boolean;
+    has_final_invoice: boolean;
+    advances_count: number;
+  };
   status: ApMastersResource;
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
@@ -97,22 +105,6 @@ export interface WorkOrderRequest {
   estimated_delivery_time: string | Date;
   diagnosis_date: string | Date;
   observations: string;
-}
-
-export interface WorkOrderPaymentSummary {
-  work_order_id: number;
-  correlative: string;
-  payment_summary: {
-    labour_cost: number;
-    parts_cost: number;
-    total_cost: number;
-    net_amount: number;
-    discount_amount: number;
-    tax_amount: number;
-    total_amount: number;
-    total_advances: number;
-    remaining_balance: number;
-  };
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {
@@ -209,4 +201,79 @@ export interface VehicleWorkOrderHistoryResponse {
 
 export interface GenerateWorkOrderResponse {
   message: string;
+}
+
+export interface WorkOrderBasicInfoResource {
+  id: number;
+  correlative: string;
+  total_labor_cost: number;
+  total_parts_cost: number;
+  subtotal: number;
+  discount_percentage: number;
+  discount_amount: number;
+  tax_amount: number;
+  final_amount: number;
+  vehicle_plate: string;
+  opening_date: string;
+  observations: string;
+
+  //Relations
+  invoice_to_client: CustomersResource | null;
+  vouchers: WorkOrderDocumentsTreeResource;
+}
+
+// Tipos de modificación
+type ModificationType = "credit_note" | "debit_note";
+
+// Modificación (Nota de Crédito o Débito)
+interface Modification {
+  id: number;
+  type: ModificationType;
+  concept_type: string;
+  concept_type_id: number;
+  number: string;
+  serie: string;
+  numero: string;
+  total: number; // Negativo para credit notes, positivo para debit notes
+  issue_date: string;
+  original_document_id: number;
+  observaciones: string | null;
+  enlace_del_pdf: string | null;
+}
+
+// Documento base (campos comunes)
+export interface BaseDocument {
+  id: number;
+  is_advance_payment: boolean;
+  document_type: string;
+  number: string;
+  serie: string;
+  numero: string;
+  total: number;
+  issue_date: string;
+  client_name: string;
+  client_document: string;
+  status: string;
+  sunat_responsecode: string | null;
+  enlace_del_pdf: string | null;
+}
+
+// Documento cancelado
+export interface CancelledDocument extends BaseDocument {
+  cancellation_reason: string | null;
+  credit_note_number: string | null;
+  sunat_concept_credit_note_type_id: number | null;
+  credit_note_type_description: string | null;
+}
+
+// Documento activo
+export interface ActiveDocument extends BaseDocument {
+  net_amount: number;
+  has_modifications: boolean;
+  modifications: Modification[];
+}
+
+export interface WorkOrderDocumentsTreeResource {
+  cancelled: CancelledDocument[];
+  active: ActiveDocument[];
 }

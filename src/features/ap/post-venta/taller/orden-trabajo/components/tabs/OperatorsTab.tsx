@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp } from "lucide-react";
+import { Users } from "lucide-react";
 import { useGetConsolidatedPlanning } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import {
   PLANNING_STATUS_COLORS,
@@ -42,7 +42,6 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
           <Card className="p-4 sm:p-6">
             <div>
               <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
                 Resumen de Planificación
               </h3>
               <p className="text-xs sm:text-sm text-gray-600 mt-1">
