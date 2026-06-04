@@ -25,8 +25,8 @@ import { applyReferenceWeights } from "../../categoria-objetivo-detalle/lib/hier
 import { CATEGORY_OBJECTIVE } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
 import {
   ApplyReferenceWeightsObjective,
-  CategoryReferenceObjective,
   CategoryWeightReport,
+  type CategoryReferenceObjective,
 } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.interface";
 import { errorToast, getErrorMessage, successToast } from "@/core/core.function";
 
@@ -36,7 +36,7 @@ interface Props {
   categoryId: number;
   categoryName: string;
   totalWorkers: number;
-  referenceObjectives: CategoryWeightReportObjective[];
+  referenceObjectives: CategoryReferenceObjective[];
   onSuccess: (report: CategoryWeightReport) => void;
 }
 
