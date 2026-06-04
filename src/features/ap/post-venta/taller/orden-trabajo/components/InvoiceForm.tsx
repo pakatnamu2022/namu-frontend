@@ -171,58 +171,49 @@ export default function InvoiceForm({
       const round2 = (num: number) => Math.round(num * 100) / 100;
 
       // Agregar items de mano de obra
-      // total_cost viene sin IGV del backend (es el subtotal)
       labours.forEach((labour) => {
-        const subtotalDetail = parseFloat(labour.net_amount || "0");
-        const valor_unitario = round2(subtotalDetail);
-        const precio_unitario = round2(
-          valor_unitario * (1 + porcentaje_de_igv / 100),
-        );
-        const subtotal = round2(subtotalDetail);
-        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
-        const total = round2(subtotal + igvAmount);
+        const valor_unitario = parseFloat(labour.hourly_rate || "0");
+        const cantidad = labour.time_spent_decimal;
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
+        const subtotal = valor_unitario * cantidad;
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         invoiceItems.push({
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
-          unidad_de_medida: "ZZ", // Servicios
+          unidad_de_medida: "ZZ",
           codigo: labour.id.toString(),
           descripcion: labour.description,
-          cantidad: labour.time_spent_decimal,
-          valor_unitario: valor_unitario,
-          precio_unitario: precio_unitario,
-          subtotal: subtotal,
+          cantidad: cantidad,
+          valor_unitario: round2(valor_unitario),
+          precio_unitario: round2(precio_unitario),
+          subtotal: round2(subtotal),
           sunat_concept_igv_type_id: gravadaType?.id || 0,
-          igv: igvAmount,
-          total: total,
+          igv: round2(igvAmount),
+          total: round2(subtotal + igvAmount),
         });
       });
 
       // Agregar items de repuestos
-      // total_amount viene sin IGV del backend (es el subtotal)
       parts.forEach((part) => {
-        const totalAmount = parseFloat(part.net_amount || "0");
+        const valor_unitario = parseFloat(part.unit_price || "0");
         const cantidad = part.quantity_used;
-        const valor_unitario = round2(totalAmount / cantidad);
-        const precio_unitario = round2(
-          valor_unitario * (1 + porcentaje_de_igv / 100),
-        );
-        const subtotal = round2(totalAmount);
-        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
-        const total = round2(subtotal + igvAmount);
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
+        const subtotal = valor_unitario * cantidad;
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         invoiceItems.push({
           product_id: part.product_id.toString(),
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
-          unidad_de_medida: "NIU", // Bienes
+          unidad_de_medida: "NIU",
           codigo: part.product_code,
           descripcion: part.product_name,
           cantidad: cantidad,
-          valor_unitario: valor_unitario,
-          precio_unitario: precio_unitario,
-          subtotal: subtotal,
+          valor_unitario: round2(valor_unitario),
+          precio_unitario: round2(precio_unitario),
+          subtotal: round2(subtotal),
           sunat_concept_igv_type_id: gravadaType?.id || 0,
-          igv: igvAmount,
-          total: total,
+          igv: round2(igvAmount),
+          total: round2(subtotal + igvAmount),
         });
       });
 
@@ -265,7 +256,7 @@ export default function InvoiceForm({
               total: total_con_igv,
               anticipo_regularizacion: true,
               anticipo_documento_serie: advance.serie,
-              anticipo_documento_numero: advance.numero,
+              anticipo_documento_numero: Number(advance.numero),
               reference_document_id: advance.id?.toString(),
             });
           });

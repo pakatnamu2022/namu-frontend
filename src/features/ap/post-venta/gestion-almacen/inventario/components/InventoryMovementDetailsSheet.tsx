@@ -29,7 +29,6 @@ export default function InventoryMovementDetailsSheet({
   movement,
 }: InventoryMovementDetailsSheetProps) {
   const renderReferenceDetails = () => {
-    console.log("[DEBUG] movement_type:", movement.movement_type, "| reference:", movement.reference);
     if (!movement.reference) {
       // Mostrar información de ajustes si no hay referencia pero hay reason_in_out
       if (movement.reason_in_out) {

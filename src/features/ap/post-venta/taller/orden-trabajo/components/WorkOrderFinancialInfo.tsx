@@ -1,14 +1,14 @@
 import { TrendingUp } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Progress } from "@/components/ui/progress";
-import { WorkOrderDocumentTreeItemResource } from "../lib/workOrder.interface";
+import { ActiveDocument } from "../lib/workOrder.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
 interface WorkOrderFinancialInfoProps {
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
-  advances: WorkOrderDocumentTreeItemResource[];
+  advances: ActiveDocument[];
   currencySymbol: string;
   porcentaje_de_igv: number;
   isInvalidWithQuote?: boolean;
@@ -43,7 +43,7 @@ export function WorkOrderFinancialInfo({
   const totalAdvances = advances.reduce((sum, doc) => {
     const creditNoteTotal = (doc.modifications ?? [])
       .filter((m) => m.type === "credit_note")
-      .reduce((s, m) => s + Number(m.total), 0);
+      .reduce((s: number, m) => s + Number(m.total), 0);
     return sum + Number(doc.total) - creditNoteTotal;
   }, 0);
 

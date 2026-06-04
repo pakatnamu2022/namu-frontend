@@ -9,7 +9,7 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { WorkOrderDocumentTreeItemResource } from "../lib/workOrder.interface";
+import { ActiveDocument } from "../lib/workOrder.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
@@ -34,7 +34,7 @@ interface InvoiceSummarySectionProps {
   };
   porcentaje_de_igv: number;
   isAdvancePayment: boolean;
-  advancePayments?: WorkOrderDocumentTreeItemResource[];
+  advancePayments?: ActiveDocument[];
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
   isInvalidWithQuote?: boolean;

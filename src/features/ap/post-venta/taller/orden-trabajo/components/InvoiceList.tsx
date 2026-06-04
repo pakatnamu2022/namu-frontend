@@ -4,7 +4,8 @@ import { Progress } from "@/components/ui/progress";
 import { FileText, Ban, Download } from "lucide-react";
 import {
   WorkOrderDocumentsTreeResource,
-  WorkOrderDocumentTreeItemResource,
+  ActiveDocument,
+  CancelledDocument,
 } from "../lib/workOrder.interface";
 
 interface InvoiceListProps {
@@ -13,17 +14,28 @@ interface InvoiceListProps {
   totalAmount: number;
 }
 
-interface InvoiceRowProps {
-  invoice: WorkOrderDocumentTreeItemResource;
+interface ActiveInvoiceRowProps {
+  invoice: ActiveDocument;
   currencySymbol: string;
-  cancelled?: boolean;
+  cancelled?: false;
 }
+
+interface CancelledInvoiceRowProps {
+  invoice: CancelledDocument;
+  currencySymbol: string;
+  cancelled: true;
+}
+
+type InvoiceRowProps = ActiveInvoiceRowProps | CancelledInvoiceRowProps;
 
 function InvoiceRow({
   invoice,
   currencySymbol,
   cancelled = false,
 }: InvoiceRowProps) {
+  const cancelledDoc = cancelled ? (invoice as CancelledDocument) : null;
+  const hasCreditNote = cancelledDoc?.credit_note_number != null;
+
   return (
     <div
       className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
@@ -76,26 +88,23 @@ function InvoiceRow({
               </>
             )}
           </div>
-          {cancelled &&
-            invoice.modifications &&
-            invoice.modifications.length > 0 && (
-              <div className="flex items-center gap-1 mt-0.5">
-                <span className="text-xs text-gray-400">
-                  {invoice.modifications[0].type === "credit_note"
-                    ? "Nota de crédito:"
-                    : "Nota de débito:"}
-                </span>
-                <span className="text-xs font-medium text-gray-500">
-                  {invoice.modifications[0].number}
-                </span>
-              </div>
-            )}
-          {cancelled &&
-            (!invoice.modifications || invoice.modifications.length === 0) && (
-              <span className="text-xs text-gray-400 italic">
-                Anulada sin nota de crédito/débito
+          {cancelled && hasCreditNote && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-xs text-gray-400">
+                {cancelledDoc!.credit_note_type_description ??
+                  "Nota de crédito"}
+                :
               </span>
-            )}
+              <span className="text-xs font-medium text-gray-500">
+                {cancelledDoc!.credit_note_number}
+              </span>
+            </div>
+          )}
+          {cancelled && !hasCreditNote && (
+            <span className="text-xs text-gray-400 italic">
+              Anulada directamente
+            </span>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2">

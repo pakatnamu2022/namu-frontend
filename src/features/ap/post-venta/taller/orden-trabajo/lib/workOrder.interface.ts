@@ -1,7 +1,6 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
@@ -220,45 +219,61 @@ export interface WorkOrderBasicInfoResource {
 
   //Relations
   invoice_to_client: CustomersResource | null;
-  valid_documents: ElectronicDocumentResource[];
+  vouchers: WorkOrderDocumentsTreeResource;
 }
 
-export interface WorkOrderDocumentsTreeResource {
-  cancelled: WorkOrderDocumentTreeItemResource[];
-  active: WorkOrderDocumentTreeItemResource[];
-}
+// Tipos de modificación
+type ModificationType = "credit_note" | "debit_note";
 
-export interface WorkOrderDocumentTreeItemResource {
+// Modificación (Nota de Crédito o Débito)
+interface Modification {
   id: number;
-  document_type: string;
+  type: ModificationType;
+  concept_type: string;
+  concept_type_id: number;
   number: string;
   serie: string;
-  numero: number;
-  total: number;
-  issue_date: string | null;
-  client_name: string | null;
-  client_document: string | null;
-  status: string;
-  sunat_responsecode: string | null;
+  numero: string;
+  total: number; // Negativo para credit notes, positivo para debit notes
+  issue_date: string;
+  original_document_id: number;
+  observaciones: string | null;
   enlace_del_pdf: string | null;
-  cancellation_reason?: string | null;
-  net_amount?: number;
-  has_modifications?: boolean;
-  is_advance_payment: boolean;
-  modifications?: WorkOrderDocumentModificationResource[];
 }
 
-export interface WorkOrderDocumentModificationResource {
+// Documento base (campos comunes)
+export interface BaseDocument {
   id: number;
-  type: "credit_note" | "debit_note";
-  concept_type: string | null;
-  concept_type_id: number | null;
+  is_advance_payment: boolean;
+  document_type: string;
   number: string;
   serie: string;
   numero: string;
   total: number;
-  issue_date: string | null;
-  original_document_id: number;
-  observaciones: string | null;
+  issue_date: string;
+  client_name: string;
+  client_document: string;
+  status: string;
+  sunat_responsecode: string | null;
   enlace_del_pdf: string | null;
+}
+
+// Documento cancelado
+export interface CancelledDocument extends BaseDocument {
+  cancellation_reason: string | null;
+  credit_note_number: string | null;
+  sunat_concept_credit_note_type_id: number | null;
+  credit_note_type_description: string | null;
+}
+
+// Documento activo
+export interface ActiveDocument extends BaseDocument {
+  net_amount: number;
+  has_modifications: boolean;
+  modifications: Modification[];
+}
+
+export interface WorkOrderDocumentsTreeResource {
+  cancelled: CancelledDocument[];
+  active: ActiveDocument[];
 }

@@ -47,6 +47,8 @@ export interface InventoryMovementResource {
   details?: InventoryMovementDetail[];
   reason_in_out_id: number; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
   reason_in_out: ApMastersResource; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
+  electronic_document_id?: number; // type = SALE, RETURN_IN
+  electronic_document?: ElectronicDocumentResource; // type = SALE, RETURN_IN
 }
 
 export interface CreditNoteResource {
