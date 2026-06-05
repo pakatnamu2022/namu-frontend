@@ -6,17 +6,15 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import TitleComponent from "@/shared/components/TitleComponent";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import DataTablePagination from "@/shared/components/DataTablePagination";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import SearchInput from "@/shared/components/SearchInput";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { SortingState } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useGeneralMasters } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
@@ -24,10 +22,8 @@ import {
   deleteGeneralMasters,
   updateGeneralMasters,
 } from "@/features/gp/maestros-generales/lib/generalMasters.actions";
-import GeneralMastersTable from "@/features/gp/maestros-generales/components/GeneralMastersTable";
-import { generalMastersColumns } from "@/features/gp/maestros-generales/components/GeneralMastersColumns";
 import GeneralMastersModal from "@/features/gp/maestros-generales/components/GeneralMastersModal";
-import GeneralMastersOptions from "@/features/gp/maestros-generales/components/GeneralMastersOptions";
+import PayrollRatesMatrix from "@/features/gp/maestros-generales/components/PayrollRatesMatrix";
 import {
   INSURANCE_PREMIUM_TYPE,
   MANDATORY_CONTRIBUTION_TYPE,
@@ -46,25 +42,28 @@ export default function PayrollRatesPercentagesPage() {
   const { ROUTE } = PAYROLL_RATES_PERCENTAJES;
   const permissions = useModulePermissions(ROUTE);
 
-  const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [updateId, setUpdateId] = useState<number | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [updateId, setUpdateId] = useState<number | null>(null);
 
   const { data, isLoading, refetch } = useGeneralMasters({
     params: {
-      page,
-      search,
-      per_page,
-      type: selectedType ? [selectedType] : RATES_PERCENTAGES_TYPES,
-      sort: sorting.map((s) => s.id).join(","),
-      direction: sorting.map((s) => (s.desc ? "desc" : "asc")).join(","),
+      all: "true",
+      type: RATES_PERCENTAGES_TYPES,
     },
   });
+
+  const handleSaveValue = async (id: number, value: string) => {
+    try {
+      await updateGeneralMasters(id, { value });
+      await refetch();
+      successToast("Valor actualizado correctamente.");
+    } catch {
+      errorToast("Error al actualizar el valor.");
+    }
+  };
+
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
       await updateGeneralMasters(id, { status: newStatus });
@@ -120,28 +119,21 @@ export default function PayrollRatesPercentagesPage() {
         )}
       </HeaderTableWrapper>
 
-      <GeneralMastersTable
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar por código o descripción..."
+      />
+
+      <PayrollRatesMatrix
+        data={(Array.isArray(data) ? data : data?.data) ?? []}
         isLoading={isLoading}
-        columns={generalMastersColumns({
-          onToggleStatus: handleToggleStatus,
-          onDelete: setDeleteId,
-          onUpdate: setUpdateId,
-          permissions,
-        })}
-        data={data?.data || []}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        manualSorting={true}
-      >
-        <GeneralMastersOptions
-          search={search}
-          setSearch={setSearch}
-          showTypeSelect
-          typeOptions={RATES_PERCENTAGES_TYPES}
-          selectedType={selectedType}
-          setSelectedType={setSelectedType}
-        />
-      </GeneralMastersTable>
+        onSaveValue={handleSaveValue}
+        onToggleStatus={handleToggleStatus}
+        onDelete={setDeleteId}
+        permissions={permissions}
+        search={search}
+      />
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -169,15 +161,6 @@ export default function PayrollRatesPercentagesPage() {
           allowedTypes={RATES_PERCENTAGES_TYPES}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        totalData={data?.meta?.total || 0}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-      />
     </div>
   );
 }
