@@ -3,11 +3,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, ArrowRightLeft, MapPin } from "lucide-react";
+import { Eye, ArrowRightLeft } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { ShipmentsReceptionsResource } from "../../envios-recepciones/lib/shipmentsReceptions.interface";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
+import { MIGRATION_STATUS, type MigrationStatusKey } from "@/features/ap/shipping_guides/lib/shippingGuides.constants";
 
 export type TransfersColumn = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -79,19 +80,15 @@ export const TransfersColumns = ({
     accessorKey: "migration_status",
     header: "Migración",
     cell: ({ getValue }) => {
-      const status = getValue() as string;
-      const colorMap: Record<string, "green" | "yellow" | "red" | "gray"> = {
-        completed: "green",
-        pending: "yellow",
-        failed: "red",
-      };
-      const labelMap: Record<string, string> = {
-        completed: "Migrado",
-        pending: "Pendiente",
-        failed: "Fallido",
-      };
-      const color = colorMap[status] ?? "gray";
-      return <Badge color={color}>{labelMap[status] ?? status}</Badge>;
+      const status = getValue() as MigrationStatusKey;
+      const config = MIGRATION_STATUS[status];
+      if (!config) return <Badge color="gray">{status ?? "-"}</Badge>;
+      const Icon = config.icon;
+      return (
+        <Badge color={config.color} icon={Icon}>
+          {config.label}
+        </Badge>
+      );
     },
   },
   {
