@@ -23,7 +23,6 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
 // Tipos de documento
 export const DOCUMENT_TYPES = [
   { value: "GUIA_REMISION", label: "Guía de Remisión" },
-  { value: "GUIA_TRASLADO", label: "Guía Interna de Traslado" },
 ];
 
 // Tipos de emisor
