@@ -15,6 +15,7 @@ export interface ObjectiveResource {
   isAscending: boolean;
   metric: string;
   metric_id: number;
+  active?: boolean;
 }
 
 export interface getObjectivesProps {

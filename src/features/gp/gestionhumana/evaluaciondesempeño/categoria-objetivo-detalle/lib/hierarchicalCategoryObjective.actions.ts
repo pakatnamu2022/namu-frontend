@@ -2,8 +2,11 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
 import {
+  ApplyReferenceWeightsPayload,
   CategoryObjectivePersonResponse,
+  CategoryWeightReport,
   getHierarchicalCategoryObjectivesProps,
+  GlobalWeightReportItem,
   HierarchicalCategoryObjectiveResource,
   HierarchicalCategoryObjectiveResponse,
 } from "./hierarchicalCategoryObjective.interface";
@@ -104,6 +107,33 @@ export async function homogeneousWeightsPerson(
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
     `${ENDPOINT}/${categoryId}/homogeneous-weights/${personId}`
+  );
+  return data;
+}
+
+export async function getGlobalWeightReport(): Promise<GlobalWeightReportItem[]> {
+  const { data } = await api.get<GlobalWeightReportItem[]>(
+    `${ENDPOINT}/global-weight-report`
+  );
+  return data;
+}
+
+export async function getCategoryWeightReport(
+  categoryId: number
+): Promise<CategoryWeightReport> {
+  const { data } = await api.get<CategoryWeightReport>(
+    `${ENDPOINT}/${categoryId}/weight-report`
+  );
+  return data;
+}
+
+export async function applyReferenceWeights(
+  categoryId: number,
+  payload: ApplyReferenceWeightsPayload
+): Promise<CategoryWeightReport> {
+  const { data } = await api.post<CategoryWeightReport>(
+    `${ENDPOINT}/${categoryId}/apply-reference-weights`,
+    payload
   );
   return data;
 }

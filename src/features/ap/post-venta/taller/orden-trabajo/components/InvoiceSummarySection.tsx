@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
+import { ActiveDocument } from "../lib/workOrder.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
@@ -34,7 +34,7 @@ interface InvoiceSummarySectionProps {
   };
   porcentaje_de_igv: number;
   isAdvancePayment: boolean;
-  advancePayments?: ElectronicDocumentResource[];
+  advancePayments?: ActiveDocument[];
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
   isInvalidWithQuote?: boolean;
@@ -46,7 +46,6 @@ export function InvoiceSummarySection({
   onCancel,
   isPending,
   isEdit = false,
-  selectedGroupNumber,
   documentTypes,
   authorizedSeries,
   defaultCustomer,
@@ -139,11 +138,11 @@ export function InvoiceSummarySection({
               Anticipo
             </Badge>
           )}
-          {selectedGroupNumber && (
+          {/* {selectedGroupNumber && (
             <Badge variant="outline" className="w-fit">
               Grupo: {selectedGroupNumber}
             </Badge>
-          )}
+          )} */}
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -347,7 +346,9 @@ export function InvoiceSummarySection({
                 isPending ||
                 !form.formState.isValid ||
                 isCompletedWithoutAdvances ||
-                (!isInvalidWithQuote && totales.total <= 0 && !hasRealAdvancePayments)
+                (!isInvalidWithQuote &&
+                  totales.total <= 0 &&
+                  !hasRealAdvancePayments)
               }
             >
               {form.watch("enviar_automaticamente_a_la_sunat") ? (

@@ -2,6 +2,7 @@ import {
   CreditNoteResource,
   InventoryMovementResource,
 } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
@@ -9,7 +10,7 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
-import { WorkOrderResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
+import { WorkOrderBasicInfoResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
 import { InfoSection } from "@/shared/components/InfoSection.tsx";
 import { translateMovementType } from "../lib/inventory.constants.ts";
@@ -410,7 +411,7 @@ export default function InventoryMovementDetailsSheet({
 
       case "SALE": {
         if (reference_type?.includes("ApWorkOrder")) {
-          const workOrder = reference as WorkOrderResource;
+          const workOrder = reference as WorkOrderBasicInfoResource;
 
           return (
             <div className="space-y-4">
@@ -434,12 +435,14 @@ export default function InventoryMovementDetailsSheet({
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-xs text-muted-foreground">Cliente</p>
+                    <p className="text-xs text-muted-foreground">
+                      Facturado a:
+                    </p>
                     <p className="font-semibold text-base">
-                      {workOrder.full_contact_name}
+                      {workOrder.invoice_to_client!.full_name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Doc: {workOrder.num_doc_contact}
+                      Doc: {workOrder.invoice_to_client!.num_doc}
                     </p>
                   </div>
                   <div>
@@ -835,6 +838,44 @@ export default function InventoryMovementDetailsSheet({
                     No hay detalle de productos para esta nota de crédito.
                   </p>
                 )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      case "RETURN_IN": {
+        const doc = reference as ElectronicDocumentResource;
+        return (
+          <div className="border rounded-lg">
+            <div className="p-4 bg-muted/50 border-b">
+              <h3 className="font-semibold text-sm">
+                Detalles del Documento Electrónico
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4 p-4">
+              <div>
+                <p className="text-xs text-muted-foreground">N° Documento</p>
+                <p className="font-semibold">{doc.full_number}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Fecha Emisión</p>
+                <p className="font-medium">
+                  {formatDate(doc.fecha_de_emision)}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-muted-foreground">Cliente</p>
+                <p className="font-semibold">{doc.cliente_denominacion}</p>
+                <p className="text-xs text-muted-foreground">
+                  {doc.cliente_numero_de_documento}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="font-semibold text-lg text-green-600">
+                  S/ {Number(doc.total).toFixed(2)}
+                </p>
               </div>
             </div>
           </div>

@@ -10,14 +10,18 @@ import {
   CarFront,
   Handshake,
   Ban,
+  RotateCcw,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
-import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
+import {
+  finishAllowedStatuses,
+  STATUS_WORK_ORDER,
+} from "../lib/workOrder.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
-import { useSendToFinished } from "../lib/workOrder.hook";
+import { useSendToFinished, useRevertFinished } from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
 import { CancelWorkOrderModal } from "./CancelWorkOrderModal";
 
@@ -52,17 +56,19 @@ export function WorkOrderActionCell({
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const { mutateAsync: sendToFinished, isPending: isSendingToFinished } =
     useSendToFinished();
+  const { mutateAsync: revertFinished, isPending: isReverting } =
+    useRevertFinished();
   const {
     id,
     is_inspection_completed,
-    status,
+    status_id,
     is_delivery,
     is_invoiced,
     items,
   } = row;
-  const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
-  const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
-  const isCancelled = status?.description === WORK_ORDER_STATUS.ANULADO;
+  const isClosed = status_id == String(STATUS_WORK_ORDER.CERRADO);
+  const isOpen = status_id == String(STATUS_WORK_ORDER.APERTURADO);
+  const isCancelled = status_id == String(STATUS_WORK_ORDER.ANULADO);
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
@@ -89,6 +95,17 @@ export function WorkOrderActionCell({
     }
   };
 
+  const handleRevertFinished = async () => {
+    try {
+      await revertFinished(id);
+      successToast("Orden revertida exitosamente");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message || "Error al revertir la orden";
+      errorToast(message);
+    }
+  };
+
   const isVisibleReceive =
     permissions.canReceive &&
     !is_inspection_completed &&
@@ -98,7 +115,16 @@ export function WorkOrderActionCell({
   const isVisibleManage = permissions.canManage;
 
   const isVisibleFinish =
-    !is_invoiced && !isClosed && firstItemPlanning?.type_document !== "INTERNA";
+    !is_invoiced &&
+    !isClosed &&
+    firstItemPlanning?.type_document !== "INTERNA" &&
+    finishAllowedStatuses.includes(Number(status_id));
+
+  const isVisibleRevert =
+    !is_invoiced &&
+    !isClosed &&
+    firstItemPlanning?.type_document !== "INTERNA" &&
+    status_id == String(STATUS_WORK_ORDER.TERMINADO);
 
   const isVisibleDelivery =
     isClosed && !isDelivery && firstItemPlanning?.type_document !== "INTERNA";
@@ -112,6 +138,8 @@ export function WorkOrderActionCell({
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
   const isOpenForDelete = permissions.canDelete && isOpen;
+
+  const idVisibleCancel = !isCancelled && !isClosed && !isDelivery;
 
   return (
     <div className="flex items-center gap-2">
@@ -141,7 +169,7 @@ export function WorkOrderActionCell({
 
       {isVisibleFinish && (
         <ConfirmationDialog
-          title="¿Marcar como Finalizada?"
+          title="¿Habilitar para Emitir Factura Final?"
           description="Esta acción marcará la orden de trabajo como lista para emitir la factura final. ¿Deseas continuar?"
           confirmText="Sí, continuar"
           cancelText="Cancelar"
@@ -161,6 +189,32 @@ export function WorkOrderActionCell({
                 <Loader2 className="size-5 animate-spin" />
               ) : (
                 <Handshake className="size-5" />
+              )}
+            </Button>
+          }
+        />
+      )}
+
+      {isVisibleRevert && (
+        <ConfirmationDialog
+          title="¿Revertir Emisión de Factura Final?"
+          description="Esta acción revertirá el estado de la orden de trabajo. ¿Estás seguro de que deseas continuar?"
+          confirmText="Sí, revertir"
+          cancelText="Cancelar"
+          icon="info"
+          onConfirm={handleRevertFinished}
+          trigger={
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              disabled={isReverting}
+              tooltip={isReverting ? "Revirtiendo..." : "Revertir Finalización"}
+            >
+              {isReverting ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <RotateCcw className="size-5" />
               )}
             </Button>
           }
@@ -222,7 +276,7 @@ export function WorkOrderActionCell({
 
       {isOpenForDelete && <DeleteButton onClick={() => onDelete(id)} />}
 
-      {!isCancelled && (
+      {idVisibleCancel && (
         <Button
           variant="outline"
           size="icon"

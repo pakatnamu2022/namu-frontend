@@ -543,7 +543,9 @@ export function ItemsSection({
               onClick={handleSaveItem}
               className="flex-1"
               disabled={
-                allowEditLastItemDescription && editingIndex !== null && !isAdvancePayment
+                allowEditLastItemDescription &&
+                editingIndex !== null &&
+                !isAdvancePayment
                   ? !newItem.descripcion
                   : !newItem.descripcion ||
                     newItem.precio_unitario <= 0 ||

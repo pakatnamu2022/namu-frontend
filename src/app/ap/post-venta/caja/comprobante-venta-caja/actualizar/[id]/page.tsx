@@ -55,7 +55,7 @@ import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/compo
 // Order quotation
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
 import { OrderQuotationBillingForm } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingForm.tsx";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface.ts";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface.ts";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

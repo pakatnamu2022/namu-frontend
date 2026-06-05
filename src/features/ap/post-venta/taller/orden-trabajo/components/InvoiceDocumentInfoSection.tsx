@@ -8,7 +8,7 @@ import { FormSwitch } from "@/shared/components/FormSwitch";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
@@ -24,6 +24,7 @@ interface InvoiceDocumentInfoSectionProps {
   isAdvancePayment: boolean;
   isInvalidWithQuote?: boolean;
   isMassiveBilling?: boolean;
+  isTerminado?: boolean;
 }
 
 export function InvoiceDocumentInfoSection({
@@ -36,6 +37,7 @@ export function InvoiceDocumentInfoSection({
   isAdvancePayment,
   isInvalidWithQuote = false,
   isMassiveBilling = false,
+  isTerminado = false,
 }: InvoiceDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -166,7 +168,9 @@ export function InvoiceDocumentInfoSection({
             >
               {isInvalidWithQuote
                 ? "La cotización asociada no tiene todos los ítems de mano de obra o repuestos cargados en la orden de trabajo. Por esta razón, solo se permite registrar un anticipo."
-                : "Los ítems de mano de obra y repuestos se cargaron correctamente en la orden de trabajo. Puede continuar con una venta directa o registrar un anticipo."}
+                : isTerminado
+                  ? "La orden de trabajo está terminada. Puede generar un anticipo por el saldo pendiente o la factura final (venta interna)."
+                  : "La orden de trabajo aún no está terminada. Solo se permite registrar anticipos hasta que el asesor lo marque como TERMINADO."}
             </p>
           </div>
         </div>
@@ -227,11 +231,13 @@ export function InvoiceDocumentInfoSection({
           description={
             isInvalidWithQuote
               ? "Solo se permiten anticipos (cotización con diferencias)"
-              : isAdvancePayment
-                ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-                : "Tipo de operación: Venta Interna (código 01)"
+              : !isTerminado
+                ? "Solo se permiten anticipos hasta que la OT esté TERMINADA"
+                : isAdvancePayment
+                  ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                  : "Tipo de operación: Venta Interna (código 01)"
           }
-          disabled={isInvalidWithQuote || isMassiveBilling}
+          disabled={isInvalidWithQuote || !isTerminado || isMassiveBilling}
         />
 
         <FormSelect

@@ -13,17 +13,17 @@ import {
   successToast,
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
-import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
-import { useAssignSalesSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.hook";
+import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants";
+import { useAssignSalesSeries } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.hook";
 import {
   deleteAssignSalesSeries,
   updateAssignSalesSeries,
-} from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.actions";
+} from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.actions";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import AssignSalesSeriesActions from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesActions";
-import AssignSalesSeriesTable from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesTable";
-import { assignSalesSeriesColumns } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesColumns";
-import AssignSalesSeriesOptions from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesOptions";
+import AssignSalesSeriesActions from "@/features/ap/configuraciones/maestros-general/series/components/AssignSalesSeriesActions";
+import AssignSalesSeriesTable from "@/features/ap/configuraciones/maestros-general/series/components/AssignSalesSeriesTable";
+import { assignSalesSeriesColumns } from "@/features/ap/configuraciones/maestros-general/series/components/AssignSalesSeriesColumns";
+import AssignSalesSeriesOptions from "@/features/ap/configuraciones/maestros-general/series/components/AssignSalesSeriesOptions";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesOperation } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";

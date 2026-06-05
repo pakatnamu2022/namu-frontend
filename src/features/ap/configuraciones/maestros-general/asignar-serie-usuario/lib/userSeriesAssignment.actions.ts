@@ -6,7 +6,7 @@ import {
   UserSeriesAssignmentResource,
   UserSeriesAssignmentResponse,
 } from "./userSeriesAssignment.interface";
-import { AssignSalesSeriesResource } from "../../asignar-serie-venta/lib/assignSalesSeries.interface";
+import { AssignSalesSeriesResource } from "../../series/lib/assignSalesSeries.interface";
 
 const { ENDPOINT } = USER_SERIES_ASSIGNMENT;
 

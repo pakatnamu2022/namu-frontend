@@ -168,7 +168,7 @@ export const workOrderCajaColumns = ({
     cell: ({ getValue, row }) => {
       const description = getValue() as string;
       const internalNote = row.original.internal_note;
-      const color = WORK_ORDER_STATUS_COLORS[description] ?? "gray";
+      const color = WORK_ORDER_STATUS_COLORS[row.original.status.id] ?? "gray";
       return (
         <div className="flex flex-col gap-1">
           <Badge variant="outline" color={color}>
