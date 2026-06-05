@@ -36,7 +36,6 @@ export const useShipmentsReceptions = (params?: Record<string, any>) => {
   return useQuery<ShipmentsReceptionsResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getShipmentsReceptions({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -44,7 +43,6 @@ export const useAllShipmentsReceptions = (params?: Record<string, any>) => {
   return useQuery<ShipmentsReceptionsResource[]>({
     queryKey: [QUERY_KEY],
     queryFn: () => getAllShipmentsReceptions({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -52,7 +50,6 @@ export const useShipmentsReceptionsById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findShipmentsReceptionsById(id),
-    refetchOnWindowFocus: false,
     enabled: id > 0,
   });
 };
@@ -96,7 +93,7 @@ export const useDeleteShipmentsReceptions = () => {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message ||
-          "Error al eliminar la guía de remisión"
+          "Error al eliminar la guía de remisión",
       );
     },
   });
@@ -107,7 +104,7 @@ export const useReceptionChecklistById = (id: number) => {
   return useQuery<ReceptionChecklistResponse>({
     queryKey: [CHECKLIST_QUERY_KEY, id],
     queryFn: () => getReceptionChecklistById(id),
-    refetchOnWindowFocus: false,
+
     enabled: id > 0,
   });
 };
@@ -116,7 +113,7 @@ export const useVehicleByShippingGuide = (shippingGuideId: number) => {
   return useQuery<VehicleResource>({
     queryKey: [CHECKLIST_QUERY_KEY, "vehicle", shippingGuideId],
     queryFn: () => getVehicleByShippingGuide(shippingGuideId),
-    refetchOnWindowFocus: false,
+
     enabled: shippingGuideId > 0,
   });
 };
@@ -139,7 +136,7 @@ export const useUpdateReceptionChecklist = () => {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message ||
-          "Error al actualizar el checklist de recepción"
+          "Error al actualizar el checklist de recepción",
       );
     },
   });
@@ -157,7 +154,7 @@ export const useDeleteReceptionChecklist = () => {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message ||
-          "Error al eliminar el checklist de recepción"
+          "Error al eliminar el checklist de recepción",
       );
     },
   });
@@ -176,7 +173,7 @@ export const useSendShippingGuideToNubefact = () => {
         successToast(response.message);
       } else {
         errorToast(
-          response.message || "Error al enviar la guía de remisión a Nubefact"
+          response.message || "Error al enviar la guía de remisión a Nubefact",
         );
       }
     },
@@ -211,7 +208,7 @@ export const useQueryShippingGuideFromNubefact = () => {
         successToast(response.message);
       } else {
         errorToast(
-          response.message || "Error al consultar el estado de la guía"
+          response.message || "Error al consultar el estado de la guía",
         );
       }
     },
@@ -243,7 +240,7 @@ export const useMarkAsReceived = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       successToast(
-        response.message || "Guía marcada como recibida exitosamente"
+        response.message || "Guía marcada como recibida exitosamente",
       );
     },
     onError: (error: any) => {
@@ -301,12 +298,11 @@ export const useCancelShippingGuide = () => {
 
 // Hook para obtener el siguiente número de documento
 export const useNextShippingGuideDocumentNumber = (
-  documentSeriesId?: number
+  documentSeriesId?: number,
 ) => {
   return useQuery({
     queryKey: ["shippingGuide", "next-document-number", documentSeriesId],
     queryFn: () => getNextShippingGuideDocumentNumber(documentSeriesId!),
     enabled: !!documentSeriesId,
-    refetchOnWindowFocus: false,
   });
 };

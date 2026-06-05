@@ -9,6 +9,7 @@ import { es } from "date-fns/locale";
 import type { ShipmentsReceptionsResource } from "../../envios-recepciones/lib/shipmentsReceptions.interface";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { MIGRATION_STATUS, type MigrationStatusKey } from "@/features/ap/shipping_guides/lib/shippingGuides.constants";
+import { BookCheck, BookX } from "lucide-react";
 
 export type TransfersColumn = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -29,6 +30,14 @@ export const TransfersColumns = ({
     ),
   },
   {
+    accessorKey: "vehicle.vin",
+    header: "VIN",
+    cell: ({ getValue }) => {
+      const vin = getValue() as string | null | undefined;
+      return <span className="font-mono text-sm">{vin || "-"}</span>;
+    },
+  },
+  {
     accessorKey: "created_at",
     header: "Fecha",
     cell: ({ getValue }) => {
@@ -41,11 +50,9 @@ export const TransfersColumns = ({
     header: "Sede Origen",
     cell: ({ row }) => {
       const sede = row.original.sede_transmitter;
-      const desc = row.original.transmitter_description;
       return (
         <div className="flex flex-col gap-0.5">
           <span className="font-medium text-sm">{sede || "-"}</span>
-          {desc && <span className="text-xs text-muted-foreground">{desc}</span>}
         </div>
       );
     },
@@ -55,11 +62,9 @@ export const TransfersColumns = ({
     header: "Sede Destino",
     cell: ({ row }) => {
       const sede = row.original.sede_receiver;
-      const desc = row.original.receiver_description;
       return (
         <div className="flex flex-col gap-0.5">
           <span className="font-medium text-sm">{sede || "-"}</span>
-          {desc && <span className="text-xs text-muted-foreground">{desc}</span>}
         </div>
       );
     },
@@ -87,6 +92,26 @@ export const TransfersColumns = ({
       return (
         <Badge color={config.color} icon={Icon}>
           {config.label}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "is_accounted",
+    header: "Contabilización",
+    cell: ({ row }) => {
+      const was_migrated = row.original.migration_status === "completed";
+      const value = row.original.is_accounted;
+      if (value === true) {
+        return (
+          <Badge variant="outline" color="green" icon={BookCheck}>
+            <span>Contabilizado</span>
+          </Badge>
+        );
+      }
+      return (
+        <Badge color={was_migrated ? "orange" : "gray"} variant="outline" icon={BookX}>
+          <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>
         </Badge>
       );
     },
