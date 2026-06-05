@@ -412,6 +412,9 @@ import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/pag
 import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
 import LoanAmortizacionesPage from "./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx";
 import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
+import InsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/page.tsx";
+import AddInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx";
+import UpdateInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx";
 import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
 import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
 import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
@@ -2014,6 +2017,13 @@ function App() {
                 path="planillas/conceptos-planilla"
                 element={<PayrollConceptsPage />}
               />
+              {/* Aseguradora */}
+              {RouterCrud(
+                "planillas/aseguradora",
+                <InsurerPage />,
+                <AddInsurerPage />,
+                <UpdateInsurerPage />,
+              )}
 
               {/* Asistencias */}
               <Route

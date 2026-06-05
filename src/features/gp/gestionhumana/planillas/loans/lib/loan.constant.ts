@@ -17,5 +17,4 @@ export const LOAN: ModelComplete<LoanResource> = {
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
-  ROUTE_DETAIL: `${ABSOLUTE_ROUTE}`,
 };

@@ -73,7 +73,6 @@ export function LoanEditDiscountDialog({
       title="Editar amortización"
       subtitle="Modifica el monto de la cuota antes de confirmarla."
       icon="Pencil"
-      size="sm"
     >
       <Form {...form}>
         <form
@@ -101,7 +100,9 @@ export function LoanEditDiscountDialog({
               type="submit"
               disabled={isPending || !form.formState.isValid}
             >
-              <Loader className={`mr-2 h-4 w-4 ${!isPending ? "hidden" : ""}`} />
+              <Loader
+                className={`mr-2 h-4 w-4 ${!isPending ? "hidden" : ""}`}
+              />
               {isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>
