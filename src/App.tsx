@@ -420,6 +420,10 @@ import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actua
 import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
 import AddBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx";
 import UpdateBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx";
+import FoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/page.tsx";
+import AssignFoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/asignar/page.tsx";
+import FamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx";
+import AssignFamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
@@ -2002,6 +2006,24 @@ function App() {
                 <AddBonusPage />,
                 <UpdateBonusPage />,
               )}
+              {/* Tarjeta de Alimentos */}
+              <Route
+                path="planillas/tarjeta-de-alimentos"
+                element={<FoodCardPage />}
+              />
+              <Route
+                path="planillas/tarjeta-de-alimentos/asignar"
+                element={<AssignFoodCardPage />}
+              />
+              {/* Asignación Familiar */}
+              <Route
+                path="planillas/asignacion-familiar"
+                element={<FamilyAllowancePage />}
+              />
+              <Route
+                path="planillas/asignacion-familiar/asignar"
+                element={<AssignFamilyAllowancePage />}
+              />
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"

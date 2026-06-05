@@ -8,7 +8,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { storeInsurance } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.actions";
+import { importInsurance } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.actions";
 import { InsuranceForm } from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceForm";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -23,7 +23,8 @@ export default function AddInsurancePage() {
   const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storeInsurance,
+    mutationFn: ({ data, file }: { data: InsuranceSchema; file: File }) =>
+      importInsurance(file, data.period_id, data.business_partner_id),
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE);
@@ -35,8 +36,8 @@ export default function AddInsurancePage() {
     },
   });
 
-  const handleSubmit = (data: InsuranceSchema) => {
-    mutate(data);
+  const handleSubmit = (data: InsuranceSchema, file: File) => {
+    mutate({ data, file });
   };
 
   if (!checkRouteExists(ROUTE)) notFound();
@@ -49,11 +50,7 @@ export default function AddInsurancePage() {
         mode="create"
         icon={currentView.icon}
       />
-      <InsuranceForm
-        defaultValues={{}}
-        onSubmit={handleSubmit}
-        isSubmitting={isPending}
-      />
+      <InsuranceForm onSubmit={handleSubmit} isSubmitting={isPending} />
     </FormWrapper>
   );
 }

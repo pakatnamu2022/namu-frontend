@@ -15,6 +15,7 @@ import { User, Building2, Loader, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectLarge } from "@/shared/components/FormSelectLarge";
 import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import { useAllDistrict } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
@@ -439,7 +440,7 @@ export const SuppliersForm = ({
                         <FormControl>
                           <Input
                             type="number"
-                            className="h-8 md:h-9 text-xs md:text-sm"
+                            className="h-7 md:h-8 text-xs md:text-sm"
                             placeholder={
                               selectedDocumentType
                                 ? `Ingrese ${expectedDigits} dígitos`
@@ -449,9 +450,8 @@ export const SuppliersForm = ({
                             maxLength={expectedDigits || undefined}
                           />
                         </FormControl>
-                        {/* Indicador de estado */}
                         {shouldValidate && documentNumber && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
                             {isValidatingDocument && (
                               <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
                             )}
@@ -614,7 +614,7 @@ export const SuppliersForm = ({
               />
 
               <div className="col-span-1 md:col-span-2">
-                <FormSelect
+                <FormSelectLarge
                   name="district_id"
                   label="Ubigeo"
                   placeholder="Selecciona ubigeo"
@@ -624,7 +624,6 @@ export const SuppliersForm = ({
                     value: item.id.toString(),
                   }))}
                   control={form.control}
-                  strictFilter={true}
                   disabled={shouldDisableMainFields && !isRucNatural}
                 />
               </div>

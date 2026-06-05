@@ -1,0 +1,139 @@
+"use client";
+
+import { useState } from "react";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import FormWrapper from "@/shared/components/FormWrapper";
+import { notFound } from "@/shared/hooks/useNotFound";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
+import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { useFamilyAllowances } from "@/features/gp/gestionhumana/planillas/family-allowances/lib/family-allowance.hook";
+import FamilyAllowanceAssignTable from "@/features/gp/gestionhumana/planillas/family-allowances/components/FamilyAllowanceAssignTable";
+import { FAMILY_ALLOWANCE } from "@/features/gp/gestionhumana/planillas/family-allowances/lib/family-allowance.constant";
+import { Option } from "@/core/core.interface";
+import { generateYear, currentYear } from "@/core/core.function";
+import { EMPRESA_GP, FILTER_YEAR_START } from "@/core/core.constants";
+import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+
+export default function AssignFamilyAllowancePage() {
+  const { ROUTE } = FAMILY_ALLOWANCE;
+  const { currentView, checkRouteExists } = useCurrentModule();
+
+  const [companyId, setCompanyId] = useState(String(EMPRESA_GP.id));
+  const [year, setYear] = useState(String(currentYear()));
+  const [selectedPeriodIds, setSelectedPeriodIds] = useState<string[]>([]);
+
+  const { data: companies = [], isLoading: isLoadingCompanies } =
+    useAllCompanies();
+
+  const companyOptions: Option[] = companies.map((c) => ({
+    label: c.name,
+    value: String(c.id),
+  }));
+
+  const yearOptions: Option[] = generateYear(FILTER_YEAR_START).map((y) => ({
+    label: String(y),
+    value: String(y),
+  }));
+
+  const canFetch = !!companyId && !!year;
+
+  const { data: periodsData, isLoading: isLoadingPeriods } = usePayrollPeriods(
+    canFetch ? { year, company_id: companyId } : undefined,
+  );
+
+  const allPeriods: PayrollPeriodResource[] = (periodsData?.data ?? []).sort(
+    (a, b) => a.month - b.month,
+  );
+
+  const activePeriods =
+    selectedPeriodIds.length > 0
+      ? allPeriods.filter((p) => selectedPeriodIds.includes(String(p.id)))
+      : allPeriods;
+
+  const { data: workersData, isLoading: isLoadingWorkers } = useAllWorkers(
+    canFetch
+      ? {
+          status_id: STATUS_WORKER.ACTIVE,
+          sede$empresa_id: companyId,
+        }
+      : undefined,
+    canFetch,
+  );
+
+  const workers = workersData ?? [];
+
+  const periodIds = activePeriods.map((p) => p.id);
+
+  const {
+    data: familyAllowancesData,
+    isLoading: isLoadingCards,
+    refetch,
+  } = useFamilyAllowances(
+    canFetch && periodIds.length > 0
+      ? { company_id: companyId, "period_id[]": periodIds }
+      : undefined,
+  );
+
+  const existingCards = familyAllowancesData?.data ?? [];
+
+  const isTableLoading = isLoadingWorkers || isLoadingPeriods || isLoadingCards;
+
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+
+  return (
+    <FormWrapper>
+      <TitleFormComponent
+        title={currentView.descripcion}
+        mode="create"
+        icon={currentView.icon}
+      />
+
+      <div className="flex flex-wrap items-end gap-3 mb-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Empresa</span>
+          <SearchableSelect
+            options={companyOptions}
+            value={companyId}
+            onChange={(val) => {
+              setCompanyId(val);
+              setSelectedPeriodIds([]);
+            }}
+            placeholder={isLoadingCompanies ? "Cargando..." : "Empresa"}
+            disabled={isLoadingCompanies}
+            allowClear={false}
+            classNameDiv="w-56"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Año</span>
+          <SearchableSelect
+            options={yearOptions}
+            value={year}
+            onChange={(val) => {
+              setYear(val);
+              setSelectedPeriodIds([]);
+            }}
+            placeholder="Año"
+            allowClear={false}
+            showSearch={false}
+            classNameDiv="w-28"
+          />
+        </div>
+      </div>
+
+      <FamilyAllowanceAssignTable
+        workers={workers}
+        periods={activePeriods}
+        existingCards={existingCards}
+        isLoading={isTableLoading}
+        onSaved={refetch}
+      />
+    </FormWrapper>
+  );
+}
