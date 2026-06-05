@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { GeneralMastersResource } from "../lib/generalMasters.interface";
 import {
   MANDATORY_CONTRIBUTION_TYPE,
   INSURANCE_PREMIUM_TYPE,
   VARIABLE_COMMISSION_TYPE,
 } from "../lib/generalMasters.constants";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
+import { EditableCell } from "@/shared/components/EditableCell";
 
 const COLUMN_TYPES = [
   { key: MANDATORY_CONTRIBUTION_TYPE, label: "A/OBL." },
@@ -36,15 +34,9 @@ function buildMatrix(data: GeneralMastersResource[]): MatrixRow[] {
     }
     map.get(item.code)!.entries[item.type] = item;
   }
-  // Only keep rows that still have at least one entry
   return Array.from(map.values()).filter(
     (row) => Object.keys(row.entries).length > 0,
   );
-}
-
-interface EditingCell {
-  id: number;
-  value: string;
 }
 
 export interface AddCellPayload {
@@ -57,9 +49,8 @@ interface PayrollRatesMatrixProps {
   data: GeneralMastersResource[];
   isLoading?: boolean;
   onSaveValue: (id: number, value: string) => Promise<void>;
-  onDelete: (id: number) => void;
   onAdd: (payload: AddCellPayload) => void;
-  permissions: { canUpdate?: boolean; canDelete?: boolean; canCreate?: boolean };
+  permissions: { canUpdate?: boolean; canCreate?: boolean };
   search?: string;
 }
 
@@ -67,14 +58,10 @@ export default function PayrollRatesMatrix({
   data,
   isLoading,
   onSaveValue,
-  onDelete,
   onAdd,
   permissions,
   search = "",
 }: PayrollRatesMatrixProps) {
-  const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
-  const [savingId, setSavingId] = useState<number | null>(null);
-
   const rows = buildMatrix(data).filter((row) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -83,17 +70,6 @@ export default function PayrollRatesMatrix({
       row.description.toLowerCase().includes(q)
     );
   });
-
-  const handleSave = async (item: GeneralMastersResource) => {
-    if (!editingCell || editingCell.id !== item.id) return;
-    setSavingId(item.id);
-    try {
-      await onSaveValue(item.id, editingCell.value);
-    } finally {
-      setSavingId(null);
-      setEditingCell(null);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -136,69 +112,23 @@ export default function PayrollRatesMatrix({
 
               {COLUMN_TYPES.map((col) => {
                 const item = row.entries[col.key];
-                const isEditing = !!item && editingCell?.id === item.id;
-                const isSaving = !!item && savingId === item.id;
 
                 return (
                   <td key={col.key} className="px-3 py-3 text-center">
                     {item ? (
-                      <div className="group relative flex flex-col items-center justify-center gap-1.5 min-h-14">
-                        {isEditing ? (
-                          <Input
-                            autoFocus
-                            className="h-8 w-28 text-center text-sm font-semibold"
-                            value={editingCell.value}
-                            onChange={(e) =>
-                              setEditingCell({ ...editingCell, value: e.target.value })
-                            }
-                            onBlur={() => handleSave(item)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleSave(item);
-                              if (e.key === "Escape") setEditingCell(null);
-                            }}
-                            disabled={isSaving}
+                      <div className="flex items-center justify-center min-h-14">
+                        {permissions.canUpdate ? (
+                          <EditableCell
+                            id={item.id}
+                            value={item.value ?? "0"}
+                            onUpdate={(id, val) => onSaveValue(id, String(val))}
+                            isNumber
+                            widthClass="w-28"
                           />
                         ) : (
-                          <span
-                            className={cn(
-                              "text-base font-semibold text-foreground tabular-nums",
-                              item.status !== 1 && "opacity-40 line-through",
-                            )}
-                          >
+                          <span className="text-base font-semibold text-foreground tabular-nums">
                             {item.value || "0"}
                           </span>
-                        )}
-
-                        {!isEditing && (
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {permissions.canUpdate && (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                                onClick={() =>
-                                  setEditingCell({
-                                    id: item.id,
-                                    value: item.value ?? "",
-                                  })
-                                }
-                                title="Editar valor"
-                              >
-                                <Pencil className="h-3 w-3" />
-                              </Button>
-                            )}
-                            {permissions.canDelete && (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => onDelete(item.id)}
-                                title="Eliminar"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
                         )}
                       </div>
                     ) : (

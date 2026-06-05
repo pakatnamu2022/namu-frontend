@@ -6,22 +6,13 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import TitleComponent from "@/shared/components/TitleComponent";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import SearchInput from "@/shared/components/SearchInput";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  SUCCESS_MESSAGE,
-  successToast,
-} from "@/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useGeneralMasters } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
-import {
-  deleteGeneralMasters,
-  updateGeneralMasters,
-} from "@/features/gp/maestros-generales/lib/generalMasters.actions";
+import { updateGeneralMasters } from "@/features/gp/maestros-generales/lib/generalMasters.actions";
 import GeneralMastersModal from "@/features/gp/maestros-generales/components/GeneralMastersModal";
 import PayrollRatesMatrix, {
   type AddCellPayload,
@@ -45,7 +36,6 @@ export default function PayrollRatesPercentagesPage() {
   const permissions = useModulePermissions(ROUTE);
 
   const [search, setSearch] = useState("");
-  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [addCell, setAddCell] = useState<AddCellPayload | null>(null);
 
@@ -63,31 +53,6 @@ export default function PayrollRatesPercentagesPage() {
       successToast("Valor actualizado correctamente.");
     } catch {
       errorToast("Error al actualizar el valor.");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await deleteGeneralMasters(deleteId);
-      successToast(
-        SUCCESS_MESSAGE(
-          { name: "Constante", plural: "Constantes", gender: false },
-          "delete",
-        ),
-      );
-      await refetch();
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(
-        ERROR_MESSAGE(
-          { name: "Constante", plural: "Constantes", gender: false },
-          "delete",
-          msg,
-        ),
-      );
-    } finally {
-      setDeleteId(null);
     }
   };
 
@@ -121,24 +86,18 @@ export default function PayrollRatesPercentagesPage() {
         data={(Array.isArray(data) ? data : data?.data) ?? []}
         isLoading={isLoading}
         onSaveValue={handleSaveValue}
-        onDelete={setDeleteId}
         onAdd={setAddCell}
         permissions={permissions}
         search={search}
       />
 
-      {deleteId !== null && (
-        <SimpleDeleteDialog
-          open={true}
-          onOpenChange={(open) => !open && setDeleteId(null)}
-          onConfirm={handleDelete}
-        />
-      )}
-
       {showCreate && (
         <GeneralMastersModal
           open={showCreate}
-          onClose={() => { setShowCreate(false); refetch(); }}
+          onClose={() => {
+            setShowCreate(false);
+            refetch();
+          }}
           mode="create"
           allowedTypes={RATES_PERCENTAGES_TYPES}
         />
@@ -147,7 +106,10 @@ export default function PayrollRatesPercentagesPage() {
       {addCell !== null && (
         <GeneralMastersModal
           open={true}
-          onClose={() => { setAddCell(null); refetch(); }}
+          onClose={() => {
+            setAddCell(null);
+            refetch();
+          }}
           mode="create"
           defaultCode={addCell.code}
           lockedCode
