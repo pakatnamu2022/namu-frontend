@@ -24,7 +24,6 @@ import {
   Edit3,
   HelpCircle,
   Navigation,
-  Info,
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -153,7 +152,6 @@ export function TravelControlDetailModal({
   const [loadingAction, setLoadingAction] = useState<'start' | 'end' | null>(null);
 
 
-  const [showDetailedInfo, setShowDetailedInfo] = useState(true);
   const [isEditingMileage, setIsEditingMileage] = useState(false);
   const [editFormData, setEditFormData] = useState<{
     general_initial_km: string;
@@ -861,49 +859,7 @@ export function TravelControlDetailModal({
     return loadingSegmentId === segmentId && loadingAction === action;
   }, [loadingSegmentId, loadingAction]);
 
-  // ========== COMPONENTE DE RESUMEN PARA CONDUCTOR ==========
-  const DriverSummaryInfo = useCallback(() => (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-5 shadow-sm border border-blue-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-100 rounded-full">
-            <Info className="h-5 w-5 text-blue-700" />
-          </div>
-          <h3 className="font-bold text-lg text-blue-800">Resumen del Viaje</h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-xl p-3 text-center">
-            <p className="text-xs text-muted-foreground">N° Viaje</p>
-            <p className="font-bold text-base">{localTrip?.tripNumber || "-"}</p>
-          </div>
-          <div className="bg-white rounded-xl p-3 text-center">
-            <p className="text-xs text-muted-foreground">Placa</p>
-            <p className="font-bold text-base">{localTrip?.plate || "-"}</p>
-          </div>
-          <div className="bg-white rounded-xl p-3 text-center">
-            <p className="text-xs text-muted-foreground">Ruta</p>
-            <p className="font-bold text-base truncate">{localTrip?.route || "-"}</p>
-          </div>
-          <div className="bg-white rounded-xl p-3 text-center">
-            <p className="text-xs text-muted-foreground">Cliente</p>
-            <p className="font-bold text-base truncate">{localTrip?.client || "-"}</p>
-          </div>
-        </div>
-      </div>
 
-      <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-        <div className="flex items-center gap-2 text-amber-700">
-          <Clock className="h-4 w-4" />
-          <p className="text-sm">
-            {localTrip?.status === "pending" && "Viaje pendiente de iniciar"}
-            {localTrip?.status === "in_progress" && "Viaje en progreso - Sigue registrando tus kilometrajes"}
-            {localTrip?.status === "fuel_pending" && "Viaje completado - Esperando registro de combustible"}
-            {localTrip?.status === "completed" && "Viaje finalizado"}
-          </p>
-        </div>
-      </div>
-    </div>
-  ), [localTrip]);
 
   if (!localTrip) {
     return <>{trigger}</>;
@@ -959,942 +915,620 @@ export function TravelControlDetailModal({
               {/* Versión para Conductores */}
               {isDriver ? (
                 <>
-                  {!showDetailedInfo ? (
-                    // Vista simplificada
-                    <>
-                      <DriverSummaryInfo />
+                  {/* Stopwatch */}
+                  {localTrip.status === "in_progress" && localTrip.startTime && (
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 shadow-md border border-green-200">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-green-100 rounded-full">
+                          <Clock className="h-7 w-7 text-green-700" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-green-800">Viaje en progreso</p>
+                          <p className="text-xs text-green-600">
+                            Inicio: {getStartTime()?.toLocaleString("es-PE") || "N/A"} • {localTrip.initialKm} km
+                          </p>
+                        </div>
+                      </div>
+                      <StopwatchDisplay
+                        time={startStopwatch.formattedTime}
+                        label="Tiempo en ruta"
+                        variant="start"
+                        isRunning={startStopwatch.isRunning}
+                      />
+                    </div>
+                  )}
 
-                      {hasSubTrips && (localTrip.status === "pending" || localTrip.status === "in_progress") && (
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-b">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-primary/20 rounded-xl">
-                                  <Navigation className="h-5 w-5 text-primary" />
-                                </div>
-                                <h2 className="font-bold text-xl text-foreground">Tramos del Viaje</h2>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="bg-white rounded-full px-4 py-2 shadow-sm">
-                                  <span className="text-sm font-semibold text-primary">
-                                    {completedCount} / {sortedSubTrips.length}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground ml-1">completados</span>
-                                </div>
-                              </div>
+                  {/* Lista de SubTrips */}
+                  {hasSubTrips && (localTrip.status === "pending" || localTrip.status === "in_progress") && (
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                      <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-b">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary/20 rounded-xl">
+                              <Navigation className="h-5 w-5 text-primary" />
                             </div>
-                            <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary transition-all duration-500 rounded-full"
-                                style={{ width: `${(completedCount / sortedSubTrips.length) * 100}%` }}
-                              />
-                            </div>
+                            <h2 className="font-bold text-xl text-foreground">Tramos del Viaje</h2>
                           </div>
-
-                          <div className="divide-y divide-gray-100">
-                            {sortedSubTrips.map((sub, index) => {
-                              const currentStatus = sub.segment_status || sub.status || 'pending';
-                              const tramoNumber = index + 1;
-                              const isLocked = currentStatus === "locked";
-                              const isCompleted = currentStatus === "completed";
-                              const isActive = currentStatus === "in_progress";
-                              const isPending = currentStatus === "pending";
-                              const isExpanded = expandedId === sub.id;
-                              const error = errors[sub.id];
-                              const minKm = getMinInitialKm(sub);
-                              const startTimeFormatted = formatTime(sub.actual_start);
-                              const displayInitialKm = sub.initial_mileage;
-                              const displayFinalKm = sub.final_mileage;
-                              const displayTotalKm = sub.total_mileage;
-                              const displayTotalHours = sub.total_hours;
-                              const isFirstTrip = sub.order === 1;
-                              const hasPreloadedMileage = sub.initial_mileage !== null && sub.initial_mileage !== undefined;
-
-                              return (
-                                <div
-                                  key={sub.id}
-                                  className={cn(
-                                    "transition-all duration-200",
-                                    isLocked && "bg-gray-50 opacity-70",
-                                    isPending && "bg-gradient-to-r from-primary/5 to-transparent",
-                                    isActive && "bg-gradient-to-r from-green-50 to-transparent",
-                                    isCompleted && "bg-gradient-to-r from-emerald-50 to-transparent"
-                                  )}
-                                >
-                                  <button
-                                    onClick={() => !isLocked && setExpandedIdCallback(isExpanded ? null : sub.id)}
-                                    disabled={isLocked}
-                                    className="w-full p-5 flex items-center gap-4 text-left hover:bg-gray-50/50 transition-colors"
-                                  >
-                                    <div
-                                      className={cn(
-                                        "h-12 w-12 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all",
-                                        isLocked && "bg-gray-200 text-gray-500",
-                                        isPending && "bg-primary/20 text-primary border-2 border-primary/30",
-                                        isActive && "bg-green-500 text-white shadow-md animate-pulse",
-                                        isCompleted && "bg-emerald-500 text-white shadow-md"
-                                      )}
-                                    >
-                                      {isLocked && <Lock className="h-5 w-5" />}
-                                      {isPending && <span className="text-base font-bold">{tramoNumber}</span>}
-                                      {isActive && <Play className="h-5 w-5" />}
-                                      {isCompleted && <CheckCircle className="h-5 w-5" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-base font-bold text-foreground flex items-center gap-2">
-                                        {sub.name}
-                                        {isActive && (
-                                          <Badge className="bg-green-500 text-white text-xs animate-pulse">
-                                            En curso
-                                          </Badge>
-                                        )}
-                                      </p>
-                                    </div>
-                                    {!isLocked && (
-                                      isExpanded ? (
-                                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                                      ) : (
-                                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                                      )
-                                    )}
-                                  </button>
-
-                                  {!isLocked && isExpanded && (
-                                    <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
-                                      {error && (
-                                        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-                                          <AlertCircle className="h-5 w-5 shrink-0" />
-                                          <span>{error}</span>
-                                        </div>
-                                      )}
-
-                                      {isPending && (
-                                        <div className="space-y-4">
-                                          <div>
-                                            <Label className="text-base font-semibold flex items-center gap-2 mb-2">
-                                              <Gauge className="h-4 w-4 text-primary" />
-                                              Kilometraje Inicial
-                                              <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent className="max-w-xs">
-                                                  <p>Ingresa el kilometraje actual de tu vehículo antes de iniciar este tramo.</p>
-                                                </TooltipContent>
-                                              </Tooltip>
-                                            </Label>
-                                            <div className="relative">
-                                              <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                <Gauge className="h-5 w-5 text-primary" />
-                                              </div>
-                                              <Input
-                                                id={`init-${sub.id}`}
-                                                type="number"
-                                                step="1"
-                                                placeholder={minKm ? `Mínimo: ${minKm} km` : "Ej: 12500"}
-                                                value={getKm(sub.id, "initial") || (sub.initial_mileage ? Number(sub.initial_mileage).toString() : "")}
-                                                onChange={(e) => setKm(sub.id, "initial", e.target.value)}
-                                                disabled={isSegmentLoading(sub.id, 'start')}
-                                                className={cn(
-                                                  "pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all",
-                                                  (!isFirstTrip && hasPreloadedMileage) && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                                                )}
-                                              />
-                                            </div>
-                                            {minKm !== undefined && (
-                                              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground bg-blue-50 p-2 rounded-lg">
-                                                <Clock className="h-4 w-4 text-blue-500" />
-                                                <span>Último registro: <strong>{minKm} km</strong></span>
-                                              </div>
-                                            )}
-                                          </div>
-                                          <Button
-                                            onClick={() => handleStartSubTrip(sub)}
-                                            disabled={(!getKm(sub.id, "initial") && !sub.initial_mileage) || isSegmentLoading(sub.id, 'start')}
-                                            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-6 text-base rounded-xl shadow-md transition-all disabled:opacity-70"
-                                            size="lg"
-                                          >
-                                            {isSegmentLoading(sub.id, 'start') ? (
-                                              <>
-                                                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                                Iniciando...
-                                              </>
-                                            ) : (
-                                              <>
-                                                <Play className="h-5 w-5 mr-2" />
-                                                Iniciar Tramo
-                                              </>
-                                            )}
-                                          </Button>
-                                        </div>
-                                      )}
-
-                                      {isActive && (
-                                        <div className="space-y-4">
-                                          <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                                            <div className="p-2 bg-green-100 rounded-full">
-                                              <Clock className="h-5 w-5 text-green-700" />
-                                            </div>
-                                            <div>
-                                              <p className="text-xs text-green-600 font-medium">TRAMO INICIADO</p>
-                                              <p className="text-sm font-semibold text-green-800">
-                                                {startTimeFormatted} • {displayInitialKm} km
-                                              </p>
-                                            </div>
-                                          </div>
-                                          <>
-                                            <div>
-                                              <Label className="text-base font-semibold flex items-center gap-2 mb-2">
-                                                <Gauge className="h-4 w-4 text-primary" />
-                                                Kilometraje Final
-                                                <Tooltip>
-                                                  <TooltipTrigger asChild>
-                                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                                                  </TooltipTrigger>
-                                                  <TooltipContent>
-                                                    <p>Ingresa el kilometraje actual al llegar a tu destino.</p>
-                                                  </TooltipContent>
-                                                </Tooltip>
-                                              </Label>
-                                              <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                  <Gauge className="h-5 w-5 text-primary" />
-                                                </div>
-                                                <Input
-                                                  id={`end-${sub.id}`}
-                                                  type="number"
-                                                  step="1"
-                                                  placeholder={`Debe ser mayor a: ${sub.initial_mileage} km`}
-                                                  value={getKm(sub.id, "final")}
-                                                  onChange={(e) => setKm(sub.id, "final", e.target.value)}
-                                                  disabled={isSegmentLoading(sub.id, 'end')}
-                                                  className="pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all"
-                                                />
-                                              </div>
-                                            </div>
-                                            <Button
-                                              onClick={() => handleEndSubTrip(sub)}
-                                              disabled={!getKm(sub.id, "final") || isSegmentLoading(sub.id, 'end')}
-                                              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold py-6 text-base rounded-xl shadow-md transition-all disabled:opacity-70"
-                                              size="lg"
-                                            >
-                                              {isSegmentLoading(sub.id, 'end') ? (
-                                                <>
-                                                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                                  Finalizando...
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <Square className="h-5 w-5 mr-2" />
-                                                  Finalizar Tramo
-                                                </>
-                                              )}
-                                            </Button>
-                                          </>
-                                        </div>
-                                      )}
-
-                                      {isCompleted && (
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                          <div className="p-3 bg-gray-100 rounded-xl text-center">
-                                            <p className="text-xs text-muted-foreground">Km Inicial</p>
-                                            <p className="font-bold text-base">{displayInitialKm ?? "-"}</p>
-                                          </div>
-                                          <div className="p-3 bg-gray-100 rounded-xl text-center">
-                                            <p className="text-xs text-muted-foreground">Km Final</p>
-                                            <p className="font-bold text-base">{displayFinalKm ?? "-"}</p>
-                                          </div>
-                                          <div className="p-3 bg-emerald-100 rounded-xl text-center">
-                                            <p className="text-xs text-emerald-600">Total Km</p>
-                                            <p className="font-bold text-base text-emerald-700">{displayTotalKm ?? "-"}</p>
-                                          </div>
-                                          <div className="p-3 bg-emerald-100 rounded-xl text-center">
-                                            <p className="text-xs text-emerald-600">Total Horas</p>
-                                            <p className="font-bold text-base text-emerald-700">
-                                              {displayTotalHours !== null && displayTotalHours !== undefined
-                                                ? Number(displayTotalHours).toFixed(2)
-                                                : "-"}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
+                          <div className="flex items-center gap-2">
+                            <div className="bg-white rounded-full px-4 py-2 shadow-sm">
+                              <span className="text-sm font-semibold text-primary">
+                                {completedCount} / {sortedSubTrips.length}
+                              </span>
+                              <span className="text-xs text-muted-foreground ml-1">completados</span>
+                            </div>
                           </div>
                         </div>
-                      )}
-
-                      {localTrip.status === "in_progress" && allSubTripsCompleted && (
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 shadow-md border border-amber-200">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-amber-100 rounded-full">
-                              <Square className="h-6 w-6 text-amber-700" />
-                            </div>
-                            <h2 className="font-bold text-xl text-amber-800">Finalizar Viaje General</h2>
-                          </div>
-                          <div className="space-y-4">
-                            <FormInput
-                              control={control}
-                              name="tonnage"
-                              label="Toneladas Transportadas"
-                              type="text"
-                              inputMode="decimal"
-                              placeholder="Ej: 25.5"
-                              addonStart={<Package className="h-5 w-5 text-gray-500" />}
-                              className="pl-12 h-14 text-base rounded-xl"
-                              disabled={formSubmitting || isEndingRoute}
-                              error={formErrors.tonnage?.message}
-                              onChange={handleInputChange("tonnage")}
-                            />
-                            <Button
-                              onClick={() => {
-                                const lastSub = sortedSubTrips[sortedSubTrips.length - 1];
-                                if (lastSub?.status === "completed") {
-                                  handleEndSubTrip(lastSub);
-                                }
-                              }}
-                              disabled={isSegmentLoading(sortedSubTrips[sortedSubTrips.length - 1]?.id, 'end')}
-                              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold py-6 text-base rounded-xl shadow-md disabled:opacity-70"
-                              size="lg"
-                            >
-                              {isSegmentLoading(sortedSubTrips[sortedSubTrips.length - 1]?.id, 'end') ? (
-                                <>
-                                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                  Finalizando...
-                                </>
-                              ) : (
-                                <>
-                                  <Square className="h-5 w-5 mr-2" />
-                                  Finalizar Viaje
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    // Vista completa para conductores (con todos los detalles)
-                    <>
-                      {/* Stopwatch */}
-                      {localTrip.status === "in_progress" && localTrip.startTime && (
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 shadow-md border border-green-200">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 bg-green-100 rounded-full">
-                              <Clock className="h-7 w-7 text-green-700" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-green-800">Viaje en progreso</p>
-                              <p className="text-xs text-green-600">
-                                Inicio: {getStartTime()?.toLocaleString("es-PE") || "N/A"} • {localTrip.initialKm} km
-                              </p>
-                            </div>
-                          </div>
-                          <StopwatchDisplay
-                            time={startStopwatch.formattedTime}
-                            label="Tiempo en ruta"
-                            variant="start"
-                            isRunning={startStopwatch.isRunning}
+                        <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary transition-all duration-500 rounded-full"
+                            style={{ width: `${(completedCount / sortedSubTrips.length) * 100}%` }}
                           />
                         </div>
-                      )}
+                      </div>
 
-                      {/* Lista de SubTrips */}
-                      {hasSubTrips && (localTrip.status === "pending" || localTrip.status === "in_progress") && (
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                          <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-b">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-primary/20 rounded-xl">
-                                  <Navigation className="h-5 w-5 text-primary" />
-                                </div>
-                                <h2 className="font-bold text-xl text-foreground">Tramos del Viaje</h2>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="bg-white rounded-full px-4 py-2 shadow-sm">
-                                  <span className="text-sm font-semibold text-primary">
-                                    {completedCount} / {sortedSubTrips.length}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground ml-1">completados</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary transition-all duration-500 rounded-full"
-                                style={{ width: `${(completedCount / sortedSubTrips.length) * 100}%` }}
-                              />
-                            </div>
-                          </div>
+                      <div className="divide-y divide-gray-100">
+                        {sortedSubTrips.map((sub, index) => {
+                          const currentStatus = sub.segment_status || sub.status || 'pending';
+                          const tramoNumber = index + 1;
+                          const isLocked = currentStatus === "locked";
+                          const isCompleted = currentStatus === "completed";
+                          const isActive = currentStatus === "in_progress";
+                          const isPending = currentStatus === "pending";
+                          const isExpanded = expandedId === sub.id;
+                          const error = errors[sub.id];
+                          const minKm = getMinInitialKm(sub);
+                          const startTimeFormatted = formatTime(sub.actual_start);
+                          const displayInitialKm = sub.initial_mileage;
+                          const displayFinalKm = sub.final_mileage;
+                          const displayTotalKm = sub.total_mileage;
+                          const displayTotalHours = sub.total_hours;
+                          const isFirstTrip = sub.order === 1;
+                          const hasPreloadedMileage = sub.initial_mileage !== null && sub.initial_mileage !== undefined;
 
-                          <div className="divide-y divide-gray-100">
-                            {sortedSubTrips.map((sub, index) => {
-                              const currentStatus = sub.segment_status || sub.status || 'pending';
-                              const tramoNumber = index + 1;
-                              const isLocked = currentStatus === "locked";
-                              const isCompleted = currentStatus === "completed";
-                              const isActive = currentStatus === "in_progress";
-                              const isPending = currentStatus === "pending";
-                              const isExpanded = expandedId === sub.id;
-                              const error = errors[sub.id];
-                              const minKm = getMinInitialKm(sub);
-                              const startTimeFormatted = formatTime(sub.actual_start);
-                              const displayInitialKm = sub.initial_mileage;
-                              const displayFinalKm = sub.final_mileage;
-                              const displayTotalKm = sub.total_mileage;
-                              const displayTotalHours = sub.total_hours;
-                              const isFirstTrip = sub.order === 1;
-                              const hasPreloadedMileage = sub.initial_mileage !== null && sub.initial_mileage !== undefined;
-
-                              return (
-                                <div
-                                  key={sub.id}
-                                  className={cn(
-                                    "transition-all duration-200",
-                                    isLocked && "bg-gray-50 opacity-70",
-                                    isPending && "bg-gradient-to-r from-primary/5 to-transparent",
-                                    isActive && "bg-gradient-to-r from-green-50 to-transparent",
-                                    isCompleted && "bg-gradient-to-r from-emerald-50 to-transparent"
-                                  )}
-                                >
-                                  <button
-                                    onClick={() => !isLocked && setExpandedIdCallback(isExpanded ? null : sub.id)}
-                                    disabled={isLocked}
-                                    className="w-full p-5 flex items-center gap-4 text-left hover:bg-gray-50/50 transition-colors"
-                                  >
-                                    <div
-                                      className={cn(
-                                        "h-12 w-12 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all",
-                                        isLocked && "bg-gray-200 text-gray-500",
-                                        isPending && "bg-primary/20 text-primary border-2 border-primary/30",
-                                        isActive && "bg-green-500 text-white shadow-md animate-pulse",
-                                        isCompleted && "bg-emerald-500 text-white shadow-md"
-                                      )}
-                                    >
-                                      {isLocked && <Lock className="h-5 w-5" />}
-                                      {isPending && <span className="text-base font-bold">{tramoNumber}</span>}
-                                      {isActive && <Play className="h-5 w-5" />}
-                                      {isCompleted && <CheckCircle className="h-5 w-5" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-base font-bold text-foreground flex items-center gap-2">
-                                        {sub.name}
-                                        {isActive && (
-                                          <Badge className="bg-green-500 text-white text-xs animate-pulse">
-                                            En curso
-                                          </Badge>
-                                        )}
-                                      </p>
-                                    </div>
-                                    {!isLocked && (
-                                      isExpanded ? (
-                                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                                      ) : (
-                                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                                      )
-                                    )}
-                                  </button>
-
-                                  {!isLocked && isExpanded && (
-                                    <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
-                                      {error && (
-                                        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-                                          <AlertCircle className="h-5 w-5 shrink-0" />
-                                          <span>{error}</span>
-                                        </div>
-                                      )}
-
-                                      {isPending && (
-                                        <div className="space-y-4">
-                                          <div>
-                                            <Label className="text-base font-semibold flex items-center gap-2 mb-2">
-                                              <Gauge className="h-4 w-4 text-primary" />
-                                              Kilometraje Inicial
-                                              <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent className="max-w-xs">
-                                                  <p>Ingresa el kilometraje actual de tu vehículo antes de iniciar este tramo.</p>
-                                                </TooltipContent>
-                                              </Tooltip>
-                                            </Label>
-                                            <div className="relative">
-                                              <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                <Gauge className="h-5 w-5 text-primary" />
-                                              </div>
-                                              <Input
-                                                id={`init-${sub.id}`}
-                                                type="number"
-                                                step="1"
-                                                placeholder={minKm ? `Mínimo: ${minKm} km` : "Ej: 12500"}
-                                                value={getKm(sub.id, "initial") || (sub.initial_mileage ? Number(sub.initial_mileage).toString() : "")}
-                                                onChange={(e) => setKm(sub.id, "initial", e.target.value)}
-                                                disabled={isSegmentLoading(sub.id, 'start')}
-                                                className={cn(
-                                                  "pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all",
-                                                  (!isFirstTrip && hasPreloadedMileage) && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                                                )}
-                                              />
-                                            </div>
-                                            {minKm !== undefined && (
-                                              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground bg-blue-50 p-2 rounded-lg">
-                                                <Clock className="h-4 w-4 text-blue-500" />
-                                                <span>Último registro del vehículo: <strong>{minKm} km</strong></span>
-                                              </div>
-                                            )}
-                                          </div>
-                                          <Button
-                                            onClick={() => handleStartSubTrip(sub)}
-                                            disabled={(!getKm(sub.id, "initial") && !sub.initial_mileage) || isSegmentLoading(sub.id, 'start')}
-                                            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-6 text-base rounded-xl shadow-md transition-all disabled:opacity-70"
-                                            size="lg"
-                                          >
-                                            {isSegmentLoading(sub.id, 'start') ? (
-                                              <>
-                                                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                                Iniciando...
-                                              </>
-                                            ) : (
-                                              <>
-                                                <Play className="h-5 w-5 mr-2" />
-                                                Iniciar Tramo
-                                              </>
-                                            )}
-                                          </Button>
-                                        </div>
-                                      )}
-
-                                      {isActive && (
-                                        <div className="space-y-4">
-                                          <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                                            <div className="p-2 bg-green-100 rounded-full">
-                                              <Clock className="h-5 w-5 text-green-700" />
-                                            </div>
-                                            <div>
-                                              <p className="text-xs text-green-600 font-medium">TRAMO INICIADO</p>
-                                              <p className="text-sm font-semibold text-green-800">
-                                                {startTimeFormatted} • {displayInitialKm} km
-                                              </p>
-                                            </div>
-                                          </div>
-                                          <>
-                                            <div>
-                                              <Label className="text-base font-semibold flex items-center gap-2 mb-2">
-                                                <Gauge className="h-4 w-4 text-primary" />
-                                                Kilometraje Final
-                                                <Tooltip>
-                                                  <TooltipTrigger asChild>
-                                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                                                  </TooltipTrigger>
-                                                  <TooltipContent>
-                                                    <p>Ingresa el kilometraje actual al llegar a tu destino.</p>
-                                                  </TooltipContent>
-                                                </Tooltip>
-                                              </Label>
-                                              <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                  <Gauge className="h-5 w-5 text-primary" />
-                                                </div>
-                                                <Input
-                                                  id={`end-${sub.id}`}
-                                                  type="number"
-                                                  step="1"
-                                                  placeholder={`Debe ser mayor a: ${sub.initial_mileage} km`}
-                                                  value={getKm(sub.id, "final")}
-                                                  onChange={(e) => setKm(sub.id, "final", e.target.value)}
-                                                  disabled={isSegmentLoading(sub.id, 'end')}
-                                                  className="pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all"
-                                                />
-                                              </div>
-                                            </div>
-                                            <Button
-                                              onClick={() => handleEndSubTrip(sub)}
-                                              disabled={!getKm(sub.id, "final") || isSegmentLoading(sub.id, 'end')}
-                                              className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold py-6 text-base rounded-xl shadow-md transition-all disabled:opacity-70"
-                                              size="lg"
-                                            >
-                                              {isSegmentLoading(sub.id, 'end') ? (
-                                                <>
-                                                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                                  Finalizando...
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <Square className="h-5 w-5 mr-2" />
-                                                  Finalizar Tramo
-                                                </>
-                                              )}
-                                            </Button>
-                                          </>
-                                        </div>
-                                      )}
-
-                                      {isCompleted && (
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                          <div className="p-3 bg-gray-100 rounded-xl text-center">
-                                            <p className="text-xs text-muted-foreground">Km Inicial</p>
-                                            <p className="font-bold text-base">{displayInitialKm ?? "-"}</p>
-                                          </div>
-                                          <div className="p-3 bg-gray-100 rounded-xl text-center">
-                                            <p className="text-xs text-muted-foreground">Km Final</p>
-                                            <p className="font-bold text-base">{displayFinalKm ?? "-"}</p>
-                                          </div>
-                                          <div className="p-3 bg-emerald-100 rounded-xl text-center">
-                                            <p className="text-xs text-emerald-600">Total Km</p>
-                                            <p className="font-bold text-base text-emerald-700">{displayTotalKm ?? "-"}</p>
-                                          </div>
-                                          <div className="p-3 bg-emerald-100 rounded-xl text-center">
-                                            <p className="text-xs text-emerald-600">Total Horas</p>
-                                            <p className="font-bold text-base text-emerald-700">
-                                              {displayTotalHours !== null && displayTotalHours !== undefined
-                                                ? Number(displayTotalHours).toFixed(2)
-                                                : "-"}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Finalizar Viaje General */}
-                      {localTrip.status === "in_progress" && allSubTripsCompleted && (
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 shadow-md border border-amber-200">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-amber-100 rounded-full">
-                              <Square className="h-6 w-6 text-amber-700" />
-                            </div>
-                            <h2 className="font-bold text-xl text-amber-800">Finalizar Viaje General</h2>
-                          </div>
-                          <div className="space-y-4">
-                            <FormInput
-                              control={control}
-                              name="tonnage"
-                              label="Toneladas Transportadas (opcional)"
-                              type="text"
-                              inputMode="decimal"
-                              placeholder="Ej: 25.5"
-                              addonStart={<Package className="h-5 w-5 text-gray-500" />}
-                              className="pl-12 h-14 text-base rounded-xl"
-                              disabled={formSubmitting || isEndingRoute}
-                              error={formErrors.tonnage?.message}
-                              onChange={handleInputChange("tonnage")}
-                            />
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <HelpCircle className="h-3 w-3" />
-                              Opcional - Ingresa el peso total transportado
-                            </p>
-                            <Button
-                              onClick={() => {
-                                const lastSub = sortedSubTrips[sortedSubTrips.length - 1];
-                                if (lastSub?.status === "completed") {
-                                  handleEndSubTrip(lastSub);
-                                }
-                              }}
-                              disabled={isSegmentLoading(sortedSubTrips[sortedSubTrips.length - 1]?.id, 'end')}
-                              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold py-6 text-base rounded-xl shadow-md disabled:opacity-70"
-                              size="lg"
-                            >
-                              {isSegmentLoading(sortedSubTrips[sortedSubTrips.length - 1]?.id, 'end') ? (
-                                <>
-                                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                  Finalizando...
-                                </>
-                              ) : (
-                                <>
-                                  <Square className="h-5 w-5 mr-2" />
-                                  Finalizar Viaje General
-                                </>
+                          return (
+                            <div
+                              key={sub.id}
+                              className={cn(
+                                "transition-all duration-200",
+                                isLocked && "bg-gray-50 opacity-70",
+                                isPending && "bg-gradient-to-r from-primary/5 to-transparent",
+                                isActive && "bg-gradient-to-r from-green-50 to-transparent",
+                                isCompleted && "bg-gradient-to-r from-emerald-50 to-transparent"
                               )}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Stopwatch Display para End Time */}
-                      {endTime && (localTrip.status === "completed" || localTrip.status === "fuel_pending") && (
-                        <StopwatchDisplay
-                          time={endStopwatch.formattedTime}
-                          label="Tiempo desde finalización"
-                          variant="end"
-                          isRunning={endStopwatch.isRunning}
-                        />
-                      )}
-
-                      {/* Métricas del Viaje */}
-                      {(localTrip.status === "fuel_pending" || localTrip.status === "completed") && (
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between border-b pb-2">
-                            <div className="flex items-center gap-3">
-                              <div className="h-8 w-1 bg-primary rounded-full"></div>
-                              <h3 className="font-bold text-xl text-foreground">Métricas del Viaje</h3>
-                            </div>
-                            {userCanEditMileage && (
-                              !isEditingMileage ? (
-                                <Button
-                                  variant="outline"
-                                  size="default"
-                                  onClick={() => setIsEditingMileage(true)}
-                                  className="gap-2 h-11"
-                                  disabled={isUpdatingMileage}
+                            >
+                              <button
+                                onClick={() => !isLocked && setExpandedIdCallback(isExpanded ? null : sub.id)}
+                                disabled={isLocked}
+                                className="w-full p-5 flex items-center gap-4 text-left hover:bg-gray-50/50 transition-colors"
+                              >
+                                <div
+                                  className={cn(
+                                    "h-12 w-12 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all",
+                                    isLocked && "bg-gray-200 text-gray-500",
+                                    isPending && "bg-primary/20 text-primary border-2 border-primary/30",
+                                    isActive && "bg-green-500 text-white shadow-md animate-pulse",
+                                    isCompleted && "bg-emerald-500 text-white shadow-md"
+                                  )}
                                 >
-                                  <Pencil className="h-4 w-4" />
-                                  Editar Kilometrajes
-                                </Button>
-                              ) : (
-                                <div className="flex gap-2">
-                                  <Button
-                                    variant="outline"
-                                    size="default"
-                                    onClick={() => setIsEditingMileage(false)}
-                                    disabled={isUpdatingMileage}
-                                    className="h-11"
-                                  >
-                                    <X className="h-4 w-4 mr-1" />
-                                    Cancelar
-                                  </Button>
-                                  <Button
-                                    variant="default"
-                                    size="default"
-                                    onClick={handleSaveMileageEdits}
-                                    disabled={isUpdatingMileage}
-                                    className="gap-2 h-11"
-                                  >
-                                    {isUpdatingMileage ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <Save className="h-4 w-4" />
+                                  {isLocked && <Lock className="h-5 w-5" />}
+                                  {isPending && <span className="text-base font-bold">{tramoNumber}</span>}
+                                  {isActive && <Play className="h-5 w-5" />}
+                                  {isCompleted && <CheckCircle className="h-5 w-5" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-base font-bold text-foreground flex items-center gap-2">
+                                    {sub.name}
+                                    {isActive && (
+                                      <Badge className="bg-green-500 text-white text-xs animate-pulse">
+                                        En curso
+                                      </Badge>
                                     )}
-                                    Guardar
-                                  </Button>
-                                </div>
-                              )
-                            )}
-                          </div>
-
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {!isEditingMileage || !userCanEditMileage ? (
-                              <>
-                                <div className="p-4 bg-muted/30 rounded-xl text-center">
-                                  <p className="text-sm text-muted-foreground">Km Inicial</p>
-                                  <p className="font-bold text-2xl text-foreground">{localTrip.initialKm?.toString() || "-"}</p>
-                                  <p className="text-xs text-muted-foreground">km</p>
-                                </div>
-                                <div className="p-4 bg-muted/30 rounded-xl text-center">
-                                  <p className="text-sm text-muted-foreground">Km Final</p>
-                                  <p className="font-bold text-2xl text-foreground">{localTrip.finalKm?.toString() || "-"}</p>
-                                  <p className="text-xs text-muted-foreground">km</p>
-                                </div>
-                                <div className="p-4 bg-primary/10 rounded-xl text-center">
-                                  <p className="text-sm text-primary">Total Km</p>
-                                  <p className="font-bold text-2xl text-primary">{localTrip.totalKm?.toString() || "-"}</p>
-                                  <p className="text-xs text-primary/70">km</p>
-                                </div>
-                                <div className="p-4 bg-muted/30 rounded-xl text-center">
-                                  <p className="text-sm text-muted-foreground">Horas Totales</p>
-                                  <p className="font-bold text-2xl text-foreground">{localTrip.totalHours?.toFixed(2) || "-"}</p>
-                                  <p className="text-xs text-muted-foreground">horas</p>
-                                </div>
-                                {localTrip.tonnage && (
-                                  <div className="p-4 bg-muted/30 rounded-xl text-center">
-                                    <p className="text-sm text-muted-foreground">Toneladas</p>
-                                    <p className="font-bold text-2xl text-foreground">{localTrip.tonnage}</p>
-                                    <p className="text-xs text-muted-foreground">ton</p>
-                                  </div>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <div>
-                                  <Label className="text-sm font-semibold">Km Inicial General</Label>
-                                  <div className="relative mt-2">
-                                    <Gauge className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                    <Input
-                                      type="number"
-                                      step="1"
-                                      value={editFormData.general_initial_km}
-                                      onChange={(e) => handleEditFieldChange('general_initial_km', e.target.value)}
-                                      className="pl-12 h-12 text-base rounded-xl"
-                                      placeholder="Km inicial"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-semibold">Km Final General</Label>
-                                  <div className="relative mt-2">
-                                    <Gauge className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                    <Input
-                                      type="number"
-                                      step="1"
-                                      value={editFormData.general_final_km}
-                                      onChange={(e) => handleEditFieldChange('general_final_km', e.target.value)}
-                                      className="pl-12 h-12 text-base rounded-xl"
-                                      placeholder="Km final"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="p-4 bg-primary/10 rounded-xl text-center">
-                                  <p className="text-sm text-primary font-medium">Total Km</p>
-                                  <p className="font-bold text-2xl text-primary">
-                                    {(() => {
-                                      const initial = parseFloat(editFormData.general_initial_km);
-                                      const final = parseFloat(editFormData.general_final_km);
-                                      if (!isNaN(initial) && !isNaN(final) && final > initial) {
-                                        return `${(final - initial).toFixed(0)} km`;
-                                      }
-                                      return localTrip.totalKm ? `${localTrip.totalKm} km` : "-";
-                                    })()}
                                   </p>
                                 </div>
-                              </>
-                            )}
-                          </div>
+                                {!isLocked && (
+                                  isExpanded ? (
+                                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                                  ) : (
+                                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                                  )
+                                )}
+                              </button>
 
-                          {isEditingMileage && userCanEditMileage && (() => {
-                            const warnings = getSegmentWarnings();
-                            if (warnings.length > 0) {
-                              return (
-                                <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700 space-y-2">
-                                  {warnings.map((w, i) => (
-                                    <p key={i} className="flex items-center gap-2">
-                                      <AlertCircle className="h-4 w-4 shrink-0" />
-                                      {w}
-                                    </p>
-                                  ))}
-                                </div>
-                              );
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      )}
-
-                      {/* Métricas por Tramo */}
-                      {(localTrip.status === "fuel_pending" || localTrip.status === "completed") && sortedSubTrips.length > 0 && (
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 border-b pb-2">
-                            <div className="h-8 w-1 bg-primary rounded-full"></div>
-                            <h2 className="font-bold text-xl text-foreground">Métricas por Tramo</h2>
-                            {isEditingMileage && userCanEditMileage && (
-                              <Badge variant="outline" className="ml-2 text-sm py-1 px-3">
-                                <Edit3 className="h-3 w-3 mr-1" />
-                                Modo edición
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div className="space-y-4">
-                            {sortedSubTrips.map((sub, index) => {
-                              const tramoNumber = index + 1;
-                              const isCompleted = sub.status === "completed";
-                              const segmentData = editFormData.segments[sub.id];
-
-                              let autoTotalKm = null;
-                              if (isEditingMileage && segmentData) {
-                                const initial = parseFloat(segmentData.initial);
-                                const final = parseFloat(segmentData.final);
-                                if (!isNaN(initial) && !isNaN(final) && final > initial) {
-                                  autoTotalKm = final - initial;
-                                }
-                              }
-
-                              return (
-                                <div key={sub.id} className="border-2 border-gray-100 rounded-xl p-4 bg-white shadow-sm">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div>
-                                      <p className="text-base font-bold text-foreground">
-                                        Tramo {tramoNumber}: {sub.origin} - {sub.destination}
-                                      </p>
+                              {!isLocked && isExpanded && (
+                                <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
+                                  {error && (
+                                    <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                                      <AlertCircle className="h-5 w-5 shrink-0" />
+                                      <span>{error}</span>
                                     </div>
-                                    <span className={cn(
-                                      "text-sm px-3 py-1 rounded-full font-medium",
-                                      isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
-                                    )}>
-                                      {isCompleted ? " Completado" : "○ Pendiente"}
-                                    </span>
-                                  </div>
+                                  )}
 
-                                  {!isEditingMileage ? (
-                                    <div className="grid grid-cols-3 gap-3">
-                                      <div className="p-3 bg-gray-50 rounded-lg text-center">
+                                  {isPending && (
+                                    <div className="space-y-4">
+                                      <div>
+                                        <Label className="text-base font-semibold flex items-center gap-2 mb-2">
+                                          <Gauge className="h-4 w-4 text-primary" />
+                                          Kilometraje Inicial
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                            </TooltipTrigger>
+                                            <TooltipContent className="max-w-xs">
+                                              <p>Ingresa el kilometraje actual de tu vehículo antes de iniciar este tramo.</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </Label>
+                                        <div className="relative">
+                                          <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                                            <Gauge className="h-5 w-5 text-primary" />
+                                          </div>
+                                          <Input
+                                            id={`init-${sub.id}`}
+                                            type="number"
+                                            step="1"
+                                            placeholder={minKm ? `Mínimo: ${minKm} km` : "Ej: 12500"}
+                                            value={getKm(sub.id, "initial") || (sub.initial_mileage ? Number(sub.initial_mileage).toString() : "")}
+                                            onChange={(e) => setKm(sub.id, "initial", e.target.value)}
+                                            disabled={isSegmentLoading(sub.id, 'start')}
+                                            className={cn(
+                                              "pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all",
+                                              (!isFirstTrip && hasPreloadedMileage) && "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
+                                            )}
+                                          />
+                                        </div>
+                                        {minKm !== undefined && (
+                                          <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground bg-blue-50 p-2 rounded-lg">
+                                            <Clock className="h-4 w-4 text-blue-500" />
+                                            <span>Último registro del vehículo: <strong>{minKm} km</strong></span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <Button
+                                        onClick={() => handleStartSubTrip(sub)}
+                                        disabled={(!getKm(sub.id, "initial") && !sub.initial_mileage) || isSegmentLoading(sub.id, 'start')}
+                                        className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-6 text-base rounded-xl shadow-md transition-all disabled:opacity-70"
+                                        size="lg"
+                                      >
+                                        {isSegmentLoading(sub.id, 'start') ? (
+                                          <>
+                                            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                                            Iniciando...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Play className="h-5 w-5 mr-2" />
+                                            Iniciar Tramo
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  )}
+
+                                  {isActive && (
+                                    <div className="space-y-4">
+                                      <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
+                                        <div className="p-2 bg-green-100 rounded-full">
+                                          <Clock className="h-5 w-5 text-green-700" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs text-green-600 font-medium">TRAMO INICIADO</p>
+                                          <p className="text-sm font-semibold text-green-800">
+                                            {startTimeFormatted} • {displayInitialKm} km
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <>
+                                        <div>
+                                          <Label className="text-base font-semibold flex items-center gap-2 mb-2">
+                                            <Gauge className="h-4 w-4 text-primary" />
+                                            Kilometraje Final
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Ingresa el kilometraje actual al llegar a tu destino.</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </Label>
+                                          <div className="relative">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                                              <Gauge className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <Input
+                                              id={`end-${sub.id}`}
+                                              type="number"
+                                              step="1"
+                                              placeholder={`Debe ser mayor a: ${sub.initial_mileage} km`}
+                                              value={getKm(sub.id, "final")}
+                                              onChange={(e) => setKm(sub.id, "final", e.target.value)}
+                                              disabled={isSegmentLoading(sub.id, 'end')}
+                                              className="pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all"
+                                            />
+                                          </div>
+                                        </div>
+                                        <Button
+                                          onClick={() => handleEndSubTrip(sub)}
+                                          disabled={!getKm(sub.id, "final") || isSegmentLoading(sub.id, 'end')}
+                                          className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold py-6 text-base rounded-xl shadow-md transition-all disabled:opacity-70"
+                                          size="lg"
+                                        >
+                                          {isSegmentLoading(sub.id, 'end') ? (
+                                            <>
+                                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                                              Finalizando...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Square className="h-5 w-5 mr-2" />
+                                              Finalizar Tramo
+                                            </>
+                                          )}
+                                        </Button>
+                                      </>
+                                    </div>
+                                  )}
+
+                                  {isCompleted && (
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                      <div className="p-3 bg-gray-100 rounded-xl text-center">
                                         <p className="text-xs text-muted-foreground">Km Inicial</p>
-                                        <p className="font-bold text-lg">{sub.initial_mileage ?? '-'}</p>
+                                        <p className="font-bold text-base">{displayInitialKm ?? "-"}</p>
                                       </div>
-                                      <div className="p-3 bg-gray-50 rounded-lg text-center">
+                                      <div className="p-3 bg-gray-100 rounded-xl text-center">
                                         <p className="text-xs text-muted-foreground">Km Final</p>
-                                        <p className="font-bold text-lg">{sub.final_mileage ?? '-'}</p>
+                                        <p className="font-bold text-base">{displayFinalKm ?? "-"}</p>
                                       </div>
-                                      <div className="p-3 bg-emerald-50 rounded-lg text-center">
+                                      <div className="p-3 bg-emerald-100 rounded-xl text-center">
                                         <p className="text-xs text-emerald-600">Total Km</p>
-                                        <p className="font-bold text-lg text-emerald-700">{sub.total_mileage ?? '-'}</p>
+                                        <p className="font-bold text-base text-emerald-700">{displayTotalKm ?? "-"}</p>
                                       </div>
-                                    </div>
-                                  ) : userCanEditMileage ? (
-                                    <div className="grid grid-cols-3 gap-3">
-                                      <div>
-                                        <Label className="text-xs">Km Inicial</Label>
-                                        <Input
-                                          type="number"
-                                          step="1"
-                                          value={segmentData?.initial || ""}
-                                          onChange={(e) => handleEditSegmentChange(sub.id, 'initial', e.target.value)}
-                                          className="mt-1 h-11 text-base rounded-lg"
-                                          placeholder="Km inicial"
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs">Km Final</Label>
-                                        <Input
-                                          type="number"
-                                          step="1"
-                                          value={segmentData?.final || ""}
-                                          onChange={(e) => handleEditSegmentChange(sub.id, 'final', e.target.value)}
-                                          className="mt-1 h-11 text-base rounded-lg"
-                                          placeholder="Km final"
-                                        />
-                                      </div>
-                                      <div className="bg-primary/5 rounded-lg p-2 text-center">
-                                        <p className="text-xs text-muted-foreground">Total Km</p>
-                                        <p className={cn(
-                                          "font-bold text-base",
-                                          autoTotalKm !== null ? "text-green-600" : "text-muted-foreground"
-                                        )}>
-                                          {autoTotalKm !== null ? `${autoTotalKm.toFixed(0)} km` : (sub.total_mileage ?? '-')}
+                                      <div className="p-3 bg-emerald-100 rounded-xl text-center">
+                                        <p className="text-xs text-emerald-600">Total Horas</p>
+                                        <p className="font-bold text-base text-emerald-700">
+                                          {displayTotalHours !== null && displayTotalHours !== undefined
+                                            ? Number(displayTotalHours).toFixed(2)
+                                            : "-"}
                                         </p>
                                       </div>
                                     </div>
-                                  ) : (
-                                    <div className="grid grid-cols-3 gap-3 opacity-75">
-                                      <div className="p-3 bg-gray-50 rounded-lg text-center">
-                                        <p className="text-xs text-muted-foreground">Km Inicial</p>
-                                        <p className="font-bold text-lg">{sub.initial_mileage ?? '-'}</p>
-                                      </div>
-                                      <div className="p-3 bg-gray-50 rounded-lg text-center">
-                                        <p className="text-xs text-muted-foreground">Km Final</p>
-                                        <p className="font-bold text-lg">{sub.final_mileage ?? '-'}</p>
-                                      </div>
-                                      <div className="p-3 bg-emerald-50 rounded-lg text-center">
-                                        <p className="text-xs text-emerald-600">Total Km</p>
-                                        <p className="font-bold text-lg text-emerald-700">{sub.total_mileage ?? '-'}</p>
-                                      </div>
-                                    </div>
                                   )}
                                 </div>
-                              );
-                            })}
-                          </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Finalizar Viaje General */}
+                  {localTrip.status === "in_progress" && allSubTripsCompleted && (
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 shadow-md border border-amber-200">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-amber-100 rounded-full">
+                          <Square className="h-6 w-6 text-amber-700" />
                         </div>
-                      )}
-                    </>
+                        <h2 className="font-bold text-xl text-amber-800">Finalizar Viaje General</h2>
+                      </div>
+                      <div className="space-y-4">
+                        <FormInput
+                          control={control}
+                          name="tonnage"
+                          label="Toneladas Transportadas (opcional)"
+                          type="text"
+                          inputMode="decimal"
+                          placeholder="Ej: 25.5"
+                          addonStart={<Package className="h-5 w-5 text-gray-500" />}
+                          className="pl-12 h-14 text-base rounded-xl"
+                          disabled={formSubmitting || isEndingRoute}
+                          error={formErrors.tonnage?.message}
+                          onChange={handleInputChange("tonnage")}
+                        />
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <HelpCircle className="h-3 w-3" />
+                          Opcional - Ingresa el peso total transportado
+                        </p>
+                        <Button
+                          onClick={() => {
+                            const lastSub = sortedSubTrips[sortedSubTrips.length - 1];
+                            if (lastSub?.status === "completed") {
+                              handleEndSubTrip(lastSub);
+                            }
+                          }}
+                          disabled={isSegmentLoading(sortedSubTrips[sortedSubTrips.length - 1]?.id, 'end')}
+                          className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold py-6 text-base rounded-xl shadow-md disabled:opacity-70"
+                          size="lg"
+                        >
+                          {isSegmentLoading(sortedSubTrips[sortedSubTrips.length - 1]?.id, 'end') ? (
+                            <>
+                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                              Finalizando...
+                            </>
+                          ) : (
+                            <>
+                              <Square className="h-5 w-5 mr-2" />
+                              Finalizar Viaje General
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stopwatch Display para End Time */}
+                  {endTime && (localTrip.status === "completed" || localTrip.status === "fuel_pending") && (
+                    <StopwatchDisplay
+                      time={endStopwatch.formattedTime}
+                      label="Tiempo desde finalización"
+                      variant="end"
+                      isRunning={endStopwatch.isRunning}
+                    />
+                  )}
+
+                  {/* Métricas del Viaje */}
+                  {(localTrip.status === "fuel_pending" || localTrip.status === "completed") && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-1 bg-primary rounded-full"></div>
+                          <h3 className="font-bold text-xl text-foreground">Métricas del Viaje</h3>
+                        </div>
+                        {userCanEditMileage && (
+                          !isEditingMileage ? (
+                            <Button
+                              variant="outline"
+                              size="default"
+                              onClick={() => setIsEditingMileage(true)}
+                              className="gap-2 h-11"
+                              disabled={isUpdatingMileage}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Editar Kilometrajes
+                            </Button>
+                          ) : (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="default"
+                                onClick={() => setIsEditingMileage(false)}
+                                disabled={isUpdatingMileage}
+                                className="h-11"
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Cancelar
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="default"
+                                onClick={handleSaveMileageEdits}
+                                disabled={isUpdatingMileage}
+                                className="gap-2 h-11"
+                              >
+                                {isUpdatingMileage ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Save className="h-4 w-4" />
+                                )}
+                                Guardar
+                              </Button>
+                            </div>
+                          )
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {!isEditingMileage || !userCanEditMileage ? (
+                          <>
+                            <div className="p-4 bg-muted/30 rounded-xl text-center">
+                              <p className="text-sm text-muted-foreground">Km Inicial</p>
+                              <p className="font-bold text-2xl text-foreground">{localTrip.initialKm?.toString() || "-"}</p>
+                              <p className="text-xs text-muted-foreground">km</p>
+                            </div>
+                            <div className="p-4 bg-muted/30 rounded-xl text-center">
+                              <p className="text-sm text-muted-foreground">Km Final</p>
+                              <p className="font-bold text-2xl text-foreground">{localTrip.finalKm?.toString() || "-"}</p>
+                              <p className="text-xs text-muted-foreground">km</p>
+                            </div>
+                            <div className="p-4 bg-primary/10 rounded-xl text-center">
+                              <p className="text-sm text-primary">Total Km</p>
+                              <p className="font-bold text-2xl text-primary">{localTrip.totalKm?.toString() || "-"}</p>
+                              <p className="text-xs text-primary/70">km</p>
+                            </div>
+                            <div className="p-4 bg-muted/30 rounded-xl text-center">
+                              <p className="text-sm text-muted-foreground">Horas Totales</p>
+                              <p className="font-bold text-2xl text-foreground">{localTrip.totalHours?.toFixed(2) || "-"}</p>
+                              <p className="text-xs text-muted-foreground">horas</p>
+                            </div>
+                            {localTrip.tonnage && (
+                              <div className="p-4 bg-muted/30 rounded-xl text-center">
+                                <p className="text-sm text-muted-foreground">Toneladas</p>
+                                <p className="font-bold text-2xl text-foreground">{localTrip.tonnage}</p>
+                                <p className="text-xs text-muted-foreground">ton</p>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <div>
+                              <Label className="text-sm font-semibold">Km Inicial General</Label>
+                              <div className="relative mt-2">
+                                <Gauge className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  step="1"
+                                  value={editFormData.general_initial_km}
+                                  onChange={(e) => handleEditFieldChange('general_initial_km', e.target.value)}
+                                  className="pl-12 h-12 text-base rounded-xl"
+                                  placeholder="Km inicial"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-semibold">Km Final General</Label>
+                              <div className="relative mt-2">
+                                <Gauge className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  step="1"
+                                  value={editFormData.general_final_km}
+                                  onChange={(e) => handleEditFieldChange('general_final_km', e.target.value)}
+                                  className="pl-12 h-12 text-base rounded-xl"
+                                  placeholder="Km final"
+                                />
+                              </div>
+                            </div>
+                            <div className="p-4 bg-primary/10 rounded-xl text-center">
+                              <p className="text-sm text-primary font-medium">Total Km</p>
+                              <p className="font-bold text-2xl text-primary">
+                                {(() => {
+                                  const initial = parseFloat(editFormData.general_initial_km);
+                                  const final = parseFloat(editFormData.general_final_km);
+                                  if (!isNaN(initial) && !isNaN(final) && final > initial) {
+                                    return `${(final - initial).toFixed(0)} km`;
+                                  }
+                                  return localTrip.totalKm ? `${localTrip.totalKm} km` : "-";
+                                })()}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {isEditingMileage && userCanEditMileage && (() => {
+                        const warnings = getSegmentWarnings();
+                        if (warnings.length > 0) {
+                          return (
+                            <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700 space-y-2">
+                              {warnings.map((w, i) => (
+                                <p key={i} className="flex items-center gap-2">
+                                  <AlertCircle className="h-4 w-4 shrink-0" />
+                                  {w}
+                                </p>
+                              ))}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Métricas por Tramo */}
+                  {(localTrip.status === "fuel_pending" || localTrip.status === "completed") && sortedSubTrips.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 border-b pb-2">
+                        <div className="h-8 w-1 bg-primary rounded-full"></div>
+                        <h2 className="font-bold text-xl text-foreground">Métricas por Tramo</h2>
+                        {isEditingMileage && userCanEditMileage && (
+                          <Badge variant="outline" className="ml-2 text-sm py-1 px-3">
+                            <Edit3 className="h-3 w-3 mr-1" />
+                            Modo edición
+                          </Badge>
+                        )}
+                      </div>
+
+                      <div className="space-y-4">
+                        {sortedSubTrips.map((sub, index) => {
+                          const tramoNumber = index + 1;
+                          const isCompleted = sub.status === "completed";
+                          const segmentData = editFormData.segments[sub.id];
+
+                          let autoTotalKm = null;
+                          if (isEditingMileage && segmentData) {
+                            const initial = parseFloat(segmentData.initial);
+                            const final = parseFloat(segmentData.final);
+                            if (!isNaN(initial) && !isNaN(final) && final > initial) {
+                              autoTotalKm = final - initial;
+                            }
+                          }
+
+                          return (
+                            <div key={sub.id} className="border-2 border-gray-100 rounded-xl p-4 bg-white shadow-sm">
+                              <div className="flex items-center justify-between mb-3">
+                                <div>
+                                  <p className="text-base font-bold text-foreground">
+                                    Tramo {tramoNumber}: {sub.origin} - {sub.destination}
+                                  </p>
+                                </div>
+                                <span className={cn(
+                                  "text-sm px-3 py-1 rounded-full font-medium",
+                                  isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
+                                )}>
+                                  {isCompleted ? " Completado" : "○ Pendiente"}
+                                </span>
+                              </div>
+
+                              {!isEditingMileage ? (
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p className="text-xs text-muted-foreground">Km Inicial</p>
+                                    <p className="font-bold text-lg">{sub.initial_mileage ?? '-'}</p>
+                                  </div>
+                                  <div className="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p className="text-xs text-muted-foreground">Km Final</p>
+                                    <p className="font-bold text-lg">{sub.final_mileage ?? '-'}</p>
+                                  </div>
+                                  <div className="p-3 bg-emerald-50 rounded-lg text-center">
+                                    <p className="text-xs text-emerald-600">Total Km</p>
+                                    <p className="font-bold text-lg text-emerald-700">{sub.total_mileage ?? '-'}</p>
+                                  </div>
+                                </div>
+                              ) : userCanEditMileage ? (
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div>
+                                    <Label className="text-xs">Km Inicial</Label>
+                                    <Input
+                                      type="number"
+                                      step="1"
+                                      value={segmentData?.initial || ""}
+                                      onChange={(e) => handleEditSegmentChange(sub.id, 'initial', e.target.value)}
+                                      className="mt-1 h-11 text-base rounded-lg"
+                                      placeholder="Km inicial"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs">Km Final</Label>
+                                    <Input
+                                      type="number"
+                                      step="1"
+                                      value={segmentData?.final || ""}
+                                      onChange={(e) => handleEditSegmentChange(sub.id, 'final', e.target.value)}
+                                      className="mt-1 h-11 text-base rounded-lg"
+                                      placeholder="Km final"
+                                    />
+                                  </div>
+                                  <div className="bg-primary/5 rounded-lg p-2 text-center">
+                                    <p className="text-xs text-muted-foreground">Total Km</p>
+                                    <p className={cn(
+                                      "font-bold text-base",
+                                      autoTotalKm !== null ? "text-green-600" : "text-muted-foreground"
+                                    )}>
+                                      {autoTotalKm !== null ? `${autoTotalKm.toFixed(0)} km` : (sub.total_mileage ?? '-')}
+                                    </p>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-3 gap-3 opacity-75">
+                                  <div className="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p className="text-xs text-muted-foreground">Km Inicial</p>
+                                    <p className="font-bold text-lg">{sub.initial_mileage ?? '-'}</p>
+                                  </div>
+                                  <div className="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p className="text-xs text-muted-foreground">Km Final</p>
+                                    <p className="font-bold text-lg">{sub.final_mileage ?? '-'}</p>
+                                  </div>
+                                  <div className="p-3 bg-emerald-50 rounded-lg text-center">
+                                    <p className="text-xs text-emerald-600">Total Km</p>
+                                    <p className="font-bold text-lg text-emerald-700">{sub.total_mileage ?? '-'}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </>
               ) : (
