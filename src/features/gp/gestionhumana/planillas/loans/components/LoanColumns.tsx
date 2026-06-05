@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { formatDate, formatMoney } from "@/core/core.function";
 
 export type LoanColumns = ColumnDef<LoanResource>;
 
@@ -36,28 +37,21 @@ export const loanColumns = ({
   {
     accessorKey: "delivery_date",
     header: "Fecha Entrega",
-    cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
-    ),
+    cell: ({ getValue }) => formatDate(getValue() as string),
   },
   {
     accessorKey: "payment_start",
     header: "Inicio de Pago",
     cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
+      <span>{getValue() ? formatDate(getValue() as string) : "—"}</span>
     ),
   },
   {
     accessorKey: "loan_amount",
     header: "Monto",
-    cell: ({ getValue }) => {
-      const val = getValue() as number;
-      return (
-        <span className="font-mono">
-          S/ {val.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
-        </span>
-      );
-    },
+    cell: ({ getValue }) => (
+      <span className="font-mono">{formatMoney(getValue() as number)}</span>
+    ),
   },
   {
     accessorKey: "remaining_balance",

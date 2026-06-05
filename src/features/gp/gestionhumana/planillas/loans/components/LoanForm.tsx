@@ -2,10 +2,16 @@
 
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { LoanSchema, loanSchema } from "../lib/loan.schema";
-import { Loader } from "lucide-react";
+import { CalendarDays, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LOAN } from "../lib/loan.constant";
 import { FormInput } from "@/shared/components/FormInput";
@@ -46,125 +52,180 @@ export const LoanForm = ({
   });
 
   const loanAmount = useWatch({ control: form.control, name: "loan_amount" });
-  const installmentsCount = useWatch({ control: form.control, name: "installments_count" });
+  const installmentsCount = useWatch({
+    control: form.control,
+    name: "installments_count",
+  });
 
   useEffect(() => {
     const amount = Number(loanAmount) || 0;
     const count = Number(installmentsCount) || 0;
     if (count > 0) {
       const installment = parseFloat((amount / count).toFixed(2));
-      form.setValue("installment_amount", installment, { shouldValidate: true });
+      form.setValue("installment_amount", installment, {
+        shouldValidate: true,
+      });
     }
   }, [loanAmount, installmentsCount, form]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
-          <FormSelectAsync
-            name="worker_id"
-            label="Trabajador"
-            placeholder="Seleccione trabajador"
-            control={form.control}
-            required
-            useQueryHook={useWorkers}
-            mapOptionFn={(item) => ({
-              label: item.name,
-              value: String(item.id),
-            })}
-          />
-
-          <DatePickerFormField
-            name="delivery_date"
-            label="Fecha de Entrega"
-            control={form.control}
-          />
-
-          <DatePickerFormField
-            name="payment_start"
-            label="Inicio de Pago"
-            control={form.control}
-          />
-
-          <FormInput
-            name="loan_amount"
-            label="Monto del Préstamo"
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="Ej: 3000.00"
-            control={form.control}
-            required
-          />
-
-          <FormInput
-            name="installments_count"
-            label="N° de Cuotas"
-            type="number"
-            min={1}
-            step={1}
-            placeholder="Ej: 12"
-            control={form.control}
-          />
-
-          <FormInput
-            name="installment_amount"
-            label="Monto de Cuota"
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="Ej: 250.00"
-            control={form.control}
-            readOnly
-            required
-          />
-
-          <div className="md:col-span-2">
-            <FormTextArea
-              name="reason"
-              label="Motivo"
-              placeholder="Describa el motivo del préstamo"
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+        <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+          {/* Left: form fields */}
+          <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 gap-y-5 items-start">
+            <FormSelectAsync
+              name="worker_id"
+              label="Trabajador"
+              placeholder="Seleccione trabajador"
+              control={form.control}
+              required
+              useQueryHook={useWorkers}
+              mapOptionFn={(item) => ({
+                label: item.name,
+                value: String(item.id),
+              })}
+            />
+            <DatePickerFormField
+              name="delivery_date"
+              label="Fecha de Entrega"
               control={form.control}
             />
+            <DatePickerFormField
+              name="payment_start"
+              label="Inicio de Pago"
+              control={form.control}
+            />
+            <FormInput
+              name="loan_amount"
+              label="Monto del Préstamo"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="Ej: 3000.00"
+              control={form.control}
+              required
+            />
+            <FormInput
+              name="installments_count"
+              label="N° de Cuotas"
+              type="number"
+              min={1}
+              step={1}
+              placeholder="Ej: 12"
+              control={form.control}
+            />
+            <FormInput
+              name="installment_amount"
+              label="Monto de Cuota"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="Ej: 250.00"
+              control={form.control}
+              readOnly
+              required
+            />
+            <div className="sm:col-span-2">
+              <FormTextArea
+                name="reason"
+                label="Motivo"
+                placeholder="Describa el motivo del préstamo"
+                control={form.control}
+              />
+            </div>
           </div>
 
-          <div className="md:col-span-2">
-            <FormField
-              control={form.control}
-              name="payment_days"
-              render={({ field }) => {
-                const selected: number[] = field.value ?? [];
-                const toggle = (day: number) => {
-                  const next = selected.includes(day)
-                    ? selected.filter((d) => d !== day)
-                    : [...selected, day].sort((a, b) => a - b);
-                  field.onChange(next);
-                };
-                return (
-                  <FormItem>
-                    <FormLabel>Días de descuento</FormLabel>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                        <button
-                          key={day}
-                          type="button"
-                          onClick={() => toggle(day)}
-                          className={cn(
-                            "size-8 rounded text-xs font-mono border transition-colors",
-                            selected.includes(day)
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-background hover:bg-muted border-border",
-                          )}
-                        >
-                          {day}
-                        </button>
-                      ))}
+          {/* Right: day picker calendar */}
+          <FormField
+            control={form.control}
+            name="payment_days"
+            render={({ field }) => {
+              const selected: number[] = field.value ?? [];
+              const toggle = (day: number) => {
+                const next = selected.includes(day)
+                  ? selected.filter((d) => d !== day)
+                  : [...selected, day].sort((a, b) => a - b);
+                field.onChange(next);
+              };
+              const selectAll = () =>
+                field.onChange(Array.from({ length: 31 }, (_, i) => i + 1));
+              const clearAll = () => field.onChange([]);
+
+              return (
+                <FormItem className="w-full lg:w-72 lg:shrink-0">
+                  <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="size-4 text-muted-foreground" />
+                        <FormLabel className="text-sm font-semibold leading-none">
+                          Días de descuento
+                        </FormLabel>
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {selected.length > 0
+                          ? `${selected.length} seleccionado${selected.length > 1 ? "s" : ""}`
+                          : "Ninguno"}
+                      </span>
                     </div>
-                  </FormItem>
-                );
-              }}
-            />
-          </div>
+
+                    {/* Day grid */}
+                    <div className="grid grid-cols-7 gap-1 p-3">
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(
+                        (day) => (
+                          <button
+                            key={day}
+                            type="button"
+                            onClick={() => toggle(day)}
+                            className={cn(
+                              "aspect-square w-full rounded-md text-xs font-medium transition-all duration-150 flex items-center justify-center",
+                              selected.includes(day)
+                                ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                                : "bg-background hover:bg-primary/10 text-foreground border border-transparent hover:border-primary/30",
+                            )}
+                          >
+                            {day}
+                          </button>
+                        ),
+                      )}
+                    </div>
+
+                    {/* Footer actions */}
+                    <div className="flex items-center justify-between px-3 py-2 border-t bg-muted/20">
+                      <button
+                        type="button"
+                        onClick={clearAll}
+                        className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        Limpiar
+                      </button>
+                      {selected.length > 0 && (
+                        <div className="flex gap-1 flex-wrap justify-end max-w-40">
+                          {selected.map((d) => (
+                            <span
+                              key={d}
+                              className="inline-flex items-center justify-center size-5 rounded-full bg-primary/15 text-primary text-[10px] font-semibold"
+                            >
+                              {d}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={selectAll}
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Todos
+                      </button>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
         </div>
 
         <div className="flex gap-4 w-full justify-end">

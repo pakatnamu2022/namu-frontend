@@ -420,3 +420,23 @@ export const formatDateTimeLocalInput = (date: Date): string => {
 
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
+
+/**
+ * Formatea un número como cantidad monetaria con separador de miles y decimales configurables.
+ * @param value - Valor numérico a formatear
+ * @param decimals - Cantidad de decimales (0, 1 o 2). Por defecto: 2
+ * @param currencySymbol - Símbolo de moneda a mostrar. Por defecto: "S/"
+ * @returns String formateado, ej: "S/ 1,234.50"
+ */
+export const formatMoney = (
+  value: number | null | undefined,
+  decimals: 0 | 1 | 2 = 2,
+  currencySymbol: string = "S/",
+): string => {
+  if (value === null || value === undefined || isNaN(value)) return "-";
+  const formatted = value.toLocaleString("es-PE", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  return `${currencySymbol} ${formatted}`;
+};
