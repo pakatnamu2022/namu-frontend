@@ -48,7 +48,7 @@ import { EstablishmentsResource } from "../../establecimientos/lib/establishment
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
-import { useAllEstablishments } from "../../establecimientos/lib/establishments.hook";
+import { useAllEstablishments, useEstablishmentBySede } from "../../establecimientos/lib/establishments.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import {
   SUNAT_CONCEPTS_TYPE,
@@ -197,6 +197,7 @@ export const ShipmentsReceptionsForm = ({
     id: number;
     name: string;
   } | null>(null);
+  const [vehicleSupplierLocked, setVehicleSupplierLocked] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<{
     id: number;
     name: string;
@@ -247,6 +248,13 @@ export const ShipmentsReceptionsForm = ({
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     },
   );
+
+  const selectedSerie = series.find((s) => s.id.toString() === watchDocumentSeriesId);
+  const serieSedeId = selectedSerie?.sede_id ?? null;
+  const { data: serieEstablishments = [] } = useEstablishmentBySede(
+    mode === "create" ? serieSedeId : null,
+  );
+  const serieDestinationEstablishment = serieEstablishments[0] ?? null;
 
   const { data: articleClass = [], isLoading: isLoadingArticleClass } =
     useAllClassArticle({
@@ -628,6 +636,23 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchSedeTransmitterId]);
 
+  // Auto-poblar establecimiento destino cuando se selecciona una serie
+  useEffect(() => {
+    if (mode !== "create") return;
+    if (!serieDestinationEstablishment) {
+      setSelectedDestinationEstablishment(null);
+      const currentReceiverId = form.getValues("receiver_id");
+      if (currentReceiverId !== "") {
+        form.setValue("receiver_id", "", { shouldValidate: false });
+      }
+      return;
+    }
+    setSelectedDestinationEstablishment(serieDestinationEstablishment);
+    form.setValue("receiver_id", serieDestinationEstablishment.id.toString(), {
+      shouldValidate: true,
+    });
+  }, [serieDestinationEstablishment, mode]);
+
   const filteredSeries =
     isConsignment && watchSedeTransmitterId
       ? series.filter((s) => s.sede_id.toString() === watchSedeTransmitterId)
@@ -636,6 +661,18 @@ export const ShipmentsReceptionsForm = ({
   const handleVehicleChange = (_value: string, item?: VehicleResource) => {
     if (item?.model?.net_weight !== undefined) {
       form.setValue("total_weight", String(item.model.net_weight));
+    }
+    if (item?.supplier_id) {
+      const supplier = suppliers.find((s) => s.id === item.supplier_id);
+      if (supplier) {
+        form.setValue("transmitter_origin_id", supplier.id.toString(), {
+          shouldValidate: true,
+        });
+        setSelectedSupplier({ id: supplier.id, name: supplier.full_name });
+        setVehicleSupplierLocked(true);
+      }
+    } else {
+      setVehicleSupplierLocked(false);
     }
   };
 
@@ -1116,7 +1153,8 @@ export const ShipmentsReceptionsForm = ({
                 strictFilter={true}
                 disabled={
                   watchTransferReasonId ===
-                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                    SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE ||
+                  vehicleSupplierLocked
                 }
               />
               {selectedOriginEstablishment && (
@@ -1137,7 +1175,7 @@ export const ShipmentsReceptionsForm = ({
                 label={() => (
                   <div className="flex items-center gap-2 relative">
                     <FormLabel>Ubicación Destino</FormLabel>
-                    {selectedCustomer && (
+                    {selectedCustomer && !watchDocumentSeriesId && (
                       <button
                         type="button"
                         onClick={() => setIsDestinationModalOpen(true)}
@@ -1157,8 +1195,9 @@ export const ShipmentsReceptionsForm = ({
                 control={form.control}
                 strictFilter={true}
                 disabled={
+                  !!watchDocumentSeriesId ||
                   watchTransferReasonId ===
-                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                    SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
                 }
               />
               {selectedDestinationEstablishment && (
