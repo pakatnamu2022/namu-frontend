@@ -259,8 +259,8 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                     description={
                       isInvoiced
                         ? "Ya existe una factura emitida, no se puede modificar"
-                        : (workOrder?.advances?.length ?? 0) > 0
-                          ? "Ya se registraron avances de pago, no se puede modificar"
+                        : (workOrder?.payment_summary?.paid_amount ?? 0) > 0
+                          ? "Ya existe un monto facturado, no se puede modificar"
                           : "Cliente a quien se le emitirá la factura de esta OT"
                     }
                     perPage={10}
@@ -268,7 +268,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                     disabled={
                       isInvoiced ||
                       invoiceToMutation.isPending ||
-                      (workOrder?.advances?.length ?? 0) > 0
+                      (workOrder?.payment_summary?.paid_amount ?? 0) > 0
                     }
                     defaultOption={invoiceToDefaultOption}
                     onValueChange={(value) => {

@@ -34,11 +34,15 @@ export const useOrderQuotations = (params?: Record<string, any>) => {
   });
 };
 
-export const useForPurchaseRequestTaller = (params?: Record<string, any>) => {
+export const useForPurchaseRequestTaller = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: [QUERY_KEY, "for-purchase-request-taller", params],
     queryFn: () => getForPurchaseRequestTaller({ params }),
     refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 };
 

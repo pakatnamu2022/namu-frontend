@@ -7,9 +7,9 @@ import {
   getWorkOrder,
   storeWorkOrder,
   downloadWorkOrderPdf,
-  getPaymentSummary,
   getWorkOrderWithInternalNotes,
   sendToFinished,
+  revertFinished,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -125,13 +125,13 @@ export function useSendToFinished() {
   });
 }
 
-export function useGetPaymentSummary(
-  workOrderId: number,
-  groupNumber?: number,
-) {
-  return useQuery({
-    queryKey: [QUERY_KEY, "payment-summary", workOrderId, groupNumber],
-    queryFn: () => getPaymentSummary(workOrderId, groupNumber),
-    enabled: !!workOrderId,
+export function useRevertFinished() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => revertFinished(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
   });
 }

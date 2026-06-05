@@ -33,6 +33,8 @@ interface CancelWorkOrderModalProps {
   onClose: () => void;
   workOrderPlanningId: number;
   dateOrderWorkPlanning: Date;
+  status?: string;
+  actualEndDatetime?: string | null;
   onSuccess?: () => void;
 }
 
@@ -41,15 +43,19 @@ export const CancelWorkOrderPlanningModal = ({
   onClose,
   workOrderPlanningId,
   dateOrderWorkPlanning,
+  status,
+  actualEndDatetime,
   onSuccess,
 }: CancelWorkOrderModalProps) => {
   const queryClient = useQueryClient();
+  const isCompleted = status === "completed";
 
   const form = useForm<CancelWorkOrderPlanningSchema>({
     resolver: zodResolver(cancelWorkOrderPlanningSchema),
     defaultValues: {
-      actual_end_datetime:
-        formatDateTimeLocalInput(dateOrderWorkPlanning) || "",
+      actual_end_datetime: isCompleted
+        ? (actualEndDatetime ?? "")
+        : formatDateTimeLocalInput(dateOrderWorkPlanning) || "",
       canceled_note: "",
     },
   });
@@ -100,6 +106,7 @@ export const CancelWorkOrderPlanningModal = ({
             control={form.control}
             placeholder="Seleccione fecha y hora"
             disabledRange={{ before: dateOrderWorkPlanning || new Date() }}
+            disabled={isCompleted}
           />
 
           <FormTextArea

@@ -8,6 +8,7 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface.ts";
 
 export interface InventoryMovementDetail {
   id: number;
@@ -41,10 +42,13 @@ export interface InventoryMovementResource {
     | WorkOrderPartsResource // type = ADJUSTMENT_OUT
     | OrderQuotationResource // type = SALE, ADJUSTMENT_OUT
     | TransferReceptionResource // type = TRANSFER_IN
+    | ElectronicDocumentResource // type = RETURN_IN
     | Record<string, any>;
   details?: InventoryMovementDetail[];
   reason_in_out_id: number; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
   reason_in_out: ApMastersResource; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
+  electronic_document_id?: number; // type = SALE, RETURN_IN
+  electronic_document?: ElectronicDocumentResource; // type = SALE, RETURN_IN
 }
 
 export interface CreditNoteResource {

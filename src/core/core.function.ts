@@ -391,6 +391,17 @@ export const formatHours = (
   hours: number | string | null | undefined,
 ): string => {
   if (hours === null || hours === undefined || hours === "") return "-";
+
+  // Handle "HH:MM:SS" or "HH:MM" format from backend
+  if (typeof hours === "string" && /^\d+:\d{2}(:\d{2})?$/.test(hours)) {
+    const parts = hours.split(":").map(Number);
+    const h = parts[0];
+    const m = parts[1];
+    if (h === 0) return `${m} min`;
+    if (m === 0) return `${h} h`;
+    return `${h} h ${m} min`;
+  }
+
   const total = Number(hours);
   if (isNaN(total) || total < 0) return "-";
   const h = Math.floor(total);
