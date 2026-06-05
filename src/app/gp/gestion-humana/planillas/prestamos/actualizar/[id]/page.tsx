@@ -48,14 +48,15 @@ export default function UpdateLoanPage() {
 
   function mapToForm(data: LoanResource): Partial<LoanSchema> {
     return {
-      concept_id: String(data.concept_id),
       worker_id: String(data.worker_id),
       delivery_date: data.delivery_date,
       reason: data.reason,
       payment_start: data.payment_start,
+      payment_days: data.payment_days ?? [],
       loan_amount: data.loan_amount,
       installments_count: data.installments_count,
       installment_amount: data.installment_amount,
+      status: data.status,
     };
   }
 

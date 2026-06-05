@@ -1,7 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
-export type LoanStatus = "ACTIVO" | "COMPLETADO" | "ANULADO";
-
 export interface LoanResponse {
   data: LoanResource[];
   links: Links;
@@ -10,29 +8,29 @@ export interface LoanResponse {
 
 export interface LoanResource {
   id: number;
-  concept_id: number;
-  concept: string | null;
   worker_id: number;
   worker: string | null;
-  delivery_date: string;
-  reason: string;
-  payment_start: string;
+  delivery_date: string | null;
+  reason: string | null;
+  payment_start: string | null;
+  payment_days: number[] | null;
   loan_amount: number;
-  installments_count: number;
+  installments_count: number | null;
   installment_amount: number;
-  status: LoanStatus;
+  remaining_balance: number;
+  status: boolean;
 }
 
 export interface LoanRequest {
-  concept_id: number;
   worker_id: number;
-  delivery_date: string;
-  reason: string;
-  payment_start: string;
+  delivery_date?: string | null;
+  reason?: string | null;
+  payment_start?: string | null;
+  payment_days?: number[] | null;
   loan_amount: number;
-  installments_count: number;
+  installments_count?: number | null;
   installment_amount: number;
-  status: LoanStatus;
+  status?: boolean | null;
 }
 
 export interface LoanExtraDiscountRequest {

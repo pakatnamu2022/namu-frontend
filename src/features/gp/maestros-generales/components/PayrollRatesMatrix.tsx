@@ -7,9 +7,9 @@ import {
   INSURANCE_PREMIUM_TYPE,
   VARIABLE_COMMISSION_TYPE,
 } from "../lib/generalMasters.constants";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const COLUMN_TYPES = [
@@ -36,7 +36,10 @@ function buildMatrix(data: GeneralMastersResource[]): MatrixRow[] {
     }
     map.get(item.code)!.entries[item.type] = item;
   }
-  return Array.from(map.values());
+  // Only keep rows that still have at least one entry
+  return Array.from(map.values()).filter(
+    (row) => Object.keys(row.entries).length > 0,
+  );
 }
 
 interface EditingCell {
@@ -44,13 +47,19 @@ interface EditingCell {
   value: string;
 }
 
+export interface AddCellPayload {
+  code: string;
+  description: string;
+  type: string;
+}
+
 interface PayrollRatesMatrixProps {
   data: GeneralMastersResource[];
   isLoading?: boolean;
   onSaveValue: (id: number, value: string) => Promise<void>;
-  onToggleStatus: (id: number, status: boolean) => Promise<void>;
   onDelete: (id: number) => void;
-  permissions: { canUpdate?: boolean; canDelete?: boolean };
+  onAdd: (payload: AddCellPayload) => void;
+  permissions: { canUpdate?: boolean; canDelete?: boolean; canCreate?: boolean };
   search?: string;
 }
 
@@ -58,8 +67,8 @@ export default function PayrollRatesMatrix({
   data,
   isLoading,
   onSaveValue,
-  onToggleStatus,
   onDelete,
+  onAdd,
   permissions,
   search = "",
 }: PayrollRatesMatrixProps) {
@@ -107,10 +116,10 @@ export default function PayrollRatesMatrix({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50 text-muted-foreground text-xs uppercase tracking-wide">
-            <th className="px-4 py-3 text-left font-medium w-44">COD</th>
-            <th className="px-4 py-3 text-left font-medium">DESCRIPCIÓN</th>
+            <th className="px-5 py-3 text-left font-semibold w-44">COD</th>
+            <th className="px-5 py-3 text-left font-semibold">DESCRIPCIÓN</th>
             {COLUMN_TYPES.map((col) => (
-              <th key={col.key} className="px-4 py-3 text-center font-medium w-48">
+              <th key={col.key} className="px-5 py-3 text-center font-semibold w-48">
                 {col.label}
               </th>
             ))}
@@ -122,8 +131,8 @@ export default function PayrollRatesMatrix({
               key={row.code}
               className="border-b last:border-0 hover:bg-muted/20 transition-colors"
             >
-              <td className="px-4 py-3 font-semibold text-foreground">{row.code}</td>
-              <td className="px-4 py-3 text-muted-foreground">{row.description}</td>
+              <td className="px-5 py-4 font-semibold text-foreground">{row.code}</td>
+              <td className="px-5 py-4 text-muted-foreground">{row.description}</td>
 
               {COLUMN_TYPES.map((col) => {
                 const item = row.entries[col.key];
@@ -131,13 +140,13 @@ export default function PayrollRatesMatrix({
                 const isSaving = !!item && savingId === item.id;
 
                 return (
-                  <td key={col.key} className="px-4 py-2 text-center">
+                  <td key={col.key} className="px-3 py-3 text-center">
                     {item ? (
-                      <div className="flex flex-col items-center gap-1.5">
+                      <div className="group relative flex flex-col items-center justify-center gap-1.5 min-h-14">
                         {isEditing ? (
                           <Input
                             autoFocus
-                            className="h-7 w-28 text-center text-xs"
+                            className="h-8 w-28 text-center text-sm font-semibold"
                             value={editingCell.value}
                             onChange={(e) =>
                               setEditingCell({ ...editingCell, value: e.target.value })
@@ -152,36 +161,68 @@ export default function PayrollRatesMatrix({
                         ) : (
                           <span
                             className={cn(
-                              "inline-block text-primary font-medium px-2 py-0.5 rounded",
-                              permissions.canUpdate &&
-                                "cursor-pointer hover:bg-primary/10 transition-colors",
+                              "text-base font-semibold text-foreground tabular-nums",
+                              item.status !== 1 && "opacity-40 line-through",
                             )}
-                            onClick={() => {
-                              if (!permissions.canUpdate) return;
-                              setEditingCell({ id: item.id, value: item.value ?? "" });
-                            }}
-                            title={permissions.canUpdate ? "Clic para editar valor" : undefined}
                           >
-                            {item.value ?? "—"}
+                            {item.value || "0"}
                           </span>
                         )}
 
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={item.status === 1}
-                            onCheckedChange={(checked) =>
-                              onToggleStatus(item.id, checked)
-                            }
-                            disabled={!permissions.canUpdate}
-                            className="scale-75 origin-center"
-                          />
-                          {permissions.canDelete && (
-                            <DeleteButton onClick={() => onDelete(item.id)} />
-                          )}
-                        </div>
+                        {!isEditing && (
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {permissions.canUpdate && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                onClick={() =>
+                                  setEditingCell({
+                                    id: item.id,
+                                    value: item.value ?? "",
+                                  })
+                                }
+                                title="Editar valor"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                            )}
+                            {permissions.canDelete && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => onDelete(item.id)}
+                                title="Eliminar"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground text-xs">—</span>
+                      <div className="flex items-center justify-center min-h-14">
+                        {permissions.canCreate ? (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7 rounded-full text-muted-foreground/40 hover:text-primary hover:bg-primary/10 border border-dashed border-muted-foreground/20 hover:border-primary transition-all"
+                            onClick={() =>
+                              onAdd({
+                                code: row.code,
+                                description: row.description,
+                                type: col.key,
+                              })
+                            }
+                            title="Agregar"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        ) : (
+                          <span className="text-muted-foreground/30 text-xs">—</span>
+                        )}
+                      </div>
                     )}
                   </td>
                 );

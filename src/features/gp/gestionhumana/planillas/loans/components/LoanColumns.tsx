@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoanResource } from "../lib/loan.interface";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Banknote, Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { useNavigate } from "react-router-dom";
@@ -33,26 +34,17 @@ export const loanColumns = ({
     ),
   },
   {
-    accessorKey: "concept",
-    header: "Concepto",
-    cell: ({ getValue }) => (
-      <span className="text-wrap line-clamp-1">
-        {(getValue() as string) ?? "—"}
-      </span>
-    ),
-  },
-  {
     accessorKey: "delivery_date",
     header: "Fecha Entrega",
     cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{getValue() as string}</span>
+      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
     ),
   },
   {
     accessorKey: "payment_start",
     header: "Inicio de Pago",
     cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{getValue() as string}</span>
+      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
     ),
   },
   {
@@ -68,21 +60,40 @@ export const loanColumns = ({
     },
   },
   {
-    accessorKey: "installments_count",
-    header: "Cuotas",
-    cell: ({ getValue }) => (
-      <span className="font-mono">{getValue() as number}</span>
-    ),
+    accessorKey: "remaining_balance",
+    header: "Saldo",
+    cell: ({ getValue }) => {
+      const val = getValue() as number;
+      return (
+        <span
+          className={`font-mono ${Number(val) > 0 ? "text-destructive" : "text-green-600"}`}
+        >
+          S/ {Number(val).toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "installment_amount",
-    header: "Monto Cuota",
+    header: "Cuota",
     cell: ({ getValue }) => {
       const val = getValue() as number;
       return (
         <span className="font-mono">
           S/ {val.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
         </span>
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ getValue }) => {
+      const active = getValue() as boolean;
+      return (
+        <Badge variant={active ? "default" : "outline"}>
+          {active ? "Activo" : "Inactivo"}
+        </Badge>
       );
     },
   },

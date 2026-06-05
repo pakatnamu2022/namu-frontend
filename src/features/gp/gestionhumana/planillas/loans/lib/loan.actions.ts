@@ -2,9 +2,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
 import type { LoanDetailResource, LoanExtraDiscountRequest, LoanExtraDiscountResource, LoanResource, LoanResponse } from "./loan.interface";
-import { LOAN, LOAN_CONCEPT_TYPE } from "./loan.constant";
-import { GENERAL_MASTERS_ENDPOINT } from "@/features/gp/lib/gp.constants";
-import { GeneralMastersResource } from "@/features/gp/maestros-generales/lib/generalMasters.interface";
+import { LOAN } from "./loan.constant";
 
 const { ENDPOINT } = LOAN;
 
@@ -48,15 +46,4 @@ export async function storeLoanExtraDiscount(
 ): Promise<LoanExtraDiscountResource> {
   const { data } = await api.post<any>("/gp/gh/payroll/loan-extra-discounts", payload);
   return unwrap<LoanExtraDiscountResource>(data);
-}
-
-export async function getLoanConcepts(): Promise<GeneralMastersResource[]> {
-  const config: AxiosRequestConfig = {
-    params: { all: "true", type: LOAN_CONCEPT_TYPE },
-  };
-  const { data } = await api.get<GeneralMastersResource[]>(
-    GENERAL_MASTERS_ENDPOINT,
-    config,
-  );
-  return Array.isArray(data) ? data : (unwrap<GeneralMastersResource[]>(data) ?? []);
 }

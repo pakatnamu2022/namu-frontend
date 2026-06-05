@@ -1,12 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { LoanResource, LoanResponse } from "./loan.interface";
-import {
-  findLoanById,
-  getLoanConcepts,
-  getLoans,
-} from "./loan.actions";
-import { LOAN, LOAN_CONCEPT_TYPE } from "./loan.constant";
-import { GeneralMastersResource } from "@/features/gp/maestros-generales/lib/generalMasters.interface";
+import { findLoanById, getLoans } from "./loan.actions";
+import { LOAN } from "./loan.constant";
 
 const { QUERY_KEY } = LOAN;
 
@@ -24,13 +19,5 @@ export const useLoanById = (id: number) => {
     queryFn: () => findLoanById(id),
     refetchOnWindowFocus: false,
     enabled: !!id,
-  });
-};
-
-export const useLoanConcepts = () => {
-  return useQuery<GeneralMastersResource[]>({
-    queryKey: [`${QUERY_KEY}-concepts-${LOAN_CONCEPT_TYPE}`],
-    queryFn: getLoanConcepts,
-    refetchOnWindowFocus: false,
   });
 };

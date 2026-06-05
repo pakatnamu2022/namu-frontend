@@ -2,7 +2,7 @@
 
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { LoanSchema, loanSchema } from "../lib/loan.schema";
 import { Loader } from "lucide-react";
@@ -13,12 +13,8 @@ import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { useGpMasters } from "@/features/gp/gp-master/lib/gpMaster.hook";
-import { GP_MASTER_TYPE } from "@/features/gp/gp-master/lib/gpMaster.constants";
 import { useEffect } from "react";
-
-const useLoanConceptsAsync = (params: Record<string, any>) =>
-  useGpMasters({ params: { ...params, type: GP_MASTER_TYPE.PAYROLL_LOAN } });
+import { cn } from "@/lib/utils";
 
 interface LoanFormProps {
   defaultValues: Partial<LoanSchema>;
@@ -36,14 +32,15 @@ export const LoanForm = ({
   const form = useForm<LoanSchema>({
     resolver: zodResolver(loanSchema) as any,
     defaultValues: {
-      concept_id: defaultValues.concept_id ?? undefined,
       worker_id: defaultValues.worker_id ?? undefined,
-      delivery_date: defaultValues.delivery_date ?? "",
-      reason: defaultValues.reason ?? "",
-      payment_start: defaultValues.payment_start ?? "",
+      delivery_date: defaultValues.delivery_date ?? null,
+      reason: defaultValues.reason ?? null,
+      payment_start: defaultValues.payment_start ?? null,
+      payment_days: defaultValues.payment_days ?? [],
       loan_amount: defaultValues.loan_amount ?? 0,
-      installments_count: defaultValues.installments_count ?? 1,
+      installments_count: defaultValues.installments_count ?? null,
       installment_amount: defaultValues.installment_amount ?? 0,
+      status: defaultValues.status ?? null,
     },
     mode: "onChange",
   });
@@ -53,28 +50,17 @@ export const LoanForm = ({
 
   useEffect(() => {
     const amount = Number(loanAmount) || 0;
-    const count = Number(installmentsCount) || 1;
-    const installment = count > 0 ? parseFloat((amount / count).toFixed(2)) : 0;
-    form.setValue("installment_amount", installment, { shouldValidate: true });
+    const count = Number(installmentsCount) || 0;
+    if (count > 0) {
+      const installment = parseFloat((amount / count).toFixed(2));
+      form.setValue("installment_amount", installment, { shouldValidate: true });
+    }
   }, [loanAmount, installmentsCount, form]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
-          <FormSelectAsync
-            name="concept_id"
-            label="Concepto"
-            placeholder="Seleccione concepto"
-            control={form.control}
-            required
-            useQueryHook={useLoanConceptsAsync}
-            mapOptionFn={(item) => ({
-              label: item.description,
-              value: String(item.id),
-            })}
-          />
-
           <FormSelectAsync
             name="worker_id"
             label="Trabajador"
@@ -119,7 +105,6 @@ export const LoanForm = ({
             step={1}
             placeholder="Ej: 12"
             control={form.control}
-            required
           />
 
           <FormInput
@@ -140,7 +125,44 @@ export const LoanForm = ({
               label="Motivo"
               placeholder="Describa el motivo del préstamo"
               control={form.control}
-              required
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <FormField
+              control={form.control}
+              name="payment_days"
+              render={({ field }) => {
+                const selected: number[] = field.value ?? [];
+                const toggle = (day: number) => {
+                  const next = selected.includes(day)
+                    ? selected.filter((d) => d !== day)
+                    : [...selected, day].sort((a, b) => a - b);
+                  field.onChange(next);
+                };
+                return (
+                  <FormItem>
+                    <FormLabel>Días de descuento</FormLabel>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => toggle(day)}
+                          className={cn(
+                            "size-8 rounded text-xs font-mono border transition-colors",
+                            selected.includes(day)
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background hover:bg-muted border-border",
+                          )}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  </FormItem>
+                );
+              }}
             />
           </div>
         </div>

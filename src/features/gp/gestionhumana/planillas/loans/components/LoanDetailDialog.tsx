@@ -14,10 +14,10 @@ interface LoanDetailDialogProps {
 
 function getPaymentLabel(
   discount: LoanExtraDiscountResource,
-  installmentsCount: number,
+  installmentsCount: number | null,
   loanAmount: number,
 ): string {
-  if (installmentsCount === 1 && discount.amount >= loanAmount)
+  if ((installmentsCount === 1 || installmentsCount === null) && discount.amount >= loanAmount)
     return "Pago directo";
   return discount.month_number != null
     ? `Cuota #${discount.month_number}`
@@ -38,12 +38,13 @@ export function LoanDetailDialog({
   const extraDiscounts: LoanExtraDiscountResource[] =
     data?.extra_discounts ?? [];
   const loanAmount = Number(data?.loan_amount ?? 0);
-  const installmentsCount = data?.installments_count ?? 0;
+  const installmentsCount = data?.installments_count ?? null;
+  const remainingBalance = Number(data?.remaining_balance ?? 0);
   const totalPagado = extraDiscounts.reduce(
     (sum, d) => sum + Number(d.amount),
     0,
   );
-  const saldoPendiente = Math.max(0, loanAmount - totalPagado);
+  const paymentDays = data?.payment_days ?? [];
 
   return (
     <GeneralSheet
@@ -56,7 +57,7 @@ export function LoanDetailDialog({
       isLoading={isLoading}
     >
       <div className="space-y-4 py-2">
-        <div className="grid grid-cols-3 gap-3 rounded-lg border bg-muted/40 p-3 text-sm">
+        <div className="grid grid-cols-2 gap-3 rounded-lg border bg-muted/40 p-3 text-sm sm:grid-cols-4">
           <div>
             <p className="text-muted-foreground">Monto préstamo</p>
             <p className="font-mono font-semibold">
@@ -76,13 +77,27 @@ export function LoanDetailDialog({
           <div>
             <p className="text-muted-foreground">Saldo pendiente</p>
             <p
-              className={`font-mono font-semibold ${saldoPendiente > 0 ? "text-destructive" : "text-green-600"}`}
+              className={`font-mono font-semibold ${remainingBalance > 0 ? "text-destructive" : "text-green-600"}`}
             >
               S/{" "}
-              {saldoPendiente.toLocaleString("es-PE", {
+              {remainingBalance.toLocaleString("es-PE", {
                 minimumFractionDigits: 2,
               })}
             </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Días de descuento</p>
+            {paymentDays.length > 0 ? (
+              <div className="flex flex-wrap gap-1 pt-0.5">
+                {paymentDays.map((d) => (
+                  <Badge key={d} variant="outline" className="font-mono text-xs px-1.5 py-0">
+                    {d}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">—</p>
+            )}
           </div>
         </div>
 

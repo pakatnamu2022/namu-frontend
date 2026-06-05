@@ -23,7 +23,9 @@ import {
   updateGeneralMasters,
 } from "@/features/gp/maestros-generales/lib/generalMasters.actions";
 import GeneralMastersModal from "@/features/gp/maestros-generales/components/GeneralMastersModal";
-import PayrollRatesMatrix from "@/features/gp/maestros-generales/components/PayrollRatesMatrix";
+import PayrollRatesMatrix, {
+  type AddCellPayload,
+} from "@/features/gp/maestros-generales/components/PayrollRatesMatrix";
 import {
   INSURANCE_PREMIUM_TYPE,
   MANDATORY_CONTRIBUTION_TYPE,
@@ -45,7 +47,7 @@ export default function PayrollRatesPercentagesPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [updateId, setUpdateId] = useState<number | null>(null);
+  const [addCell, setAddCell] = useState<AddCellPayload | null>(null);
 
   const { data, isLoading, refetch } = useGeneralMasters({
     params: {
@@ -61,16 +63,6 @@ export default function PayrollRatesPercentagesPage() {
       successToast("Valor actualizado correctamente.");
     } catch {
       errorToast("Error al actualizar el valor.");
-    }
-  };
-
-  const handleToggleStatus = async (id: number, newStatus: boolean) => {
-    try {
-      await updateGeneralMasters(id, { status: newStatus });
-      await refetch();
-      successToast("Estado actualizado correctamente.");
-    } catch {
-      errorToast("Error al actualizar el estado.");
     }
   };
 
@@ -129,8 +121,8 @@ export default function PayrollRatesPercentagesPage() {
         data={(Array.isArray(data) ? data : data?.data) ?? []}
         isLoading={isLoading}
         onSaveValue={handleSaveValue}
-        onToggleStatus={handleToggleStatus}
         onDelete={setDeleteId}
+        onAdd={setAddCell}
         permissions={permissions}
         search={search}
       />
@@ -146,18 +138,23 @@ export default function PayrollRatesPercentagesPage() {
       {showCreate && (
         <GeneralMastersModal
           open={showCreate}
-          onClose={() => setShowCreate(false)}
+          onClose={() => { setShowCreate(false); refetch(); }}
           mode="create"
           allowedTypes={RATES_PERCENTAGES_TYPES}
         />
       )}
 
-      {updateId !== null && (
+      {addCell !== null && (
         <GeneralMastersModal
-          id={updateId}
           open={true}
-          onClose={() => setUpdateId(null)}
-          mode="update"
+          onClose={() => { setAddCell(null); refetch(); }}
+          mode="create"
+          defaultCode={addCell.code}
+          lockedCode
+          defaultDescription={addCell.description}
+          lockedDescription
+          defaultType={addCell.type}
+          lockedType
           allowedTypes={RATES_PERCENTAGES_TYPES}
         />
       )}

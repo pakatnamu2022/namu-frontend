@@ -19,6 +19,7 @@ interface GeneralMastersFormProps {
   mode: "create" | "update";
   onCancel?: () => void;
   lockedCode?: boolean;
+  lockedDescription?: boolean;
   lockedType?: boolean;
   allowedTypes?: string[];
 }
@@ -30,6 +31,7 @@ export default function GeneralMastersForm({
   mode,
   onCancel,
   lockedCode,
+  lockedDescription,
   lockedType,
   allowedTypes,
 }: GeneralMastersFormProps) {
@@ -77,6 +79,7 @@ export default function GeneralMastersForm({
           name="description"
           label="Descripción"
           placeholder="Ingrese la descripción"
+          disabled={lockedDescription}
         />
 
         {!lockedType && (
