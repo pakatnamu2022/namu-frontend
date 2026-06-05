@@ -3,8 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoanResource } from "../lib/loan.interface";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Banknote, Eye, Pencil } from "lucide-react";
+import { Banknote, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { useNavigate } from "react-router-dom";
 import { LOAN } from "../lib/loan.constant";
@@ -20,12 +19,8 @@ export type LoanColumns = ColumnDef<LoanResource>;
 
 export const loanColumns = ({
   onDelete,
-  onAmortize,
-  onDetail,
 }: {
   onDelete: (id: number) => void;
-  onAmortize: (id: number) => void;
-  onDetail: (id: number) => void;
 }): LoanColumns[] => [
   {
     accessorKey: "worker",
@@ -62,7 +57,7 @@ export const loanColumns = ({
         <span
           className={`font-mono ${Number(val) > 0 ? "text-destructive" : "text-green-600"}`}
         >
-          S/ {Number(val).toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+          {formatMoney(val)}
         </span>
       );
     },
@@ -73,21 +68,7 @@ export const loanColumns = ({
     cell: ({ getValue }) => {
       const val = getValue() as number;
       return (
-        <span className="font-mono">
-          S/ {val.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const active = getValue() as boolean;
-      return (
-        <Badge variant={active ? "default" : "outline"}>
-          {active ? "Activo" : "Inactivo"}
-        </Badge>
+        <span className="font-mono">{val > 0 ? formatMoney(val) : "—"}</span>
       );
     },
   },
@@ -98,7 +79,7 @@ export const loanColumns = ({
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE } = LOAN;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = LOAN;
 
       return (
         <div className="flex items-center gap-2">
@@ -109,31 +90,15 @@ export const loanColumns = ({
                   variant="outline"
                   size="icon"
                   className="size-7"
-                  onClick={() => onDetail(id)}
-                >
-                  <Eye className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Ver detalle</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  onClick={() => onAmortize(id)}
+                  onClick={() =>
+                    router(`${ABSOLUTE_ROUTE}/${id}/amortizaciones`)
+                  }
                 >
                   <Banknote className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Amortizar deuda</p>
+                <p>Amortizaciones</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

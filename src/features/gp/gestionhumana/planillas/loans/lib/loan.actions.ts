@@ -47,3 +47,23 @@ export async function storeLoanExtraDiscount(
   const { data } = await api.post<any>("/gp/gh/payroll/loan-extra-discounts", payload);
   return unwrap<LoanExtraDiscountResource>(data);
 }
+
+export async function confirmLoanExtraDiscount(
+  id: number,
+): Promise<LoanExtraDiscountResource> {
+  const { data } = await api.post<any>(
+    `/gp/gh/payroll/loan-extra-discounts/${id}/confirm`,
+  );
+  return unwrap<LoanExtraDiscountResource>(data);
+}
+
+export async function updateLoanExtraDiscount(
+  id: number,
+  payload: Partial<LoanExtraDiscountRequest>,
+): Promise<LoanExtraDiscountResource> {
+  const { data } = await api.put<any>(
+    `/gp/gh/payroll/loan-extra-discounts/${id}`,
+    payload,
+  );
+  return unwrap<LoanExtraDiscountResource>(data);
+}

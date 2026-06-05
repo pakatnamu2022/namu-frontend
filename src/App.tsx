@@ -410,6 +410,7 @@ import UpdateLiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquida
 import LoanPage from "./app/gp/gestion-humana/planillas/prestamos/page.tsx";
 import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/page.tsx";
 import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
+import LoanAmortizacionesPage from "./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx";
 import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
 import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
 import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
@@ -1980,6 +1981,10 @@ function App() {
                 <AddLoanPage />,
                 <UpdateLoanPage />,
               )}
+              <Route
+                path="planillas/prestamos/:id/amortizaciones"
+                element={<LoanAmortizacionesPage />}
+              />
               {/* Seguros */}
               {RouterCrud(
                 "planillas/seguros",

@@ -19,9 +19,9 @@ interface InfoSectionProps {
 
 const colsClass: Record<number, string> = {
   1: "grid-cols-1",
-  2: "grid-cols-2",
-  3: "grid-cols-3",
-  4: "grid-cols-4",
+  2: "grid-cols-1 sm:grid-cols-2",
+  3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
 };
 
 export function InfoSection({
@@ -44,7 +44,7 @@ export function InfoSection({
         )}
       >
         {fields.map((field, i) => (
-          <div key={i} className={field.fullWidth ? "col-span-2" : undefined}>
+          <div key={i} className={field.fullWidth ? "col-span-full" : undefined}>
             <p className="text-xs text-muted-foreground">{field.label}</p>
             {typeof field.value === "string" ||
             typeof field.value === "number" ||

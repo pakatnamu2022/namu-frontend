@@ -511,7 +511,6 @@ export function OrderQuotationBillingForm({
 
   // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
   useEffect(() => {
-    console.log("isAdvancePayment changed:", isAdvancePayment);
     if (isAdvancePayment) {
       form.setValue("medio_de_pago", "contado", { shouldValidate: false });
     }

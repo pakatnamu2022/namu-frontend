@@ -39,14 +39,17 @@ export const LoanForm = ({
     resolver: zodResolver(loanSchema) as any,
     defaultValues: {
       worker_id: defaultValues.worker_id ?? undefined,
-      delivery_date: defaultValues.delivery_date ?? null,
-      reason: defaultValues.reason ?? null,
-      payment_start: defaultValues.payment_start ?? null,
+      delivery_date: defaultValues.delivery_date
+        ? new Date(defaultValues.delivery_date)
+        : undefined,
+      reason: defaultValues.reason ?? "",
+      payment_start: defaultValues.payment_start
+        ? new Date(defaultValues.payment_start)
+        : undefined,
       payment_days: defaultValues.payment_days ?? [],
-      loan_amount: defaultValues.loan_amount ?? 0,
-      installments_count: defaultValues.installments_count ?? null,
-      installment_amount: defaultValues.installment_amount ?? 0,
-      status: defaultValues.status ?? null,
+      loan_amount: defaultValues.loan_amount ?? "0",
+      installments_count: defaultValues.installments_count ?? 1,
+      installment_amount: defaultValues.installment_amount ?? "0",
     },
     mode: "onChange",
   });
@@ -62,7 +65,7 @@ export const LoanForm = ({
     const count = Number(installmentsCount) || 0;
     if (count > 0) {
       const installment = parseFloat((amount / count).toFixed(2));
-      form.setValue("installment_amount", installment, {
+      form.setValue("installment_amount", String(installment), {
         shouldValidate: true,
       });
     }
@@ -99,9 +102,7 @@ export const LoanForm = ({
             <FormInput
               name="loan_amount"
               label="Monto del Préstamo"
-              type="number"
               min={0}
-              step="0.01"
               placeholder="Ej: 3000.00"
               control={form.control}
               required
@@ -118,9 +119,7 @@ export const LoanForm = ({
             <FormInput
               name="installment_amount"
               label="Monto de Cuota"
-              type="number"
               min={0}
-              step="0.01"
               placeholder="Ej: 250.00"
               control={form.control}
               readOnly

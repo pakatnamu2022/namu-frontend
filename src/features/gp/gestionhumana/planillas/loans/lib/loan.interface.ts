@@ -14,9 +14,9 @@ export interface LoanResource {
   reason: string | null;
   payment_start: string | null;
   payment_days: number[] | null;
-  loan_amount: number;
+  loan_amount: string;
   installments_count: number | null;
-  installment_amount: number;
+  installment_amount: string;
   remaining_balance: number;
   status: boolean;
 }
@@ -37,6 +37,7 @@ export interface LoanExtraDiscountRequest {
   loan_id: number;
   concept_type_id: string;
   amount: number;
+  scheduled_date?: string | null;
   month_number?: number | null;
   applied?: boolean | null;
 }
@@ -49,7 +50,11 @@ export interface LoanExtraDiscountResource {
   amount: number;
   month_number: number | null;
   applied: boolean;
-  status: string;
+  confirmed_by: number | null;
+  confirmed_by_name: string | null;
+  confirmed_at: string | null;
+  scheduled_date: string | null;
+  status: number;
   created_at: string;
   updated_at: string;
 }
