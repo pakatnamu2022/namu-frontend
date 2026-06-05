@@ -129,6 +129,8 @@ export const vehicleColumns = ({
         type_operation_id,
         vin,
         ap_vehicle_status_id,
+        warehouse_id,
+        warehouse_name,
       } = row.original;
 
       return (
@@ -145,6 +147,8 @@ export const vehicleColumns = ({
                 vehicleId={id}
                 vehicleVin={vin}
                 apClassArticleId={row.original.model.class_id}
+                currentWarehouseId={warehouse_id}
+                currentWarehouseName={warehouse_name}
               />
             )}
 

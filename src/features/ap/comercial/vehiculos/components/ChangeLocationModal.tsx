@@ -27,9 +27,11 @@ interface Props {
   vehicleId: number;
   vehicleVin?: string;
   apClassArticleId: number;
+  currentWarehouseId?: number;
+  currentWarehouseName?: string;
 }
 
-export default function ChangeLocationModal({ vehicleId, vehicleVin, apClassArticleId }: Props) {
+export default function ChangeLocationModal({ vehicleId, vehicleVin, apClassArticleId, currentWarehouseId, currentWarehouseName }: Props) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
@@ -101,16 +103,28 @@ export default function ChangeLocationModal({ vehicleId, vehicleVin, apClassArti
       >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {currentWarehouseName && (
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Ubicación Actual (Origen)</p>
+                <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+                  <MapPin className="size-4 shrink-0 text-muted-foreground" />
+                  <span>{currentWarehouseName}</span>
+                </div>
+              </div>
+            )}
+
             <FormSelect
               control={form.control}
               name="sede_receiver_id"
               label="Sede Destino"
               placeholder="Selecciona sede destino"
-              options={destSedes.map((item) => ({
-                label: item.sede,
-                description: item.description,
-                value: item.sede_id.toString(),
-              }))}
+              options={destSedes
+                .filter((item) => item.id !== currentWarehouseId)
+                .map((item) => ({
+                  label: item.sede,
+                  description: item.description,
+                  value: item.sede_id.toString(),
+                }))}
               disabled={isLoadingDestSedes}
               strictFilter
             />

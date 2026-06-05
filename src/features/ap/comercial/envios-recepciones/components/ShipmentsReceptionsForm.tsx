@@ -55,7 +55,7 @@ import {
   SUNAT_CONCEPTS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants";
 import { ImageUploadField } from "@/shared/components/ImageUploadField";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";

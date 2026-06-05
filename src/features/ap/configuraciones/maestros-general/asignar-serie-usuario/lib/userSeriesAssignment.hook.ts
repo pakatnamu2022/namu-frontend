@@ -10,7 +10,7 @@ import {
   getAuthorizedSeries,
   getUserSeriesAssignment,
 } from "./userSeriesAssignment.actions";
-import { AssignSalesSeriesResource } from "../../asignar-serie-venta/lib/assignSalesSeries.interface";
+import { AssignSalesSeriesResource } from "../../series/lib/assignSalesSeries.interface";
 
 const { QUERY_KEY } = USER_SERIES_ASSIGNMENT;
 

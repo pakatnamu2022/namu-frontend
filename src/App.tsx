@@ -147,9 +147,9 @@ import UpdateWarehousePage from "./app/ap/configuraciones/maestros-general/almac
 import UserSeriesAssignmentPage from "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page.tsx";
 import AddUserSeriesAssignmentPage from "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/agregar/page.tsx";
 import UpdateUserSeriesAssignmentPage from "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/actualizar/[id]/page.tsx";
-import AssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/asignar-serie-venta/page.tsx";
-import AddAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/asignar-serie-venta/agregar/page.tsx";
-import UpdateAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/asignar-serie-venta/actualizar/[id]/page.tsx";
+import AssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/series/page.tsx";
+import AddAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/series/agregar/page.tsx";
+import UpdateAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/series/actualizar/[id]/page.tsx";
 import BankPage from "./app/ap/configuraciones/maestros-general/bancos/page.tsx";
 import ApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/page.tsx";
 import AddApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/agregar/page.tsx";
@@ -909,15 +909,15 @@ function App() {
                 element={<UpdateUserSeriesAssignmentPage />}
               />
               <Route
-                path="maestros-general/asignar-serie-venta"
+                path="maestros-general/series"
                 element={<AssignSalesSeriesPage />}
               />
               <Route
-                path="maestros-general/asignar-serie-venta/agregar"
+                path="maestros-general/series/agregar"
                 element={<AddAssignSalesSeriesPage />}
               />
               <Route
-                path="maestros-general/asignar-serie-venta/actualizar/:id"
+                path="maestros-general/series/actualizar/:id"
                 element={<UpdateAssignSalesSeriesPage />}
               />
               <Route path="maestros-general/bancos" element={<BankPage />} />

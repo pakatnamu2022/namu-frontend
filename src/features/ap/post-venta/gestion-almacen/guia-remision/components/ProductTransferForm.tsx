@@ -48,7 +48,7 @@ import { DocumentValidationStatus } from "@/shared/components/DocumentValidation
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation.ts";
 import { Card } from "@/components/ui/card.tsx";
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
-import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants.ts";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants.ts";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook.ts";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
