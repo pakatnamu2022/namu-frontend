@@ -62,6 +62,8 @@ import ShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/page"
 import AddShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/agregar/page";
 import UpdateShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/actualizar/[id]/page";
 import ReceptionCheckListPage from "./app/ap/comercial/envios-recepciones/checklist/[id]/page";
+import TransfersPage from "./app/ap/comercial/traslados/page";
+import AddTransferPage from "./app/ap/comercial/traslados/agregar/page";
 import StoreVisitsPage from "./app/ap/comercial/visitas-tienda/page";
 import AddStoreVisitsPage from "./app/ap/comercial/visitas-tienda/agregar/page";
 import UpdateStoreVisitsPage from "./app/ap/comercial/visitas-tienda/actualizar/[id]/page";
@@ -771,6 +773,10 @@ function App() {
                 path="envios-recepciones/checklist/:id"
                 element={<ReceptionCheckListPage />}
               />
+
+              {/* Traslados Internos */}
+              <Route path="traslados" element={<TransfersPage />} />
+              <Route path="traslados/agregar" element={<AddTransferPage />} />
 
               {/* Control de Unidades */}
               {RouterCrud(
