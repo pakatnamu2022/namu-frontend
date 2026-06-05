@@ -36,3 +36,12 @@ export const useEstablishmentsById = (id: number) => {
     refetchOnWindowFocus: false,
   });
 };
+
+export const useEstablishmentBySede = (sedeId: number | null) => {
+  return useQuery<EstablishmentsResource[]>({
+    queryKey: [QUERY_KEY, { sede_id: sedeId }],
+    queryFn: () => getAllEstablishments({ params: { sede_id: sedeId } }),
+    enabled: !!sedeId,
+    refetchOnWindowFocus: false,
+  });
+};

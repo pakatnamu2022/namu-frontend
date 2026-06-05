@@ -13,7 +13,7 @@ import {
   QUOTATION_ACCOUNT_PLAN_IDS,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
 import { InvoiceSummarySection } from "./InvoiceSummarySection";

@@ -254,3 +254,19 @@ export async function syncShippingGuideWithDynamics(
   );
   return data;
 }
+
+export interface InternalShippingGuideRequest {
+  sede_receiver_id: number;
+  ap_vehicle_id: number;
+  ap_class_article_id: number;
+}
+
+export async function createInternalShippingGuide(
+  payload: InternalShippingGuideRequest
+): Promise<ShipmentsReceptionsResource> {
+  const { data } = await api.post<ShipmentsReceptionsResource>(
+    "/ap/commercial/shippingGuides/internal",
+    payload
+  );
+  return data;
+}

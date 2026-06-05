@@ -1,7 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { AssignSalesSeriesResource } from "./assignSalesSeries.interface";
 
-const ROUTE = "asignar-serie-venta";
+const ROUTE = "series";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const ASSIGN_SALES_SERIES: ModelComplete<AssignSalesSeriesResource> = {

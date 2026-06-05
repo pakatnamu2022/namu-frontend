@@ -48,7 +48,7 @@ import { DocumentValidationStatus } from "@/shared/components/DocumentValidation
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation.ts";
 import { Card } from "@/components/ui/card.tsx";
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
-import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants.ts";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants.ts";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook.ts";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
@@ -59,6 +59,7 @@ import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-gener
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { useEstablishmentBySede } from "@/features/ap/comercial/establecimientos/lib/establishments.hook.ts";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -171,6 +172,7 @@ export const ProductTransferForm = ({
   });
 
   const watchTransferReasonId = form.watch("transfer_reason_id");
+  const watchDocumentSeriesId = form.watch("document_series_id");
 
   // Obtener clientes y proveedores
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
@@ -182,6 +184,15 @@ export const ProductTransferForm = ({
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     },
   );
+
+  // Derivar sede_id de la serie seleccionada para auto-poblar destino
+  const selectedSerie = series.find((s) => s.id.toString() === watchDocumentSeriesId);
+  const serieSedeId = selectedSerie?.sede_id ?? null;
+
+  const { data: destinationEstablishments = [] } = useEstablishmentBySede(
+    mode === "create" ? serieSedeId : null,
+  );
+  const destinationEstablishment = destinationEstablishments[0] ?? null;
 
   // Filtrar series según la sede del establecimiento origen seleccionado
   const filteredSeries = series.filter((serie) => {
@@ -356,6 +367,31 @@ export const ProductTransferForm = ({
     prevTransferTypeRef.current = transferType;
   }, [transferType, isFirstLoad, mode, form, fields.length]);
 
+  // Auto-poblar destino desde el establecimiento de la sede de la serie seleccionada
+  useEffect(() => {
+    if (mode !== "create") return;
+    if (!destinationEstablishment) {
+      setSelectedDestinationEstablishment(null);
+      setSelectedCustomer(null);
+      form.setValue("receiver_destination_id", "");
+      form.setValue("receiver_id", "");
+      return;
+    }
+    setSelectedDestinationEstablishment(destinationEstablishment);
+    setSelectedCustomer({
+      id: destinationEstablishment.business_partner_id,
+      name: destinationEstablishment.description || destinationEstablishment.code,
+    });
+    form.setValue(
+      "receiver_destination_id",
+      destinationEstablishment.business_partner_id.toString(),
+      { shouldValidate: true },
+    );
+    form.setValue("receiver_id", destinationEstablishment.id.toString(), {
+      shouldValidate: true,
+    });
+  }, [destinationEstablishment, mode]);
+
   // Forzar cambio a SERVICIO si no ambos establecimientos tienen almacén
   useEffect(() => {
     if (mode === "update") return;
@@ -526,7 +562,7 @@ export const ProductTransferForm = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 relative">
               <FormLabel className="leading-none">Ubicación Destino</FormLabel>
-              {selectedCustomer && mode === "create" && (
+              {selectedCustomer && mode === "create" && !watchDocumentSeriesId && (
                 <button
                   type="button"
                   onClick={() => setIsDestinationModalOpen(true)}
@@ -562,8 +598,9 @@ export const ProductTransferForm = ({
                   : undefined
               }
               disabled={
+                !!watchDocumentSeriesId ||
                 watchTransferReasonId ===
-                SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
               }
               onValueChange={(value, item: CustomersResource | undefined) => {
                 if (value && item) {

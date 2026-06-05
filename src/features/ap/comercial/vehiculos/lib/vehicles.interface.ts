@@ -49,6 +49,7 @@ export interface VehicleResource {
   type_operation_id: number;
   sede_warehouse_id?: number;
   sede_warehouse_physical_id?: number;
+  supplier_id?: number | null;
 }
 
 export interface VehicleResourceWithCosts {
