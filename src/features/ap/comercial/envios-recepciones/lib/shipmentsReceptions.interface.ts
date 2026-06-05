@@ -74,6 +74,7 @@ export interface ShipmentsReceptionsResource {
   migration_status: string;
   is_accounted: boolean;
   is_annulled: boolean;
+  vin?: string | null;
 }
 
 export interface ShipmentItemResource {

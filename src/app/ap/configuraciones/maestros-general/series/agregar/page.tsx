@@ -11,10 +11,10 @@ import {
 } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
-import { storeAssignSalesSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.actions";
-import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.schema";
-import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
+import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants";
+import { storeAssignSalesSeries } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.actions";
+import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.schema";
+import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/series/components/AssignSalesSeriesForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddAssignSalesSeriesPage() {

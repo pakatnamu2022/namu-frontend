@@ -36,7 +36,7 @@ import {
   POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
-import { useAllAssignSalesSeries } from "../../asignar-serie-venta/lib/assignSalesSeries.hook";
+import { useAllAssignSalesSeries } from "../../series/lib/assignSalesSeries.hook";
 import { VouchersResource } from "../lib/userSeriesAssignment.interface";
 import { useUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import { USER_SERIES_ASSIGNMENT } from "../lib/userSeriesAssignment.constants";

@@ -13,14 +13,14 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants";
 import {
   findAssignSalesSeriesById,
   updateAssignSalesSeries,
-} from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.actions";
-import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.schema";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
+} from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.actions";
+import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.schema";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
+import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/series/components/AssignSalesSeriesForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateAssignSalesSeriesPage() {

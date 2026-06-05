@@ -36,7 +36,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
 import { getNextCreditNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
