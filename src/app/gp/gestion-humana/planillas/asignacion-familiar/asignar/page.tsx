@@ -57,6 +57,7 @@ export default function AssignFamilyAllowancePage() {
   const { data: workersData, isLoading: isLoadingWorkers } = useAllWorkers(
     canFetch
       ? {
+          asignacion: "SI",
           status_id: STATUS_WORKER.ACTIVE,
           sede$empresa_id: companyId,
         }
