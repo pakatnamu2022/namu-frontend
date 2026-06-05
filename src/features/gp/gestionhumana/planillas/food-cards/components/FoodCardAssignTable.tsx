@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   Table,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import { errorToast, successToast } from "@/core/core.function";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
@@ -61,6 +62,15 @@ export default function FoodCardAssignTable({
   onSaved,
 }: FoodCardAssignTableProps) {
   const [cells, setCells] = useState<Record<CellKey, CellState>>({});
+  const [search, setSearch] = useState("");
+
+  const filteredWorkers = useMemo(
+    () =>
+      workers.filter((w) =>
+        w.name.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [workers, search],
+  );
 
   useEffect(() => {
     if (workers.length && periods.length) {
@@ -131,47 +141,66 @@ export default function FoodCardAssignTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-10 text-center">#</TableHead>
-            <TableHead className="min-w-52">Trabajador</TableHead>
-            {periods.map((period) => (
-              <TableHead key={period.id} className="text-center min-w-36">
-                {period.name}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {workers.map((worker, index) => (
-            <TableRow key={worker.id}>
-              <TableCell className="text-center text-muted-foreground text-xs">
-                {index + 1}
-              </TableCell>
-              <TableCell className="font-medium text-sm">
-                {worker.name}
-              </TableCell>
-              {periods.map((period) => {
-                const key: CellKey = `${worker.id}-${period.id}`;
-                const cell = cells[key];
-                return (
-                  <TableCell key={period.id} className="text-center">
-                    <Checkbox
-                      checked={cell?.applies ?? false}
-                      disabled={cell?.saving}
-                      onCheckedChange={(checked) =>
-                        handleToggle(worker.id, period.id, !!checked)
-                      }
-                    />
-                  </TableCell>
-                );
-              })}
+    <div className="space-y-3">
+      <Input
+        placeholder="Buscar trabajador..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-sm"
+      />
+      <div className="overflow-x-auto rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10 text-center">#</TableHead>
+              <TableHead className="min-w-52">Trabajador</TableHead>
+              {periods.map((period) => (
+                <TableHead key={period.id} className="text-center min-w-36">
+                  {period.name}
+                </TableHead>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredWorkers.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={periods.length + 2}
+                  className="py-6 text-center text-sm text-muted-foreground"
+                >
+                  No se encontraron trabajadores.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredWorkers.map((worker, index) => (
+                <TableRow key={worker.id}>
+                  <TableCell className="text-center text-muted-foreground text-xs">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="font-medium text-sm">
+                    {worker.name}
+                  </TableCell>
+                  {periods.map((period) => {
+                    const key: CellKey = `${worker.id}-${period.id}`;
+                    const cell = cells[key];
+                    return (
+                      <TableCell key={period.id} className="text-center">
+                        <Checkbox
+                          checked={cell?.applies ?? false}
+                          disabled={cell?.saving}
+                          onCheckedChange={(checked) =>
+                            handleToggle(worker.id, period.id, !!checked)
+                          }
+                        />
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
