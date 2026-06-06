@@ -29,6 +29,7 @@ interface OrderQuotationSummarySectionProps {
   isPending: boolean;
   isAdvancePayment: boolean;
   quotation?: OrderQuotationResource | null;
+  onCancel?: () => void;
 }
 
 export function OrderQuotationSummarySection({
@@ -42,6 +43,7 @@ export function OrderQuotationSummarySection({
   isPending,
   isAdvancePayment,
   quotation,
+  onCancel,
 }: OrderQuotationSummarySectionProps) {
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
@@ -270,7 +272,7 @@ export function OrderQuotationSummarySection({
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => window.history.back()}
+              onClick={onCancel ?? (() => window.history.back())}
             >
               Cancelar
             </Button>

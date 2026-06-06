@@ -32,6 +32,7 @@ interface OrderQuotationBillingFormProps {
   isPending: boolean;
   quotation: OrderQuotationResource;
   isEdit?: boolean;
+  onCancel?: () => void;
 }
 
 export function OrderQuotationBillingForm({
@@ -40,6 +41,7 @@ export function OrderQuotationBillingForm({
   isPending,
   quotation,
   isEdit = false,
+  onCancel,
 }: OrderQuotationBillingFormProps) {
   // Ref para rastrear la última cotización cargada (evitar loops)
   const lastLoadedQuotationId = useRef<number | null>(null);
@@ -638,6 +640,7 @@ export function OrderQuotationBillingForm({
             isPending={isPending}
             isAdvancePayment={isAdvancePayment}
             quotation={quotation}
+            onCancel={onCancel}
           />
         </div>
       </form>

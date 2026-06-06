@@ -229,19 +229,13 @@ export default function OrderQuotationBillingContent({
 
       {/* Formulario o lista de facturas */}
       {showForm ? (
-        <div className="space-y-4">
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={handleCancelForm}>
-              Cancelar
-            </Button>
-          </div>
-          <OrderQuotationBillingForm
-            form={form}
-            onSubmit={onSubmit}
-            isPending={isPending}
-            quotation={quotation}
-          />
-        </div>
+        <OrderQuotationBillingForm
+          form={form}
+          onSubmit={onSubmit}
+          isPending={isPending}
+          quotation={quotation}
+          onCancel={handleCancelForm}
+        />
       ) : (
         <Card className="p-4">
           <div className="space-y-4">
