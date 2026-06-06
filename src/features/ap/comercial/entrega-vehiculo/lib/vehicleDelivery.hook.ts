@@ -8,6 +8,7 @@ import {
   generateOrUpdateShippingGuide,
   queryVehicleDeliveryFromNubefact,
   getNextShippingGuideDocumentNumber,
+  syncAccountingEntry,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast } from "@/core/core.function";
@@ -121,6 +122,24 @@ export const useGenerateOrUpdateShippingGuide = () => {
       generateOrUpdateShippingGuide(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useSyncAccountingEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => syncAccountingEntry(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Asiento contable sincronizado correctamente");
+    },
+    onError: (error: any) => {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al sincronizar el asiento contable";
+      errorToast(msg);
     },
   });
 };
