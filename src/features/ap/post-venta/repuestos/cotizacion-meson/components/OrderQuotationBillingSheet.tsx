@@ -163,9 +163,8 @@ function BillingSheetContent({
   onRefresh,
 }: BillingSheetContentProps) {
   const queryClient = useQueryClient();
-  const advances = orderQuotation.advances || [];
-  const hasAdvances = advances.length > 0;
-  const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
+  const activeVouchers = orderQuotation.vouchers?.active ?? [];
+  const hasAdvances = activeVouchers.length > 0;
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
@@ -688,14 +687,17 @@ function BillingSheetContent({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg">
-            Documentos Electrónicos ({advances.length})
+            Documentos Electrónicos ({activeVouchers.length})
           </h3>
           {hasAdvances && (
             <Badge variant="outline" className="text-sm">
-              Total Anticipos: {currencySymbol}{" "}
-              {totalAdvances.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              Pagado: {currencySymbol}{" "}
+              {orderQuotation.payment_summary?.paid_amount.toLocaleString(
+                "es-PE",
+                {
+                  minimumFractionDigits: 2,
+                },
+              )}
             </Badge>
           )}
         </div>
@@ -708,190 +710,128 @@ function BillingSheetContent({
             </p>
           </div>
         ) : (
-          <>
-            <DetailSheetTable
-              rows={advances}
-              getKey={(doc) => doc.id}
-              columns={[
-                {
-                  header: "Documento",
-                  render: (doc) => (
-                    <>
-                      <div className="font-medium">
-                        {doc.serie}-{String(doc.numero).padStart(8, "0")}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.full_number}
-                      </div>
-                    </>
-                  ),
-                },
-                {
-                  header: "Tipo",
-                  render: (doc) => (
-                    <>
-                      <div className="text-sm">
-                        {doc.document_type?.description || "N/A"}
-                      </div>
-                      {doc.is_advance_payment && (
-                        <Badge color="secondary" className="text-xs mt-1">
-                          Anticipo
-                        </Badge>
-                      )}
-                    </>
-                  ),
-                },
-                {
-                  header: "Cliente",
-                  render: (doc) => (
-                    <>
-                      <div className="text-sm font-medium">
-                        {doc.cliente_denominacion}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.cliente_numero_de_documento}
-                      </div>
-                    </>
-                  ),
-                },
-                {
-                  header: "Fecha Emisión",
-                  render: (doc) => (
-                    <div className="text-sm">
-                      {formatDate(doc.fecha_de_emision)}
-                    </div>
-                  ),
-                },
-                {
-                  header: "Observaciones",
-                  render: (doc) => (
-                    <div className="text-sm text-muted-foreground max-w-[200px]">
-                      {doc.observaciones || "-"}
-                    </div>
-                  ),
-                },
-                {
-                  header: "Estado",
-                  render: (doc) => {
-                    const config =
-                      statusConfig[doc.status as keyof typeof statusConfig];
-                    const StatusIcon = config?.icon || FileText;
-                    return (
-                      <Badge
-                        variant="outline"
-                        className={`${config?.className} flex items-center gap-1 w-fit`}
-                      >
-                        <StatusIcon className="h-3 w-3" />
-                        <span>{config?.label}</span>
+          <DetailSheetTable
+            rows={activeVouchers}
+            getKey={(doc) => doc.id}
+            columns={[
+              {
+                header: "Documento",
+                render: (doc) => (
+                  <div className="font-medium">
+                    {doc.serie}-{String(doc.numero).padStart(8, "0")}
+                  </div>
+                ),
+              },
+              {
+                header: "Tipo",
+                render: (doc) => (
+                  <>
+                    <div className="text-sm">{doc.document_type}</div>
+                    {doc.is_advance_payment && (
+                      <Badge color="secondary" className="text-xs mt-1">
+                        Anticipo
                       </Badge>
-                    );
-                  },
-                },
-                {
-                  header: "Monto",
-                  className: "text-right",
-                  render: (doc) => (
-                    <div className="font-semibold w-20">
-                      {currencySymbol}{" "}
-                      {doc.total.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
+                    )}
+                  </>
+                ),
+              },
+              {
+                header: "Cliente",
+                render: (doc) => (
+                  <>
+                    <div className="text-sm font-medium">{doc.client_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {doc.client_document}
                     </div>
-                  ),
+                  </>
+                ),
+              },
+              {
+                header: "Fecha Emisión",
+                render: (doc) => (
+                  <div className="text-sm">{formatDate(doc.issue_date)}</div>
+                ),
+              },
+              {
+                header: "Estado SUNAT",
+                render: (doc) => (
+                  <div className="text-sm text-muted-foreground">
+                    {doc.sunat_responsecode || "-"}
+                  </div>
+                ),
+              },
+              {
+                header: "Estado",
+                render: (doc) => {
+                  const config =
+                    statusConfig[doc.status as keyof typeof statusConfig];
+                  const StatusIcon = config?.icon || FileText;
+                  return (
+                    <Badge
+                      variant="outline"
+                      className={`${config?.className} flex items-center gap-1 w-fit`}
+                    >
+                      <StatusIcon className="h-3 w-3" />
+                      <span>{config?.label || doc.status}</span>
+                    </Badge>
+                  );
                 },
-              ]}
-              footer={
-                <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Total Cotización
-                    </span>
-                    <span className="font-medium">
-                      {currencySymbol}{" "}
-                      {orderQuotation.total_amount.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
+              },
+              {
+                header: "Monto",
+                className: "text-right",
+                render: (doc) => (
+                  <div className="font-semibold w-20">
+                    {currencySymbol}{" "}
+                    {doc.total.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Total Anticipos
-                    </span>
-                    <span className="font-medium">
-                      {currencySymbol}{" "}
-                      {totalAdvances.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  <Separator className="my-2" />
-                  <div className="flex justify-between text-base font-bold text-primary">
-                    <span>Saldo Pendiente</span>
-                    <span>
-                      {currencySymbol}{" "}
-                      {(
-                        orderQuotation.total_amount - totalAdvances
-                      ).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
+                ),
+              },
+            ]}
+            footer={
+              <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    Total Cotización
+                  </span>
+                  <span className="font-medium">
+                    {currencySymbol}{" "}
+                    {orderQuotation.total_amount.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
-              }
-            />
-          </>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Pagado</span>
+                  <span className="font-medium">
+                    {currencySymbol}{" "}
+                    {(
+                      orderQuotation.payment_summary?.paid_amount ?? 0
+                    ).toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <Separator className="my-2" />
+                <div className="flex justify-between text-base font-bold text-primary">
+                  <span>Saldo Pendiente</span>
+                  <span>
+                    {currencySymbol}{" "}
+                    {(
+                      orderQuotation.payment_summary?.remaining_balance ??
+                      orderQuotation.total_amount
+                    ).toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              </div>
+            }
+          />
         )}
       </div>
-
-      {/* Estado SUNAT */}
-      {hasAdvances && (
-        <>
-          <Separator />
-          <div className="space-y-3">
-            <h3 className="font-semibold">Estado SUNAT de Documentos</h3>
-            <div className="space-y-2">
-              {advances.map((doc) => (
-                <div key={doc.id} className="bg-muted/30 p-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">
-                      {doc.serie}-{String(doc.numero).padStart(8, "0")}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {doc.aceptada_por_sunat === true ? (
-                        <>
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="text-xs font-medium text-green-600">
-                            Aceptado por SUNAT
-                          </span>
-                        </>
-                      ) : doc.aceptada_por_sunat === false ? (
-                        <>
-                          <XCircle className="h-4 w-4 text-red-600" />
-                          <span className="text-xs font-medium text-red-600">
-                            Rechazado por SUNAT
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">
-                            Pendiente de envío
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {doc.sunat_description && (
-                    <p className="text-xs text-muted-foreground">
-                      {doc.sunat_description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
 
       {/* Facturar a */}
       <Separator />

@@ -86,15 +86,10 @@ export default function BillOrderQuotationCajaPage() {
   });
 
   const onSubmit = (data: ElectronicDocumentSchemaType) => {
-    // Calcular el saldo pendiente de la cotización
-    const totalCotizacion = quotation?.total_amount || 0;
-    const totalAnticiposAnteriores = quotation?.advances
-      ? quotation.advances.reduce(
-          (sum, advance) => sum + (advance.total || 0),
-          0,
-        )
-      : 0;
-    const saldoPendiente = totalCotizacion - totalAnticiposAnteriores;
+    const saldoPendiente =
+      quotation?.payment_summary?.remaining_balance ??
+      quotation?.total_amount ??
+      0;
 
     // Validar que no se pueda crear un anticipo con monto 0
     if (data.is_advance_payment && data.total === 0) {

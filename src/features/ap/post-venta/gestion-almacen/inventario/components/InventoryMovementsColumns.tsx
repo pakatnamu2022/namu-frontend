@@ -222,20 +222,26 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         movementType === "SALE" &&
         referenceType?.includes("ApOrderQuotations")
       ) {
-        const quotation = reference as OrderQuotationResource;
+        const electronicDoc = movement.electronic_document;
 
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">
-              {quotation.advances[0].cliente_denominacion}
+              {electronicDoc?.cliente_denominacion ?? "-"}
             </span>
             <span className="text-xs text-gray-500">
-              RUC: {quotation.advances[0].cliente_numero_de_documento}
+              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
             </span>
-            <span className="text-xs text-gray-500">
-              Factura:{" "}
-              {quotation.advances[quotation.advances.length - 1].full_number}
-            </span>
+            {electronicDoc?.full_number && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <span>Factura: {electronicDoc.full_number}</span>
+                {electronicDoc.credit_note_id && (
+                  <span className="text-red-400 font-medium">
+                    · NC {electronicDoc.credit_note_number}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         );
       }
