@@ -20,6 +20,7 @@ import {
   useVehicleDelivery,
   useSendVehicleDeliveryToNubefact,
   useQueryVehicleDeliveryFromNubefact,
+  useSyncAccountingEntry,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
 import {
   deleteVehicleDelivery,
@@ -65,6 +66,7 @@ export default function VehicleDeliveryPage() {
       errorToast(`Error al despachar migración: ${msg}`);
     },
   });
+  const syncAccountingEntryMutation = useSyncAccountingEntry();
 
   useEffect(() => {
     setPage(1);
@@ -136,6 +138,7 @@ export default function VehicleDeliveryPage() {
           onQueryFromNubefact: handleQueryFromNubefact,
           onViewDetails: setSelectedVehicle,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}
