@@ -271,6 +271,7 @@ import OrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-me
 import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx";
 import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
 import RequestDiscountOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/solicitar-descuento/[id]/page.tsx";
+import OrderQuotationMesonDetallePage from "./app/ap/post-venta/repuestos/cotizacion-meson/detalle/[id]/page.tsx";
 import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx";
 import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
 import AddPurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx";
@@ -1450,6 +1451,10 @@ function App() {
               <Route
                 path="repuestos/cotizacion-meson/solicitar-descuento/:id"
                 element={<RequestDiscountOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/detalle/:id"
+                element={<OrderQuotationMesonDetallePage />}
               />
               <Route
                 path="repuestos/comprobante-venta-repuesto"

@@ -61,6 +61,7 @@ interface OrderQuotationBillingSheetProps {
   open: boolean;
   onClose: () => void;
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 export function OrderQuotationBillingSheet({
@@ -68,40 +69,13 @@ export function OrderQuotationBillingSheet({
   open,
   onClose,
   onRefresh,
+  readOnly = false,
 }: OrderQuotationBillingSheetProps) {
   const { data: orderQuotation, isLoading } = useQuery({
     queryKey: ["orderQuotation", orderQuotationId],
     queryFn: () => findOrderQuotationById(orderQuotationId!),
     enabled: open && orderQuotationId !== null,
   });
-
-  const statusConfig = {
-    draft: {
-      label: "Borrador",
-      icon: FileText,
-      className: "bg-gray-100 text-gray-700 border-gray-300",
-    },
-    sent: {
-      label: "Enviado",
-      icon: Send,
-      className: "bg-blue-100 text-blue-700 border-blue-300",
-    },
-    accepted: {
-      label: "Aceptado",
-      icon: CheckCircle,
-      className: "bg-green-100 text-green-700 border-green-300",
-    },
-    rejected: {
-      label: "Rechazado",
-      icon: XCircle,
-      className: "bg-red-100 text-red-700 border-red-300",
-    },
-    cancelled: {
-      label: "Anulado",
-      icon: Ban,
-      className: "bg-orange-100 text-orange-700 border-orange-300",
-    },
-  };
 
   return (
     <GeneralSheet
@@ -130,8 +104,8 @@ export function OrderQuotationBillingSheet({
       ) : (
         <BillingSheetContent
           orderQuotation={orderQuotation}
-          statusConfig={statusConfig}
           onRefresh={onRefresh}
+          readOnly={readOnly}
         />
       )}
     </GeneralSheet>
@@ -140,14 +114,8 @@ export function OrderQuotationBillingSheet({
 
 interface BillingSheetContentProps {
   orderQuotation: OrderQuotationResource;
-  statusConfig: {
-    draft: { label: string; icon: any; className: string };
-    sent: { label: string; icon: any; className: string };
-    accepted: { label: string; icon: any; className: string };
-    rejected: { label: string; icon: any; className: string };
-    cancelled: { label: string; icon: any; className: string };
-  };
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 const signatureSchema = z.object({
@@ -157,11 +125,38 @@ const signatureSchema = z.object({
 
 type SignatureFormData = z.infer<typeof signatureSchema>;
 
-function BillingSheetContent({
+export function BillingSheetContent({
   orderQuotation,
-  statusConfig,
   onRefresh,
+  readOnly = false,
 }: BillingSheetContentProps) {
+  const statusConfig = {
+    draft: {
+      label: "Borrador",
+      icon: FileText,
+      className: "bg-gray-100 text-gray-700 border-gray-300",
+    },
+    sent: {
+      label: "Enviado",
+      icon: Send,
+      className: "bg-blue-100 text-blue-700 border-blue-300",
+    },
+    accepted: {
+      label: "Aceptado",
+      icon: CheckCircle,
+      className: "bg-green-100 text-green-700 border-green-300",
+    },
+    rejected: {
+      label: "Rechazado",
+      icon: XCircle,
+      className: "bg-red-100 text-red-700 border-red-300",
+    },
+    cancelled: {
+      label: "Anulado",
+      icon: Ban,
+      className: "bg-orange-100 text-orange-700 border-orange-300",
+    },
+  };
   const queryClient = useQueryClient();
   const activeVouchers = orderQuotation.vouchers?.active ?? [];
   const hasAdvances = activeVouchers.length > 0;
@@ -833,110 +828,120 @@ function BillingSheetContent({
         )}
       </div>
 
-      {/* Facturar a */}
-      <Separator />
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-            <User className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h4 className="text-base font-semibold text-gray-900">
-              Facturar a
-            </h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {isInvoiced
-                ? "Cliente de facturación establecido"
-                : "Selecciona el cliente para la factura"}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="w-full">
-            <FormProvider {...invoiceToForm}>
-              <div className="flex w-full items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <FormSelectAsync
-                    name="invoice_to_id"
-                    label="Cliente de facturación"
-                    placeholder="Seleccionar cliente"
-                    control={invoiceToForm.control}
-                    useQueryHook={useCustomers}
-                    mapOptionFn={(customer: CustomersResource) => ({
-                      value: customer.id.toString(),
-                      label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-                    })}
-                    description={
-                      isInvoiced
-                        ? "Ya existe una factura emitida, no se puede modificar"
-                        : hasAdvances
-                          ? "Ya se registraron avances de pago, no se puede modificar"
-                          : "Cliente a quien se le emitirá la factura de esta cotización"
-                    }
-                    perPage={10}
-                    debounceMs={500}
-                    disabled={
-                      isInvoiced || invoiceToMutation.isPending || hasAdvances
-                    }
-                    defaultOption={invoiceToDefaultOption}
-                    onValueChange={(value) => {
-                      invoiceToMutation.mutate(value ? Number(value) : null);
-                    }}
-                    allowClear={false}
-                  />
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon-lg"
-                  className="aspect-square shrink-0"
-                  onClick={() => setIsCustomerModalOpen(true)}
-                  tooltip="Agregar nuevo cliente"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+      {!readOnly && (
+        <>
+          {/* Facturar a */}
+          <Separator />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+                <User className="h-4 w-4 text-primary" />
               </div>
-            </FormProvider>
-          </div>
-
-          {orderQuotation.invoice_to && (
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
-              <div className="flex-1 grid grid-cols-1 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Nombre
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {orderQuotation.invoice_to_client?.full_name || "—"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Documento
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
-                    {orderQuotation.invoice_to_client?.num_doc || "S/N"}
-                  </span>
-                </div>
+              <div>
+                <h4 className="text-base font-semibold text-gray-900">
+                  Facturar a
+                </h4>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {isInvoiced
+                    ? "Cliente de facturación establecido"
+                    : "Selecciona el cliente para la factura"}
+                </p>
               </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      <CustomerModal
-        open={isCustomerModalOpen}
-        onClose={(newCustomer) => {
-          setIsCustomerModalOpen(false);
-          if (newCustomer) {
-            queryClient.invalidateQueries({ queryKey: [CUSTOMERS.QUERY_KEY] });
-          }
-        }}
-        title="Agregar Nuevo Cliente"
-      />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="w-full">
+                <FormProvider {...invoiceToForm}>
+                  <div className="flex w-full items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <FormSelectAsync
+                        name="invoice_to_id"
+                        label="Cliente de facturación"
+                        placeholder="Seleccionar cliente"
+                        control={invoiceToForm.control}
+                        useQueryHook={useCustomers}
+                        mapOptionFn={(customer: CustomersResource) => ({
+                          value: customer.id.toString(),
+                          label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                        })}
+                        description={
+                          isInvoiced
+                            ? "Ya existe una factura emitida, no se puede modificar"
+                            : hasAdvances
+                              ? "Ya se registraron avances de pago, no se puede modificar"
+                              : "Cliente a quien se le emitirá la factura de esta cotización"
+                        }
+                        perPage={10}
+                        debounceMs={500}
+                        disabled={
+                          isInvoiced ||
+                          invoiceToMutation.isPending ||
+                          hasAdvances
+                        }
+                        defaultOption={invoiceToDefaultOption}
+                        onValueChange={(value) => {
+                          invoiceToMutation.mutate(
+                            value ? Number(value) : null,
+                          );
+                        }}
+                        allowClear={false}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-lg"
+                      className="aspect-square shrink-0"
+                      onClick={() => setIsCustomerModalOpen(true)}
+                      tooltip="Agregar nuevo cliente"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </FormProvider>
+              </div>
+
+              {orderQuotation.invoice_to && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+                  <div className="flex-1 grid grid-cols-1 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Nombre
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.full_name || "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Documento
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
+                        {orderQuotation.invoice_to_client?.num_doc || "S/N"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <CustomerModal
+            open={isCustomerModalOpen}
+            onClose={(newCustomer) => {
+              setIsCustomerModalOpen(false);
+              if (newCustomer) {
+                queryClient.invalidateQueries({
+                  queryKey: [CUSTOMERS.QUERY_KEY],
+                });
+              }
+            }}
+            title="Agregar Nuevo Cliente"
+          />
+        </>
+      )}
 
       {/* Datos de Entrega */}
       {orderQuotation.delivery_document_number && (
@@ -982,7 +987,7 @@ function BillingSheetContent({
       )}
 
       {/* Sección de Firma del Cliente */}
-      {shouldShowSignature && (
+      {shouldShowSignature && !readOnly && (
         <>
           <Separator />
           <Form {...form}>

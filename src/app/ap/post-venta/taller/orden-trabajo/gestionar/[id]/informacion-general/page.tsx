@@ -25,7 +25,7 @@ import {
   findWorkOrderById,
   changeCurrency,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import InvoiceList from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceList";
+import InvoiceList from "@/features/ap/facturacion/electronic-documents/components/InvoiceList.tsx";
 import { getAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.actions";
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { useParams, useNavigate } from "react-router-dom";

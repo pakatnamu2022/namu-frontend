@@ -26,7 +26,6 @@ import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizac
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
 import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
-import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
 import { OrderQuotationDeliverySheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationDeliverySheet";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
@@ -37,10 +36,6 @@ export default function OrderQuotationMesonPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [selectedOrderQuotationId, setSelectedOrderQuotationId] = useState<
-    number | null
-  >(null);
-  const [isBillingSheetOpen, setIsBillingSheetOpen] = useState(false);
   const [selectedDeliveryId, setSelectedDeliveryId] = useState<number | null>(
     null,
   );
@@ -116,13 +111,7 @@ export default function OrderQuotationMesonPage() {
   };
 
   const handleViewBilling = (orderQuotation: { id: number }) => {
-    setSelectedOrderQuotationId(orderQuotation.id);
-    setIsBillingSheetOpen(true);
-  };
-
-  const handleCloseBillingSheet = () => {
-    setIsBillingSheetOpen(false);
-    setSelectedOrderQuotationId(null);
+    router(`${ABSOLUTE_ROUTE}/detalle/${orderQuotation.id}`);
   };
 
   const handleViewDelivery = (orderQuotation: { id: number }) => {
@@ -192,13 +181,6 @@ export default function OrderQuotationMesonPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <OrderQuotationBillingSheet
-        orderQuotationId={selectedOrderQuotationId}
-        open={isBillingSheetOpen}
-        onClose={handleCloseBillingSheet}
-        onRefresh={refetch}
-      />
 
       <OrderQuotationDeliverySheet
         orderQuotationId={selectedDeliveryId}

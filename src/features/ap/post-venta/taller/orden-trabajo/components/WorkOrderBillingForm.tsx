@@ -21,7 +21,7 @@ import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import InvoiceForm from "./InvoiceForm";
-import InvoiceList from "./InvoiceList";
+import InvoiceList from "../../../../facturacion/electronic-documents/components/InvoiceList.tsx";
 import { errorToast, successToast } from "@/core/core.function";
 import {
   SUNAT_CONCEPTS_TYPE,

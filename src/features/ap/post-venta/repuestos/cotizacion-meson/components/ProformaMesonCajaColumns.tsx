@@ -157,10 +157,7 @@ export const orderQuotationMesonCajaColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_fully_paid, status } = row.original;
-
-      const isDiscarded = status === "Descartado";
-      const isOpened = status === "Aperturado";
+      const { id } = row.original;
 
       return (
         <>
@@ -175,20 +172,17 @@ export const orderQuotationMesonCajaColumns = ({
               <Eye className="size-5" />
             </Button>
 
-            {permissions.canBill &&
-              !isDiscarded &&
-              !isOpened &&
-              !is_fully_paid && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Facturar"
-                  onClick={() => onBilling(id)}
-                >
-                  <Receipt className="size-5" />
-                </Button>
-              )}
+            {permissions.canBill && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Facturar"
+                onClick={() => onBilling(id)}
+              >
+                <Receipt className="size-5" />
+              </Button>
+            )}
           </div>
         </>
       );
