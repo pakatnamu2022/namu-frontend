@@ -157,6 +157,36 @@ export const useConfirmDeliveryChecklist = () => {
   });
 };
 
+export const useConfirmAllDeliveryChecklistItems = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      checklistId,
+      items,
+    }: {
+      checklistId: number;
+      vehicleDeliveryId: number;
+      items: Array<{ id: number }>;
+    }) => {
+      await Promise.all(
+        items.map((item) =>
+          updateDeliveryChecklistItem(checklistId, item.id, {
+            is_confirmed: true,
+          }),
+        ),
+      );
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: [DELIVERY_CHECKLIST_QUERY_KEY, vars.vehicleDeliveryId],
+      });
+      successToast("Todos los ítems marcados como conformes");
+    },
+    onError: (error: any) =>
+      errorToast(getErrorMessage(error, "Error al confirmar los ítems")),
+  });
+};
+
 export const useDownloadDeliveryChecklistPdf = () => {
   return useMutation({
     mutationFn: (id: number) => downloadDeliveryChecklistPdf(id),

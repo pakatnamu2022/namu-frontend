@@ -21,6 +21,7 @@ import {
   Droplets,
   User,
   Car,
+  Landmark,
   LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ interface Props {
   onSendToDynamic?: (id: number) => void;
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
   onMigrate?: (id: number) => void;
+  onSyncAccountingEntry?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -66,6 +68,7 @@ export const vehicleDeliveryColumns = ({
   onQueryFromNubefact,
   onViewDetails,
   onMigrate,
+  onSyncAccountingEntry,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
   {
@@ -336,6 +339,7 @@ export const vehicleDeliveryColumns = ({
         sent_at,
         aceptada_por_sunat,
         checklist_status,
+        status_delivery,
       } = row.original;
       const migrationStatus = row.original.shipping_guide?.migration_status;
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -434,6 +438,19 @@ export const vehicleDeliveryColumns = ({
           {/* Historial: solo cuando ya está migrado */}
           {shipping_guide_id && canViewHistory && isMigrated && (
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
+          )}
+
+          {/* Sincronizar asiento contable: solo cuando status_delivery es Completado */}
+          {onSyncAccountingEntry && status_delivery === "Completado" && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Sincronizar asiento contable"
+              onClick={() => onSyncAccountingEntry(id)}
+            >
+              <Landmark className="size-4" />
+            </Button>
           )}
 
           {canDelete && !shipping_guide_id && (
