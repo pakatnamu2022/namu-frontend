@@ -7,25 +7,31 @@ export interface VehiclesDeliveryResponse {
   meta: Meta;
 }
 
+export type WashStatus = "pending" | "completed";
+export type DeliveryStatus = "pending" | "delivered" | "completed";
+export type ChecklistStatus = "draft" | "confirmed" | "completed";
+
 export interface VehiclesDeliveryResource {
   id: number;
   vehicle_id: number;
   vin?: string;
   scheduled_delivery_date: string | Date;
+  real_delivery_date?: string | null;
   wash_date: string | Date;
   observations: string;
   advisor_id: number;
   advisor_name?: string;
   sede_id?: number;
   sede_name?: string;
-  status_wash: string;
-  status_delivery?: string;
+  status_wash: WashStatus;
+  status_delivery?: DeliveryStatus;
+  is_accounted: boolean;
   client_name?: string;
   shipping_guide_id?: number;
   aceptada_por_sunat?: boolean | null;
-  status_dynamic?: string | null;
+  status_dynamic?: number | null;
   sent_at?: string | null;
-  checklist_status?: "draft" | "confirmed" | null;
+  checklist_status?: ChecklistStatus | null;
   shipping_guide?: ShipmentsReceptionsResource | null;
 }
 
