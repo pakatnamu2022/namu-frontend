@@ -82,7 +82,7 @@ export const cardWashColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, status_wash } = row.original;
-      const isCompleted = status_wash === "Completado";
+      const isCompleted = status_wash === "completed";
 
       return (
         <div className="flex items-center gap-2">

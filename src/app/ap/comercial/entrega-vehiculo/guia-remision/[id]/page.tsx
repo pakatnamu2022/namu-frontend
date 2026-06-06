@@ -136,19 +136,23 @@ export default function ShippingGuidePage(): JSX.Element {
                 <div>
                   <p className="text-xs text-muted-foreground">Estado Lavado</p>
                   <Badge
-                    color={vehicleDelivery.status_wash === "Completado" ? "default" : "secondary"}
+                    color={vehicleDelivery.status_wash === "completed" ? "default" : "secondary"}
                     className="mt-0.5"
                   >
-                    {vehicleDelivery.status_wash}
+                    {vehicleDelivery.status_wash === "completed" ? "Completado" : "Pendiente"}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Estado Entrega</p>
                   <Badge
-                    color={vehicleDelivery.status_delivery === "Completado" ? "default" : "secondary"}
+                    color={vehicleDelivery.status_delivery === "completed" ? "default" : "secondary"}
                     className="mt-0.5"
                   >
-                    {vehicleDelivery.status_delivery}
+                    {vehicleDelivery.status_delivery === "completed"
+                      ? "Completado"
+                      : vehicleDelivery.status_delivery === "delivered"
+                        ? "Entregado"
+                        : "Pendiente"}
                   </Badge>
                 </div>
               </div>
