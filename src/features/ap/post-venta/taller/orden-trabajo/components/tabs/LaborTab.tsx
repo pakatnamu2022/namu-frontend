@@ -866,6 +866,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         currencySymbol={workOrder?.type_currency?.symbol || "S/"}
         existingRequest={editingRequest ?? undefined}
         itemType="LABOUR"
+        maxDiscount={maxDiscountPercentage}
       />
     </div>
   );

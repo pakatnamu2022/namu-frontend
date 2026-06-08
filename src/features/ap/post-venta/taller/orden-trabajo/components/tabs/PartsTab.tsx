@@ -1066,6 +1066,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         currencySymbol={workOrder?.type_currency?.symbol || "S/"}
         existingRequest={editingRequest ?? undefined}
         itemType="PART"
+        maxDiscount={maxDiscountPercentage}
       />
     </div>
   );
