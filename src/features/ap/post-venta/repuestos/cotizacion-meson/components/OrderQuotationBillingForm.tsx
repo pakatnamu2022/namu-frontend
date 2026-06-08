@@ -323,7 +323,7 @@ export function OrderQuotationBillingForm({
             const cantidad = Number(detail.quantity) || 1;
             // IMPORTANTE: Convertir a número porque puede venir como string desde la API
             // El total_amount de la cotización es el SUBTOTAL (sin IGV)
-            const subtotalDetail = Number(detail.total_amount) || 0;
+            const subtotalDetail = Number(detail.net_amount) || 0;
 
             // El valor_unitario y precio_unitario son iguales (sin IGV)
             const valor_unitario = round2(subtotalDetail / cantidad);

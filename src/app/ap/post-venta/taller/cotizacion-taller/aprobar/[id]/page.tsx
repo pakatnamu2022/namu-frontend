@@ -104,7 +104,7 @@ export default function AprobacionProductosPage() {
   }
 
   const totalProducts = productDetails.reduce(
-    (sum, d) => sum + (Number(d.total_amount) || 0),
+    (sum, d) => sum + (Number(d.net_amount) || 0),
     0,
   );
 
@@ -205,7 +205,8 @@ export default function AprobacionProductosPage() {
               <div className="col-span-1 text-center">Tipo Abas.</div>
               <div className="col-span-2 text-center">Precio Unit.</div>
               <div className="col-span-1 text-center">Desc.</div>
-              <div className="col-span-2 text-right">Total</div>
+              <div className="col-span-2 text-right">Cto. Total</div>
+              <div className="col-span-2 text-right">Cto. Neto</div>
             </div>
 
             {/* Filas */}
@@ -255,7 +256,10 @@ export default function AprobacionProductosPage() {
                       )}
                     </div>
                     <div className="col-span-2 text-right text-sm font-bold text-primary">
-                      {formatCurrency(detail.total_amount)}
+                      {formatCurrency(detail.total_cost)}
+                    </div>
+                    <div className="col-span-2 text-right text-sm font-bold text-primary">
+                      {formatCurrency(detail.net_amount)}
                     </div>
                   </div>
 
@@ -305,7 +309,13 @@ export default function AprobacionProductosPage() {
                       <span className="text-gray-500 col-span-2 text-right">
                         Total:{" "}
                         <span className="font-bold text-primary">
-                          {formatCurrency(detail.total_amount)}
+                          {formatCurrency(detail.total_cost)}
+                        </span>
+                      </span>
+                      <span className="text-gray-500 col-span-2 text-right">
+                        Total:{" "}
+                        <span className="font-bold text-primary">
+                          {formatCurrency(detail.net_amount)}
                         </span>
                       </span>
                     </div>

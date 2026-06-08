@@ -201,7 +201,7 @@ function DeliverySheetContent({
                 render: (detail) => (
                   <div className="text-sm font-semibold">
                     {currencySymbol}{" "}
-                    {Number(detail.total_amount).toLocaleString("es-PE", {
+                    {Number(detail.net_amount).toLocaleString("es-PE", {
                       minimumFractionDigits: 2,
                     })}
                   </div>

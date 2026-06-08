@@ -353,7 +353,7 @@ export default function ConfirmacionCotizacionPage() {
                     </div>
                     <span className="font-semibold shrink-0">
                       {quotation.type_currency.symbol}{" "}
-                      {Number(detail.total_amount).toFixed(2)}
+                      {Number(detail.net_amount).toFixed(2)}
                     </span>
                   </div>
                 ))}

@@ -150,7 +150,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const hasMultipleItems = productDetails.length > 1;
   const currencySymbol = quotation.type_currency?.symbol ?? "S/.";
   const globalBaseAmount = productDetails.reduce(
-    (sum, d) => sum + Number(d.total_amount || 0),
+    (sum, d) => sum + Number(d.net_amount || 0),
     0,
   );
 
@@ -186,7 +186,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
-      : Number(selectedDetail?.total_amount || 0);
+      : Number(selectedDetail?.net_amount || 0);
 
   // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
   const maxDiscountForModal = maxDiscountAllowed;
@@ -331,7 +331,6 @@ export default function RequestDiscountOrderQuotationMesonPage() {
           <Badge color="indigo">{quotation.status}</Badge>
         </div>
         <div>
-          <p className="text-muted-foreground text-xs">Total</p>
           <p className="font-semibold">
             {currencySymbol} {Number(quotation.total_amount ?? 0).toFixed(2)}
           </p>
@@ -359,7 +358,10 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                 Desc. %
               </th>
               <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                Total
+                Cto. Total
+              </th>
+              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
+                Cto. Neto
               </th>
               {!globalRequest && (
                 <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">
@@ -392,7 +394,10 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                     {Number(detail.discount_percentage).toFixed(2)}%
                   </td>
                   <td className="px-4 py-2 text-right font-medium">
-                    {currencySymbol} {Number(detail.total_amount).toFixed(2)}
+                    {currencySymbol} {Number(detail.total_cost).toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2 text-right font-medium">
+                    {currencySymbol} {Number(detail.net_amount).toFixed(2)}
                   </td>
                   <td className="px-4 py-2">
                     {partialRequest ? (

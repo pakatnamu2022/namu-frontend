@@ -25,14 +25,11 @@ export function WorkOrderFinancialInfo({
   finalAmount,
 }: WorkOrderFinancialInfoProps) {
   const laboursTotal = labours.reduce(
-    (sum, labour) => sum + parseFloat(labour.net_amount || "0"),
+    (sum, labour) => sum + labour.net_amount,
     0,
   );
 
-  const partsTotal = parts.reduce(
-    (sum, part) => sum + parseFloat(part.net_amount || "0"),
-    0,
-  );
+  const partsTotal = parts.reduce((sum, part) => sum + part.net_amount, 0);
 
   const subtotal = laboursTotal + partsTotal;
   const igvAmount = subtotal * (porcentaje_de_igv / 100);

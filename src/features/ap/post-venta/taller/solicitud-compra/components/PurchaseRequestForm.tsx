@@ -238,8 +238,8 @@ export default function PurchaseRequestForm({
                 ? Number(detail.discount_percentage)
                 : undefined,
             total_amount:
-              detail.total_amount !== undefined
-                ? Number(detail.total_amount)
+              detail.net_amount !== undefined
+                ? Number(detail.net_amount)
                 : undefined,
           }),
         );
