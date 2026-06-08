@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { SortingState } from "@tanstack/react-table";
+import type { SortingState, RowSelectionState } from "@tanstack/react-table";
 import {
   RefreshCw,
   Clock,
@@ -10,7 +10,9 @@ import {
   TrendingDown,
   TrendingUp,
   Send,
+  MessageSquare,
 } from "lucide-react";
+import { toast } from "sonner";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -22,11 +24,13 @@ import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivab
 import {
   syncAccountsReceivable,
   sendDueReports,
+  addAccountComment,
 } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
 import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
 import AccountsReceivableTreeFilter from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTreeFilter";
 import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableSheet";
+import BulkCommentModal from "@/features/dp/comercial/accounts-receivable/components/BulkCommentModal";
 import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
 import { ACCOUNTS_RECEIVABLE } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
 import type { AccountReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
@@ -61,6 +65,12 @@ export default function AccountsReceivablePage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [bulkCommentOpen, setBulkCommentOpen] = useState(false);
+
+  useEffect(() => {
+    setRowSelection({});
+  }, [filters]);
 
   const queryFilters: AccountsReceivableFilters = {
     ...filters,
@@ -134,6 +144,41 @@ export default function AccountsReceivablePage() {
     setSelectedId(row.id);
   }, []);
 
+  const selectedIds = Object.keys(rowSelection).map(Number);
+  const selectedRecords = records.filter((r) => rowSelection[String(r.id)]);
+
+  const handleBulkComment = async (comment: string) => {
+    const ids = Object.keys(rowSelection).map(Number);
+    if (ids.length === 0) return;
+
+    const toastId = toast.loading("Iniciando...");
+    let added = 0;
+
+    for (const id of ids) {
+      try {
+        await addAccountComment(id, comment);
+        added++;
+        toast.loading(
+          `${added} ${added === 1 ? "agregado" : "agregados"}`,
+          { id: toastId },
+        );
+      } catch {
+        // continue with remaining
+      }
+    }
+
+    toast.success(
+      `${added} ${added === 1 ? "comentario agregado" : "comentarios agregados"}`,
+      { id: toastId },
+    );
+
+    setRowSelection({});
+    setBulkCommentOpen(false);
+    await queryClient.invalidateQueries({
+      queryKey: [ACCOUNTS_RECEIVABLE.QUERY_KEY],
+    });
+  };
+
   const columns = getAccountsReceivableColumns({ onRowClick: handleRowClick });
 
   return (
@@ -151,6 +196,20 @@ export default function AccountsReceivablePage() {
             </span>
           )}
         </TitleComponent>
+
+        {selectedIds.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setBulkCommentOpen(true)}
+          >
+            <MessageSquare className="size-4" />
+            <span className="hidden sm:inline">
+              Comentar ({selectedIds.length})
+            </span>
+          </Button>
+        )}
 
         <Link to="/dp/comercial/cuentas-por-cobrar/dashboard">
           <Button variant="outline" size="sm" className="gap-1.5">
@@ -235,6 +294,8 @@ export default function AccountsReceivablePage() {
           setFilters((prev) => ({ ...prev, per_page: pp, page: 1 }))
         }
         onSortingChange={setSorting}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       >
         <AccountsReceivableTreeFilter
           filters={filters}
@@ -246,6 +307,13 @@ export default function AccountsReceivablePage() {
       <AccountsReceivableSheet
         selectedId={selectedId}
         onClose={() => setSelectedId(null)}
+      />
+
+      <BulkCommentModal
+        open={bulkCommentOpen}
+        selectedRecords={selectedRecords}
+        onClose={() => setBulkCommentOpen(false)}
+        onSubmit={handleBulkComment}
       />
     </div>
   );

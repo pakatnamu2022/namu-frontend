@@ -1,4 +1,10 @@
-import type { ColumnDef, SortingState, Updater } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  SortingState,
+  Updater,
+  RowSelectionState,
+  OnChangeFn,
+} from "@tanstack/react-table";
 import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import type { AccountReceivable } from "../lib/accountsReceivable.interface";
@@ -15,6 +21,8 @@ interface Props {
   onPageChange: (page: number) => void;
   onPerPageChange: (perPage: number) => void;
   onSortingChange: (sorting: SortingState) => void;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   children?: React.ReactNode;
 }
 
@@ -30,6 +38,8 @@ export default function AccountsReceivableTable({
   onPageChange,
   onPerPageChange,
   onSortingChange,
+  rowSelection,
+  onRowSelectionChange,
   children,
 }: Props) {
   return (
@@ -45,6 +55,10 @@ export default function AccountsReceivableTable({
           );
         }}
         manualSorting
+        enableRowSelection
+        rowSelection={rowSelection}
+        onRowSelectionChange={onRowSelectionChange}
+        getRowId={(row) => String(row.id)}
         initialColumnVisibility={{
           cashier: false,
           branch: false,
