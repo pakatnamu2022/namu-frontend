@@ -111,3 +111,7 @@ export async function dispatchAllShippingGuides(): Promise<void> {
 export async function dispatchShippingGuideMigration(id: number): Promise<void> {
   await api.post(`/ap/commercial/shippingGuides/${id}/dispatch-migration`);
 }
+
+export async function syncAccountingEntry(id: number): Promise<void> {
+  await api.post(`${ENDPOINT}/${id}/sync-accounting-entry`);
+}

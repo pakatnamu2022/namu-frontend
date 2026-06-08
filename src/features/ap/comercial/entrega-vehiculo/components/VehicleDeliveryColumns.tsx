@@ -1,7 +1,11 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
+import {
+  DeliveryStatus,
+  WashStatus,
+  VehiclesDeliveryResource,
+} from "../lib/vehicleDelivery.interface";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -38,6 +42,7 @@ interface Props {
   onSendToDynamic?: (id: number) => void;
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
   onMigrate?: (id: number) => void;
+  onSyncAccountingEntry?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -66,6 +71,7 @@ export const vehicleDeliveryColumns = ({
   onQueryFromNubefact,
   onViewDetails,
   onMigrate,
+  onSyncAccountingEntry,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
   {
@@ -168,16 +174,18 @@ export const vehicleDeliveryColumns = ({
     accessorKey: "status_wash",
     header: "Estado Lavado",
     cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const isCompleted = value === "Completado";
-      const icon: LucideIcon = isCompleted ? CheckCircle2 : XCircle;
+      const value = (getValue() as WashStatus) ?? "pending";
+      const config: Record<
+        WashStatus,
+        { label: string; color: "green" | "amber"; icon: LucideIcon }
+      > = {
+        pending: { label: "Pendiente", color: "amber", icon: XCircle },
+        completed: { label: "Completado", color: "green", icon: CheckCircle2 },
+      };
+      const { label, color, icon } = config[value] ?? config.pending;
       return (
-        <Badge
-          color={isCompleted ? "green" : "gray"}
-          icon={icon}
-          className="capitalize w-fit"
-        >
-          {value ?? "—"}
+        <Badge color={color} icon={icon} className="capitalize w-fit">
+          {label}
         </Badge>
       );
     },
@@ -186,16 +194,19 @@ export const vehicleDeliveryColumns = ({
     accessorKey: "status_delivery",
     header: "Estado Entrega",
     cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const isCompleted = value === "Completado";
-      const icon: LucideIcon = isCompleted ? CheckCircle2 : XCircle;
+      const value = (getValue() as DeliveryStatus) ?? "pending";
+      const config: Record<
+        DeliveryStatus,
+        { label: string; color: "green" | "blue" | "amber"; icon: LucideIcon }
+      > = {
+        pending: { label: "Pendiente", color: "amber", icon: XCircle },
+        delivered: { label: "Entregado", color: "blue", icon: ArrowRightLeft },
+        completed: { label: "Completado", color: "green", icon: CheckCircle2 },
+      };
+      const { label, color, icon } = config[value] ?? config.pending;
       return (
-        <Badge
-          color={isCompleted ? "green" : "blue"}
-          icon={icon}
-          className="capitalize w-fit"
-        >
-          {value ?? "Pendiente"}
+        <Badge color={color} icon={icon} className="capitalize w-fit">
+          {label}
         </Badge>
       );
     },
@@ -336,6 +347,8 @@ export const vehicleDeliveryColumns = ({
         sent_at,
         aceptada_por_sunat,
         checklist_status,
+        status_delivery,
+        is_accounted,
       } = row.original;
       const migrationStatus = row.original.shipping_guide?.migration_status;
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -423,6 +436,7 @@ export const vehicleDeliveryColumns = ({
             <Button
               variant="outline"
               size="icon"
+              color="orange"
               className="size-7"
               tooltip="Migrar a Dynamics"
               onClick={() => onMigrate(shipping_guide_id)}
@@ -435,6 +449,22 @@ export const vehicleDeliveryColumns = ({
           {shipping_guide_id && canViewHistory && isMigrated && (
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
+
+          {/* Sincronizar asiento contable: entregado en Dynamics pero aún no contabilizado en GL */}
+          {onSyncAccountingEntry &&
+            status_delivery === "completed" &&
+            !is_accounted && (
+              <Button
+                variant="outline"
+                color="violet"
+                size="icon"
+                className="size-7"
+                tooltip="Sincronizar asiento contable"
+                onClick={() => onSyncAccountingEntry(id)}
+              >
+                <ArrowRightLeft className="size-4" />
+              </Button>
+            )}
 
           {canDelete && !shipping_guide_id && (
             <DeleteButton onClick={() => onDelete(id)} />

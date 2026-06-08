@@ -30,6 +30,7 @@ import {
   useAddDeliveryChecklistItem,
   useDeleteDeliveryChecklistItem,
   useConfirmDeliveryChecklist,
+  useConfirmAllDeliveryChecklistItems,
   useDownloadDeliveryChecklistPdf,
 } from "../lib/deliveryChecklist.hook";
 import type { DeliveryChecklistItemResource } from "../lib/vehicleDelivery.interface";
@@ -69,6 +70,7 @@ export function DeliveryChecklistSection({
   const addItemMutation = useAddDeliveryChecklistItem();
   const deleteItemMutation = useDeleteDeliveryChecklistItem();
   const confirmMutation = useConfirmDeliveryChecklist();
+  const confirmAllMutation = useConfirmAllDeliveryChecklistItems();
   const downloadPdfMutation = useDownloadDeliveryChecklistPdf();
 
   const [observations, setObservations] = useState<string>("");
@@ -202,6 +204,17 @@ export function DeliveryChecklistSection({
     if (items.length === 0) return;
     confirmMutation.mutate(checklist.id, {
       onSuccess: () => onChecklistConfirmed?.(),
+    });
+  };
+
+  const handleConfirmAll = () => {
+    if (!checklist.id) return;
+    const pendingItems = items.filter((i) => !i.is_confirmed && i.id !== null) as Array<{ id: number }>;
+    if (pendingItems.length === 0) return;
+    confirmAllMutation.mutate({
+      checklistId: checklist.id,
+      vehicleDeliveryId,
+      items: pendingItems,
     });
   };
 
@@ -381,6 +394,22 @@ export function DeliveryChecklistSection({
               <Plus className="mr-2 h-4 w-4" />
               Agregar ítem
             </Button>
+
+            {confirmedCount < totalCount && totalCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleConfirmAll}
+                disabled={confirmAllMutation.isPending}
+              >
+                {confirmAllMutation.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                )}
+                Confirmar todos
+              </Button>
+            )}
 
             <div className="ml-auto">
               <ConfirmationDialog

@@ -99,6 +99,7 @@ export default function ShipmentsReceptionsPage() {
       SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
       SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
     ],
+    document_type: "GUIA_REMISION",
   });
 
   const handleDelete = async () => {
