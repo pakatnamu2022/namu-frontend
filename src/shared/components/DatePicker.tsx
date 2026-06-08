@@ -85,6 +85,7 @@ export default function DatePicker({
     parsedDate,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   useEffect(() => {
     if (parsedDate && isValid(parsedDate)) {
@@ -98,14 +99,18 @@ export default function DatePicker({
 
   const handleChange = (date: Date | undefined) => {
     onChange(date);
-    if (isMobile && date) {
+    if (isMobile) {
       setDrawerOpen(false);
+    } else {
+      setPopoverOpen(false);
     }
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(undefined);
+    setPopoverOpen(false);
+    setDrawerOpen(false);
   };
 
   return (
@@ -178,7 +183,7 @@ export default function DatePicker({
           </DrawerContent>
         </Drawer>
       ) : (
-        <Popover>
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
