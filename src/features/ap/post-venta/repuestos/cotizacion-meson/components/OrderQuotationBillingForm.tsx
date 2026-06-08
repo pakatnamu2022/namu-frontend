@@ -321,15 +321,19 @@ export function OrderQuotationBillingForm({
         const quotationItems: ElectronicDocumentItemSchema[] =
           quotation.details.map((detail) => {
             const cantidad = Number(detail.quantity) || 1;
-            // IMPORTANTE: Convertir a número porque puede venir como string desde la API
-            // El total_amount de la cotización es el SUBTOTAL (sin IGV)
+            // unit_price es el precio unitario sin IGV y sin descuento
+            const unit_price = Number(detail.unit_price) || 0;
+            // net_amount es el subtotal ya con descuento aplicado (sin IGV)
             const subtotalDetail = Number(detail.net_amount) || 0;
 
-            // El valor_unitario y precio_unitario son iguales (sin IGV)
-            const valor_unitario = round2(subtotalDetail / cantidad);
+            // valor_unitario = precio sin IGV sin descuento
+            const valor_unitario = round2(unit_price);
             const precio_unitario = round2(
               valor_unitario * (1 + porcentaje_de_igv / 100),
             );
+
+            // Descuento = precio base total - net_amount
+            const descuentoMonto = round2(unit_price * cantidad - subtotalDetail);
 
             const subtotal = round2(subtotalDetail);
             const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
@@ -347,6 +351,7 @@ export function OrderQuotationBillingForm({
               cantidad: cantidad,
               valor_unitario: valor_unitario,
               precio_unitario: precio_unitario,
+              descuento: descuentoMonto > 0 ? descuentoMonto : undefined,
               subtotal: subtotal,
               sunat_concept_igv_type_id:
                 igvTypes.find(
