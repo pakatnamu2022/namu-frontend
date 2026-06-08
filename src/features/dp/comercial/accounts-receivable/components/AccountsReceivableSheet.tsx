@@ -232,8 +232,20 @@ export default function AccountsReceivableSheet({
                   <DetailRow
                     label="Saldo pendiente"
                     value={
-                      <span className="font-bold text-primary">
+                      <span className="font-bold">
                         {account.currency} {formatAmount(account.balance)}
+                      </span>
+                    }
+                  />
+                  <DetailRow
+                    label="Importe original (Soles)"
+                    value={`S/ ${formatAmount(account.amount_pen)}`}
+                  />
+                  <DetailRow
+                    label="Saldo pendiente (Soles)"
+                    value={
+                      <span className="font-bold text-primary">
+                        S/ {formatAmount(account.balance_pen)}
                       </span>
                     }
                   />
