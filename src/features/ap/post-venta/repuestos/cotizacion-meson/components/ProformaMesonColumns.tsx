@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
+import { STATUS_ORDER_QUOTATION_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 import { ProformaMesonActionsCell } from "./ProformaMesonActionsCell";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
@@ -160,22 +160,11 @@ export const orderQuotationMesonColumns = ({
     cell: ({ getValue }) => {
       const status = getValue() as string;
 
-      const getStatusBadge = (status: string) => {
-        switch (status) {
-          case STATUS_ORDER_QUOTATION.DISCARDED:
-            return <Badge color="red">{status}</Badge>;
-          case STATUS_ORDER_QUOTATION.OPEN:
-            return <Badge color="indigo">{status}</Badge>;
-          case STATUS_ORDER_QUOTATION.TO_BILL:
-            return <Badge color="orange">{status}</Badge>;
-          case STATUS_ORDER_QUOTATION.BILLED:
-            return <Badge color="green">{status}</Badge>;
-          default:
-            return <Badge color="secondary">{status}</Badge>;
-        }
-      };
-
-      return getStatusBadge(status);
+      return (
+        <Badge color={STATUS_ORDER_QUOTATION_COLOR[status] ?? "secondary"}>
+          {status}
+        </Badge>
+      );
     },
   },
   {

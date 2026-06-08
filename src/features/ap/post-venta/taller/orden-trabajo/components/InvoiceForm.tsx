@@ -180,7 +180,6 @@ export default function InvoiceForm({
         const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
         const subtotal = valor_unitario * cantidad;
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
-        console.log(igvAmount);
 
         invoiceItems.push({
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -215,7 +214,6 @@ export default function InvoiceForm({
         );
         const subtotal = round2(valor_unitario * cantidad);
         const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
-        console.log(igvAmount);
 
         invoiceItems.push({
           product_id: part.product_id.toString(),

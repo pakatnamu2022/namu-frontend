@@ -7,7 +7,10 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+import {
+  ORDER_QUOTATION_MESON,
+  STATUS_ORDER_QUOTATION_COLOR,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,9 +28,10 @@ import {
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
 import {
   DISCOUNT_REQUEST_MESON,
+  DISCOUNT_REQUEST_STATUS_COLOR,
+  DISCOUNT_REQUEST_STATUS_LABEL,
   STATUS_APPROVED,
   STATUS_PENDING,
-  STATUS_REJECTED,
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
@@ -218,18 +222,12 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                 </span>
                 <Badge
                   color={
-                    globalRequest.status === STATUS_APPROVED
-                      ? "green"
-                      : globalRequest.status === STATUS_REJECTED
-                        ? "red"
-                        : "orange"
+                    DISCOUNT_REQUEST_STATUS_COLOR[globalRequest.status] ??
+                    "secondary"
                   }
                 >
-                  {globalRequest.status === STATUS_APPROVED
-                    ? "Aprobado"
-                    : globalRequest.status === STATUS_REJECTED
-                      ? "Rechazado"
-                      : "Pendiente"}
+                  {DISCOUNT_REQUEST_STATUS_LABEL[globalRequest.status] ??
+                    globalRequest.status}
                 </Badge>
                 {globalRequest.status === STATUS_PENDING && (
                   <>
@@ -328,7 +326,13 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         </div>
         <div>
           <p className="text-muted-foreground text-xs">Estado</p>
-          <Badge color="indigo">{quotation.status}</Badge>
+          <Badge
+            color={
+              STATUS_ORDER_QUOTATION_COLOR[quotation.status] ?? "secondary"
+            }
+          >
+            {quotation.status}
+          </Badge>
         </div>
         <div>
           <p className="font-semibold">
@@ -410,18 +414,14 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                         </span>
                         <Badge
                           color={
-                            partialRequest.status === STATUS_APPROVED
-                              ? "green"
-                              : partialRequest.status === STATUS_REJECTED
-                                ? "red"
-                                : "orange"
+                            DISCOUNT_REQUEST_STATUS_COLOR[
+                              partialRequest.status
+                            ] ?? "secondary"
                           }
                         >
-                          {partialRequest.status === STATUS_APPROVED
-                            ? "Aprobado"
-                            : partialRequest.status === STATUS_REJECTED
-                              ? "Rechazado"
-                              : "Pendiente"}
+                          {DISCOUNT_REQUEST_STATUS_LABEL[
+                            partialRequest.status
+                          ] ?? partialRequest.status}
                         </Badge>
                         {partialRequest.status === STATUS_PENDING && (
                           <>
