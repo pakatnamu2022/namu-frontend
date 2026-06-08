@@ -937,6 +937,13 @@ export default function ProformaMesonForm({
     }, 0);
   };
 
+  const getIgvTotal = () => {
+    return fields.reduce((sum, _, index) => {
+      const itemTotal = calculateTotalAmount(index);
+      return sum + Math.round(itemTotal * IGV.RATE * 100) / 100;
+    }, 0);
+  };
+
   if (isLoadingMySedes) return <FormSkeleton />;
 
   return (
@@ -1309,7 +1316,7 @@ export default function ProformaMesonForm({
                 <div className="flex justify-between gap-8">
                   <p className="text-sm text-gray-600">IGV (18%):</p>
                   <p className="text-sm font-medium text-gray-800">
-                    {formatCurrency(getTotalGeneral() * IGV.RATE)}
+                    {formatCurrency(getIgvTotal())}
                   </p>
                 </div>
                 <div className="flex justify-between gap-8 pt-1 border-t">
@@ -1317,7 +1324,7 @@ export default function ProformaMesonForm({
                     Total General:
                   </p>
                   <p className="text-2xl font-bold text-primary">
-                    {formatCurrency(getTotalGeneral() * IGV.FACTOR)}
+                    {formatCurrency(getTotalGeneral() + getIgvTotal())}
                   </p>
                 </div>
               </div>
