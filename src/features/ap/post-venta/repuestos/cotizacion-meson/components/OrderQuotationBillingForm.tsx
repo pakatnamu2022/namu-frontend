@@ -418,76 +418,60 @@ export function OrderQuotationBillingForm({
 
   // Calcular totales
   const totales = useMemo(() => {
-    // Función auxiliar para redondear a 2 decimales
     const round2 = (num: number) => Math.round(num * 100) / 100;
 
-    // Acumulamos subtotales sin redondeo intermedio (flotantes puros)
-    let raw_gravada = 0;
-    let raw_inafecta = 0;
-    let raw_exonerada = 0;
-    let raw_gratuita = 0;
-    let raw_anticipo_subtotal = 0;
-    // Acumulamos también el total CON IGV de los anticipos para restar exactamente
-    // Esto evita el error de redondeo que surge de convertir total->subtotal->igv->total
-    let raw_anticipo_total = 0;
+    let raw_total_gravada = 0;
+    let raw_total_inafecta = 0;
+    let raw_total_exonerada = 0;
+    let raw_total_gratuita = 0;
+    let raw_total_anticipo = 0;
+    let raw_sub_gravada = 0;
+    let raw_sub_anticipo = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
         (t) => t.id === item.sunat_concept_igv_type_id,
       );
 
+      if (item.anticipo_regularizacion) {
+        raw_total_anticipo += item.total;
+        raw_sub_anticipo += item.subtotal;
+        return;
+      }
+
       if (igvType?.code_nubefact === "1") {
-        // Gravado
-        if (item.anticipo_regularizacion) {
-          raw_anticipo_subtotal += item.subtotal;
-          raw_anticipo_total += item.total;
-        } else {
-          raw_gravada += item.subtotal;
-        }
+        raw_total_gravada += item.total;
+        raw_sub_gravada += item.subtotal;
       } else if (igvType?.code_nubefact === "20") {
-        // Exonerado
-        if (item.anticipo_regularizacion) {
-          raw_anticipo_subtotal += item.subtotal;
-          raw_anticipo_total += item.total;
-        } else {
-          raw_exonerada += item.subtotal;
-        }
+        raw_total_exonerada += item.total;
       } else if (igvType?.code_nubefact === "30") {
-        // Inafecto
-        if (item.anticipo_regularizacion) {
-          raw_anticipo_subtotal += item.subtotal;
-          raw_anticipo_total += item.total;
-        } else {
-          raw_inafecta += item.subtotal;
-        }
+        raw_total_inafecta += item.total;
       } else if (
         igvType?.code_nubefact?.startsWith("1") ||
         igvType?.code_nubefact?.startsWith("2")
       ) {
-        // Gratuito
-        raw_gratuita += item.subtotal;
+        raw_total_gratuita += item.total;
       }
     });
 
-    // Subtotales netos (items positivos - anticipos): redondear al final
-    const total_gravada = round2(raw_gravada - raw_anticipo_subtotal);
-    const total_inafecta = round2(raw_inafecta);
-    const total_exonerada = round2(raw_exonerada);
-    const total_gratuita = round2(raw_gratuita);
-    const total_anticipo = round2(raw_anticipo_subtotal);
+    const t_gravada = round2(raw_total_gravada);
+    const t_inafecta = round2(raw_total_inafecta);
+    const t_exonerada = round2(raw_total_exonerada);
+    const t_gratuita = round2(raw_total_gratuita);
+    const t_anticipo = round2(raw_total_anticipo);
 
-    // IGV neto: se calcula sobre el subtotal neto gravado sin redondeos intermedios
-    const subtotal_neto_gravado = raw_gravada - raw_anticipo_subtotal;
-    const total_igv = round2(subtotal_neto_gravado * (porcentaje_de_igv / 100));
+    const total = round2(t_gravada + t_inafecta + t_exonerada - t_anticipo);
 
-    // Total neto: total bruto de los items positivos CON IGV, menos el total exacto de anticipos.
-    // Usar raw_anticipo_total (total con IGV tal como vino de advance.total) en vez de
-    // subtotal*1.18 evita que el redondeo de la conversión total->subtotal genere ±0.01.
-    const raw_total_bruto =
-      raw_gravada * (1 + porcentaje_de_igv / 100) +
-      raw_inafecta +
-      raw_exonerada;
-    const total = round2(raw_total_bruto - raw_anticipo_total);
+    const total_anticipo = round2(raw_sub_anticipo);
+    const total_gravada = round2(round2(raw_sub_gravada) - total_anticipo);
+    const total_inafecta = round2(
+      raw_total_inafecta / (1 + porcentaje_de_igv / 100),
+    );
+    const total_exonerada = round2(raw_total_exonerada);
+    const total_gratuita = t_gratuita;
+    const total_igv = round2(
+      total - total_gravada - total_inafecta - total_exonerada,
+    );
 
     return {
       total_gravada,
