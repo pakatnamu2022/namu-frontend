@@ -17,7 +17,6 @@ export const laborDetailSchema = z.object({
     .number()
     .min(0, "Descuento debe ser mayor o igual a 0")
     .default(0),
-  total_amount: z.number().min(0, "Total debe ser mayor o igual a 0"),
   exchange_rate: z.number().min(0, "Tipo de cambio debe ser mayor o igual a 0"),
   observations: z.string().max(500).optional(),
 });
@@ -52,7 +51,6 @@ export const productDetailSchema = z.object({
     .number()
     .min(0, "Descuento debe ser mayor o igual a 0")
     .default(0),
-  total_amount: z.coerce.number().min(0, "Total debe ser mayor o igual a 0"),
   observations: z.string().max(500).optional(),
   supply_type: z
     .string()

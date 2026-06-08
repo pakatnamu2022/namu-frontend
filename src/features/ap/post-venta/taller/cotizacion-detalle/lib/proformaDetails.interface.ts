@@ -20,7 +20,9 @@ export interface OrderQuotationDetailsResource {
   exchange_rate: number;
   unit_price: number;
   discount_percentage: number;
-  total_amount: number;
+  total_cost: number;
+  net_amount: number;
+  tax_amount: number;
   observations: string | null;
   created_by: number;
   created_by_name: string;
@@ -41,7 +43,6 @@ export interface OrderQuotationDetailsRequest {
   exchange_rate?: number;
   unit_price: number;
   discount_percentage: number;
-  total_amount: number;
   observations?: string;
   supply_type?: string;
 }

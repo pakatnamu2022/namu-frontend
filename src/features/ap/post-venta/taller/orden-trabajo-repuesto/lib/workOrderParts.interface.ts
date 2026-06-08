@@ -20,11 +20,11 @@ export interface WorkOrderPartsResource {
   quantity_used: number;
   is_delivered: boolean;
   registered_by_name: string;
-  unit_price?: string;
-  total_cost?: string;
-  tax_amount?: string;
+  unit_price: string;
+  total_cost: number;
+  net_amount: number;
+  tax_amount: number;
   discount_percentage: number;
-  net_amount?: string;
   part_fully_delivered: boolean;
 }
 

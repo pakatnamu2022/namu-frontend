@@ -252,7 +252,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   // Total de las manos de obra filtradas (base para el global)
   const globalBaseAmount = filteredLabours.reduce(
-    (acc, l) => acc + parseFloat(l.total_cost || "0"),
+    (acc, l) => acc + l.total_cost,
     0,
   );
 
@@ -454,7 +454,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       </span>
                       <span className="text-left min-w-20">
                         {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
-                        {Number(item.total_amount || 0).toFixed(2)}
+                        {Number(item.net_amount || 0).toFixed(2)}
                       </span>
                     </div>
                     {item.status === "pending" && (
@@ -848,11 +848,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                 <p className="text-xl font-bold">
                   {workOrder?.type_currency?.symbol || "S/"}{" "}
                   {filteredLabours
-                    .reduce(
-                      (acc, labour) =>
-                        acc + parseFloat(labour.net_amount || "0"),
-                      0,
-                    )
+                    .reduce((acc, labour) => acc + labour.net_amount, 0)
                     .toFixed(2)}
                 </p>
               </div>
