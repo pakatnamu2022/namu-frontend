@@ -50,6 +50,31 @@ export async function sendDueReports(company?: string): Promise<{ message: strin
   return data;
 }
 
+export async function sendGlobalExcel(company?: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>(
+    `${ENDPOINT}/send-global-excel`,
+    null,
+    { params: { company: company ?? COMPANY } },
+  );
+  return data;
+}
+
+export async function downloadGlobalExcel(company?: string): Promise<void> {
+  const { data, headers } = await api.get(`${ENDPOINT}/download-excel`, {
+    params: { company: company ?? COMPANY },
+    responseType: "blob",
+  });
+  const contentDisposition = headers["content-disposition"] as string | undefined;
+  const filenameMatch = contentDisposition?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+  const filename = filenameMatch ? filenameMatch[1].replace(/['"]/g, "") : "cuentas-por-cobrar.xlsx";
+  const url = URL.createObjectURL(new Blob([data]));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function getAccountsReceivableDashboard(
   company: string,
 ): Promise<AccountsReceivableDashboardResponse> {
