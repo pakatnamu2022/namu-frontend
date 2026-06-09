@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/core/core.function";
 import type { AccountReceivable } from "../lib/accountsReceivable.interface";
 import {
@@ -28,6 +29,29 @@ export function getAccountsReceivableColumns({
   onRowClick,
 }: ColumnsOptions): ColumnDef<AccountReceivable>[] {
   return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Seleccionar todo"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Seleccionar fila"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       id: "document_number",
       accessorKey: "document_number",
