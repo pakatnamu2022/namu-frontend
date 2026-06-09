@@ -42,7 +42,7 @@ import {
   NUM_DIGITS_RUC,
 } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
-import { INCOME_SECTOR_SALESFORCE } from "../../sectores-ingreso/lib/incomeSector.constants";
+// import { INCOME_SECTOR_SALESFORCE } from "../../sectores-ingreso/lib/incomeSector.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
