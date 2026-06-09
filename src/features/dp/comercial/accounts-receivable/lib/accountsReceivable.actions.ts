@@ -50,6 +50,15 @@ export async function sendDueReports(company?: string): Promise<{ message: strin
   return data;
 }
 
+export async function sendGlobalExcel(company?: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>(
+    `${ENDPOINT}/send-global-excel`,
+    null,
+    { params: { company: company ?? COMPANY } },
+  );
+  return data;
+}
+
 export async function getAccountsReceivableDashboard(
   company: string,
 ): Promise<AccountsReceivableDashboardResponse> {
