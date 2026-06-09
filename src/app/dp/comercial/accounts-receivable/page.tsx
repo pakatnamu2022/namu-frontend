@@ -24,6 +24,7 @@ import { useAccountsReceivable } from "@/features/dp/comercial/accounts-receivab
 import {
   syncAccountsReceivable,
   sendDueReports,
+  sendGlobalExcel,
   addAccountComment,
 } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
@@ -65,6 +66,7 @@ export default function AccountsReceivablePage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isSendingExcel, setIsSendingExcel] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkCommentOpen, setBulkCommentOpen] = useState(false);
 
@@ -120,6 +122,23 @@ export default function AccountsReceivablePage() {
       // error shown by promiseToast
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleSendGlobalExcel = async () => {
+    setIsSendingExcel(true);
+    const promise = sendGlobalExcel();
+    promiseToast(promise, {
+      loading: "Enviando Excel global...",
+      success: (res) => res.message,
+      error: "No se pudo enviar el Excel global.",
+    });
+    try {
+      await promise;
+    } catch {
+      // error shown by promiseToast
+    } finally {
+      setIsSendingExcel(false);
     }
   };
 
@@ -217,6 +236,17 @@ export default function AccountsReceivablePage() {
             <span className="hidden sm:inline">Dashboard</span>
           </Button>
         </Link>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={handleSendGlobalExcel}
+          disabled={isSendingExcel}
+        >
+          <FileText className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`} />
+          <span className="hidden sm:inline">Enviar Excel</span>
+        </Button>
 
         <Button
           variant="outline"
