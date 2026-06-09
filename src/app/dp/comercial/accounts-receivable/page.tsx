@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Send,
   MessageSquare,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow, parseISO } from "date-fns";
@@ -25,6 +26,7 @@ import {
   syncAccountsReceivable,
   sendDueReports,
   sendGlobalExcel,
+  downloadGlobalExcel,
   addAccountComment,
 } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.actions";
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
@@ -67,6 +69,7 @@ export default function AccountsReceivablePage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isSendingExcel, setIsSendingExcel] = useState(false);
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkCommentOpen, setBulkCommentOpen] = useState(false);
 
@@ -122,6 +125,17 @@ export default function AccountsReceivablePage() {
       // error shown by promiseToast
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleDownloadGlobalExcel = async () => {
+    setIsDownloadingExcel(true);
+    try {
+      await downloadGlobalExcel();
+    } catch {
+      toast.error("No se pudo descargar el Excel global.");
+    } finally {
+      setIsDownloadingExcel(false);
     }
   };
 
@@ -236,6 +250,17 @@ export default function AccountsReceivablePage() {
             <span className="hidden sm:inline">Dashboard</span>
           </Button>
         </Link>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={handleDownloadGlobalExcel}
+          disabled={isDownloadingExcel}
+        >
+          <Download className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`} />
+          <span className="hidden sm:inline">Descargar Excel</span>
+        </Button>
 
         <Button
           variant="outline"
