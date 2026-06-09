@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { getSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
-import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
 import {
   Loader2,
@@ -17,6 +15,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { InfoSection } from "@/shared/components/InfoSection";
+import { formatDate, formatDateTime } from "@/core/core.function";
 
 interface SupplierOrderViewSheetProps {
   open: boolean;
@@ -281,13 +280,7 @@ export function SupplierOrderViewSheet({
                         </p>
                         <p className="text-sm font-medium">
                           {data.invoice.emission_date
-                            ? format(
-                                new Date(
-                                  data.invoice.emission_date + "T00:00:00",
-                                ),
-                                "dd/MM/yyyy",
-                                { locale: es },
-                              )
+                            ? formatDate(data.invoice.emission_date)
                             : "N/A"}
                         </p>
                       </div>
@@ -297,11 +290,7 @@ export function SupplierOrderViewSheet({
                             Vencimiento
                           </p>
                           <p className="text-sm font-medium">
-                            {format(
-                              parseISO(data.invoice.due_date),
-                              "dd/MM/yyyy",
-                              { locale: es },
-                            )}
+                            {formatDate(data.invoice.due_date)}
                           </p>
                         </div>
                       )}
@@ -585,11 +574,7 @@ export function SupplierOrderViewSheet({
                             Fecha de Anulación
                           </p>
                           <p className="text-sm font-medium">
-                            {format(
-                              parseISO(data.discarded_at),
-                              "dd/MM/yyyy HH:mm",
-                              { locale: es },
-                            )}
+                            {formatDate(data.discarded_at)}
                           </p>
                         </div>
                       </div>
@@ -608,11 +593,7 @@ export function SupplierOrderViewSheet({
             </div>
             <div>
               <p className="text-muted-foreground">Fecha de Creación</p>
-              <p className="font-medium">
-                {format(parseISO(data.created_at), "dd/MM/yyyy HH:mm", {
-                  locale: es,
-                })}
-              </p>
+              <p className="font-medium">{formatDateTime(data.created_at)}</p>
             </div>
           </div>
         </div>

@@ -40,7 +40,7 @@ import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inve
 import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
-import { errorToast } from "@/core/core.function";
+import { errorToast, formatMoney } from "@/core/core.function";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
@@ -927,21 +927,21 @@ export default function PurchaseRequestForm({
                       <div className="flex justify-between gap-8">
                         <p className="text-sm text-gray-600">Subtotal:</p>
                         <p className="text-sm font-medium text-gray-800">
-                          {selectedCurrency?.symbol || "S/"}{" "}
-                          {subtotal.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatMoney(
+                            subtotal,
+                            2,
+                            selectedCurrency?.symbol || "S/",
+                          )}
                         </p>
                       </div>
                       <div className="flex justify-between gap-8">
                         <p className="text-sm text-gray-600">IGV (18%):</p>
                         <p className="text-sm font-medium text-gray-800">
-                          {selectedCurrency?.symbol || "S/"}{" "}
-                          {(subtotal * IGV.RATE).toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatMoney(
+                            subtotal * IGV.RATE,
+                            2,
+                            selectedCurrency?.symbol || "S/",
+                          )}
                         </p>
                       </div>
                       <div className="flex justify-between gap-8 pt-1 border-t">
@@ -949,11 +949,11 @@ export default function PurchaseRequestForm({
                           Total General:
                         </p>
                         <p className="text-2xl font-bold text-primary">
-                          {selectedCurrency?.symbol || "S/"}{" "}
-                          {(subtotal * IGV.FACTOR).toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatMoney(
+                            subtotal * IGV.FACTOR,
+                            2,
+                            selectedCurrency?.symbol || "S/",
+                          )}
                         </p>
                       </div>
                     </>

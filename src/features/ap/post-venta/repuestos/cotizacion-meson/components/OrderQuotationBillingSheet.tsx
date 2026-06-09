@@ -44,6 +44,7 @@ import {
   errorToast,
   formatDate,
   formatDateTime,
+  formatMoney,
   successToast,
 } from "@/core/core.function";
 import { useState, useMemo, useEffect } from "react";
@@ -470,55 +471,56 @@ export function BillingSheetContent({
 
       {/* Confirmación virtual */}
       {orderQuotation.confirmed_at && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-green-600" />
-            <h3 className="font-semibold text-lg">Confirmación</h3>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2 text-sm">
-            {orderQuotation.confirmation_metadata?.confirmed_by_name && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Confirmado por</span>
-                <span className="font-medium">
-                  {orderQuotation.confirmation_metadata.confirmed_by_name}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Fecha</span>
-              <span className="font-medium">
-                {formatDate(orderQuotation.confirmed_at)}
-              </span>
+        <>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-green-600" />
+              <h3 className="font-semibold text-lg">Confirmación</h3>
             </div>
-            {orderQuotation.confirmation_channel && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2 text-sm">
+              {orderQuotation.confirmation_metadata?.confirmed_by_name && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Confirmado por</span>
+                  <span className="font-medium">
+                    {orderQuotation.confirmation_metadata.confirmed_by_name}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Canal</span>
-                <span className="font-medium capitalize">
-                  {orderQuotation.confirmation_channel}
+                <span className="text-muted-foreground">Fecha</span>
+                <span className="font-medium">
+                  {formatDate(orderQuotation.confirmed_at)}
                 </span>
               </div>
-            )}
-            {orderQuotation.confirmation_metadata?.notes && (
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground shrink-0">Notas</span>
-                <span className="font-medium text-right">
-                  {orderQuotation.confirmation_metadata.notes}
-                </span>
-              </div>
-            )}
-            {orderQuotation.confirmation_ip && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">IP</span>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {orderQuotation.confirmation_ip}
-                </span>
-              </div>
-            )}
+              {orderQuotation.confirmation_channel && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Canal</span>
+                  <span className="font-medium capitalize">
+                    {orderQuotation.confirmation_channel}
+                  </span>
+                </div>
+              )}
+              {orderQuotation.confirmation_metadata?.notes && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground shrink-0">Notas</span>
+                  <span className="font-medium text-right">
+                    {orderQuotation.confirmation_metadata.notes}
+                  </span>
+                </div>
+              )}
+              {orderQuotation.confirmation_ip && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">IP</span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {orderQuotation.confirmation_ip}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+          <Separator />
+        </>
       )}
-
-      <Separator />
 
       {/* Detalle de Productos/Repuestos */}
       <div className="space-y-3">
@@ -588,10 +590,7 @@ export function BillingSheetContent({
               className: "text-right",
               render: (detail) => (
                 <div className="text-sm font-medium">
-                  {currencySymbol}{" "}
-                  {Number(detail.unit_price).toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMoney(detail.unit_price, 2, currencySymbol)}
                 </div>
               ),
             },
@@ -607,14 +606,20 @@ export function BillingSheetContent({
               ),
             },
             {
+              header: "Cto. Total",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-semibold">
+                  {formatMoney(detail.total_cost, 2, currencySymbol)}
+                </div>
+              ),
+            },
+            {
               header: "Neto",
               className: "text-right",
               render: (detail) => (
                 <div className="text-sm font-semibold">
-                  {currencySymbol}{" "}
-                  {Number(detail.net_amount).toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMoney(detail.net_amount, 2, currencySymbol)}
                 </div>
               ),
             },
@@ -626,51 +631,39 @@ export function BillingSheetContent({
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {orderQuotation.subtotal.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.subtotal, 2, currencySymbol)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Descuento</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {orderQuotation.discount_amount.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.discount_amount, 2, currencySymbol)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">OP. Gravadas</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {orderQuotation.op_gravada.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.op_gravada, 2, currencySymbol)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">IGV (18%)</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {(
-                orderQuotation.total_amount -
-                orderQuotation.subtotal +
-                (orderQuotation.discount_amount || 0)
-              ).toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(
+                (orderQuotation.details ?? []).reduce(
+                  (sum, detail) => sum + Number(detail.tax_amount),
+                  0,
+                ),
+                2,
+                currencySymbol,
+              )}
             </span>
           </div>
           <Separator className="my-2" />
           <div className="flex justify-between text-base font-bold text-primary">
             <span>Total</span>
             <span>
-              {currencySymbol}{" "}
-              {orderQuotation.total_amount.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.total_amount, 2, currencySymbol)}
             </span>
           </div>
         </div>
@@ -686,12 +679,11 @@ export function BillingSheetContent({
           </h3>
           {hasAdvances && (
             <Badge variant="outline" className="text-sm">
-              Pagado: {currencySymbol}{" "}
-              {orderQuotation.payment_summary?.paid_amount.toLocaleString(
-                "es-PE",
-                {
-                  minimumFractionDigits: 2,
-                },
+              Pagado:{" "}
+              {formatMoney(
+                orderQuotation.payment_summary?.paid_amount,
+                2,
+                currencySymbol,
               )}
             </Badge>
           )}
@@ -777,10 +769,7 @@ export function BillingSheetContent({
                 className: "text-right",
                 render: (doc) => (
                   <div className="font-semibold w-20">
-                    {currencySymbol}{" "}
-                    {doc.total.toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                    })}
+                    {formatMoney(doc.total, 2, currencySymbol)}
                   </div>
                 ),
               },
@@ -792,34 +781,33 @@ export function BillingSheetContent({
                     Total Cotización
                   </span>
                   <span className="font-medium">
-                    {currencySymbol}{" "}
-                    {orderQuotation.total_amount.toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                    })}
+                    {formatMoney(
+                      orderQuotation.total_amount,
+                      2,
+                      currencySymbol,
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Pagado</span>
                   <span className="font-medium">
-                    {currencySymbol}{" "}
-                    {(
-                      orderQuotation.payment_summary?.paid_amount ?? 0
-                    ).toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                    })}
+                    {formatMoney(
+                      orderQuotation.payment_summary?.paid_amount ?? 0,
+                      2,
+                      currencySymbol,
+                    )}
                   </span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between text-base font-bold text-primary">
                   <span>Saldo Pendiente</span>
                   <span>
-                    {currencySymbol}{" "}
-                    {(
+                    {formatMoney(
                       orderQuotation.payment_summary?.remaining_balance ??
-                      orderQuotation.total_amount
-                    ).toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                    })}
+                        orderQuotation.total_amount,
+                      2,
+                      currencySymbol,
+                    )}
                   </span>
                 </div>
               </div>
@@ -1019,22 +1007,13 @@ export function BillingSheetContent({
                     </FormItem>
                   )}
                 />
-                <FormField
+
+                <FormTextArea
                   control={form.control}
                   name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FormTextArea
-                          label="Notas adicionales (opcional)"
-                          placeholder="Escribe aquí..."
-                          disabled={confirmMutation.isPending}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Notas adicionales (opcional)"
+                  placeholder="Escribe aquí..."
+                  disabled={confirmMutation.isPending}
                 />
               </GroupFormSection>
 
