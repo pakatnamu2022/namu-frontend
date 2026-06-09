@@ -16,14 +16,14 @@ import {
   FormItem,
   FormControl,
   FormMessage,
-  FormLabel,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/SignaturePad";
 import { deliverInventoryOutput } from "../lib/quotationMeson.actions";
 import { errorToast, successToast } from "@/core/core.function";
+import { FormInput } from "@/shared/components/FormInput";
+import { requiredText } from "@/shared/lib/global.schema";
 
 interface OrderQuotationDeliverySheetProps {
   orderQuotationId: number | null;
@@ -84,12 +84,12 @@ interface DeliverySheetContentProps {
 }
 
 const deliverySchema = z.object({
-  customer_signature_delivery_url: z
-    .string()
-    .min(1, "La firma del receptor es requerida"),
-  delivery_document_number: z
-    .string()
-    .min(1, "El DNI del receptor es requerido"),
+  customer_signature_delivery_url: requiredText(
+    "La firma es requerida",
+    1,
+    50000,
+  ),
+  delivery_document_number: requiredText("El DNI es requerido"),
 });
 
 type DeliveryFormData = z.infer<typeof deliverySchema>;
@@ -264,22 +264,13 @@ function DeliverySheetContent({
               color="primary"
               cols={{ sm: 1 }}
             >
-              <FormField
+              <FormInput
                 control={form.control}
                 name="delivery_document_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>DNI del Receptor</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Ingrese el DNI"
-                        disabled={deliverMutation.isPending}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="DNI del Receptor"
+                placeholder="Ingrese el DNI"
+                disabled={deliverMutation.isPending}
+                required
               />
             </GroupFormSection>
 
