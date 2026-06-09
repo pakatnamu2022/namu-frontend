@@ -258,7 +258,7 @@ export const StoreVisitsForm = ({
             label="Ingreso Por"
             placeholder="Selecciona ingreso"
             options={incomeSector
-              .filter((item) => item.id !== INCOME_SECTOR_SALESFORCE)
+              // .filter((item) => item.id !== INCOME_SECTOR_SALESFORCE)
               .map((item) => ({
                 label: item.description,
                 value: item.id.toString(),
