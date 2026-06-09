@@ -44,6 +44,7 @@ import {
   errorToast,
   formatDate,
   formatDateTime,
+  formatMoney,
   successToast,
 } from "@/core/core.function";
 import { useState, useMemo, useEffect } from "react";
@@ -61,6 +62,7 @@ interface OrderQuotationBillingSheetProps {
   open: boolean;
   onClose: () => void;
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 export function OrderQuotationBillingSheet({
@@ -68,40 +70,13 @@ export function OrderQuotationBillingSheet({
   open,
   onClose,
   onRefresh,
+  readOnly = false,
 }: OrderQuotationBillingSheetProps) {
   const { data: orderQuotation, isLoading } = useQuery({
     queryKey: ["orderQuotation", orderQuotationId],
     queryFn: () => findOrderQuotationById(orderQuotationId!),
     enabled: open && orderQuotationId !== null,
   });
-
-  const statusConfig = {
-    draft: {
-      label: "Borrador",
-      icon: FileText,
-      className: "bg-gray-100 text-gray-700 border-gray-300",
-    },
-    sent: {
-      label: "Enviado",
-      icon: Send,
-      className: "bg-blue-100 text-blue-700 border-blue-300",
-    },
-    accepted: {
-      label: "Aceptado",
-      icon: CheckCircle,
-      className: "bg-green-100 text-green-700 border-green-300",
-    },
-    rejected: {
-      label: "Rechazado",
-      icon: XCircle,
-      className: "bg-red-100 text-red-700 border-red-300",
-    },
-    cancelled: {
-      label: "Anulado",
-      icon: Ban,
-      className: "bg-orange-100 text-orange-700 border-orange-300",
-    },
-  };
 
   return (
     <GeneralSheet
@@ -130,8 +105,8 @@ export function OrderQuotationBillingSheet({
       ) : (
         <BillingSheetContent
           orderQuotation={orderQuotation}
-          statusConfig={statusConfig}
           onRefresh={onRefresh}
+          readOnly={readOnly}
         />
       )}
     </GeneralSheet>
@@ -140,14 +115,8 @@ export function OrderQuotationBillingSheet({
 
 interface BillingSheetContentProps {
   orderQuotation: OrderQuotationResource;
-  statusConfig: {
-    draft: { label: string; icon: any; className: string };
-    sent: { label: string; icon: any; className: string };
-    accepted: { label: string; icon: any; className: string };
-    rejected: { label: string; icon: any; className: string };
-    cancelled: { label: string; icon: any; className: string };
-  };
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 const signatureSchema = z.object({
@@ -157,15 +126,41 @@ const signatureSchema = z.object({
 
 type SignatureFormData = z.infer<typeof signatureSchema>;
 
-function BillingSheetContent({
+export function BillingSheetContent({
   orderQuotation,
-  statusConfig,
   onRefresh,
+  readOnly = false,
 }: BillingSheetContentProps) {
+  const statusConfig = {
+    draft: {
+      label: "Borrador",
+      icon: FileText,
+      className: "bg-gray-100 text-gray-700 border-gray-300",
+    },
+    sent: {
+      label: "Enviado",
+      icon: Send,
+      className: "bg-blue-100 text-blue-700 border-blue-300",
+    },
+    accepted: {
+      label: "Aceptado",
+      icon: CheckCircle,
+      className: "bg-green-100 text-green-700 border-green-300",
+    },
+    rejected: {
+      label: "Rechazado",
+      icon: XCircle,
+      className: "bg-red-100 text-red-700 border-red-300",
+    },
+    cancelled: {
+      label: "Anulado",
+      icon: Ban,
+      className: "bg-orange-100 text-orange-700 border-orange-300",
+    },
+  };
   const queryClient = useQueryClient();
-  const advances = orderQuotation.advances || [];
-  const hasAdvances = advances.length > 0;
-  const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
+  const activeVouchers = orderQuotation.vouchers?.active ?? [];
+  const hasAdvances = activeVouchers.length > 0;
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
@@ -476,55 +471,56 @@ function BillingSheetContent({
 
       {/* Confirmación virtual */}
       {orderQuotation.confirmed_at && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-green-600" />
-            <h3 className="font-semibold text-lg">Confirmación</h3>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2 text-sm">
-            {orderQuotation.confirmation_metadata?.confirmed_by_name && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Confirmado por</span>
-                <span className="font-medium">
-                  {orderQuotation.confirmation_metadata.confirmed_by_name}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Fecha</span>
-              <span className="font-medium">
-                {formatDate(orderQuotation.confirmed_at)}
-              </span>
+        <>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-green-600" />
+              <h3 className="font-semibold text-lg">Confirmación</h3>
             </div>
-            {orderQuotation.confirmation_channel && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2 text-sm">
+              {orderQuotation.confirmation_metadata?.confirmed_by_name && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Confirmado por</span>
+                  <span className="font-medium">
+                    {orderQuotation.confirmation_metadata.confirmed_by_name}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Canal</span>
-                <span className="font-medium capitalize">
-                  {orderQuotation.confirmation_channel}
+                <span className="text-muted-foreground">Fecha</span>
+                <span className="font-medium">
+                  {formatDate(orderQuotation.confirmed_at)}
                 </span>
               </div>
-            )}
-            {orderQuotation.confirmation_metadata?.notes && (
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground shrink-0">Notas</span>
-                <span className="font-medium text-right">
-                  {orderQuotation.confirmation_metadata.notes}
-                </span>
-              </div>
-            )}
-            {orderQuotation.confirmation_ip && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">IP</span>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {orderQuotation.confirmation_ip}
-                </span>
-              </div>
-            )}
+              {orderQuotation.confirmation_channel && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Canal</span>
+                  <span className="font-medium capitalize">
+                    {orderQuotation.confirmation_channel}
+                  </span>
+                </div>
+              )}
+              {orderQuotation.confirmation_metadata?.notes && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground shrink-0">Notas</span>
+                  <span className="font-medium text-right">
+                    {orderQuotation.confirmation_metadata.notes}
+                  </span>
+                </div>
+              )}
+              {orderQuotation.confirmation_ip && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">IP</span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {orderQuotation.confirmation_ip}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+          <Separator />
+        </>
       )}
-
-      <Separator />
 
       {/* Detalle de Productos/Repuestos */}
       <div className="space-y-3">
@@ -594,10 +590,7 @@ function BillingSheetContent({
               className: "text-right",
               render: (detail) => (
                 <div className="text-sm font-medium">
-                  {currencySymbol}{" "}
-                  {Number(detail.unit_price).toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMoney(detail.unit_price, 2, currencySymbol)}
                 </div>
               ),
             },
@@ -613,14 +606,20 @@ function BillingSheetContent({
               ),
             },
             {
+              header: "Cto. Total",
+              className: "text-right",
+              render: (detail) => (
+                <div className="text-sm font-semibold">
+                  {formatMoney(detail.total_cost, 2, currencySymbol)}
+                </div>
+              ),
+            },
+            {
               header: "Neto",
               className: "text-right",
               render: (detail) => (
                 <div className="text-sm font-semibold">
-                  {currencySymbol}{" "}
-                  {Number(detail.total_amount).toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMoney(detail.net_amount, 2, currencySymbol)}
                 </div>
               ),
             },
@@ -632,51 +631,39 @@ function BillingSheetContent({
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {orderQuotation.subtotal.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.subtotal, 2, currencySymbol)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Descuento</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {orderQuotation.discount_amount.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.discount_amount, 2, currencySymbol)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">OP. Gravadas</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {orderQuotation.op_gravada.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.op_gravada, 2, currencySymbol)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">IGV (18%)</span>
             <span className="font-medium">
-              {currencySymbol}{" "}
-              {(
-                orderQuotation.total_amount -
-                orderQuotation.subtotal +
-                (orderQuotation.discount_amount || 0)
-              ).toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(
+                (orderQuotation.details ?? []).reduce(
+                  (sum, detail) => sum + Number(detail.tax_amount),
+                  0,
+                ),
+                2,
+                currencySymbol,
+              )}
             </span>
           </div>
           <Separator className="my-2" />
           <div className="flex justify-between text-base font-bold text-primary">
             <span>Total</span>
             <span>
-              {currencySymbol}{" "}
-              {orderQuotation.total_amount.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              {formatMoney(orderQuotation.total_amount, 2, currencySymbol)}
             </span>
           </div>
         </div>
@@ -688,14 +675,16 @@ function BillingSheetContent({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg">
-            Documentos Electrónicos ({advances.length})
+            Documentos Electrónicos ({activeVouchers.length})
           </h3>
           {hasAdvances && (
             <Badge variant="outline" className="text-sm">
-              Total Anticipos: {currencySymbol}{" "}
-              {totalAdvances.toLocaleString("es-PE", {
-                minimumFractionDigits: 2,
-              })}
+              Pagado:{" "}
+              {formatMoney(
+                orderQuotation.payment_summary?.paid_amount,
+                2,
+                currencySymbol,
+              )}
             </Badge>
           )}
         </div>
@@ -708,295 +697,239 @@ function BillingSheetContent({
             </p>
           </div>
         ) : (
-          <>
-            <DetailSheetTable
-              rows={advances}
-              getKey={(doc) => doc.id}
-              columns={[
-                {
-                  header: "Documento",
-                  render: (doc) => (
-                    <>
-                      <div className="font-medium">
-                        {doc.serie}-{String(doc.numero).padStart(8, "0")}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.full_number}
-                      </div>
-                    </>
-                  ),
-                },
-                {
-                  header: "Tipo",
-                  render: (doc) => (
-                    <>
-                      <div className="text-sm">
-                        {doc.document_type?.description || "N/A"}
-                      </div>
-                      {doc.is_advance_payment && (
-                        <Badge color="secondary" className="text-xs mt-1">
-                          Anticipo
-                        </Badge>
-                      )}
-                    </>
-                  ),
-                },
-                {
-                  header: "Cliente",
-                  render: (doc) => (
-                    <>
-                      <div className="text-sm font-medium">
-                        {doc.cliente_denominacion}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.cliente_numero_de_documento}
-                      </div>
-                    </>
-                  ),
-                },
-                {
-                  header: "Fecha Emisión",
-                  render: (doc) => (
-                    <div className="text-sm">
-                      {formatDate(doc.fecha_de_emision)}
-                    </div>
-                  ),
-                },
-                {
-                  header: "Observaciones",
-                  render: (doc) => (
-                    <div className="text-sm text-muted-foreground max-w-[200px]">
-                      {doc.observaciones || "-"}
-                    </div>
-                  ),
-                },
-                {
-                  header: "Estado",
-                  render: (doc) => {
-                    const config =
-                      statusConfig[doc.status as keyof typeof statusConfig];
-                    const StatusIcon = config?.icon || FileText;
-                    return (
-                      <Badge
-                        variant="outline"
-                        className={`${config?.className} flex items-center gap-1 w-fit`}
-                      >
-                        <StatusIcon className="h-3 w-3" />
-                        <span>{config?.label}</span>
+          <DetailSheetTable
+            rows={activeVouchers}
+            getKey={(doc) => doc.id}
+            columns={[
+              {
+                header: "Documento",
+                render: (doc) => (
+                  <div className="font-medium">
+                    {doc.serie}-{String(doc.numero).padStart(8, "0")}
+                  </div>
+                ),
+              },
+              {
+                header: "Tipo",
+                render: (doc) => (
+                  <>
+                    <div className="text-sm">{doc.document_type}</div>
+                    {doc.is_advance_payment && (
+                      <Badge color="secondary" className="text-xs mt-1">
+                        Anticipo
                       </Badge>
-                    );
-                  },
-                },
-                {
-                  header: "Monto",
-                  className: "text-right",
-                  render: (doc) => (
-                    <div className="font-semibold w-20">
-                      {currencySymbol}{" "}
-                      {doc.total.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
+                    )}
+                  </>
+                ),
+              },
+              {
+                header: "Cliente",
+                render: (doc) => (
+                  <>
+                    <div className="text-sm font-medium">{doc.client_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {doc.client_document}
                     </div>
-                  ),
+                  </>
+                ),
+              },
+              {
+                header: "Fecha Emisión",
+                render: (doc) => (
+                  <div className="text-sm">{formatDate(doc.issue_date)}</div>
+                ),
+              },
+              {
+                header: "Estado SUNAT",
+                render: (doc) => (
+                  <div className="text-sm text-muted-foreground">
+                    {doc.sunat_responsecode || "-"}
+                  </div>
+                ),
+              },
+              {
+                header: "Estado",
+                render: (doc) => {
+                  const config =
+                    statusConfig[doc.status as keyof typeof statusConfig];
+                  const StatusIcon = config?.icon || FileText;
+                  return (
+                    <Badge
+                      variant="outline"
+                      className={`${config?.className} flex items-center gap-1 w-fit`}
+                    >
+                      <StatusIcon className="h-3 w-3" />
+                      <span>{config?.label || doc.status}</span>
+                    </Badge>
+                  );
                 },
-              ]}
-              footer={
-                <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Total Cotización
-                    </span>
-                    <span className="font-medium">
-                      {currencySymbol}{" "}
-                      {orderQuotation.total_amount.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
+              },
+              {
+                header: "Monto",
+                className: "text-right",
+                render: (doc) => (
+                  <div className="font-semibold w-20">
+                    {formatMoney(doc.total, 2, currencySymbol)}
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Total Anticipos
-                    </span>
-                    <span className="font-medium">
-                      {currencySymbol}{" "}
-                      {totalAdvances.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  <Separator className="my-2" />
-                  <div className="flex justify-between text-base font-bold text-primary">
-                    <span>Saldo Pendiente</span>
-                    <span>
-                      {currencySymbol}{" "}
-                      {(
-                        orderQuotation.total_amount - totalAdvances
-                      ).toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
+                ),
+              },
+            ]}
+            footer={
+              <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    Total Cotización
+                  </span>
+                  <span className="font-medium">
+                    {formatMoney(
+                      orderQuotation.total_amount,
+                      2,
+                      currencySymbol,
+                    )}
+                  </span>
                 </div>
-              }
-            />
-          </>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Total Pagado</span>
+                  <span className="font-medium">
+                    {formatMoney(
+                      orderQuotation.payment_summary?.paid_amount ?? 0,
+                      2,
+                      currencySymbol,
+                    )}
+                  </span>
+                </div>
+                <Separator className="my-2" />
+                <div className="flex justify-between text-base font-bold text-primary">
+                  <span>Saldo Pendiente</span>
+                  <span>
+                    {formatMoney(
+                      orderQuotation.payment_summary?.remaining_balance ??
+                        orderQuotation.total_amount,
+                      2,
+                      currencySymbol,
+                    )}
+                  </span>
+                </div>
+              </div>
+            }
+          />
         )}
       </div>
 
-      {/* Estado SUNAT */}
-      {hasAdvances && (
+      {!readOnly && (
         <>
+          {/* Facturar a */}
           <Separator />
-          <div className="space-y-3">
-            <h3 className="font-semibold">Estado SUNAT de Documentos</h3>
-            <div className="space-y-2">
-              {advances.map((doc) => (
-                <div key={doc.id} className="bg-muted/30 p-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">
-                      {doc.serie}-{String(doc.numero).padStart(8, "0")}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {doc.aceptada_por_sunat === true ? (
-                        <>
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="text-xs font-medium text-green-600">
-                            Aceptado por SUNAT
-                          </span>
-                        </>
-                      ) : doc.aceptada_por_sunat === false ? (
-                        <>
-                          <XCircle className="h-4 w-4 text-red-600" />
-                          <span className="text-xs font-medium text-red-600">
-                            Rechazado por SUNAT
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">
-                            Pendiente de envío
-                          </span>
-                        </>
-                      )}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-gray-900">
+                  Facturar a
+                </h4>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {isInvoiced
+                    ? "Cliente de facturación establecido"
+                    : "Selecciona el cliente para la factura"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="w-full">
+                <FormProvider {...invoiceToForm}>
+                  <div className="flex w-full items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <FormSelectAsync
+                        name="invoice_to_id"
+                        label="Cliente de facturación"
+                        placeholder="Seleccionar cliente"
+                        control={invoiceToForm.control}
+                        useQueryHook={useCustomers}
+                        mapOptionFn={(customer: CustomersResource) => ({
+                          value: customer.id.toString(),
+                          label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                        })}
+                        description={
+                          isInvoiced
+                            ? "Ya existe una factura emitida, no se puede modificar"
+                            : hasAdvances
+                              ? "Ya se registraron avances de pago, no se puede modificar"
+                              : "Cliente a quien se le emitirá la factura de esta cotización"
+                        }
+                        perPage={10}
+                        debounceMs={500}
+                        disabled={
+                          isInvoiced ||
+                          invoiceToMutation.isPending ||
+                          hasAdvances
+                        }
+                        defaultOption={invoiceToDefaultOption}
+                        onValueChange={(value) => {
+                          invoiceToMutation.mutate(
+                            value ? Number(value) : null,
+                          );
+                        }}
+                        allowClear={false}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-lg"
+                      className="aspect-square shrink-0"
+                      onClick={() => setIsCustomerModalOpen(true)}
+                      tooltip="Agregar nuevo cliente"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </FormProvider>
+              </div>
+
+              {orderQuotation.invoice_to && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+                  <div className="flex-1 grid grid-cols-1 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Nombre
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.full_name || "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Documento
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
+                        {orderQuotation.invoice_to_client?.num_doc || "S/N"}
+                      </span>
                     </div>
                   </div>
-                  {doc.sunat_description && (
-                    <p className="text-xs text-muted-foreground">
-                      {doc.sunat_description}
-                    </p>
-                  )}
                 </div>
-              ))}
+              )}
             </div>
           </div>
+
+          <CustomerModal
+            open={isCustomerModalOpen}
+            onClose={(newCustomer) => {
+              setIsCustomerModalOpen(false);
+              if (newCustomer) {
+                queryClient.invalidateQueries({
+                  queryKey: [CUSTOMERS.QUERY_KEY],
+                });
+              }
+            }}
+            title="Agregar Nuevo Cliente"
+          />
         </>
       )}
-
-      {/* Facturar a */}
-      <Separator />
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-            <User className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h4 className="text-base font-semibold text-gray-900">
-              Facturar a
-            </h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {isInvoiced
-                ? "Cliente de facturación establecido"
-                : "Selecciona el cliente para la factura"}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="w-full">
-            <FormProvider {...invoiceToForm}>
-              <div className="flex w-full items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <FormSelectAsync
-                    name="invoice_to_id"
-                    label="Cliente de facturación"
-                    placeholder="Seleccionar cliente"
-                    control={invoiceToForm.control}
-                    useQueryHook={useCustomers}
-                    mapOptionFn={(customer: CustomersResource) => ({
-                      value: customer.id.toString(),
-                      label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-                    })}
-                    description={
-                      isInvoiced
-                        ? "Ya existe una factura emitida, no se puede modificar"
-                        : hasAdvances
-                          ? "Ya se registraron avances de pago, no se puede modificar"
-                          : "Cliente a quien se le emitirá la factura de esta cotización"
-                    }
-                    perPage={10}
-                    debounceMs={500}
-                    disabled={
-                      isInvoiced || invoiceToMutation.isPending || hasAdvances
-                    }
-                    defaultOption={invoiceToDefaultOption}
-                    onValueChange={(value) => {
-                      invoiceToMutation.mutate(value ? Number(value) : null);
-                    }}
-                    allowClear={false}
-                  />
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon-lg"
-                  className="aspect-square shrink-0"
-                  onClick={() => setIsCustomerModalOpen(true)}
-                  tooltip="Agregar nuevo cliente"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </FormProvider>
-          </div>
-
-          {orderQuotation.invoice_to && (
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
-              <div className="flex-1 grid grid-cols-1 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Nombre
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {orderQuotation.invoice_to_client?.full_name || "—"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Documento
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
-                    {orderQuotation.invoice_to_client?.num_doc || "S/N"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <CustomerModal
-        open={isCustomerModalOpen}
-        onClose={(newCustomer) => {
-          setIsCustomerModalOpen(false);
-          if (newCustomer) {
-            queryClient.invalidateQueries({ queryKey: [CUSTOMERS.QUERY_KEY] });
-          }
-        }}
-        title="Agregar Nuevo Cliente"
-      />
 
       {/* Datos de Entrega */}
       {orderQuotation.delivery_document_number && (
@@ -1042,7 +975,7 @@ function BillingSheetContent({
       )}
 
       {/* Sección de Firma del Cliente */}
-      {shouldShowSignature && (
+      {shouldShowSignature && !readOnly && (
         <>
           <Separator />
           <Form {...form}>
@@ -1074,22 +1007,13 @@ function BillingSheetContent({
                     </FormItem>
                   )}
                 />
-                <FormField
+
+                <FormTextArea
                   control={form.control}
                   name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FormTextArea
-                          label="Notas adicionales (opcional)"
-                          placeholder="Escribe aquí..."
-                          disabled={confirmMutation.isPending}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Notas adicionales (opcional)"
+                  placeholder="Escribe aquí..."
+                  disabled={confirmMutation.isPending}
                 />
               </GroupFormSection>
 

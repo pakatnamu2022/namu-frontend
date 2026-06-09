@@ -168,6 +168,21 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
     });
   };
 
+  const handleHourlyRateChange = (labour: any, newValue: any) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: labour.time_spent,
+        hourly_rate: String(newValue),
+        discount_percentage: labour.discount_percentage,
+        work_order_id: labour.work_order_id,
+        worker_id: labour.worker_id,
+        group_number: labour.group_number,
+      },
+    });
+  };
+
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {
       const firstGroup = Math.min(...items.map((i) => i.group_number));
@@ -237,7 +252,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   // Total de las manos de obra filtradas (base para el global)
   const globalBaseAmount = filteredLabours.reduce(
-    (acc, l) => acc + parseFloat(l.total_cost || "0"),
+    (acc, l) => acc + l.total_cost,
     0,
   );
 
@@ -439,7 +454,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       </span>
                       <span className="text-left min-w-20">
                         {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
-                        {Number(item.total_amount || 0).toFixed(2)}
+                        {Number(item.net_amount || 0).toFixed(2)}
                       </span>
                     </div>
                     {item.status === "pending" && (
@@ -677,10 +692,20 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="text-sm">
-                          {workOrder?.type_currency?.symbol || "S/"}{" "}
-                          {Number(labour.hourly_rate || 0).toFixed(2)}
-                        </span>
+                        <div className="flex justify-end items-center gap-1">
+                          <span className="text-sm">
+                            {workOrder?.type_currency?.symbol || "S/"}
+                          </span>
+                          <EditableCell
+                            id={labour.id}
+                            value={Number(labour.hourly_rate || 0).toFixed(2)}
+                            onUpdate={(_, v) =>
+                              handleHourlyRateChange(labour, v)
+                            }
+                            widthClass="w-24"
+                            min={0}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         {workOrder?.type_currency?.symbol || "S/"}{" "}
@@ -823,11 +848,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                 <p className="text-xl font-bold">
                   {workOrder?.type_currency?.symbol || "S/"}{" "}
                   {filteredLabours
-                    .reduce(
-                      (acc, labour) =>
-                        acc + parseFloat(labour.net_amount || "0"),
-                      0,
-                    )
+                    .reduce((acc, labour) => acc + labour.net_amount, 0)
                     .toFixed(2)}
                 </p>
               </div>
@@ -866,6 +887,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         currencySymbol={workOrder?.type_currency?.symbol || "S/"}
         existingRequest={editingRequest ?? undefined}
         itemType="LABOUR"
+        maxDiscount={maxDiscountPercentage}
       />
     </div>
   );

@@ -25,7 +25,7 @@ import {
   findWorkOrderById,
   changeCurrency,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import InvoiceList from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceList";
+import InvoiceList from "@/features/ap/facturacion/electronic-documents/components/InvoiceList.tsx";
 import { getAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.actions";
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { useParams, useNavigate } from "react-router-dom";
@@ -667,7 +667,10 @@ export default function GeneralInformationPage() {
                           Descuento %
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
-                          Total
+                          Cto. Total
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Neto + IGV
                         </th>
                       </tr>
                     </thead>
@@ -695,7 +698,11 @@ export default function GeneralInformationPage() {
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             {workOrder.type_currency?.symbol || "S/"}{" "}
-                            {parseFloat(labour.total_cost).toFixed(2)}
+                            {labour.total_cost}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {labour.net_amount + labour.tax_amount}
                           </td>
                         </tr>
                       ))}
@@ -711,8 +718,17 @@ export default function GeneralInformationPage() {
                         <td className="py-2 px-3 text-right font-bold text-green-700">
                           {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.labours
+                            .reduce((acc, l) => acc + l.total_cost, 0)
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.labours
                             .reduce(
-                              (acc, l) => acc + parseFloat(l.total_cost),
+                              (acc, l) => acc + l.net_amount + l.tax_amount,
                               0,
                             )
                             .toLocaleString("es-PE", {
@@ -734,6 +750,14 @@ export default function GeneralInformationPage() {
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4" />
                   Repuestos ({workOrder.parts.length})
+                  {workOrder.parts[0]?.warehouse_name && (
+                    <span className="font-normal text-gray-500">
+                      —
+                      <span className="font-medium text-gray-700">
+                        {workOrder.parts[0].warehouse_name}
+                      </span>
+                    </span>
+                  )}
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
@@ -745,9 +769,6 @@ export default function GeneralInformationPage() {
                         <th className="text-left py-2 px-3 text-gray-600 font-medium">
                           Producto
                         </th>
-                        <th className="text-left py-2 px-3 text-gray-600 font-medium">
-                          Almacén
-                        </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Cant.
                         </th>
@@ -755,7 +776,13 @@ export default function GeneralInformationPage() {
                           P. Unit.
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
-                          Total
+                          Descuento %
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Total
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Neto + IGV
                         </th>
                       </tr>
                     </thead>
@@ -780,9 +807,6 @@ export default function GeneralInformationPage() {
                           <td className="py-2 px-3 font-medium">
                             {part.product_name}
                           </td>
-                          <td className="py-2 px-3 text-gray-600">
-                            {part.warehouse_name}
-                          </td>
                           <td className="py-2 px-3 text-right">
                             {part.quantity_used}
                           </td>
@@ -790,9 +814,16 @@ export default function GeneralInformationPage() {
                             {workOrder.type_currency?.symbol || "S/"}{" "}
                             {parseFloat(part.unit_price ?? "0").toFixed(2)}
                           </td>
+                          <td className="py-2 px-3 text-right text-orange-600">
+                            {Number(part.discount_percentage ?? 0).toFixed(2)}%
+                          </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             {workOrder.type_currency?.symbol || "S/"}{" "}
-                            {parseFloat(part.net_amount ?? "0").toFixed(2)}
+                            {part.total_cost}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {workOrder.type_currency?.symbol || "S/"}{" "}
+                            {part.net_amount + part.tax_amount}
                           </td>
                         </tr>
                       ))}
@@ -808,8 +839,17 @@ export default function GeneralInformationPage() {
                         <td className="py-2 px-3 text-right font-bold text-green-700">
                           {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.parts
+                            .reduce((acc, p) => acc + p.total_cost, 0)
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.parts
                             .reduce(
-                              (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                              (acc, p) => acc + p.net_amount + p.tax_amount,
                               0,
                             )
                             .toLocaleString("es-PE", {
@@ -840,7 +880,10 @@ export default function GeneralInformationPage() {
                     <p className="text-base font-bold text-green-700">
                       {workOrder.type_currency?.symbol || "S/"}{" "}
                       {(workOrder.labours ?? [])
-                        .reduce((acc, l) => acc + parseFloat(l.total_cost), 0)
+                        .reduce(
+                          (acc, l) => acc + l.net_amount + l.tax_amount,
+                          0,
+                        )
                         .toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -855,7 +898,7 @@ export default function GeneralInformationPage() {
                       {workOrder.type_currency?.symbol || "S/"}{" "}
                       {(workOrder.parts ?? [])
                         .reduce(
-                          (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                          (acc, p) => acc + p.net_amount + p.tax_amount,
                           0,
                         )
                         .toLocaleString("es-PE", {
@@ -870,11 +913,11 @@ export default function GeneralInformationPage() {
                       {workOrder.type_currency?.symbol || "S/"}{" "}
                       {(
                         (workOrder.labours ?? []).reduce(
-                          (acc, l) => acc + parseFloat(l.total_cost),
+                          (acc, l) => acc + l.net_amount + l.tax_amount,
                           0,
                         ) +
                         (workOrder.parts ?? []).reduce(
-                          (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
+                          (acc, p) => acc + p.net_amount + p.tax_amount,
                           0,
                         )
                       ).toLocaleString("es-PE", {

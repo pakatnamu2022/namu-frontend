@@ -52,8 +52,8 @@ export default function AddLoanPage() {
       <LoanForm
         defaultValues={{
           installments_count: 1,
-          installment_amount: 0,
-          loan_amount: 0,
+          installment_amount: "0",
+          loan_amount: "0",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

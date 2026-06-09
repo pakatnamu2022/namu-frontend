@@ -59,7 +59,10 @@ export default function InvoiceForm({
   const defaultCustomer = workOrder.invoice_to_client;
   const labours = workOrder.labours;
   const parts = workOrder.parts;
-  const advances = workOrder.vouchers?.active ?? [];
+  const advances = useMemo(
+    () => workOrder.vouchers?.active ?? [],
+    [workOrder.vouchers?.active],
+  );
 
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
@@ -195,11 +198,22 @@ export default function InvoiceForm({
 
       // Agregar items de repuestos
       parts.forEach((part) => {
-        const valor_unitario = parseFloat(part.unit_price || "0");
+        const precio_base = parseFloat(part.unit_price?.toString() || "0");
+        const descuento_pct = parseFloat(
+          part.discount_percentage?.toString() || "0",
+        );
         const cantidad = part.quantity_used;
-        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
-        const subtotal = valor_unitario * cantidad;
-        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+        const valor_unitario_sin_dcto = precio_base;
+        const monto_descuento =
+          descuento_pct > 0
+            ? round2(valor_unitario_sin_dcto * cantidad * (descuento_pct / 100))
+            : undefined;
+        const valor_unitario = round2(precio_base * (1 - descuento_pct / 100));
+        const precio_unitario = round2(
+          precio_base * (1 + porcentaje_de_igv / 100),
+        );
+        const subtotal = round2(valor_unitario * cantidad);
+        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
 
         invoiceItems.push({
           product_id: part.product_id.toString(),
@@ -208,11 +222,12 @@ export default function InvoiceForm({
           codigo: part.product_code,
           descripcion: part.product_name,
           cantidad: cantidad,
-          valor_unitario: round2(valor_unitario),
-          precio_unitario: round2(precio_unitario),
-          subtotal: round2(subtotal),
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
+          descuento: monto_descuento,
+          subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
-          igv: round2(igvAmount),
+          igv: igvAmount,
           total: round2(subtotal + igvAmount),
         });
       });

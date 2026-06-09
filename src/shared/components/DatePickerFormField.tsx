@@ -58,6 +58,7 @@ interface DatePickerFormFieldProps<T extends FieldValues> {
   disabled?: boolean;
   disabledRange?: Matcher | Matcher[];
   captionLayout?: "label" | "dropdown" | "dropdown-months" | "dropdown-years";
+  startMonth?: Date;
   endMonth?: Date;
   size?: "sm" | "default" | "lg";
   container?: HTMLElement | null;
@@ -74,6 +75,7 @@ export function DatePickerFormField<T extends FieldValues>({
   disabled = false,
   disabledRange,
   captionLayout = "label",
+  startMonth,
   // end month = one year more than today ()
   endMonth = new Date(
     new Date().getFullYear() + 1,
@@ -96,7 +98,7 @@ export function DatePickerFormField<T extends FieldValues>({
   }, [field.value]);
 
   const [visibleMonth, setVisibleMonth] = useState<Date | undefined>(
-    parsedDate,
+    parsedDate ?? startMonth,
   );
 
   useEffect(() => {
@@ -181,6 +183,7 @@ export function DatePickerFormField<T extends FieldValues>({
               onSelect={handleChange}
               disabled={disabledRange}
               className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)]"
+              startMonth={startMonth}
               endMonth={endMonth}
             />
           </DrawerContent>
@@ -219,6 +222,7 @@ export function DatePickerFormField<T extends FieldValues>({
               onSelect={handleChange}
               disabled={disabledRange}
               autoFocus
+              startMonth={startMonth}
               endMonth={endMonth}
             />
           </PopoverContent>

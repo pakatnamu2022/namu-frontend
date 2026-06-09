@@ -1,14 +1,13 @@
+"use client";
+
 import { useEffect } from "react";
 import { TrendingUp } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Progress } from "@/components/ui/progress";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
-import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface OrderQuotationFinancialInfoProps {
   quotation: OrderQuotationResource;
-  advances: ElectronicDocumentResource[];
   currencySymbol: string;
   onClientIdDetected?: (
     clientId: number | null,
@@ -19,48 +18,24 @@ interface OrderQuotationFinancialInfoProps {
 
 export function OrderQuotationFinancialInfo({
   quotation,
-  advances,
   currencySymbol,
   onClientIdDetected,
 }: OrderQuotationFinancialInfoProps) {
-  // Calcular total de la cotización desde OrderQuotationResource
+  const summary = quotation.payment_summary;
   const quotationTotal = quotation.total_amount || 0;
+  const paidAmount = summary?.paid_amount ?? 0;
+  const pendingBalance = summary?.remaining_balance ?? quotationTotal;
+  const paymentPercentage = summary?.payment_percentage ?? 0;
 
-  // Calcular total de TODOS los pagos previos (para mostrar en el progreso)
-  // Esto incluye tanto anticipos (is_advance_payment = true) como ventas internas completas (is_advance_payment = false)
-  const totalAdvances = advances.reduce((sum, advance) => {
-    if (
-      advance.sunat_concept_document_type_id ===
-      SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-    )
-      return sum - (Number(advance.total) || 0);
-    else if (
-      advance.sunat_concept_document_type_id ===
-      SUNAT_TYPE_INVOICES_ID.NOTA_DEBITO
-    )
-      return sum + (Number(advance.total) || 0);
-    else return sum + (Number(advance.total) || 0);
-  }, 0);
+  const activeVouchers = quotation.vouchers?.active ?? [];
+  const advanceVouchers = activeVouchers.filter((v) => v.is_advance_payment);
 
-  // Calcular saldo pendiente
-  const pendingBalance = quotationTotal - totalAdvances;
-
-  // Calcular porcentaje de pago
-  const paymentPercentage =
-    quotationTotal > 0 ? (totalAdvances / quotationTotal) * 100 : 0;
-
-  // Detectar y notificar el client_id cuando hay anticipos
+  // Notificar client_id: ActiveDocument no expone client_id numérico,
+  // así que se notifica null para no bloquear el selector cuando hay anticipos.
   useEffect(() => {
-    if (onClientIdDetected && advances.length > 0 && advances[0].client_id) {
-      onClientIdDetected(
-        advances[0].client_id,
-        advances[0].cliente_denominacion || "",
-        advances[0].cliente_numero_de_documento || "",
-      );
-    } else if (onClientIdDetected && advances.length === 0) {
-      onClientIdDetected(null);
-    }
-  }, [advances, onClientIdDetected]);
+    if (!onClientIdDetected) return;
+    onClientIdDetected(null);
+  }, [advanceVouchers.length, onClientIdDetected]);
 
   return (
     <GroupFormSection
@@ -83,7 +58,7 @@ export function OrderQuotationFinancialInfo({
           <Progress value={paymentPercentage} className="h-3" />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>
-              {currencySymbol} {totalAdvances.toFixed(2)}
+              {currencySymbol} {paidAmount.toFixed(2)}
             </span>
             <span>
               {currencySymbol} {quotationTotal.toFixed(2)}
@@ -102,14 +77,14 @@ export function OrderQuotationFinancialInfo({
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">
               Pagado
-              {advances.length > 0 && (
+              {advanceVouchers.length > 0 && (
                 <span className="ml-1.5 text-xs bg-tertiary/40 text-secondary-foreground px-1.5 py-0.5 rounded">
-                  {advances.length}
+                  {advanceVouchers.length}
                 </span>
               )}
             </p>
             <p className="text-lg font-bold text-tertiary">
-              {currencySymbol} {totalAdvances.toFixed(2)}
+              {currencySymbol} {paidAmount.toFixed(2)}
             </p>
           </div>
           <div className="space-y-1">
@@ -128,35 +103,29 @@ export function OrderQuotationFinancialInfo({
         </div>
 
         {/* Lista de Pagos */}
-        {advances.length > 0 && (
+        {activeVouchers.length > 0 && (
           <div className="space-y-2 pt-4 border-t">
             <p className="text-xs font-medium text-muted-foreground mb-2">
               Pagos aplicados
             </p>
             <div className="space-y-2">
-              {advances.map((advance) => (
+              {activeVouchers.map((voucher) => (
                 <div
-                  key={advance.id}
+                  key={voucher.id}
                   className="p-2 rounded bg-muted/20 border border-muted space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-foreground">
-                      {advance.serie}-{advance.numero}
+                      {voucher.serie}-{voucher.numero}
                     </span>
                     <span className="text-xs font-bold text-foreground">
-                      {advance.sunat_concept_document_type_id ===
-                      SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-                        ? "- "
-                        : ""}
-                      {currencySymbol} {Number(advance.total).toFixed(2)}
+                      {currencySymbol} {Number(voucher.total).toFixed(2)}
                     </span>
                   </div>
-                  {advance.cliente_denominacion && (
+                  {voucher.client_name && (
                     <div className="text-xs text-muted-foreground">
-                      <p className="font-medium">
-                        {advance.cliente_denominacion}
-                      </p>
-                      <p>RUC: {advance.cliente_numero_de_documento}</p>
+                      <p className="font-medium">{voucher.client_name}</p>
+                      <p>{voucher.client_document}</p>
                     </div>
                   )}
                 </div>

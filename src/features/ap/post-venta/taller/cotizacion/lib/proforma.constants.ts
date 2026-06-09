@@ -1,5 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { OrderQuotationResource } from "./proforma.interface";
+import { type BadgeColor } from "@/components/ui/badge";
 
 // RUTAS PARA TALLER - POST VENTA
 const ROUTE = "cotizacion-taller";
@@ -68,4 +69,11 @@ export const STATUS_ORDER_QUOTATION = {
   DISCARDED: "Descartado",
   TO_BILL: "Por Facturar",
   BILLED: "Facturado",
+};
+
+export const STATUS_ORDER_QUOTATION_COLOR: Record<string, BadgeColor> = {
+  [STATUS_ORDER_QUOTATION.OPEN]: "indigo",
+  [STATUS_ORDER_QUOTATION.DISCARDED]: "red",
+  [STATUS_ORDER_QUOTATION.TO_BILL]: "orange",
+  [STATUS_ORDER_QUOTATION.BILLED]: "green",
 };

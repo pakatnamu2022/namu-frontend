@@ -48,7 +48,13 @@ export const ProformaMesonActionsCell = ({
   onUpdate,
   onDelete,
 }: ActionsCellProps) => {
-  const { id, is_fully_paid, status, has_invoice_generated, delivery_document_number } = row;
+  const {
+    id,
+    is_fully_paid,
+    status,
+    has_invoice_generated,
+    delivery_document_number,
+  } = row;
   const isDiscarded = status === "Descartado";
   const isForInvoicing = status === "Por Facturar";
   const isDelivered = !!delivery_document_number;
@@ -95,6 +101,29 @@ export const ProformaMesonActionsCell = ({
     }
   };
 
+  const isVisibleGenerateDelivery =
+    !isDiscarded && is_fully_paid && !isDelivered;
+
+  const isVisibleSendVirtualLink =
+    !isDiscarded && !isForInvoicing && !has_invoice_generated;
+
+  const isVisibleRequestDiscount =
+    !isDiscarded && !has_invoice_generated && !isForInvoicing;
+
+  const isVisibleDiscard = !isDiscarded && !has_invoice_generated;
+
+  const isVisibleEdit =
+    !isDiscarded &&
+    !isForInvoicing &&
+    permissions.canUpdate &&
+    !has_invoice_generated;
+
+  const isVisibleDelete =
+    !isDiscarded &&
+    !isForInvoicing &&
+    permissions.canDelete &&
+    !has_invoice_generated;
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -103,7 +132,7 @@ export const ProformaMesonActionsCell = ({
           size="icon"
           className="size-7"
           onClick={() => onViewBilling(row)}
-          tooltip="Ver Información"
+          tooltip="Ver Detalles Cotización"
         >
           <Eye className="size-5" />
         </Button>
@@ -142,7 +171,7 @@ export const ProformaMesonActionsCell = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {!isDiscarded && is_fully_paid && !isDelivered && (
+        {isVisibleGenerateDelivery && (
           <Button
             variant="outline"
             size="icon"
@@ -154,7 +183,7 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {!isDiscarded && !isForInvoicing && !has_invoice_generated && (
+        {isVisibleSendVirtualLink && (
           <Button
             variant="outline"
             size="icon"
@@ -171,7 +200,7 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {!isDiscarded && !has_invoice_generated && !isForInvoicing && (
+        {isVisibleRequestDiscount && (
           <Button
             variant="outline"
             size="icon"
@@ -183,7 +212,7 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {!isDiscarded && !has_invoice_generated && (
+        {isVisibleDiscard && (
           <Button
             variant="outline"
             size="icon"
@@ -195,27 +224,19 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {!isDiscarded &&
-          !isForInvoicing &&
-          permissions.canUpdate &&
-          !has_invoice_generated && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
+        {isVisibleEdit && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Editar"
+            onClick={() => onUpdate(id)}
+          >
+            <Pencil className="size-5" />
+          </Button>
+        )}
 
-        {!isDiscarded &&
-          !isForInvoicing &&
-          permissions.canDelete &&
-          !has_invoice_generated && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
+        {isVisibleDelete && <DeleteButton onClick={() => onDelete(id)} />}
       </div>
 
       {showDiscardModal && (

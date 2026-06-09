@@ -63,9 +63,6 @@ export default function AddReceptionProductPage() {
 
   const today = new Date();
 
-  console.log("supplierOrder.details", supplierOrder.details);
-  console.log("pendingProducts", pendingProducts);
-
   return (
     <FormWrapper>
       <TitleFormComponent

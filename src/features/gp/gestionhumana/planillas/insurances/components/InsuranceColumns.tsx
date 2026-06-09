@@ -2,19 +2,10 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { InsuranceResource } from "../lib/insurance.interface";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { useNavigate } from "react-router-dom";
-import { INSURANCE } from "../lib/insurance.constant";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export type InsuranceColumns = ColumnDef<InsuranceResource>;
+
 export const insuranceColumns = ({
   onDelete,
 }: {
@@ -28,8 +19,13 @@ export const insuranceColumns = ({
     ),
   },
   {
+    accessorKey: "period",
+    header: "Periodo",
+    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
+  },
+  {
     accessorKey: "business_partner",
-    header: "Socio de Negocio",
+    header: "Aseguradora",
     cell: ({ getValue }) => (
       <span className="text-wrap line-clamp-1">
         {(getValue() as string) ?? "—"}
@@ -37,31 +33,23 @@ export const insuranceColumns = ({
     ),
   },
   {
-    accessorKey: "paternal_surname",
-    header: "Apellido Paterno",
-    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
-  },
-  {
-    accessorKey: "maternal_surname",
-    header: "Apellido Materno",
-    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
-  },
-  {
-    accessorKey: "first_name",
-    header: "Nombres",
-    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
-  },
-  {
     accessorKey: "doc_number_affiliate",
-    header: "N° Documento",
+    header: "N° Doc. Afiliado",
     cell: ({ getValue }) => (
       <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
     ),
   },
   {
-    accessorKey: "plan",
-    header: "Plan",
+    accessorKey: "contracting_name",
+    header: "Contratante",
     cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
+  },
+  {
+    accessorKey: "num_doc_contracting",
+    header: "N° Doc. Contratante",
+    cell: ({ getValue }) => (
+      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
+    ),
   },
   {
     accessorKey: "rate_with_tax",
@@ -77,48 +65,12 @@ export const insuranceColumns = ({
     },
   },
   {
-    accessorKey: "affiliation_from",
-    header: "Afiliación Desde",
-    cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
-    ),
-  },
-  {
-    accessorKey: "affiliation_until",
-    header: "Afiliación Hasta",
-    cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
-    ),
-  },
-  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE } = INSURANCE;
-
       return (
         <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-                >
-                  <Pencil className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Editar</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );

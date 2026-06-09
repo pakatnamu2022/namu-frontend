@@ -100,7 +100,6 @@ export default function UpdateOrderQuotationMesonPage() {
           unit_measure: detail.unit_measure || "",
           unit_price: Number(detail.unit_price) || 0,
           discount_percentage: Number(detail.discount_percentage) || 0,
-          total_amount: Number(detail.total_amount) || 0,
           observations: detail.observations || "",
           retail_price_external: Number(detail.retail_price_external) || 0,
           exchange_rate: Number(detail.exchange_rate) || 0,

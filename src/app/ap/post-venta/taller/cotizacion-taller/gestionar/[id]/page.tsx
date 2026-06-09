@@ -126,9 +126,13 @@ export default function ManageQuotationPage() {
 
   // Calcular el total actual desde los detalles
   const currentTotal = details.reduce((sum, detail) => {
-    return sum + (Number(detail.total_amount) || 0);
+    return sum + (Number(detail.net_amount) || 0);
   }, 0);
-  const igvAmount = currentTotal * IGV.RATE;
+
+  const currentTotalIgv = details.reduce((sum, detail) => {
+    return sum + (Number(detail.tax_amount) || 0);
+  }, 0);
+  const igvAmount = currentTotalIgv;
   const proposalTotal = currentTotal + igvAmount;
 
   if (isLoading) {

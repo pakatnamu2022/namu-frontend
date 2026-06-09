@@ -23,6 +23,8 @@ interface GeneralMastersModalProps {
   mode: "create" | "update";
   defaultCode?: string;
   lockedCode?: boolean;
+  defaultDescription?: string;
+  lockedDescription?: boolean;
   defaultType?: string;
   lockedType?: boolean;
   allowedTypes?: string[];
@@ -35,6 +37,8 @@ export default function GeneralMastersModal({
   mode,
   defaultCode,
   lockedCode,
+  defaultDescription,
+  lockedDescription,
   defaultType,
   lockedType,
   allowedTypes,
@@ -43,6 +47,7 @@ export default function GeneralMastersModal({
   const emptyWithCode = {
     ...EMPTY,
     ...(defaultCode ? { code: defaultCode } : {}),
+    ...(defaultDescription ? { description: defaultDescription } : {}),
     ...(defaultType ? { type: defaultType } : {}),
   };
   const {
@@ -105,6 +110,7 @@ export default function GeneralMastersModal({
           mode={mode}
           onCancel={onClose}
           lockedCode={lockedCode}
+          lockedDescription={lockedDescription}
           lockedType={lockedType}
           allowedTypes={allowedTypes}
         />

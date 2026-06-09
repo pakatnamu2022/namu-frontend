@@ -18,6 +18,7 @@ export async function getSuppliers({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
+      is_insurance: 0,
       type: [TYPE_BUSINESS_PARTNERS.PROVEEDOR, TYPE_BUSINESS_PARTNERS.AMBOS],
     },
   };
@@ -32,6 +33,7 @@ export async function getAllSuppliers({
     params: {
       ...params,
       all: true,
+      is_insurance: 0,
       type: [TYPE_BUSINESS_PARTNERS.PROVEEDOR, TYPE_BUSINESS_PARTNERS.AMBOS],
     },
   };

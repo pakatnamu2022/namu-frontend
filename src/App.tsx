@@ -271,6 +271,7 @@ import OrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-me
 import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx";
 import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
 import RequestDiscountOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/solicitar-descuento/[id]/page.tsx";
+import OrderQuotationMesonDetallePage from "./app/ap/post-venta/repuestos/cotizacion-meson/detalle/[id]/page.tsx";
 import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx";
 import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
 import AddPurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx";
@@ -412,12 +413,20 @@ import UpdateLiquidacionBbssPage from "./app/gp/gestion-humana/planillas/liquida
 import LoanPage from "./app/gp/gestion-humana/planillas/prestamos/page.tsx";
 import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/page.tsx";
 import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
+import LoanAmortizacionesPage from "./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx";
 import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
+import InsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/page.tsx";
+import AddInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx";
+import UpdateInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx";
 import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
 import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
 import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
 import AddBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx";
 import UpdateBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx";
+import FoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/page.tsx";
+import AssignFoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/asignar/page.tsx";
+import FamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/page.tsx";
+import AssignFamilyAllowancePage from "./app/gp/gestion-humana/planillas/asignacion-familiar/asignar/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import PayrollParameterPage from "./app/gp/gestion-humana/planillas/parametros/page.tsx";
 import PayrollRatesPercentagesPage from "./app/gp/gestion-humana/planillas/tasas-porcentajes/page.tsx";
@@ -1444,6 +1453,10 @@ function App() {
                 element={<RequestDiscountOrderQuotationMesonPage />}
               />
               <Route
+                path="repuestos/cotizacion-meson/detalle/:id"
+                element={<OrderQuotationMesonDetallePage />}
+              />
+              <Route
                 path="repuestos/comprobante-venta-repuesto"
                 element={<SalesReceiptsRepuestoPage />}
               />
@@ -1986,6 +1999,10 @@ function App() {
                 <AddLoanPage />,
                 <UpdateLoanPage />,
               )}
+              <Route
+                path="planillas/prestamos/:id/amortizaciones"
+                element={<LoanAmortizacionesPage />}
+              />
               {/* Seguros */}
               {RouterCrud(
                 "planillas/seguros",
@@ -2000,6 +2017,24 @@ function App() {
                 <AddBonusPage />,
                 <UpdateBonusPage />,
               )}
+              {/* Tarjeta de Alimentos */}
+              <Route
+                path="planillas/tarjeta-de-alimentos"
+                element={<FoodCardPage />}
+              />
+              <Route
+                path="planillas/tarjeta-de-alimentos/asignar"
+                element={<AssignFoodCardPage />}
+              />
+              {/* Asignación Familiar */}
+              <Route
+                path="planillas/asignacion-familiar"
+                element={<FamilyAllowancePage />}
+              />
+              <Route
+                path="planillas/asignacion-familiar/asignar"
+                element={<AssignFamilyAllowancePage />}
+              />
               {/* Constantes de Planilla */}
               <Route
                 path="planillas/parametros-planilla"
@@ -2015,6 +2050,13 @@ function App() {
                 path="planillas/conceptos-planilla"
                 element={<PayrollConceptsPage />}
               />
+              {/* Aseguradora */}
+              {RouterCrud(
+                "planillas/aseguradora",
+                <InsurerPage />,
+                <AddInsurerPage />,
+                <UpdateInsurerPage />,
+              )}
 
               {/* Asistencias */}
               <Route

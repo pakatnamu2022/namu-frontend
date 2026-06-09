@@ -112,6 +112,15 @@ function ProductDetailItem({
   const { data: productData } = useProductById(Number(productId) || 0);
   const [isCopied, setIsCopied] = useState(false);
 
+  const detail = form.watch(`details.${index}`);
+  const computedTotal = (() => {
+    const quantity = detail?.quantity || 0;
+    const unitPrice = detail?.unit_price || 0;
+    const discount = detail?.discount_percentage || 0;
+    const subtotal = quantity * unitPrice;
+    return Math.round((subtotal - subtotal * (discount / 100)) * 100) / 100;
+  })();
+
   // Función para copiar código del repuesto
   const copyToClipboard = async (text: string) => {
     try {
@@ -313,22 +322,12 @@ function ProductDetailItem({
         </div>
 
         <div className="col-span-2">
-          <FormField
-            control={form.control}
-            name={`details.${index}.total_amount`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    className="h-9 bg-gray-100 font-bold text-primary"
-                    disabled
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          <Input
+            type="number"
+            value={computedTotal}
+            className="h-9 bg-gray-100 font-bold text-primary"
+            disabled
+            readOnly
           />
         </div>
 
@@ -635,26 +634,18 @@ function ProductDetailItem({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name={`details.${index}.total_amount`}
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel className="text-xs">
-                  Total ({selectedCurrency?.symbol || "S/."})
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    {...field}
-                    className="h-9 bg-gray-100 font-bold text-primary"
-                    disabled
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <FormItem className="col-span-2">
+            <FormLabel className="text-xs">
+              Total ({selectedCurrency?.symbol || "S/."})
+            </FormLabel>
+            <Input
+              type="number"
+              value={computedTotal}
+              className="h-9 bg-gray-100 font-bold text-primary"
+              disabled
+              readOnly
+            />
+          </FormItem>
         </div>
 
         <div className="grid grid-cols-1 gap-3">
@@ -884,7 +875,6 @@ export default function ProformaMesonForm({
       unit_measure: "UND",
       unit_price: 0,
       discount_percentage: 0,
-      total_amount: 0,
       observations: "",
       retail_price_external: undefined,
       exchange_rate: exchangeRate || 0,
@@ -928,13 +918,6 @@ export default function ProformaMesonForm({
       if (calculatedUnitPrice !== currentUnitPrice) {
         form.setValue(`details.${index}.unit_price`, calculatedUnitPrice);
       }
-
-      const calculatedTotal = calculateTotalAmount(index);
-      const currentTotal = form.getValues(`details.${index}.total_amount`);
-
-      if (calculatedTotal !== currentTotal) {
-        form.setValue(`details.${index}.total_amount`, calculatedTotal);
-      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchAllFields, exchangeRate, selectedCurrency]);
@@ -951,6 +934,13 @@ export default function ProformaMesonForm({
   const getTotalGeneral = () => {
     return fields.reduce((sum, _, index) => {
       return sum + calculateTotalAmount(index);
+    }, 0);
+  };
+
+  const getIgvTotal = () => {
+    return fields.reduce((sum, _, index) => {
+      const itemTotal = calculateTotalAmount(index);
+      return sum + Math.round(itemTotal * IGV.RATE * 100) / 100;
     }, 0);
   };
 
@@ -1326,7 +1316,7 @@ export default function ProformaMesonForm({
                 <div className="flex justify-between gap-8">
                   <p className="text-sm text-gray-600">IGV (18%):</p>
                   <p className="text-sm font-medium text-gray-800">
-                    {formatCurrency(getTotalGeneral() * IGV.RATE)}
+                    {formatCurrency(getIgvTotal())}
                   </p>
                 </div>
                 <div className="flex justify-between gap-8 pt-1 border-t">
@@ -1334,7 +1324,7 @@ export default function ProformaMesonForm({
                     Total General:
                   </p>
                   <p className="text-2xl font-bold text-primary">
-                    {formatCurrency(getTotalGeneral() * IGV.FACTOR)}
+                    {formatCurrency(getTotalGeneral() + getIgvTotal())}
                   </p>
                 </div>
               </div>

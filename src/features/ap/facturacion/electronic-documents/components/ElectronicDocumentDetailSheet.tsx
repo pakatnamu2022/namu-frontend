@@ -18,20 +18,20 @@ import {
   Loader2,
   LucideIcon,
 } from "lucide-react";
-import type { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
+import type {
+  ElectronicDocumentResource,
+  ElectronicDocumentItem,
+} from "../lib/electronicDocument.interface";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DetailSheetTable,
+  type DetailSheetTableColumn,
+} from "@/shared/components/DetailSheetTable";
 import { queryElectronicDocumentStatus } from "../lib/electronicDocument.actions";
 import { successToast, errorToast } from "@/core/core.function";
 import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface ElectronicDocumentDetailSheetProps {
   document: ElectronicDocumentResource | null;
@@ -396,61 +396,77 @@ export function ElectronicDocumentDetailSheet({
         </div>
 
         {/* Items */}
-        {document.items && document.items.length > 0 && (
-          <>
-            <Separator />
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold text-primary">
-                  Items del Documento ({document.items.length})
-                </h3>
-              </div>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead>Descripción</TableHead>
-                      <TableHead className="text-center">Cant.</TableHead>
-                      <TableHead className="text-right">P. Unit.</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {document.items.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <div className="text-xs font-medium text-nowrap! whitespace-pre-line">
-                            {item.descripcion}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {item.unidad_de_medida}
-                            {item.codigo && ` - ${item.codigo}`}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {item.cantidad}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {currencySymbol}{" "}
-                          {item.precio_unitario.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {currencySymbol}{" "}
-                          {item.total.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          </>
-        )}
+        <Separator />
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-primary" />
+            <h3 className="font-semibold text-primary">
+              Items del Documento ({document.items?.length ?? 0})
+            </h3>
+          </div>
+          {(() => {
+            const itemColumns: DetailSheetTableColumn<ElectronicDocumentItem>[] =
+              [
+                {
+                  header: "Descripción",
+                  render: (item) => (
+                    <div>
+                      <div className="text-xs font-medium text-nowrap! whitespace-pre-line">
+                        {item.descripcion}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {item.unidad_de_medida}
+                      </div>
+                      {item.codigo && !document.is_advance_payment && (
+                        <CopyCell
+                          value={item.codigo}
+                          label={`Cód : ${item.codigo}`}
+                          className="text-xs text-muted-foreground"
+                        />
+                      )}
+                      {item.dyn_code && (
+                        <CopyCell
+                          value={item.dyn_code}
+                          label={`Cód Dyn : ${item.dyn_code}`}
+                          className="text-xs text-muted-foreground"
+                        />
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  header: "Cant.",
+                  className: "text-center",
+                  render: (item) => item.cantidad,
+                },
+                {
+                  header: "P. Unit.",
+                  className: "text-right",
+                  render: (item) =>
+                    `${currencySymbol} ${item.precio_unitario.toLocaleString("es-PE", { minimumFractionDigits: 2 })}`,
+                },
+                {
+                  header: "Total",
+                  className: "text-right",
+                  render: (item) => (
+                    <span className="font-medium">
+                      {currencySymbol}{" "}
+                      {item.total.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  ),
+                },
+              ];
+            return (
+              <DetailSheetTable
+                rows={document.items ?? []}
+                columns={itemColumns}
+                getKey={(_, index) => index}
+              />
+            );
+          })()}
+        </div>
 
         {/* Estado SUNAT */}
         <Separator />

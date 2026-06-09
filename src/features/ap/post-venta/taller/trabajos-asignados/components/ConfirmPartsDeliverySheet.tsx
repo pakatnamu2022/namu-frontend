@@ -158,17 +158,11 @@ export function ConfirmPartsDeliverySheet({
                             {assignment.product.name}
                           </p>
                           {assignment.is_received ? (
-                            <Badge
-                              variant="outline"
-                              className="bg-blue-50 text-primary border-blue-200 text-xs"
-                            >
+                            <Badge variant="outline" color="green">
                               Recibido
                             </Badge>
                           ) : (
-                            <Badge
-                              variant="outline"
-                              className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs"
-                            >
+                            <Badge variant="outline" color="orange">
                               Pendiente
                             </Badge>
                           )}

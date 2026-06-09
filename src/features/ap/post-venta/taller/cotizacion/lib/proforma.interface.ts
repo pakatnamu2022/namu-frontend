@@ -2,7 +2,6 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { OrderQuotationDetailsResource } from "../../cotizacion-detalle/lib/proformaDetails.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 export interface OrderQuotationResponse {
@@ -30,7 +29,16 @@ export interface OrderQuotationResource {
   observations: string | null;
   notes: string | null;
   details: OrderQuotationDetailsResource[];
-  advances: ElectronicDocumentResource[];
+  vouchers: ProformaDocumentsTreeResource;
+  payment_summary: {
+    paid_amount: number;
+    pending_amount: number;
+    remaining_balance: number;
+    payment_percentage: number;
+    is_fully_paid: boolean;
+    has_final_invoice: boolean;
+    advances_count: number;
+  };
   client: CustomersResource;
   currency_id: number;
   type_currency: CurrencyTypesResource;
@@ -78,6 +86,62 @@ export interface OrderQuotationRequest {
 
 export interface getOrderQuotationProps {
   params?: Record<string, any>;
+}
+
+// Tipos de modificación
+type ModificationType = "credit_note" | "debit_note";
+
+// Modificación (Nota de Crédito o Débito)
+interface Modification {
+  id: number;
+  type: ModificationType;
+  concept_type: string;
+  concept_type_id: number;
+  number: string;
+  serie: string;
+  numero: string;
+  total: number; // Negativo para credit notes, positivo para debit notes
+  issue_date: string;
+  original_document_id: number;
+  observaciones: string | null;
+  enlace_del_pdf: string | null;
+}
+
+// Documento base (campos comunes)
+export interface BaseDocument {
+  id: number;
+  is_advance_payment: boolean;
+  document_type: string;
+  number: string;
+  serie: string;
+  numero: string;
+  total: number;
+  issue_date: string;
+  client_name: string;
+  client_document: string;
+  status: string;
+  sunat_responsecode: string | null;
+  enlace_del_pdf: string | null;
+}
+
+// Documento cancelado
+export interface CancelledDocument extends BaseDocument {
+  cancellation_reason: string | null;
+  credit_note_number: string | null;
+  sunat_concept_credit_note_type_id: number | null;
+  credit_note_type_description: string | null;
+}
+
+// Documento activo
+export interface ActiveDocument extends BaseDocument {
+  net_amount: number;
+  has_modifications: boolean;
+  modifications: Modification[];
+}
+
+export interface ProformaDocumentsTreeResource {
+  cancelled: CancelledDocument[];
+  active: ActiveDocument[];
 }
 
 // ─── Confirmación Virtual ────────────────────────────────────────────────────

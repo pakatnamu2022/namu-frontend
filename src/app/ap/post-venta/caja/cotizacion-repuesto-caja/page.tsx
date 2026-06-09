@@ -91,7 +91,7 @@ export default function OrderQuotationMesonCajaPage() {
         : undefined,
     area_id: AREA_MESON.toString(),
     sede_id: sedeId,
-    status: STATUS_ORDER_QUOTATION.TO_BILL, // Solo mostrar cotizaciones finalizadas
+    status: [STATUS_ORDER_QUOTATION.TO_BILL, STATUS_ORDER_QUOTATION.BILLED], // Solo mostrar cotizaciones finalizadas
   });
 
   const handleDelete = async () => {
@@ -185,7 +185,7 @@ export default function OrderQuotationMesonCajaPage() {
         orderQuotationId={selectedOrderQuotationId}
         open={isBillingSheetOpen}
         onClose={handleCloseBillingSheet}
-        onRefresh={refetch}
+        readOnly
       />
 
       <OrderQuotationDeliverySheet

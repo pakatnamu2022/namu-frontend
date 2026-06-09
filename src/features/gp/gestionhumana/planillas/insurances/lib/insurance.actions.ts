@@ -6,10 +6,6 @@ import { INSURANCE } from "./insurance.constant";
 
 const { ENDPOINT } = INSURANCE;
 
-function unwrap<T>(response: any): T {
-  return response?.data ?? response;
-}
-
 export async function getInsurances(
   params?: Record<string, any>,
 ): Promise<InsuranceResponse> {
@@ -19,24 +15,28 @@ export async function getInsurances(
 }
 
 export async function findInsuranceById(id: number): Promise<InsuranceResource> {
-  const { data } = await api.get<any>(`${ENDPOINT}/${id}`);
-  return unwrap<InsuranceResource>(data);
-}
-
-export async function storeInsurance(payload: any): Promise<InsuranceResource> {
-  const { data } = await api.post<any>(ENDPOINT, payload);
-  return unwrap<InsuranceResource>(data);
-}
-
-export async function updateInsurance(
-  id: number,
-  payload: any,
-): Promise<InsuranceResource> {
-  const { data } = await api.put<any>(`${ENDPOINT}/${id}`, payload);
-  return unwrap<InsuranceResource>(data);
+  const { data } = await api.get<{ data: InsuranceResource }>(`${ENDPOINT}/${id}`);
+  return data.data;
 }
 
 export async function deleteInsurance(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function importInsurance(
+  file: File,
+  period_id: string | number,
+  business_partner_id: string | number,
+): Promise<GeneralResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("period_id", String(period_id));
+  formData.append("business_partner_id", String(business_partner_id));
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/import`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
   return data;
 }

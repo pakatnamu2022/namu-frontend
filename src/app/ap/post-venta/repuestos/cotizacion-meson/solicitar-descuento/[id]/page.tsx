@@ -7,7 +7,10 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+import {
+  ORDER_QUOTATION_MESON,
+  STATUS_ORDER_QUOTATION_COLOR,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,9 +28,10 @@ import {
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
 import {
   DISCOUNT_REQUEST_MESON,
+  DISCOUNT_REQUEST_STATUS_COLOR,
+  DISCOUNT_REQUEST_STATUS_LABEL,
   STATUS_APPROVED,
   STATUS_PENDING,
-  STATUS_REJECTED,
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
@@ -150,7 +154,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const hasMultipleItems = productDetails.length > 1;
   const currencySymbol = quotation.type_currency?.symbol ?? "S/.";
   const globalBaseAmount = productDetails.reduce(
-    (sum, d) => sum + Number(d.total_amount || 0),
+    (sum, d) => sum + Number(d.net_amount || 0),
     0,
   );
 
@@ -186,7 +190,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
-      : Number(selectedDetail?.total_amount || 0);
+      : Number(selectedDetail?.net_amount || 0);
 
   // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
   const maxDiscountForModal = maxDiscountAllowed;
@@ -218,18 +222,12 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                 </span>
                 <Badge
                   color={
-                    globalRequest.status === STATUS_APPROVED
-                      ? "green"
-                      : globalRequest.status === STATUS_REJECTED
-                        ? "red"
-                        : "orange"
+                    DISCOUNT_REQUEST_STATUS_COLOR[globalRequest.status] ??
+                    "secondary"
                   }
                 >
-                  {globalRequest.status === STATUS_APPROVED
-                    ? "Aprobado"
-                    : globalRequest.status === STATUS_REJECTED
-                      ? "Rechazado"
-                      : "Pendiente"}
+                  {DISCOUNT_REQUEST_STATUS_LABEL[globalRequest.status] ??
+                    globalRequest.status}
                 </Badge>
                 {globalRequest.status === STATUS_PENDING && (
                   <>
@@ -328,10 +326,15 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         </div>
         <div>
           <p className="text-muted-foreground text-xs">Estado</p>
-          <Badge color="indigo">{quotation.status}</Badge>
+          <Badge
+            color={
+              STATUS_ORDER_QUOTATION_COLOR[quotation.status] ?? "secondary"
+            }
+          >
+            {quotation.status}
+          </Badge>
         </div>
         <div>
-          <p className="text-muted-foreground text-xs">Total</p>
           <p className="font-semibold">
             {currencySymbol} {Number(quotation.total_amount ?? 0).toFixed(2)}
           </p>
@@ -359,7 +362,10 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                 Desc. %
               </th>
               <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                Total
+                Cto. Total
+              </th>
+              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
+                Cto. Neto
               </th>
               {!globalRequest && (
                 <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">
@@ -392,7 +398,10 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                     {Number(detail.discount_percentage).toFixed(2)}%
                   </td>
                   <td className="px-4 py-2 text-right font-medium">
-                    {currencySymbol} {Number(detail.total_amount).toFixed(2)}
+                    {currencySymbol} {Number(detail.total_cost).toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2 text-right font-medium">
+                    {currencySymbol} {Number(detail.net_amount).toFixed(2)}
                   </td>
                   <td className="px-4 py-2">
                     {partialRequest ? (
@@ -405,18 +414,14 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                         </span>
                         <Badge
                           color={
-                            partialRequest.status === STATUS_APPROVED
-                              ? "green"
-                              : partialRequest.status === STATUS_REJECTED
-                                ? "red"
-                                : "orange"
+                            DISCOUNT_REQUEST_STATUS_COLOR[
+                              partialRequest.status
+                            ] ?? "secondary"
                           }
                         >
-                          {partialRequest.status === STATUS_APPROVED
-                            ? "Aprobado"
-                            : partialRequest.status === STATUS_REJECTED
-                              ? "Rechazado"
-                              : "Pendiente"}
+                          {DISCOUNT_REQUEST_STATUS_LABEL[
+                            partialRequest.status
+                          ] ?? partialRequest.status}
                         </Badge>
                         {partialRequest.status === STATUS_PENDING && (
                           <>

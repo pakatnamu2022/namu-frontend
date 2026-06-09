@@ -209,7 +209,7 @@ export default function DirectInvoiceForm({
 
     workOrders.forEach((wo) => {
       (wo.labours ?? []).forEach((labour) => {
-        const subtotal = round2(parseFloat(labour.net_amount || "0"));
+        const subtotal = round2(labour.net_amount);
         const valor_unitario = subtotal;
         const precio_unitario = round2(
           valor_unitario * (1 + porcentaje_de_igv / 100),
@@ -231,7 +231,7 @@ export default function DirectInvoiceForm({
       });
 
       (wo.parts ?? []).forEach((part) => {
-        const totalAmount = round2(parseFloat(part.net_amount || "0"));
+        const totalAmount = round2(part.net_amount);
         const cantidad = part.quantity_used;
         const valor_unitario = round2(totalAmount / cantidad);
         const precio_unitario = round2(

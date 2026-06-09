@@ -48,6 +48,7 @@ export default function InventoryMovementDetailsSheet({
 
     const { movement_type, reference_type } = movement;
     const reference = movement.reference;
+    const electronicDoc = movement.electronic_document;
 
     switch (movement_type) {
       case "PURCHASE_RECEPTION": {
@@ -410,16 +411,75 @@ export default function InventoryMovementDetailsSheet({
       }
 
       case "SALE": {
+        const doc = electronicDoc as ElectronicDocumentResource | null;
+
         if (reference_type?.includes("ApWorkOrder")) {
           const workOrder = reference as WorkOrderBasicInfoResource;
 
           return (
             <div className="space-y-4">
+              {/* Factura — info principal */}
+              {doc ? (
+                <div className="border rounded-lg">
+                  <div className="p-4 bg-muted/50 border-b">
+                    <h3 className="font-semibold text-sm">
+                      Documento Electrónico
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 p-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        N° Documento
+                      </p>
+                      <p className="font-semibold">{doc.full_number || "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Fecha Emisión
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(doc.fecha_de_emision)}
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-xs text-muted-foreground">Cliente</p>
+                      <p className="font-semibold">
+                        {doc.cliente_denominacion}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {doc.cliente_numero_de_documento}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <p className="font-semibold text-lg text-green-600">
+                        S/ {Number(doc.total).toFixed(2)}
+                      </p>
+                    </div>
+                    {doc.enlace_del_pdf && (
+                      <div className="col-span-2">
+                        <a
+                          href={doc.enlace_del_pdf}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-sm font-medium"
+                        >
+                          📄 Ver PDF
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 border rounded-lg text-sm text-muted-foreground">
+                  Sin documento electrónico asociado.
+                </div>
+              )}
+
+              {/* Orden de Trabajo — info adicional */}
               <div className="border rounded-lg">
                 <div className="p-4 bg-muted/50 border-b">
-                  <h3 className="font-semibold text-sm">
-                    Detalles de la Orden de Trabajo
-                  </h3>
+                  <h3 className="font-semibold text-sm">Orden de Trabajo</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-4 p-4">
                   <div>
@@ -429,45 +489,35 @@ export default function InventoryMovementDetailsSheet({
                     <p className="font-semibold">{workOrder.correlative}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Fecha</p>
+                    <p className="text-xs text-muted-foreground">
+                      Fecha Apertura
+                    </p>
                     <p className="font-medium">
                       {formatDate(workOrder.opening_date)}
                     </p>
                   </div>
-                  <div className="col-span-2">
-                    <p className="text-xs text-muted-foreground">
-                      Facturado a:
-                    </p>
-                    <p className="font-semibold text-base">
-                      {workOrder.invoice_to_client!.full_name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Doc: {workOrder.invoice_to_client!.num_doc}
-                    </p>
-                  </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Placa</p>
+                    <p className="text-xs text-muted-foreground">Vehículo</p>
                     <p className="font-medium">{workOrder.vehicle_plate}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="font-semibold text-lg text-green-600">
-                      {Number(workOrder.final_amount).toFixed(2)}
+                    <p className="text-xs text-muted-foreground">Total Final</p>
+                    <p className="font-semibold">
+                      S/ {Number(workOrder.final_amount).toFixed(2)}
                     </p>
                   </div>
+                  {workOrder.observations && (
+                    <div className="col-span-2">
+                      <p className="text-xs text-muted-foreground">
+                        Observaciones
+                      </p>
+                      <p className="font-medium text-sm">
+                        {workOrder.observations}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {workOrder.observations && (
-                <div className="p-4 border rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Observaciones
-                  </p>
-                  <p className="font-medium text-sm">
-                    {workOrder.observations}
-                  </p>
-                </div>
-              )}
             </div>
           );
         }
@@ -476,10 +526,64 @@ export default function InventoryMovementDetailsSheet({
 
         return (
           <div className="space-y-4">
-            {/* Información de la Cotización/Venta */}
+            {/* Factura — info principal */}
+            {doc ? (
+              <div className="border rounded-lg">
+                <div className="p-4 bg-muted/50 border-b">
+                  <h3 className="font-semibold text-sm">
+                    Documento Electrónico
+                  </h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      N° Documento
+                    </p>
+                    <p className="font-semibold">{doc.full_number || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Fecha Emisión
+                    </p>
+                    <p className="font-medium">
+                      {formatDate(doc.fecha_de_emision)}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-muted-foreground">Cliente</p>
+                    <p className="font-semibold">{doc.cliente_denominacion}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {doc.cliente_numero_de_documento}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="font-semibold text-lg text-green-600">
+                      S/ {Number(doc.total).toFixed(2)}
+                    </p>
+                  </div>
+                  {doc.enlace_del_pdf && (
+                    <div className="col-span-2">
+                      <a
+                        href={doc.enlace_del_pdf}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-sm font-medium"
+                      >
+                        📄 Ver PDF
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Cotización — info adicional */}
             <div className="border rounded-lg">
               <div className="p-4 bg-muted/50 border-b">
-                <h3 className="font-semibold text-sm">Detalles de la Venta</h3>
+                <h3 className="font-semibold text-sm">
+                  {doc ? "Cotización Repuestos" : "Detalles de la Venta"}
+                </h3>
               </div>
               <div className="grid grid-cols-2 gap-4 p-4">
                 <div>
@@ -507,9 +611,7 @@ export default function InventoryMovementDetailsSheet({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Moneda</p>
-                  <p className="font-medium">
-                    {quotation.type_currency.symbol}
-                  </p>
+                  <p className="font-medium">{quotation.type_currency.name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Subtotal</p>
@@ -845,7 +947,9 @@ export default function InventoryMovementDetailsSheet({
       }
 
       case "RETURN_IN": {
-        const doc = reference as ElectronicDocumentResource;
+        if (!electronicDoc) return null;
+        const doc = electronicDoc as ElectronicDocumentResource;
+
         return (
           <div className="border rounded-lg">
             <div className="p-4 bg-muted/50 border-b">
@@ -856,7 +960,7 @@ export default function InventoryMovementDetailsSheet({
             <div className="grid grid-cols-2 gap-4 p-4">
               <div>
                 <p className="text-xs text-muted-foreground">N° Documento</p>
-                <p className="font-semibold">{doc.full_number}</p>
+                <p className="font-semibold">{doc.full_number || "-"}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Fecha Emisión</p>

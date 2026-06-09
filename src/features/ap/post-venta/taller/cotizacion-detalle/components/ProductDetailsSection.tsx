@@ -5,12 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Plus,
-  Trash2,
   Package,
   Loader2,
   PackagePlus,
   Pencil,
-  Tag,
   Percent,
   CheckCircle,
   XCircle,
@@ -52,8 +50,8 @@ import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { FormInput } from "@/shared/components/FormInput";
-import { EditableCell } from "@/shared/components/EditableCell";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { QuotationItemsTable } from "./QuotationItemsTable";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
@@ -167,8 +165,6 @@ export default function ProductDetailsSection({
     }
     try {
       setIsApSaving(true);
-      const subtotal = data.ap_quantity * data.ap_unit_price;
-      const total_amount = subtotal - (subtotal * data.ap_discount) / 100;
       await storeOrderQuotationDetails({
         order_quotation_id: quotationId,
         item_type: ITEM_TYPE_PRODUCT,
@@ -181,7 +177,6 @@ export default function ProductDetailsSection({
         exchange_rate: 0,
         unit_price: data.ap_unit_price,
         discount_percentage: data.ap_discount,
-        total_amount,
         observations: "",
         supply_type: data.ap_supply_type,
       });
@@ -273,8 +268,6 @@ export default function ProductDetailsSection({
     newPct: number,
   ) => {
     try {
-      const subtotal = detail.quantity * detail.unit_price;
-      const total_amount = subtotal - (subtotal * newPct) / 100;
       await updateOrderQuotationDetails(detail.id, {
         order_quotation_id: detail.order_quotation_id,
         item_type: detail.item_type,
@@ -286,7 +279,6 @@ export default function ProductDetailsSection({
         exchange_rate: detail.exchange_rate,
         unit_price: detail.unit_price,
         discount_percentage: newPct,
-        total_amount,
         observations: detail.observations ?? undefined,
       });
       successToast("Descuento actualizado correctamente");
@@ -320,7 +312,6 @@ export default function ProductDetailsSection({
       exchange_rate: 0,
       unit_price: 0,
       discount_percentage: 0,
-      total_amount: 0,
       observations: "",
       supply_type: "",
     },
@@ -435,11 +426,8 @@ export default function ProductDetailsSection({
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
       setIsSaving(true);
-      const subtotal = data.quantity * data.unit_price;
-      const total_amount = subtotal - data.discount_percentage;
       await storeOrderQuotationDetails({
         ...data,
-        total_amount,
         product_id: Number(data.product_id),
       });
       successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
@@ -455,7 +443,6 @@ export default function ProductDetailsSection({
         exchange_rate: exchangeRate || 0,
         unit_price: 0,
         discount_percentage: 0,
-        total_amount: 0,
         observations: "",
         supply_type: "",
       });
@@ -479,7 +466,7 @@ export default function ProductDetailsSection({
   );
 
   const globalBaseAmount = productDetails.reduce(
-    (sum, d) => sum + Number(d.total_amount || 0),
+    (sum, d) => sum + Number(d.total_cost || 0),
     0,
   );
   const hasMultipleItems = productDetails.length > 1;
@@ -488,12 +475,6 @@ export default function ProductDetailsSection({
   const hasPartialRequests = discountRequests.some(
     (r) => r.type === TYPE_PARTIAL,
   );
-
-  const getPartialRequest = (detailId: number) =>
-    discountRequests.find(
-      (r) =>
-        r.type === TYPE_PARTIAL && r.ap_order_quotation_detail_id === detailId,
-    );
 
   // Calcular descuento máximo permitido (para formulario y modal)
   const globalApprovedRequest = discountRequests.find(
@@ -506,7 +487,7 @@ export default function ProductDetailsSection({
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
-      : Number(selectedDetail?.total_amount || 0);
+      : Number(selectedDetail?.total_cost || 0);
 
   // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
   const maxDiscountForModal = maxDiscountAllowed;
@@ -557,7 +538,6 @@ export default function ProductDetailsSection({
                     exchange_rate: exchangeRate || 0,
                     unit_price: 0,
                     discount_percentage: 0,
-                    total_amount: 0,
                     observations: "",
                     supply_type: "",
                   });
@@ -1010,430 +990,104 @@ export default function ProductDetailsSection({
           )}
         </div>
 
-        {isLoadingDetails ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : productDetails.length === 0 ? (
-          <div className="text-center py-8 border rounded-lg bg-gray-50">
-            <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-600">No hay items de repuestos</p>
-          </div>
-        ) : (
-          <div className="border rounded-lg overflow-hidden">
-            {/* Cabecera de tabla */}
-            <div className="hidden md:grid grid-cols-20 gap-3 bg-gray-100 px-4 py-3 text-xs font-semibold text-gray-700 border-b">
-              <div className="col-span-4">Repuesto</div>
-              <div className="col-span-2 text-center">Cant.</div>
-              <div className="col-span-2 text-center">Tipo Abas.</div>
-              <div className="col-span-3 text-center">Precio Unit.</div>
-              <div className="col-span-2 text-center">% Desc.</div>
-              <div className="col-span-3 text-center">Total</div>
-              <div className="col-span-2 text-center">Reg. por</div>
-              <div className="col-span-2 text-right">Desc. parcial</div>
+        <QuotationItemsTable
+          details={productDetails}
+          isLoading={isLoadingDetails}
+          emptyIcon={<Package className="h-10 w-10" />}
+          emptyMessage="No hay items de repuestos"
+          formatCurrency={formatCurrency}
+          maxDiscountAllowed={maxDiscountAllowed}
+          discountRequests={discountRequests}
+          globalRequest={globalRequest}
+          permissions={permissions}
+          isApproving={isApproving}
+          isRejecting={isRejecting}
+          onDiscountUpdate={handleDiscountUpdate}
+          onDelete={onDelete}
+          onOpenCreate={handleOpenCreate}
+          onOpenEdit={handleOpenEdit}
+          onApprove={(id) => doApprove(id)}
+          onReject={(id) => doReject(id)}
+          renderName={(detail) => (
+            <div>
+              <p className="text-sm font-medium truncate">
+                {detail.description}
+              </p>
+              {detail.product?.code && (
+                <CopyCell
+                  value={detail.product.code}
+                  label={`Cód: ${detail.product.code}`}
+                  className="text-xs font-mono px-1.5 py-0.5 rounded mt-0.5"
+                />
+              )}
+              {detail.product?.dyn_code && (
+                <CopyCell
+                  value={detail.product.dyn_code}
+                  label={`Dyn: ${detail.product.dyn_code}`}
+                  className="text-xs font-mono px-1.5 py-0.5 rounded mt-0.5"
+                />
+              )}
+              {detail.observations && (
+                <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  {detail.observations}
+                </p>
+              )}
             </div>
-
-            {/* Items */}
-            <div className="divide-y">
-              {productDetails.map((detail) => {
-                const partialRequest = getPartialRequest(detail.id);
-                const approvedRequest =
-                  partialRequest?.status === STATUS_APPROVED
-                    ? partialRequest
-                    : globalRequest?.status === STATUS_APPROVED
-                      ? globalRequest
-                      : null;
-                return (
-                  <div key={detail.id}>
-                    {/* Vista Desktop */}
-                    <div className="hidden md:grid grid-cols-20 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                      <div className="col-span-4">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {detail.description}
-                        </p>
-                        {detail.product?.code && (
-                          <div className="mb-1">
-                            <CopyCell
-                              value={detail.product.code}
-                              label={`Cód: ${detail.product.code}`}
-                              className="text-xs font-mono px-2 py-0.5 rounded"
-                            />
-                          </div>
-                        )}
-                        {detail.product?.dyn_code && (
-                          <div className="mb-1">
-                            <CopyCell
-                              value={detail.product.dyn_code}
-                              label={`Cód Dyn: ${detail.product.dyn_code}`}
-                              className="text-xs font-mono px-2 py-0.5 rounded"
-                            />
-                          </div>
-                        )}
-                        {detail.observations && (
-                          <p className="text-xs text-gray-500 truncate mt-0.5">
-                            {detail.observations}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="col-span-2 text-center">
-                        <span className="text-sm font-medium">
-                          {detail.quantity}{" "}
-                          <span className="text-xs text-gray-500">
-                            {detail.unit_measure}
-                          </span>
-                        </span>
-                      </div>
-
-                      <div className="col-span-2 text-center">
-                        <span className="text-sm">{detail.supply_type}</span>
-                      </div>
-
-                      <div className="col-span-3 text-center">
-                        <span className="text-sm font-medium">
-                          {formatCurrency(detail.unit_price)}
-                        </span>
-                      </div>
-
-                      <div className="col-span-2 flex justify-center">
-                        {!approvedRequest ? (
-                          <EditableCell
-                            id={detail.id}
-                            value={detail.discount_percentage}
-                            min={0}
-                            max={maxDiscountAllowed}
-                            widthClass="w-16"
-                            onUpdate={(_id, val) =>
-                              handleDiscountUpdate(detail, Number(val))
-                            }
-                          />
-                        ) : (
-                          <span className="text-sm text-green-600 font-semibold">
-                            -{detail.discount_percentage}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="col-span-3 text-center">
-                        <span className="text-sm font-bold text-primary">
-                          {formatCurrency(detail.total_amount)}
-                        </span>
-                      </div>
-
-                      <div className="col-span-2 text-center">
-                        <span className="text-xs text-gray-600 wrap-break-word">
-                          {detail.created_by_name}
-                        </span>
-                      </div>
-
-                      <div className="col-span-2 flex justify-end gap-1">
-                        {partialRequest ? (
-                          <div className="flex items-center gap-1 flex-wrap">
-                            <span className="text-xs font-semibold">
-                              {Number(
-                                partialRequest.requested_discount_percentage,
-                              ).toFixed(2)}
-                              %
-                            </span>
-                            <Badge
-                              color={
-                                partialRequest.status === STATUS_APPROVED
-                                  ? "green"
-                                  : partialRequest.status === STATUS_REJECTED
-                                    ? "red"
-                                    : "orange"
-                              }
-                            >
-                              {partialRequest.status === STATUS_APPROVED
-                                ? "Aprobado"
-                                : partialRequest.status === STATUS_REJECTED
-                                  ? "Rechazado"
-                                  : "Pendiente"}
-                            </Badge>
-                            {partialRequest.status === STATUS_PENDING && (
-                              <>
-                                {permissions.canApprove && (
-                                  <ConfirmationDialog
-                                    trigger={
-                                      <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                                        tooltip="Aprobar solicitud"
-                                        disabled={isApproving}
-                                      >
-                                        <CheckCircle className="size-4" />
-                                      </Button>
-                                    }
-                                    title="¿Aprobar solicitud?"
-                                    description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
-                                    confirmText="Sí, aprobar"
-                                    cancelText="Cancelar"
-                                    icon="info"
-                                    onConfirm={() =>
-                                      doApprove(partialRequest.id)
-                                    }
-                                  />
-                                )}
-                                {permissions.canEditDiscount && (
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="size-7"
-                                    tooltip="Editar solicitud"
-                                    onClick={() =>
-                                      handleOpenEdit(partialRequest, detail)
-                                    }
-                                  >
-                                    <Pencil className="size-4" />
-                                  </Button>
-                                )}
-                                {permissions.canReject && (
-                                  <ConfirmationDialog
-                                    trigger={
-                                      <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                        tooltip="Rechazar solicitud"
-                                        disabled={isRejecting}
-                                      >
-                                        <XCircle className="size-4" />
-                                      </Button>
-                                    }
-                                    title="¿Rechazar solicitud?"
-                                    description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
-                                    confirmText="Sí, rechazar"
-                                    cancelText="Cancelar"
-                                    variant="destructive"
-                                    icon="danger"
-                                    onConfirm={() =>
-                                      doReject(partialRequest.id)
-                                    }
-                                  />
-                                )}
-                              </>
-                            )}
-                          </div>
-                        ) : (
-                          permissions.canRequest &&
-                          !globalRequest && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7"
-                              tooltip="Solicitar descuento parcial"
-                              onClick={() =>
-                                handleOpenCreate(TYPE_PARTIAL, detail)
-                              }
-                            >
-                              <Tag className="size-4" />
-                            </Button>
-                          )
-                        )}
-
-                        {/* Botón Eliminar */}
-                        {permissions.canDelete && (
-                          <Button
-                            variant="ghost"
-                            color="red"
-                            size="icon"
-                            className="size-7 border"
-                            onClick={() => onDelete(detail.id)}
-                            tooltip="Eliminar"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Vista Mobile */}
-                    <div className="md:hidden px-4 py-3 space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          {detail.product?.code && (
-                            <div className="mb-1">
-                              <CopyCell
-                                value={detail.product.code}
-                                className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
-                              />
-                            </div>
-                          )}
-                          <p className="text-sm font-medium text-gray-900">
-                            {detail.description}
-                          </p>
-                          {detail.observations && (
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              {detail.observations}
-                            </p>
-                          )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
-                          onClick={() => onDelete(detail.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-gray-500">Cantidad:</span>
-                          <span className="ml-1 font-medium">
-                            {detail.quantity} {detail.unit_measure}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-gray-500">Precio Unit.:</span>
-                          <span className="ml-1 font-medium">
-                            {formatCurrency(detail.unit_price)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Tipo Abas.:</span>
-                          <span className="ml-1 font-medium">
-                            {detail.supply_type}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-gray-500">Desc.:</span>
-                          {!approvedRequest ? (
-                            <EditableCell
-                              id={detail.id}
-                              value={detail.discount_percentage}
-                              min={0}
-                              max={maxDiscountAllowed}
-                              widthClass="w-16"
-                              onUpdate={(_id, val) =>
-                                handleDiscountUpdate(detail, Number(val))
-                              }
-                            />
-                          ) : (
-                            <span className="ml-1 font-medium text-green-600">
-                              -{detail.discount_percentage}%
-                            </span>
-                          )}
-                        </div>
-                        <div className="col-span-2 text-right">
-                          <span className="text-gray-500">Total:</span>
-                          <span className="ml-1 font-bold text-primary">
-                            {formatCurrency(detail.total_amount)}
-                          </span>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-gray-500">Registrado por:</span>
-                          <span className="ml-1 font-medium">
-                            {detail.created_by_name}
-                          </span>
-                        </div>
-                      </div>
-                      {/* Descuento parcial mobile */}
-                      {!globalRequest && (
-                        <div className="pt-1">
-                          {partialRequest ? (
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-semibold">
-                                Desc. solicitado:{" "}
-                                {Number(
-                                  partialRequest.requested_discount_percentage,
-                                ).toFixed(2)}
-                                %
-                              </span>
-                              <Badge
-                                color={
-                                  partialRequest.status === STATUS_APPROVED
-                                    ? "green"
-                                    : partialRequest.status === STATUS_REJECTED
-                                      ? "red"
-                                      : "orange"
-                                }
-                              >
-                                {partialRequest.status === STATUS_APPROVED
-                                  ? "Aprobado"
-                                  : partialRequest.status === STATUS_REJECTED
-                                    ? "Rechazado"
-                                    : "Pendiente"}
-                              </Badge>
-                              {partialRequest.status === STATUS_PENDING && (
-                                <>
-                                  <ConfirmationDialog
-                                    trigger={
-                                      <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                                        disabled={isApproving}
-                                      >
-                                        <CheckCircle className="size-4" />
-                                      </Button>
-                                    }
-                                    title="¿Aprobar solicitud?"
-                                    description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
-                                    confirmText="Sí, aprobar"
-                                    cancelText="Cancelar"
-                                    icon="info"
-                                    onConfirm={() =>
-                                      doApprove(partialRequest.id)
-                                    }
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="size-7"
-                                    onClick={() =>
-                                      handleOpenEdit(partialRequest, detail)
-                                    }
-                                  >
-                                    <Pencil className="size-4" />
-                                  </Button>
-                                  <ConfirmationDialog
-                                    trigger={
-                                      <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                        disabled={isRejecting}
-                                      >
-                                        <XCircle className="size-4" />
-                                      </Button>
-                                    }
-                                    title="¿Rechazar solicitud?"
-                                    description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
-                                    confirmText="Sí, rechazar"
-                                    cancelText="Cancelar"
-                                    variant="destructive"
-                                    icon="danger"
-                                    onConfirm={() =>
-                                      doReject(partialRequest.id)
-                                    }
-                                  />
-                                </>
-                              )}
-                            </div>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-2"
-                              onClick={() =>
-                                handleOpenCreate(TYPE_PARTIAL, detail)
-                              }
-                            >
-                              <Tag className="size-4" />
-                              Solicitar descuento parcial
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+          )}
+          getQuantity={(detail) => (
+            <span className="tabular-nums">
+              {detail.quantity}{" "}
+              <span className="text-xs text-muted-foreground">
+                {detail.unit_measure}
+              </span>
+            </span>
+          )}
+          getPrice={(detail) => formatCurrency(detail.unit_price)}
+          getTotal={(detail) => detail.net_amount}
+          extraColumns={[
+            {
+              header: "Tipo Abas.",
+              className: "w-[10%]",
+              render: (detail) => (
+                <span className="text-xs">{detail.supply_type}</span>
+              ),
+            },
+            {
+              header: "Reg. por",
+              className: "w-[10%]",
+              render: (detail) => (
+                <span className="text-xs text-muted-foreground wrap-break-word">
+                  {detail.created_by_name}
+                </span>
+              ),
+            },
+            {
+              header: "Cto. Total",
+              className: "w-[12%]",
+              render: (detail) => (
+                <span className="font-medium tabular-nums">
+                  {formatCurrency(detail.total_cost)}
+                </span>
+              ),
+            },
+          ]}
+          extraMobileFields={(detail) => (
+            <>
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">Tipo Abas.:</span>
+                <span className="font-medium">{detail.supply_type}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">Reg. por:</span>
+                <span className="font-medium">{detail.created_by_name}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">Cto. Total:</span>
+                <span className="font-medium">{detail.total_cost}</span>
+              </div>
+            </>
+          )}
+        />
       </div>
 
       {/* Modal para crear repuesto */}

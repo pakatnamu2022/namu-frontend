@@ -4,16 +4,15 @@ import {
   InventoryMovementResource,
 } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { translateMovementType } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, RotateCcw, XCircle } from "lucide-react";
 import InventoryMovementActions from "./InventoryMovementActions.tsx";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface.ts";
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
+import { formatDate } from "@/core/core.function.ts";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -29,15 +28,13 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       if (!date) return "-";
 
       try {
-        const formattedDate = format(new Date(date), "dd/MM/yyyy", {
-          locale: es,
-        });
-
         if (isInbound) {
           return (
             <div className="flex items-center gap-1 text-green-600">
               <ArrowUp className="h-4 w-4" />
-              <span>{formattedDate}</span>
+              <span>
+                {formatDate(date)} {row.original.id}
+              </span>
             </div>
           );
         }
@@ -46,12 +43,14 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           return (
             <div className="flex items-center gap-1 text-red-600">
               <ArrowDown className="h-4 w-4" />
-              <span>{formattedDate}</span>
+              <span>
+                {formatDate(date)} {row.original.id}
+              </span>
             </div>
           );
         }
 
-        return formattedDate;
+        return formatDate(date);
       } catch {
         return date;
       }
@@ -194,6 +193,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       // SALE - Mostrar cliente desde el documento electrónico (ApWorkOrder)
       if (movementType === "SALE" && referenceType?.includes("ApWorkOrder")) {
         const electronicDoc = movement.electronic_document;
+        const isCancelled = electronicDoc?.status === "cancelled";
 
         return (
           <div className="flex flex-col text-sm">
@@ -204,7 +204,12 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
             </span>
             {electronicDoc?.full_number && (
-              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <div
+                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
+              >
+                {isCancelled && (
+                  <XCircle className="h-3 w-3 text-red-500 shrink-0" />
+                )}
                 <span>Factura: {electronicDoc.full_number}</span>
                 {electronicDoc.credit_note_id && (
                   <span className="text-red-400 font-medium">
@@ -222,20 +227,32 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         movementType === "SALE" &&
         referenceType?.includes("ApOrderQuotations")
       ) {
-        const quotation = reference as OrderQuotationResource;
+        const electronicDoc = movement.electronic_document;
+        const isCancelled = electronicDoc?.status === "cancelled";
 
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">
-              {quotation.advances[0].cliente_denominacion}
+              {electronicDoc?.cliente_denominacion ?? "-"}
             </span>
             <span className="text-xs text-gray-500">
-              RUC: {quotation.advances[0].cliente_numero_de_documento}
+              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
             </span>
-            <span className="text-xs text-gray-500">
-              Factura:{" "}
-              {quotation.advances[quotation.advances.length - 1].full_number}
-            </span>
+            {electronicDoc?.full_number && (
+              <div
+                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
+              >
+                {isCancelled && (
+                  <XCircle className="h-3 w-3 text-red-500 shrink-0" />
+                )}
+                <span>Factura: {electronicDoc.full_number}</span>
+                {electronicDoc.credit_note_id && (
+                  <span className="text-red-400 font-medium">
+                    · NC {electronicDoc.credit_note_number}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         );
       }
@@ -298,19 +315,27 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       if (movementType === "RETURN_IN") {
-        const doc = reference as {
-          full_number?: string;
-          cliente_denominacion?: string;
-          cliente_numero_de_documento?: string;
-        };
+        const electronicDoc = movement.electronic_document;
+        const isCancelled = electronicDoc?.status === "cancelled";
+
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">
-              {doc.cliente_denominacion || "-"}
+              {electronicDoc?.cliente_denominacion ?? "-"}
             </span>
             <span className="text-xs text-gray-500">
-              {doc.full_number || "-"}
+              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
             </span>
+            {electronicDoc?.full_number && (
+              <div
+                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
+              >
+                {isCancelled && (
+                  <RotateCcw className="h-3 w-3 text-red-500 shrink-0" />
+                )}
+                <span>Factura: {electronicDoc.full_number}</span>
+              </div>
+            )}
           </div>
         );
       }

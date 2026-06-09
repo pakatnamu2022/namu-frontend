@@ -13,7 +13,6 @@ export const productDetailMesonSchema = z.object({
     .min(0, "Descuento debe ser mayor o igual a 0")
     .max(100, "Descuento no puede ser mayor a 100")
     .default(0),
-  total_amount: z.number().min(0, "Total debe ser mayor o igual a 0"),
   observations: z.string().max(500).optional(),
   retail_price_external: z
     .number()

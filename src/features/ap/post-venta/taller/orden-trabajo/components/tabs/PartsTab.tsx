@@ -318,7 +318,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   // Total de repuestos filtrados (base para el global)
   const globalBaseAmount = filteredParts.reduce(
-    (acc, p) => acc + parseFloat(p.net_amount || "0"),
+    (acc, p) => acc + p.net_amount,
     0,
   );
 
@@ -654,7 +654,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             <TableCell className="text-right">
                               <p className="text-sm font-semibold">
                                 {currencySymbol}{" "}
-                                {Number(detail.total_amount || 0).toFixed(2)}
+                                {Number(detail.net_amount || 0).toFixed(2)}
                               </p>
                             </TableCell>
                           </TableRow>
@@ -1015,10 +1015,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               <p className="text-xl font-bold">
                 {workOrder?.type_currency?.symbol || "S/"}{" "}
                 {filteredParts
-                  .reduce(
-                    (acc, part) => acc + parseFloat(part.net_amount || "0"),
-                    0,
-                  )
+                  .reduce((acc, part) => acc + part.net_amount, 0)
                   .toFixed(2)}
               </p>
             </div>
@@ -1056,7 +1053,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         baseAmount={
           modalType === TYPE_GLOBAL
             ? globalBaseAmount
-            : parseFloat(selectedPart?.total_amount || "0")
+            : parseFloat(selectedPart?.net_amount || "0")
         }
         partLabourId={modalType === TYPE_PARTIAL ? selectedPart?.id : undefined}
         partLabourModel={modalType === TYPE_PARTIAL ? MODEL_PART : undefined}
@@ -1066,6 +1063,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         currencySymbol={workOrder?.type_currency?.symbol || "S/"}
         existingRequest={editingRequest ?? undefined}
         itemType="PART"
+        maxDiscount={maxDiscountPercentage}
       />
     </div>
   );

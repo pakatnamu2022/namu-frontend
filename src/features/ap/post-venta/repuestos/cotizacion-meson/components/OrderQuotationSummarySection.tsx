@@ -9,7 +9,6 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 interface OrderQuotationSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -30,7 +29,7 @@ interface OrderQuotationSummarySectionProps {
   isPending: boolean;
   isAdvancePayment: boolean;
   quotation?: OrderQuotationResource | null;
-  advancePayments?: ElectronicDocumentResource[];
+  onCancel?: () => void;
 }
 
 export function OrderQuotationSummarySection({
@@ -44,9 +43,8 @@ export function OrderQuotationSummarySection({
   isPending,
   isAdvancePayment,
   quotation,
-  advancePayments = [],
+  onCancel,
 }: OrderQuotationSummarySectionProps) {
-  //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
   const clientId = form.watch("client_id");
@@ -59,18 +57,10 @@ export function OrderQuotationSummarySection({
   // Usar el cliente de la API si existe, sino usar el owner de la cotización como fallback
   const selectedCustomer = selectedCustomerFromApi || quotation?.vehicle?.owner;
 
-  // Verificar si hay anticipos reales (is_advance_payment = true)
-  // Si solo hay "advances" con is_advance_payment = false, son ventas internas completas, NO anticipos
-  const hasRealAdvancePayments = advancePayments.some(
-    (advance) => advance.is_advance_payment === true,
-  );
+  const hasRealAdvancePayments =
+    (quotation?.payment_summary?.advances_count ?? 0) > 0;
 
-  // Calcular el saldo pendiente para determinar si ya está completado
-  const quotationTotal = quotation?.total_amount || 0;
-  const totalPaid = advancePayments.reduce((sum, advance) => {
-    return sum + (Number(advance.total) || 0);
-  }, 0);
-  const pendingBalance = quotationTotal - totalPaid;
+  const pendingBalance = quotation?.payment_summary?.remaining_balance ?? 0;
 
   // Si el saldo está completado (<=0) y NO hay anticipos reales, no se puede facturar nada más
   const isCompletedWithoutAdvances =
@@ -282,7 +272,7 @@ export function OrderQuotationSummarySection({
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => window.history.back()}
+              onClick={onCancel ?? (() => window.history.back())}
             >
               Cancelar
             </Button>

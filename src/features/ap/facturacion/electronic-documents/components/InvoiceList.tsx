@@ -1,12 +1,12 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Progress } from "@/components/ui/progress.tsx";
 import { FileText, Ban, Download } from "lucide-react";
 import {
   WorkOrderDocumentsTreeResource,
   ActiveDocument,
   CancelledDocument,
-} from "../lib/workOrder.interface";
+} from "../../../post-venta/taller/orden-trabajo/lib/workOrder.interface.ts";
 
 interface InvoiceListProps {
   vouchers: WorkOrderDocumentsTreeResource;
