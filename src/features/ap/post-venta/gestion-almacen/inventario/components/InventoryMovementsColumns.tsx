@@ -32,9 +32,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           return (
             <div className="flex items-center gap-1 text-green-600">
               <ArrowUp className="h-4 w-4" />
-              <span>
-                {formatDate(date)} {row.original.id}
-              </span>
+              <span>{formatDate(date)}</span>
             </div>
           );
         }
@@ -43,9 +41,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           return (
             <div className="flex items-center gap-1 text-red-600">
               <ArrowDown className="h-4 w-4" />
-              <span>
-                {formatDate(date)} {row.original.id}
-              </span>
+              <span>{formatDate(date)}</span>
             </div>
           );
         }
