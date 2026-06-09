@@ -1,6 +1,24 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { ProductResource } from "./product.interface.ts";
 
+export const PRODUCT_STATUS_CONFIG: Record<
+  string,
+  { color: "green" | "gray" | "red"; label: string }
+> = {
+  ACTIVE: { color: "green", label: "Activo" },
+  INACTIVE: { color: "gray", label: "Inactivo" },
+  DISCONTINUED: { color: "red", label: "Descontinuado" },
+};
+
+export const STOCK_STATUS_CONFIG: Record<
+  string,
+  { color: "green" | "orange" | "red"; label: string }
+> = {
+  NORMAL: { color: "green", label: "Normal" },
+  LOW_STOCK: { color: "orange", label: "Stock Bajo" },
+  OUT_OF_STOCK: { color: "red", label: "Sin Stock" },
+};
+
 // PRODUCTOS PARA ALMACENES
 const ROUTE = "productos";
 const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-almacen/productos";
