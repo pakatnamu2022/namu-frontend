@@ -1,8 +1,9 @@
+import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Copy, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatDate } from "@/core/core.function";
+import { formatDate, infoToast } from "@/core/core.function";
 import type { AccountReceivable } from "../lib/accountsReceivable.interface";
 import {
   OVERDUE_STATUS_COLORS,
@@ -10,6 +11,27 @@ import {
 } from "../lib/accountsReceivable.constants";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      infoToast(`Copiado: ${text}`, "");
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      title="Copiar"
+      className="ml-1 p-0.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+    >
+      {copied ? <Check className="size-3 text-green-600" /> : <Copy className="size-3" />}
+    </button>
+  );
+}
 
 function formatAmount(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return "-";
@@ -57,12 +79,15 @@ export function getAccountsReceivableColumns({
       accessorKey: "document_number",
       header: "Documento",
       cell: ({ row }) => (
-        <button
-          className="text-primary font-medium hover:underline text-left"
-          onClick={() => onRowClick(row.original)}
-        >
-          {row.original.document_number}
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            className="text-primary font-medium hover:underline text-left"
+            onClick={() => onRowClick(row.original)}
+          >
+            {row.original.document_number}
+          </button>
+          <CopyButton text={row.original.document_number} />
+        </div>
       ),
     },
     {

@@ -66,6 +66,7 @@ export default function AccountsReceivablePage() {
     },
   ]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isSendingExcel, setIsSendingExcel] = useState(false);
@@ -175,6 +176,7 @@ export default function AccountsReceivablePage() {
 
   const handleRowClick = useCallback((row: AccountReceivable) => {
     setSelectedId(row.id);
+    setIsSheetOpen(true);
   }, []);
 
   const selectedIds = Object.keys(rowSelection).map(Number);
@@ -361,7 +363,8 @@ export default function AccountsReceivablePage() {
 
       <AccountsReceivableSheet
         selectedId={selectedId}
-        onClose={() => setSelectedId(null)}
+        open={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
       />
 
       <BulkCommentModal

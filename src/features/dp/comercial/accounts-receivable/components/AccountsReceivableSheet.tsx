@@ -12,8 +12,11 @@ import {
   X,
 } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -37,6 +40,7 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   selectedId: number | null;
+  open: boolean;
   onClose: () => void;
 }
 
@@ -92,10 +96,9 @@ interface CommentItemProps {
 function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(comment.comment);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const editable = isToday(comment.created_at) && comment.id > 0;
+  const editable = isToday(comment.created_at) && comment.id !== 0;
   const name = comment.user?.name ?? "Usuario";
   const initials = getInitials(name);
   const color = avatarColor(name);
@@ -126,12 +129,11 @@ function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
       await onDelete(comment.id);
     } finally {
       setLoading(false);
-      setConfirmDelete(false);
     }
   };
 
   return (
-    <div className="flex gap-3 py-3 group">
+    <div className="flex gap-3 py-3">
       <div
         className={cn(
           "size-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5",
@@ -152,6 +154,34 @@ function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
           <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
             {formatDateTime(comment.created_at)}
           </span>
+          {editable && !editing && (
+            <ButtonGroup>
+              <ButtonAction
+                icon={Pencil}
+                disabled={loading}
+                onClick={() => {
+                  setEditText(comment.comment);
+                  setEditing(true);
+                }}
+              />
+              <ConfirmationDialog
+                trigger={
+                  <ButtonAction
+                    icon={Trash2}
+                    color="destructive"
+                    disabled={loading}
+                  />
+                }
+                title="¿Eliminar comentario?"
+                description="Esta acción no se puede deshacer. ¿Deseas eliminar este comentario?"
+                confirmText="Sí, eliminar"
+                cancelText="Cancelar"
+                onConfirm={handleDelete}
+                variant="destructive"
+                icon="danger"
+              />
+            </ButtonGroup>
+          )}
         </div>
 
         {editing ? (
@@ -190,55 +220,9 @@ function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
             </div>
           </div>
         ) : (
-          <div className="relative">
-            <p className="text-xs text-foreground/80 break-words leading-relaxed pr-14">
-              {comment.comment}
-            </p>
-
-            {editable && (
-              <div className="absolute top-0 right-0 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                {!confirmDelete ? (
-                  <>
-                    <button
-                      title="Editar"
-                      className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                      onClick={() => {
-                        setEditText(comment.comment);
-                        setEditing(true);
-                      }}
-                    >
-                      <Pencil className="size-3" />
-                    </button>
-                    <button
-                      title="Eliminar"
-                      className="p-1 rounded hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors"
-                      onClick={() => setConfirmDelete(true)}
-                    >
-                      <Trash2 className="size-3" />
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-1 bg-background border border-border rounded px-1.5 py-0.5 shadow-sm">
-                    <span className="text-[10px] text-muted-foreground">¿Eliminar?</span>
-                    <button
-                      className="text-[10px] font-medium text-red-600 hover:text-red-700"
-                      onClick={handleDelete}
-                      disabled={loading}
-                    >
-                      Sí
-                    </button>
-                    <span className="text-muted-foreground text-[10px]">/</span>
-                    <button
-                      className="text-[10px] text-muted-foreground hover:text-foreground"
-                      onClick={() => setConfirmDelete(false)}
-                    >
-                      No
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <p className="text-xs text-foreground/80 leading-relaxed wrap-break-word">
+            {comment.comment}
+          </p>
         )}
       </div>
     </div>
@@ -262,6 +246,7 @@ function DetailRow({
 
 export default function AccountsReceivableSheet({
   selectedId,
+  open,
   onClose,
 }: Props) {
   const [newComment, setNewComment] = useState("");
@@ -340,7 +325,7 @@ export default function AccountsReceivableSheet({
 
   return (
     <GeneralSheet
-      open={!!selectedId}
+      open={open}
       onClose={handleClose}
       title="Detalle de cuenta por cobrar"
       subtitle={account?.document_number}
