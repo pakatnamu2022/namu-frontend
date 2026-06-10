@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Receipt } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Receipt, AlertTriangle } from "lucide-react";
 import { useWorkOrdersByIds } from "../lib/workOrder.hook";
 import {
   ElectronicDocumentSchema,
@@ -25,7 +26,6 @@ import {
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { IGV } from "@/core/core.constants";
 
 interface DirectBillingTabProps {
   workOrderIds: number[];
@@ -42,14 +42,8 @@ export default function WorkOrderDirectBillingForm({
     data: workOrders = [],
     isLoading,
     isError,
+    error,
   } = useWorkOrdersByIds(workOrderIds);
-
-  useEffect(() => {
-    if (isError) {
-      errorToast("Todas las órdenes deben tener la misma moneda");
-      navigate("/ap/post-venta/caja/orden-trabajo-taller-caja");
-    }
-  }, [isError, navigate]);
 
   // Detecta el tipo de planificación predominante de las OTs cargadas
   const typePlanningId = useMemo(() => {
@@ -156,18 +150,18 @@ export default function WorkOrderDirectBillingForm({
     sede_id: selectedSeries?.sede_id,
   });
 
-  // Pre-cargar moneda PEN
+  // Pre-cargar moneda desde la OT (USD, PEN, etc.), fallback a PEN
   useEffect(() => {
-    if (
-      currencyTypes.length > 0 &&
-      !form.getValues("sunat_concept_currency_id")
-    ) {
-      const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
-      if (penCurrency) {
-        form.setValue("sunat_concept_currency_id", penCurrency.id.toString());
-      }
+    if (currencyTypes.length === 0 || workOrders.length === 0) return;
+    const otCurrencyCode = workOrders[0]?.type_currency?.code;
+    const match = otCurrencyCode
+      ? currencyTypes.find((c) => c.iso_code === otCurrencyCode)
+      : null;
+    const currency = match ?? currencyTypes.find((c) => c.iso_code === "PEN");
+    if (currency) {
+      form.setValue("sunat_concept_currency_id", currency.id.toString());
     }
-  }, [currencyTypes, form]);
+  }, [currencyTypes, workOrders, form]);
 
   // Pre-cargar client_id desde la primera OT cargada
   useEffect(() => {
@@ -220,6 +214,28 @@ export default function WorkOrderDirectBillingForm({
     );
   }
 
+  if (isError) {
+    const message =
+      (error as any)?.response?.data?.message ||
+      "Las órdenes deben tener la misma moneda y el mismo cliente para poder consolidar la factura.";
+    return (
+      <Card className="p-12">
+        <div className="flex flex-col items-center justify-center text-center gap-4">
+          <AlertTriangle className="h-10 w-10 text-amber-500" />
+          <div>
+            <p className="font-semibold text-gray-800 text-base mb-1">
+              No se pueden facturar estas órdenes
+            </p>
+            <p className="text-gray-500 text-sm">{message}</p>
+          </div>
+          <Button variant="outline" onClick={handleCancel}>
+            Volver a órdenes
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   // Resumen de costos combinado de todas las OTs
   const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -231,10 +247,13 @@ export default function WorkOrderDirectBillingForm({
     (sum, wo) => sum + Number(wo.total_parts_cost || 0),
     0,
   );
-  // total_labor_cost y total_parts_cost son ya la base sin IGV
   const totalSubtotal = round2(totalLaborCost + totalPartsCost);
-  const totalTax = round2(totalSubtotal * IGV.RATE);
-  const totalFinalAmount = round2(totalSubtotal + totalTax);
+  const totalTax = round2(
+    workOrders.reduce((sum, wo) => sum + Number(wo.tax_amount || 0), 0),
+  );
+  const totalFinalAmount = round2(
+    workOrders.reduce((sum, wo) => sum + Number(wo.final_amount || 0), 0),
+  );
 
   return (
     <div className="space-y-6">

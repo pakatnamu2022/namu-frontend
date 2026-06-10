@@ -47,6 +47,7 @@ export function useWorkOrdersByIds(ids: number[]) {
     enabled: ids.length > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    retry: false,
   });
 }
 

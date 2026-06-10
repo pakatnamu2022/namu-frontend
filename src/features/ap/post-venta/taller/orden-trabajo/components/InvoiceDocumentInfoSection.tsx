@@ -25,6 +25,7 @@ interface InvoiceDocumentInfoSectionProps {
   isInvalidWithQuote?: boolean;
   isMassiveBilling?: boolean;
   isTerminado?: boolean;
+  showStatusBanner?: boolean;
 }
 
 export function InvoiceDocumentInfoSection({
@@ -38,6 +39,7 @@ export function InvoiceDocumentInfoSection({
   isInvalidWithQuote = false,
   isMassiveBilling = false,
   isTerminado = false,
+  showStatusBanner = true,
 }: InvoiceDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -129,52 +131,54 @@ export function InvoiceDocumentInfoSection({
 
   return (
     <>
-      <div
-        className={`mb-6 rounded-lg border p-4 ${
-          isInvalidWithQuote
-            ? "border-rose-200 bg-rose-50/70"
-            : "border-emerald-200 bg-emerald-50/70"
-        }`}
-      >
-        <div className="flex items-start gap-3">
-          <div
-            className={`mt-0.5 rounded-full p-1.5 ${
-              isInvalidWithQuote
-                ? "bg-rose-100 text-rose-700"
-                : "bg-emerald-100 text-emerald-700"
-            }`}
-          >
-            {isInvalidWithQuote ? (
-              <AlertCircle className="h-4 w-4 shrink-0" />
-            ) : (
-              <CheckCircle className="h-4 w-4 shrink-0" />
-            )}
-          </div>
+      {showStatusBanner && (
+        <div
+          className={`mb-6 rounded-lg border p-4 ${
+            isInvalidWithQuote
+              ? "border-rose-200 bg-rose-50/70"
+              : "border-emerald-200 bg-emerald-50/70"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <div
+              className={`mt-0.5 rounded-full p-1.5 ${
+                isInvalidWithQuote
+                  ? "bg-rose-100 text-rose-700"
+                  : "bg-emerald-100 text-emerald-700"
+              }`}
+            >
+              {isInvalidWithQuote ? (
+                <AlertCircle className="h-4 w-4 shrink-0" />
+              ) : (
+                <CheckCircle className="h-4 w-4 shrink-0" />
+              )}
+            </div>
 
-          <div className="space-y-1">
-            <p
-              className={`text-sm font-semibold ${
-                isInvalidWithQuote ? "text-rose-800" : "text-emerald-800"
-              }`}
-            >
-              {isInvalidWithQuote
-                ? "Cotización con diferencias"
-                : "Ítems validados correctamente"}
-            </p>
-            <p
-              className={`text-sm leading-relaxed ${
-                isInvalidWithQuote ? "text-rose-700" : "text-emerald-700"
-              }`}
-            >
-              {isInvalidWithQuote
-                ? "La cotización asociada no tiene todos los ítems de mano de obra o repuestos cargados en la orden de trabajo. Por esta razón, solo se permite registrar un anticipo."
-                : isTerminado
-                  ? "La orden de trabajo está terminada. Puede generar un anticipo por el saldo pendiente o la factura final (venta interna)."
-                  : "La orden de trabajo aún no está terminada. Solo se permite registrar anticipos hasta que el asesor lo marque como TERMINADO."}
-            </p>
+            <div className="space-y-1">
+              <p
+                className={`text-sm font-semibold ${
+                  isInvalidWithQuote ? "text-rose-800" : "text-emerald-800"
+                }`}
+              >
+                {isInvalidWithQuote
+                  ? "Cotización con diferencias"
+                  : "Ítems validados correctamente"}
+              </p>
+              <p
+                className={`text-sm leading-relaxed ${
+                  isInvalidWithQuote ? "text-rose-700" : "text-emerald-700"
+                }`}
+              >
+                {isInvalidWithQuote
+                  ? "La cotización asociada no tiene todos los ítems de mano de obra o repuestos cargados en la orden de trabajo. Por esta razón, solo se permite registrar un anticipo."
+                  : isTerminado
+                    ? "La orden de trabajo está terminada. Puede generar un anticipo por el saldo pendiente o la factura final (venta interna)."
+                    : "La orden de trabajo aún no está terminada. Solo se permite registrar anticipos hasta que el asesor lo marque como TERMINADO."}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <GroupFormSection
         title="Información del Documento"

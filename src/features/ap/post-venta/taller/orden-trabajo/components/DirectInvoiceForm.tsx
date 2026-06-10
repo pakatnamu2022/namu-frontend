@@ -163,17 +163,13 @@ export default function DirectInvoiceForm({
       (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
     );
     const round2 = (n: number) => Math.round(n * 100) / 100;
-    // total_labor_cost y total_parts_cost son ya la base sin IGV
-    const subtotal = round2(
-      workOrders.reduce(
-        (sum, wo) =>
-          sum +
-          Number(wo.total_labor_cost || 0) +
-          Number(wo.total_parts_cost || 0),
-        0,
-      ),
+    const igvAmount = round2(
+      workOrders.reduce((sum, wo) => sum + Number(wo.tax_amount || 0), 0),
     );
-    const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+    const total = round2(
+      workOrders.reduce((sum, wo) => sum + Number(wo.final_amount || 0), 0),
+    );
+    const subtotal = round2(total - igvAmount);
     const item: ElectronicDocumentItemSchema = {
       account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
       unidad_de_medida: "ZZ",
@@ -185,7 +181,7 @@ export default function DirectInvoiceForm({
       subtotal,
       sunat_concept_igv_type_id: gravadaType?.id || 0,
       igv: igvAmount,
-      total: round2(subtotal + igvAmount),
+      total,
     };
     form.setValue("items", [item], { shouldValidate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -268,6 +264,8 @@ export default function DirectInvoiceForm({
     let raw_inafecta = 0;
     let raw_exonerada = 0;
 
+    let raw_igv = 0;
+
     items.forEach((item) => {
       const igvType = igvTypes.find(
         (t) => t.id === item.sunat_concept_igv_type_id,
@@ -275,17 +273,18 @@ export default function DirectInvoiceForm({
       if (igvType?.code_nubefact === "1") raw_gravada += item.subtotal;
       else if (igvType?.code_nubefact === "20") raw_exonerada += item.subtotal;
       else if (igvType?.code_nubefact === "30") raw_inafecta += item.subtotal;
+      raw_igv += item.igv ?? 0;
     });
 
     const total_gravada = round2(raw_gravada);
     const total_inafecta = round2(raw_inafecta);
     const total_exonerada = round2(raw_exonerada);
-    const total_igv = round2(raw_gravada * (porcentaje_de_igv / 100));
+    const total_igv = round2(raw_igv);
     const total = round2(
       total_gravada + total_inafecta + total_exonerada + total_igv,
     );
     return { total_gravada, total_inafecta, total_exonerada, total_igv, total };
-  }, [items, igvTypes, porcentaje_de_igv]);
+  }, [items, igvTypes]);
 
   // Sincronizar totales — usar ref para evitar setValue si no cambiaron
   const prevTotales = useRef(totales);
@@ -345,6 +344,7 @@ export default function DirectInvoiceForm({
               defaultCustomer={defaultCustomer!}
               isAdvancePayment={false}
               isMassiveBilling={true}
+              showStatusBanner={false}
             />
 
             {isSingleItemMode ? (
