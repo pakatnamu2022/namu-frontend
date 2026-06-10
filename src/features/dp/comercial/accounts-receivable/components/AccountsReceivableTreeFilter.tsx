@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronRight, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
