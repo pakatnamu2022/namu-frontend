@@ -42,6 +42,7 @@ interface Props {
   selectedId: number | null;
   open: boolean;
   onClose: () => void;
+  canUpdate: boolean;
 }
 
 function formatAmount(value: string | number): string {
@@ -89,16 +90,17 @@ function avatarColor(name: string): string {
 
 interface CommentItemProps {
   comment: AccountReceivableComment;
+  canUpdate: boolean;
   onEdit: (id: number, text: string) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }
 
-function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
+function CommentItem({ comment, canUpdate, onEdit, onDelete }: CommentItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(comment.comment);
   const [loading, setLoading] = useState(false);
 
-  const editable = isToday(comment.created_at) && comment.id !== 0;
+  const editable = canUpdate && isToday(comment.created_at) && comment.id !== 0;
   const name = comment.user?.name ?? "Usuario";
   const initials = getInitials(name);
   const color = avatarColor(name);
@@ -248,6 +250,7 @@ export default function AccountsReceivableSheet({
   selectedId,
   open,
   onClose,
+  canUpdate,
 }: Props) {
   const [newComment, setNewComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -460,6 +463,7 @@ export default function AccountsReceivableSheet({
                   <CommentItem
                     key={c.id}
                     comment={c}
+                    canUpdate={canUpdate}
                     onEdit={handleEditComment}
                     onDelete={handleDeleteComment}
                   />
@@ -471,29 +475,31 @@ export default function AccountsReceivableSheet({
               </p>
             )}
 
-            <div className="mt-3 space-y-2">
-              <Textarea
-                placeholder="Escribir un comentario... (Ctrl+Enter para guardar)"
-                className="text-sm resize-none"
-                rows={3}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    handleSaveComment();
-                  }
-                }}
-              />
-              <Button
-                size="sm"
-                className="gap-1.5"
-                disabled={!newComment.trim() || isSaving}
-                onClick={handleSaveComment}
-              >
-                <Send className="size-3.5" />
-                {isSaving ? "Guardando..." : "Guardar"}
-              </Button>
-            </div>
+            {canUpdate && (
+              <div className="mt-3 space-y-2">
+                <Textarea
+                  placeholder="Escribir un comentario... (Ctrl+Enter para guardar)"
+                  className="text-sm resize-none"
+                  rows={3}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                      handleSaveComment();
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  disabled={!newComment.trim() || isSaving}
+                  onClick={handleSaveComment}
+                >
+                  <Send className="size-3.5" />
+                  {isSaving ? "Guardando..." : "Guardar"}
+                </Button>
+              </div>
+            )}
           </section>
         </div>
       )}

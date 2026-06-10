@@ -58,7 +58,7 @@ function parseSyncedAt(value: string | undefined): string {
 }
 
 export default function AccountsReceivablePage() {
-  const { canGroup } = useModulePermissions("cuentas-por-cobrar");
+  const { canGroup, canUpdate, canExport, canSend } = useModulePermissions("cuentas-por-cobrar");
   const [filters, setFilters] =
     useState<AccountsReceivableFilters>(INITIAL_FILTERS);
   const [sorting, setSorting] = useState<SortingState>([
@@ -258,38 +258,44 @@ export default function AccountsReceivablePage() {
           </Button>
         </Link>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={handleDownloadGlobalExcel}
-          disabled={isDownloadingExcel}
-        >
-          <Download className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`} />
-          <span className="hidden sm:inline">Descargar Excel</span>
-        </Button>
+        {canExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleDownloadGlobalExcel}
+            disabled={isDownloadingExcel}
+          >
+            <Download className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`} />
+            <span className="hidden sm:inline">Descargar Excel</span>
+          </Button>
+        )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={handleSendGlobalExcel}
-          disabled={isSendingExcel}
-        >
-          <FileText className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`} />
-          <span className="hidden sm:inline">Enviar Excel</span>
-        </Button>
+        {canSend && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleSendGlobalExcel}
+            disabled={isSendingExcel}
+          >
+            <FileText className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`} />
+            <span className="hidden sm:inline">Enviar Excel</span>
+          </Button>
+        )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={handleSendReports}
-          disabled={isSending}
-        >
-          <Send className={`size-4 ${isSending ? "animate-pulse" : ""}`} />
-          <span className="hidden sm:inline">Enviar reportes</span>
-        </Button>
+        {canSend && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleSendReports}
+            disabled={isSending}
+          >
+            <Send className={`size-4 ${isSending ? "animate-pulse" : ""}`} />
+            <span className="hidden sm:inline">Enviar reportes</span>
+          </Button>
+        )}
 
         <Button
           variant="outline"
@@ -370,6 +376,7 @@ export default function AccountsReceivablePage() {
         selectedId={selectedId}
         open={isSheetOpen}
         onClose={() => setIsSheetOpen(false)}
+        canUpdate={canUpdate}
       />
 
       <BulkCommentModal
