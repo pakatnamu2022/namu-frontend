@@ -410,7 +410,7 @@ export default function PurchaseRequestTallerForm({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={{ before: new Date() }}
+            disabledRange={{ after: new Date() }}
           />
         </div>
 

@@ -5,7 +5,6 @@ import { Loader2 } from "lucide-react";
 import { findProductById } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { InfoSection } from "@/shared/components/InfoSection";
-import { formatDate, formatMoney } from "@/core/core.function";
 import {
   PRODUCT_STATUS_CONFIG,
   STOCK_STATUS_CONFIG,
@@ -248,7 +247,7 @@ export default function ProductDetailSheet({
                           </div>
                         </div>
 
-                        <Separator />
+                        {/* <Separator />
 
                         <div className="grid grid-cols-3 gap-2 text-xs">
                           <div>
@@ -275,14 +274,14 @@ export default function ProductDetailSheet({
                               {formatMoney(ws.sale_price)}
                             </p>
                           </div>
-                        </div>
+                        </div> */}
 
-                        {ws.last_movement_date && (
+                        {/* {ws.last_movement_date && (
                           <p className="text-xs text-muted-foreground">
                             Último movimiento:{" "}
                             {formatDate(ws.last_movement_date)}
                           </p>
-                        )}
+                        )} */}
                       </div>
                     ))}
                   </div>

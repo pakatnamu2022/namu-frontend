@@ -211,10 +211,7 @@ export default function ReceptionsProductsPage() {
                     {comparison.isExact ? (
                       <>
                         <CheckCircle className="size-5 text-green-600" />
-                        <Badge
-                          variant="outline"
-                          className="bg-green-50 text-green-700 border-green-200"
-                        >
+                        <Badge variant="outline" color="green">
                           Correcto
                         </Badge>
                       </>

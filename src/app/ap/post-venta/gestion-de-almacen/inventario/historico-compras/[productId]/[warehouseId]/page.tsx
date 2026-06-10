@@ -179,7 +179,7 @@ export default function PurchaseHistoryPage() {
                   Monto Total
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  ${summary.total_amount.toFixed(2)}
+                  {summary.total_amount.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function PurchaseHistoryPage() {
                   Precio Promedio
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  ${summary.average_price.toFixed(2)}
+                  {summary.average_price.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function PurchaseHistoryPage() {
                   Precio Mínimo
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  ${parseFloat(summary.min_price).toFixed(2)}
+                  {parseFloat(summary.min_price).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function PurchaseHistoryPage() {
                   Precio Máximo
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  ${parseFloat(summary.max_price).toFixed(2)}
+                  {parseFloat(summary.max_price).toFixed(2)}
                 </p>
               </div>
             </div>

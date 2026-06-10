@@ -83,9 +83,8 @@ export const PurchaseOrderProductsForm = ({
         );
 
         if (orderDetail) {
-          // Calcular el total basado en la cantidad del item y el precio unitario del pedido
           const itemTotal =
-            Number(item.quantity || 0) * Number(orderDetail.unit_price || 0);
+            Math.round(Number(item.quantity || 0) * Number(orderDetail.unit_price || 0) * 100) / 100;
 
           return {
             ...item,
@@ -262,8 +261,16 @@ export const PurchaseOrderProductsForm = ({
 
   // useEffect para calcular automáticamente la fecha de vencimiento (30 días después de la emisión)
   useEffect(() => {
-    if (watchedEmissionDate instanceof Date) {
-      const dueDate = addDays(watchedEmissionDate, 30);
+    const rawDate = watchedEmissionDate as Date | string | undefined;
+    const emissionDate =
+      rawDate instanceof Date
+        ? rawDate
+        : rawDate
+          ? new Date(rawDate as string)
+          : null;
+
+    if (emissionDate instanceof Date && !isNaN(emissionDate.getTime())) {
+      const dueDate = addDays(emissionDate, 30);
       form.setValue("due_date", dueDate, { shouldValidate: true });
     }
   }, [watchedEmissionDate, form]);
@@ -697,7 +704,7 @@ export const PurchaseOrderProductsForm = ({
                                     <Input
                                       type="number"
                                       min="0"
-                                      step="0.0001"
+                                      step="0.01"
                                       placeholder="0.00"
                                       className="text-end"
                                       value={
@@ -706,22 +713,39 @@ export const PurchaseOrderProductsForm = ({
                                           : ""
                                       }
                                       onChange={(e) => {
-                                        const num = parseFloat(e.target.value);
-                                        field.onChange(isNaN(num) ? "" : num);
+                                        const raw = e.target.value;
+                                        const num = parseFloat(raw);
+                                        const rounded = isNaN(num) ? "" : Math.round(num * 100) / 100;
+                                        field.onChange(rounded);
 
-                                        // Calcular precio unitario inmediatamente
-                                        if (!isNaN(num) && num >= 0) {
+                                        if (typeof rounded === "number" && rounded >= 0) {
                                           const quantity =
                                             form.getValues(
                                               `items.${index}.quantity`,
                                             ) || 1;
                                           const calculatedPrice =
                                             Math.round(
-                                              (num / quantity) * 10000,
+                                              (rounded / quantity) * 10000,
                                             ) / 10000;
                                           form.setValue(
                                             `items.${index}.unit_price`,
                                             calculatedPrice,
+                                            { shouldValidate: false },
+                                          );
+                                        }
+                                      }}
+                                      onBlur={(e) => {
+                                        const num = parseFloat(e.target.value);
+                                        if (!isNaN(num)) {
+                                          const rounded = Math.round(num * 100) / 100;
+                                          field.onChange(rounded);
+                                          const quantity =
+                                            form.getValues(
+                                              `items.${index}.quantity`,
+                                            ) || 1;
+                                          form.setValue(
+                                            `items.${index}.unit_price`,
+                                            Math.round((rounded / quantity) * 10000) / 10000,
                                             { shouldValidate: false },
                                           );
                                         }

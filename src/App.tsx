@@ -254,6 +254,7 @@ import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/compra-
 import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/actualizar/[id]/page.tsx";
 import InvoiceReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/facturar/[receptionId]/page.tsx";
 import PurchaseOrderWarehousePage from "@/app/ap/post-venta/gestion-de-almacen/factura-compra/page.tsx";
+import ResendWarehousePurchaseOrderPage from "@/app/ap/post-venta/gestion-de-almacen/factura-compra/reenviar/[id]/page.tsx";
 import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
 import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
 import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
@@ -1372,6 +1373,10 @@ function App() {
               <Route
                 path="gestion-de-almacen/factura-compra"
                 element={<PurchaseOrderWarehousePage />}
+              />
+              <Route
+                path="gestion-de-almacen/factura-compra/reenviar/:id"
+                element={<ResendWarehousePurchaseOrderPage />}
               />
               <Route
                 path="gestion-de-almacen/compra-proveedor/recepcionar/:supplierOrderId"

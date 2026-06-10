@@ -28,7 +28,7 @@ export default function PurchaseOrderWarehousePage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
-  const { ROUTE, MODEL } = PURCHASE_INVOICE_PV;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_INVOICE_PV;
 
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 
@@ -101,6 +101,7 @@ export default function PurchaseOrderWarehousePage() {
           onRequestInvoice: handleRequestInvoice,
           onRequestCreditNote: handleRequestCreditNote,
           typeOperationId: CM_POSTVENTA_ID,
+          resendRoute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >

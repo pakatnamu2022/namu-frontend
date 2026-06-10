@@ -18,6 +18,7 @@ interface Props {
   onRequestInvoice: (purchaseOrderId: number) => void;
   onMigrate?: (id: number) => void;
   typeOperationId?: number;
+  resendRoute?: string;
 }
 
 export const vehiclePurchaseOrderColumns = ({
@@ -25,6 +26,7 @@ export const vehiclePurchaseOrderColumns = ({
   onRequestInvoice,
   onMigrate,
   typeOperationId,
+  resendRoute,
 }: Props): VehiclePurchaseOrderColumns[] => {
   const isPostventa = typeOperationId === CM_POSTVENTA_ID;
 
@@ -237,7 +239,8 @@ export const vehiclePurchaseOrderColumns = ({
         const router = useNavigate();
         const purchaseOrder = row.original;
         const { id } = purchaseOrder;
-        const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
+        const { ABSOLUTE_ROUTE: DEFAULT_ROUTE } = VEHICLE_PURCHASE_ORDER;
+        const baseRoute = resendRoute ?? DEFAULT_ROUTE;
 
         // Check if resend button should be shown
         const canResend =
@@ -279,7 +282,7 @@ export const vehiclePurchaseOrderColumns = ({
                 size="icon"
                 className="size-7"
                 tooltip="Reenviar Orden de Compra"
-                onClick={() => router(`${ABSOLUTE_ROUTE}/reenviar/${id}`)}
+                onClick={() => router(`${baseRoute}/reenviar/${id}`)}
               >
                 <RefreshCw className="size-4" />
               </Button>

@@ -112,6 +112,17 @@ export async function resendVehiclePurchaseOrder(
   return response.data;
 }
 
+export async function resendPostventa(
+  id: number,
+  data: any,
+): Promise<VehiclePurchaseOrderResource> {
+  const response = await api.post<VehiclePurchaseOrderResource>(
+    `${ENDPOINT}/${id}/resend-postventa`,
+    data,
+  );
+  return response.data;
+}
+
 export async function dispatchSyncCreditNote(
   id: number,
 ): Promise<MessageResponse> {
