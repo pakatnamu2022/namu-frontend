@@ -968,6 +968,7 @@ export const SupplierOrderForm = ({
                                     perPage={10}
                                     debounceMs={500}
                                     defaultOption={rowDefaults?.unit}
+                                    disabled
                                   />
                                 </TableCell>
                                 <TableCell className="align-middle p-1.5 text-center">
