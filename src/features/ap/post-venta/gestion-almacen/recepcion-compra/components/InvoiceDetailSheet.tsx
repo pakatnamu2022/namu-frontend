@@ -1,6 +1,6 @@
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
-import { formatDate } from "@/core/core.function.ts";
+import { formatDate, formatDateTime } from "@/core/core.function.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Calendar, DollarSign, FileText, Package } from "lucide-react";
 import { PAYMENT_TERMS_OPTIONS } from "../lib/purchaseOrderProducts.constants";
@@ -271,7 +271,7 @@ export function InvoiceDetailSheet({
                   Fecha de registro:{" "}
                 </span>
                 <span className="font-medium">
-                  {formatDate(invoice.created_at)}
+                  {formatDateTime(invoice.created_at)}
                 </span>
               </div>
             </div>
