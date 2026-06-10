@@ -304,5 +304,6 @@ export function useModulePermissions(moduleCode: string) {
       "removeAssignSparePartsOT",
     ),
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
+    canGroup: hasModulePermission("group"),
   };
 }

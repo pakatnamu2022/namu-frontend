@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { useQueryClient } from "@tanstack/react-query";
 import type { SortingState, RowSelectionState } from "@tanstack/react-table";
 import {
@@ -57,6 +58,7 @@ function parseSyncedAt(value: string | undefined): string {
 }
 
 export default function AccountsReceivablePage() {
+  const { canGroup, canUpdate, canExport, canSend } = useModulePermissions("cuentas-por-cobrar");
   const [filters, setFilters] =
     useState<AccountsReceivableFilters>(INITIAL_FILTERS);
   const [sorting, setSorting] = useState<SortingState>([
@@ -66,6 +68,7 @@ export default function AccountsReceivablePage() {
     },
   ]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isSendingExcel, setIsSendingExcel] = useState(false);
@@ -175,6 +178,7 @@ export default function AccountsReceivablePage() {
 
   const handleRowClick = useCallback((row: AccountReceivable) => {
     setSelectedId(row.id);
+    setIsSheetOpen(true);
   }, []);
 
   const selectedIds = Object.keys(rowSelection).map(Number);
@@ -212,7 +216,10 @@ export default function AccountsReceivablePage() {
     });
   };
 
-  const columns = getAccountsReceivableColumns({ onRowClick: handleRowClick });
+  const columns = useMemo(
+    () => getAccountsReceivableColumns({ onRowClick: handleRowClick, canGroup }),
+    [handleRowClick, canGroup],
+  );
 
   return (
     <div className="space-y-4">
@@ -230,7 +237,7 @@ export default function AccountsReceivablePage() {
           )}
         </TitleComponent>
 
-        {selectedIds.length > 0 && (
+        {canGroup && selectedIds.length > 0 && (
           <Button
             variant="outline"
             size="sm"
@@ -251,38 +258,44 @@ export default function AccountsReceivablePage() {
           </Button>
         </Link>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={handleDownloadGlobalExcel}
-          disabled={isDownloadingExcel}
-        >
-          <Download className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`} />
-          <span className="hidden sm:inline">Descargar Excel</span>
-        </Button>
+        {canExport && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleDownloadGlobalExcel}
+            disabled={isDownloadingExcel}
+          >
+            <Download className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`} />
+            <span className="hidden sm:inline">Descargar Excel</span>
+          </Button>
+        )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={handleSendGlobalExcel}
-          disabled={isSendingExcel}
-        >
-          <FileText className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`} />
-          <span className="hidden sm:inline">Enviar Excel</span>
-        </Button>
+        {canSend && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleSendGlobalExcel}
+            disabled={isSendingExcel}
+          >
+            <FileText className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`} />
+            <span className="hidden sm:inline">Enviar Excel</span>
+          </Button>
+        )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={handleSendReports}
-          disabled={isSending}
-        >
-          <Send className={`size-4 ${isSending ? "animate-pulse" : ""}`} />
-          <span className="hidden sm:inline">Enviar reportes</span>
-        </Button>
+        {canSend && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={handleSendReports}
+            disabled={isSending}
+          >
+            <Send className={`size-4 ${isSending ? "animate-pulse" : ""}`} />
+            <span className="hidden sm:inline">Enviar reportes</span>
+          </Button>
+        )}
 
         <Button
           variant="outline"
@@ -361,7 +374,9 @@ export default function AccountsReceivablePage() {
 
       <AccountsReceivableSheet
         selectedId={selectedId}
-        onClose={() => setSelectedId(null)}
+        open={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        canUpdate={canUpdate}
       />
 
       <BulkCommentModal

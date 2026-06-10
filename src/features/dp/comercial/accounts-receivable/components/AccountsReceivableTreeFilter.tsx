@@ -110,7 +110,7 @@ export default function AccountsReceivableTreeFilter({
   }
 
   return (
-    <div className="flex items-end gap-2 flex-wrap">
+    <div className="flex items-end gap-0 flex-wrap">
       {/* Nivel 1 — Sede */}
       <Level label="Sede" onClear={selectedSedeId ? clearSede : undefined}>
         <AnimatePresence mode="popLayout">
@@ -205,11 +205,13 @@ export default function AccountsReceivableTreeFilter({
       </AnimatePresence>
 
       {/* Search */}
-      <SearchInput
-        value={filters.search ?? ""}
-        onChange={(v) => onFiltersChange({ search: v || undefined })}
-        placeholder="Buscar cliente, doc..."
-      />
+      <div className="pl-4">
+        <SearchInput
+          value={filters.search ?? ""}
+          onChange={(v) => onFiltersChange({ search: v || undefined })}
+          placeholder="Buscar cliente, doc..."
+        />
+      </div>
     </div>
   );
 }
