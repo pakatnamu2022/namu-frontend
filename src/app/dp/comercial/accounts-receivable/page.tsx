@@ -58,7 +58,8 @@ function parseSyncedAt(value: string | undefined): string {
 }
 
 export default function AccountsReceivablePage() {
-  const { canGroup, canUpdate, canExport, canSend } = useModulePermissions("cuentas-por-cobrar");
+  const { canGroup, canUpdate, canExport, canSend } =
+    useModulePermissions("cuentas-por-cobrar");
   const [filters, setFilters] =
     useState<AccountsReceivableFilters>(INITIAL_FILTERS);
   const [sorting, setSorting] = useState<SortingState>([
@@ -195,10 +196,9 @@ export default function AccountsReceivablePage() {
       try {
         await addAccountComment(id, comment);
         added++;
-        toast.loading(
-          `${added} ${added === 1 ? "agregado" : "agregados"}`,
-          { id: toastId },
-        );
+        toast.loading(`${added} ${added === 1 ? "agregado" : "agregados"}`, {
+          id: toastId,
+        });
       } catch {
         // continue with remaining
       }
@@ -217,7 +217,8 @@ export default function AccountsReceivablePage() {
   };
 
   const columns = useMemo(
-    () => getAccountsReceivableColumns({ onRowClick: handleRowClick, canGroup }),
+    () =>
+      getAccountsReceivableColumns({ onRowClick: handleRowClick, canGroup }),
     [handleRowClick, canGroup],
   );
 
@@ -266,7 +267,9 @@ export default function AccountsReceivablePage() {
             onClick={handleDownloadGlobalExcel}
             disabled={isDownloadingExcel}
           >
-            <Download className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`} />
+            <Download
+              className={`size-4 ${isDownloadingExcel ? "animate-bounce" : ""}`}
+            />
             <span className="hidden sm:inline">Descargar Excel</span>
           </Button>
         )}
@@ -279,7 +282,9 @@ export default function AccountsReceivablePage() {
             onClick={handleSendGlobalExcel}
             disabled={isSendingExcel}
           >
-            <FileText className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`} />
+            <FileText
+              className={`size-4 ${isSendingExcel ? "animate-pulse" : ""}`}
+            />
             <span className="hidden sm:inline">Enviar Excel</span>
           </Button>
         )}

@@ -231,6 +231,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "CheckCircle",
     description: "Permite finalizar un trabajo planificado como supervisor",
   },
+  {
+    value: "group",
+    label: "Agrupar",
+    icon: "Layers",
+    description: "Permite agrupar registros para acciones masivas",
+  }
 ];
 
 /**
