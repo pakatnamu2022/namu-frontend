@@ -3,7 +3,9 @@ import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
 import {
   CategoryCompetencePersonResponse,
+  CategoryCompetenceReport,
   getHierarchicalCategoryCompetencesProps,
+  GlobalCompetenceReportItem,
   HierarchicalCategoryCompetenceResource,
   HierarchicalCategoryCompetenceResponse,
 } from "./hierarchicalCategoryCompetence.interface";
@@ -85,5 +87,44 @@ export async function deleteHierarchicalCategoryCompetence(body: {
   competence_id: number;
 }): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(`${ENDPOINT}/destroy`, body);
+  return data;
+}
+
+export async function getGlobalAssignmentReport(): Promise<GlobalCompetenceReportItem[]> {
+  const { data } = await api.get<GlobalCompetenceReportItem[]>(
+    `${ENDPOINT}/global-assignment-report`
+  );
+  return data;
+}
+
+export async function getCategoryAssignmentReport(
+  categoryId: number
+): Promise<CategoryCompetenceReport> {
+  const { data } = await api.get<CategoryCompetenceReport>(
+    `${ENDPOINT}/${categoryId}/assignment-report`
+  );
+  return data;
+}
+
+export async function regeneratePersonCompetences(
+  categoryId: number,
+  personId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${categoryId}/regenerate-person/${personId}`
+  );
+  return data;
+}
+
+export interface FillAllMissingResponse {
+  message: string;
+  categories_processed: number;
+  assignments_created: number;
+}
+
+export async function fillAllMissingCompetences(): Promise<FillAllMissingResponse> {
+  const { data } = await api.post<FillAllMissingResponse>(
+    `${ENDPOINT}/fill-all-missing`
+  );
   return data;
 }
