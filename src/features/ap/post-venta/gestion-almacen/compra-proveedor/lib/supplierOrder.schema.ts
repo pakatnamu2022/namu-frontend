@@ -1,14 +1,16 @@
-import { requiredDate, requiredStringId } from "@/shared/lib/global.schema.ts";
+import {
+  requiredDate,
+  requiredDecimalNumber,
+  requiredStringId,
+} from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 const supplierOrderDetailItemSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
-  unit_measurement_id: requiredStringId("Unidad de medida es requerida"),
-  quantity: z.number().min(0.01, { message: "La cantidad debe ser mayor a 0" }),
-  unit_price: z
-    .number()
-    .min(0, { message: "El precio unitario debe ser mayor o igual a 0" }),
-  total: z.number().min(0.01, { message: "El total debe ser mayor a 0" }),
+  unit_measurement_id: z.string().optional(),
+  quantity: requiredDecimalNumber("La cantidad debe ser mayor a 0"),
+  unit_price: requiredDecimalNumber("El precio unitario debe ser mayor a 0"),
+  total: requiredDecimalNumber("El total debe ser mayor a 0"),
   note: z.string().optional(),
 });
 

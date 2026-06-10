@@ -46,6 +46,7 @@ interface FormSelectAsyncProps {
   control: Control<any>;
   portalContainer?: HTMLElement | null;
   disabled?: boolean;
+  readOnly?: boolean;
   tooltip?: string | React.ReactNode;
   classNameOption?: string;
   withValue?: boolean;
@@ -83,6 +84,7 @@ export function FormSelectAsync({
   control,
   portalContainer,
   disabled,
+  readOnly,
   tooltip,
   classNameOption,
   withValue = true,
@@ -344,17 +346,22 @@ export function FormSelectAsync({
                 )}
 
             <div className="flex gap-2 items-center">
-              <Popover open={open} onOpenChange={handleOpenChange}>
+              <Popover
+                open={readOnly ? false : open}
+                onOpenChange={readOnly ? undefined : handleOpenChange}
+              >
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
                       variant="outline"
                       role="combobox"
                       disabled={disabled}
+                      onClick={readOnly ? (e) => e.preventDefault() : undefined}
                       className={cn(
                         "w-full justify-between flex truncate",
                         !field.value && "text-muted-foreground",
                         field.value && "bg-muted",
+                        readOnly && "cursor-default pointer-events-none",
                         className,
                       )}
                     >
@@ -365,7 +372,9 @@ export function FormSelectAsync({
                             : selected.label
                           : placeholder}
                       </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      {!readOnly && (
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      )}
                     </Button>
                   </FormControl>
                 </PopoverTrigger>

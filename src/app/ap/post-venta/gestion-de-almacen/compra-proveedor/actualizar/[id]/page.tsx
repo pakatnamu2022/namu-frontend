@@ -72,10 +72,9 @@ export default function UpdateSupplierOrderPage() {
       details:
         data.details?.map((item) => ({
           product_id: String(item.product_id),
-          unit_measurement_id: String(item.unit_measurement_id),
-          quantity: Number(item.quantity),
-          unit_price: Number(item.unit_price),
-          total: Number(item.total),
+          quantity: String(item.quantity),
+          unit_price: String(item.unit_price),
+          total: String(item.total),
           note: item.note || "",
         })) || [],
     };
