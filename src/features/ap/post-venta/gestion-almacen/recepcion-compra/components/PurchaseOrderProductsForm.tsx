@@ -262,8 +262,16 @@ export const PurchaseOrderProductsForm = ({
 
   // useEffect para calcular automáticamente la fecha de vencimiento (30 días después de la emisión)
   useEffect(() => {
-    if (watchedEmissionDate instanceof Date) {
-      const dueDate = addDays(watchedEmissionDate, 30);
+    const rawDate = watchedEmissionDate as Date | string | undefined;
+    const emissionDate =
+      rawDate instanceof Date
+        ? rawDate
+        : rawDate
+          ? new Date(rawDate as string)
+          : null;
+
+    if (emissionDate instanceof Date && !isNaN(emissionDate.getTime())) {
+      const dueDate = addDays(emissionDate, 30);
       form.setValue("due_date", dueDate, { shouldValidate: true });
     }
   }, [watchedEmissionDate, form]);

@@ -187,16 +187,6 @@ export default function InventoryMovementDetailsSheet({
                   <p className="text-xs text-muted-foreground">Peso Total</p>
                   <p className="font-medium">{shipment.total_weight} kg</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Estado SUNAT</p>
-                  <Badge
-                    variant={
-                      shipment.aceptada_por_sunat ? "default" : "outline"
-                    }
-                  >
-                    {shipment.sunat_description || "PENDIENTE"}
-                  </Badge>
-                </div>
               </div>
             </div>
 
