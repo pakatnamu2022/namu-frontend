@@ -43,7 +43,7 @@ export const competenceColumns = ({
     cell: ({ row }) => {
       const subcompetencesWithoutDescription = row.original.subcompetences;
       const count = subcompetencesWithoutDescription.filter(
-        (sub) => sub.definicion || sub.definicion.trim() !== ""
+        (sub) => !sub.definicion || sub.definicion.trim() === ""
       ).length;
       return (
         <Badge color={count > 0 ? "default" : "destructive"}>{count}</Badge>
