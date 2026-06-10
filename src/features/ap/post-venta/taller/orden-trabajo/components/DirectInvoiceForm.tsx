@@ -31,6 +31,7 @@ import {
   INTERNAL_WORKSHOP_ID,
   ODEBRECHT_MAINTENANCE_ID,
 } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
+import { formatMoney } from "@/core/core.function";
 
 interface DirectInvoiceFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -525,10 +526,7 @@ export default function DirectInvoiceForm({
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Op. Gravada</span>
                       <span className="font-medium">
-                        {currencySymbol}{" "}
-                        {totales.total_gravada.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
+                        {formatMoney(totales.total_gravada, 2, currencySymbol)}
                       </span>
                     </div>
                   )}
@@ -538,10 +536,12 @@ export default function DirectInvoiceForm({
                         Op. Exonerada
                       </span>
                       <span className="font-medium">
+                        {formatMoney(
+                          totales.total_exonerada,
+                          2,
+                          currencySymbol,
+                        )}
                         {currencySymbol}{" "}
-                        {totales.total_exonerada.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
                       </span>
                     </div>
                   )}
@@ -551,10 +551,7 @@ export default function DirectInvoiceForm({
                         Op. Inafecta
                       </span>
                       <span className="font-medium">
-                        {currencySymbol}{" "}
-                        {totales.total_inafecta.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
+                        {formatMoney(totales.total_inafecta, 2, currencySymbol)}
                       </span>
                     </div>
                   )}
@@ -563,10 +560,7 @@ export default function DirectInvoiceForm({
                       IGV ({porcentaje_de_igv}%)
                     </span>
                     <span className="font-medium">
-                      {currencySymbol}{" "}
-                      {totales.total_igv.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatMoney(totales.total_igv, 2, currencySymbol)}
                     </span>
                   </div>
 
@@ -577,10 +571,7 @@ export default function DirectInvoiceForm({
                       Total
                     </span>
                     <span className="text-xl font-bold text-primary">
-                      {currencySymbol}{" "}
-                      {totales.total.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatMoney(totales.total, 2, currencySymbol)}
                     </span>
                   </div>
                 </div>
