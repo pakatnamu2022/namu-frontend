@@ -57,6 +57,7 @@ export default function ReceptionsProductsPage() {
   });
 
   const hasCompleteReception = supplierOrder?.reception_type === "COMPLETE";
+  console.log("hasCompleteReception:", supplierOrder?.reception_type);
 
   // Calcular el total de facturas de todas las recepciones
   const invoicesTotals = useMemo(() => {

@@ -51,6 +51,7 @@ export interface PurchaseRequestDetailResource {
   quantity: number;
   unit_price: number;
   discount_percentage: number;
+  unit_measurement_code?: string;
   total_amount: number;
   supply_type: string;
   notes: string | null;
@@ -61,6 +62,9 @@ export interface PurchaseRequestDetailResource {
   request_number?: string;
   requested_name?: string;
   currency_symbol?: string;
+  stock_quantity?: string;
+  stock_available_quantity?: string;
+  stock_reserved_quantity?: string;
   product?: ProductResource;
 }
 

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   SupplierOrderSchema,
   supplierOrderSchemaCreate,
@@ -12,7 +13,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form.tsx";
-import { Input } from "@/components/ui/input.tsx";
 import { DecimalInput } from "@/shared/components/DecimalInput";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -49,8 +49,6 @@ import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-genera
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
-import { useUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook.ts";
-import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { PendingPurchaseRequestsList } from "./PendingPurchaseRequestsList.tsx";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
@@ -131,7 +129,7 @@ export const SupplierOrderForm = ({
     Record<
       string,
       {
-        product?: { value: string; label: string };
+        product?: { value: string; label: string | (() => React.ReactNode) };
         unit?: { value: string; label: string };
       }
     >
@@ -145,7 +143,7 @@ export const SupplierOrderForm = ({
       const initialDefaults: Record<
         string,
         {
-          product?: { value: string; label: string };
+          product?: { value: string; label: string | (() => React.ReactNode) };
           unit?: { value: string; label: string };
         }
       > = {};
@@ -364,26 +362,18 @@ export const SupplierOrderForm = ({
       // Si el producto ya existe, sumar la cantidad
       const currentQuantity =
         form.getValues(`details.${existingItemIndex}.quantity`) || 0;
-      const newQuantity = currentQuantity + parseFloat(requestDetail.quantity);
+      const newQuantity = currentQuantity + requestDetail.quantity;
       form.setValue(`details.${existingItemIndex}.quantity`, newQuantity);
-
-      // Setear el unit_measurement_id si viene en el requestDetail
-      if (requestDetail.unit_measurement_id) {
-        form.setValue(
-          `details.${existingItemIndex}.unit_measurement_id`,
-          requestDetail.unit_measurement_id.toString(),
-        );
-      }
 
       // Recalcular precio unitario
       const itemTotal =
         form.getValues(`details.${existingItemIndex}.total`) || 0;
       if (newQuantity > 0) {
         const calculatedPrice =
-          Math.round((itemTotal / newQuantity) * 10000) / 10000;
+          Math.round((Number(itemTotal) / newQuantity) * 10000) / 10000;
         form.setValue(
           `details.${existingItemIndex}.unit_price`,
-          calculatedPrice,
+          String(calculatedPrice),
           { shouldValidate: false },
         );
       }
@@ -397,11 +387,9 @@ export const SupplierOrderForm = ({
       // Si no existe, actualizar nuevo item
       append({
         product_id: productId,
-        unit_measurement_id:
-          requestDetail.unit_measurement_id?.toString() || "",
-        quantity: parseFloat(requestDetail.quantity),
-        total: 0,
-        unit_price: 0,
+        quantity: requestDetail.quantity,
+        total: "0",
+        unit_price: "0",
         note: requestDetail.notes || "",
       });
 
@@ -431,23 +419,54 @@ export const SupplierOrderForm = ({
     // Agregar el ID a la lista de añadidos
     setAddedRequestDetailIds((prev) => [...prev, requestDetail.id]);
 
-    // Guardar defaultOptions para el producto y unidad de medida
+    // Guardar defaultOptions para el producto
+    const cachedInventory = productsCache.current[productId];
+    const unitLabel =
+      cachedInventory?.product?.unit_measurement?.description ||
+      cachedInventory?.product?.unit_measurement_name ||
+      requestDetail.unit_measurement_code ||
+      "";
+    const availableQty =
+      cachedInventory?.available_quantity ??
+      (requestDetail.stock_available_quantity != null
+        ? Number(requestDetail.stock_available_quantity)
+        : null);
+
     setDetailDefaultOptions((prev) => ({
       ...prev,
       [productId]: {
+        ...prev[productId],
         product: {
           value: productId,
-          label: `${requestDetail.product_name || ""} - ${requestDetail.product_code || ""}`,
+          label: () => (
+            <div className="flex items-end gap-2 min-w-0 w-full">
+              <span className="font-medium truncate">
+                {requestDetail.product_code || ""} -{" "}
+                {requestDetail.product_name || ""}
+              </span>
+              {unitLabel && (
+                <>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {unitLabel}
+                  </span>
+                </>
+              )}
+              {availableQty != null && (
+                <>
+                  <span
+                    className={`text-xs font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+                      availableQty > 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    Stock: {availableQty}
+                  </span>
+                </>
+              )}
+            </div>
+          ),
         },
-        unit: requestDetail.unit_measurement_id
-          ? {
-              value: requestDetail.unit_measurement_id.toString(),
-              label:
-                requestDetail.unit_measurement_name ||
-                requestDetail.product?.unit_measurement?.description ||
-                "",
-            }
-          : prev[productId]?.unit,
       },
     }));
   };
@@ -809,7 +828,6 @@ export const SupplierOrderForm = ({
                             <TableHead className="min-w-[250px]">
                               Repuesto
                             </TableHead>
-                            <TableHead className="w-40">Und. Med.</TableHead>
                             <TableHead className="w-24 text-center">
                               Cant.
                             </TableHead>
@@ -887,24 +905,48 @@ export const SupplierOrderForm = ({
                                       ] = inventory;
                                       return {
                                         value: inventory.product_id.toString(),
-                                        label: () => (
-                                          <div className="flex items-center justify-between gap-2 w-full">
-                                            <span className="font-medium truncate">
-                                              {inventory.product.code} -{" "}
-                                              {inventory.product.name}
-                                            </span>
-                                            <span
-                                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                                inventory.available_quantity > 0
-                                                  ? "bg-green-100 text-green-700"
-                                                  : "bg-red-100 text-red-700"
-                                              }`}
-                                            >
-                                              Stock:{" "}
-                                              {inventory.available_quantity}
-                                            </span>
-                                          </div>
-                                        ),
+                                        label: () => {
+                                          const uLabel =
+                                            inventory.product.unit_measurement
+                                              ?.description ||
+                                            inventory.product
+                                              .unit_measurement_name ||
+                                            "";
+                                          return (
+                                            <div className="flex items-center gap-2 min-w-0 w-full">
+                                              <span className="font-medium truncate">
+                                                {inventory.product.code} -{" "}
+                                                {inventory.product.name}
+                                              </span>
+                                              {uLabel && (
+                                                <>
+                                                  <span className="text-muted-foreground/40 shrink-0">
+                                                    ·
+                                                  </span>
+                                                  <span className="text-xs text-muted-foreground shrink-0">
+                                                    {uLabel}
+                                                  </span>
+                                                </>
+                                              )}
+                                              <>
+                                                <span className="text-muted-foreground/40 shrink-0">
+                                                  ·
+                                                </span>
+                                                <span
+                                                  className={`text-xs font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+                                                    inventory.available_quantity >
+                                                    0
+                                                      ? "bg-green-100 text-green-700"
+                                                      : "bg-red-100 text-red-700"
+                                                  }`}
+                                                >
+                                                  Stock:{" "}
+                                                  {inventory.available_quantity}
+                                                </span>
+                                              </>
+                                            </div>
+                                          );
+                                        },
                                       };
                                     }}
                                     perPage={10}
@@ -914,60 +956,63 @@ export const SupplierOrderForm = ({
                                       const selectedInventory =
                                         productsCache.current[value];
 
-                                      if (
-                                        selectedInventory?.product
-                                          ?.unit_measurement_id
-                                      ) {
+                                      if (selectedInventory?.product) {
                                         const productId = value;
-                                        const unitId =
-                                          selectedInventory.product.unit_measurement_id.toString();
-
-                                        form.setValue(
-                                          `details.${index}.unit_measurement_id`,
-                                          unitId,
-                                        );
-
-                                        const unitLabel =
-                                          selectedInventory.product
-                                            .unit_measurement?.description ||
-                                          selectedInventory.product
-                                            .unit_measurement_name ||
-                                          "";
-
+                                        const inv = selectedInventory;
                                         setDetailDefaultOptions((prev) => ({
                                           ...prev,
                                           [productId]: {
+                                            ...prev[productId],
                                             product: {
                                               value: productId,
-                                              label: `${selectedInventory.product.name} - ${selectedInventory.product.code}`,
+                                              label: () => {
+                                                const uLabel =
+                                                  inv.product.unit_measurement
+                                                    ?.description ||
+                                                  inv.product
+                                                    .unit_measurement_name ||
+                                                  "";
+                                                return (
+                                                  <div className="flex items-center gap-2 min-w-0 w-full">
+                                                    <span className="font-medium truncate">
+                                                      {inv.product.code} -{" "}
+                                                      {inv.product.name}
+                                                    </span>
+                                                    {uLabel && (
+                                                      <>
+                                                        <span className="text-muted-foreground/40 shrink-0">
+                                                          ·
+                                                        </span>
+                                                        <span className="text-xs text-muted-foreground shrink-0">
+                                                          {uLabel}
+                                                        </span>
+                                                      </>
+                                                    )}
+                                                    <>
+                                                      <span className="text-muted-foreground/40 shrink-0">
+                                                        ·
+                                                      </span>
+                                                      <span
+                                                        className={`text-xs font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+                                                          inv.available_quantity >
+                                                          0
+                                                            ? "bg-green-100 text-green-700"
+                                                            : "bg-red-100 text-red-700"
+                                                        }`}
+                                                      >
+                                                        Stock:{" "}
+                                                        {inv.available_quantity}
+                                                      </span>
+                                                    </>
+                                                  </div>
+                                                );
+                                              },
                                             },
-                                            unit: unitLabel
-                                              ? {
-                                                  value: unitId,
-                                                  label: unitLabel,
-                                                }
-                                              : prev[productId]?.unit,
                                           },
                                         }));
                                       }
                                     }}
-                                  />
-                                </TableCell>
-                                <TableCell className="align-middle p-1.5">
-                                  <FormSelectAsync
-                                    name={`details.${index}.unit_measurement_id`}
-                                    placeholder="Unidad..."
-                                    control={form.control}
-                                    useQueryHook={useUnitMeasurement}
-                                    mapOptionFn={(
-                                      unit: UnitMeasurementResource,
-                                    ) => ({
-                                      value: unit.id.toString(),
-                                      label: unit.description,
-                                    })}
-                                    perPage={10}
-                                    debounceMs={500}
-                                    defaultOption={rowDefaults?.unit}
+                                    readOnly
                                   />
                                 </TableCell>
                                 <TableCell className="align-middle p-1.5 text-center">
@@ -977,22 +1022,19 @@ export const SupplierOrderForm = ({
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            placeholder="1"
+                                          <DecimalInput
+                                            placeholder="0.00"
                                             className="text-center"
-                                            value={field.value ?? ""}
-                                            onChange={(e) => {
-                                              const num = parseFloat(
-                                                e.target.value,
-                                              );
+                                            decimals={2}
+                                            value={
+                                              field.value as number | undefined
+                                            }
+                                            onChange={(num) => {
                                               field.onChange(
-                                                isNaN(num) ? "" : num,
+                                                num != null ? String(num) : "",
                                               );
 
-                                              // Calcular precio unitario inmediatamente
-                                              if (!isNaN(num) && num > 0) {
+                                              if (num != null && num > 0) {
                                                 const total =
                                                   Number(
                                                     form.getValues(
@@ -1005,7 +1047,7 @@ export const SupplierOrderForm = ({
                                                   ) / 10000;
                                                 form.setValue(
                                                   `details.${index}.unit_price`,
-                                                  calculatedPrice,
+                                                  String(calculatedPrice),
                                                   { shouldValidate: false },
                                                 );
                                               }
@@ -1043,7 +1085,9 @@ export const SupplierOrderForm = ({
                                               field.value as number | undefined
                                             }
                                             onChange={(num) => {
-                                              field.onChange(num ?? "");
+                                              field.onChange(
+                                                num != null ? String(num) : "",
+                                              );
                                               if (num != null && num >= 0) {
                                                 const quantity =
                                                   Number(
@@ -1057,7 +1101,7 @@ export const SupplierOrderForm = ({
                                                   ) / 10000;
                                                 form.setValue(
                                                   `details.${index}.unit_price`,
-                                                  calculatedPrice,
+                                                  String(calculatedPrice),
                                                   { shouldValidate: false },
                                                 );
                                               }
@@ -1121,6 +1165,7 @@ export const SupplierOrderForm = ({
               </div>
             </div>
           </div>
+
           <div className="flex gap-4 w-full justify-end">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
