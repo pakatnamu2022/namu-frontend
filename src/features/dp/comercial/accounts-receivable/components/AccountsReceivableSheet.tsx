@@ -6,6 +6,10 @@ import {
   Building2,
   Calendar,
   Hash,
+  Pencil,
+  Trash2,
+  Check,
+  X,
 } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +23,11 @@ import {
   successToast,
 } from "@/core/core.function";
 import { useAccountReceivableById } from "../lib/accountsReceivable.hook";
-import { addAccountComment } from "../lib/accountsReceivable.actions";
+import {
+  addAccountComment,
+  updateAccountComment,
+  deleteAccountComment,
+} from "../lib/accountsReceivable.actions";
 import {
   OVERDUE_STATUS_COLORS,
   DEFAULT_OVERDUE_STATUS_COLOR,
@@ -41,6 +49,202 @@ function formatAmount(value: string | number): string {
   });
 }
 
+function isToday(dateStr: string): boolean {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  "bg-blue-100 text-blue-700",
+  "bg-violet-100 text-violet-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-amber-100 text-amber-700",
+  "bg-rose-100 text-rose-700",
+  "bg-cyan-100 text-cyan-700",
+];
+
+function avatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+interface CommentItemProps {
+  comment: AccountReceivableComment;
+  onEdit: (id: number, text: string) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
+
+function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.comment);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const editable = isToday(comment.created_at) && comment.id > 0;
+  const name = comment.user?.name ?? "Usuario";
+  const initials = getInitials(name);
+  const color = avatarColor(name);
+
+  const handleSaveEdit = async () => {
+    if (!editText.trim() || editText.trim() === comment.comment) {
+      setEditing(false);
+      setEditText(comment.comment);
+      return;
+    }
+    setLoading(true);
+    try {
+      await onEdit(comment.id, editText.trim());
+      setEditing(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    setEditText(comment.comment);
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await onDelete(comment.id);
+    } finally {
+      setLoading(false);
+      setConfirmDelete(false);
+    }
+  };
+
+  return (
+    <div className="flex gap-3 py-3 group">
+      <div
+        className={cn(
+          "size-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5",
+          color,
+        )}
+      >
+        {initials}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xs font-semibold truncate">{name}</span>
+          {comment.sede && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
+              {comment.sede.abreviatura}
+            </Badge>
+          )}
+          <span className="text-[10px] text-muted-foreground ml-auto shrink-0">
+            {formatDateTime(comment.created_at)}
+          </span>
+        </div>
+
+        {editing ? (
+          <div className="space-y-1.5">
+            <Textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              rows={2}
+              className="text-xs resize-none"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSaveEdit();
+                if (e.key === "Escape") handleCancelEdit();
+              }}
+            />
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                className="h-6 px-2 text-[11px] gap-1"
+                disabled={loading}
+                onClick={handleSaveEdit}
+              >
+                <Check className="size-3" />
+                Guardar
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-[11px] gap-1"
+                onClick={handleCancelEdit}
+                disabled={loading}
+              >
+                <X className="size-3" />
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <p className="text-xs text-foreground/80 break-words leading-relaxed pr-14">
+              {comment.comment}
+            </p>
+
+            {editable && (
+              <div className="absolute top-0 right-0 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                {!confirmDelete ? (
+                  <>
+                    <button
+                      title="Editar"
+                      className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => {
+                        setEditText(comment.comment);
+                        setEditing(true);
+                      }}
+                    >
+                      <Pencil className="size-3" />
+                    </button>
+                    <button
+                      title="Eliminar"
+                      className="p-1 rounded hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors"
+                      onClick={() => setConfirmDelete(true)}
+                    >
+                      <Trash2 className="size-3" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1 bg-background border border-border rounded px-1.5 py-0.5 shadow-sm">
+                    <span className="text-[10px] text-muted-foreground">¿Eliminar?</span>
+                    <button
+                      className="text-[10px] font-medium text-red-600 hover:text-red-700"
+                      onClick={handleDelete}
+                      disabled={loading}
+                    >
+                      Sí
+                    </button>
+                    <span className="text-muted-foreground text-[10px]">/</span>
+                    <button
+                      className="text-[10px] text-muted-foreground hover:text-foreground"
+                      onClick={() => setConfirmDelete(false)}
+                    >
+                      No
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function DetailRow({
   label,
   value,
@@ -56,40 +260,13 @@ function DetailRow({
   );
 }
 
-function CommentItem({ comment }: { comment: AccountReceivableComment }) {
-  return (
-    <div className="flex gap-2 py-2">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-xs font-semibold truncate">
-            {comment.user?.name ?? "Usuario"}
-          </span>
-          {comment.sede && (
-            <Badge variant="outline" className="text-[10px] px-1 py-0">
-              {comment.sede.abreviatura}
-            </Badge>
-          )}
-        </div>
-        <p className="text-xs text-foreground/80 wrap-break-word">
-          {comment.comment}
-        </p>
-        <p className="text-[10px] text-muted-foreground mt-1">
-          {formatDateTime(comment.created_at)}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function AccountsReceivableSheet({
   selectedId,
   onClose,
 }: Props) {
   const [newComment, setNewComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [localComments, setLocalComments] = useState<
-    AccountReceivableComment[]
-  >([]);
+  const [localComments, setLocalComments] = useState<AccountReceivableComment[]>([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
 
   const { data: account, isLoading } = useAccountReceivableById(selectedId);
@@ -103,13 +280,16 @@ export default function AccountsReceivableSheet({
     onClose();
   };
 
+  const syncBase = () =>
+    commentsLoaded ? localComments : (account?.comments ?? []);
+
   const handleSaveComment = async () => {
     if (!newComment.trim() || !selectedId) return;
     setIsSaving(true);
     try {
       await addAccountComment(selectedId, newComment.trim());
       const optimistic: AccountReceivableComment = {
-        id: Date.now(),
+        id: -Date.now(),
         comment: newComment.trim(),
         sede_id: account?.sede_id ?? 0,
         sede: account?.sede ?? { id: 0, localidad: "", abreviatura: "" },
@@ -117,8 +297,7 @@ export default function AccountsReceivableSheet({
         user: { id: 0, name: "Tú" },
         created_at: new Date().toISOString(),
       };
-      const base = commentsLoaded ? localComments : (account?.comments ?? []);
-      setLocalComments([optimistic, ...base]);
+      setLocalComments([optimistic, ...syncBase()]);
       setCommentsLoaded(true);
       setNewComment("");
       successToast("Comentario guardado correctamente.");
@@ -129,9 +308,34 @@ export default function AccountsReceivableSheet({
     }
   };
 
+  const handleEditComment = async (id: number, text: string) => {
+    try {
+      await updateAccountComment(id, text);
+      const base = syncBase();
+      setLocalComments(
+        base.map((c) => (c.id === id ? { ...c, comment: text } : c)),
+      );
+      setCommentsLoaded(true);
+      successToast("Comentario actualizado.");
+    } catch {
+      errorToast("No se pudo actualizar el comentario.");
+    }
+  };
+
+  const handleDeleteComment = async (id: number) => {
+    try {
+      await deleteAccountComment(id);
+      const base = syncBase();
+      setLocalComments(base.filter((c) => c.id !== id));
+      setCommentsLoaded(true);
+      successToast("Comentario eliminado.");
+    } catch {
+      errorToast("No se pudo eliminar el comentario.");
+    }
+  };
+
   const statusColor = account
-    ? (OVERDUE_STATUS_COLORS[account.overdue_status] ??
-      DEFAULT_OVERDUE_STATUS_COLOR)
+    ? (OVERDUE_STATUS_COLORS[account.overdue_status] ?? DEFAULT_OVERDUE_STATUS_COLOR)
     : "";
 
   return (
@@ -198,16 +402,10 @@ export default function AccountsReceivableSheet({
                   <DetailRow label="RUC / DNI" value={account.client_id} />
                   <DetailRow label="Razón social" value={account.client_name} />
                   {account.client_id_real && (
-                    <DetailRow
-                      label="RUC real"
-                      value={account.client_id_real}
-                    />
+                    <DetailRow label="RUC real" value={account.client_id_real} />
                   )}
                   {account.client_name_real && (
-                    <DetailRow
-                      label="Nombre real"
-                      value={account.client_name_real}
-                    />
+                    <DetailRow label="Nombre real" value={account.client_name_real} />
                   )}
                 </div>
               </section>
@@ -262,10 +460,7 @@ export default function AccountsReceivableSheet({
                   <DetailRow label="Sede" value={account.sede?.localidad} />
                   <DetailRow label="Sucursal" value={account.branch} />
                   {account.observations && (
-                    <DetailRow
-                      label="Observaciones"
-                      value={account.observations}
-                    />
+                    <DetailRow label="Observaciones" value={account.observations} />
                   )}
                   <DetailRow
                     label="Última sincronización"
@@ -280,25 +475,29 @@ export default function AccountsReceivableSheet({
           <section>
             <Separator />
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-3 mb-2 flex items-center gap-1">
-              <MessageSquare className="size-3" /> Comentarios (
-              {comments.length})
+              <MessageSquare className="size-3" /> Comentarios ({comments.length})
             </h3>
 
             {comments.length > 0 ? (
-              <div className="divide-y divide-border/50 rounded-lg border bg-card px-3">
+              <div className="rounded-xl bg-muted/40 px-3 divide-y divide-border/50">
                 {comments.map((c) => (
-                  <CommentItem key={c.id} comment={c} />
+                  <CommentItem
+                    key={c.id}
+                    comment={c}
+                    onEdit={handleEditComment}
+                    onDelete={handleDeleteComment}
+                  />
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground text-center py-4">
+              <p className="text-xs text-muted-foreground text-center py-6">
                 Sin comentarios aún.
               </p>
             )}
 
             <div className="mt-3 space-y-2">
               <Textarea
-                placeholder="Escribir un comentario..."
+                placeholder="Escribir un comentario... (Ctrl+Enter para guardar)"
                 className="text-sm resize-none"
                 rows={3}
                 value={newComment}
