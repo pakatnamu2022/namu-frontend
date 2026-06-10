@@ -37,6 +37,14 @@ export async function addAccountComment(id: number, comment: string): Promise<vo
   await api.post(`${ENDPOINT}/${id}/comments`, { comment });
 }
 
+export async function updateAccountComment(commentId: number, comment: string): Promise<void> {
+  await api.put(`${ENDPOINT}/comments/${commentId}`, { comment });
+}
+
+export async function deleteAccountComment(commentId: number): Promise<void> {
+  await api.delete(`${ENDPOINT}/comments/${commentId}`);
+}
+
 export async function getFilterTree(): Promise<FilterTreeNode[]> {
   const { data } = await api.get<FilterTreeNode[]>(`${ENDPOINT}/filterTree`);
   return data;

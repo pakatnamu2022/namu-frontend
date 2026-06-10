@@ -6,6 +6,7 @@ import { ChevronRight, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFilterTree } from "../lib/accountsReceivable.hook";
 import type { AccountsReceivableFilters } from "../lib/accountsReceivable.interface";
+import SearchInput from "@/shared/components/SearchInput";
 
 interface Props {
   filters: AccountsReceivableFilters;
@@ -40,7 +41,11 @@ export default function AccountsReceivableTreeFilter({
     setSedeExpanded(false);
     setStatusExpanded(true);
     setYearExpanded(true);
-    onFiltersChange({ sede_id: sedeId, overdue_status: undefined, due_year: null });
+    onFiltersChange({
+      sede_id: sedeId,
+      overdue_status: undefined,
+      due_year: null,
+    });
   }
 
   function selectStatus(status: string) {
@@ -105,7 +110,7 @@ export default function AccountsReceivableTreeFilter({
   }
 
   return (
-    <div className="flex items-start gap-0 flex-wrap">
+    <div className="flex items-end gap-2 flex-wrap">
       {/* Nivel 1 — Sede */}
       <Level label="Sede" onClear={selectedSedeId ? clearSede : undefined}>
         <AnimatePresence mode="popLayout">
@@ -125,9 +130,7 @@ export default function AccountsReceivableTreeFilter({
 
       {/* Separador */}
       <AnimatePresence>
-        {selectedSede && !sedeExpanded && (
-          <Separator key="sep1" />
-        )}
+        {selectedSede && !sedeExpanded && <Separator key="sep1" />}
       </AnimatePresence>
 
       {/* Nivel 2 — Estado */}
@@ -140,7 +143,10 @@ export default function AccountsReceivableTreeFilter({
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <Level label="Estado" onClear={selectedStatus ? clearStatus : undefined}>
+            <Level
+              label="Estado"
+              onClear={selectedStatus ? clearStatus : undefined}
+            >
               <AnimatePresence mode="popLayout">
                 {(statusesVisible ?? []).map((s, i) => (
                   <Chip
@@ -161,9 +167,7 @@ export default function AccountsReceivableTreeFilter({
 
       {/* Separador */}
       <AnimatePresence>
-        {selectedStatusNode && !statusExpanded && (
-          <Separator key="sep2" />
-        )}
+        {selectedStatusNode && !statusExpanded && <Separator key="sep2" />}
       </AnimatePresence>
 
       {/* Nivel 3 — Año */}
@@ -200,13 +204,27 @@ export default function AccountsReceivableTreeFilter({
         )}
       </AnimatePresence>
 
+      {/* Search */}
+      <SearchInput
+        value={filters.search ?? ""}
+        onChange={(v) => onFiltersChange({ search: v || undefined })}
+        placeholder="Buscar cliente, doc..."
+      />
     </div>
   );
 }
 
 /* ── Sub-components ── */
 
-function Level({ label, children, onClear }: { label: string; children: React.ReactNode; onClear?: () => void }) {
+function Level({
+  label,
+  children,
+  onClear,
+}: {
+  label: string;
+  children: React.ReactNode;
+  onClear?: () => void;
+}) {
   return (
     <div className="flex flex-col gap-1 min-w-0">
       <div className="flex items-center gap-1 px-0.5">
