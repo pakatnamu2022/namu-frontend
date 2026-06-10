@@ -28,6 +28,7 @@ export interface PurchaseOrderItem {
   product_dyn_code: string;
   description: string;
   unit_price: string | number;
+  product_id: number | null;
   quantity: number;
   total?: number;
   is_vehicle: boolean;
@@ -93,6 +94,7 @@ export interface VehiclePurchaseOrderResource {
   credit_note_dynamics?: string;
   payment_terms: string;
   type_operation_id: number;
+  notes: string;
   migrated_at: string;
   created_at: string;
   updated_at: string;
