@@ -168,7 +168,7 @@ function CommentItem({ comment, onEdit, onDelete }: CommentItemProps) {
                 trigger={
                   <ButtonAction
                     icon={Trash2}
-                    color="destructive"
+                    color="red"
                     disabled={loading}
                   />
                 }
@@ -272,17 +272,8 @@ export default function AccountsReceivableSheet({
     if (!newComment.trim() || !selectedId) return;
     setIsSaving(true);
     try {
-      await addAccountComment(selectedId, newComment.trim());
-      const optimistic: AccountReceivableComment = {
-        id: -Date.now(),
-        comment: newComment.trim(),
-        sede_id: account?.sede_id ?? 0,
-        sede: account?.sede ?? { id: 0, localidad: "", abreviatura: "" },
-        user_id: 0,
-        user: { id: 0, name: "Tú" },
-        created_at: new Date().toISOString(),
-      };
-      setLocalComments([optimistic, ...syncBase()]);
+      const created = await addAccountComment(selectedId, newComment.trim());
+      setLocalComments([created, ...syncBase()]);
       setCommentsLoaded(true);
       setNewComment("");
       successToast("Comentario guardado correctamente.");

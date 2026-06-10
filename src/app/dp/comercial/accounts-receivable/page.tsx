@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { useQueryClient } from "@tanstack/react-query";
 import type { SortingState, RowSelectionState } from "@tanstack/react-table";
 import {
@@ -57,6 +58,7 @@ function parseSyncedAt(value: string | undefined): string {
 }
 
 export default function AccountsReceivablePage() {
+  const { canGroup } = useModulePermissions("cuentas-por-cobrar");
   const [filters, setFilters] =
     useState<AccountsReceivableFilters>(INITIAL_FILTERS);
   const [sorting, setSorting] = useState<SortingState>([
@@ -214,7 +216,10 @@ export default function AccountsReceivablePage() {
     });
   };
 
-  const columns = getAccountsReceivableColumns({ onRowClick: handleRowClick });
+  const columns = useMemo(
+    () => getAccountsReceivableColumns({ onRowClick: handleRowClick, canGroup }),
+    [handleRowClick, canGroup],
+  );
 
   return (
     <div className="space-y-4">
@@ -232,7 +237,7 @@ export default function AccountsReceivablePage() {
           )}
         </TitleComponent>
 
-        {selectedIds.length > 0 && (
+        {canGroup && selectedIds.length > 0 && (
           <Button
             variant="outline"
             size="sm"
