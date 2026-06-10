@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { InfoSection } from "@/shared/components/InfoSection";
-import { formatDate, formatDateTime } from "@/core/core.function";
+import { formatDate, formatDateTime, formatMoney } from "@/core/core.function";
 
 interface SupplierOrderViewSheetProps {
   open: boolean;
@@ -398,7 +398,7 @@ export function SupplierOrderViewSheet({
                     <span>
                       {currencySymbol}{" "}
                       {Number(item.unit_price)
-                        .toFixed(4)
+                        .toFixed(2)
                         .replace(/\.?0+$/, "")}
                     </span>
                   ),
@@ -410,7 +410,7 @@ export function SupplierOrderViewSheet({
                     <span className="font-semibold">
                       {currencySymbol}{" "}
                       {Number(item.total)
-                        .toFixed(4)
+                        .toFixed(2)
                         .replace(/\.?0+$/, "")}
                     </span>
                   ),
@@ -427,20 +427,14 @@ export function SupplierOrderViewSheet({
                   Valor de Venta Neta:
                 </span>
                 <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {netAmount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMoney(netAmount, 2, currencySymbol)}
                 </span>
               </div>
 
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">IGV (18%):</span>
                 <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {taxAmount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
+                  {formatMoney(taxAmount, 2, currencySymbol)}
                 </span>
               </div>
 
@@ -448,12 +442,7 @@ export function SupplierOrderViewSheet({
 
               <div className="flex justify-between text-base font-bold text-primary">
                 <span>Importe Total:</span>
-                <span>
-                  {currencySymbol}{" "}
-                  {totalAmount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
+                <span>{formatMoney(totalAmount, 2, currencySymbol)}</span>
               </div>
             </div>
           </div>

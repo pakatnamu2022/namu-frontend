@@ -11,6 +11,10 @@ import {
   SelectTrigger,
 } from "@/components/ui/select.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
+import {
+  PRODUCT_STATUS_CONFIG,
+  STOCK_STATUS_CONFIG,
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
 
 export type ProductColumns = ColumnDef<ProductResource>;
 
@@ -87,25 +91,16 @@ export const productColumns = ({
       const stock = getValue() as number | undefined;
       const warehouseStocks = row.original.warehouse_stocks;
 
-      // Check if any warehouse has low stock
-      const hasLowStock =
-        warehouseStocks?.some((ws) => ws.is_low_stock) || false;
-      const hasOutOfStock =
-        warehouseStocks?.some((ws) => ws.is_out_of_stock) || false;
-
-      const displayStock = stock ?? 0;
+      const stockStatus = warehouseStocks?.some((ws) => ws.is_out_of_stock)
+        ? "OUT_OF_STOCK"
+        : warehouseStocks?.some((ws) => ws.is_low_stock)
+          ? "LOW_STOCK"
+          : "NORMAL";
+      const config = STOCK_STATUS_CONFIG[stockStatus];
 
       return (
-        <Badge
-          color={
-            hasOutOfStock
-              ? "destructive"
-              : hasLowStock
-                ? "secondary"
-                : "default"
-          }
-        >
-          {displayStock}
+        <Badge variant="outline" color={config.color}>
+          {stock ?? 0}
         </Badge>
       );
     },
@@ -126,28 +121,11 @@ export const productColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as "ACTIVE" | "INACTIVE" | "DISCONTINUED";
 
-      const statusConfig = {
-        ACTIVE: {
-          color: "default" as const,
-          label: "Activo",
-        },
-        INACTIVE: {
-          color: "secondary" as const,
-          label: "Inactivo",
-        },
-        DISCONTINUED: {
-          color: "destructive" as const,
-          label: "Descontinuado",
-        },
-      };
-
-      const config = statusConfig[value] || statusConfig.INACTIVE;
+      const config =
+        PRODUCT_STATUS_CONFIG[value] ?? PRODUCT_STATUS_CONFIG.INACTIVE;
 
       return (
-        <Badge
-          color={config.color}
-          className="capitalize w-32 flex items-center justify-center gap-2"
-        >
+        <Badge variant="outline" color={config.color}>
           {config.label}
         </Badge>
       );

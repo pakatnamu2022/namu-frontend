@@ -5,6 +5,11 @@ import { Loader2 } from "lucide-react";
 import { findProductById } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { InfoSection } from "@/shared/components/InfoSection";
+import { formatDate, formatMoney } from "@/core/core.function";
+import {
+  PRODUCT_STATUS_CONFIG,
+  STOCK_STATUS_CONFIG,
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
 
 interface Props {
   productId: number | null;
@@ -22,24 +27,6 @@ export default function ProductDetailSheet({
     queryFn: () => findProductById(productId!),
     enabled: open && productId !== null,
   });
-
-  const getStatusConfig = (status: string) => {
-    const configs = {
-      ACTIVE: { color: "default" as const, label: "Activo" },
-      INACTIVE: { color: "secondary" as const, label: "Inactivo" },
-      DISCONTINUED: { color: "destructive" as const, label: "Descontinuado" },
-    };
-    return configs[status as keyof typeof configs] || configs.INACTIVE;
-  };
-
-  const getStockStatusConfig = (status: string) => {
-    const configs = {
-      NORMAL: { color: "default" as const, label: "Normal" },
-      LOW: { color: "secondary" as const, label: "Stock Bajo" },
-      OUT: { color: "destructive" as const, label: "Sin Stock" },
-    };
-    return configs[status as keyof typeof configs] || configs.NORMAL;
-  };
 
   return (
     <GeneralSheet
@@ -59,8 +46,13 @@ export default function ProductDetailSheet({
           <div className="space-y-6 px-6">
             {/* Estado */}
             <div>
-              <Badge color={getStatusConfig(product.status).color}>
-                {getStatusConfig(product.status).label}
+              <Badge
+                variant="outline"
+                color={
+                  PRODUCT_STATUS_CONFIG[product.status]?.color ?? "secondary"
+                }
+              >
+                {PRODUCT_STATUS_CONFIG[product.status]?.label ?? product.status}
               </Badge>
             </div>
 
@@ -189,9 +181,13 @@ export default function ProductDetailSheet({
                             </p>
                           </div>
                           <Badge
-                            color={getStockStatusConfig(ws.stock_status).color}
+                            color={
+                              STOCK_STATUS_CONFIG[ws.stock_status]?.color ??
+                              "default"
+                            }
                           >
-                            {getStockStatusConfig(ws.stock_status).label}
+                            {STOCK_STATUS_CONFIG[ws.stock_status]?.label ??
+                              ws.stock_status}
                           </Badge>
                         </div>
 
@@ -260,7 +256,7 @@ export default function ProductDetailSheet({
                               Precio de Costo
                             </p>
                             <p className="font-medium">
-                              S/ {Number(ws.cost_price).toFixed(2)}
+                              {formatMoney(ws.cost_price)}
                             </p>
                           </div>
                           <div>
@@ -268,7 +264,7 @@ export default function ProductDetailSheet({
                               Costo Promedio
                             </p>
                             <p className="font-medium">
-                              S/ {Number(ws.average_cost).toFixed(2)}
+                              {formatMoney(ws.average_cost)}
                             </p>
                           </div>
                           <div>
@@ -276,7 +272,7 @@ export default function ProductDetailSheet({
                               Precio de Venta
                             </p>
                             <p className="font-medium">
-                              S/ {Number(ws.sale_price).toFixed(2)}
+                              {formatMoney(ws.sale_price)}
                             </p>
                           </div>
                         </div>
@@ -284,9 +280,7 @@ export default function ProductDetailSheet({
                         {ws.last_movement_date && (
                           <p className="text-xs text-muted-foreground">
                             Último movimiento:{" "}
-                            {new Date(
-                              ws.last_movement_date,
-                            ).toLocaleDateString()}
+                            {formatDate(ws.last_movement_date)}
                           </p>
                         )}
                       </div>

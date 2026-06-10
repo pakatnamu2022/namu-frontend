@@ -104,6 +104,7 @@ export const ProductTransferForm = ({
   const transferType = form.watch("item_type");
   const transferModalityId = form.watch("transfer_modality_id");
   const prevTransferTypeRef = useRef(transferType);
+  const serieWasEverSelectedRef = useRef(false);
 
   const isTransportPrivate =
     transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
@@ -186,7 +187,9 @@ export const ProductTransferForm = ({
   );
 
   // Derivar sede_id de la serie seleccionada para auto-poblar destino
-  const selectedSerie = series.find((s) => s.id.toString() === watchDocumentSeriesId);
+  const selectedSerie = series.find(
+    (s) => s.id.toString() === watchDocumentSeriesId,
+  );
   const serieSedeId = selectedSerie?.sede_id ?? null;
 
   const { data: destinationEstablishments = [] } = useEstablishmentBySede(
@@ -371,16 +374,22 @@ export const ProductTransferForm = ({
   useEffect(() => {
     if (mode !== "create") return;
     if (!destinationEstablishment) {
+      // Solo limpiar si el usuario ya eligió una serie alguna vez, no al montar inicial
+      if (!serieWasEverSelectedRef.current) return;
       setSelectedDestinationEstablishment(null);
       setSelectedCustomer(null);
       form.setValue("receiver_destination_id", "");
       form.setValue("receiver_id", "");
       return;
     }
+    serieWasEverSelectedRef.current = true;
+    // Solo auto-poblar si el destino aún no fue seleccionado
+    if (form.getValues("receiver_destination_id")) return;
     setSelectedDestinationEstablishment(destinationEstablishment);
     setSelectedCustomer({
       id: destinationEstablishment.business_partner_id,
-      name: destinationEstablishment.description || destinationEstablishment.code,
+      name:
+        destinationEstablishment.description || destinationEstablishment.code,
     });
     form.setValue(
       "receiver_destination_id",
@@ -562,16 +571,17 @@ export const ProductTransferForm = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 relative">
               <FormLabel className="leading-none">Ubicación Destino</FormLabel>
-              {selectedCustomer && mode === "create" && !watchDocumentSeriesId && (
-                <button
-                  type="button"
-                  onClick={() => setIsDestinationModalOpen(true)}
-                  className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                  title="Seleccionar establecimiento"
-                >
-                  <Search className="h-4 w-4 text-primary" />
-                </button>
-              )}
+              {selectedCustomer &&
+                mode === "create" && (
+                  <button
+                    type="button"
+                    onClick={() => setIsDestinationModalOpen(true)}
+                    className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                    title="Seleccionar establecimiento"
+                  >
+                    <Search className="h-4 w-4 text-primary" />
+                  </button>
+                )}
             </div>
             <FormSelectAsync
               name="receiver_destination_id"
@@ -598,7 +608,6 @@ export const ProductTransferForm = ({
                   : undefined
               }
               disabled={
-                !!watchDocumentSeriesId ||
                 watchTransferReasonId ===
                   SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
               }

@@ -32,9 +32,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           return (
             <div className="flex items-center gap-1 text-green-600">
               <ArrowUp className="h-4 w-4" />
-              <span>
-                {formatDate(date)} {row.original.id}
-              </span>
+              <span>{formatDate(date)}</span>
             </div>
           );
         }
@@ -43,9 +41,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           return (
             <div className="flex items-center gap-1 text-red-600">
               <ArrowDown className="h-4 w-4" />
-              <span>
-                {formatDate(date)} {row.original.id}
-              </span>
+              <span>{formatDate(date)}</span>
             </div>
           );
         }
@@ -110,9 +106,10 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
 
         if (purchaseOrder) {
           const hasCreditNote = purchaseOrder.credit_note_dynamics != null;
-          const invoiceLabel =
+          const invoiceDynLabel =
             purchaseOrder.invoice_dynamics ??
             `${purchaseOrder.invoice_series}-${purchaseOrder.invoice_number}`;
+          const invoiceLabel = `${purchaseOrder.invoice_series}-${purchaseOrder.invoice_number}`;
 
           return (
             <div className="flex flex-col text-sm">
@@ -121,7 +118,10 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
                 RUC: {purchaseOrder.supplier_num_doc}
               </span>
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span>Factura: {invoiceLabel}</span>
+                <span>{invoiceLabel}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>Dyn : {invoiceDynLabel}</span>
                 {hasCreditNote && (
                   <Badge variant="outline" color="yellow">
                     Nota Crédito

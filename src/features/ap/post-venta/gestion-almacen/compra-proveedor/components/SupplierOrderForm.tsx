@@ -1019,7 +1019,7 @@ export const SupplierOrderForm = ({
                                 </TableCell>
                                 <TableCell className="align-middle p-1.5 text-end">
                                   <div className="text-sm font-medium bg-muted/50 px-3 py-2 rounded-md">
-                                    {unitPrice.toFixed(4).replace(/\.?0+$/, "")}
+                                    {unitPrice.toFixed(2)}
                                   </div>
                                   {refPrice != null && (
                                     <div className="text-xs text-slate-400 text-end mt-0.5 px-1">

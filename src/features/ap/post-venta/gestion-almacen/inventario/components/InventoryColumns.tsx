@@ -2,10 +2,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArrowRightLeft, History, Pencil } from "lucide-react";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { formatDateTime, formatMoney } from "@/core/core.function";
+import { STOCK_STATUS_CONFIG } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
 
 export type InventoryColumns = ColumnDef<InventoryResource>;
 
@@ -52,10 +52,10 @@ export const inventoryColumns = ({
   },
   {
     accessorKey: "sale_price",
-    header: "PVP (S/.)",
+    header: "PVP",
     cell: ({ getValue }) => {
       const value = getValue() as number;
-      return Number(value).toFixed(2);
+      return formatMoney(value);
     },
   },
   {
@@ -120,38 +120,15 @@ export const inventoryColumns = ({
     accessorKey: "stock_status",
     header: "Estado",
     cell: ({ row }) => {
-      const status = row.original.stock_status;
-      const isLowStock = row.original.is_low_stock;
-      const isOutOfStock = row.original.is_out_of_stock;
-
-      if (isOutOfStock || status === "OUT_OF_STOCK") {
-        return (
-          <Badge
-            color="destructive"
-            className="w-28 flex items-center justify-center"
-          >
-            Sin Stock
-          </Badge>
-        );
-      }
-
-      if (isLowStock || status === "LOW_STOCK") {
-        return (
-          <Badge
-            color="secondary"
-            className="w-28 flex items-center justify-center bg-yellow-500 text-white hover:bg-yellow-600"
-          >
-            Stock Bajo
-          </Badge>
-        );
-      }
-
+      const status = row.original.is_out_of_stock
+        ? "OUT_OF_STOCK"
+        : row.original.is_low_stock
+          ? "LOW_STOCK"
+          : "NORMAL";
+      const config = STOCK_STATUS_CONFIG[status];
       return (
-        <Badge
-          color="secondary"
-          className="w-28 flex items-center justify-center bg-green-500 text-white hover:bg-green-600"
-        >
-          Normal
+        <Badge variant="outline" color={config.color}>
+          {config.label}
         </Badge>
       );
     },
@@ -163,7 +140,7 @@ export const inventoryColumns = ({
       const date = getValue() as string;
       if (!date) return "-";
       try {
-        return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
+        return formatDateTime(date);
       } catch {
         return date;
       }

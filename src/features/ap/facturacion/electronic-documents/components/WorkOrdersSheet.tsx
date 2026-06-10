@@ -99,7 +99,7 @@ const WorkOrdersSheet = ({ documentId }: WorkOrdersSheetProps) => {
                 <p className="text-lg font-semibold">
                   {formatMoney(
                     data.summary.total_amount,
-                    data.invoice.currency === "Soles" ? "S/" : "$",
+                    data.invoice.symbol_currency,
                   )}
                 </p>
               </div>
@@ -109,7 +109,7 @@ const WorkOrdersSheet = ({ documentId }: WorkOrdersSheetProps) => {
             <div className="flex flex-col gap-2">
               {data.internal_notes.map((note) => {
                 const workOrder = note.work_order;
-                const currencySymbol = workOrder.type_currency?.symbol ?? "S/";
+                const currencySymbol = data.invoice.symbol_currency;
                 const labourItems = workOrder.labours ?? [];
                 const partItems = workOrder.parts ?? [];
 

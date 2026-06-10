@@ -274,6 +274,7 @@ export interface InvoiceWorkOrdersInvoice {
   emission_date: string;
   due_date: string | null;
   currency: string;
+  symbol_currency: string;
   total: string;
   status: string;
   consolidation_type: string;
