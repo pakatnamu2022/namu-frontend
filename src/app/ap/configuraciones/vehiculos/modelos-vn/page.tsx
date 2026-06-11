@@ -94,6 +94,7 @@ export default function ModelsVnPage() {
         <ModelsVnActions
           permissions={permissions}
           isCommercial={CM_COMERCIAL_ID}
+          onImportSuccess={refetch}
         />
       </HeaderTableWrapper>
       <ModelsVnTable
