@@ -4,6 +4,10 @@ import { formatDate } from "@/core/core.function.ts";
 
 export type PurchaseHistoryColumns = ColumnDef<PurchaseHistoryItem>;
 
+const isSoles = (item: PurchaseHistoryItem) =>
+  item.currency?.symbol === "S/" ||
+  item.currency?.name?.toLowerCase().includes("sol");
+
 export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
   {
     accessorKey: "reception_date",
@@ -45,6 +49,22 @@ export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
     enableSorting: false,
   },
   {
+    id: "currency",
+    header: "Moneda",
+    enableSorting: false,
+    cell: ({ row }) => {
+      const currency = row.original.currency;
+      if (!currency) return "-";
+      return (
+        <div>
+          <span className="text-muted-foreground capitalize">
+            {currency.name.charAt(0) + currency.name.slice(1).toLowerCase()}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "quantity_received",
     header: "Cantidad",
     enableSorting: false,
@@ -58,9 +78,24 @@ export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
     header: "Precio Unitario",
     enableSorting: false,
     cell: ({ row }) => {
-      const currency = row.original.currency?.symbol || "$";
-      const value = row.original.unit_price;
-      return `${currency} ${parseFloat(value || "0").toFixed(2)}`;
+      const item = row.original;
+      const inSoles = isSoles(item);
+      const symbol = item.currency?.symbol || "$";
+      const originalPrice = parseFloat(item.unit_price || "0").toFixed(2);
+      const exchangeRate = parseFloat(item.exchange_rate || "0");
+
+      return (
+        <div className="text-right">
+          <p className="font-medium text-sm">
+            S/ {item.unit_price_pen.toFixed(2)}
+          </p>
+          {!inSoles && exchangeRate > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {symbol} {originalPrice} · TC {exchangeRate.toFixed(3)}
+            </p>
+          )}
+        </div>
+      );
     },
   },
   {
@@ -68,9 +103,24 @@ export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
     header: "Total",
     enableSorting: false,
     cell: ({ row }) => {
-      const currency = row.original.currency?.symbol || "$";
-      const value = row.original.total_line;
-      return `${currency} ${parseFloat(value || "0").toFixed(2)}`;
+      const item = row.original;
+      const inSoles = isSoles(item);
+      const symbol = item.currency?.symbol || "$";
+      const originalTotal = parseFloat(item.total_line || "0").toFixed(2);
+      const exchangeRate = parseFloat(item.exchange_rate || "0");
+
+      return (
+        <div className="text-right">
+          <p className="font-medium text-sm">
+            S/ {item.total_line_pen.toFixed(2)}
+          </p>
+          {!inSoles && exchangeRate > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {symbol} {originalTotal}
+            </p>
+          )}
+        </div>
+      );
     },
   },
   {
