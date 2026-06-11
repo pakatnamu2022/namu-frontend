@@ -4,6 +4,7 @@ import {
   ElectronicDocumentResponse,
   AdvancePaymentsByQuotationResponse,
   ExchangeRateResource,
+  InvoiceWithWorkOrdersResponse,
 } from "./electronicDocument.interface";
 import {
   findElectronicDocumentById,
@@ -13,6 +14,7 @@ import {
   getAdvancePaymentsByVehicle,
   getAdvancePaymentsByQuotation,
   getExchangeRateByDateAndCurrency,
+  getInvoiceWithWorkOrders,
 } from "./electronicDocument.actions";
 import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
 
@@ -66,6 +68,15 @@ export const useAdvancePaymentsByQuotation = (quotationId: number | null) => {
     queryKey: [QUERY_KEY, "advances", "quotation", quotationId],
     queryFn: () => getAdvancePaymentsByQuotation(quotationId!),
     enabled: !!quotationId && quotationId > 0,
+  });
+};
+
+export const useInvoiceWithWorkOrders = (id: number) => {
+  return useQuery<InvoiceWithWorkOrdersResponse>({
+    queryKey: [QUERY_KEY, id, "work-orders"],
+    queryFn: () => getInvoiceWithWorkOrders(id),
+    refetchOnWindowFocus: false,
+    enabled: !!id && id > 0,
   });
 };
 

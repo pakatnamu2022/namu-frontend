@@ -25,7 +25,10 @@ import {
   ElectronicDocumentSchema,
   type ElectronicDocumentSchema as ElectronicDocumentSchemaType,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
-import { useElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
+import {
+  useElectronicDocument,
+  useInvoiceWithWorkOrders,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
 import { updateElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
 import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
 import { ElectronicDocumentForm } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentForm.tsx";
@@ -44,6 +47,7 @@ import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/che
 // Work order
 import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions.ts";
 import InvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceForm.tsx";
+import DirectInvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/DirectInvoiceForm.tsx";
 import {
   AREA_TALLER,
   AREA_POSTVENTA,
@@ -739,6 +743,164 @@ function EditOtherSalesPage({
   );
 }
 
+// ─── Sub-page: Massive consolidation (DirectInvoiceForm) ─────────────────────
+
+function EditMassiveInvoicePage({
+  documentId,
+  onSuccess,
+  onCancel,
+  title,
+  icon,
+}: SubPageProps) {
+  const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
+
+  const { data: document, isLoading: isLoadingDocument } =
+    useElectronicDocument(documentId);
+
+  const { data: invoiceWithWorkOrders, isLoading: isLoadingWorkOrders } =
+    useInvoiceWithWorkOrders(documentId);
+
+  const workOrders = useMemo(
+    () => invoiceWithWorkOrders?.internal_notes?.map((n) => n.work_order) ?? [],
+    [invoiceWithWorkOrders],
+  );
+
+  const typePlanningId = useMemo(() => {
+    if (workOrders.length === 0) return undefined;
+    const id = workOrders[0]?.items?.[0]?.type_planning?.id;
+    return id ? Number(id) : undefined;
+  }, [workOrders]);
+
+  // En edición de facturas masivas, si la API no devuelve type_planning usamos
+  // el consolidation_type del documento para forzar el modo de ítem único.
+  const isMassiveEdit =
+    document?.consolidation_type === "massive" && typePlanningId === undefined;
+
+  const { data: sunatConcepts = [], isLoading: isLoadingSunat } =
+    useAllSunatConcepts({
+      type: [
+        SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+        SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+      ],
+    });
+
+  const documentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+      ),
+    [sunatConcepts],
+  );
+  const currencyTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+      ),
+    [sunatConcepts],
+  );
+  const igvTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const form = useForm<ElectronicDocumentSchemaType>({
+    resolver: zodResolver(ElectronicDocumentSchema) as any,
+    defaultValues: {
+      area_id: AREA_TALLER.toString(),
+      is_advance_payment: false,
+      items: [],
+    },
+  });
+
+  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
+  const selectedSeriesId = form.watch("serie");
+  const selectedCurrencyId = form.watch("sunat_concept_currency_id");
+
+  const { data: authorizedSeries = [] } = useAuthorizedSeries({
+    type_receipt_id: documentTypes.find(
+      (dt) => dt.id.toString() === selectedDocumentType,
+    )?.tribute_code,
+  });
+
+  const selectedSeries = authorizedSeries.find(
+    (s: AssignSalesSeriesResource) => s.id.toString() === selectedSeriesId,
+  );
+  const selectedCurrency = currencyTypes.find(
+    (c) => c.id === Number(selectedCurrencyId),
+  );
+
+  const { data: checkbooks = [] } = useAllApBank({
+    currency_id: selectedCurrency?.currency_type,
+    sede_id: selectedSeries?.sede_id,
+  });
+
+  // Cargar los datos del documento existente en el formulario
+  useEffect(() => {
+    if (document) {
+      form.reset(buildFormDefaults(document));
+    }
+  }, [document, form]);
+
+  // Sincronizar serie string → ID numérico
+  useEffect(() => {
+    if (document && authorizedSeries.length > 0) {
+      const found = authorizedSeries.find(
+        (s: AssignSalesSeriesResource) => s.series === document.serie,
+      );
+      if (found && form.getValues("serie") !== found.id.toString()) {
+        form.setValue("serie", found.id.toString());
+      }
+    }
+  }, [document, authorizedSeries, form]);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: ElectronicDocumentSchemaType) =>
+      updateElectronicDocument(documentId, data),
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      onSuccess();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    },
+  });
+
+  if (isLoadingDocument || isLoadingWorkOrders || isLoadingSunat) {
+    return <FormSkeleton />;
+  }
+
+  if (!document) {
+    onCancel();
+    return <FormSkeleton />;
+  }
+
+  return (
+    <PageWrapper>
+      <TitleFormComponent title={title} mode="edit" icon={icon as any} />
+      <DirectInvoiceForm
+        form={form}
+        onSubmit={(data) => mutate(data)}
+        onCancel={onCancel}
+        isPending={isPending}
+        workOrders={workOrders}
+        documentTypes={documentTypes}
+        currencyTypes={currencyTypes}
+        igvTypes={igvTypes}
+        authorizedSeries={authorizedSeries}
+        checkbooks={checkbooks}
+        typePlanningId={typePlanningId}
+        isEditMode={true}
+        isMassiveEdit={isMassiveEdit}
+      />
+    </PageWrapper>
+  );
+}
+
 // ─── Root page: dispatcher ────────────────────────────────────────────────────
 
 export default function UpdateSalesReceiptsCajaPage() {
@@ -778,6 +940,10 @@ export default function UpdateSalesReceiptsCajaPage() {
   };
 
   // Despacho según entidad vinculada al documento
+  if (document.consolidation_type === "massive") {
+    return <EditMassiveInvoicePage {...sharedProps} />;
+  }
+
   if (document.work_order_id) {
     return (
       <EditWorkOrderInvoicePage

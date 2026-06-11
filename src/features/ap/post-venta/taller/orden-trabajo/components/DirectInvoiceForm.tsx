@@ -45,6 +45,8 @@ interface DirectInvoiceFormProps {
   authorizedSeries: AssignSalesSeriesResource[];
   checkbooks: ApBankResource[];
   typePlanningId?: number;
+  isEditMode?: boolean;
+  isMassiveEdit?: boolean;
 }
 
 /** Genera el texto por defecto del ítem único según tipo de planificación */
@@ -98,14 +100,17 @@ export default function DirectInvoiceForm({
   authorizedSeries,
   checkbooks,
   typePlanningId,
+  isEditMode = false,
+  isMassiveEdit = false,
 }: DirectInvoiceFormProps) {
   const defaultCustomer = workOrders[0]?.invoice_to_client ?? null;
   const porcentaje_de_igv =
     defaultCustomer?.tax_class_type_igv ?? DEFAULT_IGV_PERCENTAGE;
 
   const isSingleItemMode =
-    typePlanningId !== undefined &&
-    SINGLE_ITEM_PLANNING_IDS.includes(typePlanningId);
+    isMassiveEdit ||
+    (typePlanningId !== undefined &&
+      SINGLE_ITEM_PLANNING_IDS.includes(typePlanningId));
 
   // Estado editable del ítem único (para modos ODEBRECHT_MAINTENANCE_ID, DERCO_WARRANTY_ID, INTERNAL_WORKSHOP_ID)
   const [singleItemText, setSingleItemText] = useState("");
@@ -120,10 +125,25 @@ export default function DirectInvoiceForm({
   const itemsLoaded = useRef(false);
   const prevIdsKey = useRef("");
 
+  // En modo edición, inicializar el texto del ítem único desde la descripción guardada en el form.
+  // Usamos watchedItems como trigger para esperar a que buildFormDefaults lo haya poblado.
+  const watchedItemsForEdit = form.watch("items");
+  useEffect(() => {
+    if (!isEditMode) return;
+    if (!isSingleItemMode) return;
+    if (singleItemInitialized.current) return;
+    if (!watchedItemsForEdit || watchedItemsForEdit.length === 0) return;
+    singleItemInitialized.current = true;
+    const text = watchedItemsForEdit[0]?.descripcion ?? "";
+    setSingleItemText(text);
+    setSingleItemDraft(text);
+  }, [isEditMode, isSingleItemMode, watchedItemsForEdit]);
+
   // Inicializar texto del ítem único cuando cargan las OTs (una sola vez por set)
   useEffect(() => {
     if (!isSingleItemMode) return;
     if (workOrders.length === 0) return;
+    if (isEditMode) return;
     if (singleItemInitialized.current && prevIdsKey.current === workOrderIdsKey)
       return;
     prevIdsKey.current = workOrderIdsKey;
@@ -159,6 +179,7 @@ export default function DirectInvoiceForm({
   // Sincronizar el ítem único al form cuando cambia singleItemText
   useEffect(() => {
     if (!isSingleItemMode) return;
+    if (isEditMode) return;
     if (igvTypes.length === 0) return;
     const gravadaType = igvTypes.find(
       (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
@@ -191,6 +212,7 @@ export default function DirectInvoiceForm({
   // Cargar items detallados (labours + parts) cuando NO es modo ítem único
   useEffect(() => {
     if (isSingleItemMode) return;
+    if (isEditMode) return;
     if (igvTypes.length === 0) return;
     if (workOrders.length === 0) return;
     if (itemsLoaded.current && prevIdsKey.current === workOrderIdsKey) return;
@@ -339,6 +361,7 @@ export default function DirectInvoiceForm({
           <div className="lg:col-span-2 space-y-6">
             <InvoiceDocumentInfoSection
               form={form}
+              isEdit={isEditMode}
               documentTypes={documentTypes}
               currencyTypes={currencyTypes}
               authorizedSeries={authorizedSeries}
@@ -427,6 +450,7 @@ export default function DirectInvoiceForm({
               showCardLast4={true}
               showInternalNote={true}
               showOrdenCompraServicio={true}
+              isEdit={isEditMode}
             />
           </div>
 

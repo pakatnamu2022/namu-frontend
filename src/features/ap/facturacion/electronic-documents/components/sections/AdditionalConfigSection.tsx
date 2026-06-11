@@ -43,8 +43,11 @@ export function AdditionalConfigSection({
   const isCredito = medioDePago === PAYMENT_CONDITION_CREDIT;
   const ordenCompraServicio = form.watch("orden_compra_servicio");
 
-  // Limpiar al cambiar a CONTADO; poner 30 días por defecto al cambiar a CREDITO
+  // Limpiar al cambiar a CONTADO; poner 30 días por defecto al cambiar a CREDITO.
+  // En modo edición, esperamos a que medio_de_pago tenga un valor real antes de limpiar.
+  const medioDePagoInitialized = medioDePago !== "" && medioDePago !== undefined;
   useEffect(() => {
+    if (isEdit && !medioDePagoInitialized) return;
     if (!isCredito) {
       form.setValue("credit_days", undefined);
       form.setValue("venta_al_credito", []);
