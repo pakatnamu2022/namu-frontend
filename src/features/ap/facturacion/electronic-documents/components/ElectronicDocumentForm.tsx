@@ -356,7 +356,7 @@ NUM. ASIENTOS: ${vehicle?.model?.seats_number || ""}
 CAP. PASAJEROS: ${vehicle?.model?.passengers_number || ""}
 VIN: ${vehicle?.vin || ""}
 CARGA UTIL: ${vehicle?.model?.payload || ""}
-COMBUSTIBLE: ${vehicle?.model?.fuel || ""}
+COMBUSTIBLE: ${vehicle?.engine_type || ""}
 ALTO: ${vehicle?.model?.height || ``}
 LARGO: ${vehicle?.model?.length || ``}
 ANCHO: ${vehicle?.model?.width || ``}
