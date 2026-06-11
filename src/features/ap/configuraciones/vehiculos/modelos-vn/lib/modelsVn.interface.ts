@@ -94,3 +94,18 @@ export interface ModelsVnRequest {
 export interface getModelsVnProps {
   params?: Record<string, any>;
 }
+
+export interface ImportModelsVnError {
+  fila: number;
+  version: string;
+  motivo: string;
+}
+
+export interface ImportModelsVnResponse {
+  success: boolean;
+  message: string;
+  created: number;
+  skipped: number;
+  rows_processed: number;
+  errors: ImportModelsVnError[];
+}
