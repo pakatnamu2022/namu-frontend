@@ -416,6 +416,8 @@ import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/pag
 import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
 import LoanAmortizacionesPage from "./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx";
 import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
+import WorkingConditionPage from "./app/gp/gestion-humana/planillas/condiciones-trabajo/page.tsx";
+import AddWorkingConditionPage from "./app/gp/gestion-humana/planillas/condiciones-trabajo/agregar/page.tsx";
 import InsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/page.tsx";
 import AddInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx";
 import UpdateInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx";
@@ -1966,6 +1968,7 @@ function App() {
               )}
               {/* Planillas */}
               {/* Dia Trabajo */}
+              <Route path="planillas" element={<WorkshopPage />} />
               {RouterCrud(
                 "planillas/dia-trabajo",
                 <WorkSchedulesPage />,
@@ -2015,6 +2018,15 @@ function App() {
                 <AddInsurancePage />,
                 <UpdateInsurancePage />,
               )}
+              {/* Condiciones de Trabajo */}
+              <Route
+                path="planillas/condiciones-trabajo"
+                element={<WorkingConditionPage />}
+              />
+              <Route
+                path="planillas/condiciones-trabajo/agregar"
+                element={<AddWorkingConditionPage />}
+              />
               {/* Bonificaciones */}
               {RouterCrud(
                 "planillas/bonificaciones",
