@@ -424,6 +424,7 @@ import UpdateInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/act
 import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
 import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
 import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
+import PayrollRegisterPage from "./app/gp/gestion-humana/planillas/registro-planilla/page.tsx";
 import AddBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx";
 import UpdateBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx";
 import FoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/page.tsx";
@@ -2026,6 +2027,11 @@ function App() {
               <Route
                 path="planillas/condiciones-trabajo/agregar"
                 element={<AddWorkingConditionPage />}
+              />
+              {/* Registro de Planilla */}
+              <Route
+                path="planillas/registro-planilla"
+                element={<PayrollRegisterPage />}
               />
               {/* Bonificaciones */}
               {RouterCrud(
