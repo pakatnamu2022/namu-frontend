@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import {
   getModelsVnProps,
+  ImportModelsVnResponse,
   ModelsVnResource,
   ModelsVnResponse,
 } from "./modelsVn.interface";
@@ -68,5 +69,35 @@ export async function updateModelsVn(
 
 export async function deleteModelsVn(id: number): Promise<ModelsVnResponse> {
   const { data } = await api.delete<ModelsVnResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function downloadTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "modelos_vn_template.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function importModelsVn(
+  file: File
+): Promise<ImportModelsVnResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<ImportModelsVnResponse>(
+    `${ENDPOINT}/import`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
   return data;
 }

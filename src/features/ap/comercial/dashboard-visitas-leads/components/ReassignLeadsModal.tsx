@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { usePendingLeadsByWorker } from "../../gestionar-leads/lib/manageLeads.hook";
-import { transferWorkerLeads } from "../../gestionar-leads/lib/manageLeads.actions";  
+import { transferWorkerLeads } from "../../gestionar-leads/lib/manageLeads.actions";
 import { successToast } from "@/core/core.function";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { cn } from "@/lib/utils";
@@ -98,11 +98,9 @@ export default function ReassignLeadsModal({
         : undefined;
   const { data: pendingLeads = [], isLoading: isLoadingLeads } =
     usePendingLeadsByWorker(fromWorkerIdNum, {
-      sort: "registration_date",
+      sort: "created_at",
       direction: "desc",
-      ...(registrationDateParam
-        ? { registration_date: registrationDateParam }
-        : {}),
+      ...(registrationDateParam ? { created_at: registrationDateParam } : {}),
     });
 
   const handleClose = () => {
@@ -333,7 +331,7 @@ export default function ReassignLeadsModal({
                   <RadioGroupItem value="quantity" id="scope-quantity" />
                   <Label htmlFor="scope-quantity" className="cursor-pointer">
                     Seleccionar por cantidad
-                  </Label>  
+                  </Label>
                 </div>
                 {scope === "quantity" && (
                   <div className="ml-6 space-y-3">
@@ -388,8 +386,8 @@ export default function ReassignLeadsModal({
                             <p className="text-xs text-muted-foreground truncate">
                               {lead.phone}
                               {lead.campaign ? ` · ${lead.campaign}` : ""}
-                              {lead.registration_date
-                                ? ` · ${format(new Date(`${lead.registration_date}T00:00:00`), "PPP", { locale: es })}`
+                              {lead.created_at
+                                ? ` · ${format(new Date(`${lead.created_at}T00:00:00`), "PPP", { locale: es })}`
                                 : ""}
                             </p>
                           </div>
@@ -431,8 +429,8 @@ export default function ReassignLeadsModal({
                       <p className="text-xs text-muted-foreground truncate">
                         {lead.phone}
                         {lead.campaign ? ` · ${lead.campaign}` : ""}
-                        {lead.registration_date
-                          ? ` · ${format(new Date(`${lead.registration_date}T00:00:00`), "PPP", { locale: es })}`
+                        {lead.created_at
+                          ? ` · ${format(new Date(`${lead.created_at}T00:00:00`), "PPP", { locale: es })}`
                           : ""}
                       </p>
                     </div>
