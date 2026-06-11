@@ -104,6 +104,15 @@ export function SupplierOrderViewSheet({
                 ),
               },
               {
+                label: "Nº Pedido Externo",
+                value: (
+                  <CopyCell
+                    value={data.order_number_external}
+                    className="font-semibold"
+                  />
+                ),
+              },
+              {
                 label: "Fecha de Pedido",
                 value: data.order_date,
               },

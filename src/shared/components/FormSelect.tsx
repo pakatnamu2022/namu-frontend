@@ -184,6 +184,7 @@ interface FormSelectProps {
   options: Option[];
   control: Control<any>;
   disabled?: boolean;
+  readOnly?: boolean;
   tooltip?: string | React.ReactNode;
   strictFilter?: boolean;
   startsWith?: boolean;
@@ -212,6 +213,7 @@ export function FormSelect({
   options,
   control,
   disabled,
+  readOnly,
   tooltip,
   strictFilter = false,
   startsWith = false,
@@ -285,10 +287,12 @@ export function FormSelect({
             variant="outline"
             role="combobox"
             disabled={disabled}
+            onClick={readOnly ? (e) => e.preventDefault() : undefined}
             className={cn(
               "w-full justify-between flex",
               !field.value && "text-muted-foreground",
               field.value && "bg-muted",
+              readOnly && "cursor-default pointer-events-none",
               className,
             )}
           >
@@ -299,7 +303,9 @@ export function FormSelect({
                   : selected.label
                 : placeholder}
             </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {!readOnly && (
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            )}
           </Button>
         );
 
@@ -329,7 +335,7 @@ export function FormSelect({
 
             <div className="flex gap-2 items-center">
               {isMobile ? (
-                <Drawer open={open} onOpenChange={setOpen}>
+                <Drawer open={readOnly ? false : open} onOpenChange={readOnly ? undefined : setOpen}>
                   <DrawerTrigger asChild>
                     <FormControl>{triggerButton}</FormControl>
                   </DrawerTrigger>
@@ -346,7 +352,7 @@ export function FormSelect({
                   </DrawerContent>
                 </Drawer>
               ) : (
-                <Popover open={open} onOpenChange={setOpen}>
+                <Popover open={readOnly ? false : open} onOpenChange={readOnly ? undefined : setOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>{triggerButton}</FormControl>
                   </PopoverTrigger>

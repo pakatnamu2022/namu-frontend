@@ -267,15 +267,17 @@ export const ModelsVnForm = ({
               }
               options={getFamilyOptions()}
               control={form.control}
-              disabled={mode === "update" || !marcaSeleccionada || isLoadingFamilies}
+              disabled={
+                mode === "update" || !marcaSeleccionada || isLoadingFamilies
+              }
             />
             <FormInput
-              name="version"
-              label="Versión"
-              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
+              name="model_year"
+              label="Año Modelo"
+              placeholder="Ej: 2024"
               control={form.control}
-              disabled={mode === "update" || isLoadingbrands}
-              uppercase
+              type="number"
+              disabled={mode === "update"}
             />
             <FormSelect
               name="class_id"
@@ -301,6 +303,15 @@ export const ModelsVnForm = ({
             }}
             gap="gap-3"
           >
+            <FormInput
+              name="version"
+              label="Versión"
+              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
+              control={form.control}
+              readOnly={mode === "update" || isLoadingbrands}
+              uppercase
+            />
+
             <FormSelect
               name="fuel_id"
               label="Tipo Combustible"
@@ -317,14 +328,6 @@ export const ModelsVnForm = ({
               label="Potencia"
               placeholder="Ej: 0.00"
               control={form.control}
-            />
-
-            <FormInput
-              name="model_year"
-              label="Año Modelo"
-              placeholder="Ej: 2024"
-              control={form.control}
-              type="number"
             />
 
             <FormInput

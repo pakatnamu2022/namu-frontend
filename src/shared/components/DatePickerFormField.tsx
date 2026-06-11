@@ -56,6 +56,7 @@ interface DatePickerFormFieldProps<T extends FieldValues> {
   tooltip?: string | React.ReactNode;
   dateFormat?: string;
   disabled?: boolean;
+  readOnly?: boolean;
   disabledRange?: Matcher | Matcher[];
   captionLayout?: "label" | "dropdown" | "dropdown-months" | "dropdown-years";
   startMonth?: Date;
@@ -73,6 +74,7 @@ export function DatePickerFormField<T extends FieldValues>({
   tooltip = false,
   dateFormat = "yyyy-MM-dd",
   disabled = false,
+  readOnly = false,
   disabledRange,
   captionLayout = "label",
   startMonth,
@@ -152,20 +154,22 @@ export function DatePickerFormField<T extends FieldValues>({
       )}
 
       {isMobile ? (
-        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <Drawer open={readOnly ? false : drawerOpen} onOpenChange={readOnly ? undefined : setDrawerOpen}>
           <DrawerTrigger asChild>
             <FormControl>
               <Button
                 size={size ? size : isMobile ? "sm" : "default"}
                 variant="outline"
+                onClick={readOnly ? (e) => e.preventDefault() : undefined}
                 className={cn(
                   "w-full justify-between font-normal text-xs",
                   field.value && "bg-muted",
+                  readOnly && "cursor-default pointer-events-none",
                 )}
                 disabled={disabled}
               >
                 <span className="truncate">{displayValue}</span>
-                <CalendarPlusIcon className="ml-2 h-4 w-4 opacity-50" />
+                {!readOnly && <CalendarPlusIcon className="ml-2 h-4 w-4 opacity-50" />}
               </Button>
             </FormControl>
           </DrawerTrigger>
@@ -189,21 +193,23 @@ export function DatePickerFormField<T extends FieldValues>({
           </DrawerContent>
         </Drawer>
       ) : (
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+        <Popover open={readOnly ? false : popoverOpen} onOpenChange={readOnly ? undefined : setPopoverOpen}>
           <PopoverTrigger asChild>
             <FormControl>
               <Button
                 variant="outline"
                 size={size ? size : isMobile ? "sm" : "default"}
+                onClick={readOnly ? (e) => e.preventDefault() : undefined}
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !parsedDate && "text-muted-foreground",
                   field.value && "bg-muted",
+                  readOnly && "cursor-default pointer-events-none",
                 )}
                 disabled={disabled}
               >
                 <span className="truncate">{displayValue}</span>
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                {!readOnly && <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />}
               </Button>
             </FormControl>
           </PopoverTrigger>
