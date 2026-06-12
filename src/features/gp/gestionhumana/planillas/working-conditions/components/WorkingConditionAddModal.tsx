@@ -19,18 +19,25 @@ interface WorkingConditionAddModalProps {
   open: boolean;
   onClose: () => void;
   companyId: string;
+  companyName?: string;
 }
 
 export default function WorkingConditionAddModal({
   open,
   onClose,
   companyId,
+  companyName,
 }: WorkingConditionAddModalProps) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ data, file }: { data: WorkingConditionSchema; file: File }) =>
-      importWorkingConditions(file, data.period_id),
+    mutationFn: ({
+      data,
+      file,
+    }: {
+      data: WorkingConditionSchema;
+      file: File;
+    }) => importWorkingConditions(file, data.period_id),
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
@@ -53,6 +60,7 @@ export default function WorkingConditionAddModal({
     >
       <WorkingConditionForm
         companyId={companyId}
+        companyName={companyName}
         onSubmit={(data, file) => mutate({ data, file })}
         isSubmitting={isPending}
         onCancel={onClose}

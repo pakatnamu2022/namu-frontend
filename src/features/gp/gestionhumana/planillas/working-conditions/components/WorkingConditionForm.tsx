@@ -20,6 +20,7 @@ import {
 
 interface WorkingConditionFormProps {
   companyId: string;
+  companyName?: string;
   onSubmit: (data: WorkingConditionSchema, file: File) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
@@ -27,6 +28,7 @@ interface WorkingConditionFormProps {
 
 export const WorkingConditionForm = ({
   companyId,
+  companyName,
   onSubmit,
   isSubmitting = false,
   onCancel,
@@ -67,6 +69,12 @@ export const WorkingConditionForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 w-full"
       >
+        {companyName && (
+          <p className="text-sm text-muted-foreground">
+            Empresa:{" "}
+            <span className="font-medium text-foreground">{companyName}</span>
+          </p>
+        )}
         <FormSelectAsync
           name="period_id"
           label="Periodo"

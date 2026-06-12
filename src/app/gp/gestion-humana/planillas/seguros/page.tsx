@@ -63,7 +63,10 @@ export default function InsurancePage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <InsuranceActions />
+        <InsuranceActions
+          companyId={companyId}
+          companyName={companies?.find((c) => String(c.id) === companyId)?.name}
+        />
       </HeaderTableWrapper>
 
       <InsuranceTable

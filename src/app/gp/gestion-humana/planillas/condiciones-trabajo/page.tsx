@@ -63,7 +63,10 @@ export default function WorkingConditionPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <WorkingConditionActions companyId={companyId} />
+        <WorkingConditionActions
+          companyId={companyId}
+          companyName={companies?.find((c) => String(c.id) === companyId)?.name}
+        />
       </HeaderTableWrapper>
 
       <WorkingConditionTable

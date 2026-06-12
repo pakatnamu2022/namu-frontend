@@ -23,11 +23,15 @@ const INSURER_OPTIONS: Option[] = [
 interface InsuranceFormProps {
   onSubmit: (data: InsuranceSchema, file: File) => void;
   isSubmitting?: boolean;
+  companyId?: string;
+  companyName?: string;
 }
 
 export const InsuranceForm = ({
   onSubmit,
   isSubmitting = false,
+  companyId,
+  companyName,
 }: InsuranceFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = INSURANCE;
   const [file, setFile] = useState<File | null>(null);
@@ -52,6 +56,13 @@ export const InsuranceForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 w-full"
       >
+        {companyName && (
+          <p className="text-sm text-muted-foreground">
+            Empresa:{" "}
+            <span className="font-medium text-foreground">{companyName}</span>
+          </p>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
           <FormSelect
             name="business_partner_id"
@@ -69,8 +80,9 @@ export const InsuranceForm = ({
             control={form.control}
             required
             useQueryHook={usePayrollPeriods}
+            additionalParams={companyId ? { company_id: companyId } : {}}
             mapOptionFn={(item) => ({
-              label: item.name + " - " + item.company.name,
+              label: item.name,
               value: String(item.id),
             })}
           />
