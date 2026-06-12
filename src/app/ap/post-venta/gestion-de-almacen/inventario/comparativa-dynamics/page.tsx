@@ -49,7 +49,7 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
   {
     id: "local_quantity",
     accessorKey: "local_quantity",
-    header: () => <span className="block text-right">Stock Local</span>,
+    header: () => <span className="block text-right">Stock Sian</span>,
     cell: ({ getValue }) => (
       <span className="block text-right tabular-nums">
         {(getValue() as string | null) ?? "—"}
