@@ -22,6 +22,7 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import {
+  useCeValidation,
   useDniValidation,
   useRucValidation,
 } from "@/shared/hooks/useDocumentValidation";
@@ -170,12 +171,21 @@ export const StoreVisitsForm = ({
     validationType === "ruc" && shouldTriggerValidation,
   );
 
+  const {
+    data: ceData,
+    isLoading: isCeLoading,
+    error: ceError,
+  } = useCeValidation(
+    documentNumber,
+    validationType === "ce" && shouldTriggerValidation,
+  );
+
   // Datos consolidados
-  const validationData = dniData || rucData;
-  const validationError = dniError || rucError;
+  const validationData = dniData || rucData || ceData;
+  const validationError = dniError || rucError || ceError;
 
   // Estado de carga consolidado
-  const isValidatingDocument = isDniLoading || isRucLoading;
+  const isValidatingDocument = isDniLoading || isRucLoading || isCeLoading;
 
   // Efecto para auto-completar campos cuando se obtienen datos válidos
   useEffect(() => {
@@ -194,13 +204,16 @@ export const StoreVisitsForm = ({
         const condition = rucInfo.condition || "NO PROCESADO";
         setCompanyStatus(status);
         setCompanyCondition(condition);
+      } else if (ceData?.data && ceData.success && ceData.data.valid) {
+        const ceInfo = ceData.data;
+        form.setValue("full_name", ceInfo.names || "", { shouldValidate: true });
       } else {
         form.setValue("full_name", "", { shouldValidate: true });
         setCompanyStatus("-");
         setCompanyCondition("-");
       }
     }
-  }, [validationData, form, dniData, rucData]);
+  }, [validationData, form, dniData, rucData, ceData]);
 
   // Auto-set worker_id and sede_id when not canViewAdvisors and config loads
   useEffect(() => {
