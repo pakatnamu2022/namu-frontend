@@ -23,4 +23,4 @@ export const DOCUMENT_TYPE: ModelComplete<DocumentTypeResource> = {
 
 export const NUM_DIGITS_DNI = 8;
 export const NUM_DIGITS_RUC = 11;
-export const NUM_DIGITS_CE = 12;
+export const NUM_DIGITS_CE = 9;
