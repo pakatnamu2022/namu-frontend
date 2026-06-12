@@ -9,7 +9,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
-import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useCustomers, useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { FormInput } from "@/shared/components/FormInput";
@@ -202,8 +202,8 @@ export function InvoiceDocumentInfoSection({
             debounceMs={500}
             disabled={true}
             defaultOption={defaultOption}
+            useFindByIdHook={isEdit ? (id) => useCustomersById(Number(id)) : undefined}
             onValueChange={(_, customer) => {
-              // Actualizar el estado con el cliente seleccionado
               if (customer) {
                 setSelectedCustomer(customer as CustomersResource);
               } else {
