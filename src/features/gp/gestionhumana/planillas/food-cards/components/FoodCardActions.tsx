@@ -18,7 +18,7 @@ export default function FoodCardActions() {
         className="w-full md:w-auto"
         onClick={() => push(ROUTE_ADD)}
       >
-        <CreditCard className="size-4 mr-2" /> Asignar {MODEL.name}
+        <CreditCard className="size-4 mr-2" /> {MODEL.name}
       </Button>
     </div>
   );

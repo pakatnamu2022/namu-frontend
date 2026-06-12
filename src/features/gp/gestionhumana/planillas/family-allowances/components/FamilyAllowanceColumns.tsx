@@ -3,18 +3,23 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { FamilyAllowanceResource } from "../lib/family-allowance.interface";
 import { Badge } from "@/components/ui/badge";
+import { formatMoney, formatPeriod } from "@/core/core.function";
 
 export type FamilyAllowanceColumns = ColumnDef<FamilyAllowanceResource>;
 
 export const familyAllowanceColumns = (): FamilyAllowanceColumns[] => [
   {
-    accessorKey: "num_doc",
-    header: "DNI",
+    accessorKey: "period",
+    header: "Periodo",
     cell: ({ row }) => (
-      <span className="font-mono text-sm">
-        {row.original.worker?.vat ?? row.original.num_doc ?? "—"}
+      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
+        {formatPeriod(row.original.period)}
       </span>
     ),
+  },
+  {
+    accessorKey: "num_doc",
+    header: "DNI",
   },
   {
     accessorKey: "full_name",
@@ -26,25 +31,11 @@ export const familyAllowanceColumns = (): FamilyAllowanceColumns[] => [
     ),
   },
   {
-    accessorKey: "period",
-    header: "Periodo",
-    cell: ({ row }) => (
-      <span>
-        {row.original.period?.description ?? row.original.period?.code ?? "—"}
-      </span>
-    ),
-  },
-  {
     accessorKey: "amount",
     header: "Monto",
     cell: ({ getValue }) => {
       const val = getValue() as number;
-      return (
-        <span className="font-mono">
-          S/{" "}
-          {val?.toLocaleString("es-PE", { minimumFractionDigits: 2 }) ?? "0.00"}
-        </span>
-      );
+      return formatMoney(val);
     },
   },
   {
@@ -52,9 +43,13 @@ export const familyAllowanceColumns = (): FamilyAllowanceColumns[] => [
     header: "Estado",
     cell: ({ getValue }) =>
       getValue() ? (
-        <Badge className="bg-green-600 hover:bg-green-700">Aplica</Badge>
+        <Badge variant="outline" color="green">
+          Aplica
+        </Badge>
       ) : (
-        <Badge variant="outline">No aplica</Badge>
+        <Badge variant="outline" color="gray">
+          No aplica
+        </Badge>
       ),
   },
 ];

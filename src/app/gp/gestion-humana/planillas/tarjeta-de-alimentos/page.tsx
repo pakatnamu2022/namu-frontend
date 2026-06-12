@@ -11,11 +11,10 @@ import { foodCardColumns } from "@/features/gp/gestionhumana/planillas/food-card
 import FoodCardOptions from "@/features/gp/gestionhumana/planillas/food-cards/components/FoodCardOptions";
 import FoodCardActions from "@/features/gp/gestionhumana/planillas/food-cards/components/FoodCardActions";
 import { currentYear } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_TP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { FOOD_CARD } from "@/features/gp/gestionhumana/planillas/food-cards/lib/food-card.constant";
-import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 
 export default function FoodCardPage() {
   const { ROUTE } = FOOD_CARD;
@@ -25,17 +24,8 @@ export default function FoodCardPage() {
   const [search, setSearch] = useState("");
 
   const [year, setYear] = useState(String(currentYear()));
-  const [companyId, setCompanyId] = useState("");
+  const [companyId, setCompanyId] = useState(String(EMPRESA_TP.id));
   const [periodId, setPeriodId] = useState("");
-
-  const { data: companies } = useAllCompanies();
-
-  useEffect(() => {
-    if (companies && companies.length > 0 && !companyId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCompanyId(String(companies[0].id));
-    }
-  }, [companies, companyId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -47,7 +37,7 @@ export default function FoodCardPage() {
     per_page,
     search,
     year,
-    company_id: companyId,
+    period$company_id: companyId,
     ...(periodId ? { period_id: periodId } : {}),
   });
 

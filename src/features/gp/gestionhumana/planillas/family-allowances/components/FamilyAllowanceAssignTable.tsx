@@ -67,13 +67,14 @@ export default function FamilyAllowanceAssignTable({
 }: FamilyAllowanceAssignTableProps) {
   const [cells, setCells] = useState<Record<CellKey, CellState>>({});
 
-  const filteredWorkers = useMemo(
-    () =>
-      workers.filter((w) =>
-        w.name.toLowerCase().includes(search.toLowerCase()),
-      ),
-    [workers, search],
-  );
+  const filteredWorkers = useMemo(() => {
+    const q = search.toLowerCase();
+    return workers.filter(
+      (w) =>
+        w.name.toLowerCase().includes(q) ||
+        w.document.toLowerCase().includes(q),
+    );
+  }, [workers, search]);
 
   useEffect(() => {
     if (workers.length && periods.length) {
@@ -175,8 +176,11 @@ export default function FamilyAllowanceAssignTable({
                   <TableCell className="text-center text-muted-foreground text-xs">
                     {index + 1}
                   </TableCell>
-                  <TableCell className="font-medium text-sm">
-                    {worker.name}
+                  <TableCell className="text-sm">
+                    <span className="font-medium">{worker.name}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      DNI: {worker.document}
+                    </span>
                   </TableCell>
                   {periods.map((period) => {
                     const key: CellKey = `${worker.id}-${period.id}`;

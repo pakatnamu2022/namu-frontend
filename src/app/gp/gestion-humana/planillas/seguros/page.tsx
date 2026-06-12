@@ -10,47 +10,46 @@ import InsuranceTable from "@/features/gp/gestionhumana/planillas/insurances/com
 import { insuranceColumns } from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceColumns";
 import InsuranceOptions from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceOptions";
 import InsuranceActions from "@/features/gp/gestionhumana/planillas/insurances/components/InsuranceActions";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { deleteInsurance } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.actions";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  SUCCESS_MESSAGE,
-  successToast,
-} from "@/core/core.function";
+import { currentYear } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { INSURANCE } from "@/features/gp/gestionhumana/planillas/insurances/lib/insurance.constant";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 
 export default function InsurancePage() {
-  const { MODEL, ROUTE } = INSURANCE;
+  const { ROUTE } = INSURANCE;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const [year, setYear] = useState(String(currentYear()));
+  const [companyId, setCompanyId] = useState("");
+  const [periodId, setPeriodId] = useState("");
+
+  const { data: companies } = useAllCompanies();
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  const { data, isLoading, refetch } = useInsurances({ page, per_page, search });
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await deleteInsurance(deleteId);
-      await refetch();
-      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-    } catch (error: any) {
-      errorToast(
-        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"),
-      );
-    } finally {
-      setDeleteId(null);
+    if (companies && companies.length > 0 && !companyId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCompanyId(String(companies[0].id));
     }
-  };
+  }, [companies, companyId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(1);
+  }, [search, per_page, year, companyId, periodId]);
+
+  const { data, isLoading } = useInsurances({
+    page,
+    per_page,
+    search,
+    year,
+    period$company_id: companyId,
+    ...(periodId ? { period_id: periodId } : {}),
+  });
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -69,19 +68,20 @@ export default function InsurancePage() {
 
       <InsuranceTable
         isLoading={isLoading}
-        columns={insuranceColumns({ onDelete: setDeleteId })}
+        columns={insuranceColumns()}
         data={data?.data || []}
       >
-        <InsuranceOptions search={search} setSearch={setSearch} />
-      </InsuranceTable>
-
-      {deleteId !== null && (
-        <SimpleDeleteDialog
-          open={true}
-          onOpenChange={(open) => !open && setDeleteId(null)}
-          onConfirm={handleDelete}
+        <InsuranceOptions
+          search={search}
+          setSearch={setSearch}
+          year={year}
+          setYear={setYear}
+          companyId={companyId}
+          setCompanyId={setCompanyId}
+          periodId={periodId}
+          setPeriodId={setPeriodId}
         />
-      )}
+      </InsuranceTable>
 
       <DataTablePagination
         page={page}

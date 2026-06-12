@@ -47,7 +47,7 @@ export default function FamilyAllowancePage() {
     per_page,
     search,
     year,
-    company_id: companyId,
+    period$company_id: companyId,
     ...(periodId ? { period_id: periodId } : {}),
   });
 

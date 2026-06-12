@@ -2,15 +2,10 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { InsuranceResource } from "../lib/insurance.interface";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
 export type InsuranceColumns = ColumnDef<InsuranceResource>;
 
-export const insuranceColumns = ({
-  onDelete,
-}: {
-  onDelete: (id: number) => void;
-}): InsuranceColumns[] => [
+export const insuranceColumns = (): InsuranceColumns[] => [
   {
     accessorKey: "worker",
     header: "Trabajador",
@@ -61,18 +56,6 @@ export const insuranceColumns = ({
           S/{" "}
           {val?.toLocaleString("es-PE", { minimumFractionDigits: 2 }) ?? "0.00"}
         </span>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const { id } = row.original;
-      return (
-        <div className="flex items-center gap-2">
-          <DeleteButton onClick={() => onDelete(id)} />
-        </div>
       );
     },
   },
