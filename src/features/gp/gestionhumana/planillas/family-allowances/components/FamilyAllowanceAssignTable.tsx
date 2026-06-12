@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 import { errorToast, successToast } from "@/core/core.function";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
@@ -30,6 +29,7 @@ interface FamilyAllowanceAssignTableProps {
   existingCards: FamilyAllowanceResource[];
   isLoading: boolean;
   onSaved: () => void;
+  search: string;
 }
 
 type CellKey = `${number}-${number}`;
@@ -63,17 +63,18 @@ export default function FamilyAllowanceAssignTable({
   existingCards,
   isLoading,
   onSaved,
+  search,
 }: FamilyAllowanceAssignTableProps) {
   const [cells, setCells] = useState<Record<CellKey, CellState>>({});
-  const [search, setSearch] = useState("");
 
-  const filteredWorkers = useMemo(
-    () =>
-      workers.filter((w) =>
-        w.name.toLowerCase().includes(search.toLowerCase()),
-      ),
-    [workers, search],
-  );
+  const filteredWorkers = useMemo(() => {
+    const q = search.toLowerCase();
+    return workers.filter(
+      (w) =>
+        w.name.toLowerCase().includes(q) ||
+        w.document.toLowerCase().includes(q),
+    );
+  }, [workers, search]);
 
   useEffect(() => {
     if (workers.length && periods.length) {
@@ -146,12 +147,6 @@ export default function FamilyAllowanceAssignTable({
 
   return (
     <div className="space-y-3">
-      <Input
-        placeholder="Buscar trabajador..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-sm"
-      />
       <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
@@ -181,8 +176,11 @@ export default function FamilyAllowanceAssignTable({
                   <TableCell className="text-center text-muted-foreground text-xs">
                     {index + 1}
                   </TableCell>
-                  <TableCell className="font-medium text-sm">
-                    {worker.name}
+                  <TableCell className="text-sm">
+                    <span className="font-medium">{worker.name}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      DNI: {worker.document}
+                    </span>
                   </TableCell>
                   {periods.map((period) => {
                     const key: CellKey = `${worker.id}-${period.id}`;

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Link } from "react-router-dom";
 import { WORKING_CONDITION } from "../lib/working-condition.constant";
 import {
   WorkingConditionSchema,
@@ -14,18 +13,25 @@ import {
 } from "../lib/working-condition.schema";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FileForm } from "@/shared/components/FileForm";
-import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
+import {
+  useCurrentPayrollPeriod,
+  usePayrollPeriods,
+} from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 
 interface WorkingConditionFormProps {
+  companyId: string;
   onSubmit: (data: WorkingConditionSchema, file: File) => void;
   isSubmitting?: boolean;
+  onCancel?: () => void;
 }
 
 export const WorkingConditionForm = ({
+  companyId,
   onSubmit,
   isSubmitting = false,
+  onCancel,
 }: WorkingConditionFormProps) => {
-  const { ABSOLUTE_ROUTE, MODEL } = WORKING_CONDITION;
+  const { MODEL } = WORKING_CONDITION;
   const [file, setFile] = useState<File | null>(null);
 
   const form = useForm<WorkingConditionSchema>({
@@ -35,6 +41,20 @@ export const WorkingConditionForm = ({
     },
     mode: "onChange",
   });
+
+  const { data: currentPeriod } = useCurrentPayrollPeriod();
+
+  useEffect(() => {
+    if (
+      currentPeriod &&
+      companyId &&
+      String(currentPeriod.company?.id) === companyId
+    ) {
+      form.setValue("period_id", String(currentPeriod.id), {
+        shouldValidate: true,
+      });
+    }
+  }, [currentPeriod, companyId, form]);
 
   const handleSubmit = (data: WorkingConditionSchema) => {
     if (!file) return;
@@ -47,20 +67,19 @@ export const WorkingConditionForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 w-full"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
-          <FormSelectAsync
-            name="period_id"
-            label="Periodo"
-            placeholder="Seleccione periodo"
-            control={form.control}
-            required
-            useQueryHook={usePayrollPeriods}
-            mapOptionFn={(item) => ({
-              label: item.name + " - " + item.company.name,
-              value: String(item.id),
-            })}
-          />
-        </div>
+        <FormSelectAsync
+          name="period_id"
+          label="Periodo"
+          placeholder="Seleccione periodo"
+          control={form.control}
+          required
+          useQueryHook={usePayrollPeriods}
+          additionalParams={companyId ? { company_id: companyId } : {}}
+          mapOptionFn={(item) => ({
+            label: item.name,
+            value: String(item.id),
+          })}
+        />
 
         <FormField
           control={form.control}
@@ -77,11 +96,9 @@ export const WorkingConditionForm = ({
         />
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
-            <Button type="button" variant="outline">
-              Cancelar
-            </Button>
-          </Link>
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
 
           <Button
             type="submit"

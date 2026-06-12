@@ -14,17 +14,27 @@ import FamilyAllowanceAssignTable from "@/features/gp/gestionhumana/planillas/fa
 import { FAMILY_ALLOWANCE } from "@/features/gp/gestionhumana/planillas/family-allowances/lib/family-allowance.constant";
 import { Option } from "@/core/core.interface";
 import { generateYear, currentYear } from "@/core/core.function";
+import { useSearchParams } from "react-router-dom";
+import SearchInput from "@/shared/components/SearchInput";
 import { EMPRESA_GP, FILTER_YEAR_START } from "@/core/core.constants";
 import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
+import BackButton from "@/shared/components/BackButton";
 
 export default function AssignFamilyAllowancePage() {
-  const { ROUTE } = FAMILY_ALLOWANCE;
+  const { ROUTE, ABSOLUTE_ROUTE } = FAMILY_ALLOWANCE;
   const { currentView, checkRouteExists } = useCurrentModule();
+  const [searchParams] = useSearchParams();
 
-  const [companyId, setCompanyId] = useState(String(EMPRESA_GP.id));
-  const [year, setYear] = useState(String(currentYear()));
+  const [companyId, setCompanyId] = useState(
+    searchParams.get("companyId") ?? String(EMPRESA_GP.id),
+  );
+  const [year, setYear] = useState(
+    searchParams.get("year") ?? String(currentYear()),
+  );
   const [selectedPeriodIds, setSelectedPeriodIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
 
   const { data: companies = [], isLoading: isLoadingCompanies } =
     useAllCompanies();
@@ -88,11 +98,15 @@ export default function AssignFamilyAllowancePage() {
 
   return (
     <FormWrapper>
-      <TitleFormComponent
-        title={currentView.descripcion}
-        mode="create"
-        icon={currentView.icon}
-      />
+      <HeaderTableWrapper>
+        <BackButton
+          size="icon"
+          name="Cotización Mesón"
+          route={ABSOLUTE_ROUTE}
+        />
+
+        <TitleFormComponent title={currentView.descripcion} mode="create" />
+      </HeaderTableWrapper>
 
       <div className="flex flex-wrap items-end gap-3 mb-4">
         <div className="flex flex-col gap-1">
@@ -126,6 +140,12 @@ export default function AssignFamilyAllowancePage() {
             classNameDiv="w-28"
           />
         </div>
+
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar trabajador..."
+        />
       </div>
 
       <FamilyAllowanceAssignTable
@@ -134,6 +154,7 @@ export default function AssignFamilyAllowancePage() {
         existingCards={existingCards}
         isLoading={isTableLoading}
         onSaved={refetch}
+        search={search}
       />
     </FormWrapper>
   );
