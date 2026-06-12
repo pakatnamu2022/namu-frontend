@@ -1,5 +1,6 @@
 import { api } from "@/core/api";
 import {
+  DocumentValidationCeResponse,
   DocumentValidationDniResponse,
   DocumentValidationLicenseResponse,
   DocumentValidationPlateResponse,
@@ -39,6 +40,17 @@ class DocumentValidationServiceImpl implements DocumentValidationService {
     const { data } = await api.post<DocumentValidationLicenseResponse>(
       `${BASE_ENDPOINT}/validate/license`,
       { license, isBusinessPartners },
+    );
+    return data;
+  }
+
+  async validateCe(
+    ce: string,
+    isBusinessPartners?: boolean,
+  ): Promise<DocumentValidationCeResponse> {
+    const { data } = await api.post<DocumentValidationCeResponse>(
+      `${BASE_ENDPOINT}/validate/general`,
+      { document_type: "ce", document_number: ce, use_cache: true, isBusinessPartners },
     );
     return data;
   }
