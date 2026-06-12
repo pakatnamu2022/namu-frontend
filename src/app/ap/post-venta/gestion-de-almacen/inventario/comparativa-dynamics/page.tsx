@@ -12,6 +12,11 @@ import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { DataTable } from "@/shared/components/DataTable.tsx";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip.tsx";
 import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -50,41 +55,37 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
     id: "local_quantity",
     accessorKey: "local_quantity",
     header: () => <span className="block text-right">Stock Sian</span>,
-    cell: ({ getValue }) => (
-      <span className="block text-right tabular-nums">
-        {(getValue() as string | null) ?? "—"}
-      </span>
-    ),
-  },
-  {
-    id: "local_available",
-    accessorKey: "local_available",
-    header: () => <span className="block text-right">Disponible</span>,
-    cell: ({ getValue }) => (
-      <span className="block text-right tabular-nums">
-        {(getValue() as string | null) ?? "—"}
-      </span>
-    ),
-  },
-  {
-    id: "local_in_transit",
-    accessorKey: "local_in_transit",
-    header: () => <span className="block text-right">En Tránsito</span>,
-    cell: ({ getValue }) => (
-      <span className="block text-right tabular-nums">
-        {(getValue() as string | null) ?? "—"}
-      </span>
-    ),
-  },
-  {
-    id: "local_reserved",
-    accessorKey: "local_reserved",
-    header: () => <span className="block text-right">Reservado</span>,
-    cell: ({ getValue }) => (
-      <span className="block text-right tabular-nums">
-        {(getValue() as string | null) ?? "—"}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const total = row.original.local_quantity;
+      const available = row.original.local_available;
+      const inTransit = row.original.local_in_transit;
+      const reserved = row.original.local_reserved;
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="block text-right tabular-nums font-medium cursor-default bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+              {total ?? "—"}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="flex flex-col gap-1 px-3 py-2">
+            <span className="font-semibold text-xs mb-0.5">Detalle Stock Sian</span>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+              <span className="text-primary-foreground/70">Disponible</span>
+              <span className="text-right tabular-nums">{available ?? "—"}</span>
+              <span className="text-primary-foreground/70">Reservado</span>
+              <span className="text-right tabular-nums">{reserved ?? "—"}</span>
+            </div>
+            <div className="border-t border-primary-foreground/20 mt-1 pt-1 grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+              <span className="text-primary-foreground/50 italic">En tránsito *</span>
+              <span className="text-right tabular-nums text-primary-foreground/50">{inTransit ?? "—"}</span>
+            </div>
+            <p className="text-primary-foreground/40 text-[10px] italic mt-0.5 max-w-44">
+              * Pendiente de confirmación, no suma al total.
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
   },
   {
     id: "dynamics_stock",
@@ -93,9 +94,13 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
     cell: ({ getValue }) => {
       const v = getValue() as number | null;
       return v != null ? (
-        <span className="block text-right tabular-nums font-medium">{v}</span>
+        <span className="block text-right tabular-nums font-medium bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+          {v}
+        </span>
       ) : (
-        <span className="block text-right text-muted-foreground">—</span>
+        <span className="block text-right text-muted-foreground bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+          —
+        </span>
       );
     },
   },
@@ -106,9 +111,7 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
     cell: ({ getValue }) => {
       const diff = getValue() as number | null;
       if (diff == null)
-        return (
-          <span className="block text-right text-muted-foreground">—</span>
-        );
+        return <span className="block text-right text-muted-foreground">—</span>;
       return (
         <span
           className={`block text-right tabular-nums font-semibold ${diff !== 0 ? "text-rose-600" : "text-emerald-600"}`}
