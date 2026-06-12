@@ -118,7 +118,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
                 RUC: {purchaseOrder.supplier_num_doc}
               </span>
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span>{invoiceLabel}</span>
+                <span>Factura: {invoiceLabel}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span>Dyn : {invoiceDynLabel}</span>
@@ -344,6 +344,11 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       if (movementType === "RETURN_OUT") {
         const creditNote = reference as CreditNoteResource;
 
+        const invoiceDynLabel =
+          creditNote.purchase_order.invoice_dynamics ??
+          `${creditNote.purchase_order.invoice_series}-${creditNote.purchase_order.invoice_number}`;
+        const invoiceLabel = `${creditNote.purchase_order.invoice_series}-${creditNote.purchase_order.invoice_number}`;
+
         return (
           <div className="flex flex-col text-sm">
             <span className="font-medium">
@@ -353,12 +358,14 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               RUC: {creditNote.purchase_order.supplier_num_doc}
             </span>
             <span className="text-xs text-gray-500">
-              Factura: {creditNote.purchase_order.invoice_series} -{" "}
-              {creditNote.purchase_order.invoice_number}
+              Factura: {invoiceLabel}
             </span>
             <span className="text-xs text-gray-500">
               Nota de Crédito: {creditNote.credit_note_number}
             </span>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span>Dyn : {invoiceDynLabel}</span>
+            </div>
           </div>
         );
       }

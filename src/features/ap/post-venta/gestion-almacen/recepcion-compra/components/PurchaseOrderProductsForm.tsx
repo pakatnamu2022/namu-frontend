@@ -84,7 +84,11 @@ export const PurchaseOrderProductsForm = ({
 
         if (orderDetail) {
           const itemTotal =
-            Math.round(Number(item.quantity || 0) * Number(orderDetail.unit_price || 0) * 100) / 100;
+            Math.round(
+              Number(item.quantity || 0) *
+                Number(orderDetail.unit_price || 0) *
+                100,
+            ) / 100;
 
           return {
             ...item,
@@ -340,7 +344,7 @@ export const PurchaseOrderProductsForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              disabled={Boolean(receptionData)}
+              readOnly={Boolean(receptionData)}
               defaultOption={
                 receptionData?.supplier_id
                   ? {
@@ -408,7 +412,7 @@ export const PurchaseOrderProductsForm = ({
                     ? watchedEmissionDate
                     : new Date(),
               }}
-              disabled={true}
+              readOnly={true}
             />
 
             <FormSelect
@@ -420,7 +424,7 @@ export const PurchaseOrderProductsForm = ({
                 value: item.id.toString(),
               }))}
               control={form.control}
-              disabled={Boolean(receptionData)}
+              readOnly={Boolean(receptionData)}
             />
 
             <FormSelect
@@ -433,7 +437,7 @@ export const PurchaseOrderProductsForm = ({
                 value: warehouse.id.toString(),
               }))}
               control={form.control}
-              disabled={
+              readOnly={
                 !form.watch("sede_id") ||
                 isLoadingWarehouses ||
                 Boolean(receptionData)
@@ -456,7 +460,7 @@ export const PurchaseOrderProductsForm = ({
                 value: item.id.toString(),
               }))}
               control={form.control}
-              disabled={Boolean(receptionData)}
+              readOnly={Boolean(receptionData)}
             />
 
             <FormSelect
@@ -630,7 +634,7 @@ export const PurchaseOrderProductsForm = ({
                                       }
                                     : undefined
                                 }
-                                disabled={Boolean(receptionData)}
+                                readOnly={Boolean(receptionData)}
                               />
                               {currentItem?.product_code && (
                                 <div className="flex items-center gap-2 px-2 py-1.5">
@@ -656,7 +660,7 @@ export const PurchaseOrderProductsForm = ({
                                       step="1"
                                       placeholder="1"
                                       className="text-center"
-                                      disabled={true}
+                                      readOnly={true}
                                       value={
                                         typeof field.value === "number"
                                           ? field.value
@@ -715,10 +719,15 @@ export const PurchaseOrderProductsForm = ({
                                       onChange={(e) => {
                                         const raw = e.target.value;
                                         const num = parseFloat(raw);
-                                        const rounded = isNaN(num) ? "" : Math.round(num * 100) / 100;
+                                        const rounded = isNaN(num)
+                                          ? ""
+                                          : Math.round(num * 100) / 100;
                                         field.onChange(rounded);
 
-                                        if (typeof rounded === "number" && rounded >= 0) {
+                                        if (
+                                          typeof rounded === "number" &&
+                                          rounded >= 0
+                                        ) {
                                           const quantity =
                                             form.getValues(
                                               `items.${index}.quantity`,
@@ -737,7 +746,8 @@ export const PurchaseOrderProductsForm = ({
                                       onBlur={(e) => {
                                         const num = parseFloat(e.target.value);
                                         if (!isNaN(num)) {
-                                          const rounded = Math.round(num * 100) / 100;
+                                          const rounded =
+                                            Math.round(num * 100) / 100;
                                           field.onChange(rounded);
                                           const quantity =
                                             form.getValues(
@@ -745,7 +755,9 @@ export const PurchaseOrderProductsForm = ({
                                             ) || 1;
                                           form.setValue(
                                             `items.${index}.unit_price`,
-                                            Math.round((rounded / quantity) * 10000) / 10000,
+                                            Math.round(
+                                              (rounded / quantity) * 10000,
+                                            ) / 10000,
                                             { shouldValidate: false },
                                           );
                                         }

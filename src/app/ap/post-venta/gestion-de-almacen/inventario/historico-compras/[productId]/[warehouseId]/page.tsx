@@ -22,6 +22,7 @@ import {
 import BackButton from "@/shared/components/BackButton.tsx";
 import {
   errorToast,
+  formatMoney,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function.ts";
@@ -179,7 +180,7 @@ export default function PurchaseHistoryPage() {
                   Monto Total
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  {summary.total_amount.toFixed(2)}
+                  {formatMoney(summary.total_amount, 2)}
                 </p>
               </div>
             </div>
@@ -195,7 +196,7 @@ export default function PurchaseHistoryPage() {
                   Precio Promedio
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  {summary.average_price.toFixed(2)}
+                  {formatMoney(summary.average_price, 2)}
                 </p>
               </div>
             </div>
@@ -211,7 +212,7 @@ export default function PurchaseHistoryPage() {
                   Precio Mínimo
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  {parseFloat(summary.min_price).toFixed(2)}
+                  {formatMoney(Number(summary.min_price), 2)}
                 </p>
               </div>
             </div>
@@ -227,7 +228,7 @@ export default function PurchaseHistoryPage() {
                   Precio Máximo
                 </p>
                 <p className="text-lg font-semibold text-gray-900 leading-tight truncate">
-                  {parseFloat(summary.max_price).toFixed(2)}
+                  {formatMoney(Number(summary.max_price), 2)}
                 </p>
               </div>
             </div>

@@ -416,12 +416,15 @@ import AddLoanPage from "./app/gp/gestion-humana/planillas/prestamos/agregar/pag
 import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualizar/[id]/page.tsx";
 import LoanAmortizacionesPage from "./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx";
 import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
+import WorkingConditionPage from "./app/gp/gestion-humana/planillas/condiciones-trabajo/page.tsx";
+import AddWorkingConditionPage from "./app/gp/gestion-humana/planillas/condiciones-trabajo/agregar/page.tsx";
 import InsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/page.tsx";
 import AddInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx";
 import UpdateInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx";
 import AddInsurancePage from "./app/gp/gestion-humana/planillas/seguros/agregar/page.tsx";
 import UpdateInsurancePage from "./app/gp/gestion-humana/planillas/seguros/actualizar/[id]/page.tsx";
 import BonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/page.tsx";
+import PayrollRegisterPage from "./app/gp/gestion-humana/planillas/registro-planilla/page.tsx";
 import AddBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/agregar/page.tsx";
 import UpdateBonusPage from "./app/gp/gestion-humana/planillas/bonificaciones/actualizar/[id]/page.tsx";
 import FoodCardPage from "./app/gp/gestion-humana/planillas/tarjeta-de-alimentos/page.tsx";
@@ -1966,6 +1969,7 @@ function App() {
               )}
               {/* Planillas */}
               {/* Dia Trabajo */}
+              <Route path="planillas" element={<WorkshopPage />} />
               {RouterCrud(
                 "planillas/dia-trabajo",
                 <WorkSchedulesPage />,
@@ -2015,6 +2019,20 @@ function App() {
                 <AddInsurancePage />,
                 <UpdateInsurancePage />,
               )}
+              {/* Condiciones de Trabajo */}
+              <Route
+                path="planillas/condiciones-trabajo"
+                element={<WorkingConditionPage />}
+              />
+              <Route
+                path="planillas/condiciones-trabajo/agregar"
+                element={<AddWorkingConditionPage />}
+              />
+              {/* Registro de Planilla */}
+              <Route
+                path="planillas/registro-planilla"
+                element={<PayrollRegisterPage />}
+              />
               {/* Bonificaciones */}
               {RouterCrud(
                 "planillas/bonificaciones",

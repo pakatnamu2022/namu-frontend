@@ -160,9 +160,12 @@ export interface PurchaseHistoryItem {
   supplier: PurchaseHistorySupplier;
   currency: PurchaseHistoryCurrency;
   unit_price: string;
+  unit_price_pen: number;
   quantity_ordered: string;
   quantity_received: string;
   total_line: string;
+  total_line_pen: number;
+  exchange_rate: string;
   reception_type: string;
   batch_number: string | null;
   expiration_date: string | null;
