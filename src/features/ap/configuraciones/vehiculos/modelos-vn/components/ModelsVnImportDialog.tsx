@@ -5,11 +5,11 @@ import { useForm } from "react-hook-form";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Form, FormField } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { GeneralModal } from "@/shared/components/GeneralModal";
 import { FileForm } from "@/shared/components/FileForm";
 import { errorToast } from "@/core/core.function";
 import { importModelsVn } from "../lib/modelsVn.actions";
 import type { ImportModelsVnResponse } from "../lib/modelsVn.interface";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   open: boolean;
@@ -21,7 +21,11 @@ interface FormValues {
   file: File | null;
 }
 
-export default function ModelsVnImportDialog({ open, onClose, onSuccess }: Props) {
+export default function ModelsVnImportDialog({
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ImportModelsVnResponse | null>(null);
 
@@ -55,11 +59,12 @@ export default function ModelsVnImportDialog({ open, onClose, onSuccess }: Props
   };
 
   return (
-    <GeneralModal
+    <GeneralSheet
       open={open}
       onClose={handleClose}
       title="Importar Modelos VN"
       icon="FileUp"
+      size="3xl"
     >
       {result ? (
         <div className="space-y-4">
@@ -86,7 +91,9 @@ export default function ModelsVnImportDialog({ open, onClose, onSuccess }: Props
 
           {result.errors.length > 0 && (
             <div>
-              <p className="mb-2 text-sm font-medium">Errores por fila</p>
+              <p className="mb-2 text-sm font-medium text-destructive">
+                Errores por fila
+              </p>
               <div className="overflow-hidden rounded-md border">
                 <table className="w-full text-xs">
                   <thead className="bg-muted">
@@ -108,6 +115,64 @@ export default function ModelsVnImportDialog({ open, onClose, onSuccess }: Props
                         <td className="px-3 py-2 text-destructive">
                           {err.motivo}
                         </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {result.skipped_rows.length > 0 && (
+            <div>
+              <p className="mb-2 text-sm font-medium text-amber-600">
+                Filas omitidas
+              </p>
+              <div className="overflow-hidden rounded-md border">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">Fila</th>
+                      <th className="px-3 py-2 text-left font-medium">
+                        Versión
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.skipped_rows.map((row, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="px-3 py-2">{row.fila}</td>
+                        <td className="px-3 py-2 text-muted-foreground">
+                          {row.version || "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {result.created_rows.length > 0 && (
+            <div>
+              <p className="mb-2 text-sm font-medium text-green-700">
+                Filas creadas
+              </p>
+              <div className="overflow-hidden rounded-md border">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">Fila</th>
+                      <th className="px-3 py-2 text-left font-medium">
+                        Versión
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.created_rows.map((row, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="px-3 py-2">{row.fila}</td>
+                        <td className="px-3 py-2">{row.version}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -174,6 +239,6 @@ export default function ModelsVnImportDialog({ open, onClose, onSuccess }: Props
           </form>
         </Form>
       )}
-    </GeneralModal>
+    </GeneralSheet>
   );
 }

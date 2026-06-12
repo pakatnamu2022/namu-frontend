@@ -11,6 +11,10 @@ export interface DocumentValidationService {
     license: string,
     isBusinessPartners?: boolean
   ) => Promise<DocumentValidationLicenseResponse>;
+  validateCe: (
+    ce: string,
+    isBusinessPartners?: boolean
+  ) => Promise<DocumentValidationCeResponse>;
 }
 
 export interface DocumentValidationDniResponse {
@@ -93,6 +97,26 @@ export interface Licencia {
   fecha_vencimiento: string;
   estado: string;
   restricciones: string;
+}
+
+export interface DocumentValidationCeResponse {
+  success: boolean;
+  document_type: string;
+  document_number: string;
+  provider: string;
+  source: string;
+  validated_at: Date;
+  data: DataCe;
+}
+
+export interface DataCe {
+  valid: boolean;
+  document_number: string;
+  names: string;
+  first_name: string;
+  paternal_surname: string;
+  maternal_surname: string;
+  type?: string;
 }
 
 export interface DocumentValidationPlateResponse {

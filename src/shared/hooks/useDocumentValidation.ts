@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { documentValidationService } from "../services/documentValidation.service";
 import {
+  DocumentValidationCeResponse,
   DocumentValidationDniResponse,
   DocumentValidationRucResponse,
 } from "../services/documentValidation.interface";
@@ -56,6 +57,24 @@ export const useLicenseValidation = (
       );
     },
     enabled: enabled && !!license && license.length > 0,
+    refetchOnWindowFocus: false,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCeValidation = (
+  ce?: string,
+  enabled = false,
+  isBusinessPartners = false,
+) => {
+  return useQuery<DocumentValidationCeResponse>({
+    queryKey: ["ceValidation", ce, isBusinessPartners],
+    queryFn: () => {
+      if (!ce) throw new Error("CE is required");
+      return documentValidationService.validateCe(ce, isBusinessPartners);
+    },
+    enabled: enabled && !!ce,
     refetchOnWindowFocus: false,
     retry: false,
     staleTime: 5 * 60 * 1000,

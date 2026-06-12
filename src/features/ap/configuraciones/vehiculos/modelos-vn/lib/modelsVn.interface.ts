@@ -101,11 +101,19 @@ export interface ImportModelsVnError {
   motivo: string;
 }
 
+export interface ImportModelsVnRow {
+  fila: number;
+  version: string;
+}
+
 export interface ImportModelsVnResponse {
   success: boolean;
   message: string;
-  created: number;
-  skipped: number;
   rows_processed: number;
+  errors_count: number;
   errors: ImportModelsVnError[];
+  skipped: number;
+  skipped_rows: ImportModelsVnRow[];
+  created: number;
+  created_rows: ImportModelsVnRow[];
 }
