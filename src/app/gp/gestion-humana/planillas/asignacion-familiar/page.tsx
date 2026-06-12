@@ -63,7 +63,7 @@ export default function FamilyAllowancePage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <FamilyAllowanceActions />
+        <FamilyAllowanceActions companyId={companyId} year={year} />
       </HeaderTableWrapper>
 
       <FamilyAllowanceTable

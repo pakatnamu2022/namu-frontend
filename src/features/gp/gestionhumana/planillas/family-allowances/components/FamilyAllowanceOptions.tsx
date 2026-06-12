@@ -98,7 +98,7 @@ export default function FamilyAllowanceOptions({
             ? "Seleccione empresa y año"
             : isLoadingPeriods
               ? "Cargando..."
-              : "Periodo (opcional)"
+              : "Periodo"
         }
         disabled={!canSelectPeriod || isLoadingPeriods}
         classNameDiv="w-52"
