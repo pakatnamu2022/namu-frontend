@@ -56,7 +56,7 @@ export default function UpdateCustomersPvPage() {
   };
 
   function mapCustomersToForm(
-    data: CustomersResource
+    data: CustomersResource,
   ): Partial<CustomersPvSchema> {
     return {
       first_name: data.first_name,
@@ -107,6 +107,7 @@ export default function UpdateCustomersPvPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        absoluteRoute={ABSOLUTE_ROUTE}
       />
     </FormWrapper>
   );

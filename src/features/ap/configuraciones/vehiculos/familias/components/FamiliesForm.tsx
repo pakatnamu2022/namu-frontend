@@ -1,14 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -18,6 +10,7 @@ import {
   familiesSchemaCreate,
   familiesSchemaUpdate,
 } from "../lib/families.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface FamiliesFormProps {
   defaultValues: Partial<FamiliesSchema>;
@@ -36,7 +29,7 @@ export const FamiliesForm = ({
 }: FamiliesFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? familiesSchemaCreate : familiesSchemaUpdate
+      mode === "create" ? familiesSchemaCreate : familiesSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -54,18 +47,11 @@ export const FamiliesForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: X7" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: X7"
+            control={form.control}
           />
           <FormSelect
             name="brand_id"

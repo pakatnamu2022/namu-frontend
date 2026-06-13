@@ -26,7 +26,6 @@ import {
   Trash2,
   Package,
   PackagePlus,
-  ExternalLink,
   Copy,
   Check,
   User,
@@ -68,7 +67,7 @@ import {
   useVehicleById,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
-import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/VehicleRepuestosModal";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
@@ -703,6 +702,19 @@ export default function ProformaMesonForm({
   );
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [vehicleDefaultOption, setVehicleDefaultOption] = useState<
+    { value: string; label: string } | undefined
+  >(
+    vehicleData
+      ? {
+          value: vehicleData.id.toString(),
+          label: vehicleData.plate
+            ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
+            : vehicleData.vin || "-",
+        }
+      : undefined,
+  );
 
   const { user } = useAuthStore();
   const defaultDiscount =
@@ -1022,26 +1034,17 @@ export default function ProformaMesonForm({
             })}
             perPage={10}
             debounceMs={500}
-            defaultOption={
-              vehicleData
-                ? {
-                    value: vehicleData.id.toString(),
-                    label: vehicleData.plate
-                      ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
-                      : vehicleData.vin || "-",
-                  }
-                : undefined
-            }
+            defaultOption={vehicleDefaultOption}
           >
             <Button
               type="button"
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
+              onClick={() => setIsVehicleModalOpen(true)}
               tooltip="Agregar nuevo vehículo"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -1368,6 +1371,30 @@ export default function ProformaMesonForm({
           }
         }}
         title="Agregar Nuevo Cliente"
+      />
+
+      <VehicleRepuestosModal
+        open={isVehicleModalOpen}
+        onClose={(newVehicle) => {
+          setIsVehicleModalOpen(false);
+          if (newVehicle) {
+            form.setValue("vehicle_id", newVehicle.id.toString(), {
+              shouldValidate: true,
+            });
+            setVehicleDefaultOption({
+              value: newVehicle.id.toString(),
+              label: newVehicle.plate
+                ? `${newVehicle.plate} - ${newVehicle.vin || ""}`
+                : newVehicle.vin || "-",
+            });
+          }
+        }}
+        title="Agregar Nuevo Vehículo"
+        sedeId={form.watch("sede_id")}
+        sedeName={
+          mySedes.find((s) => s.id.toString() === form.watch("sede_id"))
+            ?.abreviatura
+        }
       />
     </Form>
   );

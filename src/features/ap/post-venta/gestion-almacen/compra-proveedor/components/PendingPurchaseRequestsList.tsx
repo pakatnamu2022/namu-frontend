@@ -150,7 +150,7 @@ export const PendingPurchaseRequestsList = ({
                               </span>
                             </span>
                             <span>
-                              Asesor:{" "}
+                              Usuario:{" "}
                               <span className="font-medium text-foreground">
                                 {detail.requested_name}
                               </span>
