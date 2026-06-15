@@ -8,14 +8,14 @@ import {
   getAttendancePersonDashboard,
 } from "./attendance.actions";
 import type {
-  AttendanceFilters,
+  AttendanceFiltersProps,
   AttendanceReportFilters,
   AttendanceSunafilFilters,
 } from "./attendance.interface";
 
 const { QUERY_KEY } = ATTENDANCE;
 
-export const useAttendanceRecords = (filters: AttendanceFilters) => {
+export const useAttendanceRecords = (filters: AttendanceFiltersProps) => {
   return useQuery({
     queryKey: [QUERY_KEY, filters],
     queryFn: () => getAttendanceRecords(filters),
