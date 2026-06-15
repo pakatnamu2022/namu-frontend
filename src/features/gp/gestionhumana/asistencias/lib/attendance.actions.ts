@@ -110,6 +110,12 @@ export async function getInternalReport(
   return data;
 }
 
+export async function reportAbsent(date?: string): Promise<{ message?: string }> {
+  const payload = date ? { date } : {};
+  const { data } = await api.post<{ message?: string }>(`${ENDPOINT}/report/absent`, payload);
+  return data;
+}
+
 export async function getAttendancePersonDashboard(
   personId: number,
   filters: Partial<AttendanceReportFilters>,

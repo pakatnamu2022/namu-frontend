@@ -42,7 +42,7 @@ export interface AttendanceResponse {
   };
 }
 
-export interface AttendanceFilters {
+export interface AttendanceFiltersProps {
   search?: string;
   date?: string;
   date_from?: string;

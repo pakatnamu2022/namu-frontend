@@ -12,12 +12,13 @@ import { Button } from "@/components/ui/button";
 import { ATTENDANCE } from "@/features/gp/gestionhumana/asistencias/lib/attendance.constants";
 import { useAttendanceRecords } from "@/features/gp/gestionhumana/asistencias/lib/attendance.hook";
 import { getAttendanceColumns } from "@/features/gp/gestionhumana/asistencias/components/AttendanceColumns";
-import AttendanceFiltersBar from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
+import AttendanceFilters from "@/features/gp/gestionhumana/asistencias/components/AttendanceFilters";
 import AttendanceTable from "@/features/gp/gestionhumana/asistencias/components/AttendanceTable";
 import AttendanceSheet from "@/features/gp/gestionhumana/asistencias/components/AttendanceSheet";
 import AttendanceSyncRangeDialog from "@/features/gp/gestionhumana/asistencias/components/AttendanceSyncRangeDialog";
+import AttendanceAbsentReportButton from "@/features/gp/gestionhumana/asistencias/components/AttendanceAbsentReportButton";
 import type {
-  AttendanceFilters,
+  AttendanceFiltersProps,
   AttendanceRecord,
 } from "@/features/gp/gestionhumana/asistencias/lib/attendance.interface";
 import PageWrapper from "@/shared/components/PageWrapper";
@@ -35,7 +36,9 @@ export default function AttendancePage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
-  const [filters, setFilters] = useState<Omit<AttendanceFilters, "date" | "date_from" | "date_to">>({
+  const [filters, setFilters] = useState<
+    Omit<AttendanceFiltersProps, "date" | "date_from" | "date_to">
+  >({
     per_page: DEFAULT_PER_PAGE,
     page: 1,
   });
@@ -50,13 +53,6 @@ export default function AttendancePage() {
 
   const handleFiltersChange = (partial: Partial<typeof filters>) => {
     setFilters((prev) => ({ ...prev, ...partial, page: 1 }));
-  };
-
-  const handleReset = () => {
-    setDate(new Date());
-    setDateFrom(undefined);
-    setDateTo(undefined);
-    setFilters({ per_page: DEFAULT_PER_PAGE, page: 1 });
   };
 
   const columns = getAttendanceColumns({
@@ -83,9 +79,12 @@ export default function AttendancePage() {
             onClick={() => refetch()}
             disabled={isFetching}
           >
-            <RefreshCw className={`size-4 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`size-4 mr-1.5 ${isFetching ? "animate-spin" : ""}`}
+            />
             Actualizar
           </Button>
+          <AttendanceAbsentReportButton date={toDateStr(date)} />
           <AttendanceSyncRangeDialog onSynced={refetch} />
         </div>
       </HeaderTableWrapper>
@@ -103,7 +102,7 @@ export default function AttendancePage() {
           setFilters((prev) => ({ ...prev, per_page, page: 1 }))
         }
       >
-        <AttendanceFiltersBar
+        <AttendanceFilters
           filters={filters}
           date={date}
           setDate={setDate}
@@ -112,7 +111,6 @@ export default function AttendancePage() {
           dateTo={dateTo}
           setDateTo={setDateTo}
           onFiltersChange={handleFiltersChange}
-          onReset={handleReset}
         />
       </AttendanceTable>
 
