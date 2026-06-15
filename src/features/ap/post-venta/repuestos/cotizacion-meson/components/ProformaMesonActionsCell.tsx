@@ -54,6 +54,7 @@ export const ProformaMesonActionsCell = ({
     status,
     has_invoice_generated,
     delivery_document_number,
+    has_management_discount,
   } = row;
   const isDiscarded = status === "Descartado";
   const isForInvoicing = status === "Por Facturar";
@@ -116,12 +117,14 @@ export const ProformaMesonActionsCell = ({
     !isDiscarded &&
     !isForInvoicing &&
     permissions.canUpdate &&
+    !has_management_discount &&
     !has_invoice_generated;
 
   const isVisibleDelete =
     !isDiscarded &&
     !isForInvoicing &&
     permissions.canDelete &&
+    !has_management_discount &&
     !has_invoice_generated;
 
   return (
