@@ -10,10 +10,12 @@ const { MODEL } = WORKING_CONDITION;
 
 interface WorkingConditionActionsProps {
   companyId: string;
+  companyName?: string;
 }
 
 export default function WorkingConditionActions({
   companyId,
+  companyName,
 }: WorkingConditionActionsProps) {
   const [open, setOpen] = useState(false);
 
@@ -32,6 +34,7 @@ export default function WorkingConditionActions({
         open={open}
         onClose={() => setOpen(false)}
         companyId={companyId}
+        companyName={companyName}
       />
     </div>
   );

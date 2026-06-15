@@ -8,7 +8,7 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PayrollRegisterResource } from "../lib/payroll-register.interface";
@@ -69,6 +69,7 @@ export default function PayrollRegisterTable({ data, isLoading }: Props) {
     });
   }, [collapsed]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns: activeColumns,
@@ -88,7 +89,7 @@ export default function PayrollRegisterTable({ data, isLoading }: Props) {
   if (!data.length) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
-        <span className="text-4xl">📋</span>
+        <ClipboardList size={50} />
         <p className="text-sm">
           Seleccione empresa y periodo para ver la planilla
         </p>
@@ -155,7 +156,9 @@ export default function PayrollRegisterTable({ data, isLoading }: Props) {
       <div className="flex items-center gap-2 px-3 py-2 border-t border-border text-xs text-muted-foreground flex-wrap">
         <span className="font-semibold">{data.length} registros</span>
         <span>·</span>
-        <span>Haz clic en el encabezado de un grupo para expandirlo o contraerlo</span>
+        <span>
+          Haz clic en el encabezado de un grupo para expandirlo o contraerlo
+        </span>
         <div className="ml-auto flex gap-1 flex-wrap">
           {COLUMN_GROUPS.filter((g) => g.id !== "identidad").map((g) => (
             <Button

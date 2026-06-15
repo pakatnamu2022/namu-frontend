@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
@@ -20,6 +20,9 @@ import { INSURANCE } from "@/features/gp/gestionhumana/planillas/insurances/lib/
 export default function AddInsurancePage() {
   const { MODEL, ABSOLUTE_ROUTE, ROUTE } = INSURANCE;
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
+  const companyId = searchParams.get("companyId") ?? undefined;
+  const companyName = searchParams.get("companyName") ?? undefined;
   const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
@@ -50,7 +53,12 @@ export default function AddInsurancePage() {
         mode="create"
         icon={currentView.icon}
       />
-      <InsuranceForm onSubmit={handleSubmit} isSubmitting={isPending} />
+      <InsuranceForm
+        onSubmit={handleSubmit}
+        isSubmitting={isPending}
+        companyId={companyId}
+        companyName={companyName}
+      />
     </FormWrapper>
   );
 }
