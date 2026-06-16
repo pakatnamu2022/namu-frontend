@@ -12,7 +12,7 @@ import {
 } from "../lib/evaluationPerson.interface";
 import { evaluationPersonCompetenceColumns } from "./EvaluationPersonCompetenceColumns";
 import { DataTable } from "@/shared/components/DataTable";
-import { useState } from "react";
+import { useState, useRef, useReducer } from "react";
 import { cn } from "@/lib/utils";
 import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 import EvaluationSectionHeader from "./EvaluationSectionHeader";
@@ -36,8 +36,36 @@ export default function EvaluationPersonCompetenceTableWithColumns({
   evaluationPersonResult,
   canEditAll = false,
 }: Props) {
-  // Estado para controlar qué competencias están expandidas
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+
+  const optimisticRef = useRef<Record<number, number>>({});
+  const statusRef = useRef<Record<number, "loading" | "success">>({});
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+
+  const handleCellUpdate = async (id: number, value: number) => {
+    const prev = optimisticRef.current[id];
+    optimisticRef.current[id] = value;
+    statusRef.current[id] = "loading";
+    forceUpdate();
+    try {
+      await onUpdateCell(id, value);
+      delete optimisticRef.current[id];
+      statusRef.current[id] = "success";
+      forceUpdate();
+      setTimeout(() => {
+        delete statusRef.current[id];
+        forceUpdate();
+      }, 1500);
+    } catch {
+      if (prev === undefined) {
+        delete optimisticRef.current[id];
+      } else {
+        optimisticRef.current[id] = prev;
+      }
+      delete statusRef.current[id];
+      forceUpdate();
+    }
+  };
 
   // Función para alternar la expansión de un grupo
   const toggleGroup = (competenceId: number) => {
@@ -116,7 +144,9 @@ export default function EvaluationPersonCompetenceTableWithColumns({
 
           // Crear las columnas específicas para este grupo
           const columns = evaluationPersonCompetenceColumns({
-            onUpdateCell,
+            onUpdateCell: handleCellUpdate,
+            optimisticValues: optimisticRef.current,
+            cellStatus: statusRef.current,
             readOnly,
             evaluationType: group.evaluation_type,
             requiredEvaluatorTypes: group.required_evaluator_types,

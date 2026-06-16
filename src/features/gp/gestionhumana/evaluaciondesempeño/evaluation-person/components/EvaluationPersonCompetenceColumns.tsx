@@ -1,6 +1,5 @@
 "use client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useState, useEffect } from "react";
 import { Subcompetence } from "../lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import {
   UserCheck,
   CheckCircle2,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
@@ -22,22 +22,24 @@ export type EvaluationPersonCompetenceColumns = ColumnDef<Subcompetence>;
 
 const scoreColors = ["orange", "amber", "lime", "emerald"] as const;
 
-// Componente fuera de la factory para que React mantenga el estado entre renders
 function EvaluationCell({
   evaluator,
   readOnly,
   onUpdateCell,
+  optimisticValues,
+  cellStatus,
 }: {
   evaluator?: any;
   readOnly: boolean;
   onUpdateCell: (id: number, value: number) => Promise<void>;
+  optimisticValues: Record<number, number>;
+  cellStatus: Record<number, "loading" | "success">;
 }) {
   const serverValue = Number(evaluator?.result) || 0;
-  const [optimistic, setOptimistic] = useState(serverValue);
-
-  useEffect(() => {
-    setOptimistic(serverValue);
-  }, [serverValue]);
+  const displayValue = evaluator?.id !== undefined
+    ? (optimisticValues[evaluator.id] ?? serverValue)
+    : serverValue;
+  const status = evaluator?.id !== undefined ? cellStatus[evaluator.id] : undefined;
 
   if (readOnly) {
     return (
@@ -58,44 +60,48 @@ function EvaluationCell({
     );
   }
 
-  const handleClick = async (value: number) => {
-    const prev = optimistic;
-    setOptimistic(value);
-    try {
-      await onUpdateCell(evaluator.id, value);
-    } catch {
-      setOptimistic(prev);
-    }
-  };
-
   return (
-    <div className="flex gap-1">
-      {scoreColors.map((color, i) => {
-        const value = i + 1;
-        return (
-          <Button
-            key={value}
-            size="icon-xs"
-            variant={optimistic === value ? "default" : "outline"}
-            color={color}
-            onClick={() => handleClick(value)}
-          >
-            {value}
-          </Button>
-        );
-      })}
+    <div className="flex items-center gap-1.5">
+      <div className="flex gap-1">
+        {scoreColors.map((color, i) => {
+          const value = i + 1;
+          return (
+            <Button
+              key={value}
+              size="icon-xs"
+              variant={displayValue === value ? "default" : "outline"}
+              color={color}
+              onClick={() => onUpdateCell(evaluator.id, value)}
+            >
+              {value}
+            </Button>
+          );
+        })}
+      </div>
+      <div className="size-3.5 shrink-0">
+        {status === "loading" && (
+          <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+        )}
+        {status === "success" && (
+          <CheckCircle2 className="size-3.5 text-emerald-500" />
+        )}
+      </div>
     </div>
   );
 }
 
 export const evaluationPersonCompetenceColumns = ({
   onUpdateCell,
+  optimisticValues,
+  cellStatus,
   readOnly = false,
   evaluationType = 2,
   requiredEvaluatorTypes = [0, 1, 2, 3],
   canEditAll = false,
 }: {
   onUpdateCell: (id: number, value: number) => Promise<void>;
+  optimisticValues: Record<number, number>;
+  cellStatus: Record<number, "loading" | "success">;
   readOnly?: boolean;
   evaluationType?: number;
   requiredEvaluatorTypes?: number[];
@@ -145,6 +151,8 @@ export const evaluationPersonCompetenceColumns = ({
               evaluator={jefeEvaluator}
               readOnly={readOnly}
               onUpdateCell={onUpdateCell}
+              optimisticValues={optimisticValues}
+              cellStatus={cellStatus}
             />
           </div>
         );
@@ -197,6 +205,8 @@ export const evaluationPersonCompetenceColumns = ({
                     evaluator={evaluator}
                     readOnly={shouldBeReadOnly}
                     onUpdateCell={onUpdateCell}
+                    optimisticValues={optimisticValues}
+                    cellStatus={cellStatus}
                   />
                 </div>
               );
@@ -230,6 +240,8 @@ export const evaluationPersonCompetenceColumns = ({
                     evaluator={evaluator}
                     readOnly={readOnly}
                     onUpdateCell={onUpdateCell}
+                    optimisticValues={optimisticValues}
+                    cellStatus={cellStatus}
                   />
                 </div>
               );

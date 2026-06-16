@@ -115,7 +115,6 @@ export function EvaluationPersonResultModal({
       setSaving(true);
       await updateEvaluationPersonCompetence(id, { result });
       await Promise.all([invalidateQuery(), refetchEvaluationResult()]);
-      successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
