@@ -49,7 +49,6 @@ export default function EvaluationPersonCompetenceTableWithColumns({
     forceUpdate();
     try {
       await onUpdateCell(id, value);
-      delete optimisticRef.current[id];
       statusRef.current[id] = "success";
       forceUpdate();
       setTimeout(() => {
