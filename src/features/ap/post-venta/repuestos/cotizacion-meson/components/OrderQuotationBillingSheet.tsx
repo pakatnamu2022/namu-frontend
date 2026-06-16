@@ -19,6 +19,9 @@ import {
   Plus,
   IdCard,
   PackageCheck,
+  Truck,
+  LinkIcon,
+  Unlink,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -39,7 +42,12 @@ import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/Sig
 import {
   confirmOrderQuotation,
   updateOrderQuotationInvoiceTo,
+  associateShippingGuide,
+  dissociateShippingGuide,
 } from "../lib/quotationMeson.actions";
+import { getShippingGuides } from "@/features/ap/shipping_guides/lib/shippingGuides.actions";
+import { SHIPPING_GUIDES } from "@/features/ap/shipping_guides/lib/shippingGuides.constants";
+import type { ShippingGuidesResource } from "@/features/ap/shipping_guides/lib/shippingGuides.interface";
 import {
   errorToast,
   formatDate,
@@ -56,6 +64,7 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -163,6 +172,57 @@ export function BillingSheetContent({
   const hasAdvances = activeVouchers.length > 0;
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [isShippingGuideSheetOpen, setIsShippingGuideSheetOpen] =
+    useState(false);
+
+  const shippingGuideParams = {
+    sede_transmitter_id: orderQuotation.sede_id,
+    is_associated: false,
+    transfer_reason_id: [SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS],
+  };
+  const { data: shippingGuidesData, isLoading: isLoadingShippingGuides } =
+    useQuery({
+      queryKey: [SHIPPING_GUIDES.QUERY_KEY, shippingGuideParams],
+      queryFn: () => getShippingGuides({ params: shippingGuideParams }),
+      enabled: isShippingGuideSheetOpen,
+      refetchOnWindowFocus: false,
+    });
+
+  const associateMutation = useMutation({
+    mutationFn: (shippingGuideId: number) =>
+      associateShippingGuide(orderQuotation.id, shippingGuideId),
+    onSuccess: () => {
+      successToast("Guía de remisión asociada correctamente");
+      setIsShippingGuideSheetOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", orderQuotation.id],
+      });
+      onRefresh?.();
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al asociar la guía de remisión",
+      );
+    },
+  });
+
+  const dissociateMutation = useMutation({
+    mutationFn: () => dissociateShippingGuide(orderQuotation.id),
+    onSuccess: () => {
+      successToast("Guía de remisión desasociada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", orderQuotation.id],
+      });
+      onRefresh?.();
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al desasociar la guía de remisión",
+      );
+    },
+  });
 
   // Verificar si debe mostrar la sección de firma
   const shouldShowSignature = orderQuotation.status === "Aperturado";
@@ -815,6 +875,158 @@ export function BillingSheetContent({
           />
         )}
       </div>
+
+      {/* Guía de Remisión (opcional) */}
+      <Separator />
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Truck className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold text-lg">Guía de Remisión</h3>
+            <Badge variant="outline" className="text-xs text-muted-foreground">
+              Opcional
+            </Badge>
+          </div>
+          {!orderQuotation.shipping_guide && !readOnly && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsShippingGuideSheetOpen(true)}
+            >
+              <LinkIcon className="h-4 w-4 mr-1" />
+              Adjuntar
+            </Button>
+          )}
+          {orderQuotation.shipping_guide && !readOnly && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive border-destructive hover:bg-destructive/10"
+              disabled={dissociateMutation.isPending}
+              onClick={() => dissociateMutation.mutate()}
+            >
+              {dissociateMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Unlink className="h-4 w-4 mr-1" />
+              )}
+              Desasociar
+            </Button>
+          )}
+        </div>
+
+        {orderQuotation.shipping_guide ? (
+          <InfoSection
+            title=""
+            fields={[
+              {
+                label: "Número",
+                value: orderQuotation.shipping_guide.document_number,
+              },
+              {
+                label: "Fecha Emisión",
+                value: formatDate(orderQuotation.shipping_guide.issue_date),
+              },
+              ...(orderQuotation.shipping_guide.receiver_name
+                ? [
+                    {
+                      label: "Destinatario",
+                      value: orderQuotation.shipping_guide.receiver_name,
+                    },
+                  ]
+                : []),
+              ...(orderQuotation.shipping_guide.transfer_reason_description
+                ? [
+                    {
+                      label: "Motivo Traslado",
+                      value:
+                        orderQuotation.shipping_guide
+                          .transfer_reason_description,
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8 text-center border border-dashed rounded-lg">
+            <Truck className="h-10 w-10 text-muted-foreground mb-2" />
+            <p className="text-muted-foreground text-sm">
+              No hay guía de remisión adjunta
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Sheet para seleccionar guía de remisión */}
+      <GeneralSheet
+        open={isShippingGuideSheetOpen}
+        onClose={() => setIsShippingGuideSheetOpen(false)}
+        title="Adjuntar Guía de Remisión"
+        subtitle="Selecciona una guía de remisión para asociar a esta cotización"
+        icon="Truck"
+        size="3xl"
+      >
+        <div className="px-6 space-y-4">
+          {isLoadingShippingGuides ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : !shippingGuidesData?.data?.length ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Truck className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground text-sm">
+                No hay guías de remisión disponibles para asociar
+              </p>
+            </div>
+          ) : (
+            <DetailSheetTable
+              rows={shippingGuidesData.data}
+              getKey={(g: ShippingGuidesResource) => g.id}
+              columns={[
+                {
+                  header: "Número",
+                  render: (g: ShippingGuidesResource) => (
+                    <div className="font-medium">{g.document_number}</div>
+                  ),
+                },
+                {
+                  header: "Fecha",
+                  render: (g: ShippingGuidesResource) => (
+                    <div className="text-sm">{formatDate(g.issue_date)}</div>
+                  ),
+                },
+                {
+                  header: "Destinatario",
+                  render: (g: ShippingGuidesResource) => (
+                    <div className="text-sm">{g.receiver_name || "-"}</div>
+                  ),
+                },
+                {
+                  header: "",
+                  className: "text-right",
+                  render: (g: ShippingGuidesResource) => (
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={associateMutation.isPending}
+                      onClick={() => associateMutation.mutate(g.id)}
+                    >
+                      {associateMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <LinkIcon className="h-4 w-4 mr-1" />
+                      )}
+                      Asociar
+                    </Button>
+                  ),
+                },
+              ]}
+            />
+          )}
+        </div>
+      </GeneralSheet>
 
       {!readOnly && (
         <>

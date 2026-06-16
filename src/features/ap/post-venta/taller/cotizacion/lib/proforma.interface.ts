@@ -12,6 +12,9 @@ export interface OrderQuotationResponse {
 
 export interface OrderQuotationResource {
   id: number;
+  parent_quotation_id: number | null;
+  shipping_guide_id: number | null;
+  was_segmented: boolean;
   created_by_name: string;
   vehicle_id: number;
   vehicle: VehicleResource;
@@ -35,7 +38,6 @@ export interface OrderQuotationResource {
     pending_amount: number;
     remaining_balance: number;
     payment_percentage: number;
-    is_fully_paid: boolean;
     has_final_invoice: boolean;
     advances_count: number;
   };
@@ -70,6 +72,10 @@ export interface OrderQuotationResource {
   has_sufficient_stock: boolean;
   cost_man_hours: number;
   is_requested_by_management: boolean;
+  //Guía de remisión
+  shipping_guide?:
+    | import("@/features/ap/shipping_guides/lib/shippingGuides.interface").ShippingGuidesResource
+    | null;
 }
 
 export interface ApprovalRequest {

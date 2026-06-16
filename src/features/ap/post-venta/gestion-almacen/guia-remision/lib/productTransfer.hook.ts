@@ -23,11 +23,12 @@ import { successToast, errorToast } from "@/core/core.function.ts";
 const { QUERY_KEY } = PRODUCT_TRANSFER;
 
 // Hooks para transferencias de productos
-export const useProductTransfers = (params?: Record<string, any>) => {
+export const useProductTransfers = (params?: Record<string, any>, enabled = true) => {
   return useQuery<ProductTransferResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getProductTransfers({ params }),
     refetchOnWindowFocus: false,
+    enabled,
   });
 };
 

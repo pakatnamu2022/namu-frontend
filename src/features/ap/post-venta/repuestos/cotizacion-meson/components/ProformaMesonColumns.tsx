@@ -33,9 +33,20 @@ export const orderQuotationMesonColumns = ({
   {
     accessorKey: "quotation_number",
     header: "Número de Cotización",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      const wasSegmented = row.original.was_segmented;
+      if (!value) return null;
+      return (
+        <div className="flex flex-col items-start gap-0.5">
+          <p className="font-semibold">{value}</p>
+          {wasSegmented && (
+            <Badge variant="outline" color="orange" size="xs">
+              Segmentado
+            </Badge>
+          )}
+        </div>
+      );
     },
   },
   {
