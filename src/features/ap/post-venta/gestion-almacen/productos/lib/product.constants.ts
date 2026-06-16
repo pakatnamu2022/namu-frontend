@@ -12,11 +12,12 @@ export const PRODUCT_STATUS_CONFIG: Record<
 
 export const STOCK_STATUS_CONFIG: Record<
   string,
-  { color: "green" | "orange" | "red"; label: string }
+  { color: "green" | "orange" | "red" | "gray"; label: string }
 > = {
   NORMAL: { color: "green", label: "Normal" },
   LOW_STOCK: { color: "orange", label: "Stock Bajo" },
   OUT_OF_STOCK: { color: "red", label: "Sin Stock" },
+  OVER_STOCK: { color: "gray", label: "Sobre Stock" },
 };
 
 // PRODUCTOS PARA ALMACENES

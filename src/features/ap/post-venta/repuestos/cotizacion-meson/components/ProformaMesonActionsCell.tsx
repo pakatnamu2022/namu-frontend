@@ -8,6 +8,7 @@ import {
   PackageOpen,
   Pencil,
   Percent,
+  Scissors,
   XCircle,
 } from "lucide-react";
 import {
@@ -21,8 +22,12 @@ import { errorToast, successToast } from "@/core/core.function";
 import { useState } from "react";
 import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { DiscardQuotationModal } from "./DiscardQuotationModal";
-import { sendVirtualConfirmation } from "../lib/quotationMeson.actions";
+import {
+  segmentOrderQuotationBySupplyType,
+  sendVirtualConfirmation,
+} from "../lib/quotationMeson.actions";
 import { VirtualConfirmationDialog } from "./VirtualConfirmationDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 interface ActionsCellProps {
   row: OrderQuotationResource;
@@ -55,6 +60,8 @@ export const ProformaMesonActionsCell = ({
     has_invoice_generated,
     delivery_document_number,
     has_management_discount,
+    parent_quotation_id,
+    was_segmented,
   } = row;
   const isDiscarded = status === "Descartado";
   const isForInvoicing = status === "Por Facturar";
@@ -62,6 +69,7 @@ export const ProformaMesonActionsCell = ({
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isSendingLink, setIsSendingLink] = useState(false);
+  const [isSegmenting, setIsSegmenting] = useState(false);
   const [virtualConfirmationData, setVirtualConfirmationData] = useState<{
     confirmationLink: string;
     sentTo: string;
@@ -90,6 +98,21 @@ export const ProformaMesonActionsCell = ({
     }
   };
 
+  const handleSegment = async () => {
+    setIsSegmenting(true);
+    try {
+      await segmentOrderQuotationBySupplyType(id);
+      successToast("Cotización segmentada correctamente");
+      onRefresh();
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al segmentar la cotización",
+      );
+    } finally {
+      setIsSegmenting(false);
+    }
+  };
+
   const handleDownloadPdf = async (withCode: boolean) => {
     setIsDownloadingPdf(true);
     try {
@@ -106,26 +129,36 @@ export const ProformaMesonActionsCell = ({
     !isDiscarded && is_fully_paid && !isDelivered;
 
   const isVisibleSendVirtualLink =
-    !isDiscarded && !isForInvoicing && !has_invoice_generated;
+    !isDiscarded && !isForInvoicing && !has_invoice_generated && !was_segmented;
 
   const isVisibleRequestDiscount =
-    !isDiscarded && !has_invoice_generated && !isForInvoicing;
+    !isDiscarded && !has_invoice_generated && !isForInvoicing && !was_segmented;
 
-  const isVisibleDiscard = !isDiscarded && !has_invoice_generated;
+  const isVisibleDiscard =
+    !isDiscarded && !has_invoice_generated && !was_segmented;
+
+  const isVisibleSegment =
+    !isDiscarded &&
+    !has_invoice_generated &&
+    !isForInvoicing &&
+    !was_segmented &&
+    !parent_quotation_id;
 
   const isVisibleEdit =
     !isDiscarded &&
     !isForInvoicing &&
     permissions.canUpdate &&
     !has_management_discount &&
-    !has_invoice_generated;
+    !has_invoice_generated &&
+    !was_segmented;
 
   const isVisibleDelete =
     !isDiscarded &&
     !isForInvoicing &&
     permissions.canDelete &&
     !has_management_discount &&
-    !has_invoice_generated;
+    !has_invoice_generated &&
+    !was_segmented;
 
   return (
     <>
@@ -213,6 +246,32 @@ export const ProformaMesonActionsCell = ({
           >
             <Percent className="size-5" />
           </Button>
+        )}
+
+        {isVisibleSegment && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                tooltip="Segmentar Cotización"
+                disabled={isSegmenting}
+              >
+                {isSegmenting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Scissors className="size-4" />
+                )}
+              </Button>
+            }
+            title="¿Segmentar cotización?"
+            description="Esta acción dividirá la cotización según el tipo de suministro. ¿Estás seguro de que deseas continuar?"
+            confirmText="Sí, segmentar"
+            cancelText="Cancelar"
+            icon="info"
+            onConfirm={handleSegment}
+          />
         )}
 
         {isVisibleDiscard && (

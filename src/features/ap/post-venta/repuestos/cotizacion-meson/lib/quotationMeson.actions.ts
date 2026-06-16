@@ -153,3 +153,12 @@ export async function updateOrderQuotationInvoiceTo(
   );
   return response.data;
 }
+
+export async function segmentOrderQuotationBySupplyType(
+  id: number,
+): Promise<GeneralResponse> {
+  const response = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${id}/segment-by-supply-type`,
+  );
+  return response.data;
+}

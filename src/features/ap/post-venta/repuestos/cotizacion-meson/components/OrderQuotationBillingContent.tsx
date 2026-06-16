@@ -251,7 +251,7 @@ export default function OrderQuotationBillingContent({
                   </Badge>
                 )}
               </div>
-              {!quotation.payment_summary?.is_fully_paid && (
+              {!quotation.is_fully_paid && (
                 <Button
                   onClick={handleCreateInvoice}
                   size="sm"

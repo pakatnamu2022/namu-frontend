@@ -128,7 +128,7 @@ export function GeneralModal({
           className={cn(
             sizes[size],
             className,
-            "pb-0 flex flex-col max-h-[96vh]",
+            "pb-0 flex flex-col max-h-[96vh] mx-auto",
           )}
         >
           <DrawerHeader className="shrink-0 p-2">

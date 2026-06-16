@@ -33,6 +33,8 @@ import {
   FileText,
   Calendar,
   Gauge,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -95,6 +97,8 @@ function ProductDetailItem({
   approvedDiscount,
   defaultDiscount,
   isDetailsDisabled = false,
+  showStock,
+  onToggleStock,
 }: {
   index: number;
   form: any;
@@ -106,6 +110,8 @@ function ProductDetailItem({
   approvedDiscount?: number;
   defaultDiscount: number;
   isDetailsDisabled?: boolean;
+  showStock: boolean;
+  onToggleStock: () => void;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -165,6 +171,8 @@ function ProductDetailItem({
     }
   }, [productData, index, form]);
 
+  const hasStock = !!(currentProductStock && productId);
+
   return (
     <div className="border rounded-lg bg-white transition-colors">
       {/* Vista Desktop - Formato Tabla */}
@@ -195,10 +203,10 @@ function ProductDetailItem({
         </div>
 
         {/* Tarjeta de stock expandida - se extiende hasta antes del botón eliminar */}
-        {currentProductStock && productId && (
+        {hasStock && showStock && (
           <div className="col-span-14 row-start-2 col-start-1">
             <StockWarehousesCard
-              stock={currentProductStock}
+              stock={currentProductStock!}
               productInfo={productData}
             />
           </div>
@@ -330,7 +338,23 @@ function ProductDetailItem({
           />
         </div>
 
-        <div className="col-span-1 flex justify-center">
+        <div className="col-span-1 flex justify-center items-start gap-1">
+          {hasStock && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
+              onClick={onToggleStock}
+              tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
+            >
+              {showStock ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
@@ -372,16 +396,34 @@ function ProductDetailItem({
           <Badge color="secondary" className="text-xs">
             Repuesto #{index + 1}
           </Badge>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={onRemove}
-            disabled={isDetailsDisabled}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {hasStock && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
+                onClick={onToggleStock}
+                tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
+              >
+                {showStock ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={onRemove}
+              disabled={isDetailsDisabled}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <FormSelectAsync
@@ -401,7 +443,7 @@ function ProductDetailItem({
         />
 
         {/* Mostrar stock inline debajo del selector - Mobile */}
-        {currentProductStock && productId && (
+        {hasStock && showStock && (
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <div className="flex items-center gap-1">
@@ -703,6 +745,10 @@ export default function ProformaMesonForm({
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [globalShowStock, setGlobalShowStock] = useState(true);
+  const [itemStockVisible, setItemStockVisible] = useState<
+    Record<number, boolean>
+  >({});
   const [vehicleDefaultOption, setVehicleDefaultOption] = useState<
     { value: string; label: string } | undefined
   >(
@@ -1182,6 +1228,30 @@ export default function ProformaMesonForm({
             <h3 className="text-lg font-semibold">Repuestos</h3>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            {fields.length > 0 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className={`w-full sm:w-auto transition-colors ${globalShowStock ? "border-primary text-primary hover:bg-primary/5" : "text-gray-500 hover:text-primary hover:border-primary"}`}
+                onClick={() => {
+                  const next = !globalShowStock;
+                  setGlobalShowStock(next);
+                  const reset: Record<number, boolean> = {};
+                  fields.forEach((_, i) => {
+                    reset[i] = next;
+                  });
+                  setItemStockVisible(reset);
+                }}
+              >
+                {globalShowStock ? (
+                  <ChevronUp className="h-4 w-4 mr-2" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 mr-2" />
+                )}
+                {globalShowStock ? "Contraer almacenes" : "Expandir almacenes"}
+              </Button>
+            )}
             <Button
               type="button"
               onClick={() => setIsPartModalOpen(true)}
@@ -1289,6 +1359,11 @@ export default function ProformaMesonForm({
                     ? Number(partialApproved.requested_discount_percentage)
                     : undefined;
 
+                const isStockVisible =
+                  itemStockVisible[index] !== undefined
+                    ? itemStockVisible[index]
+                    : globalShowStock;
+
                 return (
                   <ProductDetailItem
                     key={field.id}
@@ -1302,6 +1377,13 @@ export default function ProformaMesonForm({
                     approvedDiscount={approvedDiscount}
                     defaultDiscount={defaultDiscount}
                     isDetailsDisabled={isDetailsDisabled}
+                    showStock={isStockVisible}
+                    onToggleStock={() =>
+                      setItemStockVisible((prev) => ({
+                        ...prev,
+                        [index]: !isStockVisible,
+                      }))
+                    }
                   />
                 );
               })}

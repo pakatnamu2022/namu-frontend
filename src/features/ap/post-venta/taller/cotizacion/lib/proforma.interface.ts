@@ -12,6 +12,8 @@ export interface OrderQuotationResponse {
 
 export interface OrderQuotationResource {
   id: number;
+  parent_quotation_id: number | null;
+  was_segmented: boolean;
   created_by_name: string;
   vehicle_id: number;
   vehicle: VehicleResource;
@@ -35,7 +37,6 @@ export interface OrderQuotationResource {
     pending_amount: number;
     remaining_balance: number;
     payment_percentage: number;
-    is_fully_paid: boolean;
     has_final_invoice: boolean;
     advances_count: number;
   };
