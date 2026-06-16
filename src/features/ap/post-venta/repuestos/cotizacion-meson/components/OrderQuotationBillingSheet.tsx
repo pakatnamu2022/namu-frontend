@@ -176,6 +176,7 @@ export function BillingSheetContent({
     useState(false);
 
   const shippingGuideParams = {
+    sede_transmitter_id: orderQuotation.sede_id,
     is_associated: false,
     transfer_reason_id: [SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS],
   };
