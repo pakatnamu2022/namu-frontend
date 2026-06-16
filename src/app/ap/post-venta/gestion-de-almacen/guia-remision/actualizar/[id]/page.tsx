@@ -22,7 +22,6 @@ import { ProductTransferSchema } from "@/features/ap/post-venta/gestion-almacen/
 import { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 import { ProductTransferForm } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferForm.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
-import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
 
 export default function UpdateProductTransferPage() {
@@ -74,15 +73,15 @@ export default function UpdateProductTransferPage() {
       issuer_type: "SYSTEM",
       item_type: data.item_type === "PRODUCTO" ? "PRODUCTO" : "SERVICIO",
       document_type: "GUIA_REMISION",
-      transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      transfer_reason_id: String(data.reference.transfer_reason_id),
       type_person_id:
         !data.reference.driver_doc || data.reference.driver_doc === ""
           ? BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID
           : BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID,
       transfer_modality_id: String(data.reference.transfer_modality_id),
       transport_company_id: String(data.reference.transport_company_id),
-      transmitter_origin_id: AUTOMOTORES_PAKATNAMU_ID,
-      receiver_destination_id: AUTOMOTORES_PAKATNAMU_ID,
+      transmitter_origin_id: String(data.reference.transmitter_origin_id ?? AUTOMOTORES_PAKATNAMU_ID),
+      receiver_destination_id: String(data.reference.receiver_destination_id ?? AUTOMOTORES_PAKATNAMU_ID),
       total_packages: Number(data.reference.total_packages),
       total_weight: Number(data.reference.total_weight),
       issue_date: data.created_at ? new Date(data.created_at) : undefined,
