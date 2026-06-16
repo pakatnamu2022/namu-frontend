@@ -42,6 +42,8 @@ export interface ProductTransferDetailResource {
   id: number;
   inventory_movement_id: number;
   product_id: number | null;
+  code: string | null;
+  description: string | null;
   quantity: number;
   unit_cost: number;
   total_cost: number;
@@ -67,7 +69,9 @@ export interface ProductTransferRequest {
 }
 
 export interface ProductTransferDetailRequest {
-  product_id: string;
+  product_id?: string;
+  code?: string;
+  description?: string;
   quantity: string;
   unit_cost: string;
   notes?: string;
