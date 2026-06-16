@@ -162,3 +162,23 @@ export async function segmentOrderQuotationBySupplyType(
   );
   return response.data;
 }
+
+export async function associateShippingGuide(
+  orderQuotationId: number,
+  shippingGuideId: number,
+): Promise<GeneralResponse> {
+  const response = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${orderQuotationId}/shipping-guide/associate`,
+    { shipping_guide_id: shippingGuideId },
+  );
+  return response.data;
+}
+
+export async function dissociateShippingGuide(
+  orderQuotationId: number,
+): Promise<GeneralResponse> {
+  const response = await api.delete<GeneralResponse>(
+    `${ENDPOINT}/${orderQuotationId}/shipping-guide/dissociate`,
+  );
+  return response.data;
+}
