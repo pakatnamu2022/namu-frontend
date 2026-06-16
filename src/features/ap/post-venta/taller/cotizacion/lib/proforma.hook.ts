@@ -26,11 +26,12 @@ export const useAllOrderQuotations = (params?: Record<string, any>) => {
   });
 };
 
-export const useOrderQuotations = (params?: Record<string, any>) => {
+export const useOrderQuotations = (params?: Record<string, any>, enabled = true) => {
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getOrderQuotations({ params }),
     refetchOnWindowFocus: false,
+    enabled,
   });
 };
 

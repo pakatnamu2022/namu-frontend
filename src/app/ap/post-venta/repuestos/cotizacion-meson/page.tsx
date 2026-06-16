@@ -64,17 +64,20 @@ export default function OrderQuotationMesonPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = useOrderQuotations({
-    page,
-    search,
-    per_page,
-    quotation_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-    area_id: AREA_MESON.toString(),
-    sede_id: sedeId,
-  });
+  const { data, isLoading, refetch } = useOrderQuotations(
+    {
+      page,
+      search,
+      per_page,
+      quotation_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      area_id: AREA_MESON.toString(),
+      sede_id: sedeId,
+    },
+    !!sedeId,
+  );
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
