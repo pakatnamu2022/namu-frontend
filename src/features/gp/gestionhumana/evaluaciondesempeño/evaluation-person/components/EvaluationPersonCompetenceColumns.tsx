@@ -1,5 +1,6 @@
 "use client";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useState, useEffect } from "react";
 import { Subcompetence } from "../lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,7 @@ export const evaluationPersonCompetenceColumns = ({
   requiredEvaluatorTypes = [0, 1, 2, 3], // Tipos de evaluadores requeridos
   canEditAll = false, // Vista de administrador - puede editar todas las columnas
 }: {
-  onUpdateCell: (id: number, value: number) => void;
+  onUpdateCell: (id: number, value: number) => Promise<void>;
   readOnly?: boolean;
   evaluationType?: number;
   requiredEvaluatorTypes?: number[];
@@ -43,6 +44,13 @@ export const evaluationPersonCompetenceColumns = ({
     evaluator?: any;
     readOnly: boolean;
   }) => {
+    const serverValue = Number(evaluator?.result) || 0;
+    const [optimistic, setOptimistic] = useState(serverValue);
+
+    useEffect(() => {
+      setOptimistic(serverValue);
+    }, [serverValue]);
+
     if (readOnly) {
       return (
         <Badge
@@ -62,7 +70,15 @@ export const evaluationPersonCompetenceColumns = ({
       );
     }
 
-    const current = Number(evaluator.result) || 0;
+    const handleClick = async (value: number) => {
+      const prev = optimistic;
+      setOptimistic(value);
+      try {
+        await onUpdateCell(evaluator.id, value);
+      } catch {
+        setOptimistic(prev);
+      }
+    };
 
     return (
       <div className="flex gap-1">
@@ -72,9 +88,9 @@ export const evaluationPersonCompetenceColumns = ({
             <Button
               key={value}
               size="icon-xs"
-              variant={current === value ? "default" : "outline"}
+              variant={optimistic === value ? "default" : "outline"}
               color={color}
-              onClick={() => onUpdateCell(evaluator.id, value)}
+              onClick={() => handleClick(value)}
             >
               {value}
             </Button>

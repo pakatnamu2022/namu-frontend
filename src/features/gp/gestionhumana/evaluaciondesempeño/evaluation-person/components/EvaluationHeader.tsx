@@ -33,6 +33,7 @@ export default function EvaluationHeader({
         {
           value: `${completedObjectives} / ${totalObjectives}`,
           label: "Completados",
+          progress: totalObjectives > 0 ? (completedObjectives / totalObjectives) * 100 : 0,
         },
       ]}
     />

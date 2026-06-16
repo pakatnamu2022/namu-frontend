@@ -1,11 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Target,
-  TrendingUp,
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -22,7 +19,7 @@ import EvaluationSectionHeader from "./EvaluationSectionHeader";
 
 interface Props {
   competenceGroups?: CompetenceGroup[];
-  onUpdateCell: (id: number, value: number) => void;
+  onUpdateCell: (id: number, value: number) => Promise<void>;
   readOnly?: boolean;
   showProgress?: boolean;
   isLoading?: boolean;
@@ -107,6 +104,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
           {
             value: `${completedSubCompetences} / ${totalSubCompetences}`,
             label: "Completadas",
+            progress: totalSubCompetences > 0 ? (completedSubCompetences / totalSubCompetences) * 100 : 0,
           },
         ]}
       />
@@ -158,41 +156,28 @@ export default function EvaluationPersonCompetenceTableWithColumns({
                         </Badge>
                       </div>
                       {group.competence_description && (
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className={cn("text-xs text-muted-foreground", !isExpanded && "truncate")}>
                           {group.competence_description}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     {showProgress && (
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <TrendingUp className="size-3 text-muted-foreground" />
-                          <span className="text-xs font-medium">
-                            {group.average_result.toFixed(1)}/
-                            {evaluationPersonResult?.maxCompetenceParameter || 5}
-                          </span>
-                        </div>
-                        <Progress
-                          value={
-                            (group.average_result /
-                              (evaluationPersonResult?.maxCompetenceParameter || 5)) *
-                            100
-                          }
-                          className="w-20 h-1.5"
-                        />
-                      </div>
+                      <Badge
+                        color={getResultRateColorBadge((group.average_result / (evaluationPersonResult?.maxCompetenceParameter || 5)) * 100)}
+                        className="tabular-nums text-xs"
+                      >
+                        {group.average_result.toFixed(1)}/{evaluationPersonResult?.maxCompetenceParameter || 5}
+                      </Badge>
                     )}
-
-                    <div className="text-right text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <CheckCircle2 className="size-3" />
-                        {group.completed_evaluations}/{group.total_sub_competences}
-                      </div>
-                      <span>Completadas</span>
-                    </div>
+                    <Badge
+                      color={getResultRateColorBadge(group.total_sub_competences > 0 ? (group.completed_evaluations / group.total_sub_competences) * 100 : 0)}
+                      className="tabular-nums text-xs"
+                    >
+                      {group.total_sub_competences > 0 ? Math.round((group.completed_evaluations / group.total_sub_competences) * 100) : 0}%
+                    </Badge>
                   </div>
                 </div>
               </div>

@@ -120,6 +120,7 @@ export function EvaluationPersonResultModal({
       errorToast(
         error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
+      throw error;
     } finally {
       setSaving(false);
     }

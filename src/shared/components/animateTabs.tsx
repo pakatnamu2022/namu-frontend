@@ -220,7 +220,7 @@ function TabsContents({
       className={cn("overflow-hidden", className)}
       animate={{ height }}
       transition={transition}
-      {...props}
+      {...(props as React.ComponentProps<typeof motion.div>)}
     >
       <motion.div
         className="flex -mx-2"

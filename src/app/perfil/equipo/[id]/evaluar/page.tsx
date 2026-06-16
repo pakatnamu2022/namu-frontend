@@ -126,6 +126,7 @@ export default function NamuPerformanceEvaluationPage() {
       errorToast(
         error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
+      throw error;
     } finally {
       setSaving(false);
     }
