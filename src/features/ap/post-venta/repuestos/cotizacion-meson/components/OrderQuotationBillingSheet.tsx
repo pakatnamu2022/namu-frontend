@@ -918,43 +918,37 @@ export function BillingSheetContent({
         </div>
 
         {orderQuotation.shipping_guide ? (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Número</span>
-              <span className="font-medium">
-                {orderQuotation.shipping_guide.document_number}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Serie</span>
-              <span className="font-medium">
-                {orderQuotation.shipping_guide.series}-
-                {orderQuotation.shipping_guide.correlative}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Fecha Emisión</span>
-              <span className="font-medium">
-                {formatDate(orderQuotation.shipping_guide.issue_date)}
-              </span>
-            </div>
-            {orderQuotation.shipping_guide.receiver_name && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Destinatario</span>
-                <span className="font-medium">
-                  {orderQuotation.shipping_guide.receiver_name}
-                </span>
-              </div>
-            )}
-            {orderQuotation.shipping_guide.transfer_reason_description && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Motivo Traslado</span>
-                <span className="font-medium">
-                  {orderQuotation.shipping_guide.transfer_reason_description}
-                </span>
-              </div>
-            )}
-          </div>
+          <InfoSection
+            title=""
+            fields={[
+              {
+                label: "Número",
+                value: orderQuotation.shipping_guide.document_number,
+              },
+              {
+                label: "Fecha Emisión",
+                value: formatDate(orderQuotation.shipping_guide.issue_date),
+              },
+              ...(orderQuotation.shipping_guide.receiver_name
+                ? [
+                    {
+                      label: "Destinatario",
+                      value: orderQuotation.shipping_guide.receiver_name,
+                    },
+                  ]
+                : []),
+              ...(orderQuotation.shipping_guide.transfer_reason_description
+                ? [
+                    {
+                      label: "Motivo Traslado",
+                      value:
+                        orderQuotation.shipping_guide
+                          .transfer_reason_description,
+                    },
+                  ]
+                : []),
+            ]}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center border border-dashed rounded-lg">
             <Truck className="h-10 w-10 text-muted-foreground mb-2" />
@@ -995,14 +989,6 @@ export function BillingSheetContent({
                   header: "Número",
                   render: (g: ShippingGuidesResource) => (
                     <div className="font-medium">{g.document_number}</div>
-                  ),
-                },
-                {
-                  header: "Serie",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="text-sm">
-                      {g.series}-{g.correlative}
-                    </div>
                   ),
                 },
                 {
