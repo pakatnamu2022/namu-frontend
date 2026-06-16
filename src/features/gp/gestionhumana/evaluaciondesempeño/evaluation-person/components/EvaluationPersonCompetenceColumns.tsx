@@ -2,7 +2,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Subcompetence } from "../lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
-import { EditableCell } from "@/shared/components/EditableCell";
+import { Button } from "@/components/ui/button";
 import {
   Target,
   User,
@@ -24,25 +24,29 @@ export const evaluationPersonCompetenceColumns = ({
   readOnly = false,
   evaluationType = 2, // 1 = 180°, 2 = 360°
   requiredEvaluatorTypes = [0, 1, 2, 3], // Tipos de evaluadores requeridos
-  competenceMaxScore, // Puntaje máximo por competencia
   canEditAll = false, // Vista de administrador - puede editar todas las columnas
 }: {
   onUpdateCell: (id: number, value: number) => void;
   readOnly?: boolean;
   evaluationType?: number;
   requiredEvaluatorTypes?: number[];
-  competenceMaxScore: number;
+  competenceMaxScore?: number;
   canEditAll?: boolean;
 }): EvaluationPersonCompetenceColumns[] => {
+  const scoreButtons = [
+    { value: 1, color: "border-amber-400 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30", activeColor: "bg-amber-100 border-amber-500 text-amber-700 dark:bg-amber-950/50" },
+    { value: 2, color: "border-orange-400 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30", activeColor: "bg-orange-100 border-orange-500 text-orange-700 dark:bg-orange-950/50" },
+    { value: 3, color: "border-lime-400 text-lime-600 hover:bg-lime-50 dark:hover:bg-lime-950/30", activeColor: "bg-lime-100 border-lime-500 text-lime-700 dark:bg-lime-950/50" },
+    { value: 4, color: "border-emerald-400 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30", activeColor: "bg-emerald-100 border-emerald-500 text-emerald-700 dark:bg-emerald-950/50" },
+  ];
+
   // Componente para celdas de evaluación
   const EvaluationCell = ({
     evaluator,
     readOnly,
-    max,
   }: {
     evaluator?: any;
     readOnly: boolean;
-    max: number;
   }) => {
     if (readOnly) {
       return (
@@ -56,7 +60,6 @@ export const evaluationPersonCompetenceColumns = ({
     }
 
     if (!evaluator?.id) {
-      // No hay evaluación asignada
       return (
         <Badge variant="outline" className="text-xs text-muted-foreground">
           Pendiente
@@ -64,17 +67,22 @@ export const evaluationPersonCompetenceColumns = ({
       );
     }
 
+    const current = Number(evaluator.result) || 0;
+
     return (
-      <EditableCell
-        variant="outline"
-        id={evaluator.id}
-        value={evaluator.result}
-        isNumber={true}
-        onUpdate={onUpdateCell}
-        widthClass="w-24"
-        min={1}
-        max={max}
-      />
+      <div className="flex gap-1">
+        {scoreButtons.map(({ value, color, activeColor }) => (
+          <Button
+            key={value}
+            size="sm"
+            variant="outline"
+            className={`h-6 w-6 p-0 text-xs font-semibold border transition-colors ${current === value ? activeColor : color}`}
+            onClick={() => onUpdateCell(evaluator.id, value)}
+          >
+            {value}
+          </Button>
+        ))}
+      </div>
     );
   };
 
@@ -121,7 +129,6 @@ export const evaluationPersonCompetenceColumns = ({
             <EvaluationCell
               evaluator={jefeEvaluator}
               readOnly={readOnly}
-              max={competenceMaxScore}
             />
           </div>
         );
@@ -184,7 +191,6 @@ export const evaluationPersonCompetenceColumns = ({
                   <EvaluationCell
                     evaluator={evaluator}
                     readOnly={shouldBeReadOnly}
-                    max={competenceMaxScore}
                   />
                 </div>
               );
@@ -225,7 +231,6 @@ export const evaluationPersonCompetenceColumns = ({
                   <EvaluationCell
                     evaluator={evaluator}
                     readOnly={shouldBeReadOnly}
-                    max={competenceMaxScore}
                   />
                 </div>
               );
