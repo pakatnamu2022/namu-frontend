@@ -18,6 +18,7 @@ import { DataTable } from "@/shared/components/DataTable";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
+import EvaluationSectionHeader from "./EvaluationSectionHeader";
 
 interface Props {
   competenceGroups?: CompetenceGroup[];
@@ -88,59 +89,30 @@ export default function EvaluationPersonCompetenceTableWithColumns({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header con estadísticas generales */}
-      <div className="bg-muted/50 p-4 rounded-lg border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Target className="size-5 text-primary" />
-            <div>
-              <h3 className="font-semibold text-lg">
-                Evaluación de Competencias
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Evaluación{" "}
-                {competenceGroups[0]?.evaluation_type === 1 ? "180°" : "360°"} -
-                {competenceGroups.length} competencia
-                {competenceGroups.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {showProgress && (
-              <div className="text-right">
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="size-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">
-                    {averageResult.toFixed(1)}/
-                    {evaluationPersonResult?.maxCompetenceParameter}
-                  </span>
-                </div>
-                <Progress
-                  value={
-                    (averageResult /
-                      (evaluationPersonResult?.maxCompetenceParameter || 5)) *
-                    100
-                  }
-                  className="w-24 h-2"
-                />
-              </div>
-            )}
-
-            <div className="text-right text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <CheckCircle2 className="size-3" />
-                {completedSubCompetences}/{totalSubCompetences}
-              </div>
-              <span>Completadas</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <EvaluationSectionHeader
+        title="Evaluación de Competencias"
+        subtitle={`Evaluación ${competenceGroups[0]?.evaluation_type === 1 ? "180°" : "360°"} · ${competenceGroups.length} competencia${competenceGroups.length !== 1 ? "s" : ""}`}
+        showProgress={showProgress}
+        stats={[
+          {
+            value: `${averageResult.toFixed(1)} / ${evaluationPersonResult?.maxCompetenceParameter ?? 5}`,
+            label: "Promedio",
+            progress:
+              (averageResult /
+                (evaluationPersonResult?.maxCompetenceParameter || 5)) *
+              100,
+          },
+          {
+            value: `${completedSubCompetences} / ${totalSubCompetences}`,
+            label: "Completadas",
+          },
+        ]}
+      />
 
       {/* Grupos de competencias */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         {competenceGroups.map((group) => {
           const isExpanded = expandedGroups.has(group.competence_id);
 
@@ -163,55 +135,53 @@ export default function EvaluationPersonCompetenceTableWithColumns({
               {/* Header de la competencia principal */}
               <div
                 className={cn(
-                  "bg-muted/50 p-4 border-b cursor-pointer hover:bg-muted/70 transition-colors",
+                  "bg-muted/50 px-3 py-2 border-b cursor-pointer hover:bg-muted/70 transition-colors",
                   !isExpanded && "border-b-0",
                 )}
                 onClick={() => toggleGroup(group.competence_id)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      {isExpanded ? (
-                        <ChevronDown className="size-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="size-4 text-muted-foreground" />
-                      )}
-                      <Target className="size-5 text-primary" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-lg">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isExpanded ? (
+                      <ChevronDown className="size-3.5 text-muted-foreground shrink-0" />
+                    ) : (
+                      <ChevronRight className="size-3.5 text-muted-foreground shrink-0" />
+                    )}
+                    <Target className="size-3.5 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-semibold text-sm truncate">
                           {group.competence_name.split(":")[0]}
                         </h3>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0">
                           {group.evaluation_type === 1 ? "180°" : "360°"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {group.competence_description}
-                      </p>
+                      {group.competence_description && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {group.competence_description}
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 shrink-0">
                     {showProgress && (
                       <div className="text-right">
-                        <div className="flex items-center gap-2 mb-1">
-                          <TrendingUp className="size-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <TrendingUp className="size-3 text-muted-foreground" />
+                          <span className="text-xs font-medium">
                             {group.average_result.toFixed(1)}/
-                            {evaluationPersonResult?.maxCompetenceParameter ||
-                              5}
+                            {evaluationPersonResult?.maxCompetenceParameter || 5}
                           </span>
                         </div>
                         <Progress
                           value={
                             (group.average_result /
-                              (evaluationPersonResult?.maxCompetenceParameter ||
-                                5)) *
+                              (evaluationPersonResult?.maxCompetenceParameter || 5)) *
                             100
                           }
-                          className="w-24 h-2"
+                          className="w-20 h-1.5"
                         />
                       </div>
                     )}
@@ -219,8 +189,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
                     <div className="text-right text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <CheckCircle2 className="size-3" />
-                        {group.completed_evaluations}/
-                        {group.total_sub_competences}
+                        {group.completed_evaluations}/{group.total_sub_competences}
                       </div>
                       <span>Completadas</span>
                     </div>
@@ -248,8 +217,8 @@ export default function EvaluationPersonCompetenceTableWithColumns({
       </div>
 
       {/* Footer con resumen general */}
-      <div className="bg-muted/20 p-4 border rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+      <div className="bg-muted/20 px-3 py-2 border rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
           <div className="flex items-center justify-start gap-3">
             <span className="text-muted-foreground">Competencias:</span>
             <span className="font-medium">{competenceGroups.length}</span>

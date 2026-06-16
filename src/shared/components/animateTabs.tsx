@@ -197,10 +197,29 @@ function TabsContents({
       "value" in child.props &&
       child.props.value === activeValue
   );
+
+  const panelRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  const [height, setHeight] = React.useState<number | "auto">("auto");
+
+  React.useEffect(() => {
+    const activePanel = panelRefs.current[activeIndex];
+    if (!activePanel) return;
+
+    const observer = new ResizeObserver(() => {
+      setHeight(activePanel.scrollHeight);
+    });
+    observer.observe(activePanel);
+    setHeight(activePanel.scrollHeight);
+
+    return () => observer.disconnect();
+  }, [activeIndex]);
+
   return (
-    <div
+    <motion.div
       data-slot="tabs-contents"
       className={cn("overflow-hidden", className)}
+      animate={{ height }}
+      transition={transition}
       {...props}
     >
       <motion.div
@@ -209,12 +228,16 @@ function TabsContents({
         transition={transition}
       >
         {childrenArray.map((child, index) => (
-          <div key={index} className="w-full shrink-0 px-2">
+          <div
+            key={index}
+            ref={(el) => { panelRefs.current[index] = el; }}
+            className="w-full shrink-0 px-2"
+          >
             {child}
           </div>
         ))}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 type TabsContentProps = HTMLMotionProps<"div"> & {

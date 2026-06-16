@@ -33,7 +33,7 @@ export const evaluationPersonCompetenceColumns = ({
   competenceMaxScore?: number;
   canEditAll?: boolean;
 }): EvaluationPersonCompetenceColumns[] => {
-  const scoreColors = ["amber", "orange", "lime", "emerald"] as const;
+  const scoreColors = ["orange", "amber", "lime", "emerald"] as const;
 
   // Componente para celdas de evaluación
   const EvaluationCell = ({
@@ -124,10 +124,7 @@ export const evaluationPersonCompetenceColumns = ({
         );
         return (
           <div className="w-full flex justify-center">
-            <EvaluationCell
-              evaluator={jefeEvaluator}
-              readOnly={readOnly}
-            />
+            <EvaluationCell evaluator={jefeEvaluator} readOnly={readOnly} />
           </div>
         );
       },
