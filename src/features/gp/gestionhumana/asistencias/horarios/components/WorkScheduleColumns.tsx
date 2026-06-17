@@ -75,7 +75,7 @@ export const workScheduleColumns = ({
     cell: ({ row }) => {
       const count = row.original.details?.length ?? 0;
       return count > 0 ? (
-        <Badge variant="secondary">{count} día{count !== 1 ? "s" : ""}</Badge>
+        <Badge variant="outline">{count} día{count !== 1 ? "s" : ""}</Badge>
       ) : (
         <span className="text-muted-foreground text-sm">—</span>
       );

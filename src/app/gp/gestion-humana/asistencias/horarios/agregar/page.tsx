@@ -30,7 +30,15 @@ export default function AddWorkSchedulePage() {
         lunch_out: data.lunch_out || null,
         lunch_in: data.lunch_in || null,
         checkout: data.checkout,
-        details: data.details?.length ? data.details : undefined,
+        details: data.details?.length
+          ? data.details.map((d) => ({
+              day_of_week: d.day_of_week,
+              checkin: d.checkin ?? null,
+              lunch_out: d.lunch_out ?? null,
+              lunch_in: d.lunch_in ?? null,
+              checkout: d.checkout ?? null,
+            }))
+          : undefined,
       }),
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
