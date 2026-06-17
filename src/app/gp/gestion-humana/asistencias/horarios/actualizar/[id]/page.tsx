@@ -53,7 +53,13 @@ export default function UpdateWorkSchedulePage() {
         lunch_out: data.lunch_out || null,
         lunch_in: data.lunch_in || null,
         checkout: data.checkout,
-        details: data.details ?? [],
+        details: (data.details ?? []).map((d) => ({
+          day_of_week: d.day_of_week,
+          checkin: d.checkin ?? null,
+          lunch_out: d.lunch_out ?? null,
+          lunch_in: d.lunch_in ?? null,
+          checkout: d.checkout ?? null,
+        })),
       }),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
