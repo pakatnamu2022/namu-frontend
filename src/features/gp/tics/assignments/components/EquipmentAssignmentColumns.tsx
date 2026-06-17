@@ -10,6 +10,7 @@ import {
   FileCheck,
   FileX,
   Link2,
+  Upload,
 } from "lucide-react";
 import ExportButtons from "@/shared/components/ExportButtons";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -28,6 +29,7 @@ const formatDate = (date?: string) =>
 export const equipmentAssignmentColumns = (
   onUnassign: (row: EquipmentAssignmentResource) => void,
   onLinkPhoneLine: (row: EquipmentAssignmentResource) => void,
+  onUpload: (row: EquipmentAssignmentResource, type: "assignment" | "unassignment") => void,
 ): EquipmentAssignmentColumn[] => [
   {
     accessorKey: "worker_name",
@@ -130,6 +132,13 @@ export const equipmentAssignmentColumns = (
             pdfVariant="outline"
             pdfIcon={FileCheck}
           />
+          <ButtonAction
+            variant="outline"
+            color="blue"
+            onClick={() => onUpload(row.original, "assignment")}
+            tooltip="Subir acta de asignación firmada"
+            icon={Upload}
+          />
           {!isActive && (
             <ExportButtons
               variant="separate-icon"
@@ -138,6 +147,15 @@ export const equipmentAssignmentColumns = (
               pdfColor="red"
               pdfVariant="outline"
               pdfIcon={FileX}
+            />
+          )}
+          {!isActive && (
+            <ButtonAction
+              variant="outline"
+              color="red"
+              onClick={() => onUpload(row.original, "unassignment")}
+              tooltip="Subir acta de devolución firmada"
+              icon={Upload}
             />
           )}
         </div>
