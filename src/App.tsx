@@ -439,6 +439,9 @@ import AttendancePage from "./app/gp/gestion-humana/asistencias/page.tsx";
 import AttendancePersonPage from "./app/gp/gestion-humana/asistencias/persona/[personId]/page.tsx";
 import SunafilReportPage from "./app/gp/gestion-humana/asistencias/sunafil/page.tsx";
 import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page.tsx";
+import WorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/page.tsx";
+import AddWorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/agregar/page.tsx";
+import UpdateWorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/actualizar/[id]/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -2097,6 +2100,18 @@ function App() {
               <Route
                 path="asistencias/interno"
                 element={<InternalReportPage />}
+              />
+              <Route
+                path="asistencias/horarios"
+                element={<WorkSchedulePage />}
+              />
+              <Route
+                path="asistencias/horarios/agregar"
+                element={<AddWorkSchedulePage />}
+              />
+              <Route
+                path="asistencias/horarios/actualizar/:id"
+                element={<UpdateWorkSchedulePage />}
               />
             </Route>
 
