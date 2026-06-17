@@ -41,6 +41,16 @@ const dailyColumns: ColumnDef<AttendanceDailyRecord>[] = [
     ),
   },
   {
+    accessorKey: "message",
+    header: "Estado",
+    cell: ({ row }) => {
+      const msg = row.original.message;
+      return msg ? (
+        <span className="text-sm text-muted-foreground italic">{msg}</span>
+      ) : null;
+    },
+  },
+  {
     accessorKey: "check_in",
     header: "Entrada",
     cell: ({ row }) => (
@@ -156,7 +166,7 @@ export default function AttendancePersonDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <DashboardCard
           title="Días presentes"
-          value={isLoading ? "-" : (data?.days_present ?? 0)}
+          value={isLoading ? "-" : (data?.days_with_records ?? 0)}
           icon={CalendarDays}
           color="blue"
         />
