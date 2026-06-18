@@ -6,6 +6,7 @@ import { WorkOrderActionCell } from "./WorkOrderActionCell";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
 import { formatDate } from "@/core/core.function";
+import { Calendar } from "lucide-react";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -58,33 +59,32 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "fuel_level",
-    header: "Nivel de Combustible",
-  },
-  {
-    accessorKey: "opening_date",
-    header: "Fecha de Apertura",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
-    },
-  },
-  {
-    accessorKey: "estimated_delivery_date",
-    header: "Fecha Est. Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const opening = row.original.opening_date;
+      const estimated = row.original.estimated_delivery_date;
+      const fmt = (v: string) => {
+        try {
+          return formatDate(v);
+        } catch {
+          return v;
+        }
+      };
+      return (
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Apertura:</span>
+            {opening ? fmt(opening) : "-"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Est. Entrega:</span>
+            {estimated ? fmt(estimated) : "-"}
+          </span>
+        </div>
+      );
     },
   },
   {
@@ -206,6 +206,10 @@ export const workOrderColumns = ({
         </Badge>
       );
     },
+  },
+  {
+    accessorKey: "created_by_name",
+    header: "Creado Por",
   },
   {
     accessorKey: "delivery_by_name",

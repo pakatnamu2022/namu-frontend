@@ -83,6 +83,7 @@ export interface WorkOrderResource {
   discarded_note: string | null;
   discarded_by_name: string | null;
   discarded_at: string | null;
+  created_by_name: string;
 }
 
 export interface InternalNoteResource {

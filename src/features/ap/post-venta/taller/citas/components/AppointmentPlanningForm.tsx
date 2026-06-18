@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import {
   Loader,
   Calendar,
+  Clock,
   Car,
   User,
   ExternalLink,
@@ -228,9 +229,20 @@ export const AppointmentPlanningForm = ({
 
   const handleAppointmentTimeSlotSelect = (date: string, time: string) => {
     form.setValue("date_appointment", date, { shouldValidate: true });
-    form.setValue("time_appointment", normalizeTime(time), {
-      shouldValidate: true,
-    });
+    const normalizedTime = normalizeTime(time);
+    form.setValue("time_appointment", normalizedTime, { shouldValidate: true });
+
+    // Limpiar entrega si la nueva cita es igual o posterior a la fecha/hora de entrega
+    const deliveryDate = form.getValues("delivery_date");
+    const deliveryTime = form.getValues("delivery_time");
+    if (deliveryDate && deliveryTime) {
+      const newAppt = new Date(`${date}T${normalizedTime}`);
+      const delivery = new Date(`${deliveryDate}T${deliveryTime}`);
+      if (newAppt >= delivery) {
+        form.setValue("delivery_date", "", { shouldValidate: true });
+        form.setValue("delivery_time", "", { shouldValidate: true });
+      }
+    }
   };
 
   const handleDeliveryTimeSlotSelect = (date: string, time: string) => {
@@ -496,115 +508,146 @@ export const AppointmentPlanningForm = ({
             )}
 
             <div className="col-span-1 md:col-span-3">
-              <div className="bg-blue-50 p-4 md:p-6 rounded-lg border-2 border-blue-200">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <Calendar className="h-5 w-5 text-primary" />
-                      <h4 className="font-semibold text-gray-800">
-                        Fecha y Hora de la Cita
-                      </h4>
+              <div className="rounded-xl border border-blue-200 bg-blue-50/50 overflow-hidden">
+                <div className="px-5 py-4 border-b border-blue-100 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-sm text-gray-800">
+                    Fecha y Hora de la Cita
+                  </span>
+                </div>
+                <div className="px-5 py-4">
+                  {form.watch("date_appointment") &&
+                  form.watch("time_appointment") ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-4 py-2.5 shadow-sm">
+                          <Calendar className="h-4 w-4 text-primary shrink-0" />
+                          <span className="text-sm font-medium text-gray-800">
+                            {form.watch("date_appointment")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-4 py-2.5 shadow-sm">
+                          <Clock className="h-4 w-4 text-primary shrink-0" />
+                          <span className="text-sm font-medium text-gray-800">
+                            {form.watch("time_appointment")}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => setShowAppointmentTimePicker(true)}
+                      >
+                        <Calendar className="h-4 w-4 mr-1.5" />
+                        Cambiar horario
+                      </Button>
                     </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Selecciona un horario disponible haciendo clic en el
-                      botón. Los horarios se asignan en intervalos de 15
-                      minutos.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormInput
-                        control={form.control}
-                        name="date_appointment"
-                        label="Fecha de Cita"
-                        type="date"
-                        readOnly
-                        className="bg-white"
-                      />
-
-                      <FormInput
-                        control={form.control}
-                        name="time_appointment"
-                        label="Hora de Cita"
-                        type="time"
-                        readOnly
-                        className="bg-white"
-                      />
+                  ) : (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <p className="text-sm text-gray-500">
+                        Aún no has seleccionado un horario para la cita.
+                      </p>
+                      <Button
+                        type="button"
+                        onClick={() => setShowAppointmentTimePicker(true)}
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Ver horarios disponibles
+                      </Button>
                     </div>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => setShowAppointmentTimePicker(true)}
-                    className="w-full lg:w-auto lg:ml-4 bg-primary hover:bg-primary shrink-0"
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span className="whitespace-nowrap">
-                      Ver Horarios Disponibles
-                    </span>
-                  </Button>
+                  )}
+                </div>
+                {/* Hidden inputs to keep react-hook-form values */}
+                <div className="hidden">
+                  <FormInput
+                    control={form.control}
+                    name="date_appointment"
+                    label=""
+                    type="date"
+                    readOnly
+                  />
+                  <FormInput
+                    control={form.control}
+                    name="time_appointment"
+                    label=""
+                    type="time"
+                    readOnly
+                  />
                 </div>
               </div>
             </div>
 
             <div className="col-span-1 md:col-span-3">
-              <div className="bg-red-50 p-4 md:p-6 rounded-lg border-2 border-red-200">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <Calendar className="h-5 w-5 text-red-600" />
-                      <h4 className="font-semibold text-gray-800">
-                        Fecha y Hora de Entrega
-                      </h4>
+              <div className="rounded-xl border border-orange-200 bg-orange-50/50 overflow-hidden">
+                <div className="px-5 py-4 border-b border-orange-100 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-orange-600" />
+                  <span className="font-semibold text-sm text-gray-800">
+                    Fecha y Hora de Entrega
+                  </span>
+                </div>
+                <div className="px-5 py-4">
+                  {!form.watch("date_appointment") ||
+                  !form.watch("time_appointment") ? (
+                    <p className="text-sm text-orange-600/80">
+                      Primero selecciona la fecha y hora de la cita.
+                    </p>
+                  ) : form.watch("delivery_date") &&
+                    form.watch("delivery_time") ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 bg-white border border-orange-200 rounded-lg px-4 py-2.5 shadow-sm">
+                          <Calendar className="h-4 w-4 text-orange-600 shrink-0" />
+                          <span className="text-sm font-medium text-gray-800">
+                            {form.watch("delivery_date")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white border border-orange-200 rounded-lg px-4 py-2.5 shadow-sm">
+                          <Clock className="h-4 w-4 text-orange-600 shrink-0" />
+                          <span className="text-sm font-medium text-gray-800">
+                            {form.watch("delivery_time")}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => setShowDeliveryTimePicker(true)}
+                        className="bg-orange-600 hover:bg-orange-700 shrink-0"
+                      >
+                        <Calendar className="h-4 w-4 mr-1.5" />
+                        Cambiar horario
+                      </Button>
                     </div>
-                    {!form.watch("date_appointment") ||
-                    !form.watch("time_appointment") ? (
-                      <p className="text-sm text-red-500 font-medium mb-4">
-                        Primero debes seleccionar la Fecha y Hora de la Cita.
+                  ) : (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <p className="text-sm text-gray-500">
+                        Aún no has seleccionado un horario de entrega.
                       </p>
-                    ) : (
-                      <p className="text-sm text-gray-600 mb-4">
-                        Selecciona cuándo se entregará el vehículo al cliente.
-                        También disponible en intervalos de 15 minutos.
-                      </p>
-                    )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormInput
-                        control={form.control}
-                        name="delivery_date"
-                        label="Fecha de Entrega"
-                        type="date"
-                        readOnly
-                        className="bg-white"
-                      />
-
-                      <FormInput
-                        control={form.control}
-                        name="delivery_time"
-                        label="Hora de Entrega"
-                        type="time"
-                        readOnly
-                        className="bg-white"
-                      />
+                      <Button
+                        type="button"
+                        onClick={() => setShowDeliveryTimePicker(true)}
+                        className="bg-orange-600 hover:bg-orange-700 shrink-0"
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Ver horarios disponibles
+                      </Button>
                     </div>
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => setShowDeliveryTimePicker(true)}
-                    disabled={
-                      !form.watch("date_appointment") ||
-                      !form.watch("time_appointment")
-                    }
-                    className="w-full lg:w-auto lg:ml-4 bg-red-600 hover:bg-red-700 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                    tooltip={
-                      !form.watch("date_appointment") ||
-                      !form.watch("time_appointment")
-                        ? "Primero selecciona la Fecha y Hora de la Cita"
-                        : undefined
-                    }
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span className="whitespace-nowrap">
-                      Ver Horarios Disponibles
-                    </span>
-                  </Button>
+                  )}
+                </div>
+                {/* Hidden inputs to keep react-hook-form values */}
+                <div className="hidden">
+                  <FormInput
+                    control={form.control}
+                    name="delivery_date"
+                    label=""
+                    type="date"
+                    readOnly
+                  />
+                  <FormInput
+                    control={form.control}
+                    name="delivery_time"
+                    label=""
+                    type="time"
+                    readOnly
+                  />
                 </div>
               </div>
             </div>

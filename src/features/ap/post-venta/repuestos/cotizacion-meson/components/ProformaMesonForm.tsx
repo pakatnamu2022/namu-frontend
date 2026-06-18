@@ -82,9 +82,14 @@ import {
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
-import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
+import {
+  ORDER_QUOTATION_MESON,
+  STATUS_ORDER_QUOTATION,
+} from "../../../taller/cotizacion/lib/proforma.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { DataCard } from "@/components/DataCard";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from "react-router-dom";
 
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
@@ -743,12 +748,12 @@ export default function ProformaMesonForm({
   onSubmit,
   isSubmitting = false,
   mode = "create",
-  onCancel,
   clientData,
   vehicleData,
   quotationData,
   approvedDiscountRequests = [],
 }: ProformaMesonFormProps) {
+  const router = useNavigate();
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
@@ -775,10 +780,10 @@ export default function ProformaMesonForm({
         }
       : undefined,
   );
-
   const { user } = useAuthStore();
   const defaultDiscount =
     user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+  const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
 
   // Determinar si los detalles deben estar deshabilitados
   const isDetailsDisabled =
@@ -1433,9 +1438,20 @@ export default function ProformaMesonForm({
         )}
 
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
+          <ConfirmationDialog
+            trigger={
+              <Button type="button" variant="outline">
+                Cancelar
+              </Button>
+            }
+            title="¿Cancelar registro?"
+            variant="destructive"
+            icon="warning"
+            onConfirm={() => {
+              router(ABSOLUTE_ROUTE!);
+            }}
+          />
+
           <Button
             type="submit"
             disabled={
