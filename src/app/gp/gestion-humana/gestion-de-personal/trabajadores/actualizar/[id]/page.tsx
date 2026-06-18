@@ -27,7 +27,9 @@ export default function UpdateWorkerSignaturePage() {
   const { currentView, checkRouteExists } = useCurrentModule();
   const { MODEL, ROUTE, QUERY_KEY, ABSOLUTE_ROUTE } = WORKER;
 
-  const { data: worker, isLoading: loadingWorker } = useWorkerById(Number(id));
+  const { data: worker, isLoading: loadingWorker } = useWorkerById(Number(id), {
+    showExtra: 1,
+  });
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: WorkerSignatureSchema) =>
@@ -77,6 +79,7 @@ export default function UpdateWorkerSignaturePage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="signature"
+        workSchedule={worker.workSchedule}
       />
     </FormWrapper>
   );

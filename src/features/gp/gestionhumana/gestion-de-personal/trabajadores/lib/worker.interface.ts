@@ -1,4 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { WorkScheduleResource } from "../../../asistencias/horarios/lib/work-schedule.interface";
 
 export interface WorkerResponse {
   data: WorkerResource[];
@@ -22,10 +23,15 @@ export interface WorkerResource {
   has_category?: boolean;
   has_objectives?: boolean;
   has_competences?: boolean;
+  workSchedule?: WorkScheduleResource;
 }
 
 export interface getWorkersProps {
   params?: Record<string, any>;
+}
+
+export interface getWorkerProps {
+  showExtra: 1 | 0;
 }
 
 export interface PersonBirthdayResponse {

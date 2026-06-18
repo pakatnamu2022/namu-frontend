@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  getWorkerProps,
   PersonBirthdayResponse,
   WorkerResource,
   WorkerResponse,
@@ -34,10 +35,10 @@ export const useWorkers = (params?: Record<string, any>) => {
   });
 };
 
-export const useWorkerById = (id: number) => {
+export const useWorkerById = (id: number, params?: getWorkerProps) => {
   return useQuery<WorkerResource>({
     queryKey: [QUERY_KEY, id],
-    queryFn: () => findWorkerById(id),
+    queryFn: () => findWorkerById(id, params),
     refetchOnWindowFocus: false,
   });
 };
