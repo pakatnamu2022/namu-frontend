@@ -131,6 +131,17 @@ function EnableModal({
                 Escanea este código con tu Authenticator, luego ingresa el
                 código de 6 dígitos generado.
               </p>
+              <p className="text-xs text-muted-foreground text-center">
+                ¿No tienes la app?{" "}
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.azure.authenticator&hl=es_PE"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-4"
+                >
+                  Descarga Microsoft Authenticator
+                </a>
+              </p>
             </div>
             <Button
               className="w-full"
@@ -288,7 +299,7 @@ export function TwoFactorSection() {
     <>
       <button
         onClick={() => (isEnabled ? setShowDisable(true) : setShowEnable(true))}
-        className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-muted/60 transition-colors text-left"
+        className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-muted/80 transition-colors text-left"
       >
         <div
           className={cn(
