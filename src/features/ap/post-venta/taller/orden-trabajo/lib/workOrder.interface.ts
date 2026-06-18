@@ -84,6 +84,7 @@ export interface WorkOrderResource {
   discarded_by_name: string | null;
   discarded_at: string | null;
   created_by_name: string;
+  exchange_rate: number;
 }
 
 export interface InternalNoteResource {

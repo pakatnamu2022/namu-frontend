@@ -38,7 +38,6 @@ export default function WorkOrderTable({
           correlative: true,
           vehicle_plate: true,
           vehicle_vin: false,
-          mileage: true,
           dates: true,
           actual_delivery_date: true,
           is_guarantee: true,
