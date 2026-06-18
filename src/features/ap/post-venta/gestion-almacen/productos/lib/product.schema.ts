@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema.ts";
+import { requiredStringId, requiredText } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 // Warehouse stock schema for create mode
@@ -16,18 +16,9 @@ const warehouseStockSchema = z.object({
 
 // Base schema for common fields
 const productSchemaBase = z.object({
-  code: z
-    .string()
-    .max(50, { message: "Máximo 50 caracteres" })
-    .optional()
-    .or(z.literal("")),
+  code: requiredText("Código es requerido", 3, 50),
   dyn_code: z.string().max(50, { message: "Máximo 50 caracteres" }).optional(),
-  name: z
-    .string()
-    .max(255, { message: "Máximo 255 caracteres" })
-    .refine((value) => value.trim() !== "", {
-      message: "Nombre es requerido",
-    }),
+  name: requiredText("Nombre es requerido", 3, 255),
   description: z.string().optional().nullable(),
   product_category_id: requiredStringId("Categoría es requerida"),
   brand_id: z.string().optional(),
@@ -35,8 +26,7 @@ const productSchemaBase = z.object({
   ap_class_article_id: requiredStringId("Clase de artículo es requerida"),
   warranty_months: z
     .number()
-    .int({ message: "Debe ser un número entero" })
-    .min(0, { message: "Los meses de garantía deben ser mayor o igual a 0" })
+    .min(0, { message: "El stock máximo debe ser mayor o igual a 0" })
     .optional(),
 });
 
@@ -56,7 +46,7 @@ export function validateProductFormData(data: any): ProductSchema {
 }
 
 export function validateProductUpdateFormData(
-  data: any
+  data: any,
 ): Partial<ProductSchema> {
   return productSchemaUpdate.parse(data);
 }

@@ -216,7 +216,6 @@ export const ProductForm = ({
             label="Garantía (Meses)"
             placeholder="0"
             control={form.control}
-            type="number"
           />
         </GroupFormSection>
 

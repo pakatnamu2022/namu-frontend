@@ -428,6 +428,7 @@ export default function ManageQuotationPage() {
           (r) => r.item_type === "PRODUCT",
         )}
         warehouseId={quotation.warehouse_id}
+        brandId={quotation.vehicle?.model?.brand_id}
         permissions={permissions}
       />
     </div>

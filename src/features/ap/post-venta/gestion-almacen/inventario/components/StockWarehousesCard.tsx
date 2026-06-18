@@ -42,8 +42,7 @@ export function StockWarehousesCard({
     }
   };
 
-  const isCopied =
-    onCopyCode ? copiedCodeKey === copyCodeKey : internalCopied;
+  const isCopied = onCopyCode ? copiedCodeKey === copyCodeKey : internalCopied;
 
   return (
     <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md">
@@ -54,17 +53,16 @@ export function StockWarehousesCard({
             Stock Disponible
           </span>
         </div>
-        {productInfo?.brand_name && (
+        {/* {productInfo?.brand_name && (
           <span className="text-xs text-primary">
             Marca:{" "}
             <span className="font-medium">{productInfo.brand_name}</span>
           </span>
-        )}
+        )} */}
         {productInfo?.code && (
           <div className="flex items-center gap-1">
             <span className="text-xs text-primary">
-              Cod:{" "}
-              <span className="font-medium">{productInfo.code}</span>
+              Cod: <span className="font-medium">{productInfo.code}</span>
             </span>
             <Button
               type="button"

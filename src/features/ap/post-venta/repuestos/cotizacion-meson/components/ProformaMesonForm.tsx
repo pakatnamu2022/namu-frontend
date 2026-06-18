@@ -99,6 +99,7 @@ function ProductDetailItem({
   isDetailsDisabled = false,
   showStock,
   onToggleStock,
+  selectedVehicle,
 }: {
   index: number;
   form: any;
@@ -112,6 +113,7 @@ function ProductDetailItem({
   isDetailsDisabled?: boolean;
   showStock: boolean;
   onToggleStock: () => void;
+  selectedVehicle: VehicleResource | null;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -190,9 +192,21 @@ function ProductDetailItem({
                 control={form.control}
                 useQueryHook={useProduct}
                 mapOptionFn={(product) => ({
-                  label: `${product.code} - ${product.name}`,
+                  label: () => (
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <span className="font-medium truncate">
+                        {product.code} - {product.name}
+                      </span>
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0 bg-orange-100 text-orange-700">
+                        {product.brand.name || "Sin marca"}
+                      </span>
+                    </div>
+                  ),
                   value: product.id.toString(),
                 })}
+                additionalParams={{
+                  brand_id: selectedVehicle?.model.brand_id,
+                }}
                 perPage={10}
                 debounceMs={500}
                 defaultOption={defaultProductOption}
@@ -246,7 +260,7 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    placeholder="P. Ext. ($)"
+                    placeholder="P. Lista ($)"
                     {...field}
                     value={field.value || ""}
                     onChange={(e) =>
@@ -593,7 +607,7 @@ function ProductDetailItem({
             name={`details.${index}.retail_price_external`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs">P. Ext. ($)</FormLabel>
+                <FormLabel className="text-xs">P. Lista ($)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -1316,7 +1330,7 @@ export default function ProformaMesonForm({
             <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
               <div className="col-span-4">Repuesto</div>
               <div className="col-span-1 text-center">Cant.</div>
-              <div className="col-span-2 text-center">P. Ext. ($)</div>
+              <div className="col-span-2 text-center">P. Lista ($)</div>
               <div className="col-span-2 text-center">
                 P. Unit. ({selectedCurrency?.symbol || "S/."})
               </div>
@@ -1384,13 +1398,14 @@ export default function ProformaMesonForm({
                         [index]: !isStockVisible,
                       }))
                     }
+                    selectedVehicle={selectedVehicle}
                   />
                 );
               })}
             </div>
 
             {/* Total General */}
-            <div className="flex justify-end pt-4 border-t">
+            <div className="flex justify-end pt-4">
               <div className="text-right space-y-1">
                 <div className="flex justify-between gap-8">
                   <p className="text-sm text-gray-600">Subtotal:</p>
