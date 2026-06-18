@@ -45,6 +45,10 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
         push("/companies");
       })
       .catch((error: any) => {
+        if (error?.requires_2fa) {
+          push("/2fa-verify", { state: { pending_token: error.pending_token } });
+          return;
+        }
         errorToast(error?.response?.data?.message ?? "Error al iniciar sesión");
       })
       .finally(() => {
@@ -130,6 +134,14 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                     />
                     {isLogging ? "Iniciando sesión..." : "Iniciar Sesión"}
                   </Button>
+                  <div className="text-center">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </Link>
+                  </div>
                 </div>
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">

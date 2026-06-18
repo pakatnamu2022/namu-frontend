@@ -20,6 +20,13 @@ export interface AuthResponse {
   permissions: PermissionsResponse;
 }
 
+export interface TwoFactorRequiredResponse {
+  requires_2fa: true;
+  pending_token: string;
+}
+
+export type LoginResponse = AuthResponse | TwoFactorRequiredResponse;
+
 export type AuthResponseWithoutToken = Omit<AuthResponse, "access_token">;
 
 export interface AuthResponsePerson {

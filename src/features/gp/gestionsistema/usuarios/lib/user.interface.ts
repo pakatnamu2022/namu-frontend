@@ -25,6 +25,7 @@ export interface UserResource {
   sedes: SedeUserResource[];
   verified_at?: string;
   discount_percentage: number | null;
+  two_factor_enabled: boolean;
 }
 
 export interface UserCompleteResource {
