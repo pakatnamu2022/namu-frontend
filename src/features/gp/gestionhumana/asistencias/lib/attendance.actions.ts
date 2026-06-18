@@ -3,7 +3,7 @@ import { ATTENDANCE } from "./attendance.constants";
 import type {
   AttendanceResponse,
   AttendanceRecord,
-  AttendanceFilters,
+  AttendanceFiltersProps,
   AttendanceSyncResponse,
   AttendanceSyncPayload,
   AttendanceSyncUnifiedResponse,
@@ -19,7 +19,7 @@ import type {
 const { ENDPOINT } = ATTENDANCE;
 
 export async function getAttendanceRecords(
-  filters: AttendanceFilters,
+  filters: AttendanceFiltersProps,
 ): Promise<AttendanceResponse> {
   const params: Record<string, any> = {};
   Object.entries(filters).forEach(([key, value]) => {
@@ -82,31 +82,56 @@ export async function exportSunafilReport(
   format: "csv" | "xlsx",
 ): Promise<void> {
   const filename = `sunafil_${filters.date_from}_${filters.date_to}.${format}`;
-  await downloadBlob(`${ENDPOINT}/report/sunafil`, { ...filters, export: format }, filename);
+  await downloadBlob(
+    `${ENDPOINT}/report/sunafil`,
+    { ...filters, export: format },
+    filename,
+  );
 }
 
 export async function exportInternalReport(
   filters: AttendanceReportFilters,
 ): Promise<void> {
   const filename = `reporte_interno_${filters.date_from}_${filters.date_to}.xlsx`;
-  await downloadBlob(`${ENDPOINT}/report/internal`, { ...filters, export: "xlsx" }, filename);
+  await downloadBlob(
+    `${ENDPOINT}/report/internal`,
+    { ...filters, export: "xlsx" },
+    filename,
+  );
 }
 
 export async function getSunafilReport(
   filters: AttendanceSunafilFilters,
 ): Promise<AttendanceSunafilResponse> {
-  const { data } = await api.get<AttendanceSunafilResponse>(`${ENDPOINT}/report/sunafil`, {
-    params: filters,
-  });
+  const { data } = await api.get<AttendanceSunafilResponse>(
+    `${ENDPOINT}/report/sunafil`,
+    {
+      params: filters,
+    },
+  );
   return data;
 }
 
 export async function getInternalReport(
   filters: AttendanceReportFilters,
 ): Promise<AttendanceInternalResponse> {
-  const { data } = await api.get<AttendanceInternalResponse>(`${ENDPOINT}/report/internal`, {
-    params: filters,
-  });
+  const { data } = await api.get<AttendanceInternalResponse>(
+    `${ENDPOINT}/report/internal`,
+    {
+      params: filters,
+    },
+  );
+  return data;
+}
+
+export async function reportAbsent(
+  date?: string,
+): Promise<{ message?: string }> {
+  const payload = date ? { date } : {};
+  const { data } = await api.post<{ message?: string }>(
+    `${ENDPOINT}/report/absent`,
+    payload,
+  );
   return data;
 }
 

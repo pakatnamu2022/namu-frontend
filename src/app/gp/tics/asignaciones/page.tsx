@@ -24,6 +24,7 @@ import PhoneLineUnassignModal from "@/features/gp/tics/assignments/components/Ph
 import EquipmentUnassignModal from "@/features/gp/tics/assignments/components/EquipmentUnassignModal";
 import PhoneLineLinkEquipmentModal from "@/features/gp/tics/assignments/components/PhoneLineLinkEquipmentModal";
 import EquipmentLinkPhoneLineModal from "@/features/gp/tics/assignments/components/EquipmentLinkPhoneLineModal";
+import EquipmentAssignmentUploadModal from "@/features/gp/tics/assignments/components/EquipmentAssignmentUploadModal";
 import {
   PhoneLineWorkerResource,
   EquipmentAssignmentResource,
@@ -44,6 +45,9 @@ export default function AssignmentsPage() {
   const [selectedPhoneLineForLink, setSelectedPhoneLineForLink] = useState<PhoneLineWorkerResource | null>(null);
   const [linkPhoneLineOpen, setLinkPhoneLineOpen] = useState(false);
   const [selectedEquipmentForLink, setSelectedEquipmentForLink] = useState<EquipmentAssignmentResource | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [selectedEquipmentForUpload, setSelectedEquipmentForUpload] = useState<EquipmentAssignmentResource | null>(null);
+  const [uploadType, setUploadType] = useState<"assignment" | "unassignment">("assignment");
 
   useEffect(() => {
     setPage(1);
@@ -111,6 +115,11 @@ export default function AssignmentsPage() {
             (row) => {
               setSelectedEquipmentForLink(row);
               setLinkPhoneLineOpen(true);
+            },
+            (row, type) => {
+              setSelectedEquipmentForUpload(row);
+              setUploadType(type);
+              setUploadOpen(true);
             },
           )}
           data={equipmentQuery.data?.data ?? []}
@@ -204,6 +213,19 @@ export default function AssignmentsPage() {
           onClose={() => {
             setLinkPhoneLineOpen(false);
             setSelectedEquipmentForLink(null);
+          }}
+          onSuccess={handleSuccess}
+        />
+      )}
+
+      {selectedEquipmentForUpload && (
+        <EquipmentAssignmentUploadModal
+          open={uploadOpen}
+          assignmentId={selectedEquipmentForUpload.id}
+          type={uploadType}
+          onClose={() => {
+            setUploadOpen(false);
+            setSelectedEquipmentForUpload(null);
           }}
           onSuccess={handleSuccess}
         />

@@ -115,11 +115,11 @@ export function EvaluationPersonResultModal({
       setSaving(true);
       await updateEvaluationPersonCompetence(id, { result });
       await Promise.all([invalidateQuery(), refetchEvaluationResult()]);
-      successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
+      throw error;
     } finally {
       setSaving(false);
     }
@@ -290,17 +290,6 @@ export function EvaluationPersonResultModal({
                   <FormSkeleton />
                 ) : (
                   <>
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">
-                        Evaluación de Objetivos
-                      </h3>
-                      {evaluationPersonResult?.objectivesPercentage && (
-                        <Badge variant="outline">
-                          Peso: {evaluationPersonResult.objectivesPercentage}%
-                          del total
-                        </Badge>
-                      )}
-                    </div>
                     <EvaluationPersonObjetiveTable
                       evaluationPersonResult={evaluationPersonResult}
                       details={evaluationPersonResult?.details}
@@ -310,33 +299,11 @@ export function EvaluationPersonResultModal({
                   </>
                 )}
               </TabsContent>
-              <TabsContent value="competences" className="space-y-6 p-6">
+              <TabsContent value="competences" className="space-y-6">
                 {isLoadingEvaluationPerson ? (
                   <FormSkeleton />
                 ) : (
                   <>
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">
-                        Evaluación de Competencias
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        {evaluationPersonResult?.competencesPercentage && (
-                          <Badge variant="outline">
-                            Peso: {evaluationPersonResult.competencesPercentage}
-                            % del total
-                          </Badge>
-                        )}
-                        {evaluationPersonResult?.evaluation
-                          ?.typeEvaluationName && (
-                          <Badge color="secondary">
-                            {
-                              evaluationPersonResult.evaluation
-                                .typeEvaluationName
-                            }
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
                     <EvaluationPersonCompetenceTable
                       evaluationPersonResult={evaluationPersonResult}
                       competenceGroups={

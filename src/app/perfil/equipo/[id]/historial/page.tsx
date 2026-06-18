@@ -329,7 +329,7 @@ export default function NamuPerformanceHistoryPage() {
                 />
               )}
             </TabsContent>
-            <TabsContent value="competences" className="space-y-6 p-6">
+            <TabsContent value="competences" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (

@@ -2,6 +2,7 @@ import { api } from "@/core/api.ts";
 import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import type { AxiosRequestConfig } from "axios";
 import {
+  getWorkerProps,
   getWorkersProps,
   PersonBirthdayResponse,
   WorkerResource,
@@ -19,7 +20,7 @@ export async function getBirthdays(): Promise<PersonBirthdayResponse> {
   };
   const { data } = await api.get<PersonBirthdayResponse>(
     `${ENDPOINT}/birthdays`,
-    config
+    config,
   );
   return data;
 }
@@ -60,13 +61,18 @@ export async function getMyConsultants({
   };
   const { data } = await api.get<WorkerResource[]>(
     `${ENDPOINT}/my-consultants`,
-    config
+    config,
   );
   return data;
 }
 
-export async function findWorkerById(id: number): Promise<WorkerResource> {
-  const response = await api.get<WorkerResource>(`${ENDPOINT}/${id}`);
+export async function findWorkerById(
+  id: number,
+  params?: getWorkerProps,
+): Promise<WorkerResource> {
+  const response = await api.get<WorkerResource>(`${ENDPOINT}/${id}`, {
+    params,
+  });
   return response.data;
 }
 
@@ -77,7 +83,7 @@ export async function storeWorker(data: any): Promise<WorkerResponse> {
 
 export async function updateWorker(
   id: string,
-  data: any
+  data: any,
 ): Promise<WorkerResponse> {
   const response = await api.put<WorkerResponse>(`${ENDPOINT}/${id}`, data);
   return response.data;
@@ -90,14 +96,14 @@ export async function deleteWorker(id: number): Promise<GeneralResponse> {
 
 export async function getWorkersWithoutObjectives(): Promise<WorkerResource[]> {
   const { data } = await api.get<{ data: WorkerResource[] }>(
-    `${ENDPOINT}-without-objectives`
+    `${ENDPOINT}-without-objectives`,
   );
   return data.data;
 }
 
 export async function getWorkersWithoutCategories(): Promise<WorkerResource[]> {
   const { data } = await api.get<{ data: WorkerResource[] }>(
-    `${ENDPOINT}-without-categories`
+    `${ENDPOINT}-without-categories`,
   );
   return data.data;
 }
@@ -106,7 +112,7 @@ export async function getWorkersWithoutCompetences(): Promise<
   WorkerResource[]
 > {
   const { data } = await api.get<{ data: WorkerResource[] }>(
-    `${ENDPOINT}-without-competences`
+    `${ENDPOINT}-without-competences`,
   );
   return data.data;
 }

@@ -1,13 +1,14 @@
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import DatePicker from "@/shared/components/DatePicker";
 import SearchInput from "@/shared/components/SearchInput";
 import { MARK_TYPE_OPTIONS } from "../lib/attendance.constants";
-import type { AttendanceFilters } from "../lib/attendance.interface";
+import type { AttendanceFiltersProps } from "../lib/attendance.interface";
 
-type OtherFilters = Omit<AttendanceFilters, "date" | "date_from" | "date_to">;
+type OtherFilters = Omit<
+  AttendanceFiltersProps,
+  "date" | "date_from" | "date_to"
+>;
 
 interface Props {
   filters: OtherFilters;
@@ -18,7 +19,6 @@ interface Props {
   dateTo: Date | undefined;
   setDateTo: (date: Date | undefined) => void;
   onFiltersChange: (filters: Partial<OtherFilters>) => void;
-  onReset: () => void;
 }
 
 const MARK_TYPE_SELECT_OPTIONS = MARK_TYPE_OPTIONS.map((o) => ({
@@ -26,7 +26,7 @@ const MARK_TYPE_SELECT_OPTIONS = MARK_TYPE_OPTIONS.map((o) => ({
   label: o.label,
 }));
 
-export default function AttendanceFiltersBar({
+export default function AttendanceFilters({
   filters,
   date,
   setDate,
@@ -35,17 +35,7 @@ export default function AttendanceFiltersBar({
   dateTo,
   setDateTo,
   onFiltersChange,
-  onReset,
 }: Props) {
-  const hasActiveFilters = !!(
-    filters.search ||
-    date ||
-    dateFrom ||
-    dateTo ||
-    filters.emp_code ||
-    filters.mark_type
-  );
-
   return (
     <FilterWrapper>
       <SearchInput
@@ -83,16 +73,11 @@ export default function AttendanceFiltersBar({
         value={filters.mark_type ?? ""}
         onChange={(v) =>
           onFiltersChange({
-            mark_type: (v as AttendanceFilters["mark_type"]) || undefined,
+            mark_type: (v as AttendanceFiltersProps["mark_type"]) || undefined,
           })
         }
         placeholder="Tipo"
       />
-      {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={onReset} className="gap-1">
-          <X className="size-4" />
-        </Button>
-      )}
     </FilterWrapper>
   );
 }

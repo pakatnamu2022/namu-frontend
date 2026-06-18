@@ -87,3 +87,19 @@ export async function linkPhoneLineToEquipment(
   );
   return data;
 }
+
+export async function uploadAssignmentFile(
+  id: number,
+  file: File,
+  type: "assignment" | "unassignment",
+): Promise<GeneralResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("type", type);
+  const { data } = await api.post<GeneralResponse>(
+    `/gp/tics/equipmentAssigment/${id}/upload`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
+}

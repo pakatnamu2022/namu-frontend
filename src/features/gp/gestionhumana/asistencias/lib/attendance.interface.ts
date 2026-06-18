@@ -42,7 +42,7 @@ export interface AttendanceResponse {
   };
 }
 
-export interface AttendanceFilters {
+export interface AttendanceFiltersProps {
   search?: string;
   date?: string;
   date_from?: string;
@@ -104,10 +104,13 @@ export interface AttendanceReportFilters {
 
 export interface AttendanceDailyRecord {
   date: string;
+  type: string;
+  message: string | null;
   check_in: string | null;
   lunch_out: string | null;
   lunch_in: string | null;
   check_out: string | null;
+  is_estimated: boolean;
   hours_worked: string | null;
   expected_hours: string;
   balance: string | null;
@@ -189,7 +192,9 @@ export interface AttendancePersonDashboard {
   vat: string;
   date_from: string;
   date_to: string;
-  days_present: number;
+  days_with_records: number;
+  days_expected: number;
+  days_on_vacation: number;
   expected_hours: string;
   hours_worked: string;
   balance: string | null;

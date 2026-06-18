@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { format, parseISO, isValid } from "date-fns";
-import { CalendarIcon, CalendarPlusIcon, X } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { es } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
@@ -143,28 +143,33 @@ export default function DatePicker({
       {/* Date Picker */}
       {isMobile ? (
         <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-          <DrawerTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-between font-normal",
-                !parsedDate && "text-muted-foreground",
-                error && "border-red-500",
-              )}
-              disabled={disabled}
-            >
-              <span className="truncate">{displayValue}</span>
-              <div className="flex items-center space-x-2">
-                {parsedDate && showClearButton && !disabled && (
-                  <X
-                    className="h-4 w-4 hover:text-red-500 transition-colors"
-                    onClick={handleClear}
-                  />
+          <div className="flex items-center">
+            <DrawerTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-between font-normal",
+                  !parsedDate && "text-muted-foreground",
+                  error && "border-red-500",
                 )}
-                <CalendarPlusIcon className="h-4 w-4 opacity-50" />
-              </div>
-            </Button>
-          </DrawerTrigger>
+                disabled={disabled}
+              >
+                <span className="truncate">{displayValue}</span>
+                <CalendarIcon className="h-4 w-4 opacity-50 ml-1" />
+              </Button>
+            </DrawerTrigger>
+            {parsedDate && showClearButton && !disabled && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                color="muted"
+                disabled={disabled}
+                onClick={handleClear}
+              >
+                <X />
+              </Button>
+            )}
+          </div>
           <DrawerContent className="w-auto p-0 overflow-hidden">
             <DrawerHeader>
               <DrawerTitle>Selecciona una fecha</DrawerTitle>
@@ -179,34 +184,40 @@ export default function DatePicker({
               onSelect={handleChange}
               disabled={disabledRange}
               className="mx-auto [--cell-size:clamp(0px,calc(100vw/7.5),52px)]"
+              autoFocus
             />
           </DrawerContent>
         </Drawer>
       ) : (
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-between font-normal",
-                !parsedDate && "text-muted-foreground",
-                error && "border-red-500",
-              )}
-              size={"sm"}
-              disabled={disabled}
-            >
-              <span className="truncate">{displayValue}</span>
-              <div className="flex items-center space-x-2">
-                {parsedDate && showClearButton && !disabled && (
-                  <X
-                    className="h-4 w-4 hover:text-red-500 transition-colors"
-                    onClick={handleClear}
-                  />
+          <div className="flex items-center">
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-between font-normal",
+                  !parsedDate && "text-muted-foreground",
+                  error && "border-red-500",
                 )}
-                <CalendarIcon className="h-4 w-4 opacity-50" />
-              </div>
-            </Button>
-          </PopoverTrigger>
+                size={"sm"}
+                disabled={disabled}
+              >
+                <span className="truncate">{displayValue}</span>
+                <CalendarIcon className="h-4 w-4 opacity-50 ml-1" />
+              </Button>
+            </PopoverTrigger>
+            {parsedDate && showClearButton && !disabled && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                color="muted"
+                disabled={disabled}
+                onClick={handleClear}
+              >
+                <X />
+              </Button>
+            )}
+          </div>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
@@ -217,7 +228,7 @@ export default function DatePicker({
               captionLayout={captionLayout}
               onSelect={handleChange}
               disabled={disabledRange}
-              initialFocus
+              autoFocus
             />
           </PopoverContent>
         </Popover>

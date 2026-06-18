@@ -2,7 +2,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Subcompetence } from "../lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
-import { EditableCell } from "@/shared/components/EditableCell";
+import { Button } from "@/components/ui/button";
 import {
   Target,
   User,
@@ -10,6 +10,7 @@ import {
   UserCheck,
   CheckCircle2,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
@@ -19,65 +20,94 @@ import {
 
 export type EvaluationPersonCompetenceColumns = ColumnDef<Subcompetence>;
 
+const scoreColors = ["orange", "amber", "lime", "emerald"] as const;
+
+function EvaluationCell({
+  evaluator,
+  readOnly,
+  onUpdateCell,
+  optimisticValues,
+  cellStatus,
+}: {
+  evaluator?: any;
+  readOnly: boolean;
+  onUpdateCell: (id: number, value: number) => Promise<void>;
+  optimisticValues: Record<number, number>;
+  cellStatus: Record<number, "loading" | "success">;
+}) {
+  const serverValue = Number(evaluator?.result) || 0;
+  const displayValue = evaluator?.id !== undefined
+    ? (optimisticValues[evaluator.id] ?? serverValue)
+    : serverValue;
+  const status = evaluator?.id !== undefined ? cellStatus[evaluator.id] : undefined;
+
+  if (readOnly) {
+    return (
+      <Badge
+        color={getResultRateColorBadge(evaluator?.result || "0.00")}
+        className="text-xs"
+      >
+        {evaluator?.result || "0.00"}
+      </Badge>
+    );
+  }
+
+  if (!evaluator?.id) {
+    return (
+      <Badge variant="outline" className="text-xs text-muted-foreground">
+        Pendiente
+      </Badge>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="flex gap-1">
+        {scoreColors.map((color, i) => {
+          const value = i + 1;
+          return (
+            <Button
+              key={value}
+              size="icon-xs"
+              variant={displayValue === value ? "default" : "outline"}
+              color={color}
+              onClick={() => onUpdateCell(evaluator.id, value)}
+            >
+              {value}
+            </Button>
+          );
+        })}
+      </div>
+      <div className="size-3.5 shrink-0">
+        {status === "loading" && (
+          <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+        )}
+        {status === "success" && (
+          <CheckCircle2 className="size-3.5 text-emerald-500" />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export const evaluationPersonCompetenceColumns = ({
   onUpdateCell,
+  optimisticValues,
+  cellStatus,
   readOnly = false,
-  evaluationType = 2, // 1 = 180°, 2 = 360°
-  requiredEvaluatorTypes = [0, 1, 2, 3], // Tipos de evaluadores requeridos
-  competenceMaxScore, // Puntaje máximo por competencia
-  canEditAll = false, // Vista de administrador - puede editar todas las columnas
+  evaluationType = 2,
+  requiredEvaluatorTypes = [0, 1, 2, 3],
+  canEditAll = false,
 }: {
-  onUpdateCell: (id: number, value: number) => void;
+  onUpdateCell: (id: number, value: number) => Promise<void>;
+  optimisticValues: Record<number, number>;
+  cellStatus: Record<number, "loading" | "success">;
   readOnly?: boolean;
   evaluationType?: number;
   requiredEvaluatorTypes?: number[];
-  competenceMaxScore: number;
+  competenceMaxScore?: number;
   canEditAll?: boolean;
 }): EvaluationPersonCompetenceColumns[] => {
-  // Componente para celdas de evaluación
-  const EvaluationCell = ({
-    evaluator,
-    readOnly,
-    max,
-  }: {
-    evaluator?: any;
-    readOnly: boolean;
-    max: number;
-  }) => {
-    if (readOnly) {
-      return (
-        <Badge
-          color={getResultRateColorBadge(evaluator?.result || "0.00")}
-          className="text-xs"
-        >
-          {evaluator?.result || "0.00"}
-        </Badge>
-      );
-    }
-
-    if (!evaluator?.id) {
-      // No hay evaluación asignada
-      return (
-        <Badge variant="outline" className="text-xs text-muted-foreground">
-          Pendiente
-        </Badge>
-      );
-    }
-
-    return (
-      <EditableCell
-        variant="outline"
-        id={evaluator.id}
-        value={evaluator.result}
-        isNumber={true}
-        onUpdate={onUpdateCell}
-        widthClass="w-24"
-        min={1}
-        max={max}
-      />
-    );
-  };
-
   const baseColumns: EvaluationPersonCompetenceColumns[] = [
     {
       accessorKey: "sub_competence_name",
@@ -98,7 +128,6 @@ export const evaluationPersonCompetenceColumns = ({
     },
   ];
 
-  // Columnas dinámicas según el tipo de evaluación
   const evaluatorColumns: EvaluationPersonCompetenceColumns[] = [];
 
   if (evaluationType === 1) {
@@ -121,7 +150,9 @@ export const evaluationPersonCompetenceColumns = ({
             <EvaluationCell
               evaluator={jefeEvaluator}
               readOnly={readOnly}
-              max={competenceMaxScore}
+              onUpdateCell={onUpdateCell}
+              optimisticValues={optimisticValues}
+              cellStatus={cellStatus}
             />
           </div>
         );
@@ -140,12 +171,8 @@ export const evaluationPersonCompetenceColumns = ({
 
     evaluatorTypes.forEach(({ type, name, icon: Icon }) => {
       if (requiredEvaluatorTypes.includes(type)) {
-        // Para tipo 3 (Reportes) puede haber múltiples evaluadores
-        // Solo mostrar la columna si el usuario actual es uno de ellos
-        // Para otros tipos, siempre mostrar la columna
         const shouldShowColumn = type !== 3 || canEditAll;
 
-        // Si no es tipo 3, o si es admin, mostrar la columna normalmente
         if (shouldShowColumn) {
           evaluatorColumns.push({
             accessorKey: `evaluator_${type}`,
@@ -157,23 +184,16 @@ export const evaluationPersonCompetenceColumns = ({
             ),
             cell: ({ row }) => {
               const subCompetence = row.original;
-              // Buscar el evaluador de este tipo específico
-              // Para tipo 3, buscar específicamente el que corresponde al usuario actual
               const evaluator = subCompetence.evaluators?.find((e) => {
                 if (type === 3 && !canEditAll) {
-                  // Para Reportes, buscar el evaluador que es el usuario actual
                   return (
                     e.evaluator_type === type &&
                     e.evaluator_id === user.partner_id
                   );
                 }
-                // Para otros tipos, buscar por tipo
                 return e.evaluator_type === type;
               });
 
-              // Solo permitir edición si:
-              // 1. canEditAll es true (vista de administrador) O
-              // 2. El evaluador de este tipo es el usuario actual
               const isMyEvaluation =
                 evaluator?.evaluator_id === user.partner_id;
               const shouldBeReadOnly =
@@ -184,16 +204,15 @@ export const evaluationPersonCompetenceColumns = ({
                   <EvaluationCell
                     evaluator={evaluator}
                     readOnly={shouldBeReadOnly}
-                    max={competenceMaxScore}
+                    onUpdateCell={onUpdateCell}
+                    optimisticValues={optimisticValues}
+                    cellStatus={cellStatus}
                   />
                 </div>
               );
             },
           });
         } else if (type === 3) {
-          // Para tipo 3, verificar si el usuario actual es un evaluador de este tipo
-          // Necesitamos revisar al menos una subcompetencia para saber si mostrar la columna
-          // Esto se hace de forma dinámica en cada fila
           evaluatorColumns.push({
             accessorKey: `evaluator_${type}`,
             header: () => (
@@ -204,7 +223,6 @@ export const evaluationPersonCompetenceColumns = ({
             ),
             cell: ({ row }) => {
               const subCompetence = row.original;
-              // Buscar el evaluador tipo 3 que es el usuario actual
               const evaluator = subCompetence.evaluators?.find((e) => {
                 return (
                   e.evaluator_type === type &&
@@ -212,20 +230,18 @@ export const evaluationPersonCompetenceColumns = ({
                 );
               });
 
-              // Solo mostrar si existe un evaluador para este usuario
               if (!evaluator) {
                 return null;
               }
-
-              const isMyEvaluation = true; // Siempre es mi evaluación si llegamos aquí
-              const shouldBeReadOnly = readOnly || !isMyEvaluation;
 
               return (
                 <div className="flex items-center justify-center">
                   <EvaluationCell
                     evaluator={evaluator}
-                    readOnly={shouldBeReadOnly}
-                    max={competenceMaxScore}
+                    readOnly={readOnly}
+                    onUpdateCell={onUpdateCell}
+                    optimisticValues={optimisticValues}
+                    cellStatus={cellStatus}
                   />
                 </div>
               );
@@ -259,7 +275,6 @@ export const evaluationPersonCompetenceColumns = ({
     },
   };
 
-  // Columna de estado/progreso
   const statusColumn: EvaluationPersonCompetenceColumns = {
     accessorKey: "completion_percentage",
     header: () => (

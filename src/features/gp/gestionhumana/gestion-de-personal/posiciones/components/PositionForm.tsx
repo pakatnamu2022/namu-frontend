@@ -27,7 +27,6 @@ import {
   Loader,
 } from "lucide-react";
 
-import { useAllAreas } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.hook.ts";
 import { useAllPositions } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.hook.ts";
 import { useEffect, useRef } from "react";
 import { POSITION } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant.ts";
@@ -39,6 +38,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { useAllTypeOnboarding } from "@/features/gp/gestionsistema/tipo-onbording/lib/typeOnboarding.hook.ts";
 import { useAllHierarchicalCategories } from "../../../evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook.ts";
 import { Link } from "react-router-dom";
+import { useAllAreas } from "../../areas/lib/area.hook.ts";
 
 interface PositionFormProps {
   defaultValues?: Partial<PositionSchema>;
@@ -57,7 +57,7 @@ export const PositionForm = ({
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? positionSchemaCreate : positionSchemaUpdate
+      mode === "create" ? positionSchemaCreate : positionSchemaUpdate,
     ),
     defaultValues: {
       name: "",
@@ -202,7 +202,7 @@ export const PositionForm = ({
                       field.onChange(
                         e.target.value === ""
                           ? ""
-                          : parseInt(e.target.value) || ""
+                          : parseInt(e.target.value) || "",
                       )
                     }
                   />
@@ -297,7 +297,7 @@ export const PositionForm = ({
                       field.onChange(
                         e.target.value === ""
                           ? ""
-                          : parseFloat(e.target.value) || ""
+                          : parseFloat(e.target.value) || "",
                       )
                     }
                   />
@@ -324,7 +324,7 @@ export const PositionForm = ({
                       field.onChange(
                         e.target.value === ""
                           ? ""
-                          : parseFloat(e.target.value) || ""
+                          : parseFloat(e.target.value) || "",
                       )
                     }
                   />

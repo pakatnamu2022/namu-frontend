@@ -27,9 +27,7 @@ export default function ProfileLayout({
       <SidebarLeft />
       <SidebarInset className="bg-background">
         <Header />
-        <div className="flex gap-8 w-full h-[calc(100vh-4.5rem)] overflow-auto">
-          <div className="p-3 w-full">{children}</div>
-        </div>
+        <div className="p-3 w-full">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
