@@ -65,6 +65,108 @@ import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.consta
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/shared/components/DataTable";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import SearchInput from "@/shared/components/SearchInput";
+import FilterWrapper from "@/shared/components/FilterWrapper";
+
+const DEFAULT_PER_PAGE = 10;
+
+function buildShippingGuidesColumns(
+  associatingId: number | null,
+  onAssociate: (id: number) => void,
+): ColumnDef<ShippingGuidesResource>[] {
+  return [
+    {
+      accessorKey: "document_number",
+      header: "Número",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.document_number}</div>
+      ),
+    },
+    {
+      accessorKey: "issue_date",
+      header: "Fecha Emisión",
+      cell: ({ row }) => (
+        <div className="text-sm">{formatDate(row.original.issue_date)}</div>
+      ),
+    },
+    {
+      accessorKey: "receiver_name",
+      header: "Destinatario",
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.receiver_name || "-"}</div>
+      ),
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => {
+        const id = row.original.id;
+        const isThis = associatingId === id;
+        const isBusy = associatingId !== null;
+        return (
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              disabled={isBusy}
+              onClick={() => onAssociate(id)}
+            >
+              {isThis ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <LinkIcon className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+}
+
+function ShippingGuideSelectorOptions({
+  search,
+  setSearch,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+}) {
+  return (
+    <FilterWrapper>
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar por número..."
+      />
+    </FilterWrapper>
+  );
+}
+
+function ShippingGuideSelectorTable({
+  data,
+  isLoading,
+  associatingId,
+  onAssociate,
+  children,
+}: {
+  data: ShippingGuidesResource[];
+  isLoading: boolean;
+  associatingId: number | null;
+  onAssociate: (id: number) => void;
+  children?: React.ReactNode;
+}) {
+  const columns = buildShippingGuidesColumns(associatingId, onAssociate);
+  return (
+    <div className="border-none text-muted-foreground max-w-full">
+      <DataTable columns={columns} data={data} isLoading={isLoading}>
+        {children}
+      </DataTable>
+    </div>
+  );
+}
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -174,11 +276,17 @@ export function BillingSheetContent({
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isShippingGuideSheetOpen, setIsShippingGuideSheetOpen] =
     useState(false);
+  const [sgSearch, setSgSearch] = useState("");
+  const [sgPage, setSgPage] = useState(1);
+  const [associatingId, setAssociatingId] = useState<number | null>(null);
 
   const shippingGuideParams = {
     sede_transmitter_id: orderQuotation.sede_id,
     is_associated: false,
     transfer_reason_id: [SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS],
+    search: sgSearch || undefined,
+    page: sgPage,
+    per_page: DEFAULT_PER_PAGE,
   };
   const { data: shippingGuidesData, isLoading: isLoadingShippingGuides } =
     useQuery({
@@ -188,24 +296,27 @@ export function BillingSheetContent({
       refetchOnWindowFocus: false,
     });
 
-  const associateMutation = useMutation({
-    mutationFn: (shippingGuideId: number) =>
-      associateShippingGuide(orderQuotation.id, shippingGuideId),
-    onSuccess: () => {
-      successToast("Guía de remisión asociada correctamente");
-      setIsShippingGuideSheetOpen(false);
-      queryClient.invalidateQueries({
-        queryKey: ["orderQuotation", orderQuotation.id],
-      });
-      onRefresh?.();
-    },
-    onError: (error: any) => {
-      errorToast(
-        error?.response?.data?.message ||
-          "Error al asociar la guía de remisión",
-      );
-    },
-  });
+  const handleAssociate = (shippingGuideId: number) => {
+    setAssociatingId(shippingGuideId);
+    associateShippingGuide(orderQuotation.id, shippingGuideId)
+      .then(() => {
+        successToast("Guía de remisión asociada correctamente");
+        setIsShippingGuideSheetOpen(false);
+        setSgSearch("");
+        setSgPage(1);
+        queryClient.invalidateQueries({
+          queryKey: ["orderQuotation", orderQuotation.id],
+        });
+        onRefresh?.();
+      })
+      .catch((error: any) => {
+        errorToast(
+          error?.response?.data?.message ||
+            "Error al asociar la guía de remisión",
+        );
+      })
+      .finally(() => setAssociatingId(null));
+  };
 
   const dissociateMutation = useMutation({
     mutationFn: () => dissociateShippingGuide(orderQuotation.id),
@@ -729,6 +840,183 @@ export function BillingSheetContent({
         </div>
       </div>
 
+      {/* Sección de Firma del Cliente */}
+      {shouldShowSignature && !readOnly && (
+        <>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmitSignature)}
+              className="space-y-4"
+            >
+              <GroupFormSection
+                title="Firma de Conformidad del Cliente"
+                icon={PenLine}
+                color="primary"
+                cols={{ sm: 1 }}
+              >
+                <FormField
+                  control={form.control}
+                  name="customer_signature"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <SignaturePad
+                          label="Firma del Cliente"
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabled={confirmMutation.isPending}
+                          required
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormTextArea
+                  control={form.control}
+                  name="notes"
+                  label="Notas adicionales (opcional)"
+                  placeholder="Escribe aquí..."
+                  disabled={confirmMutation.isPending}
+                />
+              </GroupFormSection>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={
+                    confirmMutation.isPending || !form.formState.isValid
+                  }
+                >
+                  {confirmMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {confirmMutation.isPending
+                    ? "Confirmando..."
+                    : "Confirmar Cotización"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </>
+      )}
+
+      {!readOnly && (
+        <>
+          {/* Facturar a */}
+          <Separator />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-gray-900">
+                  Facturar a
+                </h4>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {isInvoiced
+                    ? "Cliente de facturación establecido"
+                    : "Selecciona el cliente para la factura"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="w-full">
+                <FormProvider {...invoiceToForm}>
+                  <div className="flex w-full items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <FormSelectAsync
+                        name="invoice_to_id"
+                        label="Cliente de facturación"
+                        placeholder="Seleccionar cliente"
+                        control={invoiceToForm.control}
+                        useQueryHook={useCustomers}
+                        mapOptionFn={(customer: CustomersResource) => ({
+                          value: customer.id.toString(),
+                          label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                        })}
+                        description={
+                          isInvoiced
+                            ? "Ya existe una factura emitida, no se puede modificar"
+                            : hasAdvances
+                              ? "Ya se registraron avances de pago, no se puede modificar"
+                              : "Cliente a quien se le emitirá la factura de esta cotización"
+                        }
+                        perPage={10}
+                        debounceMs={500}
+                        disabled={
+                          isInvoiced ||
+                          invoiceToMutation.isPending ||
+                          hasAdvances
+                        }
+                        defaultOption={invoiceToDefaultOption}
+                        onValueChange={(value) => {
+                          invoiceToMutation.mutate(
+                            value ? Number(value) : null,
+                          );
+                        }}
+                        allowClear={false}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-lg"
+                      className="aspect-square shrink-0"
+                      onClick={() => setIsCustomerModalOpen(true)}
+                      tooltip="Agregar nuevo cliente"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </FormProvider>
+              </div>
+
+              {orderQuotation.invoice_to && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+                  <div className="flex-1 grid grid-cols-1 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Nombre
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.full_name || "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Documento
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
+                        {orderQuotation.invoice_to_client?.num_doc || "S/N"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <CustomerModal
+            open={isCustomerModalOpen}
+            onClose={(newCustomer) => {
+              setIsCustomerModalOpen(false);
+              if (newCustomer) {
+                queryClient.invalidateQueries({
+                  queryKey: [CUSTOMERS.QUERY_KEY],
+                });
+              }
+            }}
+            title="Agregar Nuevo Cliente"
+          />
+        </>
+      )}
+
       <Separator />
 
       {/* Facturas y Anticipos */}
@@ -962,18 +1250,18 @@ export function BillingSheetContent({
       {/* Sheet para seleccionar guía de remisión */}
       <GeneralSheet
         open={isShippingGuideSheetOpen}
-        onClose={() => setIsShippingGuideSheetOpen(false)}
+        onClose={() => {
+          setIsShippingGuideSheetOpen(false);
+          setSgSearch("");
+          setSgPage(1);
+        }}
         title="Adjuntar Guía de Remisión"
         subtitle="Selecciona una guía de remisión para asociar a esta cotización"
         icon="Truck"
         size="3xl"
       >
-        <div className="px-6 space-y-4">
-          {isLoadingShippingGuides ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : !shippingGuidesData?.data?.length ? (
+        <div className="px-2 space-y-4">
+          {!shippingGuidesData?.data?.length && !isLoadingShippingGuides ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Truck className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground text-sm">
@@ -981,167 +1269,34 @@ export function BillingSheetContent({
               </p>
             </div>
           ) : (
-            <DetailSheetTable
-              rows={shippingGuidesData.data}
-              getKey={(g: ShippingGuidesResource) => g.id}
-              columns={[
-                {
-                  header: "Número",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="font-medium">{g.document_number}</div>
-                  ),
-                },
-                {
-                  header: "Fecha",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="text-sm">{formatDate(g.issue_date)}</div>
-                  ),
-                },
-                {
-                  header: "Destinatario",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="text-sm">{g.receiver_name || "-"}</div>
-                  ),
-                },
-                {
-                  header: "",
-                  className: "text-right",
-                  render: (g: ShippingGuidesResource) => (
-                    <Button
-                      type="button"
-                      size="sm"
-                      disabled={associateMutation.isPending}
-                      onClick={() => associateMutation.mutate(g.id)}
-                    >
-                      {associateMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <LinkIcon className="h-4 w-4 mr-1" />
-                      )}
-                      Asociar
-                    </Button>
-                  ),
-                },
-              ]}
-            />
+            <>
+              <ShippingGuideSelectorTable
+                data={shippingGuidesData?.data ?? []}
+                isLoading={isLoadingShippingGuides}
+                associatingId={associatingId}
+                onAssociate={handleAssociate}
+              >
+                <ShippingGuideSelectorOptions
+                  search={sgSearch}
+                  setSearch={(v) => {
+                    setSgSearch(v);
+                    setSgPage(1);
+                  }}
+                />
+              </ShippingGuideSelectorTable>
+              {shippingGuidesData?.meta && (
+                <DataTablePagination
+                  page={sgPage}
+                  per_page={DEFAULT_PER_PAGE}
+                  totalPages={shippingGuidesData.meta.last_page}
+                  totalData={shippingGuidesData.meta.total}
+                  onPageChange={setSgPage}
+                />
+              )}
+            </>
           )}
         </div>
       </GeneralSheet>
-
-      {!readOnly && (
-        <>
-          {/* Facturar a */}
-          <Separator />
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-                <User className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h4 className="text-base font-semibold text-gray-900">
-                  Facturar a
-                </h4>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {isInvoiced
-                    ? "Cliente de facturación establecido"
-                    : "Selecciona el cliente para la factura"}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="w-full">
-                <FormProvider {...invoiceToForm}>
-                  <div className="flex w-full items-center gap-2">
-                    <div className="flex-1 min-w-0">
-                      <FormSelectAsync
-                        name="invoice_to_id"
-                        label="Cliente de facturación"
-                        placeholder="Seleccionar cliente"
-                        control={invoiceToForm.control}
-                        useQueryHook={useCustomers}
-                        mapOptionFn={(customer: CustomersResource) => ({
-                          value: customer.id.toString(),
-                          label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-                        })}
-                        description={
-                          isInvoiced
-                            ? "Ya existe una factura emitida, no se puede modificar"
-                            : hasAdvances
-                              ? "Ya se registraron avances de pago, no se puede modificar"
-                              : "Cliente a quien se le emitirá la factura de esta cotización"
-                        }
-                        perPage={10}
-                        debounceMs={500}
-                        disabled={
-                          isInvoiced ||
-                          invoiceToMutation.isPending ||
-                          hasAdvances
-                        }
-                        defaultOption={invoiceToDefaultOption}
-                        onValueChange={(value) => {
-                          invoiceToMutation.mutate(
-                            value ? Number(value) : null,
-                          );
-                        }}
-                        allowClear={false}
-                      />
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-lg"
-                      className="aspect-square shrink-0"
-                      onClick={() => setIsCustomerModalOpen(true)}
-                      tooltip="Agregar nuevo cliente"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </FormProvider>
-              </div>
-
-              {orderQuotation.invoice_to && (
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
-                  <div className="flex-1 grid grid-cols-1 gap-3">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Nombre
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {orderQuotation.invoice_to_client?.full_name || "—"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Documento
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
-                        {orderQuotation.invoice_to_client?.num_doc || "S/N"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <CustomerModal
-            open={isCustomerModalOpen}
-            onClose={(newCustomer) => {
-              setIsCustomerModalOpen(false);
-              if (newCustomer) {
-                queryClient.invalidateQueries({
-                  queryKey: [CUSTOMERS.QUERY_KEY],
-                });
-              }
-            }}
-            title="Agregar Nuevo Cliente"
-          />
-        </>
-      )}
 
       {/* Datos de Entrega */}
       {orderQuotation.delivery_document_number && (
@@ -1183,69 +1338,6 @@ export function BillingSheetContent({
               )}
             </div>
           </div>
-        </>
-      )}
-
-      {/* Sección de Firma del Cliente */}
-      {shouldShowSignature && !readOnly && (
-        <>
-          <Separator />
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmitSignature)}
-              className="space-y-4"
-            >
-              <GroupFormSection
-                title="Firma de Conformidad del Cliente"
-                icon={PenLine}
-                color="primary"
-                cols={{ sm: 1 }}
-              >
-                <FormField
-                  control={form.control}
-                  name="customer_signature"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <SignaturePad
-                          label="Firma del Cliente"
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={confirmMutation.isPending}
-                          required
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormTextArea
-                  control={form.control}
-                  name="notes"
-                  label="Notas adicionales (opcional)"
-                  placeholder="Escribe aquí..."
-                  disabled={confirmMutation.isPending}
-                />
-              </GroupFormSection>
-
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={
-                    confirmMutation.isPending || !form.formState.isValid
-                  }
-                >
-                  {confirmMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {confirmMutation.isPending
-                    ? "Confirmando..."
-                    : "Confirmar Cotización"}
-                </Button>
-              </div>
-            </form>
-          </Form>
         </>
       )}
     </div>
