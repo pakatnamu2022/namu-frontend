@@ -2,6 +2,7 @@ import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface PlanningOptionsProps {
   search: string;
@@ -27,7 +28,7 @@ export default function PlanningOptions({
   setDateTo,
 }: PlanningOptionsProps) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -55,6 +56,6 @@ export default function PlanningOptions({
         }}
         className="w-auto min-w-56"
       />
-    </div>
+    </FilterWrapper>
   );
 }

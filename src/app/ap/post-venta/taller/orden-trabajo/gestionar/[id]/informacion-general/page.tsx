@@ -25,6 +25,7 @@ import {
   findWorkOrderById,
   changeCurrency,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import { WORK_ORDER_STATUS_COLORS } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import InvoiceList from "@/features/ap/facturacion/electronic-documents/components/InvoiceList.tsx";
 import { getAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.actions";
 import { findAppointmentPlanningById } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
@@ -36,8 +37,10 @@ import {
   formatDate,
   formatDateTime,
   formatHours,
+  formatMoney,
   successToast,
 } from "@/core/core.function";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { CopyCell } from "@/shared/components/CopyCell";
 
@@ -113,24 +116,49 @@ export default function GeneralInformationPage() {
     <div className="space-y-6">
       {/* Header */}
       <Card className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router(-1)}>
+        <div className="flex items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router(-1)}
+              className="shrink-0"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Información General</h1>
-              <p className="text-sm text-gray-600 mt-1 font-bold">
-                #: {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold truncate">
+                Información General
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
+                {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Estado</p>
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+          <div className="shrink-0 flex flex-wrap items-start gap-4">
+            {workOrder.type_currency && (
+              <div className="flex flex-col items-end">
+                <p className="text-xs text-gray-500 mb-1">Moneda</p>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 whitespace-nowrap">
+                  {workOrder.type_currency.symbol} —{" "}
+                  {workOrder.type_currency.name}
+                </span>
+                {String(workOrder.type_currency.id) ===
+                  CURRENCY_TYPE_IDS.DOLLARS && (
+                  <p className="text-xs text-gray-500 mt-1 whitespace-nowrap">
+                    TC: S/ {workOrder.exchange_rate?.toFixed(2)}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="flex flex-col items-end">
+              <span className="text-xs text-gray-500 mb-1">Estado</span>
+              <Badge
+                variant="outline"
+                color={WORK_ORDER_STATUS_COLORS[workOrder.status.id] ?? "gray"}
+              >
                 {workOrder.status.description}
-              </span>
+              </Badge>
             </div>
           </div>
         </div>
@@ -638,10 +666,19 @@ export default function GeneralInformationPage() {
         <div className="grid grid-cols-1 gap-6">
           {/* Card 1 — Mano de Obra y Repuestos */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-              <Wrench className="h-5 w-5 text-gray-500" />
-              Mano de Obra y Repuestos
-            </h3>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Wrench className="h-5 w-5 text-gray-500" />
+                Mano de Obra y Repuestos
+              </h3>
+              {String(workOrder.type_currency?.id) ===
+                CURRENCY_TYPE_IDS.DOLLARS && (
+                <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
+                  <span className="font-medium">Tipo de cambio:</span>
+                  <span>S/ {workOrder.exchange_rate?.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
 
             {/* Mano de Obra */}
             {workOrder.labours && workOrder.labours.length > 0 && (
@@ -697,12 +734,18 @@ export default function GeneralInformationPage() {
                             %
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            {workOrder.type_currency?.symbol || "S/"}{" "}
-                            {labour.total_cost}
+                            {formatMoney(
+                              Number(labour.total_cost),
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            {workOrder.type_currency?.symbol || "S/"}{" "}
-                            {labour.net_amount + labour.tax_amount}
+                            {formatMoney(
+                              labour.net_amount + labour.tax_amount,
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -818,12 +861,18 @@ export default function GeneralInformationPage() {
                             {Number(part.discount_percentage ?? 0).toFixed(2)}%
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            {workOrder.type_currency?.symbol || "S/"}{" "}
-                            {part.total_cost}
+                            {formatMoney(
+                              Number(part.total_cost),
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            {workOrder.type_currency?.symbol || "S/"}{" "}
-                            {part.net_amount + part.tax_amount}
+                            {formatMoney(
+                              part.net_amount + part.tax_amount,
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
                           </td>
                         </tr>
                       ))}

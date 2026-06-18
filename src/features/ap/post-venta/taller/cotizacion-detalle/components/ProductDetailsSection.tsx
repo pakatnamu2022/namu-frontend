@@ -89,6 +89,7 @@ interface ProductDetailsSectionProps {
   currencyId: number;
   discountRequests: DiscountRequestOrderQuotationResource[];
   warehouseId?: number;
+  brandId?: number;
   permissions: {
     canEditDiscount: boolean;
     canApprove: boolean;
@@ -110,6 +111,7 @@ export default function ProductDetailsSection({
   currencyId,
   discountRequests,
   warehouseId,
+  brandId,
   permissions,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
@@ -742,9 +744,21 @@ export default function ProductDetailsSection({
                 control={form.control}
                 useQueryHook={useProduct}
                 mapOptionFn={(product) => ({
-                  label: `${product.code} - ${product.name}`,
+                  label: () => (
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <span className="font-medium truncate">
+                        {product.code} - {product.name}
+                      </span>
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0 bg-orange-100 text-orange-700">
+                        {product.brand.name || "Sin marca"}
+                      </span>
+                    </div>
+                  ),
                   value: product.id.toString(),
                 })}
+                additionalParams={{
+                  brand_id: brandId,
+                }}
                 perPage={10}
                 debounceMs={500}
               />
@@ -754,7 +768,7 @@ export default function ProductDetailsSection({
               <FormInput
                 control={form.control}
                 name="retail_price_external"
-                label="Precio Externo ($)"
+                label="Precio Lista ($)"
                 placeholder="Ej: 1.5"
                 inputMode="decimal"
                 type="text"

@@ -1,7 +1,7 @@
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
-import ResponsiveFilters from "@/shared/components/ResponsiveFilters";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface Props {
   search: string;
@@ -19,11 +19,7 @@ export default function PurchaseOrderWarehouseOptions({
   setSedeId,
 }: Props) {
   return (
-    <ResponsiveFilters
-      title="Filtros"
-      description="Filtra las órdenes de compra de vehículos"
-      breakpoint="lg"
-    >
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -41,6 +37,6 @@ export default function PurchaseOrderWarehouseOptions({
         className="min-w-[250px]"
         classNameOption="text-xs"
       />
-    </ResponsiveFilters>
+    </FilterWrapper>
   );
 }

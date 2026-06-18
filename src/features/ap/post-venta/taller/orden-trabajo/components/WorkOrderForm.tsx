@@ -155,6 +155,7 @@ export const WorkOrderForm = ({
   const watchedInspectionId = form.watch("vehicle_inspection_id");
   const watchedVehicleId = form.watch("vehicle_id");
   const watchedNumDocContact = form.watch("num_doc_contact");
+  const watchedNumDocPickup = form.watch("num_doc_pickup");
   const watchedItems = useWatch({
     control: form.control,
     name: "items",
@@ -169,6 +170,8 @@ export const WorkOrderForm = ({
 
   const isValidLength =
     watchedNumDocContact && watchedNumDocContact.length === 8;
+  const isValidPickupLength =
+    watchedNumDocPickup && watchedNumDocPickup.length === 8;
 
   // Hooks de validación condicional
   const {
@@ -177,17 +180,32 @@ export const WorkOrderForm = ({
     error: dniError,
   } = useDniValidation(watchedNumDocContact, Boolean(isValidLength));
 
+  const {
+    data: dniPickupData,
+    isLoading: isDniPickupLoading,
+    error: dniPickupError,
+  } = useDniValidation(watchedNumDocPickup, Boolean(isValidPickupLength));
+
   // Efecto para auto-completar campos cuando se obtienen datos válidos
   useEffect(() => {
     if (dniData?.data && dniData.success && dniData.data.valid) {
-      const dniInfo = dniData.data;
-      form.setValue("full_contact_name", dniInfo.names, {
+      form.setValue("full_contact_name", dniData.data.names, {
         shouldValidate: true,
       });
     } else {
       form.setValue("full_contact_name", "", { shouldValidate: true });
     }
   }, [form, dniData]);
+
+  useEffect(() => {
+    if (dniPickupData?.data && dniPickupData.success && dniPickupData.data.valid) {
+      form.setValue("full_pickup_name", dniPickupData.data.names, {
+        shouldValidate: true,
+      });
+    } else if (watchedNumDocPickup !== undefined) {
+      form.setValue("full_pickup_name", "", { shouldValidate: true });
+    }
+  }, [form, dniPickupData, watchedNumDocPickup]);
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
@@ -438,7 +456,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Recepción de Vehículo"
           icon={ClipboardCheck}
-          color="primary"
+          color="gray"
           cols={{ sm: 1 }}
         >
           {/* Checkbox Tiene Recepción */}
@@ -545,7 +563,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Datos del Servicio"
           icon={Car}
-          color="gray"
+          color="primary"
           cols={{ sm: 1 }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -835,9 +853,9 @@ export const WorkOrderForm = ({
           </div>
         </GroupFormSection>
 
-        {/* Persona de Contacto */}
+        {/* Persona que Entrega el Vehículo */}
         <GroupFormSection
-          title="Persona de Contacto"
+          title="Entrega el Vehículo"
           icon={User}
           color="gray"
           cols={{ sm: 3 }}
@@ -879,6 +897,70 @@ export const WorkOrderForm = ({
           />
           <FormInput
             name="phone_contact"
+            label="Teléfono"
+            placeholder="Ingrese el teléfono del contacto"
+            control={form.control}
+          />
+        </GroupFormSection>
+
+        {/* Persona que Entrega el Vehículo */}
+        <GroupFormSection
+          title="Recogerá el Vehículo"
+          icon={User}
+          color="primary"
+          cols={{ sm: 3 }}
+          headerExtra={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                form.setValue("num_doc_pickup", form.getValues("num_doc_contact"), { shouldValidate: true });
+                form.setValue("full_pickup_name", form.getValues("full_contact_name") ?? "", { shouldValidate: true });
+                form.setValue("phone_pickup", form.getValues("phone_contact"), { shouldValidate: true });
+              }}
+            >
+              Igual que contacto
+            </Button>
+          }
+        >
+          <FormInput
+            name="num_doc_pickup"
+            label={
+              <>
+                <span>DNI de Contacto</span>
+                <DocumentValidationStatus
+                  shouldValidate={true}
+                  documentNumber={watchedNumDocPickup!}
+                  expectedDigits={8}
+                  isValidating={isDniPickupLoading}
+                  leftPosition=""
+                />
+              </>
+            }
+            labelClassName="w-full justify-between gap-2"
+            placeholder="Número de documento"
+            maxLength={8}
+            control={form.control}
+            addonEnd={
+              <ValidationIndicator
+                show={!!watchedNumDocPickup}
+                isValidating={isDniPickupLoading}
+                isValid={dniPickupData?.success && !!dniPickupData.data}
+                hasError={!!dniPickupError || (dniPickupData && !dniPickupData.success)}
+                positioned={false}
+              />
+            }
+          />
+          <FormInput
+            name="full_pickup_name"
+            label="Nombre Completo"
+            placeholder="Ingrese el nombre del contacto"
+            control={form.control}
+            disabled={dniPickupData?.success && dniPickupData.data?.valid}
+          />
+          <FormInput
+            name="phone_pickup"
             label="Teléfono"
             placeholder="Ingrese el teléfono del contacto"
             control={form.control}

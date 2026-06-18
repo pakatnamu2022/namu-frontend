@@ -6,11 +6,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, User } from "lucide-react";
+import { Plus, FileText, User, Save } from "lucide-react";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import {
   findWorkOrderById,
   updateInvoiceTo,
+  updatePickupPerson,
+  UpdatePickupPersonData,
 } from "../../lib/workOrder.actions";
 import WorkOrderItemForm from "../../../orden-trabajo-item/components/WorkOrderItemForm";
 import { deleteWorkOrderItem } from "../../../orden-trabajo-item/lib/workOrderItem.actions";
@@ -29,6 +31,25 @@ import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hoo
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
+import { FormInput } from "@/shared/components/FormInput";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form } from "@/components/ui/form";
+import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
+import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+
+const pickupPersonSchema = z.object({
+  num_doc_pickup: z
+    .string()
+    .min(1, "Documento requerido")
+    .regex(/^[0-9]{8}$/, "Debe tener 8 dígitos"),
+  full_pickup_name: z.string().min(1, "Nombre requerido"),
+  phone_pickup: z
+    .string()
+    .min(1, "Teléfono requerido")
+    .regex(/^[0-9]{9}$/, "Debe tener 9 dígitos"),
+});
 
 interface OpeningTabProps {
   workOrderId: number;
@@ -82,6 +103,74 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
       errorToast(message);
     },
   });
+
+  // Formulario para persona que recoge el vehículo
+  const pickupForm = useForm<z.infer<typeof pickupPersonSchema>>({
+    resolver: zodResolver(pickupPersonSchema),
+    defaultValues: {
+      num_doc_pickup: "",
+      full_pickup_name: "",
+      phone_pickup: "",
+    },
+    mode: "onChange",
+  });
+
+  // Mutación para actualizar pickup person
+  const pickupMutation = useMutation({
+    mutationFn: (data: UpdatePickupPersonData) =>
+      updatePickupPerson(workOrderId, data),
+    onSuccess: () => {
+      successToast("Persona que recoge actualizada");
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        "Error al actualizar la persona que recoge";
+      errorToast(message);
+    },
+  });
+
+  // Si ya existe datos de pickup desde el backend, precargar el form
+  useEffect(() => {
+    if (workOrder?.num_doc_pickup) {
+      pickupForm.reset({
+        num_doc_pickup: workOrder.num_doc_pickup,
+        full_pickup_name: workOrder.full_pickup_name ?? "",
+        phone_pickup: workOrder.phone_pickup ?? "",
+      });
+    }
+  }, [
+    workOrder?.num_doc_pickup,
+    workOrder?.full_pickup_name,
+    workOrder?.phone_pickup,
+    pickupForm,
+  ]);
+
+  const watchedNumDocPickup = pickupForm.watch("num_doc_pickup");
+  const isValidPickupLength = watchedNumDocPickup?.length === 8;
+
+  const {
+    data: dniPickupData,
+    isLoading: isDniPickupLoading,
+    error: dniPickupError,
+  } = useDniValidation(watchedNumDocPickup, Boolean(isValidPickupLength));
+
+  useEffect(() => {
+    if (
+      dniPickupData?.data &&
+      dniPickupData.success &&
+      dniPickupData.data.valid
+    ) {
+      pickupForm.setValue("full_pickup_name", dniPickupData.data.names, {
+        shouldValidate: true,
+      });
+    }
+  }, [dniPickupData, pickupForm]);
+
+  const handlePickupSubmit = (data: z.infer<typeof pickupPersonSchema>) => {
+    pickupMutation.mutate(data);
+  };
 
   // Si ya existe invoice_to desde el backend, precargar el select
   const invoiceToDefaultOption = useMemo(() => {
@@ -317,6 +406,115 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Sección: Persona que recoge el vehículo */}
+      <div className="border-t pt-6">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">
+              Recogerá el Vehículo
+            </h4>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Persona autorizada a retirar el vehículo del taller
+            </p>
+          </div>
+        </div>
+
+        <Form {...pickupForm}>
+          <form onSubmit={pickupForm.handleSubmit(handlePickupSubmit)}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-4 items-start">
+                <FormInput
+                  name="num_doc_pickup"
+                  label={
+                    <>
+                      <span>DNI</span>
+                      <DocumentValidationStatus
+                        shouldValidate={true}
+                        documentNumber={watchedNumDocPickup!}
+                        expectedDigits={8}
+                        isValidating={isDniPickupLoading}
+                        leftPosition=""
+                      />
+                    </>
+                  }
+                  labelClassName="w-full justify-between gap-2"
+                  placeholder="12345678"
+                  maxLength={8}
+                  control={pickupForm.control}
+                  addonEnd={
+                    <ValidationIndicator
+                      show={!!watchedNumDocPickup}
+                      isValidating={isDniPickupLoading}
+                      isValid={dniPickupData?.success && !!dniPickupData.data}
+                      hasError={
+                        !!dniPickupError ||
+                        (dniPickupData && !dniPickupData.success)
+                      }
+                      positioned={false}
+                    />
+                  }
+                />
+                <FormInput
+                  name="full_pickup_name"
+                  label="Nombre Completo"
+                  placeholder="Nombre del receptor"
+                  control={pickupForm.control}
+                  disabled={dniPickupData?.success && dniPickupData.data?.valid}
+                />
+                <FormInput
+                  name="phone_pickup"
+                  label="Teléfono"
+                  placeholder="987654321"
+                  maxLength={9}
+                  control={pickupForm.control}
+                />
+              </div>
+
+              {/* Info actual si ya tiene datos */}
+              {workOrder?.num_doc_pickup && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+                  <div className="flex-1 grid grid-cols-1 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Nombre registrado
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {workOrder.full_pickup_name || "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        DNI / Teléfono
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {workOrder.num_doc_pickup} /{" "}
+                        {workOrder.phone_pickup || "—"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <Button
+                type="submit"
+                disabled={
+                  pickupMutation.isPending || !pickupForm.formState.isValid
+                }
+                size="sm"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {pickupMutation.isPending ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
 
       {/* Empty State */}

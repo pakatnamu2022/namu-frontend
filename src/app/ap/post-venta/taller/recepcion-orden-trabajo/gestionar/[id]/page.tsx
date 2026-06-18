@@ -112,8 +112,7 @@ export default function ManageWorkOrderPage() {
                     Gestión de Orden de Trabajo
                   </h1>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
-                    #: {workOrder.correlative} - Placa:{" "}
-                    {workOrder.vehicle_plate}
+                    {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
                   </p>
                 </div>
               </div>

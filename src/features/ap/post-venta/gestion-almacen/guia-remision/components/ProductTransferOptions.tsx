@@ -1,5 +1,6 @@
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface.ts";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 
@@ -27,7 +28,7 @@ export default function ProductTransferOptions({
   setWarehouseId,
 }: Props) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -54,6 +55,6 @@ export default function ProductTransferOptions({
         }}
         className="w-auto min-w-56"
       />
-    </div>
+    </FilterWrapper>
   );
 }

@@ -1,3 +1,4 @@
+import FilterWrapper from "@/shared/components/FilterWrapper";
 import SearchInput from "@/shared/components/SearchInput";
 
 export default function SuppliersOptions({
@@ -8,12 +9,12 @@ export default function SuppliersOptions({
   setSearch: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
         placeholder="Buscar proveedor..."
       />
-    </div>
+    </FilterWrapper>
   );
 }

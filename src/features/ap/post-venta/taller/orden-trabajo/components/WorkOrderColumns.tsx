@@ -6,6 +6,7 @@ import { WorkOrderActionCell } from "./WorkOrderActionCell";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
 import { formatDate } from "@/core/core.function";
+import { Calendar } from "lucide-react";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -42,49 +43,52 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "vehicle_plate",
+    id: "plate_mileage",
     header: "Placa",
+    cell: ({ row }) => {
+      const plate = row.original.vehicle_plate;
+      const mileage = row.original.mileage;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium">{plate || "-"}</span>
+          <span className="text-xs text-muted-foreground">
+            {mileage ? `${mileage} km` : "-"}
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "vehicle_vin",
     header: "VIN",
   },
   {
-    accessorKey: "mileage",
-    header: "Kilometraje",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value ? `${value} km` : "-";
-    },
-  },
-  {
-    accessorKey: "fuel_level",
-    header: "Nivel de Combustible",
-  },
-  {
-    accessorKey: "opening_date",
-    header: "Fecha de Apertura",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
-    },
-  },
-  {
-    accessorKey: "estimated_delivery_date",
-    header: "Fecha Est. Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const opening = row.original.opening_date;
+      const estimated = row.original.estimated_delivery_date;
+      const fmt = (v: string) => {
+        try {
+          return formatDate(v);
+        } catch {
+          return v;
+        }
+      };
+      return (
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Apertura:</span>
+            {opening ? fmt(opening) : "-"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Est. Entrega:</span>
+            {estimated ? fmt(estimated) : "-"}
+          </span>
+        </div>
+      );
     },
   },
   {
@@ -144,26 +148,26 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "is_guarantee",
-    header: "Garantía",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
+    id: "guarantee_recall",
+    header: "Garantía / Recall",
+    cell: ({ row }) => {
+      const isGuarantee = row.original.is_guarantee;
+      const isRecall = row.original.is_recall;
       return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "is_recall",
-    header: "Recall",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-muted-foreground w-14">Garantía:</span>
+            <Badge variant="outline" color={isGuarantee ? "green" : "gray"}>
+              {isGuarantee ? "Sí" : "No"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-muted-foreground w-14">Recall:</span>
+            <Badge variant="outline" color={isRecall ? "green" : "gray"}>
+              {isRecall ? "Sí" : "No"}
+            </Badge>
+          </div>
+        </div>
       );
     },
   },
@@ -206,6 +210,10 @@ export const workOrderColumns = ({
         </Badge>
       );
     },
+  },
+  {
+    accessorKey: "created_by_name",
+    header: "Creado Por",
   },
   {
     accessorKey: "delivery_by_name",

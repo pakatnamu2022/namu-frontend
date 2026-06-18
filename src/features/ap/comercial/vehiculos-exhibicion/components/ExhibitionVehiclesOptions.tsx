@@ -1,6 +1,5 @@
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
-import ResponsiveFilters from "@/shared/components/ResponsiveFilters";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { useAllVehicleStatus } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.hook";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
@@ -8,6 +7,7 @@ import { Option } from "@/core/core.interface";
 import { useMemo } from "react";
 import ExportButtons from "@/shared/components/ExportButtons";
 import { EXHIBITION_VEHICLES } from "../lib/exhibitionVehicles.constants";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface Props {
   search: string;
@@ -49,7 +49,7 @@ export default function ExhibitionVehiclesOptions({
         label: worker.name,
       })),
     ],
-    [workers]
+    [workers],
   );
 
   const propietarioOptions = useMemo<Option[]>(
@@ -59,7 +59,7 @@ export default function ExhibitionVehiclesOptions({
         label: worker.name,
       })),
     ],
-    [workers]
+    [workers],
   );
 
   const vehicleStatusOptions = useMemo<Option[]>(
@@ -69,7 +69,7 @@ export default function ExhibitionVehiclesOptions({
         label: status.description,
       })),
     ],
-    [vehicleStatuses]
+    [vehicleStatuses],
   );
 
   const ubicacionOptions = useMemo<Option[]>(
@@ -79,7 +79,7 @@ export default function ExhibitionVehiclesOptions({
         label: warehouse.description,
       })),
     ],
-    [warehouses]
+    [warehouses],
   );
 
   const statusOptions: Option[] = [
@@ -88,11 +88,7 @@ export default function ExhibitionVehiclesOptions({
   ];
 
   return (
-    <ResponsiveFilters
-      title="Filtros"
-      description="Filtra los vehículos de exhibición"
-      breakpoint="lg"
-    >
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -111,7 +107,9 @@ export default function ExhibitionVehiclesOptions({
       <SearchableSelect
         options={vehicleStatusOptions}
         value={vehicleStatusIds[0] || "all"}
-        onChange={(value) => setVehicleStatusIds(value === "all" ? [] : [value])}
+        onChange={(value) =>
+          setVehicleStatusIds(value === "all" ? [] : [value])
+        }
         placeholder="Seleccionar estado de vehículo"
         className="min-w-[250px]"
         classNameOption="text-xs"
@@ -151,6 +149,6 @@ export default function ExhibitionVehiclesOptions({
         pdfFileName="vehiculos-exhibicion.pdf"
         variant="grouped"
       />
-    </ResponsiveFilters>
+    </FilterWrapper>
   );
 }

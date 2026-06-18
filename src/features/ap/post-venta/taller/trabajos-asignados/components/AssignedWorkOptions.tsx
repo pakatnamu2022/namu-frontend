@@ -2,6 +2,7 @@
 import { type WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
@@ -37,7 +38,7 @@ export default function AssignedWorkOptions({
   setDateTo,
 }: AssignedWorkOptionsProps) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -76,6 +77,6 @@ export default function AssignedWorkOptions({
         }}
         className="w-auto min-w-56"
       />
-    </div>
+    </FilterWrapper>
   );
 }
