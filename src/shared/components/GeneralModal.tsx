@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import * as LucideReact from "lucide-react";
-import { useIsTablet } from "@/hooks/use-tablet";
 import { SheetFooter } from "@/components/ui/sheet";
 
 interface GeneralModalProps {
@@ -85,9 +84,8 @@ export function GeneralModal({
     : null;
 
   const isMobile = useIsMobile();
-  const isTablet = useIsTablet();
 
-  const type = isMobile ? "mobile" : isTablet ? "tablet" : "default";
+  const type = isMobile ? "mobile" : "default";
   {
     return type === "default" ? (
       <Dialog
@@ -130,7 +128,7 @@ export function GeneralModal({
           className={cn(
             sizes[size],
             className,
-            "pb-0 flex flex-col max-h-[96vh]",
+            "pb-0 flex flex-col max-h-[96vh] mx-auto",
           )}
         >
           <DrawerHeader className="shrink-0 p-2">

@@ -420,7 +420,6 @@ import UpdateLoanPage from "./app/gp/gestion-humana/planillas/prestamos/actualiz
 import LoanAmortizacionesPage from "./app/gp/gestion-humana/planillas/prestamos/[id]/amortizaciones/page.tsx";
 import InsurancePage from "./app/gp/gestion-humana/planillas/seguros/page.tsx";
 import WorkingConditionPage from "./app/gp/gestion-humana/planillas/condiciones-trabajo/page.tsx";
-import AddWorkingConditionPage from "./app/gp/gestion-humana/planillas/condiciones-trabajo/agregar/page.tsx";
 import InsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/page.tsx";
 import AddInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/agregar/page.tsx";
 import UpdateInsurerPage from "./app/gp/gestion-humana/planillas/aseguradora/actualizar/[id]/page.tsx";
@@ -2032,10 +2031,6 @@ function App() {
               <Route
                 path="planillas/condiciones-trabajo"
                 element={<WorkingConditionPage />}
-              />
-              <Route
-                path="planillas/condiciones-trabajo/agregar"
-                element={<AddWorkingConditionPage />}
               />
               {/* Registro de Planilla */}
               <Route

@@ -38,10 +38,6 @@ export default function AddOrderQuotationMesonPage() {
     }
   };
 
-  const handleCancel = () => {
-    router(ABSOLUTE_ROUTE);
-  };
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -57,7 +53,6 @@ export default function AddOrderQuotationMesonPage() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         mode="create"
-        onCancel={handleCancel}
       />
     </FormWrapper>
   );

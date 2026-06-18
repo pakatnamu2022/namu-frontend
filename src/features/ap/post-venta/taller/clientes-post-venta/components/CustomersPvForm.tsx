@@ -34,7 +34,6 @@ import {
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import {
   CustomersPvSchema,
@@ -54,6 +53,7 @@ interface CustomersPvFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   isModal?: boolean;
+  absoluteRoute?: string;
 }
 
 export const CustomersPvForm = ({
@@ -62,6 +62,7 @@ export const CustomersPvForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  absoluteRoute,
 }: CustomersPvFormProps) => {
   const router = useNavigate();
 
@@ -78,7 +79,6 @@ export const CustomersPvForm = ({
     },
     mode: "onChange",
   });
-  const { ABSOLUTE_ROUTE } = CUSTOMERS_PV;
 
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const [companyStatus, setCompanyStatus] = useState("-");
@@ -682,7 +682,7 @@ export const CustomersPvForm = ({
             icon="warning"
             onConfirm={() => {
               if (onCancel) onCancel();
-              else router(ABSOLUTE_ROUTE!);
+              else router(absoluteRoute!);
             }}
           />
 

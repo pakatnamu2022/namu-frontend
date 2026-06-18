@@ -440,3 +440,30 @@ export const formatMoney = (
   });
   return `${currencySymbol} ${formatted}`;
 };
+
+/**
+ * Formatea un periodo de planilla a texto legible (ej: "2026-05" → "Mayo 2026").
+ * Acepta un código "YYYY-MM", un objeto { code, description } o un string libre.
+ */
+export const formatPeriod = (
+  period:
+    | string
+    | { code?: string | null; description?: string | null }
+    | null
+    | undefined,
+): string => {
+  if (!period) return "—";
+
+  const code = typeof period === "string" ? period : period.code;
+
+  if (code && /^\d{4}-\d{2}$/.test(code)) {
+    const [year, month] = code.split("-").map(Number);
+    const date = new Date(year, month - 1, 1);
+    const label = date.toLocaleDateString("es-PE", { month: "long", year: "numeric" });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  if (typeof period !== "string" && period.description) return period.description;
+  if (code) return code;
+  return "—";
+};

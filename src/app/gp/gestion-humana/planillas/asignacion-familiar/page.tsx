@@ -47,7 +47,7 @@ export default function FamilyAllowancePage() {
     per_page,
     search,
     year,
-    company_id: companyId,
+    period$company_id: companyId,
     ...(periodId ? { period_id: periodId } : {}),
   });
 
@@ -63,7 +63,7 @@ export default function FamilyAllowancePage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <FamilyAllowanceActions />
+        <FamilyAllowanceActions companyId={companyId} year={year} />
       </HeaderTableWrapper>
 
       <FamilyAllowanceTable

@@ -101,6 +101,16 @@ export async function matchVins(file: File): Promise<VinMatchResponse> {
   return data;
 }
 
+export async function storeReplacement(
+  data: VehicleRequest
+): Promise<VehicleResource> {
+  const response = await api.post<VehicleResource>(
+    `${ENDPOINT}/store-replacement`,
+    data
+  );
+  return response.data;
+}
+
 export async function getVehiclePurchaseOrder(
   vehicleId: number
 ): Promise<VehiclePurchaseOrderData> {

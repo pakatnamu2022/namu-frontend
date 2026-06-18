@@ -2,26 +2,26 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { InsuranceResource } from "../lib/insurance.interface";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { formatMoney, formatPeriod } from "@/core/core.function";
 
 export type InsuranceColumns = ColumnDef<InsuranceResource>;
 
-export const insuranceColumns = ({
-  onDelete,
-}: {
-  onDelete: (id: number) => void;
-}): InsuranceColumns[] => [
+export const insuranceColumns = (): InsuranceColumns[] => [
+  {
+    accessorKey: "period",
+    header: "Periodo",
+    cell: ({ row }) => (
+      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
+        {formatPeriod(row.original.period)}
+      </span>
+    ),
+  },
   {
     accessorKey: "worker",
     header: "Trabajador",
     cell: ({ getValue }) => (
       <span className="font-semibold">{(getValue() as string) ?? "—"}</span>
     ),
-  },
-  {
-    accessorKey: "period",
-    header: "Periodo",
-    cell: ({ getValue }) => <span>{(getValue() as string) ?? "—"}</span>,
   },
   {
     accessorKey: "business_partner",
@@ -35,9 +35,6 @@ export const insuranceColumns = ({
   {
     accessorKey: "doc_number_affiliate",
     header: "N° Doc. Afiliado",
-    cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
-    ),
   },
   {
     accessorKey: "contracting_name",
@@ -47,33 +44,13 @@ export const insuranceColumns = ({
   {
     accessorKey: "num_doc_contracting",
     header: "N° Doc. Contratante",
-    cell: ({ getValue }) => (
-      <span className="font-mono text-sm">{(getValue() as string) ?? "—"}</span>
-    ),
   },
   {
     accessorKey: "rate_with_tax",
     header: "Tasa c/ IGV",
     cell: ({ getValue }) => {
       const val = getValue() as number;
-      return (
-        <span className="font-mono">
-          S/{" "}
-          {val?.toLocaleString("es-PE", { minimumFractionDigits: 2 }) ?? "0.00"}
-        </span>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const { id } = row.original;
-      return (
-        <div className="flex items-center gap-2">
-          <DeleteButton onClick={() => onDelete(id)} />
-        </div>
-      );
+      return formatMoney(val);
     },
   },
 ];

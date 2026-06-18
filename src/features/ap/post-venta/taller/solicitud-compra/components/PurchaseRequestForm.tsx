@@ -619,14 +619,13 @@ export default function PurchaseRequestForm({
                   <div className="border rounded-lg overflow-hidden">
                     {/* Cabecera de tabla - Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-                      <div className="col-span-2">Código</div>
-                      <div className="col-span-2">Repuesto</div>
+                      <div className="col-span-3">Repuesto</div>
                       <div className="col-span-2">Tipo Abastec.</div>
                       <div className="col-span-1">Cantidad</div>
                       <div className="col-span-1">P. Unit.</div>
                       <div className="col-span-1">Desc. %</div>
                       <div className="col-span-1">Total</div>
-                      <div className="col-span-2">Notas</div>
+                      <div className="col-span-3">Notas</div>
                     </div>
 
                     {/* Items */}
@@ -636,26 +635,18 @@ export default function PurchaseRequestForm({
                           <div key={index}>
                             {/* Vista Desktop */}
                             <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                              <div className="col-span-2">
-                                <div className="flex items-center gap-1">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
-                                    {detail.product_code ? (
-                                      <CopyCell
-                                        value={detail.product_code}
-                                        label={`Cód: ${detail.product_code}`}
-                                      />
-                                    ) : (
-                                      <span className="text-gray-500">-</span>
-                                    )}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="col-span-2">
+                              <div className="col-span-3">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Repuesto #${detail.product_id}`}
                                 </p>
+                                {detail.product_code && (
+                                  <CopyCell
+                                    value={detail.product_code}
+                                    label={`Cód: ${detail.product_code}`}
+                                    className="text-xs text-gray-500 mt-0.5"
+                                  />
+                                )}
                               </div>
 
                               <div className="col-span-2">

@@ -8,6 +8,8 @@ import { z } from "zod";
 // Schema para los detalles de productos
 export const productTransferDetailSchema = z.object({
   product_id: z.string().optional(),
+  code: z.string().max(50, "El código no puede superar los 50 caracteres").optional(),
+  description: z.string().optional(),
   quantity: requiredNumber("La cantidad es requerida"),
   unit_cost: z.string().optional(),
   notes: z.string().optional(),
@@ -66,16 +68,31 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   )
   .refine(
     (data) => {
-      // Si es SERVICIO, todos los detalles deben tener notes con al menos 6 caracteres
+      // Si es SERVICIO, todos los detalles deben tener description con al menos 6 caracteres
       if (data.item_type === "SERVICIO") {
         return data.details.every((detail) => {
-          return detail.notes && detail.notes.length >= 6;
+          return detail.description && detail.description.length >= 6;
         });
       }
       return true;
     },
     {
       message: "Todas las descripciones deben tener al menos 6 caracteres",
+      path: ["details"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si es SERVICIO, todos los detalles deben tener code
+      if (data.item_type === "SERVICIO") {
+        return data.details.every((detail) => {
+          return detail.code && detail.code.length > 0;
+        });
+      }
+      return true;
+    },
+    {
+      message: "Todos los códigos de servicio son requeridos",
       path: ["details"],
     },
   )

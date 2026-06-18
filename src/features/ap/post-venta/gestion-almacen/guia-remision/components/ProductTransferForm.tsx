@@ -435,8 +435,10 @@ export const ProductTransferForm = ({
     } else {
       // Para servicios
       append({
-        notes: "",
+        code: "",
+        description: "",
         quantity: 1,
+        notes: "",
       });
     }
   };
@@ -571,17 +573,16 @@ export const ProductTransferForm = ({
           <div className="space-y-2">
             <div className="flex items-center gap-2 relative">
               <FormLabel className="leading-none">Ubicación Destino</FormLabel>
-              {selectedCustomer &&
-                mode === "create" && (
-                  <button
-                    type="button"
-                    onClick={() => setIsDestinationModalOpen(true)}
-                    className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                    title="Seleccionar establecimiento"
-                  >
-                    <Search className="h-4 w-4 text-primary" />
-                  </button>
-                )}
+              {selectedCustomer && mode === "create" && (
+                <button
+                  type="button"
+                  onClick={() => setIsDestinationModalOpen(true)}
+                  className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                  title="Seleccionar establecimiento"
+                >
+                  <Search className="h-4 w-4 text-primary" />
+                </button>
+              )}
             </div>
             <FormSelectAsync
               name="receiver_destination_id"
@@ -609,7 +610,7 @@ export const ProductTransferForm = ({
               }
               disabled={
                 watchTransferReasonId ===
-                  SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+                SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
               }
               onValueChange={(value, item: CustomersResource | undefined) => {
                 if (value && item) {
@@ -997,6 +998,9 @@ export const ProductTransferForm = ({
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-10">
                       #
                     </th>
+                    <th className="text-left px-4 py-2.5 font-medium text-muted-foreground w-32">
+                      Código
+                    </th>
                     <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">
                       Descripción
                     </th>
@@ -1016,9 +1020,20 @@ export const ProductTransferForm = ({
                           {index + 1}
                         </span>
                       </td>
+                      <td className="px-4 py-3">
+                        {transferData?.details?.[index]?.code ? (
+                          <CopyCell
+                            className="text-xs font-mono text-muted-foreground"
+                            value={transferData.details[index].code}
+                            label={transferData.details[index].code}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 font-medium">
-                        {transferData?.details?.[index]?.notes ||
-                          form.getValues(`details.${index}.notes`) ||
+                        {transferData?.details?.[index]?.description ||
+                          form.getValues(`details.${index}.description`) ||
                           "—"}
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums font-medium">
@@ -1143,9 +1158,19 @@ export const ProductTransferForm = ({
                     </div>
                   ) : (
                     /* Campos para SERVICIO */
-                    <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                    <div className="grid gap-3 grid-cols-[160px_1fr_100px]">
                       <FormInput
-                        name={`details.${index}.notes`}
+                        name={`details.${index}.code`}
+                        label="Código"
+                        placeholder="Ej: SERV-001"
+                        control={form.control}
+                        disabled={mode === "update"}
+                        maxLength={50}
+                        required
+                      />
+
+                      <FormInput
+                        name={`details.${index}.description`}
                         label="Descripción (mín. 6 caracteres)"
                         placeholder="Ej: Sobres de documentos, celulares, etc."
                         control={form.control}

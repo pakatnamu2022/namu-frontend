@@ -38,7 +38,7 @@ export default function AddCustomersPvPage() {
       // Redirect based on redirect_to param
       if (redirectTo === "opportunities") {
         router(
-          `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`
+          `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`,
         );
       } else {
         router(ABSOLUTE_ROUTE!);
@@ -89,6 +89,7 @@ export default function AddCustomersPvPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        absoluteRoute={ABSOLUTE_ROUTE}
       />
     </FormWrapper>
   );

@@ -28,6 +28,7 @@ import {
   WORK_ORDER_STATUS_COLORS,
   WORKER_ORDER,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
@@ -161,24 +162,27 @@ export default function ManageWorkOrderPage() {
                     Gestión de Orden de Trabajo
                   </h1>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
-                    #: {workOrder.correlative} - Placa:{" "}
-                    {workOrder.vehicle_plate}
+                    {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
                   </p>
                 </div>
               </div>
-              <div className="shrink-0 flex flex-col sm:flex-row items-start sm:items-end gap-2 sm:gap-3">
+              <div className="shrink-0 flex flex-wrap items-start gap-4">
                 {workOrder.type_currency && (
-                  <div className="text-left sm:text-right">
-                    <p className="text-xs sm:text-sm text-gray-600">Moneda</p>
-                    <span className="inline-flex max-w-full items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
-                      <span className="truncate">
-                        {workOrder.type_currency.symbol} —{" "}
-                        {workOrder.type_currency.name}
-                      </span>
+                  <div className="flex flex-col items-end">
+                    <p className="text-xs text-gray-500 mb-1">Moneda</p>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 whitespace-nowrap">
+                      {workOrder.type_currency.symbol} —{" "}
+                      {workOrder.type_currency.name}
                     </span>
+                    {String(workOrder.type_currency.id) ===
+                      CURRENCY_TYPE_IDS.DOLLARS && (
+                      <p className="text-xs text-gray-500 mt-1 whitespace-nowrap">
+                        TC: S/ {workOrder.exchange_rate?.toFixed(2)}
+                      </p>
+                    )}
                   </div>
                 )}
-                <div className="flex flex-col items-start sm:items-end">
+                <div className="flex flex-col items-end">
                   <span className="text-xs text-gray-500 mb-1">Estado</span>
                   <Badge variant="outline" color={color}>
                     {workOrder.status.description}

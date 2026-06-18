@@ -27,7 +27,7 @@ export interface WarehouseStockDetail {
   last_movement_date: string | null;
   is_low_stock: boolean;
   is_out_of_stock: boolean;
-  stock_status: "NORMAL" | "LOW" | "OUT";
+  stock_status: "NORMAL" | "LOW_STOCK" | "OUT_OF_STOCK" | "OVER_STOCK";
   warehouse: WarehouseResource;
   created_at: string;
   updated_at: string;

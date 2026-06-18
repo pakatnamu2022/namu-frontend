@@ -89,6 +89,7 @@ export default function AddCustomersRpPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        absoluteRoute={ABSOLUTE_ROUTE}
       />
     </FormWrapper>
   );

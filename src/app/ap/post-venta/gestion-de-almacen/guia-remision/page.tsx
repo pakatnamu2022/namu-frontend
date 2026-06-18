@@ -86,16 +86,19 @@ export default function ProductTransferPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, isFetching, refetch } = useProductTransfers({
-    page,
-    search,
-    per_page,
-    movement_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-    warehouse_id: warehouseId || undefined,
-  });
+  const { data, isLoading, isFetching, refetch } = useProductTransfers(
+    {
+      page,
+      search,
+      per_page,
+      movement_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      warehouse_id: warehouseId || undefined,
+    },
+    !!warehouseId,
+  );
 
   const handleView = (id: number) => {
     setViewId(id);

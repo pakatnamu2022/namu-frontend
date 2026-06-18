@@ -2,13 +2,22 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { WORKING_CONDITION } from "../lib/working-condition.constant";
+import WorkingConditionAddModal from "./WorkingConditionAddModal";
+import { useState } from "react";
 
-const { MODEL, ROUTE_ADD } = WORKING_CONDITION;
+const { MODEL } = WORKING_CONDITION;
 
-export default function WorkingConditionActions() {
-  const push = useNavigate();
+interface WorkingConditionActionsProps {
+  companyId: string;
+  companyName?: string;
+}
+
+export default function WorkingConditionActions({
+  companyId,
+  companyName,
+}: WorkingConditionActionsProps) {
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="flex items-center gap-2 w-full md:w-auto md:ml-auto">
@@ -16,10 +25,17 @@ export default function WorkingConditionActions() {
         size="sm"
         variant="outline"
         className="w-full md:w-auto"
-        onClick={() => push(ROUTE_ADD)}
+        onClick={() => setOpen(true)}
       >
-        <Plus className="size-4 mr-2" /> Agregar {MODEL.name}
+        <Plus className="size-4 mr-2" /> Importar {MODEL.name}
       </Button>
+
+      <WorkingConditionAddModal
+        open={open}
+        onClose={() => setOpen(false)}
+        companyId={companyId}
+        companyName={companyName}
+      />
     </div>
   );
 }

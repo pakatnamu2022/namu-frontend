@@ -69,9 +69,23 @@ const detailColumns: DetailSheetTableColumn<ProductTransferDetailResource>[] = [
           )}
         </div>
       ) : (
-        <span className="font-medium text-sm">
-          {detail.notes || "Servicio sin descripción"}
-        </span>
+        <div className="flex flex-col gap-0.5">
+          {detail.code && (
+            <CopyCell
+              value={detail.code}
+              label={`Cód: ${detail.code}`}
+              className="text-xs text-muted-foreground font-mono"
+            />
+          )}
+          <span className="font-medium text-sm">
+            {detail.description || "Servicio sin descripción"}
+          </span>
+          {detail.notes && (
+            <span className="text-xs text-muted-foreground italic">
+              Nota: {detail.notes}
+            </span>
+          )}
+        </div>
       ),
   },
   {

@@ -592,7 +592,7 @@ export default function InventoryMovementDetailsSheet({
                     {quotation.client.full_name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {quotation.client.document_type}: {quotation.client.num_doc}
+                    Num Doc :{quotation.client.num_doc}
                   </p>
                 </div>
                 <div>

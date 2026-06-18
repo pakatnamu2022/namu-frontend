@@ -65,6 +65,9 @@ export default function AddWorkOrderPage() {
           num_doc_contact: "",
           full_contact_name: "",
           phone_contact: "",
+          num_doc_pickup: "",
+          full_pickup_name: "",
+          phone_pickup: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

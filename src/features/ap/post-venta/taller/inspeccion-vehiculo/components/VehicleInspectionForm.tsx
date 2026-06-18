@@ -8,7 +8,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
   Loader,
@@ -24,7 +23,6 @@ import {
   vehicleInspectionSchemaCreate,
   vehicleInspectionSchemaUpdate,
 } from "../lib/vehicleInspection.schema";
-import { BUSINESS_PARTNERS } from "@/core/core.constants";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
 import VehicleDamageMarker from "./VehicleDamageMarker";
@@ -46,7 +44,6 @@ interface VehicleInspectionFormProps {
   dateOrderWork?: Date;
   ownerName?: string;
   contactName?: string;
-  ownerDocumentTypeId?: string;
 }
 
 // Niveles de combustible
@@ -76,18 +73,11 @@ export const VehicleInspectionForm = ({
   dateOrderWork = undefined,
   ownerName,
   contactName,
-  ownerDocumentTypeId,
 }: VehicleInspectionFormProps) => {
-  const isOwnerNatural =
-    ownerDocumentTypeId === BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID;
-
-  // Si el propietario no es persona natural, forzar signer_type a CONTACT
   useEffect(() => {
-    if (!isOwnerNatural) {
-      form.setValue("signer_type", "CONTACT");
-    }
+    form.setValue("signer_type", "CONTACT");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOwnerNatural]);
+  }, []);
   const workDetailFields = [
     "oil_change",
     "check_level_lights",
@@ -672,64 +662,16 @@ export const VehicleInspectionForm = ({
           color="primary"
           cols={{ sm: 1 }}
         >
-          {/* Switch de firmante */}
-          <div className="flex flex-col gap-3">
-            <FormField
-              control={form.control}
-              name="signer_type"
-              render={({ field }) => {
-                // Si el propietario no es persona natural (DNI), forzar contacto
-                const forcedContact = !isOwnerNatural;
-                const isContact = forcedContact || field.value === "CONTACT";
-                const signerName = isContact
-                  ? contactName || "Sin contacto"
-                  : ownerName || "Sin propietario";
-                return (
-                  <FormItem>
-                    <div className="flex flex-row items-center justify-between rounded-md border shadow-xs bg-background px-4 py-3 gap-4">
-                      <div className="flex flex-col gap-0.5">
-                        <p className="text-sm font-medium leading-tight">
-                          ¿Quién firma?
-                        </p>
-                        <p className="text-xs text-muted-foreground leading-tight">
-                          {isContact ? "Contacto" : "Propietario"}
-                          {forcedContact && (
-                            <span className="ml-1 text-amber-600">
-                              (el propietario es empresa, solo puede firmar el
-                              contacto)
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-base font-semibold text-foreground leading-snug mt-0.5">
-                          {signerName}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span
-                          className={`text-sm font-medium ${!isContact ? "text-primary" : "text-muted-foreground"}`}
-                        >
-                          Propietario
-                        </span>
-                        <FormControl>
-                          <Switch
-                            checked={isContact}
-                            onCheckedChange={(checked) =>
-                              field.onChange(checked ? "CONTACT" : "OWNER")
-                            }
-                            disabled={isSubmitting || forcedContact}
-                          />
-                        </FormControl>
-                        <span
-                          className={`text-sm font-medium ${isContact ? "text-primary" : "text-muted-foreground"}`}
-                        >
-                          Contacto
-                        </span>
-                      </div>
-                    </div>
-                  </FormItem>
-                );
-              }}
-            />
+          {/* Entrega el vehículo: siempre el contacto */}
+          <div className="flex flex-row items-center rounded-md border shadow-xs bg-background px-4 py-3 gap-4">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-sm font-medium leading-tight">
+                Entregó el vehículo
+              </p>
+              <p className="text-base font-semibold text-foreground leading-snug mt-0.5">
+                {contactName || ownerName || "Sin contacto"}
+              </p>
+            </div>
           </div>
 
           <FormField

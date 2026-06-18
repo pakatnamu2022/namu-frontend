@@ -26,7 +26,6 @@ import {
   Trash2,
   Package,
   PackagePlus,
-  ExternalLink,
   Copy,
   Check,
   User,
@@ -34,6 +33,8 @@ import {
   FileText,
   Calendar,
   Gauge,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -68,7 +69,7 @@ import {
   useVehicleById,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
-import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/VehicleRepuestosModal";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
@@ -81,9 +82,14 @@ import {
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
-import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
+import {
+  ORDER_QUOTATION_MESON,
+  STATUS_ORDER_QUOTATION,
+} from "../../../taller/cotizacion/lib/proforma.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { DataCard } from "@/components/DataCard";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from "react-router-dom";
 
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
@@ -96,6 +102,9 @@ function ProductDetailItem({
   approvedDiscount,
   defaultDiscount,
   isDetailsDisabled = false,
+  showStock,
+  onToggleStock,
+  selectedVehicle,
 }: {
   index: number;
   form: any;
@@ -107,6 +116,9 @@ function ProductDetailItem({
   approvedDiscount?: number;
   defaultDiscount: number;
   isDetailsDisabled?: boolean;
+  showStock: boolean;
+  onToggleStock: () => void;
+  selectedVehicle: VehicleResource | null;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -166,6 +178,8 @@ function ProductDetailItem({
     }
   }, [productData, index, form]);
 
+  const hasStock = !!(currentProductStock && productId);
+
   return (
     <div className="border rounded-lg bg-white transition-colors">
       {/* Vista Desktop - Formato Tabla */}
@@ -183,9 +197,21 @@ function ProductDetailItem({
                 control={form.control}
                 useQueryHook={useProduct}
                 mapOptionFn={(product) => ({
-                  label: `${product.code} - ${product.name}`,
+                  label: () => (
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <span className="font-medium truncate">
+                        {product.code} - {product.name}
+                      </span>
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0 bg-orange-100 text-orange-700">
+                        {product.brand.name || "Sin marca"}
+                      </span>
+                    </div>
+                  ),
                   value: product.id.toString(),
                 })}
+                additionalParams={{
+                  brand_id: selectedVehicle?.model.brand_id,
+                }}
                 perPage={10}
                 debounceMs={500}
                 defaultOption={defaultProductOption}
@@ -196,10 +222,10 @@ function ProductDetailItem({
         </div>
 
         {/* Tarjeta de stock expandida - se extiende hasta antes del botón eliminar */}
-        {currentProductStock && productId && (
+        {hasStock && showStock && (
           <div className="col-span-14 row-start-2 col-start-1">
             <StockWarehousesCard
-              stock={currentProductStock}
+              stock={currentProductStock!}
               productInfo={productData}
             />
           </div>
@@ -239,7 +265,7 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    placeholder="P. Ext. ($)"
+                    placeholder="P. Lista ($)"
                     {...field}
                     value={field.value || ""}
                     onChange={(e) =>
@@ -331,7 +357,23 @@ function ProductDetailItem({
           />
         </div>
 
-        <div className="col-span-1 flex justify-center">
+        <div className="col-span-1 flex justify-center items-start gap-1">
+          {hasStock && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
+              onClick={onToggleStock}
+              tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
+            >
+              {showStock ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
@@ -373,16 +415,34 @@ function ProductDetailItem({
           <Badge color="secondary" className="text-xs">
             Repuesto #{index + 1}
           </Badge>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={onRemove}
-            disabled={isDetailsDisabled}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {hasStock && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
+                onClick={onToggleStock}
+                tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
+              >
+                {showStock ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={onRemove}
+              disabled={isDetailsDisabled}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         <FormSelectAsync
@@ -402,7 +462,7 @@ function ProductDetailItem({
         />
 
         {/* Mostrar stock inline debajo del selector - Mobile */}
-        {currentProductStock && productId && (
+        {hasStock && showStock && (
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <div className="flex items-center gap-1">
@@ -552,7 +612,7 @@ function ProductDetailItem({
             name={`details.${index}.retail_price_external`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs">P. Ext. ($)</FormLabel>
+                <FormLabel className="text-xs">P. Lista ($)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -688,12 +748,12 @@ export default function ProformaMesonForm({
   onSubmit,
   isSubmitting = false,
   mode = "create",
-  onCancel,
   clientData,
   vehicleData,
   quotationData,
   approvedDiscountRequests = [],
 }: ProformaMesonFormProps) {
+  const router = useNavigate();
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
@@ -703,10 +763,27 @@ export default function ProformaMesonForm({
   );
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
-
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [globalShowStock, setGlobalShowStock] = useState(true);
+  const [itemStockVisible, setItemStockVisible] = useState<
+    Record<number, boolean>
+  >({});
+  const [vehicleDefaultOption, setVehicleDefaultOption] = useState<
+    { value: string; label: string } | undefined
+  >(
+    vehicleData
+      ? {
+          value: vehicleData.id.toString(),
+          label: vehicleData.plate
+            ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
+            : vehicleData.vin || "-",
+        }
+      : undefined,
+  );
   const { user } = useAuthStore();
   const defaultDiscount =
     user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+  const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
 
   // Determinar si los detalles deben estar deshabilitados
   const isDetailsDisabled =
@@ -1022,26 +1099,17 @@ export default function ProformaMesonForm({
             })}
             perPage={10}
             debounceMs={500}
-            defaultOption={
-              vehicleData
-                ? {
-                    value: vehicleData.id.toString(),
-                    label: vehicleData.plate
-                      ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
-                      : vehicleData.vin || "-",
-                  }
-                : undefined
-            }
+            defaultOption={vehicleDefaultOption}
           >
             <Button
               type="button"
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
+              onClick={() => setIsVehicleModalOpen(true)}
               tooltip="Agregar nuevo vehículo"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -1179,6 +1247,30 @@ export default function ProformaMesonForm({
             <h3 className="text-lg font-semibold">Repuestos</h3>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            {fields.length > 0 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className={`w-full sm:w-auto transition-colors ${globalShowStock ? "border-primary text-primary hover:bg-primary/5" : "text-gray-500 hover:text-primary hover:border-primary"}`}
+                onClick={() => {
+                  const next = !globalShowStock;
+                  setGlobalShowStock(next);
+                  const reset: Record<number, boolean> = {};
+                  fields.forEach((_, i) => {
+                    reset[i] = next;
+                  });
+                  setItemStockVisible(reset);
+                }}
+              >
+                {globalShowStock ? (
+                  <ChevronUp className="h-4 w-4 mr-2" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 mr-2" />
+                )}
+                {globalShowStock ? "Contraer almacenes" : "Expandir almacenes"}
+              </Button>
+            )}
             <Button
               type="button"
               onClick={() => setIsPartModalOpen(true)}
@@ -1243,7 +1335,7 @@ export default function ProformaMesonForm({
             <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
               <div className="col-span-4">Repuesto</div>
               <div className="col-span-1 text-center">Cant.</div>
-              <div className="col-span-2 text-center">P. Ext. ($)</div>
+              <div className="col-span-2 text-center">P. Lista ($)</div>
               <div className="col-span-2 text-center">
                 P. Unit. ({selectedCurrency?.symbol || "S/."})
               </div>
@@ -1286,6 +1378,11 @@ export default function ProformaMesonForm({
                     ? Number(partialApproved.requested_discount_percentage)
                     : undefined;
 
+                const isStockVisible =
+                  itemStockVisible[index] !== undefined
+                    ? itemStockVisible[index]
+                    : globalShowStock;
+
                 return (
                   <ProductDetailItem
                     key={field.id}
@@ -1299,13 +1396,21 @@ export default function ProformaMesonForm({
                     approvedDiscount={approvedDiscount}
                     defaultDiscount={defaultDiscount}
                     isDetailsDisabled={isDetailsDisabled}
+                    showStock={isStockVisible}
+                    onToggleStock={() =>
+                      setItemStockVisible((prev) => ({
+                        ...prev,
+                        [index]: !isStockVisible,
+                      }))
+                    }
+                    selectedVehicle={selectedVehicle}
                   />
                 );
               })}
             </div>
 
             {/* Total General */}
-            <div className="flex justify-end pt-4 border-t">
+            <div className="flex justify-end pt-4">
               <div className="text-right space-y-1">
                 <div className="flex justify-between gap-8">
                   <p className="text-sm text-gray-600">Subtotal:</p>
@@ -1333,9 +1438,20 @@ export default function ProformaMesonForm({
         )}
 
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
+          <ConfirmationDialog
+            trigger={
+              <Button type="button" variant="outline">
+                Cancelar
+              </Button>
+            }
+            title="¿Cancelar registro?"
+            variant="destructive"
+            icon="warning"
+            onConfirm={() => {
+              router(ABSOLUTE_ROUTE!);
+            }}
+          />
+
           <Button
             type="submit"
             disabled={
@@ -1368,6 +1484,30 @@ export default function ProformaMesonForm({
           }
         }}
         title="Agregar Nuevo Cliente"
+      />
+
+      <VehicleRepuestosModal
+        open={isVehicleModalOpen}
+        onClose={(newVehicle) => {
+          setIsVehicleModalOpen(false);
+          if (newVehicle) {
+            form.setValue("vehicle_id", newVehicle.id.toString(), {
+              shouldValidate: true,
+            });
+            setVehicleDefaultOption({
+              value: newVehicle.id.toString(),
+              label: newVehicle.plate
+                ? `${newVehicle.plate} - ${newVehicle.vin || ""}`
+                : newVehicle.vin || "-",
+            });
+          }
+        }}
+        title="Agregar Nuevo Vehículo"
+        sedeId={form.watch("sede_id")}
+        sedeName={
+          mySedes.find((s) => s.id.toString() === form.watch("sede_id"))
+            ?.abreviatura
+        }
       />
     </Form>
   );

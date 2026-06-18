@@ -255,3 +255,20 @@ export async function cancelWorkOrder(
   );
   return response.data;
 }
+
+export interface UpdatePickupPersonData {
+  num_doc_pickup: string;
+  full_pickup_name: string;
+  phone_pickup: string;
+}
+
+export async function updatePickupPerson(
+  id: number,
+  data: UpdatePickupPersonData,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/update-pickup-person`,
+    data,
+  );
+  return response.data;
+}

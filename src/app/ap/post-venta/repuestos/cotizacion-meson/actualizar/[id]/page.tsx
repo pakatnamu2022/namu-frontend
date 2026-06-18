@@ -63,10 +63,6 @@ export default function UpdateOrderQuotationMesonPage() {
     }
   };
 
-  const handleCancel = () => {
-    router(ABSOLUTE_ROUTE);
-  };
-
   if (isLoadingModule || isLoadingQuotation || isLoadingDiscounts)
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -124,7 +120,6 @@ export default function UpdateOrderQuotationMesonPage() {
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         mode="update"
-        onCancel={handleCancel}
         vehicleData={quotation.vehicle}
         clientData={quotation.client}
         quotationData={quotation}

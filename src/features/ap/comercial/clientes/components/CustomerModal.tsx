@@ -24,9 +24,14 @@ interface Props {
   defaultValues?: Record<string, any>;
 }
 
-const { QUERY_KEY, MODEL } = CUSTOMERS;
+const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = CUSTOMERS;
 
-export default function CustomerModal({ open, onClose, title, defaultValues }: Props) {
+export default function CustomerModal({
+  open,
+  onClose,
+  title,
+  defaultValues,
+}: Props) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -64,6 +69,7 @@ export default function CustomerModal({ open, onClose, title, defaultValues }: P
           onSubmit={handleSubmit}
           isSubmitting={isPending}
           mode="create"
+          absoluteRoute={ABSOLUTE_ROUTE}
         />
       ) : (
         <FormSkeleton />

@@ -107,6 +107,7 @@ export default function UpdateCustomersRpPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        absoluteRoute={ABSOLUTE_ROUTE}
       />
     </FormWrapper>
   );
