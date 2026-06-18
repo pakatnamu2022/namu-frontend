@@ -8,7 +8,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { COMPANY } from "@/features/gp/maestro-general/empresa/lib/company.constants";
-import { useCompanys } from "@/features/gp/maestro-general/empresa/lib/company.hook";
+import { useCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import CompanyTable from "@/features/gp/maestro-general/empresa/components/CompanyTable";
 import CompanyOptions from "@/features/gp/maestro-general/empresa/components/CompanyOptions";
 import { companyColumns } from "@/features/gp/maestro-general/empresa/components/CompanyColumns";
@@ -21,7 +21,7 @@ export default function CompanyPage() {
   const [search, setSearch] = useState("");
   const { ROUTE } = COMPANY;
 
-  const { data, isLoading } = useCompanys({
+  const { data, isLoading } = useCompanies({
     page,
     search,
     per_page,

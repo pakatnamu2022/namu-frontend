@@ -5,7 +5,6 @@ import {
   getPositionsProps,
   PositionResource,
   PositionResponse,
-  AreaResource,
 } from "./position.interface.ts";
 import { POSITION } from "./position.constant.ts";
 
@@ -52,7 +51,7 @@ export async function storePosition(formData: any): Promise<GeneralResponse> {
 
 export async function updatePosition(
   id: string,
-  formData: any
+  formData: any,
 ): Promise<GeneralResponse> {
   const response = await api.post<GeneralResponse>(
     `${ENDPOINT}/${id}?_method=PUT`,
@@ -61,29 +60,12 @@ export async function updatePosition(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 }
 
 export async function deletePosition(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
-  return data;
-}
-
-export async function getAreas(): Promise<AreaResource[]> {
-  const { data } = await api.get<AreaResource[]>("/gp/gh/personal/area");
-  return data;
-}
-export async function getAllAreas(): Promise<AreaResource[]> {
-  const config: AxiosRequestConfig = {
-    params: {
-      all: true,
-    },
-  };
-  const { data } = await api.get<AreaResource[]>(
-    "/gp/gh/personal/area",
-    config
-  );
   return data;
 }

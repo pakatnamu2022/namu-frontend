@@ -45,10 +45,3 @@ export interface PositionCreateRequest {
 export interface getPositionsProps {
   params?: Record<string, any>;
 }
-
-export interface AreaResource {
-  id: number;
-  name: string;
-  sede_id: number;
-  sede: string;
-}

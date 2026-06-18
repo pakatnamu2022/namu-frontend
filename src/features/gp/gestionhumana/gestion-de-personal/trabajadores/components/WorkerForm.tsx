@@ -28,12 +28,15 @@ import {
   useWorkers,
   useWorkerById,
 } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { WorkerScheduleInfo } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerScheduleInfo";
+import type { WorkScheduleResource } from "@/features/gp/gestionhumana/asistencias/horarios/lib/work-schedule.interface";
 
 interface PeriodFormProps {
   defaultValues: any;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update" | "signature";
+  workSchedule?: WorkScheduleResource;
 }
 
 export const WorkerForm = ({
@@ -41,6 +44,7 @@ export const WorkerForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  workSchedule,
 }: PeriodFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = WORKER;
 
@@ -77,6 +81,8 @@ export const WorkerForm = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6 w-full"
         >
+          {workSchedule && <WorkerScheduleInfo schedule={workSchedule} />}
+
           <GroupFormSection
             title="Firma del Trabajador"
             icon={PenLine}
