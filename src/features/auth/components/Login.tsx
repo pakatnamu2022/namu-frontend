@@ -45,6 +45,10 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
         push("/companies");
       })
       .catch((error: any) => {
+        if (error?.requires_2fa) {
+          push("/2fa-verify", { state: { pending_token: error.pending_token } });
+          return;
+        }
         errorToast(error?.response?.data?.message ?? "Error al iniciar sesión");
       })
       .finally(() => {

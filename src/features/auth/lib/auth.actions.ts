@@ -1,15 +1,15 @@
 import { api } from "@/core/api";
 import type {
   AuthRequest,
-  AuthResponse,
   AuthResponseWithoutToken,
+  LoginResponse,
 } from "./auth.interface";
 
 export async function login({
   username,
   password,
-}: AuthRequest): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>("login", {
+}: AuthRequest): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>("login", {
     username: username,
     password: password,
   });

@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import type { AuthRequest, ModulePermissions } from "./auth.interface";
 import { authenticate, login, logout } from "./auth.actions";
+import { verify2FA } from "./two-factor.actions";
+import type { TwoFactorVerifyRequest } from "./two-factor.interface";
 import type { ViewsResponseOpcionesMenu } from "../../views/lib/views.interface";
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 
@@ -20,6 +22,8 @@ interface AuthState {
   permissionsModules?: ModulePermissions; // Module permissions { "module.action": true }
   setToken?: (token: string) => void;
   login: (request: AuthRequest) => Promise<void>;
+  verifyWith2FA: (request: TwoFactorVerifyRequest) => Promise<void>;
+  setUserTwoFactor: (enabled: boolean) => void;
   logout: () => Promise<void>;
   authenticate: () => void;
   hasPermission: (permissionCode: string) => boolean;
@@ -44,21 +48,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   login: async (request) => {
     const response = await login(request);
-    if (response) {
+    if ("requires_2fa" in response && response.requires_2fa) {
+      throw { requires_2fa: true, pending_token: response.pending_token };
+    }
+    const authResponse = response as import("./auth.interface").AuthResponse;
+    if (authResponse) {
       if (typeof window !== "undefined") {
-        localStorage.setItem("token", response.access_token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("token", authResponse.access_token);
+        localStorage.setItem("user", JSON.stringify(authResponse.user));
         localStorage.setItem(
           "permissions",
-          JSON.stringify(response.permissions),
+          JSON.stringify(authResponse.permissions),
         );
       }
       set({
         isAuthenticated: true,
-        user: response.user,
-        token: response.access_token,
-        permissions: response.permissions?.access_tree || [],
-        permissionsModules: response.permissions?.permissions_modules || {},
+        user: authResponse.user,
+        token: authResponse.access_token,
+        permissions: authResponse.permissions?.access_tree || [],
+        permissionsModules: authResponse.permissions?.permissions_modules || {},
       });
     } else {
       if (typeof window !== "undefined") {
@@ -75,6 +83,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         permissionsModules: [],
       });
     }
+  },
+  verifyWith2FA: async (request) => {
+    const response = await verify2FA(request);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", response.access_token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+      localStorage.setItem("permissions", JSON.stringify(response.permissions));
+    }
+    set({
+      isAuthenticated: true,
+      user: response.user,
+      token: response.access_token,
+      permissions: response.permissions?.access_tree || [],
+      permissionsModules: response.permissions?.permissions_modules || {},
+    });
+  },
+  setUserTwoFactor: (enabled) => {
+    set((state) => ({
+      user: { ...state.user, two_factor_enabled: enabled },
+    }));
   },
   logout: async () => {
     // Call API logout FIRST with active token

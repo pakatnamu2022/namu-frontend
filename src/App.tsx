@@ -130,6 +130,7 @@ import NotFoundPage from "./app/not-found";
 import ConfirmacionCotizacionPage from "./app/confirmacion-cotizacion/[token]/page";
 import ForgotPasswordPage from "./app/forgot-password/page";
 import ResetPasswordPage from "./app/reset-password/page";
+import TwoFactorVerifyPage from "./app/2fa-verify/page";
 import CompaniesPage from "./app/companies/page.tsx";
 import ModulesCompanyPage from "./app/modules/[company]/page.tsx";
 import ModulesCompanyModulePage from "./app/modules/[company]/[module]/page.tsx";
@@ -524,6 +525,7 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/2fa-verify" element={<TwoFactorVerifyPage />} />
           <Route
             path="/confirmacion-cotizacion/:token"
             element={<ConfirmacionCotizacionPage />}

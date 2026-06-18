@@ -4,11 +4,11 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
+import { TwoFactorSection } from "@/features/auth/components/TwoFactorSection";
 import {
   Building2,
   Clock,
@@ -26,6 +26,7 @@ import {
   Users,
   ShieldCheck,
   Lock,
+  ChevronRight,
 } from "lucide-react";
 import PageWrapper from "@/shared/components/PageWrapper";
 
@@ -67,15 +68,6 @@ export default function ProfilePage() {
                     {userComplete.position}
                   </Badge>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowChangePasswordModal(true)}
-                  className="gap-2 w-fit mx-auto sm:mx-0"
-                >
-                  <Lock className="h-4 w-4" />
-                  Cambiar contraseña
-                </Button>
               </div>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
@@ -97,6 +89,31 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Seguridad */}
+      <div className="col-span-full space-y-2.5">
+        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1">
+          Seguridad
+        </p>
+        <div className="rounded-2xl overflow-hidden bg-card shadow-sm divide-y divide-border/50">
+          <button
+            onClick={() => setShowChangePasswordModal(true)}
+            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-muted/40 transition-colors text-left"
+          >
+            <div className="rounded-xl bg-blue-500/10 dark:bg-blue-500/15 p-2 shrink-0">
+              <Lock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">Contraseña</p>
+              <p className="text-xs text-muted-foreground">
+                Actualiza tu contraseña regularmente
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+          </button>
+          <TwoFactorSection />
+        </div>
+      </div>
 
       {/* Modal de cambio de contraseña */}
       <ChangePasswordModal
