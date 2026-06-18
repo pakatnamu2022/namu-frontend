@@ -43,20 +43,24 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "vehicle_plate",
+    id: "plate_mileage",
     header: "Placa",
+    cell: ({ row }) => {
+      const plate = row.original.vehicle_plate;
+      const mileage = row.original.mileage;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium">{plate || "-"}</span>
+          <span className="text-xs text-muted-foreground">
+            {mileage ? `${mileage} km` : "-"}
+          </span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "vehicle_vin",
     header: "VIN",
-  },
-  {
-    accessorKey: "mileage",
-    header: "Kilometraje",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value ? `${value} km` : "-";
-    },
   },
   {
     id: "dates",
@@ -144,26 +148,26 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "is_guarantee",
-    header: "Garantía",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
+    id: "guarantee_recall",
+    header: "Garantía / Recall",
+    cell: ({ row }) => {
+      const isGuarantee = row.original.is_guarantee;
+      const isRecall = row.original.is_recall;
       return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "is_recall",
-    header: "Recall",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "blue"}>
-          {value ? "Sí" : "No"}
-        </Badge>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-muted-foreground w-14">Garantía:</span>
+            <Badge variant="outline" color={isGuarantee ? "green" : "gray"}>
+              {isGuarantee ? "Sí" : "No"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-muted-foreground w-14">Recall:</span>
+            <Badge variant="outline" color={isRecall ? "green" : "gray"}>
+              {isRecall ? "Sí" : "No"}
+            </Badge>
+          </div>
+        </div>
       );
     },
   },

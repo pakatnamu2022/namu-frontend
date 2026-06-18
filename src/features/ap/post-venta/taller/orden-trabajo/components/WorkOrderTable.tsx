@@ -43,6 +43,7 @@ export default function WorkOrderTable({
           actual_delivery_date: true,
           is_guarantee: true,
           is_recall: true,
+          has_management_discount: false,
           is_invoiced: false,
           is_delivery: false,
           created_by_name: true,
