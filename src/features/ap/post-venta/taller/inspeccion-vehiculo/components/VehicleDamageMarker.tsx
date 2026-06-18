@@ -190,7 +190,10 @@ export default function VehicleDamageMarker({
             <div className="absolute left-2 top-1/2 -translate-y-1/2">
               <span
                 className="bg-black/50 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm tracking-wide"
-                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                style={{
+                  writingMode: "vertical-rl",
+                  transform: "rotate(180deg)",
+                }}
               >
                 LATERAL IZQ.
               </span>

@@ -37,6 +37,17 @@ const workOrderSchemaBase = z.object({
   phone_contact: z
     .string()
     .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos"),
+  num_doc_pickup: z
+    .string()
+    .regex(/^[0-9]{8}$/, "El documento debe tener exactamente 8 dígitos")
+    .optional()
+    .or(z.literal("")),
+  full_pickup_name: z.string().optional(),
+  phone_pickup: z
+    .string()
+    .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos")
+    .optional()
+    .or(z.literal("")),
   is_guarantee: z.boolean().default(false),
   is_recall: z.boolean().default(false),
   description_recall: z.string().max(500).optional(),

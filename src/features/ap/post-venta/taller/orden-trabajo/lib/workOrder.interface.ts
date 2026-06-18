@@ -59,6 +59,9 @@ export interface WorkOrderResource {
   num_doc_contact: string;
   full_contact_name: string;
   phone_contact: string;
+  num_doc_pickup: string | null;
+  full_pickup_name: string | null;
+  phone_pickup: string | null;
 
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;

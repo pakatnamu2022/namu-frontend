@@ -1292,12 +1292,12 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         <Card className="p-4 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
             <User className="h-5 w-5 text-gray-600" />
-            Firma de Conformidad del Cliente
+            Firma de Conformidad de Entrega del Cliente
           </h3>
           <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
             <p className="text-sm text-gray-600 mb-4 text-center">
               El cliente confirma que la información registrada en la recepción
-              de recepción es correcta
+              es correcta
             </p>
             <div className="flex justify-center">
               <div className="bg-white border-2 border-gray-200 rounded-lg p-4 inline-block">
