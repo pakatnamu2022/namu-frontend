@@ -65,6 +65,108 @@ import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.consta
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/shared/components/DataTable";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import SearchInput from "@/shared/components/SearchInput";
+import FilterWrapper from "@/shared/components/FilterWrapper";
+
+const DEFAULT_PER_PAGE = 10;
+
+function buildShippingGuidesColumns(
+  associatingId: number | null,
+  onAssociate: (id: number) => void,
+): ColumnDef<ShippingGuidesResource>[] {
+  return [
+    {
+      accessorKey: "document_number",
+      header: "Número",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.document_number}</div>
+      ),
+    },
+    {
+      accessorKey: "issue_date",
+      header: "Fecha Emisión",
+      cell: ({ row }) => (
+        <div className="text-sm">{formatDate(row.original.issue_date)}</div>
+      ),
+    },
+    {
+      accessorKey: "receiver_name",
+      header: "Destinatario",
+      cell: ({ row }) => (
+        <div className="text-sm">{row.original.receiver_name || "-"}</div>
+      ),
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => {
+        const id = row.original.id;
+        const isThis = associatingId === id;
+        const isBusy = associatingId !== null;
+        return (
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              disabled={isBusy}
+              onClick={() => onAssociate(id)}
+            >
+              {isThis ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <LinkIcon className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+}
+
+function ShippingGuideSelectorOptions({
+  search,
+  setSearch,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+}) {
+  return (
+    <FilterWrapper>
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar por número..."
+      />
+    </FilterWrapper>
+  );
+}
+
+function ShippingGuideSelectorTable({
+  data,
+  isLoading,
+  associatingId,
+  onAssociate,
+  children,
+}: {
+  data: ShippingGuidesResource[];
+  isLoading: boolean;
+  associatingId: number | null;
+  onAssociate: (id: number) => void;
+  children?: React.ReactNode;
+}) {
+  const columns = buildShippingGuidesColumns(associatingId, onAssociate);
+  return (
+    <div className="border-none text-muted-foreground max-w-full">
+      <DataTable columns={columns} data={data} isLoading={isLoading}>
+        {children}
+      </DataTable>
+    </div>
+  );
+}
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -174,11 +276,17 @@ export function BillingSheetContent({
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isShippingGuideSheetOpen, setIsShippingGuideSheetOpen] =
     useState(false);
+  const [sgSearch, setSgSearch] = useState("");
+  const [sgPage, setSgPage] = useState(1);
+  const [associatingId, setAssociatingId] = useState<number | null>(null);
 
   const shippingGuideParams = {
     sede_transmitter_id: orderQuotation.sede_id,
     is_associated: false,
     transfer_reason_id: [SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS],
+    search: sgSearch || undefined,
+    page: sgPage,
+    per_page: DEFAULT_PER_PAGE,
   };
   const { data: shippingGuidesData, isLoading: isLoadingShippingGuides } =
     useQuery({
@@ -188,24 +296,27 @@ export function BillingSheetContent({
       refetchOnWindowFocus: false,
     });
 
-  const associateMutation = useMutation({
-    mutationFn: (shippingGuideId: number) =>
-      associateShippingGuide(orderQuotation.id, shippingGuideId),
-    onSuccess: () => {
-      successToast("Guía de remisión asociada correctamente");
-      setIsShippingGuideSheetOpen(false);
-      queryClient.invalidateQueries({
-        queryKey: ["orderQuotation", orderQuotation.id],
-      });
-      onRefresh?.();
-    },
-    onError: (error: any) => {
-      errorToast(
-        error?.response?.data?.message ||
-          "Error al asociar la guía de remisión",
-      );
-    },
-  });
+  const handleAssociate = (shippingGuideId: number) => {
+    setAssociatingId(shippingGuideId);
+    associateShippingGuide(orderQuotation.id, shippingGuideId)
+      .then(() => {
+        successToast("Guía de remisión asociada correctamente");
+        setIsShippingGuideSheetOpen(false);
+        setSgSearch("");
+        setSgPage(1);
+        queryClient.invalidateQueries({
+          queryKey: ["orderQuotation", orderQuotation.id],
+        });
+        onRefresh?.();
+      })
+      .catch((error: any) => {
+        errorToast(
+          error?.response?.data?.message ||
+            "Error al asociar la guía de remisión",
+        );
+      })
+      .finally(() => setAssociatingId(null));
+  };
 
   const dissociateMutation = useMutation({
     mutationFn: () => dissociateShippingGuide(orderQuotation.id),
@@ -1139,18 +1250,18 @@ export function BillingSheetContent({
       {/* Sheet para seleccionar guía de remisión */}
       <GeneralSheet
         open={isShippingGuideSheetOpen}
-        onClose={() => setIsShippingGuideSheetOpen(false)}
+        onClose={() => {
+          setIsShippingGuideSheetOpen(false);
+          setSgSearch("");
+          setSgPage(1);
+        }}
         title="Adjuntar Guía de Remisión"
         subtitle="Selecciona una guía de remisión para asociar a esta cotización"
         icon="Truck"
         size="3xl"
       >
-        <div className="px-6 space-y-4">
-          {isLoadingShippingGuides ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : !shippingGuidesData?.data?.length ? (
+        <div className="px-2 space-y-4">
+          {!shippingGuidesData?.data?.length && !isLoadingShippingGuides ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Truck className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground text-sm">
@@ -1158,49 +1269,31 @@ export function BillingSheetContent({
               </p>
             </div>
           ) : (
-            <DetailSheetTable
-              rows={shippingGuidesData.data}
-              getKey={(g: ShippingGuidesResource) => g.id}
-              columns={[
-                {
-                  header: "Número",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="font-medium">{g.document_number}</div>
-                  ),
-                },
-                {
-                  header: "Fecha",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="text-sm">{formatDate(g.issue_date)}</div>
-                  ),
-                },
-                {
-                  header: "Destinatario",
-                  render: (g: ShippingGuidesResource) => (
-                    <div className="text-sm">{g.receiver_name || "-"}</div>
-                  ),
-                },
-                {
-                  header: "",
-                  className: "text-right",
-                  render: (g: ShippingGuidesResource) => (
-                    <Button
-                      type="button"
-                      size="sm"
-                      disabled={associateMutation.isPending}
-                      onClick={() => associateMutation.mutate(g.id)}
-                    >
-                      {associateMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <LinkIcon className="h-4 w-4 mr-1" />
-                      )}
-                      Asociar
-                    </Button>
-                  ),
-                },
-              ]}
-            />
+            <>
+              <ShippingGuideSelectorTable
+                data={shippingGuidesData?.data ?? []}
+                isLoading={isLoadingShippingGuides}
+                associatingId={associatingId}
+                onAssociate={handleAssociate}
+              >
+                <ShippingGuideSelectorOptions
+                  search={sgSearch}
+                  setSearch={(v) => {
+                    setSgSearch(v);
+                    setSgPage(1);
+                  }}
+                />
+              </ShippingGuideSelectorTable>
+              {shippingGuidesData?.meta && (
+                <DataTablePagination
+                  page={sgPage}
+                  per_page={DEFAULT_PER_PAGE}
+                  totalPages={shippingGuidesData.meta.last_page}
+                  totalData={shippingGuidesData.meta.total}
+                  onPageChange={setSgPage}
+                />
+              )}
+            </>
           )}
         </div>
       </GeneralSheet>
