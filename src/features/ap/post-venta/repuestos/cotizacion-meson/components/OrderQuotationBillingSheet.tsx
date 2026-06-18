@@ -729,6 +729,183 @@ export function BillingSheetContent({
         </div>
       </div>
 
+      {/* Sección de Firma del Cliente */}
+      {shouldShowSignature && !readOnly && (
+        <>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmitSignature)}
+              className="space-y-4"
+            >
+              <GroupFormSection
+                title="Firma de Conformidad del Cliente"
+                icon={PenLine}
+                color="primary"
+                cols={{ sm: 1 }}
+              >
+                <FormField
+                  control={form.control}
+                  name="customer_signature"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <SignaturePad
+                          label="Firma del Cliente"
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabled={confirmMutation.isPending}
+                          required
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormTextArea
+                  control={form.control}
+                  name="notes"
+                  label="Notas adicionales (opcional)"
+                  placeholder="Escribe aquí..."
+                  disabled={confirmMutation.isPending}
+                />
+              </GroupFormSection>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={
+                    confirmMutation.isPending || !form.formState.isValid
+                  }
+                >
+                  {confirmMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {confirmMutation.isPending
+                    ? "Confirmando..."
+                    : "Confirmar Cotización"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </>
+      )}
+
+      {!readOnly && (
+        <>
+          {/* Facturar a */}
+          <Separator />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-gray-900">
+                  Facturar a
+                </h4>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {isInvoiced
+                    ? "Cliente de facturación establecido"
+                    : "Selecciona el cliente para la factura"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="w-full">
+                <FormProvider {...invoiceToForm}>
+                  <div className="flex w-full items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <FormSelectAsync
+                        name="invoice_to_id"
+                        label="Cliente de facturación"
+                        placeholder="Seleccionar cliente"
+                        control={invoiceToForm.control}
+                        useQueryHook={useCustomers}
+                        mapOptionFn={(customer: CustomersResource) => ({
+                          value: customer.id.toString(),
+                          label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                        })}
+                        description={
+                          isInvoiced
+                            ? "Ya existe una factura emitida, no se puede modificar"
+                            : hasAdvances
+                              ? "Ya se registraron avances de pago, no se puede modificar"
+                              : "Cliente a quien se le emitirá la factura de esta cotización"
+                        }
+                        perPage={10}
+                        debounceMs={500}
+                        disabled={
+                          isInvoiced ||
+                          invoiceToMutation.isPending ||
+                          hasAdvances
+                        }
+                        defaultOption={invoiceToDefaultOption}
+                        onValueChange={(value) => {
+                          invoiceToMutation.mutate(
+                            value ? Number(value) : null,
+                          );
+                        }}
+                        allowClear={false}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon-lg"
+                      className="aspect-square shrink-0"
+                      onClick={() => setIsCustomerModalOpen(true)}
+                      tooltip="Agregar nuevo cliente"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </FormProvider>
+              </div>
+
+              {orderQuotation.invoice_to && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+                  <div className="flex-1 grid grid-cols-1 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Nombre
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.full_name || "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Documento
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
+                        {orderQuotation.invoice_to_client?.num_doc || "S/N"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <CustomerModal
+            open={isCustomerModalOpen}
+            onClose={(newCustomer) => {
+              setIsCustomerModalOpen(false);
+              if (newCustomer) {
+                queryClient.invalidateQueries({
+                  queryKey: [CUSTOMERS.QUERY_KEY],
+                });
+              }
+            }}
+            title="Agregar Nuevo Cliente"
+          />
+        </>
+      )}
+
       <Separator />
 
       {/* Facturas y Anticipos */}
@@ -1028,121 +1205,6 @@ export function BillingSheetContent({
         </div>
       </GeneralSheet>
 
-      {!readOnly && (
-        <>
-          {/* Facturar a */}
-          <Separator />
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-                <User className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h4 className="text-base font-semibold text-gray-900">
-                  Facturar a
-                </h4>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {isInvoiced
-                    ? "Cliente de facturación establecido"
-                    : "Selecciona el cliente para la factura"}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="w-full">
-                <FormProvider {...invoiceToForm}>
-                  <div className="flex w-full items-center gap-2">
-                    <div className="flex-1 min-w-0">
-                      <FormSelectAsync
-                        name="invoice_to_id"
-                        label="Cliente de facturación"
-                        placeholder="Seleccionar cliente"
-                        control={invoiceToForm.control}
-                        useQueryHook={useCustomers}
-                        mapOptionFn={(customer: CustomersResource) => ({
-                          value: customer.id.toString(),
-                          label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-                        })}
-                        description={
-                          isInvoiced
-                            ? "Ya existe una factura emitida, no se puede modificar"
-                            : hasAdvances
-                              ? "Ya se registraron avances de pago, no se puede modificar"
-                              : "Cliente a quien se le emitirá la factura de esta cotización"
-                        }
-                        perPage={10}
-                        debounceMs={500}
-                        disabled={
-                          isInvoiced ||
-                          invoiceToMutation.isPending ||
-                          hasAdvances
-                        }
-                        defaultOption={invoiceToDefaultOption}
-                        onValueChange={(value) => {
-                          invoiceToMutation.mutate(
-                            value ? Number(value) : null,
-                          );
-                        }}
-                        allowClear={false}
-                      />
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-lg"
-                      className="aspect-square shrink-0"
-                      onClick={() => setIsCustomerModalOpen(true)}
-                      tooltip="Agregar nuevo cliente"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </FormProvider>
-              </div>
-
-              {orderQuotation.invoice_to && (
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
-                  <div className="flex-1 grid grid-cols-1 gap-3">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Nombre
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {orderQuotation.invoice_to_client?.full_name || "—"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Documento
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {orderQuotation.invoice_to_client?.document_type || "—"}{" "}
-                        {orderQuotation.invoice_to_client?.num_doc || "S/N"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <CustomerModal
-            open={isCustomerModalOpen}
-            onClose={(newCustomer) => {
-              setIsCustomerModalOpen(false);
-              if (newCustomer) {
-                queryClient.invalidateQueries({
-                  queryKey: [CUSTOMERS.QUERY_KEY],
-                });
-              }
-            }}
-            title="Agregar Nuevo Cliente"
-          />
-        </>
-      )}
-
       {/* Datos de Entrega */}
       {orderQuotation.delivery_document_number && (
         <>
@@ -1183,69 +1245,6 @@ export function BillingSheetContent({
               )}
             </div>
           </div>
-        </>
-      )}
-
-      {/* Sección de Firma del Cliente */}
-      {shouldShowSignature && !readOnly && (
-        <>
-          <Separator />
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmitSignature)}
-              className="space-y-4"
-            >
-              <GroupFormSection
-                title="Firma de Conformidad del Cliente"
-                icon={PenLine}
-                color="primary"
-                cols={{ sm: 1 }}
-              >
-                <FormField
-                  control={form.control}
-                  name="customer_signature"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <SignaturePad
-                          label="Firma del Cliente"
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={confirmMutation.isPending}
-                          required
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormTextArea
-                  control={form.control}
-                  name="notes"
-                  label="Notas adicionales (opcional)"
-                  placeholder="Escribe aquí..."
-                  disabled={confirmMutation.isPending}
-                />
-              </GroupFormSection>
-
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={
-                    confirmMutation.isPending || !form.formState.isValid
-                  }
-                >
-                  {confirmMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {confirmMutation.isPending
-                    ? "Confirmando..."
-                    : "Confirmar Cotización"}
-                </Button>
-              </div>
-            </form>
-          </Form>
         </>
       )}
     </div>
