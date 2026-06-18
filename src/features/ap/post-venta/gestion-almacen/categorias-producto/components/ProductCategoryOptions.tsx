@@ -1,3 +1,4 @@
+import FilterWrapper from "@/shared/components/FilterWrapper";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 
 export default function ProductCategoryOptions({
@@ -8,12 +9,12 @@ export default function ProductCategoryOptions({
   setSearch: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
         placeholder="Buscar categoría de producto..."
       />
-    </div>
+    </FilterWrapper>
   );
 }

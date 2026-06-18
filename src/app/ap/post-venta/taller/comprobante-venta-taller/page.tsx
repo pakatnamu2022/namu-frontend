@@ -143,10 +143,6 @@ export default function SalesReceiptsTallerPage() {
         />
       </HeaderTableWrapper>
 
-      {/* <pre>
-        <code>{JSON.stringify(permissions, null, 2)}</code>
-      </pre> */}
-
       <ElectronicDocumentTable
         isLoading={isLoading}
         columns={electronicDocumentColumns({

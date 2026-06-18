@@ -6,6 +6,7 @@ import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/t
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 import RadioButton from "@/shared/components/RadioButton";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
@@ -64,7 +65,7 @@ export default function WorkOrderOptions({
   setDateField,
 }: Props) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -143,6 +144,6 @@ export default function WorkOrderOptions({
           allowClear={false}
         />
       )}
-    </div>
+    </FilterWrapper>
   );
 }

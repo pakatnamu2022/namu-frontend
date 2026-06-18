@@ -1,6 +1,7 @@
 import SearchInput from "@/shared/components/SearchInput";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { BrandsResource } from "../../marcas/lib/brands.interface";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface Props {
   search: string;
@@ -18,7 +19,7 @@ export default function ModelsVnOptions({
   setBrandId,
 }: Props) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -35,6 +36,6 @@ export default function ModelsVnOptions({
         className="min-w-72"
         classNameOption="text-xs"
       />
-    </div>
+    </FilterWrapper>
   );
 }

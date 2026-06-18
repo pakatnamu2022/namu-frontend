@@ -3,6 +3,7 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { DOCUMENT_STATUS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface Props {
   search: string;
@@ -39,7 +40,7 @@ export default function SalesReceiptsOptions({
   setConsolidationType,
 }: Props) {
   return (
-    <div className="flex items-end gap-4 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
@@ -92,6 +93,6 @@ export default function SalesReceiptsOptions({
           options={CONSOLIDATION_TYPE_OPTIONS}
         />
       )}
-    </div>
+    </FilterWrapper>
   );
 }
