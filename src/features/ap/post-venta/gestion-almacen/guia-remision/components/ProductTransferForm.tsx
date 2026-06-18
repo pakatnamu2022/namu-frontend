@@ -175,6 +175,31 @@ export const ProductTransferForm = ({
   const watchTransferReasonId = form.watch("transfer_reason_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
 
+  const AUTOMOTORES_PAKATNAMU_ID = "17";
+
+  // Al seleccionar TRASLADO ENTRE SEDES: setear AUTOMOTORES PAKATNAMU en ambas ubicaciones
+  // y limpiar solo el establecimiento destino
+  useEffect(() => {
+    if (mode !== "create") return;
+    if (
+      watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+    )
+      return;
+
+    form.setValue("transmitter_origin_id", AUTOMOTORES_PAKATNAMU_ID, {
+      shouldValidate: true,
+    });
+    form.setValue("receiver_destination_id", AUTOMOTORES_PAKATNAMU_ID, {
+      shouldValidate: true,
+    });
+    setSelectedDestinationEstablishment(null);
+    setSelectedCustomer({
+      id: Number(AUTOMOTORES_PAKATNAMU_ID),
+      name: "20538993400 | AUTOMOTORES PAKATNAMU SOCIEDAD ANONIMA CERRADA",
+    });
+    form.setValue("receiver_id", "", { shouldValidate: true });
+  }, [watchTransferReasonId, mode, form]);
+
   // Obtener clientes y proveedores
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
     useAllTypeClient();
@@ -1253,6 +1278,7 @@ export const ProductTransferForm = ({
             });
           }}
           sede_id={selectedOriginEstablishment?.sede_id?.toString()}
+          filterSedeId={serieSedeId?.toString()}
         />
 
         <EstablishmentSelectorModal

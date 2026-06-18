@@ -18,6 +18,7 @@ interface EstablishmentSelectorModalProps {
   businessPartnerName: string;
   onSelectEstablishment: (establishment: EstablishmentsResource) => void;
   sede_id?: string | null;
+  filterSedeId?: string | null;
 }
 
 export const EstablishmentSelectorModal = ({
@@ -27,6 +28,7 @@ export const EstablishmentSelectorModal = ({
   businessPartnerName,
   onSelectEstablishment,
   sede_id,
+  filterSedeId,
 }: EstablishmentSelectorModalProps) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,19 +38,27 @@ export const EstablishmentSelectorModal = ({
     status: STATUS_ACTIVE,
   });
 
-  // Filtrar establecimientos por búsqueda
+  // Filtrar establecimientos por sede_id si se provee, luego por búsqueda
   const filteredEstablishments = useMemo(() => {
-    if (!searchQuery.trim()) return establishments;
+    let result = establishments;
+
+    if (filterSedeId) {
+      result = result.filter(
+        (est) => String(est.sede_id) === String(filterSedeId),
+      );
+    }
+
+    if (!searchQuery.trim()) return result;
 
     const query = searchQuery.toLowerCase();
-    return establishments.filter(
+    return result.filter(
       (est) =>
         est.code?.toLowerCase().includes(query) ||
         est.description?.toLowerCase().includes(query) ||
         est.full_address?.toLowerCase().includes(query) ||
         est.type?.toLowerCase().includes(query),
     );
-  }, [establishments, searchQuery]);
+  }, [establishments, searchQuery, filterSedeId]);
 
   // Auto-seleccionar establecimiento si sede_id coincide
   useEffect(() => {
@@ -88,7 +98,7 @@ export const EstablishmentSelectorModal = ({
       open={open}
       onClose={handleClose}
       title="Seleccionar Establecimiento"
-      subtitle={`Establecimientos de ${businessPartnerName} (${establishments.length})`}
+      subtitle={`Establecimientos de ${businessPartnerName} (${filteredEstablishments.length})`}
       icon="MapPin"
       maxWidth="max-w-3xl"
     >
