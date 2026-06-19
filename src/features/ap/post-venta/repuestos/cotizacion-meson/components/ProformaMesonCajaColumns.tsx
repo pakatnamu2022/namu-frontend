@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type OrderQuotationMesonCajaColumns = ColumnDef<OrderQuotationResource>;
 
@@ -27,7 +28,7 @@ export const orderQuotationMesonCajaColumns = ({
     header: "Número de Cotización",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell className="font-semibold" value={value} />;
     },
   },
   {

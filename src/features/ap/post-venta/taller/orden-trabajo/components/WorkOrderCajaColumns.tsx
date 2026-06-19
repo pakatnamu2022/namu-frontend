@@ -1,13 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {  StickyNote, Receipt } from "lucide-react";
+import { StickyNote, Receipt } from "lucide-react";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -62,7 +63,7 @@ export const workOrderCajaColumns = ({
     header: "Correlativo",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell className="font-semibold" value={value} />;
     },
   },
   {
