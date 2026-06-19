@@ -189,6 +189,7 @@ export default function ProductTransferPage() {
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
           permissions={permissions}
+          sedeId={warehouses.find((w) => w.id.toString() === warehouseId)?.sede_id?.toString()}
         />
       </HeaderTableWrapper>
       <ProductTransferTable

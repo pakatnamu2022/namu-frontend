@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -19,6 +19,8 @@ import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat
 
 export default function AddProductTransferPage() {
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sedeId = searchParams.get("sede_id") ?? undefined;
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const AUTOMOTORES_PAKATNAMU_ID = "17";
@@ -50,6 +52,7 @@ export default function AddProductTransferPage() {
         icon={currentView.icon}
       />
       <ProductTransferForm
+        sedeId={sedeId}
         defaultValues={{
           document_series_id: "",
           movement_date: undefined,

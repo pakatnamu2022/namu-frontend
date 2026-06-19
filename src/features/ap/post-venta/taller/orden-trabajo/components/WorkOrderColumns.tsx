@@ -7,6 +7,7 @@ import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderIte
 import { WORK_ORDER_STATUS_COLORS } from "../lib/workOrder.constants";
 import { formatDate } from "@/core/core.function";
 import { Calendar } from "lucide-react";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
@@ -39,7 +40,7 @@ export const workOrderColumns = ({
     header: "Correlativo",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell className="font-semibold" value={value} />;
     },
   },
   {

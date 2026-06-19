@@ -68,6 +68,7 @@ interface ProductTransferFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   transferData?: any;
+  sedeId?: string;
 }
 
 export const ProductTransferForm = ({
@@ -76,6 +77,7 @@ export const ProductTransferForm = ({
   isSubmitting = false,
   mode = "create",
   transferData,
+  sedeId,
 }: ProductTransferFormProps) => {
   const { ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const router = useNavigate();
@@ -1278,7 +1280,7 @@ export const ProductTransferForm = ({
             });
           }}
           sede_id={selectedOriginEstablishment?.sede_id?.toString()}
-          filterSedeId={serieSedeId?.toString()}
+          filterSedeId={serieSedeId?.toString() ?? sedeId}
         />
 
         <EstablishmentSelectorModal
