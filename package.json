@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/poppins": "^5.2.7",
@@ -48,6 +49,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
     "@types/leaflet": "^1.9.21",
+    "@uidotdev/usehooks": "^2.4.1",
     "@vitejs/plugin-rsc": "^0.5.7",
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
@@ -58,6 +60,7 @@
     "input-otp": "^1.4.2",
     "jotai": "^2.15.1",
     "leaflet": "^1.9.4",
+    "lodash.throttle": "^4.1.1",
     "lucide-react": "^0.553.0",
     "motion": "^12.23.24",
     "next-themes": "^0.4.6",
@@ -81,6 +84,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
