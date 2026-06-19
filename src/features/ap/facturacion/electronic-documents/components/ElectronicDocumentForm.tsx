@@ -97,7 +97,6 @@ export function ElectronicDocumentForm({
   );
 
   // ID
-  const selectedSeriesId = form.watch("serie");
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const purchaseRequestQuoteId = form.watch("purchase_request_quote_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
@@ -111,10 +110,6 @@ export function ElectronicDocumentForm({
     )?.tribute_code,
     sede_id: quotation?.sede_id,
   });
-
-  const selectedSeries = authorizedSeries.find(
-    (s) => s.id.toString() === selectedSeriesId,
-  );
 
   // Calcular porcentaje de IGV desde el cliente seleccionado
   const porcentaje_de_igv =
@@ -603,8 +598,8 @@ CILINDRADA: ${vehicle?.model?.displacement || ``}
   );
 
   const { data: checkbooks = [] } = useAllApBank({
-    /*  */ currency_id: selectedCurrency?.currency_type,
-    sede_id: selectedSeries?.sede_id,
+    currency_id: selectedCurrency?.currency_type,
+    has_account_number: 1,
   });
 
   // Tipo de cambio: siempre consultar para la moneda seleccionada y la fecha de emisión
