@@ -63,6 +63,7 @@ const badgeVariants = cva(
         sm: "h-fit py-0.25 px-2 text-xs",
         lg: "px-3 py-1 text-sm",
         xs: "h-fit py-0.5 px-1 text-[10px] md:text-xs",
+        xxs: "h-fit py-0.5 px-1 text-[9px]",
         square:
           "p-0 text-[11px] h-5 w-5 justify-center items-center rounded-full",
       },

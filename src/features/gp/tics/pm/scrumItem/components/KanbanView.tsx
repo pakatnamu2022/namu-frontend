@@ -67,7 +67,7 @@ export function KanbanView({ kanban, isLoading, onItemClick, onStatusChange }: K
         columns={KANBAN_COLUMNS as any}
         data={allItems as any}
         onDragEnd={handleDragEnd}
-        className="h-[calc(100vh-230px)] min-w-[750px] p-0.5"
+        className="h-full min-w-[750px] p-0.5"
       >
         {(column: (typeof KANBAN_COLUMNS)[number]) => (
           <KanbanBoard

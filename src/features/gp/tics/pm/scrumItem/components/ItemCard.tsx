@@ -63,26 +63,12 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
             {item.title}
           </p>
         </div>
-        {PriorityIcon && priority && (
-          <PriorityIcon
-            className={cn("size-3 shrink-0 mt-0.5", PRIORITY_COLOR[priority])}
-          />
-        )}
       </div>
 
       {item.tags && item.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {item.tags.slice(0, 2).map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="outline"
-              className="text-[9px] px-1 py-0 h-3.5"
-              style={
-                tag.color
-                  ? { borderColor: tag.color, color: tag.color }
-                  : undefined
-              }
-            >
+            <Badge key={tag.id} size="xxs" variant="default" color={tag.color}>
               {tag.name}
             </Badge>
           ))}
@@ -90,33 +76,42 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
       )}
 
       <div className="flex items-center justify-between gap-1">
-        {item.story_points !== undefined && item.story_points !== null && (
-          <Badge variant="ghost" className="text-[9px] px-1 py-0 h-3.5">
-            {item.story_points}p
-          </Badge>
-        )}
-        <TypeIcon className="size-4 text-muted-foreground shrink-0" />
-        {item.assignee && (
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Avatar className="size-6 ml-auto shrink-0 cursor-default">
-                  <AvatarFallback className="text-[10px] font-medium bg-primary/10 text-primary">
-                    {item.assignee.name
-                      .split(" ")
-                      .slice(0, 2)
-                      .map((n: string) => n[0])
-                      .join("")
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">
-                {item.assignee.name}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <div className="flex gap-1 items-center">
+          {item.story_points !== undefined && item.story_points !== null && (
+            <Badge variant="default" className="text-[9px] px-1 py-0 h-3.5">
+              {item.story_points}p
+            </Badge>
+          )}
+          <TypeIcon className="size-4 text-muted-foreground shrink-0" />
+        </div>
+        <div className="flex gap-1 items-center">
+          {PriorityIcon && priority && (
+            <PriorityIcon
+              className={cn("size-3 shrink-0", PRIORITY_COLOR[priority])}
+            />
+          )}
+          {item.assignee && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Avatar className="size-6 shrink-0 cursor-default">
+                    <AvatarFallback className="text-[10px] font-medium bg-primary/10 text-primary">
+                      {item.assignee.name
+                        .split(" ")
+                        .slice(0, 2)
+                        .map((n: string) => n[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  {item.assignee.name}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </div>
     </div>
   );
