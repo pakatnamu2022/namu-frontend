@@ -106,6 +106,7 @@ export const purchaseRequestQuoteColumns = ({
   },
   {
     accessorKey: "is_approved",
+    enableSorting: true,
     header: "Aprobado",
     cell: ({ getValue }) => {
       const isApproved = getValue() as boolean;
@@ -184,10 +185,14 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, is_approved, holder_id, sede_id, holder_document_number } = row.original;
+      const { id, is_approved, holder_id, sede_id, holder_document_number } =
+        row.original;
       const { ROUTE_UPDATE } = PURCHASE_REQUEST_QUOTE;
       const { ROUTE_ADD: KYC_ROUTE_ADD } = DECLARACION_JURADA_KYC;
-      const holderPersonType = holder_document_number?.length === NUM_DIGITS_RUC ? "JURIDICA" : "NATURAL";
+      const holderPersonType =
+        holder_document_number?.length === NUM_DIGITS_RUC
+          ? "JURIDICA"
+          : "NATURAL";
       const isApproved = Boolean(is_approved);
       const hasVehicle = Boolean(row.original.ap_vehicle_id);
 

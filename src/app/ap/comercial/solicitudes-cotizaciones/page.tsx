@@ -42,6 +42,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { SortingState } from "@tanstack/react-table";
 
 export default function PurchaseRequestQuotePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -52,6 +53,7 @@ export default function PurchaseRequestQuotePage() {
   const [approveId, setApproveId] = useState<number | null>(null);
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
+  const [isPaid, setIsPaid] = useState<string>("");
   const [assignVehicleQuote, setAssignVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [swapVehicleQuote, setSwapVehicleQuote] =
@@ -73,6 +75,7 @@ export default function PurchaseRequestQuotePage() {
   const { data: sedesData = [] } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   useEffect(() => {
     setPage(1);
@@ -87,6 +90,11 @@ export default function PurchaseRequestQuotePage() {
     sede_id: sedeId,
     ap_models_vn_id: selectedModelId,
     apModelsVn$family$brand_id: selectedBrandId,
+    is_paid: isPaid,
+    ...(sorting.length > 0 && {
+      sort: sorting[0].id,
+      direction: sorting[0].desc ? "desc" : "asc",
+    }),
   });
 
   const handleApprove = async () => {
@@ -150,6 +158,8 @@ export default function PurchaseRequestQuotePage() {
       </HeaderTableWrapper>
       <PurchaseRequestQuoteTable
         isLoading={isLoading}
+        sorting={sorting}
+        onSortingChange={setSorting}
         columns={purchaseRequestQuoteColumns({
           onApprove: setApproveId,
           onDownloadPdf: handleDownloadPdf,
@@ -181,6 +191,8 @@ export default function PurchaseRequestQuotePage() {
           setSelectedModelId={setSelectedModelId}
           selectedBrandId={selectedBrandId}
           setSelectedBrandId={setSelectedBrandId}
+          isPaid={isPaid}
+          setIsPaid={setIsPaid}
         />
       </PurchaseRequestQuoteTable>
 
