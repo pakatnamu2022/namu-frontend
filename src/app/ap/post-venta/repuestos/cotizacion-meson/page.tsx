@@ -113,6 +113,10 @@ export default function OrderQuotationMesonPage() {
     router(`${ABSOLUTE_ROUTE}/solicitar-descuento/${id}`);
   };
 
+  const handleApprove = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/aprobar/${id}`);
+  };
+
   const handleViewBilling = (orderQuotation: { id: number }) => {
     router(`${ABSOLUTE_ROUTE}/detalle/${orderQuotation.id}`);
   };
@@ -150,6 +154,7 @@ export default function OrderQuotationMesonPage() {
           onViewBilling: handleViewBilling,
           onViewDelivery: handleViewDelivery,
           onRequestDiscount: handleRequestDiscount,
+          onApprove: handleApprove,
           onRefresh: refetch,
           permissions,
         })}
