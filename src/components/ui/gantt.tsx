@@ -56,6 +56,7 @@ const scrollXAtom = atom(0)
 
 export const useGanttDragging = () => useAtom(draggingAtom)
 export const useGanttScrollX = () => useAtom(scrollXAtom)
+export const useGanttContext = () => useContext(GanttContext)
 
 export interface GanttStatus {
   id: string
@@ -287,8 +288,6 @@ const GanttContext = createContext<GanttContextProps>({
   scrollToFeature: undefined,
 })
 
-export const useGanttContext = () => useContext(GanttContext)
-
 export interface GanttContentHeaderProps {
   renderHeaderItem: (index: number) => ReactNode
   title: string
@@ -463,7 +462,7 @@ export const GanttSidebarItem: FC<GanttSidebarItemProps> = ({
   return (
     <div
       className={cn(
-        "relative flex items-center gap-2.5 p-2.5 text-xs hover:bg-secondary",
+        "relative flex items-center gap-2.5 p-2.5 text-xs hover:bg-muted",
         className,
       )}
       key={feature.id}
@@ -597,7 +596,7 @@ export const GanttColumn: FC<GanttColumnProps> = ({ index, isColumnSecondary }) 
     <div
       className={cn(
         "group relative h-full overflow-hidden",
-        isColumnSecondary?.(index) ? "bg-secondary" : "",
+        isColumnSecondary?.(index) ? "bg-muted" : "",
       )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -736,9 +735,10 @@ export const GanttFeatureDragHelper: FC<GanttFeatureDragHelperProps> = ({
 
 export type GanttFeatureItemCardProps = Pick<GanttFeature, "id"> & {
   children?: ReactNode
+  onDoubleClick?: (id: string) => void
 }
 
-export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, children }) => {
+export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, children, onDoubleClick }) => {
   const [, setDragging] = useGanttDragging()
   const { attributes, listeners, setNodeRef } = useDraggable({ id })
   const isPressed = Boolean(attributes["aria-pressed"])
@@ -755,6 +755,7 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, childr
         {...attributes}
         {...listeners}
         ref={setNodeRef}
+        onDoubleClick={() => onDoubleClick?.(id.toString())}
       >
         {children}
       </div>
@@ -764,12 +765,14 @@ export const GanttFeatureItemCard: FC<GanttFeatureItemCardProps> = ({ id, childr
 
 export type GanttFeatureItemProps = GanttFeature & {
   onMove?: (id: string, startDate: Date, endDate: Date | null) => void
+  onDoubleClick?: (id: string) => void
   children?: ReactNode
   className?: string
 }
 
 export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
   onMove,
+  onDoubleClick,
   children,
   className,
   ...feature
@@ -874,7 +877,7 @@ export const GanttFeatureItem: FC<GanttFeatureItemProps> = ({
           onDragStart={handleItemDragStart}
           sensors={[mouseSensor]}
         >
-          <GanttFeatureItemCard id={feature.id}>
+          <GanttFeatureItemCard id={feature.id} onDoubleClick={onDoubleClick}>
             {children ?? <p className="flex-1 truncate text-xs">{feature.name}</p>}
           </GanttFeatureItemCard>
         </DndContext>
@@ -1272,7 +1275,7 @@ export const GanttProvider: FC<GanttProviderProps> = ({
     >
       <div
         className={cn(
-          "gantt relative grid h-full w-full flex-none select-none overflow-auto rounded-sm bg-secondary",
+          "gantt relative grid h-full w-full flex-none select-none overflow-auto rounded-sm bg-muted",
           range,
           className,
         )}

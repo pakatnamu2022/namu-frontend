@@ -50,6 +50,80 @@ const PRIORITY_CONFIG: Record<ScrumItemPriority, { Icon: React.FC<any>; classNam
   baja: { Icon: ArrowDown, className: "text-blue-400" },
 };
 
+interface ListRowProps {
+  item: ScrumItemResource;
+  onItemClick: (id: number) => void;
+  onFocusInGantt?: (id: number) => void;
+}
+
+function ListRow({ item, onItemClick, onFocusInGantt }: ListRowProps) {
+  const TypeIcon = TYPE_ICON[item.type] ?? Zap;
+  const status = STATUS_CONFIG[item.status];
+  const priority = item.priority ? PRIORITY_CONFIG[item.priority as ScrumItemPriority] : null;
+
+  return (
+    <tr
+      className="group border-b hover:bg-muted/30 cursor-pointer transition-colors"
+      onClick={() => onItemClick(item.id)}
+    >
+      <td className="py-2 px-3">
+        <TypeIcon className="size-3.5 text-muted-foreground" title={TYPE_LABEL[item.type]} />
+      </td>
+      <td className="py-2 px-3 font-medium max-w-xs">
+        <span className="line-clamp-1">{item.title}</span>
+      </td>
+      <td className="py-2 px-3">
+        <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", status.className)}>
+          {status.label}
+        </span>
+      </td>
+      <td className="py-2 px-3">
+        {priority && (
+          <div className={cn("flex items-center gap-1", priority.className)}>
+            <priority.Icon className="size-3.5" />
+            <span className="text-xs capitalize">{item.priority}</span>
+          </div>
+        )}
+      </td>
+      <td className="py-2 px-3 text-muted-foreground">
+        {item.story_points ?? <span className="text-xs">—</span>}
+      </td>
+      <td className="py-2 px-3 text-muted-foreground text-xs truncate max-w-36">
+        {item.assignee?.name ?? "—"}
+      </td>
+      <td className="py-2 px-3 text-muted-foreground text-xs">
+        {item.due_date ? (
+          <div className="flex items-center gap-1">
+            <Calendar className="size-3" />
+            {item.due_date}
+          </div>
+        ) : "—"}
+      </td>
+      <td className="py-2 px-3 text-muted-foreground text-xs">
+        {item.estimated_hours ? (
+          <div className="flex items-center gap-1">
+            <Clock className="size-3" />
+            {item.estimated_hours}h
+          </div>
+        ) : "—"}
+      </td>
+      {onFocusInGantt && (
+        <td className="py-2 px-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 opacity-0 group-hover:opacity-100"
+            title="Ver en Gantt"
+            onClick={(e) => { e.stopPropagation(); onFocusInGantt(item.id); }}
+          >
+            <Crosshair className="size-3.5" />
+          </Button>
+        </td>
+      )}
+    </tr>
+  );
+}
+
 interface Props {
   items: ScrumItemResource[];
   isLoading: boolean;
@@ -91,74 +165,14 @@ export function ListView({ items, isLoading, onItemClick, onFocusInGantt }: Prop
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => {
-            const TypeIcon = TYPE_ICON[item.type] ?? Zap;
-            const status = STATUS_CONFIG[item.status];
-            const priority = item.priority ? PRIORITY_CONFIG[item.priority as ScrumItemPriority] : null;
-
-            return (
-              <tr
-                key={item.id}
-                className="group border-b hover:bg-muted/30 cursor-pointer transition-colors"
-                onClick={() => onItemClick(item.id)}
-              >
-                <td className="py-2 px-3">
-                  <TypeIcon className="size-3.5 text-muted-foreground" title={TYPE_LABEL[item.type]} />
-                </td>
-                <td className="py-2 px-3 font-medium max-w-xs">
-                  <span className="line-clamp-1">{item.title}</span>
-                </td>
-                <td className="py-2 px-3">
-                  <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", status.className)}>
-                    {status.label}
-                  </span>
-                </td>
-                <td className="py-2 px-3">
-                  {priority && (
-                    <div className={cn("flex items-center gap-1", priority.className)}>
-                      <priority.Icon className="size-3.5" />
-                      <span className="text-xs capitalize">{item.priority}</span>
-                    </div>
-                  )}
-                </td>
-                <td className="py-2 px-3 text-muted-foreground">
-                  {item.story_points ?? <span className="text-xs">—</span>}
-                </td>
-                <td className="py-2 px-3 text-muted-foreground text-xs truncate max-w-36">
-                  {item.assignee?.name ?? "—"}
-                </td>
-                <td className="py-2 px-3 text-muted-foreground text-xs">
-                  {item.due_date ? (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="size-3" />
-                      {item.due_date}
-                    </div>
-                  ) : "—"}
-                </td>
-                <td className="py-2 px-3 text-muted-foreground text-xs">
-                  {item.estimated_hours ? (
-                    <div className="flex items-center gap-1">
-                      <Clock className="size-3" />
-                      {item.estimated_hours}h
-                    </div>
-                  ) : "—"}
-                </td>
-                {onFocusInGantt && (
-                  <td className="py-2 px-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-6 opacity-0 group-hover:opacity-100"
-                      title="Ver en Gantt"
-                      onClick={(e) => { e.stopPropagation(); onFocusInGantt(item.id); }}
-                    >
-                      <Crosshair className="size-3.5" />
-                    </Button>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
+          {items.map((item) => (
+            <ListRow
+              key={item.id}
+              item={item}
+              onItemClick={onItemClick}
+              onFocusInGantt={onFocusInGantt}
+            />
+          ))}
         </tbody>
       </table>
     </div>

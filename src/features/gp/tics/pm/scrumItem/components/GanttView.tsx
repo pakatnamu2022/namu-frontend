@@ -25,7 +25,7 @@ import {
   type GanttFeature,
   type GanttStatus,
   type Range,
-} from "./Gantt";
+} from "@/components/ui/gantt";
 import { ScrumSprintResource } from "@/features/gp/tics/pm/scrumSprint/lib/scrumSprint.interface";
 import {
   ScrumItemResource,
@@ -67,6 +67,83 @@ function makeGanttFeature(
     endAt,
     status: makeGanttStatus(item.status),
   };
+}
+
+const RANGE_LABELS: Record<Range, string> = {
+  daily: "Día",
+  monthly: "Mes",
+  quarterly: "Trimestre",
+};
+
+interface GanttToolbarProps {
+  range: Range;
+  zoom: number;
+  onRangeChange: (r: Range) => void;
+  onZoomChange: (z: number) => void;
+  onGoToToday: () => void;
+  onGoToWeek: () => void;
+  onGoToMonth: () => void;
+}
+
+function GanttToolbar({
+  range,
+  zoom,
+  onRangeChange,
+  onZoomChange,
+  onGoToToday,
+  onGoToWeek,
+  onGoToMonth,
+}: GanttToolbarProps) {
+  return (
+    <div className="flex items-center gap-3 px-3 py-2 border-b bg-background shrink-0 flex-wrap">
+      <div className="flex items-center gap-0.5">
+        <span className="text-xs text-muted-foreground mr-1">Escala:</span>
+        {(["daily", "monthly", "quarterly"] as Range[]).map((r) => (
+          <Button
+            key={r}
+            variant={range === r ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => onRangeChange(r)}
+          >
+            {RANGE_LABELS[r]}
+          </Button>
+        ))}
+      </div>
+
+      <div className="w-px h-5 bg-border" />
+
+      <div className="flex items-center gap-0.5">
+        <span className="text-xs text-muted-foreground mr-1">Zoom:</span>
+        {[50, 100, 150].map((z) => (
+          <Button
+            key={z}
+            variant={zoom === z ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={() => onZoomChange(z)}
+          >
+            {z}%
+          </Button>
+        ))}
+      </div>
+
+      <div className="w-px h-5 bg-border" />
+
+      <div className="flex items-center gap-0.5">
+        <span className="text-xs text-muted-foreground mr-1">Ir a:</span>
+        <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs" onClick={onGoToToday}>
+          Hoy
+        </Button>
+        <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs" onClick={onGoToWeek}>
+          Esta semana
+        </Button>
+        <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs" onClick={onGoToMonth}>
+          Este mes
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 // Rendered inside GanttProvider to access scroll context
@@ -218,78 +295,17 @@ export function GanttView({
     );
   }
 
-  const RANGE_LABELS: Record<Range, string> = {
-    daily: "Día",
-    monthly: "Mes",
-    quarterly: "Trimestre",
-  };
-
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex items-center gap-3 px-3 py-2 border-b bg-background shrink-0 flex-wrap">
-        <div className="flex items-center gap-0.5">
-          <span className="text-xs text-muted-foreground mr-1">Escala:</span>
-          {(["daily", "monthly", "quarterly"] as Range[]).map((r) => (
-            <Button
-              key={r}
-              variant={range === r ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 px-2.5 text-xs"
-              onClick={() => setRange(r)}
-            >
-              {RANGE_LABELS[r]}
-            </Button>
-          ))}
-        </div>
-
-        <div className="w-px h-5 bg-border" />
-
-        <div className="flex items-center gap-0.5">
-          <span className="text-xs text-muted-foreground mr-1">Zoom:</span>
-          {[50, 100, 150].map((z) => (
-            <Button
-              key={z}
-              variant={zoom === z ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 px-2.5 text-xs"
-              onClick={() => setZoom(z)}
-            >
-              {z}%
-            </Button>
-          ))}
-        </div>
-
-        <div className="w-px h-5 bg-border" />
-
-        <div className="flex items-center gap-0.5">
-          <span className="text-xs text-muted-foreground mr-1">Ir a:</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2.5 text-xs"
-            onClick={goToToday}
-          >
-            Hoy
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2.5 text-xs"
-            onClick={goToWeek}
-          >
-            Esta semana
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2.5 text-xs"
-            onClick={goToMonth}
-          >
-            Este mes
-          </Button>
-        </div>
-      </div>
+      <GanttToolbar
+        range={range}
+        zoom={zoom}
+        onRangeChange={setRange}
+        onZoomChange={setZoom}
+        onGoToToday={goToToday}
+        onGoToWeek={goToWeek}
+        onGoToMonth={goToMonth}
+      />
 
       {/* Gantt */}
       <div className="flex-1 min-h-0">
@@ -334,6 +350,7 @@ export function GanttView({
                       <GanttFeatureItem
                         key={item.id}
                         onMove={handleMove}
+                        onDoubleClick={(id) => onItemClick(parseInt(id))}
                         {...makeGanttFeature(item, sprint)}
                       />
                     ))}

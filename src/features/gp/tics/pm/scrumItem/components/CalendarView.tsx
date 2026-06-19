@@ -23,6 +23,85 @@ const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
+interface DayCellProps {
+  day: number;
+  dayKey: string;
+  isSelected: boolean;
+  isToday: boolean;
+  dayItems: ScrumItemResource[];
+  onSelect: (key: string) => void;
+}
+
+function CalendarDayCell({ day, dayKey, isSelected, isToday, dayItems, onSelect }: DayCellProps) {
+  return (
+    <div
+      onClick={() => onSelect(dayKey)}
+      className={cn(
+        "bg-background min-h-[60px] p-1 cursor-pointer hover:bg-muted/50 transition-colors",
+        isSelected && "ring-2 ring-inset ring-primary",
+      )}
+    >
+      <span
+        className={cn(
+          "text-xs font-medium inline-flex size-5 items-center justify-center rounded-full",
+          isToday && "bg-primary text-primary-foreground",
+          !isToday && "text-foreground",
+        )}
+      >
+        {day}
+      </span>
+      <div className="flex flex-wrap gap-0.5 mt-1">
+        {dayItems.slice(0, 4).map((item) => (
+          <span
+            key={item.id}
+            className={cn("inline-block size-1.5 rounded-full", STATUS_DOT[item.status])}
+          />
+        ))}
+        {dayItems.length > 4 && (
+          <span className="text-[9px] text-muted-foreground">+{dayItems.length - 4}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface SidePanelProps {
+  selectedDay: string;
+  items: ScrumItemResource[];
+  onItemClick: (id: number) => void;
+}
+
+function CalendarSidePanel({ selectedDay, items, onItemClick }: SidePanelProps) {
+  return (
+    <div className="w-72 shrink-0 border rounded-lg p-3 overflow-y-auto max-h-[calc(100vh-280px)]">
+      <p className="text-xs font-semibold text-muted-foreground mb-2">
+        {selectedDay} — {items.length} item{items.length !== 1 ? "s" : ""}
+      </p>
+      {items.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Sin items este día</p>
+      ) : (
+        <div className="space-y-2">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => onItemClick(item.id)}
+              className="flex items-start gap-2 p-2 rounded-md border hover:bg-muted/50 cursor-pointer transition-colors"
+            >
+              <span className={cn("mt-1 size-2 shrink-0 rounded-full", STATUS_DOT[item.status])} />
+              <div className="min-w-0">
+                <p className="text-xs font-medium line-clamp-2">{item.title}</p>
+                {item.assignee && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.assignee.name}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface Props {
   items: ScrumItemResource[];
   isLoading: boolean;
@@ -108,44 +187,17 @@ export function CalendarView({ items, isLoading, onItemClick }: Props) {
               return <div key={`empty-${i}`} className="bg-background min-h-[60px]" />;
             }
             const key = dayKey(day);
-            const dayItems = itemsByDate[key] ?? [];
             const isSelected = selectedDay === key;
-            const isToday =
-              new Date().toISOString().slice(0, 10) === key;
-
             return (
-              <div
+              <CalendarDayCell
                 key={key}
-                onClick={() => setSelectedDay(isSelected ? null : key)}
-                className={cn(
-                  "bg-background min-h-[60px] p-1 cursor-pointer hover:bg-muted/50 transition-colors",
-                  isSelected && "ring-2 ring-inset ring-primary",
-                )}
-              >
-                <span
-                  className={cn(
-                    "text-xs font-medium inline-flex size-5 items-center justify-center rounded-full",
-                    isToday && "bg-primary text-primary-foreground",
-                    !isToday && "text-foreground",
-                  )}
-                >
-                  {day}
-                </span>
-                <div className="flex flex-wrap gap-0.5 mt-1">
-                  {dayItems.slice(0, 4).map((item) => (
-                    <span
-                      key={item.id}
-                      className={cn(
-                        "inline-block size-1.5 rounded-full",
-                        STATUS_DOT[item.status],
-                      )}
-                    />
-                  ))}
-                  {dayItems.length > 4 && (
-                    <span className="text-[9px] text-muted-foreground">+{dayItems.length - 4}</span>
-                  )}
-                </div>
-              </div>
+                day={day}
+                dayKey={key}
+                isSelected={isSelected}
+                isToday={new Date().toISOString().slice(0, 10) === key}
+                dayItems={itemsByDate[key] ?? []}
+                onSelect={(k) => setSelectedDay(isSelected ? null : k)}
+              />
             );
           })}
         </div>
@@ -163,32 +215,11 @@ export function CalendarView({ items, isLoading, onItemClick }: Props) {
 
       {/* Side panel: items for selected day */}
       {selectedDay && (
-        <div className="w-72 shrink-0 border rounded-lg p-3 overflow-y-auto max-h-[calc(100vh-280px)]">
-          <p className="text-xs font-semibold text-muted-foreground mb-2">
-            {selectedDay} — {selectedItems.length} item{selectedItems.length !== 1 ? "s" : ""}
-          </p>
-          {selectedItems.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Sin items este día</p>
-          ) : (
-            <div className="space-y-2">
-              {selectedItems.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => onItemClick(item.id)}
-                  className="flex items-start gap-2 p-2 rounded-md border hover:bg-muted/50 cursor-pointer transition-colors"
-                >
-                  <span className={cn("mt-1 size-2 shrink-0 rounded-full", STATUS_DOT[item.status])} />
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium line-clamp-2">{item.title}</p>
-                    {item.assignee && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{item.assignee.name}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <CalendarSidePanel
+          selectedDay={selectedDay}
+          items={selectedItems}
+          onItemClick={onItemClick}
+        />
       )}
     </div>
   );

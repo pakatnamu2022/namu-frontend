@@ -31,11 +31,11 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { useScrumItemById } from "../lib/scrumItem.hook";
+import { updateScrumItem } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.actions";
 import {
   storeScrumComment,
   deleteScrumComment,
-  updateScrumItem,
-} from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.actions";
+} from "@/features/gp/tics/pm/scrumComment/lib/scrumComment.actions";
 import {
   ScrumItemType,
   ScrumItemPriority,
@@ -199,6 +199,7 @@ export function ItemDetailSheet({ itemId, open, onClose }: Props) {
       title={isLoading ? "Cargando..." : item?.title ?? "Detalle del item"}
       icon="LayoutList"
       size="2xl"
+      modal={false}
       isLoading={isLoading && open}
       childrenFooter={footer}
     >
