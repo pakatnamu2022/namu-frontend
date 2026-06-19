@@ -10,7 +10,9 @@ import {
   Zap,
   Calendar,
   Clock,
+  Crosshair,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   ScrumItemResource,
   ScrumItemType,
@@ -52,9 +54,10 @@ interface Props {
   items: ScrumItemResource[];
   isLoading: boolean;
   onItemClick: (id: number) => void;
+  onFocusInGantt?: (id: number) => void;
 }
 
-export function ListView({ items, isLoading, onItemClick }: Props) {
+export function ListView({ items, isLoading, onItemClick, onFocusInGantt }: Props) {
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -84,6 +87,7 @@ export function ListView({ items, isLoading, onItemClick }: Props) {
             <th className="text-left py-2 px-3 font-medium text-muted-foreground w-36">Asignado</th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground w-28">Vence</th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground w-20">Horas</th>
+            {onFocusInGantt && <th className="w-8" />}
           </tr>
         </thead>
         <tbody>
@@ -95,7 +99,7 @@ export function ListView({ items, isLoading, onItemClick }: Props) {
             return (
               <tr
                 key={item.id}
-                className="border-b hover:bg-muted/30 cursor-pointer transition-colors"
+                className="group border-b hover:bg-muted/30 cursor-pointer transition-colors"
                 onClick={() => onItemClick(item.id)}
               >
                 <td className="py-2 px-3">
@@ -139,6 +143,19 @@ export function ListView({ items, isLoading, onItemClick }: Props) {
                     </div>
                   ) : "—"}
                 </td>
+                {onFocusInGantt && (
+                  <td className="py-2 px-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-6 opacity-0 group-hover:opacity-100"
+                      title="Ver en Gantt"
+                      onClick={(e) => { e.stopPropagation(); onFocusInGantt(item.id); }}
+                    >
+                      <Crosshair className="size-3.5" />
+                    </Button>
+                  </td>
+                )}
               </tr>
             );
           })}

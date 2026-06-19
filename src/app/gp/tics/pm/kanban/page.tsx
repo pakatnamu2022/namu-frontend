@@ -207,6 +207,12 @@ export default function KanbanPage() {
   const [sprintId, setSprintId] = useState<string>("");
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [detailItemId, setDetailItemId] = useState<number | null>(null);
+  const [ganttFocusId, setGanttFocusId] = useState<number | null>(null);
+
+  const handleFocusInGantt = (id: number) => {
+    setViewMode("gantt");
+    setGanttFocusId(id);
+  };
 
   const { data: projectsData } = useScrumProjects({
     per_page: 100,
@@ -457,6 +463,7 @@ export default function KanbanPage() {
               items={listItems}
               isLoading={loadingItems}
               onItemClick={setDetailItemId}
+              onFocusInGantt={handleFocusInGantt}
             />
           )}
 
@@ -474,6 +481,8 @@ export default function KanbanPage() {
               items={listItems}
               isLoading={loadingItems}
               onItemClick={setDetailItemId}
+              focusItemId={ganttFocusId}
+              onFocused={() => setGanttFocusId(null)}
             />
           )}
         </div>
