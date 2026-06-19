@@ -65,7 +65,7 @@ export const ItemForm = ({
   );
 
   const form = useForm<ScrumItemSchema>({
-    resolver: zodResolver(scrumItemSchema),
+    resolver: zodResolver(scrumItemSchema) as any,
     defaultValues: {
       project_id: "",
       sprint_id: "",

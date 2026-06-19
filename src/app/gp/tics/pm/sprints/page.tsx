@@ -7,7 +7,7 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useScrumSprints } from "@/features/gp/tics/pm/scrumSprint/lib/scrumSprint.hook";
 import {
@@ -33,12 +33,18 @@ export default function ScrumSprintPage() {
 
   const resolvedProjectId = projectId === "all" ? null : Number(projectId);
 
-  const { data: sprints = [], isLoading, refetch } = useScrumSprints(resolvedProjectId);
+  const {
+    data: sprints = [],
+    isLoading,
+    refetch,
+  } = useScrumSprints(resolvedProjectId);
 
   const filtered = sprints.filter((s) => {
-    const matchSearch = !search || s.name.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      !search || s.name.toLowerCase().includes(search.toLowerCase());
     const matchStatus = status === "all" || s.status === status;
-    const matchProject = resolvedProjectId == null || s.project_id === resolvedProjectId;
+    const matchProject =
+      resolvedProjectId == null || s.project_id === resolvedProjectId;
     return matchSearch && matchStatus && matchProject;
   });
 

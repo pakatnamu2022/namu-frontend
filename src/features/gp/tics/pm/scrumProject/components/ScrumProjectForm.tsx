@@ -26,7 +26,7 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
   const { ABSOLUTE_ROUTE } = SCRUM_PROJECT;
 
   const form = useForm<ScrumProjectSchema>({
-    resolver: zodResolver(scrumProjectSchema),
+    resolver: zodResolver(scrumProjectSchema) as any,
     defaultValues: {
       name: "",
       description: "",

@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ScrumProjectResource } from "../lib/scrumProject.interface";
 import { Badge } from "@/components/ui/badge";
-import { Archive, CheckCircle, FolderKanban, Pencil } from "lucide-react";
+import { Archive, CheckCircle, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { SCRUM_PROJECT } from "../lib/scrumProject.constants";
@@ -53,14 +53,14 @@ export const scrumProjectColumns = ({
     accessorKey: "sprints_count",
     header: "Sprints",
     cell: ({ getValue }) => (
-      <Badge variant="secondary">{getValue() as number}</Badge>
+      <Badge variant="outline">{getValue() as number}</Badge>
     ),
   },
   {
     accessorKey: "items_count",
     header: "Items",
     cell: ({ getValue }) => (
-      <Badge variant="secondary">{getValue() as number}</Badge>
+      <Badge variant="outline">{getValue() as number}</Badge>
     ),
   },
   {
@@ -89,7 +89,10 @@ export const scrumProjectColumns = ({
       const id = row.original.id;
       return (
         <div className="flex items-center gap-2">
-          <ButtonAction icon={Pencil} onClick={() => router(`${ROUTE_UPDATE}/${id}`)} />
+          <ButtonAction
+            icon={Pencil}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+          />
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );

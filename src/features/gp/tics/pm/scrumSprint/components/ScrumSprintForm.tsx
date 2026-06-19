@@ -35,7 +35,7 @@ export const ScrumSprintForm = ({ defaultValues, onSubmit, isSubmitting = false,
   );
 
   const form = useForm<ScrumSprintSchema>({
-    resolver: zodResolver(scrumSprintSchema),
+    resolver: zodResolver(scrumSprintSchema) as any,
     defaultValues: {
       project_id: "",
       name: "",

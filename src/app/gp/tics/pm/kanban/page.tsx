@@ -2,11 +2,10 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,6 +17,11 @@ import {
   Bug,
   Minus,
   Zap,
+  LayoutDashboard,
+  List,
+  Calendar,
+  GanttChartSquare,
+  Filter,
 } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import PageWrapper from "@/shared/components/PageWrapper";
@@ -33,7 +37,10 @@ import {
 
 import { useScrumProjects } from "@/features/gp/tics/pm/scrumProject/lib/scrumProject.hook";
 import { useScrumSprints } from "@/features/gp/tics/pm/scrumSprint/lib/scrumSprint.hook";
-import { useScrumKanban } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.hook";
+import {
+  useScrumKanban,
+  useScrumItems,
+} from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.hook";
 import {
   storeScrumItem,
   updateScrumItem,
@@ -47,6 +54,18 @@ import {
   ScrumKanbanItem,
 } from "@/features/gp/tics/pm/scrumItem/lib/scrumItem.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { ListView } from "./_views/ListView";
+import { CalendarView } from "./_views/CalendarView";
+import { GanttView } from "./_views/GanttView";
+
+type ViewMode = "kanban" | "list" | "calendar" | "gantt";
+
+const VIEWS: { id: ViewMode; label: string; Icon: React.FC<any> }[] = [
+  { id: "kanban", label: "Tablero", Icon: LayoutDashboard },
+  { id: "list", label: "Lista", Icon: List },
+  { id: "calendar", label: "Calendario", Icon: Calendar },
+  { id: "gantt", label: "Gantt", Icon: GanttChartSquare },
+];
 
 const KANBAN_COLUMNS = [
   {
@@ -56,7 +75,6 @@ const KANBAN_COLUMNS = [
     textColor: "text-slate-700",
     bgTextColor: "bg-slate-100",
     borderColor: "border-l-slate-300",
-    shadowColor: "",
   },
   {
     id: "por_hacer",
@@ -65,7 +83,6 @@ const KANBAN_COLUMNS = [
     textColor: "text-blue-700",
     bgTextColor: "bg-blue-100",
     borderColor: "border-l-blue-400",
-    shadowColor: "",
   },
   {
     id: "en_progreso",
@@ -74,7 +91,6 @@ const KANBAN_COLUMNS = [
     textColor: "text-amber-700",
     bgTextColor: "bg-amber-100",
     borderColor: "border-l-amber-400",
-    shadowColor: "",
   },
   {
     id: "en_revision",
@@ -83,7 +99,6 @@ const KANBAN_COLUMNS = [
     textColor: "text-purple-700",
     bgTextColor: "bg-purple-100",
     borderColor: "border-l-purple-400",
-    shadowColor: "",
   },
   {
     id: "hecho",
@@ -92,7 +107,6 @@ const KANBAN_COLUMNS = [
     textColor: "text-emerald-700",
     bgTextColor: "bg-emerald-100",
     borderColor: "border-l-emerald-400",
-    shadowColor: "",
   },
 ] as const;
 
@@ -135,28 +149,28 @@ function ItemCard({
   const PriorityIcon = priority ? PRIORITY_ICON[priority] : null;
 
   return (
-    <div className="space-y-2" onClick={onClick}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <TypeIcon className="size-3.5 text-muted-foreground shrink-0" />
-          <p className="text-sm font-medium line-clamp-2 leading-tight">
+    <div className="space-y-1.5" onClick={onClick}>
+      <div className="flex items-start justify-between gap-1.5">
+        <div className="flex items-center gap-1 min-w-0">
+          <TypeIcon className="size-3 text-muted-foreground shrink-0" />
+          <p className="text-xs font-medium line-clamp-2 leading-tight">
             {item.title}
           </p>
         </div>
         {PriorityIcon && priority && (
           <PriorityIcon
-            className={cn("size-3.5 shrink-0 mt-0.5", PRIORITY_COLOR[priority])}
+            className={cn("size-3 shrink-0 mt-0.5", PRIORITY_COLOR[priority])}
           />
         )}
       </div>
 
       {item.tags && item.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {item.tags.slice(0, 3).map((tag) => (
+          {item.tags.slice(0, 2).map((tag) => (
             <Badge
               key={tag.id}
               variant="outline"
-              className="text-[10px] px-1.5 py-0 h-4"
+              className="text-[9px] px-1 py-0 h-3.5"
               style={
                 tag.color
                   ? { borderColor: tag.color, color: tag.color }
@@ -169,14 +183,14 @@ function ItemCard({
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-1">
         {item.story_points !== undefined && item.story_points !== null && (
-          <Badge variant="ghost" className="text-[10px] px-1.5 py-0 h-4">
-            {item.story_points} pts
+          <Badge variant="ghost" className="text-[9px] px-1 py-0 h-3.5">
+            {item.story_points}p
           </Badge>
         )}
         {item.assignee && (
-          <span className="text-[10px] text-muted-foreground ml-auto truncate">
+          <span className="text-[9px] text-muted-foreground ml-auto truncate">
             {item.assignee.name}
           </span>
         )}
@@ -187,8 +201,8 @@ function ItemCard({
 
 export default function KanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const queryClient = useQueryClient();
 
+  const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [projectId, setProjectId] = useState<string>("");
   const [sprintId, setSprintId] = useState<string>("");
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -220,13 +234,25 @@ export default function KanbanPage() {
   }, [projectId]);
 
   const resolvedSprintId = sprintId ? Number(sprintId) : null;
+
+  // Kanban data
   const {
     data: kanban,
     isLoading: loadingKanban,
     refetch,
   } = useScrumKanban(resolvedSprintId);
 
-  const allItems: (ScrumKanbanItem & {
+  // List / Calendar / Gantt data
+  const { data: itemsResponse, isLoading: loadingItems } = useScrumItems(
+    resolvedSprintId
+      ? { sprint_id: resolvedSprintId, per_page: 200 }
+      : resolvedProjectId
+        ? { project_id: resolvedProjectId, per_page: 200 }
+        : { per_page: 200 },
+  );
+  const listItems = itemsResponse?.data ?? [];
+
+  const allItems: (Omit<ScrumKanbanItem, "id"> & {
     id: string;
     name: string;
     column: string;
@@ -254,20 +280,13 @@ export default function KanbanPage() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
-
     const draggedItem = allItems.find((i) => i.id === active.id);
     if (!draggedItem) return;
-
     let targetColumn = over.id as string;
     const overItem = allItems.find((i) => i.id === over.id);
     if (overItem) targetColumn = overItem.column;
-
     if (draggedItem.column === targetColumn) return;
-
-    updateMutation.mutate({
-      id: draggedItem.id as unknown as number,
-      status: targetColumn,
-    });
+    updateMutation.mutate({ id: Number(draggedItem.id), status: targetColumn });
   };
 
   const storeMutation = useMutation({
@@ -300,7 +319,7 @@ export default function KanbanPage() {
     value: p.id.toString(),
   }));
   const sprintOptions = [
-    { label: "Selecciona un sprint", value: "" },
+    { label: "Todos los sprints", value: "" },
     ...sprints.map((s) => ({
       label: `${s.name}${s.status === "activo" ? " ★" : ""}`,
       value: s.id.toString(),
@@ -314,90 +333,149 @@ export default function KanbanPage() {
   return (
     <>
       <PageWrapper>
-        <HeaderTableWrapper>
-          <TitleComponent
-            title={currentView.descripcion}
-            subtitle="Mueve items entre columnas arrastrando y soltando"
-            icon={currentView.icon}
-          />
-          <div className="flex items-center gap-2 ml-auto">
-            <SearchableSelect
-              value={projectId}
-              onChange={setProjectId}
-              options={[
-                { label: "Todos los proyectos", value: "" },
-                ...projectOptions,
-              ]}
-              placeholder="Filtrar por proyecto"
+        {/* Header */}
+        <div className="flex flex-col gap-3 pb-3 border-b">
+          <div className="flex items-center justify-between gap-3">
+            <TitleComponent
+              title={currentView.descripcion}
+              subtitle="Gestiona tus tareas al estilo Jira"
+              icon={currentView.icon}
             />
-            <SearchableSelect
-              value={sprintId}
-              onChange={setSprintId}
-              options={sprintOptions}
-              placeholder="Sprint"
-            />
-            {resolvedSprintId && (
-              <Button size="sm" onClick={() => setAddModalOpen(true)}>
-                <Plus className="size-4 mr-1" /> Item
-              </Button>
-            )}
-          </div>
-        </HeaderTableWrapper>
 
-        <div className="flex-1 overflow-hidden overflow-x-auto">
-          <KanbanProvider
-            columns={KANBAN_COLUMNS as any}
-            data={allItems as any}
-            onDragEnd={handleDragEnd}
-            className="h-[calc(100vh-200px)] min-w-[900px] p-1"
-          >
-            {(column: (typeof KANBAN_COLUMNS)[number]) => (
-              <KanbanBoard
-                id={column.id}
-                key={column.id}
-                className="border-none shadow-none"
-              >
-                <KanbanHeader className="border-none">
-                  <div className="flex items-center justify-between">
-                    <Badge
-                      variant="ghost"
-                      className={cn(column.textColor, column.bgTextColor)}
-                    >
-                      {column.name}
-                    </Badge>
-                    <Badge variant="ghost" className="text-xs">
-                      {columnCount(column.id)}
-                    </Badge>
-                  </div>
-                </KanbanHeader>
-                {loadingKanban ? (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  </div>
-                ) : (
-                  <KanbanCards id={column.id}>
-                    {(item: any) => (
-                      <KanbanCard
-                        id={item.id}
-                        key={item.id}
-                        name={item.name}
-                        column={item.column}
-                        className={cn(
-                          "w-full border-l-4 cursor-pointer hover:shadow-md transition-shadow",
-                          column.borderColor,
-                        )}
-                      >
-                        <ItemCard
-                          item={item as ScrumKanbanItem}
-                          onClick={() => setDetailItemId(Number(item.id))}
-                        />
-                      </KanbanCard>
-                    )}
-                  </KanbanCards>
+            {/* Filters */}
+            <div className="flex items-center gap-2">
+              <Filter className="size-3.5 text-muted-foreground shrink-0" />
+              <SearchableSelect
+                value={projectId}
+                onChange={setProjectId}
+                options={[
+                  { label: "Todos los proyectos", value: "" },
+                  ...projectOptions,
+                ]}
+                placeholder="Proyecto"
+              />
+              <SearchableSelect
+                value={sprintId}
+                onChange={setSprintId}
+                options={sprintOptions}
+                placeholder="Sprint"
+              />
+              {resolvedSprintId && (
+                <Button size="sm" onClick={() => setAddModalOpen(true)}>
+                  <Plus className="size-3.5 mr-1" /> Item
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* View switcher */}
+          <div className="flex items-center gap-1 border rounded-lg p-0.5 w-fit bg-muted/40">
+            {VIEWS.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => setViewMode(id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-colors",
+                  viewMode === id
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/60",
                 )}
-              </KanbanBoard>
-            )}
-          </KanbanProvider>
+              >
+                <Icon className="size-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* View content */}
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0 pt-2">
+          {viewMode === "kanban" && (
+            <div className="flex-1 overflow-hidden overflow-x-auto">
+              <KanbanProvider
+                columns={KANBAN_COLUMNS as any}
+                data={allItems as any}
+                onDragEnd={handleDragEnd}
+                className="h-[calc(100vh-230px)] min-w-[750px] p-0.5"
+              >
+                {(column: (typeof KANBAN_COLUMNS)[number]) => (
+                  <KanbanBoard
+                    id={column.id}
+                    key={column.id}
+                    className="border-none shadow-none"
+                  >
+                    <KanbanHeader className="border-none">
+                      <div className="flex items-center justify-between">
+                        <Badge
+                          variant="ghost"
+                          className={cn(
+                            "text-xs",
+                            column.textColor,
+                            column.bgTextColor,
+                          )}
+                        >
+                          {column.name}
+                        </Badge>
+                        <Badge variant="ghost" className="text-xs">
+                          {columnCount(column.id)}
+                        </Badge>
+                      </div>
+                    </KanbanHeader>
+                    {loadingKanban ? (
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      </div>
+                    ) : (
+                      <KanbanCards id={column.id}>
+                        {(item: any) => (
+                          <KanbanCard
+                            id={item.id}
+                            key={item.id}
+                            name={item.name}
+                            column={item.column}
+                            className={cn(
+                              "w-full border-l-4 cursor-pointer hover:shadow-md transition-shadow",
+                              column.borderColor,
+                            )}
+                          >
+                            <ItemCard
+                              item={item as ScrumKanbanItem}
+                              onClick={() => setDetailItemId(Number(item.id))}
+                            />
+                          </KanbanCard>
+                        )}
+                      </KanbanCards>
+                    )}
+                  </KanbanBoard>
+                )}
+              </KanbanProvider>
+            </div>
+          )}
+
+          {viewMode === "list" && (
+            <ListView
+              items={listItems}
+              isLoading={loadingItems}
+              onItemClick={setDetailItemId}
+            />
+          )}
+
+          {viewMode === "calendar" && (
+            <CalendarView
+              items={listItems}
+              isLoading={loadingItems}
+              onItemClick={setDetailItemId}
+            />
+          )}
+
+          {viewMode === "gantt" && (
+            <GanttView
+              sprints={sprints}
+              items={listItems}
+              isLoading={loadingItems}
+              onItemClick={setDetailItemId}
+            />
+          )}
         </div>
       </PageWrapper>
 

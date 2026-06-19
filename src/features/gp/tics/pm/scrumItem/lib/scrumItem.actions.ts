@@ -83,3 +83,19 @@ export async function deleteScrumItem(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function storeScrumComment(payload: {
+  item_id: number;
+  content: string;
+}): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${payload.item_id}/comments`,
+    { content: payload.content }
+  );
+  return data;
+}
+
+export async function deleteScrumComment(id: number): Promise<GeneralResponse> {
+  const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/comments/${id}`);
+  return data;
+}
