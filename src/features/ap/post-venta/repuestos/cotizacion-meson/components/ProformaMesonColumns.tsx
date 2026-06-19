@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { STATUS_ORDER_QUOTATION_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 import { ProformaMesonActionsCell } from "./ProformaMesonActionsCell";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
@@ -39,7 +40,7 @@ export const orderQuotationMesonColumns = ({
       if (!value) return null;
       return (
         <div className="flex flex-col items-start gap-0.5">
-          <p className="font-semibold">{value}</p>
+          <CopyCell className="font-semibold" value={value} />
           {wasSegmented && (
             <Badge variant="outline" color="orange" size="xs">
               Segmentado

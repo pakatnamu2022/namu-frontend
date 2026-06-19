@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { ProformaActionsCell } from "./ProformaActionsCell";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 
@@ -58,7 +59,7 @@ export const orderQuotationColumns = ({
     header: "Número de Cotización",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell className="font-semibold" value={value} />;
     },
   },
   {

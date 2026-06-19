@@ -13,12 +13,14 @@ interface Props {
   };
   isFetching?: boolean;
   onRefresh: () => void;
+  sedeId?: string;
 }
 
 export default function ProductTransferActions({
   permissions,
   onRefresh,
   isFetching,
+  sedeId,
 }: Props) {
   const router = useNavigate();
   const { ROUTE_ADD } = PRODUCT_TRANSFER;
@@ -26,6 +28,11 @@ export default function ProductTransferActions({
   if (!permissions.canCreate) {
     return null;
   }
+
+  const handleAdd = () => {
+    const url = sedeId ? `${ROUTE_ADD}?sede_id=${sedeId}` : ROUTE_ADD!;
+    router(url);
+  };
 
   return (
     <ActionsWrapper>
@@ -35,7 +42,7 @@ export default function ProductTransferActions({
         />
         Actualizar
       </Button>
-      <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
+      <Button size="sm" onClick={handleAdd}>
         <Plus className="size-4 mr-2" /> Agregar guía
       </Button>
     </ActionsWrapper>

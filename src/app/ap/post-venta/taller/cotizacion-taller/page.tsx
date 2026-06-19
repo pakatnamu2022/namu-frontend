@@ -76,17 +76,20 @@ export default function OrderQuotationPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = useOrderQuotations({
-    page,
-    search,
-    per_page,
-    quotation_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
-    area_id: AREA_TALLER.toString(),
-    sede_id: sedeId || undefined,
-  });
+  const { data, isLoading, refetch } = useOrderQuotations(
+    {
+      page,
+      search,
+      per_page,
+      quotation_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+      area_id: AREA_TALLER.toString(),
+      sede_id: sedeId || undefined,
+    },
+    !!sedeId,
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
