@@ -198,7 +198,7 @@ export function AdditionalConfigSection({
 
           <FormSelect
             control={form.control}
-            label="Entidad"
+            label="Chequera"
             name="bank_id"
             options={filteredCheckbooks.map((checkbook) => ({
               label: checkbook.code,
