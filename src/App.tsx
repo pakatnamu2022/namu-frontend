@@ -387,6 +387,13 @@ import EquipmentPage from "./app/gp/tics/equipos/page.tsx";
 import AddEquipmentPage from "./app/gp/tics/equipos/agregar/page.tsx";
 import UpdateEquipmentPage from "./app/gp/tics/equipos/actualizar/[id]/page.tsx";
 import AuditLogsPage from "./app/gp/tics/auditoria/page.tsx";
+import ScrumProjectPage from "./app/gp/tics/pm/proyectos/page.tsx";
+import AddScrumProjectPage from "./app/gp/tics/pm/proyectos/agregar/page.tsx";
+import UpdateScrumProjectPage from "./app/gp/tics/pm/proyectos/actualizar/[id]/page.tsx";
+import ScrumSprintPage from "./app/gp/tics/pm/sprints/page.tsx";
+import AddScrumSprintPage from "./app/gp/tics/pm/sprints/agregar/page.tsx";
+import UpdateScrumSprintPage from "./app/gp/tics/pm/sprints/actualizar/[id]/page.tsx";
+import KanbanPage from "./app/gp/tics/pm/kanban/page.tsx";
 import CompanyModulePage from "./app/[company]/[module]/page.tsx";
 import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/page.tsx";
 import ProfilePage from "./app/perfil/page.tsx";
@@ -2183,6 +2190,19 @@ function App() {
                 element={<TelephonePlanPage />}
               />
               <Route path="asignaciones" element={<AssignmentsPage />} />
+              {RouterCrud(
+                "proyectos",
+                <ScrumProjectPage />,
+                <AddScrumProjectPage />,
+                <UpdateScrumProjectPage />,
+              )}
+              {RouterCrud(
+                "sprints",
+                <ScrumSprintPage />,
+                <AddScrumSprintPage />,
+                <UpdateScrumSprintPage />,
+              )}
+              <Route path="kanban" element={<KanbanPage />} />
             </Route>
 
             {/* ======================================================== */}

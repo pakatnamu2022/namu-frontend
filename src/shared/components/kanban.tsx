@@ -67,7 +67,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        "flex w-80 min-w-80 flex-col divide-y overflow-hidden rounded-md border bg-muted text-xs shadow-sm ring-2 transition-all", // ✅ AGREGAR: w-80 min-w-80
+        "flex w-60 min-w-60 flex-col divide-y overflow-hidden rounded-md border bg-muted text-xs shadow-sm ring-2 transition-all",
         isOver ? "ring-primary" : "ring-transparent",
         className
       )}
@@ -137,22 +137,21 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
       >
         <Card
           className={cn(
-            "w-full overflow-hidden cursor-grab gap-4 rounded-md p-3 shadow-sm", // ✅ AGREGAR: w-full overflow-hidden
+            "w-full overflow-hidden cursor-grab gap-2 rounded-md p-2 shadow-sm",
             isDragging && "pointer-events-none cursor-grabbing opacity-30",
             className
           )}
         >
           {children ?? (
             <p className="m-0 font-medium text-sm truncate">{name}</p>
-          )}{" "}
-          {/* ✅ AGREGAR truncate */}
+          )}
         </Card>
       </div>
       {activeCardId === id && (
         <t.In>
           <Card
             className={cn(
-              "w-full overflow-hidden cursor-grab gap-4 rounded-md p-3 shadow-sm ring-2 ring-primary", // ✅ AGREGAR: w-full overflow-hidden
+              "w-full overflow-hidden cursor-grab gap-2 rounded-md p-2 shadow-sm ring-2 ring-primary",
               isDragging && "cursor-grabbing",
               className
             )}
