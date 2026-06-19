@@ -1,497 +1,362 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
 import { TwoFactorSection } from "@/features/auth/components/TwoFactorSection";
+import { cn } from "@/lib/utils";
 import {
   Building2,
   Clock,
   Mail,
   MapPin,
-  User,
-  GraduationCap,
   FileText,
-  IdCard,
-  Briefcase,
-  Phone,
-  Calendar,
-  Globe,
-  Heart,
-  Users,
-  ShieldCheck,
   Lock,
   ChevronRight,
+  User,
+  GraduationCap,
 } from "lucide-react";
 import PageWrapper from "@/shared/components/PageWrapper";
+
+const NAV = [
+  { id: "laboral",    label: "Laboral",    icon: Building2 },
+  { id: "personal",   label: "Personal",   icon: User },
+  { id: "documentos", label: "Documentos", icon: FileText },
+  { id: "seguridad",  label: "Seguridad",  icon: Lock },
+] as const;
+
+type NavId = (typeof NAV)[number]["id"];
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [active, setActive] = useState<NavId>("laboral");
 
   if (!userComplete) return null;
 
-  // Obtener iniciales para el avatar
-  const getInitials = (name: string) => {
-    return name
+  const getInitials = (name: string) =>
+    name
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
-  };
+
+  const notNull = (v?: string | null) => (v && v !== "NULL" ? v : undefined);
+
+  const hasPrimary = [
+    userComplete.primary_school,
+    userComplete.primary_school_status,
+  ].some(notNull);
+
+  const hasSecondary = [
+    userComplete.secondary_school,
+    userComplete.secondary_school_status,
+  ].some(notNull);
+
+  const hasHigher = [
+    userComplete.technical_university,
+    userComplete.career,
+    userComplete.study_city,
+    userComplete.highest_degree,
+    userComplete.study_cycle,
+    userComplete.study_years,
+    userComplete.degree_obtained,
+  ].some(notNull);
+
+  const hasFormacion = hasPrimary || hasSecondary || hasHigher;
 
   return (
     <PageWrapper>
-      {/* Header con información del usuario */}
-      <Card className="col-span-full">
-        <CardContent className="pt-4 sm:pt-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-4 sm:gap-6">
-            <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-4 border-primary/10 shrink-0">
-              <AvatarFallback className="text-xl sm:text-2xl font-bold bg-primary/10 text-primary">
-                {getInitials(userComplete.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 space-y-2 sm:space-y-3 text-center sm:text-left w-full">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 md:gap-4">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-primary wrap-break-word">
-                    {userComplete.name}
-                  </h1>
-                  <Badge color="secondary" className="w-fit mx-auto sm:mx-0">
-                    {userComplete.position}
-                  </Badge>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <Building2 className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{userComplete.company}</span>
-                </div>
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <MapPin className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{userComplete.branch}</span>
-                </div>
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <Mail className="w-4 h-4 shrink-0" />
-                  <span className="truncate">
-                    {userComplete.personal_email}
-                  </span>
-                </div>
-              </div>
-            </div>
+      {/* ── Cabecera ─────────────────────────────────────────────── */}
+      <div className="flex flex-col items-center sm:flex-row gap-5 sm:gap-6 py-2">
+        <Avatar className="w-20 h-20 sm:w-[72px] sm:h-[72px] ring-4 ring-primary/10 shrink-0">
+          <AvatarFallback className="text-xl font-bold bg-primary/10 text-primary">
+            {getInitials(userComplete.name)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 text-center sm:text-left">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {userComplete.name}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {userComplete.position}
+          </p>
+          <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
+              {userComplete.company}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              {userComplete.branch}
+            </span>
+            {userComplete.personal_email && (
+              <span className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 shrink-0" />
+                {userComplete.personal_email}
+              </span>
+            )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Seguridad */}
-      <div className="col-span-full space-y-2.5">
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1">
-          Seguridad
-        </p>
-        <div className="rounded-2xl overflow-hidden bg-card shadow-sm divide-y divide-border/50">
-          <button
-            onClick={() => setShowChangePasswordModal(true)}
-            className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-muted/40 transition-colors text-left"
-          >
-            <div className="rounded-xl bg-blue-500/10 dark:bg-blue-500/15 p-2 shrink-0">
-              <Lock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">Contraseña</p>
-              <p className="text-xs text-muted-foreground">
-                Actualiza tu contraseña regularmente
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
-          </button>
-          <TwoFactorSection />
         </div>
       </div>
 
-      {/* Modal de cambio de contraseña */}
+      {/* ── Body: sidebar + content ──────────────────────────────── */}
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 md:items-start">
+
+        {/* Mobile: pill row */}
+        <div className="flex md:hidden gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          {NAV.map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setActive(id)}
+              className={cn(
+                "shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                active === id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {label}
+              {id === "seguridad" && (
+                <span className="text-[9px] font-bold bg-amber-400/30 text-amber-600 dark:text-amber-400 px-1 py-0.5 rounded-full leading-none">
+                  Beta
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Desktop: sidebar */}
+        <nav className="hidden md:flex flex-col gap-0.5 w-44 shrink-0">
+          {NAV.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActive(id)}
+              className={cn(
+                "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors text-left",
+                active === id
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="flex-1">{label}</span>
+              {id === "seguridad" && (
+                <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-400/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full leading-none">
+                  Beta
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        {/* Content panel */}
+        <div className="flex-1 min-w-0">
+
+          {active === "laboral" && (
+            <Section label="Laboral">
+              <Field label="ID de empleado" value={userComplete.id} />
+              <Field label="Rol del sistema" value={userComplete.role} />
+              <Field label="Posición" value={userComplete.position} />
+              <Field label="Compañía" value={userComplete.company} />
+              <Field label="Sucursal" value={userComplete.branch} />
+              <Field label="Fecha de inicio" value={userComplete.start_date} />
+            </Section>
+          )}
+
+          {active === "personal" && (
+            <div className="flex flex-col gap-4">
+              <Section label="Personal">
+                <Field label="Fecha de nacimiento" value={userComplete.birth_date} />
+                <Field label="Lugar de nacimiento" value={userComplete.birthplace} />
+                <Field label="Nacionalidad" value={userComplete.nationality} />
+                <Field label="Género" value={userComplete.gender} />
+                <Field label="Estado civil" value={userComplete.marital_status} />
+                <Field label="N.º de hijos" value={userComplete.children_count} />
+              </Section>
+              <Section label="Contacto">
+                <Field label="Correo personal" value={userComplete.personal_email} />
+                <Field label="Teléfono personal" value={userComplete.personal_phone} />
+                <Field label="Teléfono de casa" value={userComplete.home_phone} />
+                <Field label="Referencia" value={userComplete.reference_phone} />
+                <Field label="Dirección" value={userComplete.address} />
+                <Field label="Ref. dirección" value={userComplete.address_reference} />
+                <Field
+                  label="Ubicación"
+                  value={[
+                    userComplete.district,
+                    userComplete.province,
+                    userComplete.department,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                />
+              </Section>
+            </div>
+          )}
+
+          {active === "documentos" && (
+            <div className="flex flex-col gap-4">
+              <Section label="Documentos y Licencias">
+                <Field label="Documento de identidad" value={userComplete.document} />
+                <Field label="Pasaporte" value={userComplete.passport} />
+                <Field label="Licencia de conducir" value={userComplete.license} />
+                <Field label="Clase" value={userComplete.license_class} />
+                <Field label="Categoría" value={userComplete.license_category} />
+                <Field label="Mat. peligroso" value={userComplete.hazmat_license} />
+              </Section>
+
+              {hasFormacion ? (
+                <Section label="Formación Académica">
+                  {hasPrimary && (
+                    <>
+                      <SubLabel label="Primaria" />
+                      <Field label="Institución" value={notNull(userComplete.primary_school)} />
+                      <Field label="Estado" value={notNull(userComplete.primary_school_status)} />
+                    </>
+                  )}
+                  {hasSecondary && (
+                    <>
+                      <SubLabel label="Secundaria" />
+                      <Field label="Institución" value={notNull(userComplete.secondary_school)} />
+                      <Field label="Estado" value={notNull(userComplete.secondary_school_status)} />
+                    </>
+                  )}
+                  {hasHigher && (
+                    <>
+                      <SubLabel label="Superior" />
+                      <Field label="Universidad / Instituto" value={notNull(userComplete.technical_university)} />
+                      <Field label="Carrera" value={notNull(userComplete.career)} />
+                      <Field label="Ciudad" value={notNull(userComplete.study_city)} />
+                      <Field label="Grado obtenido" value={notNull(userComplete.highest_degree)} />
+                      <Field label="Ciclo actual" value={notNull(userComplete.study_cycle)} />
+                      <Field label="Años de estudio" value={notNull(userComplete.study_years)} />
+                      <Field label="Título" value={notNull(userComplete.degree_obtained)} />
+                    </>
+                  )}
+                </Section>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
+                  <GraduationCap className="h-8 w-8 mb-2 opacity-30" />
+                  <p className="text-sm">Sin información académica registrada</p>
+                </div>
+              )}
+
+              <Section label="Curriculum Vitae">
+                <div className="flex items-center justify-between px-4 py-3.5 gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="rounded-xl bg-orange-500/10 dark:bg-orange-500/15 p-2 shrink-0">
+                      <FileText className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {userComplete.cv_file || "Sin archivo adjunto"}
+                      </p>
+                      {userComplete.cv_last_update && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <Clock className="w-3 h-3 shrink-0" />
+                          Actualizado {userComplete.cv_last_update}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {userComplete.cv_file && (
+                    <span className="text-xs font-medium text-green-600 dark:text-green-400 shrink-0">
+                      Disponible
+                    </span>
+                  )}
+                </div>
+              </Section>
+            </div>
+          )}
+
+          {active === "seguridad" && (
+            <Section label="Seguridad">
+              <button
+                onClick={() => setShowChangePasswordModal(true)}
+                className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-muted/80 transition-colors text-left"
+              >
+                <div className="rounded-xl bg-blue-500/10 dark:bg-blue-500/15 p-2 shrink-0">
+                  <Lock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">Contraseña</p>
+                  <p className="text-xs text-muted-foreground">
+                    Actualiza tu contraseña regularmente
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+              </button>
+              <TwoFactorSection />
+            </Section>
+          )}
+
+        </div>
+      </div>
+
       <ChangePasswordModal
         open={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
         isForced={false}
       />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 w-full">
-        {/* Información de Contacto */}
-        <Card className="lg:col-span-6">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
-              <Mail className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              Información de Contacto
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 sm:space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <InfoItem
-                label="Correo Personal"
-                value={userComplete.personal_email}
-                icon={<Mail className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Teléfono Personal"
-                value={userComplete.personal_phone}
-                icon={<Phone className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Teléfono de Casa"
-                value={userComplete.home_phone}
-                icon={<Phone className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Teléfono de Referencia"
-                value={userComplete.reference_phone}
-                icon={<Phone className="w-4 h-4 text-primary" />}
-              />
-            </div>
-            <Separator />
-            <div className="space-y-3">
-              <InfoItem
-                label="Dirección Principal"
-                value={userComplete.address}
-                icon={<MapPin className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Referencia de Dirección"
-                value={userComplete.address_reference}
-                icon={<MapPin className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Ubicación"
-                value={`${userComplete.district}, ${userComplete.province}, ${userComplete.department}`}
-                icon={<MapPin className="w-4 h-4 text-primary" />}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Información Laboral */}
-        <Card className="lg:col-span-6">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
-              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              Información Laboral
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 sm:space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <InfoItem
-                label="ID de Empleado"
-                value={userComplete.id}
-                icon={<IdCard className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Rol del Sistema"
-                value={userComplete.role}
-                icon={<ShieldCheck className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Compañía"
-                value={userComplete.company}
-                icon={<Building2 className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Sucursal"
-                value={userComplete.branch}
-                icon={<MapPin className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Posición"
-                value={userComplete.position}
-                icon={<Briefcase className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Fecha de Inicio"
-                value={userComplete.start_date}
-                icon={<Clock className="w-4 h-4 text-primary" />}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Información Personal */}
-        <Card className="lg:col-span-6">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
-              <User className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              Información Personal
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <InfoItem
-                label="Fecha de Nacimiento"
-                value={userComplete.birth_date}
-                icon={<Calendar className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Lugar de Nacimiento"
-                value={userComplete.birthplace}
-                icon={<MapPin className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Nacionalidad"
-                value={userComplete.nationality}
-                icon={<Globe className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Género"
-                value={userComplete.gender}
-                icon={<User className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Estado Civil"
-                value={userComplete.marital_status}
-                icon={<Heart className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Número de Hijos"
-                value={userComplete.children_count}
-                icon={<Users className="w-4 h-4 text-primary" />}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Documentos y Licencias */}
-        <Card className="lg:col-span-6">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
-              <IdCard className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              Documentos y Licencias
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <InfoItem
-                label="Documento de Identidad"
-                value={userComplete.document}
-                icon={<IdCard className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Pasaporte"
-                value={userComplete.passport}
-                icon={<IdCard className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Licencia de Conducir"
-                value={userComplete.license}
-                icon={<IdCard className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Clase de Licencia"
-                value={userComplete.license_class}
-                icon={<IdCard className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Categoría de Licencia"
-                value={userComplete.license_category}
-                icon={<IdCard className="w-4 h-4 text-primary" />}
-              />
-              <InfoItem
-                label="Licencia de Material Peligroso"
-                value={userComplete.hazmat_license}
-                icon={<ShieldCheck className="w-4 h-4 text-primary" />}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Educación */}
-        <Card className="lg:col-span-12">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
-              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              Formación Académica
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {/* Educación Primaria */}
-              <div className="space-y-2 sm:space-y-3">
-                <h3 className="font-semibold text-sm sm:text-base text-primary flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                  Educación Primaria
-                </h3>
-                <div className="space-y-2 pl-3 sm:pl-4 border-l-2 border-primary/20">
-                  {userComplete.primary_school &&
-                    userComplete.primary_school !== "NULL" && (
-                      <InfoItem
-                        label="Institución"
-                        value={userComplete.primary_school}
-                      />
-                    )}
-
-                  {userComplete.primary_school_status &&
-                    userComplete.primary_school_status !== "NULL" && (
-                      <InfoItem
-                        label="Estado"
-                        value={userComplete.primary_school_status}
-                      />
-                    )}
-                </div>
-              </div>
-
-              {/* Educación Secundaria */}
-              <div className="space-y-2 sm:space-y-3">
-                <h3 className="font-semibold text-sm sm:text-base text-primary flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                  Educación Secundaria
-                </h3>
-                <div className="space-y-2 pl-3 sm:pl-4 border-l-2 border-primary/20">
-                  {userComplete.secondary_school &&
-                    userComplete.secondary_school !== "NULL" && (
-                      <InfoItem
-                        label="Institución"
-                        value={userComplete.secondary_school}
-                      />
-                    )}
-                  {userComplete.secondary_school_status &&
-                    userComplete.secondary_school_status !== "NULL" && (
-                      <InfoItem
-                        label="Estado"
-                        value={userComplete.secondary_school_status}
-                      />
-                    )}
-                </div>
-              </div>
-
-              {/* Educación Superior */}
-              <div className="space-y-2 sm:space-y-3">
-                <h3 className="font-semibold text-sm sm:text-base text-primary flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                  Educación Superior
-                </h3>
-                <div className="space-y-2 pl-3 sm:pl-4 border-l-2 border-primary/20">
-                  {userComplete.technical_university &&
-                    userComplete.technical_university !== "NULL" && (
-                      <InfoItem
-                        label="Universidad/Instituto"
-                        value={userComplete.technical_university}
-                      />
-                    )}
-
-                  {userComplete.career && userComplete.career !== "NULL" && (
-                    <InfoItem label="Carrera" value={userComplete.career} />
-                  )}
-
-                  {userComplete.study_city &&
-                    userComplete.study_city !== "NULL" && (
-                      <InfoItem
-                        label="Ciudad"
-                        value={userComplete.study_city}
-                      />
-                    )}
-
-                  {userComplete.highest_degree &&
-                    userComplete.highest_degree !== "NULL" && (
-                      <InfoItem
-                        label="Grado Obtenido"
-                        value={userComplete.highest_degree}
-                      />
-                    )}
-                  {userComplete.study_cycle &&
-                    userComplete.study_cycle !== "NULL" && (
-                      <InfoItem
-                        label="Ciclo Actual"
-                        value={userComplete.study_cycle}
-                      />
-                    )}
-
-                  {userComplete.study_years &&
-                    userComplete.study_years !== "NULL" && (
-                      <InfoItem
-                        label="Años de Estudio"
-                        value={userComplete.study_years}
-                      />
-                    )}
-
-                  {userComplete.degree_obtained &&
-                    userComplete.degree_obtained !== "NULL" && (
-                      <InfoItem
-                        label="Título"
-                        value={userComplete.degree_obtained}
-                      />
-                    )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Curriculum Vitae */}
-        <Card className="lg:col-span-12">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
-              <FileText className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              Curriculum Vitae
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="p-2 sm:p-3 bg-primary/10 rounded-lg shrink-0">
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm sm:text-base truncate">
-                    {userComplete.cv_file || "No se ha subido ningún archivo"}
-                  </p>
-                  {userComplete.cv_last_update && (
-                    <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                      <Clock className="w-3 h-3 shrink-0" />
-                      <span className="truncate">
-                        Última actualización: {userComplete.cv_last_update}
-                      </span>
-                    </p>
-                  )}
-                </div>
-              </div>
-              {userComplete.cv_file && (
-                <Badge variant="outline" className="text-xs shrink-0 w-fit">
-                  Disponible
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </PageWrapper>
   );
 }
 
-/** Componente auxiliar mejorado para mostrar información */
-function InfoItem({
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function Section({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1">
+        {label}
+      </p>
+      <div className="rounded-2xl overflow-hidden bg-muted/50 divide-y divide-border/30">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Field({
   label,
   value,
-  icon,
 }: {
   label: string;
   value?: string | number | null;
-  icon?: React.ReactNode;
 }) {
-  if (!value) return null;
+  if (value === null || value === undefined || value === "" || value === "-")
+    return null;
   return (
-    <div className="space-y-1 min-w-0">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+    <div className="flex items-baseline gap-3 px-4 py-2">
+      <span className="text-sm text-muted-foreground w-36 shrink-0 leading-snug">
         {label}
-      </p>
-      <div className="flex items-center gap-2 min-w-0">
-        {icon && <span className="shrink-0">{icon}</span>}
-        <p className="text-sm font-medium text-foreground wrap-break-word min-w-0">
-          {value}
-        </p>
-      </div>
+      </span>
+      <span className="text-sm font-medium flex-1 wrap-break-word leading-snug">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function SubLabel({ label }: { label: string }) {
+  return (
+    <div className="px-4 py-1.5 bg-muted/80">
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+        {label}
+      </span>
     </div>
   );
 }
