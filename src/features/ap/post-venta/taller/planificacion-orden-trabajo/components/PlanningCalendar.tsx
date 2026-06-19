@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_COLORS,
+  PLANNING_STATUS_LABELS,
 } from "../lib/workOrderPlanning.interface";
 import {
   format,
@@ -33,6 +34,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { formatHours } from "@/core/core.function";
 
 interface PlanningCalendarProps {
   data: WorkOrderPlanningResource[];
@@ -217,7 +219,7 @@ export function PlanningCalendar({
                             <Clock className="h-2 w-2" />
                             <span>
                               {planning.estimated_hours
-                                ? `${planning.estimated_hours}h`
+                                ? `${formatHours(planning.estimated_hours)}`
                                 : "N/A"}
                             </span>
                           </div>
@@ -244,7 +246,7 @@ export function PlanningCalendar({
                                 Estimado:
                               </span>
                               <p className="font-medium">
-                                {planning.estimated_hours || "N/A"} horas
+                                {formatHours(planning.estimated_hours) || "N/A"}
                               </p>
                             </div>
                             <div>
@@ -252,7 +254,7 @@ export function PlanningCalendar({
                                 Real:
                               </span>
                               <p className="font-medium">
-                                {planning.actual_hours} horas
+                                {formatHours(planning.actual_hours)}
                               </p>
                             </div>
                           </div>
@@ -261,7 +263,7 @@ export function PlanningCalendar({
                               PLANNING_STATUS_COLORS[planning.status].bg
                             } ${PLANNING_STATUS_COLORS[planning.status].text}`}
                           >
-                            {planning.status}
+                            {PLANNING_STATUS_LABELS[planning.status]}
                           </Badge>
                         </div>
                       </HoverCardContent>
