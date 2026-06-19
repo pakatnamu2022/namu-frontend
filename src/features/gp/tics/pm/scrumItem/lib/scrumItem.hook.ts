@@ -17,7 +17,6 @@ export const useScrumKanban = (sprintId: number | null) => {
     queryKey: ["scrumKanban", sprintId],
     queryFn: () => getScrumKanban(sprintId!),
     enabled: sprintId !== null,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -26,7 +25,6 @@ export const useScrumBacklog = (projectId: number | null) => {
     queryKey: ["scrumBacklog", projectId],
     queryFn: () => getScrumBacklog(projectId!),
     enabled: projectId !== null,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -34,7 +32,6 @@ export const useScrumItems = (params?: Record<string, any>) => {
   return useQuery<ScrumItemResponse>({
     queryKey: ["scrumItem", params],
     queryFn: () => getScrumItems(params),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -43,6 +40,5 @@ export const useScrumItemById = (id: number | null) => {
     queryKey: ["scrumItem", id],
     queryFn: () => findScrumItemById(id!),
     enabled: id !== null,
-    refetchOnWindowFocus: false,
   });
 };

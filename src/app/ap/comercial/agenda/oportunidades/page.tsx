@@ -504,7 +504,7 @@ export default function OpportunitiesKanbanPage() {
                     className={cn(
                       column.bgColor,
                       !column.canEdit && "opacity-65",
-                      "border-none shadow-none",
+                      "border-none shadow-none w-80 min-w-80",
                     )}
                   >
                     <KanbanHeader className="border-none">

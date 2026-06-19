@@ -1,7 +1,18 @@
+import { BadgeColor } from "@/components/ui/badge";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
-export type ScrumItemType = "tarea" | "historia" | "funcion" | "solicitud" | "error";
-export type ScrumItemStatus = "backlog" | "por_hacer" | "en_progreso" | "en_revision" | "hecho";
+export type ScrumItemType =
+  | "tarea"
+  | "historia"
+  | "funcion"
+  | "solicitud"
+  | "error";
+export type ScrumItemStatus =
+  | "backlog"
+  | "por_hacer"
+  | "en_progreso"
+  | "en_revision"
+  | "hecho";
 export type ScrumItemPriority = "alta" | "media" | "baja";
 
 export interface ScrumItemAssignee {
@@ -12,7 +23,7 @@ export interface ScrumItemAssignee {
 export interface ScrumItemTag {
   id: number;
   name: string;
-  color?: string;
+  color?: BadgeColor;
 }
 
 export interface ScrumItemChild {
