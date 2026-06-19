@@ -23,6 +23,8 @@ export default function PurchaseRequestQuoteOptions({
   setSelectedModelId,
   selectedBrandId,
   setSelectedBrandId,
+  isPaid,
+  setIsPaid,
 }: {
   search: string;
   setSearch: (value: string) => void;
@@ -37,6 +39,8 @@ export default function PurchaseRequestQuoteOptions({
   setSelectedModelId: (value: string) => void;
   selectedBrandId: string;
   setSelectedBrandId: (value: string) => void;
+  isPaid: string;
+  setIsPaid: (value: string) => void;
 }) {
   return (
     <FilterWrapper>
@@ -87,6 +91,15 @@ export default function PurchaseRequestQuoteOptions({
         placeholder="Filtrar por modelo"
         value={selectedModelId ? selectedModelId.toString() : ""}
         onChange={setSelectedModelId}
+      />
+      <SearchableSelect
+        value={isPaid}
+        onChange={setIsPaid}
+        placeholder="Esto de Pago"
+        options={[
+          { label: "Pagado", value: "1" },
+          { label: "Pendiente Pago", value: "0" },
+        ]}
       />
     </FilterWrapper>
   );

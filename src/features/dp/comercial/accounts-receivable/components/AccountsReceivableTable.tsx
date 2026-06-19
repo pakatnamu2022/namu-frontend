@@ -18,9 +18,9 @@ interface Props {
   totalPages: number;
   total: number;
   sorting: SortingState;
+  onSortingChange: (sorting: SortingState) => void;
   onPageChange: (page: number) => void;
   onPerPageChange: (perPage: number) => void;
-  onSortingChange: (sorting: SortingState) => void;
   rowSelection?: RowSelectionState;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   children?: React.ReactNode;
@@ -35,9 +35,9 @@ export default function AccountsReceivableTable({
   totalPages,
   total,
   sorting,
+  onSortingChange,
   onPageChange,
   onPerPageChange,
-  onSortingChange,
   rowSelection,
   onRowSelectionChange,
   children,
