@@ -104,7 +104,6 @@ function ProductDetailItem({
   isDetailsDisabled = false,
   showStock,
   onToggleStock,
-  selectedVehicle,
 }: {
   index: number;
   form: any;
@@ -209,9 +208,9 @@ function ProductDetailItem({
                   ),
                   value: product.id.toString(),
                 })}
-                additionalParams={{
-                  brand_id: selectedVehicle?.model.brand_id,
-                }}
+                // additionalParams={{
+                //   brand_id: selectedVehicle?.model.brand_id,
+                // }}
                 perPage={10}
                 debounceMs={500}
                 defaultOption={defaultProductOption}
