@@ -333,7 +333,9 @@ export function OrderQuotationBillingForm({
             );
 
             // Descuento = precio base total - net_amount
-            const descuentoMonto = round2(unit_price * cantidad - subtotalDetail);
+            const descuentoMonto = round2(
+              unit_price * cantidad - subtotalDetail,
+            );
 
             const subtotal = round2(subtotalDetail);
             const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));

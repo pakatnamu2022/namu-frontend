@@ -181,6 +181,7 @@ export default function AddGeneralSalesReceiptsCajaPage() {
         igvTypes={igvTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
+        isCommercial={false}
       />
     </PageWrapper>
   );

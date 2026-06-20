@@ -5,21 +5,12 @@ import {
   accountingAccountPlanSchemaUpdate,
 } from "../lib/accountingAccountPlan.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form, FormLabel } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useAllAccountingAccountType } from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/lib/accountingAccountType.hook";
+import { FormCheckbox } from "@/shared/components/FormCheckbox";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface AccountingAccountPlanFormProps {
   defaultValues: Partial<AccountingAccountPlanSchema>;
@@ -40,82 +31,73 @@ export const AccountingAccountPlanForm = ({
     resolver: zodResolver(
       mode === "create"
         ? accountingAccountPlanSchemaCreate
-        : accountingAccountPlanSchemaUpdate
+        : accountingAccountPlanSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
     },
     mode: "onChange",
   });
-  const {
-    data: accountingAccountPlans = [],
-    isLoading: isLoadingAccountingAccountPlans,
-  } = useAllAccountingAccountType();
 
-  if (isLoadingAccountingAccountPlans) return <FormSkeleton />;
+  const enableCommercialError = form.formState.errors.enable_commercial;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
             name="account"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cuenta</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 7521000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Cuenta"
+            placeholder="Ej: 7521000"
             control={form.control}
+          />
+
+          <FormInput
             name="code_dynamics"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código Dynamics</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: V000002" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Cód. Dyn"
+            placeholder="Ej: V000002"
             control={form.control}
+          />
+
+          <FormInput
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: Comision Venta Consignación"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormSelect
-            name="accounting_type_id"
-            label="Tipo de Cuenta"
-            placeholder="Selecciona un Tipo de Cuenta"
-            options={accountingAccountPlans.map((accountingAccountPlan) => ({
-              label: accountingAccountPlan.description,
-              value: accountingAccountPlan.id.toString(),
-            }))}
+            label="Descripción"
+            placeholder="Ej: Comision Venta Consignación"
             control={form.control}
           />
+
           <FormSwitch
             control={form.control}
             name="is_detraction"
             label="Detracción"
             text="¿Es detracción?"
           />
+        </div>
+
+        {/* Habilitación por área */}
+        <div className="space-y-2">
+          <FormLabel
+            className={enableCommercialError ? "text-destructive" : ""}
+          >
+            Habilitado para <span className="text-destructive">*</span>
+          </FormLabel>
+          <div className="flex flex-wrap gap-3">
+            <FormCheckbox
+              control={form.control}
+              name="enable_commercial"
+              label="Comercial"
+            />
+            <FormCheckbox
+              control={form.control}
+              name="enable_after_sales"
+              label="Post Venta"
+            />
+          </div>
+          {enableCommercialError && (
+            <p className="text-sm font-medium text-destructive">
+              {enableCommercialError.message}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-4 w-full justify-end">

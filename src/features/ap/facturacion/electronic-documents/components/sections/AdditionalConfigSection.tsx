@@ -262,7 +262,7 @@ export function AdditionalConfigSection({
             description="Número de orden de compra o servicio relacionado (opcional)."
             maxLength={255}
           />
-          {!!ordenCompraServicio && !isEdit && (
+          {!!ordenCompraServicio && (
             <div className="col-span-full">
               <FileUploadWithCamera
                 label="Archivo de orden de compra/servicio (opcional)"
