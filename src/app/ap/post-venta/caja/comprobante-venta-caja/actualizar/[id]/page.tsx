@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -332,6 +332,7 @@ function EditOrderQuotationPage({
   icon,
 }: SubPageProps & { orderQuotationId: number }) {
   const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
+  const queryClient = useQueryClient();
 
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(orderQuotationId);
@@ -343,6 +344,9 @@ function EditOrderQuotationPage({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
       updateElectronicDocument(documentId, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["electronic-documents", documentId],
+      });
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       onSuccess();
     },
