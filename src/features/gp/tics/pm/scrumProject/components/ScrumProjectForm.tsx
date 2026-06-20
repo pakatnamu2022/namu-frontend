@@ -10,6 +10,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { Link } from "react-router-dom";
 import { SCRUM_PROJECT } from "../lib/scrumProject.constants";
 import { scrumProjectSchema, ScrumProjectSchema } from "../lib/scrumProject.schema";
+import { ColorPickerForm } from "./ColorPickerForm";
 
 interface Props {
   defaultValues: Partial<ScrumProjectSchema>;
@@ -37,8 +38,6 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
     mode: "onChange",
   });
 
-  const color = form.watch("color");
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
@@ -50,18 +49,7 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
             placeholder="Ej: Sistema de Ventas"
           />
 
-          <div className="flex items-end gap-3">
-            <FormInput
-              control={form.control}
-              name="color"
-              label="Color"
-              placeholder="#3B82F6"
-            />
-            <span
-              className="size-9 rounded-md border shrink-0 mb-0.5"
-              style={{ backgroundColor: color || "#3B82F6" }}
-            />
-          </div>
+          <ColorPickerForm control={form.control} />
 
           <FormSelect
             control={form.control}
