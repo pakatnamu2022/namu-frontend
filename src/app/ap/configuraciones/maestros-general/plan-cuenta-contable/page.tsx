@@ -27,6 +27,7 @@ import AccountingAccountPlanModal from "@/features/ap/configuraciones/maestros-g
 import { ACCOUNTING_ACCOUNT_PLAN } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import type { SortingState } from "@tanstack/react-table";
 
 
 export default function AccountingAccountPlanPage() {
@@ -37,8 +38,16 @@ export default function AccountingAccountPlanPage() {
   const [detractionFilter, setDetractionFilter] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const { MODEL, ROUTE } = ACCOUNTING_ACCOUNT_PLAN;
   const permissions = useModulePermissions(ROUTE);
+
+  const orderByCodeDynamics =
+    sorting.length > 0 && sorting[0].id === "code_dynamics"
+      ? sorting[0].desc
+        ? "desc"
+        : "asc"
+      : undefined;
 
   useEffect(() => {
     setPage(1);
@@ -48,6 +57,8 @@ export default function AccountingAccountPlanPage() {
     search,
     per_page,
     ...(detractionFilter !== "all" && { is_detraction: detractionFilter }),
+    sort: "code_dynamics",
+    ...(orderByCodeDynamics && { direction: orderByCodeDynamics }),
   });
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
@@ -108,6 +119,9 @@ export default function AccountingAccountPlanPage() {
           permissions,
         })}
         data={data?.data || []}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        manualSorting={true}
       >
         <AccountingAccountPlanOptions
           search={search}

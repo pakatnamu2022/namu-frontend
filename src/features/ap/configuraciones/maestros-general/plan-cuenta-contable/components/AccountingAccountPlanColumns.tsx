@@ -38,7 +38,8 @@ export const accountingAccountPlanColumns = ({
   },
   {
     accessorKey: "code_dynamics",
-    header: "Código Dynamics",
+    header: "Cód. Dyn",
+    enableSorting: true,
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return (

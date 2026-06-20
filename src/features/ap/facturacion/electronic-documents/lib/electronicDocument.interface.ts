@@ -95,6 +95,7 @@ export interface ElectronicDocumentResource {
   medio_de_pago?: string;
   placa_vehiculo?: string;
   orden_compra_servicio?: string;
+  orden_compra_servicio_url?: string;
   codigo_unico?: string;
   enviar_automaticamente_a_la_sunat?: boolean;
   enviar_automaticamente_al_cliente?: boolean;

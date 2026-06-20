@@ -32,6 +32,7 @@ interface OrderQuotationBillingFormProps {
   isPending: boolean;
   quotation: OrderQuotationResource;
   isEdit?: boolean;
+  existingFileUrl?: string;
   onCancel?: () => void;
 }
 
@@ -41,6 +42,7 @@ export function OrderQuotationBillingForm({
   isPending,
   quotation,
   isEdit = false,
+  existingFileUrl = "",
   onCancel,
 }: OrderQuotationBillingFormProps) {
   // Ref para rastrear la última cotización cargada (evitar loops)
@@ -616,6 +618,8 @@ export function OrderQuotationBillingForm({
               showCardLast4={true}
               showInternalNote={true}
               showOrdenCompraServicio={true}
+              isEdit={isEdit}
+              existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
             />
           </div>

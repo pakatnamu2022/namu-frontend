@@ -434,6 +434,7 @@ function EditOrderQuotationForm({
         isPending={isPending}
         quotation={quotation}
         isEdit={true}
+        existingFileUrl={document.orden_compra_servicio_url ?? ""}
       />
     </PageWrapper>
   );
