@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { useEffect } from "react";
-import { Settings } from "lucide-react";
+import { ExternalLink, FileText, Settings } from "lucide-react";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
@@ -23,7 +23,8 @@ interface AdditionalConfigSectionProps {
   showInternalNote?: boolean;
   showOrdenCompraServicio?: boolean;
   isEdit?: boolean;
-  isAdvancePayment?: boolean; // Nuevo prop para indicar si es un anticipo
+  existingFileUrl?: string;
+  isAdvancePayment?: boolean;
 }
 
 export function AdditionalConfigSection({
@@ -35,6 +36,7 @@ export function AdditionalConfigSection({
   showInternalNote = false,
   showOrdenCompraServicio = false,
   isEdit = false,
+  existingFileUrl = "",
   isAdvancePayment = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
@@ -263,9 +265,30 @@ export function AdditionalConfigSection({
             maxLength={255}
           />
           {!!ordenCompraServicio && (
-            <div className="col-span-full">
+            <div className="col-span-full space-y-2">
+              {existingFileUrl && !form.watch("orden_compra_servicio_file") && (
+                <div className="flex items-center gap-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2.5">
+                  <FileText className="h-4 w-4 shrink-0 text-blue-600" />
+                  <span className="flex-1 truncate text-sm text-blue-800">
+                    Archivo actual guardado
+                  </span>
+                  <a
+                    href={existingFileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex shrink-0 items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Ver archivo
+                  </a>
+                </div>
+              )}
               <FileUploadWithCamera
-                label="Archivo de orden de compra/servicio (opcional)"
+                label={
+                  existingFileUrl
+                    ? "Reemplazar archivo (opcional)"
+                    : "Archivo de orden de compra/servicio (opcional)"
+                }
                 value={form.watch("orden_compra_servicio_file") ?? null}
                 onChange={(file) =>
                   form.setValue("orden_compra_servicio_file", file)
