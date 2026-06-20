@@ -50,6 +50,9 @@ export default function AccountingAccountPlanModal({
       code_dynamics: data.code_dynamics || "",
       description: data.description,
       accounting_type_id: String(data.accounting_type_id),
+      is_detraction: data.is_detraction,
+      enable_commercial: data.enable_commercial,
+      enable_after_sales: data.enable_after_sales,
     };
   }
 
