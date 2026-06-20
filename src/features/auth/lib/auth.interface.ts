@@ -14,10 +14,15 @@ export interface PermissionsResponse {
   permissions_modules: ModulePermissions;
 }
 
+export interface GeneralSettings {
+  freight_commission: number;
+}
+
 export interface AuthResponse {
   access_token: string;
   user: UserResource;
   permissions: PermissionsResponse;
+  general: GeneralSettings;
 }
 
 export interface TwoFactorRequiredResponse {
@@ -27,7 +32,7 @@ export interface TwoFactorRequiredResponse {
 
 export type LoginResponse = AuthResponse | TwoFactorRequiredResponse;
 
-export type AuthResponseWithoutToken = Omit<AuthResponse, "access_token">;
+export type AuthResponseWithoutToken = Omit<AuthResponse, "access_token">; // includes general
 
 export interface AuthResponsePerson {
   id: number;

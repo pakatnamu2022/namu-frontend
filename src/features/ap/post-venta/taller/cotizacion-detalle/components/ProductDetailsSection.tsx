@@ -117,7 +117,8 @@ export default function ProductDetailsSection({
   const [isSaving, setIsSaving] = useState(false);
   const [mode, setMode] = useState<"DEALER_PORTAL" | "AP">("DEALER_PORTAL");
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const { user, general } = useAuthStore();
+  const freightCommissionMultiplier = 1 + (general?.freight_commission ?? 0.05);
 
   // AP mode
   const maxDiscountPercentage =
@@ -310,7 +311,7 @@ export default function ProductDetailsSection({
       quantity: 1,
       unit_measure: "UND",
       retail_price_external: undefined,
-      freight_commission: 1.05,
+      freight_commission: freightCommissionMultiplier,
       exchange_rate: 0,
       unit_price: 0,
       discount_percentage: 0,
@@ -413,7 +414,7 @@ export default function ProductDetailsSection({
 
   useEffect(() => {
     const retail = Number(retailPriceExternal) || 0;
-    const comision = Number(comisionFlete) || 1.05;
+    const comision = Number(comisionFlete) || freightCommissionMultiplier;
     let calculatedUnitPrice: number;
     if (isInDollars) {
       calculatedUnitPrice = Math.round(retail * comision * 100) / 100;
@@ -423,7 +424,14 @@ export default function ProductDetailsSection({
         Math.round(retail * comision * tipoCambio * 100) / 100;
     }
     form.setValue("unit_price", calculatedUnitPrice);
-  }, [retailPriceExternal, comisionFlete, exchangeRate, form, isInDollars]);
+  }, [
+    retailPriceExternal,
+    comisionFlete,
+    exchangeRate,
+    form,
+    isInDollars,
+    freightCommissionMultiplier,
+  ]);
 
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
@@ -441,7 +449,7 @@ export default function ProductDetailsSection({
         quantity: 1,
         unit_measure: "UND",
         retail_price_external: undefined,
-        freight_commission: 1.05,
+        freight_commission: freightCommissionMultiplier,
         exchange_rate: exchangeRate || 0,
         unit_price: 0,
         discount_percentage: 0,
@@ -536,7 +544,7 @@ export default function ProductDetailsSection({
                     quantity: 1,
                     unit_measure: "UND",
                     retail_price_external: undefined,
-                    freight_commission: 1.05,
+                    freight_commission: freightCommissionMultiplier,
                     exchange_rate: exchangeRate || 0,
                     unit_price: 0,
                     discount_percentage: 0,
@@ -713,7 +721,7 @@ export default function ProductDetailsSection({
             </p>
             <p className="text-xs text-primary">
               <span className="font-semibold">Comisión de flete:</span>{" "}
-              {Number(comisionFlete) || 1.05}
+              {Number(comisionFlete) || freightCommissionMultiplier}
             </p>
             {!isInDollars &&
               (isLoadingExchangeRate ? (

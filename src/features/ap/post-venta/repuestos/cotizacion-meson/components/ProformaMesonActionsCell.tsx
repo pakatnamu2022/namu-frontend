@@ -9,6 +9,7 @@ import {
   Pencil,
   Percent,
   Scissors,
+  ShieldCheck,
   XCircle,
 } from "lucide-react";
 import {
@@ -38,6 +39,7 @@ interface ActionsCellProps {
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
   onRequestDiscount: (id: number) => void;
+  onApprove: (id: number) => void;
   onRefresh: () => void;
   onUpdate: (id: number) => void;
   onDelete: (id: number) => void;
@@ -49,6 +51,7 @@ export const ProformaMesonActionsCell = ({
   onViewBilling,
   onViewDelivery,
   onRequestDiscount,
+  onApprove,
   onRefresh,
   onUpdate,
   onDelete,
@@ -143,6 +146,8 @@ export const ProformaMesonActionsCell = ({
     !isForInvoicing &&
     !was_segmented &&
     !parent_quotation_id;
+
+  const isVisibleApprove = isForInvoicing;
 
   const isVisibleEdit =
     !isDiscarded &&
@@ -283,6 +288,18 @@ export const ProformaMesonActionsCell = ({
             onClick={() => setShowDiscardModal(true)}
           >
             <XCircle className="size-5" />
+          </Button>
+        )}
+
+        {isVisibleApprove && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7 text-green-600 hover:text-green-700 hover:bg-green-50"
+            tooltip="Aprobar Jefe / Gerente"
+            onClick={() => onApprove(id)}
+          >
+            <ShieldCheck className="size-4" />
           </Button>
         )}
 

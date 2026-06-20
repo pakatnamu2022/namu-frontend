@@ -91,7 +91,18 @@ export async function approveOrderQuotation(
   data: ApprovalRequest,
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
-    `${ENDPOINT}/${id}/approve`,
+    `${ENDPOINT}/${id}/approve-taller`,
+    data,
+  );
+  return response.data;
+}
+
+export async function approveOrderQuotationMeson(
+  id: number,
+  data: ApprovalRequest,
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/approve-repuesto`,
     data,
   );
   return response.data;

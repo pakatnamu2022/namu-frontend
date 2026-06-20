@@ -3,19 +3,19 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Package, CheckCircle2, Loader2 } from "lucide-react";
-import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
-import TitleComponent from "@/shared/components/TitleComponent.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { errorToast, successToast } from "@/core/core.function.ts";
-import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
+import PageSkeleton from "@/shared/components/PageSkeleton";
+import TitleComponent from "@/shared/components/TitleComponent";
+import { Button } from "@/components/ui/button";
+import { errorToast, successToast } from "@/core/core.function";
+import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import {
   findOrderQuotationById,
-  approveOrderQuotation,
-} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
-import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface.ts";
-import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface.ts";
-import { getAllOrderQuotationDetails } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.actions.ts";
-import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
+  approveOrderQuotationMeson,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
+import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
+import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
+import { getAllOrderQuotationDetails } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.actions";
+import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
 import { CopyCell } from "@/shared/components/CopyCell";
 import {
@@ -23,7 +23,7 @@ import {
   type DetailSheetTableColumn,
 } from "@/shared/components/DetailSheetTable";
 
-export default function AprobacionProductosPage() {
+export default function AprobacionProductosMesonPage() {
   const params = useParams();
   const navigate = useNavigate();
   const quotationId = Number(params.id);
@@ -73,7 +73,7 @@ export default function AprobacionProductosPage() {
           ? { chief_approval_by: "Aprobado" }
           : { manager_approval_by: "Aprobado" };
 
-      const updated = await approveOrderQuotation(quotationId, payload);
+      const updated = await approveOrderQuotationMeson(quotationId, payload);
       setQuotation(updated);
       successToast(
         type === "chief"
@@ -201,7 +201,7 @@ export default function AprobacionProductosPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate(ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE)}
+          onClick={() => navigate(ORDER_QUOTATION_MESON.ABSOLUTE_ROUTE)}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -285,7 +285,7 @@ export default function AprobacionProductosPage() {
         />
       </div>
 
-      {/* Aprobaciones — bloque compacto alineado a la derecha */}
+      {/* Aprobaciones */}
       <div className="flex justify-end">
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           {/* Jefe */}

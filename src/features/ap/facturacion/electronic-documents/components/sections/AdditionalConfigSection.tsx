@@ -13,7 +13,6 @@ import {
   PAYMENT_CONDITION_CREDIT,
   CREDIT_DAYS_OPTIONS,
 } from "../../lib/electronicDocument.constants";
-import { CHECKBOOKS_ID } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -45,7 +44,8 @@ export function AdditionalConfigSection({
 
   // Limpiar al cambiar a CONTADO; poner 30 días por defecto al cambiar a CREDITO.
   // En modo edición, esperamos a que medio_de_pago tenga un valor real antes de limpiar.
-  const medioDePagoInitialized = medioDePago !== "" && medioDePago !== undefined;
+  const medioDePagoInitialized =
+    medioDePago !== "" && medioDePago !== undefined;
   useEffect(() => {
     if (isEdit && !medioDePagoInitialized) return;
     if (!isCredito) {
@@ -95,7 +95,7 @@ export function AdditionalConfigSection({
         )
       : condicionesDePago === "TARJETA"
         ? checkbooks.filter((checkbook) =>
-            Object.values(CHECKBOOKS_ID).includes(checkbook.id),
+            checkbook.code.toUpperCase().includes("QR"),
           )
         : checkbooks.filter(
             (checkbook) => !checkbook.code.toUpperCase().includes("CAJ"),

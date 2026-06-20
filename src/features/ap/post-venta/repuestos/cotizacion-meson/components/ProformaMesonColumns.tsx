@@ -15,6 +15,7 @@ interface Props {
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
   onRequestDiscount: (id: number) => void;
+  onApprove: (id: number) => void;
   onRefresh?: () => void;
   permissions: {
     canUpdate: boolean;
@@ -28,6 +29,7 @@ export const orderQuotationMesonColumns = ({
   onViewBilling,
   onViewDelivery,
   onRequestDiscount,
+  onApprove,
   onRefresh,
   permissions,
 }: Props): OrderQuotationMesonColumns[] => [
@@ -189,6 +191,7 @@ export const orderQuotationMesonColumns = ({
         onViewBilling={onViewBilling}
         onViewDelivery={onViewDelivery}
         onRequestDiscount={onRequestDiscount}
+        onApprove={onApprove}
         onRefresh={onRefresh!}
         onUpdate={onUpdate}
         onDelete={onDelete}
