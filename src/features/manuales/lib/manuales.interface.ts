@@ -10,6 +10,5 @@ export interface ManualResource {
 }
 
 export interface getManualesProps {
-  company: string;
-  module: string;
+  vista_id: number;
 }

@@ -8,20 +8,18 @@ interface ManualesResponse {
 }
 
 export async function getManuals({
-  company,
-  module,
+  vista_id,
 }: getManualesProps): Promise<ManualResource[]> {
   const config: AxiosRequestConfig = {
-    params: { company, module },
+    params: { vista_id },
   };
   const { data } = await api.get<ManualesResponse>(MANUALS.ENDPOINT, config);
   return data.data;
 }
 
 export async function getManualContent(id: number): Promise<string> {
-  const { data } = await api.get<string>(
-    `${MANUALS.ENDPOINT}/${id}/content`,
-    { responseType: "text" }
-  );
+  const { data } = await api.get<string>(`${MANUALS.ENDPOINT}/${id}/content`, {
+    responseType: "text",
+  });
   return data;
 }

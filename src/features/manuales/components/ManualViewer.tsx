@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Loader2 } from "lucide-react";
+import { Loader2, BookOpen } from "lucide-react";
 import { getManualContent } from "../lib/manuales.actions";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 interface ManualViewerProps {
   id: number;
-  title: string;
 }
 
-export default function ManualViewer({ id, title }: ManualViewerProps) {
+export default function ManualViewer({ id }: ManualViewerProps) {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,14 +39,21 @@ export default function ManualViewer({ id, title }: ManualViewerProps) {
 
   if (error) {
     return (
-      <div className="py-10 text-center text-sm text-red-500">{error}</div>
+      <Empty className="border border-dashed">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <BookOpen />
+          </EmptyMedia>
+          <EmptyTitle>No se pudo cargar el manual</EmptyTitle>
+          <EmptyDescription>{error}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">{title}</h1>
-      <div className="prose prose-sm md:prose-base max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-primary">
+    <div className="bg-background rounded-xl shadow-sm p-6 md:p-8">
+<div className="prose prose-sm md:prose-base max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-primary">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
