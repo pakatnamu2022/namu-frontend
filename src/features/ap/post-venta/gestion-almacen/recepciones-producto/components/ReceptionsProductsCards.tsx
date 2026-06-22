@@ -35,6 +35,8 @@ import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-co
 import { translateStatusReception } from "../lib/receptionsProducts.constants";
 import { Switch } from "@/components/ui/switch.tsx";
 import { useUpdateDetailCreditNote } from "../lib/receptionsProducts.hook";
+import { useQueryClient } from "@tanstack/react-query";
+import { RECEPTION } from "../lib/receptionsProducts.constants";
 
 interface Props {
   data: ReceptionResource[];
@@ -61,6 +63,7 @@ export default function ReceptionsProductsCards({
   const [expandedAnnulled, setExpandedAnnulled] = useState<Set<number>>(
     new Set(),
   );
+  const queryClient = useQueryClient();
   const { mutate: updateCreditNote, isPending: isUpdatingCreditNote } =
     useUpdateDetailCreditNote();
 
@@ -623,7 +626,17 @@ export default function ReceptionsProductsCards({
                                               detailId: detail.id,
                                               isCreditNote: checked,
                                             },
-                                            { onSuccess: onRefresh },
+                                            {
+                                              onSuccess: () => {
+                                                queryClient.removeQueries({
+                                                  queryKey: [
+                                                    RECEPTION.QUERY_KEY,
+                                                    reception.id,
+                                                  ],
+                                                });
+                                                onRefresh?.();
+                                              },
+                                            },
                                           )
                                         }
                                       />
