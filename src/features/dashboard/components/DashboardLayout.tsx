@@ -27,9 +27,16 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isLoadingModule, company, moduleSlug } = useCurrentModule();
+  const {
+    isLoadingModule,
+    company,
+    moduleSlug,
+    subModuleSlug,
+  } = useCurrentModule();
   const location = useLocation();
-  const manualesPath = `/${company}/${moduleSlug}/manuales`;
+  const manualesPath = subModuleSlug
+    ? `/${company}/${moduleSlug}/${subModuleSlug}/manuales`
+    : `/${company}/${moduleSlug}/manuales`;
   const isManualesActive = location.pathname === manualesPath;
 
   useEffect(() => {
