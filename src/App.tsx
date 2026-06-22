@@ -408,6 +408,7 @@ import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 import AccountsReceivablePage from "./app/dp/comercial/accounts-receivable/page.tsx";
 import AccountsReceivableDashboardPage from "./app/dp/comercial/accounts-receivable/dashboard/page.tsx";
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
+import ManualesPage from "./features/manuales/components/ManualesPage";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
@@ -462,6 +463,7 @@ import UpdatePhoneLinePage from "./app/gp/tics/lineas-telefonicas/actualizar/[id
 import TelephoneAccountPage from "./app/gp/tics/cuentas-telefonicas/page.tsx";
 import TelephonePlanPage from "./app/gp/tics/planes-telefonicos/page.tsx";
 import AssignmentsPage from "./app/gp/tics/asignaciones/page.tsx";
+import GestionManualesPage from "./app/gp/tics/gestion-manuales/page.tsx";
 import ControlVehicleAssignmentPage from "./app/tp/comercial-tp/control-asignacionVehiculos/page.tsx";
 import AddControlUnitsPage from "./app/ap/comercial/control-unidades/agregar/page.tsx";
 import UpdateControlUnitsPage from "./app/ap/comercial/control-unidades/actualizar/[id]/page.tsx";
@@ -2195,6 +2197,7 @@ function App() {
                 element={<TelephonePlanPage />}
               />
               <Route path="asignaciones" element={<AssignmentsPage />} />
+              <Route path="gestion-manuales" element={<GestionManualesPage />} />
               {RouterCrud(
                 "proyectos",
                 <ScrumProjectPage />,
@@ -2271,6 +2274,7 @@ function App() {
               }
             >
               <Route index element={<CompanyModulePage />} />
+              <Route path="manuales" element={<ManualesPage />} />
               <Route
                 path=":submodule"
                 element={<CompanyModuleSubmodulePage />}

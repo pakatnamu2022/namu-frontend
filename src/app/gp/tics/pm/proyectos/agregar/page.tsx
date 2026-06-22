@@ -35,8 +35,16 @@ export default function AddScrumProjectPage() {
 
   return (
     <FormWrapper>
-      <TitleFormComponent title={currentView.descripcion} mode="create" icon={currentView.icon} />
-      <ScrumProjectForm defaultValues={EMPTY!} onSubmit={handleSubmit} isSubmitting={isPending} />
+      <TitleFormComponent
+        title={currentView.descripcion}
+        mode="create"
+        icon={currentView.icon}
+      />
+      <ScrumProjectForm
+        defaultValues={EMPTY!}
+        onSubmit={handleSubmit}
+        isSubmitting={isPending}
+      />
     </FormWrapper>
   );
 }
