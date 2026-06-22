@@ -52,8 +52,8 @@ export default function ManualViewer({ id }: ManualViewerProps) {
   }
 
   return (
-    <div className="bg-background rounded-xl shadow-sm p-6 md:p-8">
-<div className="prose prose-sm md:prose-base max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-primary">
+    <div className="p-6 md:p-8">
+      <div className="prose prose-sm md:prose-base max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-primary">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{

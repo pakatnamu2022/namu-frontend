@@ -1,48 +1,11 @@
 import { useState } from "react";
-import { BookOpen, ChevronLeft } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useManuals } from "../lib/manuales.hook";
 import { ManualResource } from "../lib/manuales.interface";
 import ManualCard from "./ManualCard";
 import ManualViewer from "./ManualViewer";
-
-function PageTitle({
-  moduleName,
-  selected,
-  onBack,
-}: {
-  moduleName: string;
-  selected: ManualResource | null;
-  onBack: () => void;
-}) {
-  if (selected) {
-    return (
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onBack}
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-xl font-bold text-gray-900 truncate">
-          {selected.title}
-        </h1>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-        <BookOpen className="w-5 h-5 text-primary" />
-      </div>
-      <div>
-        <h1 className="text-xl font-bold text-gray-900">Manuales</h1>
-        <p className="text-sm text-gray-500">{moduleName}</p>
-      </div>
-    </div>
-  );
-}
+import TitleComponent from "@/shared/components/TitleComponent";
 
 export default function ManualesPage() {
   const { moduleSlug, currentModule } = useCurrentModule();
@@ -53,11 +16,19 @@ export default function ManualesPage() {
 
   return (
     <div className="space-y-6">
-      <PageTitle
-        moduleName={moduleName}
-        selected={selected}
-        onBack={() => setSelected(null)}
-      />
+      {selected ? (
+        <TitleComponent
+          title={selected.title}
+          icon="BookOpen"
+          onBack={() => setSelected(null)}
+        />
+      ) : (
+        <TitleComponent
+          title="Manuales"
+          subtitle={moduleName}
+          icon="BookOpen"
+        />
+      )}
 
       {selected ? (
         <ManualViewer id={selected.id} />
