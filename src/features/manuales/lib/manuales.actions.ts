@@ -17,3 +17,11 @@ export async function getManuals({
   const { data } = await api.get<ManualesResponse>(MANUALS.ENDPOINT, config);
   return data.data;
 }
+
+export async function getManualContent(id: number): Promise<string> {
+  const { data } = await api.get<string>(
+    `${MANUALS.ENDPOINT}/${id}/content`,
+    { responseType: "text" }
+  );
+  return data;
+}

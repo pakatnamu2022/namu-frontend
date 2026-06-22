@@ -23,7 +23,7 @@ export default function ManualesPage() {
           <ArrowLeft className="w-4 h-4" />
           Volver a manuales
         </button>
-        <ManualViewer s3Url={selected.s3_url} title={selected.title} />
+        <ManualViewer id={selected.id} title={selected.title} />
       </div>
     );
   }

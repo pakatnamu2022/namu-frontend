@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Loader2 } from "lucide-react";
+import { getManualContent } from "../lib/manuales.actions";
 
 interface ManualViewerProps {
-  s3Url: string;
+  id: number;
   title: string;
 }
 
-export default function ManualViewer({ s3Url, title }: ManualViewerProps) {
+export default function ManualViewer({ id, title }: ManualViewerProps) {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,15 +17,11 @@ export default function ManualViewer({ s3Url, title }: ManualViewerProps) {
   useEffect(() => {
     setIsLoading(true);
     setError(null);
-    fetch(s3Url)
-      .then((res) => {
-        if (!res.ok) throw new Error("No se pudo cargar el manual.");
-        return res.text();
-      })
+    getManualContent(id)
       .then(setContent)
-      .catch((err) => setError(err.message))
+      .catch(() => setError("No se pudo cargar el manual."))
       .finally(() => setIsLoading(false));
-  }, [s3Url]);
+  }, [id]);
 
   if (isLoading) {
     return (
