@@ -5,7 +5,6 @@ import { ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFilterTree } from "../lib/accountsReceivable.hook";
 import type { AccountsReceivableFilters } from "../lib/accountsReceivable.interface";
-import SearchInput from "@/shared/components/SearchInput";
 
 interface Props {
   filters: AccountsReceivableFilters;
@@ -81,93 +80,90 @@ export default function AccountsReceivableTreeFilter({
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 h-8">
-        {[80, 64, 96, 72, 88, 68].map((w, i) => (
-          <div
-            key={i}
-            className="h-6 rounded-full bg-muted animate-pulse"
-            style={{ width: w }}
-          />
-        ))}
+      <div className="flex flex-col gap-2 w-full">
+        <div className="flex items-center gap-2 h-8">
+          {[80, 64, 96, 72, 88, 68].map((w, i) => (
+            <div
+              key={i}
+              className="h-6 rounded-full bg-muted animate-pulse"
+              style={{ width: w }}
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-end gap-0 flex-wrap">
-      {/* Nivel 1 — Sede */}
-      <Level label="Sede" onClear={selectedSedeIds.length ? onReset : undefined}>
-        <AnimatePresence mode="popLayout">
-          {tree.map((sede, i) => (
-            <Chip
-              key={sede.sede_id}
-              index={i}
-              active={selectedSedeIds.includes(sede.sede_id)}
-              onClick={() => toggleSede(sede.sede_id)}
-            >
-              {sede.sede_name}
-            </Chip>
-          ))}
+    <div className="flex flex-col gap-2 w-full">
+      {/* Fila 1 — Sede + Estado */}
+      <div className="flex items-end gap-0 flex-wrap">
+        <Level label="Sede" onClear={selectedSedeIds.length ? onReset : undefined}>
+          <AnimatePresence mode="popLayout">
+            {tree.map((sede, i) => (
+              <Chip
+                key={sede.sede_id}
+                index={i}
+                active={selectedSedeIds.includes(sede.sede_id)}
+                onClick={() => toggleSede(sede.sede_id)}
+              >
+                {sede.sede_name}
+              </Chip>
+            ))}
+          </AnimatePresence>
+        </Level>
+
+        <AnimatePresence>
+          {selectedSedeIds.length > 0 && <Separator key="sep1" />}
         </AnimatePresence>
-      </Level>
 
-      {/* Separador */}
-      <AnimatePresence>
-        {selectedSedeIds.length > 0 && <Separator key="sep1" />}
-      </AnimatePresence>
-
-      {/* Nivel 2 — Estado */}
-      <AnimatePresence>
-        {selectedSedeIds.length > 0 && (
-          <motion.div
-            key="statuses"
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 12 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-          >
-            <Level
-              label="Estado"
-              onClear={
-                selectedStatuses.length
-                  ? () =>
-                      onFiltersChange({
-                        overdue_status: undefined,
-                        due_year: null,
-                      })
-                  : undefined
-              }
+        <AnimatePresence>
+          {selectedSedeIds.length > 0 && (
+            <motion.div
+              key="statuses"
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 12 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
             >
-              <AnimatePresence mode="popLayout">
-                {availableStatuses.map((s, i) => (
-                  <Chip
-                    key={s.status}
-                    index={i}
-                    active={selectedStatuses.includes(s.status)}
-                    onClick={() => toggleStatus(s.status)}
-                  >
-                    {s.status}
-                  </Chip>
-                ))}
-              </AnimatePresence>
-            </Level>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <Level
+                label="Estado"
+                onClear={
+                  selectedStatuses.length
+                    ? () =>
+                        onFiltersChange({
+                          overdue_status: undefined,
+                          due_year: null,
+                        })
+                    : undefined
+                }
+              >
+                <AnimatePresence mode="popLayout">
+                  {availableStatuses.map((s, i) => (
+                    <Chip
+                      key={s.status}
+                      index={i}
+                      active={selectedStatuses.includes(s.status)}
+                      onClick={() => toggleStatus(s.status)}
+                    >
+                      {s.status}
+                    </Chip>
+                  ))}
+                </AnimatePresence>
+              </Level>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-      {/* Separador */}
-      <AnimatePresence>
-        {selectedStatuses.length > 0 && <Separator key="sep2" />}
-      </AnimatePresence>
-
-      {/* Nivel 3 — Año */}
+      {/* Fila 2 — Año */}
       <AnimatePresence>
         {selectedStatuses.length > 0 && (
           <motion.div
             key="years"
-            initial={{ opacity: 0, x: 12 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 12 }}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
             <Level
@@ -196,15 +192,6 @@ export default function AccountsReceivableTreeFilter({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Search */}
-      <div className="pl-4">
-        <SearchInput
-          value={filters.search ?? ""}
-          onChange={(v) => onFiltersChange({ search: v || undefined })}
-          placeholder="Buscar cliente, doc..."
-        />
-      </div>
     </div>
   );
 }
