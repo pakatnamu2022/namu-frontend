@@ -2274,6 +2274,10 @@ function App() {
                 path=":submodule"
                 element={<CompanyModuleSubmodulePage />}
               />
+              <Route
+                path=":submodule/manuales"
+                element={<ManualesPage />}
+              />
             </Route>
           </Route>
 

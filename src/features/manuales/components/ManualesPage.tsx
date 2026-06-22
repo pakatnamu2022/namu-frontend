@@ -8,11 +8,14 @@ import ManualViewer from "./ManualViewer";
 import TitleComponent from "@/shared/components/TitleComponent";
 
 export default function ManualesPage() {
-  const { moduleSlug, currentModule } = useCurrentModule();
-  const { data: manuals, isLoading } = useManuals(currentModule?.id ?? 0);
+  const { moduleSlug, currentModule, currentSubmodule } = useCurrentModule();
+  const { data: manuals, isLoading } = useManuals(
+    currentSubmodule?.id ?? currentModule?.id ?? 0,
+  );
   const [selected, setSelected] = useState<ManualResource | null>(null);
 
-  const moduleName = currentModule?.descripcion ?? moduleSlug;
+  const moduleName =
+    currentSubmodule?.descripcion ?? currentModule?.descripcion ?? moduleSlug;
 
   return (
     <div className="space-y-6">
