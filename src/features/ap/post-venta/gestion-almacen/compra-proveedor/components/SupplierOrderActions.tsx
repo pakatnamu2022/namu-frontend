@@ -22,7 +22,7 @@ export default function SupplierOrderActions({
     <ActionsWrapper>
       <Link to={routeAdd}>
         <Button size="sm" variant="outline" className="ml-auto">
-          <Plus className="size-4 mr-2" /> Agregar Pedido a Proveedor
+          <Plus className="size-4 mr-2" /> Agregar Pedido
         </Button>
       </Link>
     </ActionsWrapper>

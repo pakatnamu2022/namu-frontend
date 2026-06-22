@@ -182,7 +182,9 @@ export default function InvoiceReceptionPage() {
           sede_id: String(reception.warehouse.sede_id) || "",
           warehouse_id: reception.warehouse_id.toString(),
           currency_id: String(reception.type_currency_id) || "",
-          emission_date: new Date(),
+          emission_date: reception.reception_date
+            ? new Date(reception.reception_date)
+            : new Date(),
           due_date: new Date(),
           payment_terms: "30_DAYS",
           items:

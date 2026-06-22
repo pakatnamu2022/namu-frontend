@@ -37,6 +37,7 @@ import { Switch } from "@/components/ui/switch.tsx";
 import { useUpdateDetailCreditNote } from "../lib/receptionsProducts.hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { RECEPTION } from "../lib/receptionsProducts.constants";
+import { successToast, errorToast } from "@/core/core.function";
 
 interface Props {
   data: ReceptionResource[];
@@ -603,7 +604,7 @@ export default function ReceptionsProductsCards({
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 flex-wrap mb-1">
                                       <p className="font-medium text-yellow-900 text-xs">
-                                        Cantidad Observada:{" "}
+                                        Cantidad Pendiente:{" "}
                                         {Number(
                                           detail.observed_quantity,
                                         ).toFixed(2)}
@@ -628,6 +629,9 @@ export default function ReceptionsProductsCards({
                                             },
                                             {
                                               onSuccess: () => {
+                                                successToast(
+                                                  "Detalle actualizado correctamente",
+                                                );
                                                 queryClient.removeQueries({
                                                   queryKey: [
                                                     RECEPTION.QUERY_KEY,
@@ -635,6 +639,13 @@ export default function ReceptionsProductsCards({
                                                   ],
                                                 });
                                                 onRefresh?.();
+                                              },
+                                              onError: (error: any) => {
+                                                const msg =
+                                                  error?.response?.data
+                                                    ?.message ||
+                                                  "Error al actualizar detalle";
+                                                errorToast(msg);
                                               },
                                             },
                                           )
