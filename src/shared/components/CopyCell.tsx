@@ -1,15 +1,24 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CopyCellProps {
   value: string;
   /** Texto que se muestra visualmente. Si se omite, muestra `value`. */
   label?: string;
   className?: string;
+  size?: "xs" | "sm" | "md" | "lg";
+  font?: "normal" | "mono";
 }
 
-export function CopyCell({ value, label, className }: CopyCellProps) {
+export function CopyCell({
+  value,
+  label,
+  className,
+  size,
+  font,
+}: CopyCellProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -22,9 +31,23 @@ export function CopyCell({ value, label, className }: CopyCellProps) {
     }
   };
 
+  const sizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg",
+  }[size || "md"];
+
+  const fontClass = {
+    normal: "font-normal",
+    mono: "font-mono",
+  }[font || "normal"];
+
   return (
     <div className="flex items-center gap-1">
-      <span className={className}>{label ?? value}</span>
+      <span className={cn(sizeClass, fontClass, className)}>
+        {label ?? value}
+      </span>
       <Button
         type="button"
         variant="ghost"
