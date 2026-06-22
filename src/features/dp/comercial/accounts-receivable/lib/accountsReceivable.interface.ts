@@ -108,11 +108,11 @@ export interface AccountsReceivableDashboardResponse {
 
 export interface AccountsReceivableFilters {
   search?: string;
-  sede_id?: number | string | null;
-  due_year?: number | string | null;
+  sede_id?: number[] | null;
+  due_year?: number[] | null;
   company?: string;
   currency?: string;
-  overdue_status?: string;
+  overdue_status?: string[];
   seller?: string;
   "document_date[from]"?: string;
   "document_date[to]"?: string;

@@ -33,6 +33,7 @@ import {
 import { getAccountsReceivableColumns } from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableColumns";
 import AccountsReceivableTable from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTable";
 import AccountsReceivableTreeFilter from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableTreeFilter";
+import SearchInput from "@/shared/components/SearchInput";
 import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableSheet";
 import BulkCommentModal from "@/features/dp/comercial/accounts-receivable/components/BulkCommentModal";
 import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
@@ -353,6 +354,12 @@ export default function AccountsReceivablePage() {
         />
       </div>
 
+      <AccountsReceivableTreeFilter
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onReset={handleReset}
+      />
+
       <AccountsReceivableTable
         columns={columns}
         data={records}
@@ -370,10 +377,10 @@ export default function AccountsReceivablePage() {
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
       >
-        <AccountsReceivableTreeFilter
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          onReset={handleReset}
+        <SearchInput
+          value={filters.search ?? ""}
+          onChange={(v) => handleFiltersChange({ search: v || undefined })}
+          placeholder="Buscar cliente, doc..."
         />
       </AccountsReceivableTable>
 
