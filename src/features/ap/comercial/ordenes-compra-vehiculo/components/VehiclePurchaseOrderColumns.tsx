@@ -9,6 +9,7 @@ import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
 import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type VehiclePurchaseOrderColumns =
   ColumnDef<VehiclePurchaseOrderResource>;
@@ -37,11 +38,7 @@ export const vehiclePurchaseOrderColumns = ({
       cell: ({ getValue }) => {
         const value = getValue() as string;
         return (
-          value && (
-            <Badge variant="outline" className="font-mono text-sm font-normal">
-              {value}
-            </Badge>
-          )
+          value && <CopyCell size="sm" font="mono" value={value} className="font-medium" />
         );
       },
     },
@@ -51,11 +48,7 @@ export const vehiclePurchaseOrderColumns = ({
       cell: ({ getValue }) => {
         const value = getValue() as string;
         return (
-          value && (
-            <Badge variant="outline" className="font-mono text-sm font-normal">
-              {value}
-            </Badge>
-          )
+          value && <CopyCell size="sm" font="mono" value={value} className="font-medium" />
         );
       },
     },
