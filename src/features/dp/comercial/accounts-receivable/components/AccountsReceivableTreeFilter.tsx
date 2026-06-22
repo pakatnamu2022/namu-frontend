@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight, ChevronDown, X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFilterTree } from "../lib/accountsReceivable.hook";
 import type { AccountsReceivableFilters } from "../lib/accountsReceivable.interface";
@@ -21,79 +20,64 @@ export default function AccountsReceivableTreeFilter({
 }: Props) {
   const { data: tree = [], isLoading } = useFilterTree();
 
-  const [sedeExpanded, setSedeExpanded] = useState(true);
-  const [statusExpanded, setStatusExpanded] = useState(true);
-  const [yearExpanded, setYearExpanded] = useState(true);
+  const selectedSedeIds = filters.sede_id ?? [];
+  const selectedStatuses = filters.overdue_status ?? [];
+  const selectedYears = filters.due_year ?? [];
 
-  const selectedSedeId = filters.sede_id ? Number(filters.sede_id) : null;
-  const selectedStatus = filters.overdue_status ?? null;
-  const selectedYear = filters.due_year ? Number(filters.due_year) : null;
+  const availableStatuses = tree
+    .filter((s) => selectedSedeIds.includes(s.sede_id))
+    .flatMap((s) => s.statuses)
+    .reduce<{ status: string; years: number[] }[]>((acc, s) => {
+      const existing = acc.find((a) => a.status === s.status);
+      if (existing) {
+        existing.years = [...new Set([...existing.years, ...s.years])];
+      } else {
+        acc.push({ status: s.status, years: [...s.years] });
+      }
+      return acc;
+    }, []);
 
-  const selectedSede = tree.find((s) => s.sede_id === selectedSedeId) ?? null;
-  const selectedStatusNode =
-    selectedSede?.statuses.find((s) => s.status === selectedStatus) ?? null;
+  const availableYears = availableStatuses
+    .filter((s) => selectedStatuses.includes(s.status))
+    .flatMap((s) => s.years)
+    .filter((y, i, arr) => arr.indexOf(y) === i)
+    .sort((a, b) => b - a);
 
-  function selectSede(sedeId: number) {
-    if (selectedSedeId === sedeId && !sedeExpanded) {
-      setSedeExpanded(true);
-      return;
-    }
-    setSedeExpanded(false);
-    setStatusExpanded(true);
-    setYearExpanded(true);
+  function toggleSede(sedeId: number) {
+    const newIds = selectedSedeIds.includes(sedeId)
+      ? selectedSedeIds.filter((id) => id !== sedeId)
+      : [...selectedSedeIds, sedeId];
+
+    const newAvailableStatusKeys = tree
+      .filter((s) => newIds.includes(s.sede_id))
+      .flatMap((s) => s.statuses.map((st) => st.status));
+    const newStatuses = selectedStatuses.filter((s) =>
+      newAvailableStatusKeys.includes(s),
+    );
+
     onFiltersChange({
-      sede_id: sedeId,
-      overdue_status: undefined,
+      sede_id: newIds.length ? newIds : null,
+      overdue_status: newStatuses.length ? newStatuses : undefined,
       due_year: null,
     });
   }
 
-  function selectStatus(status: string) {
-    if (selectedStatus === status && !statusExpanded) {
-      setStatusExpanded(true);
-      return;
-    }
-    setStatusExpanded(false);
-    setYearExpanded(true);
-    onFiltersChange({ overdue_status: status, due_year: null });
+  function toggleStatus(status: string) {
+    const newStatuses = selectedStatuses.includes(status)
+      ? selectedStatuses.filter((s) => s !== status)
+      : [...selectedStatuses, status];
+    onFiltersChange({
+      overdue_status: newStatuses.length ? newStatuses : undefined,
+      due_year: null,
+    });
   }
 
-  function selectYear(year: number) {
-    if (selectedYear === year && !yearExpanded) {
-      setYearExpanded(true);
-      return;
-    }
-    setYearExpanded(false);
-    onFiltersChange({ due_year: year });
+  function toggleYear(year: number) {
+    const newYears = selectedYears.includes(year)
+      ? selectedYears.filter((y) => y !== year)
+      : [...selectedYears, year];
+    onFiltersChange({ due_year: newYears.length ? newYears : null });
   }
-
-  function clearSede() {
-    setSedeExpanded(true);
-    setStatusExpanded(true);
-    setYearExpanded(true);
-    onReset();
-  }
-
-  function clearStatus() {
-    setStatusExpanded(true);
-    setYearExpanded(true);
-    onFiltersChange({ overdue_status: undefined, due_year: null });
-  }
-
-  function clearYear() {
-    setYearExpanded(true);
-    onFiltersChange({ due_year: null });
-  }
-
-  const sedesVisible = sedeExpanded
-    ? tree
-    : tree.filter((s) => s.sede_id === selectedSedeId);
-
-  const statusesVisible =
-    selectedSede &&
-    (statusExpanded
-      ? selectedSede.statuses
-      : selectedSede.statuses.filter((s) => s.status === selectedStatus));
 
   if (isLoading) {
     return (
@@ -112,15 +96,14 @@ export default function AccountsReceivableTreeFilter({
   return (
     <div className="flex items-end gap-0 flex-wrap">
       {/* Nivel 1 — Sede */}
-      <Level label="Sede" onClear={selectedSedeId ? clearSede : undefined}>
+      <Level label="Sede" onClear={selectedSedeIds.length ? onReset : undefined}>
         <AnimatePresence mode="popLayout">
-          {sedesVisible.map((sede, i) => (
+          {tree.map((sede, i) => (
             <Chip
               key={sede.sede_id}
               index={i}
-              active={selectedSedeId === sede.sede_id}
-              collapsed={selectedSedeId === sede.sede_id && !sedeExpanded}
-              onClick={() => selectSede(sede.sede_id)}
+              active={selectedSedeIds.includes(sede.sede_id)}
+              onClick={() => toggleSede(sede.sede_id)}
             >
               {sede.sede_name}
             </Chip>
@@ -130,14 +113,14 @@ export default function AccountsReceivableTreeFilter({
 
       {/* Separador */}
       <AnimatePresence>
-        {selectedSede && !sedeExpanded && <Separator key="sep1" />}
+        {selectedSedeIds.length > 0 && <Separator key="sep1" />}
       </AnimatePresence>
 
       {/* Nivel 2 — Estado */}
       <AnimatePresence>
-        {selectedSede && !sedeExpanded && (
+        {selectedSedeIds.length > 0 && (
           <motion.div
-            key={`status-${selectedSede.sede_id}`}
+            key="statuses"
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 12 }}
@@ -145,16 +128,23 @@ export default function AccountsReceivableTreeFilter({
           >
             <Level
               label="Estado"
-              onClear={selectedStatus ? clearStatus : undefined}
+              onClear={
+                selectedStatuses.length
+                  ? () =>
+                      onFiltersChange({
+                        overdue_status: undefined,
+                        due_year: null,
+                      })
+                  : undefined
+              }
             >
               <AnimatePresence mode="popLayout">
-                {(statusesVisible ?? []).map((s, i) => (
+                {availableStatuses.map((s, i) => (
                   <Chip
                     key={s.status}
                     index={i}
-                    active={selectedStatus === s.status}
-                    collapsed={selectedStatus === s.status && !statusExpanded}
-                    onClick={() => selectStatus(s.status)}
+                    active={selectedStatuses.includes(s.status)}
+                    onClick={() => toggleStatus(s.status)}
                   >
                     {s.status}
                   </Chip>
@@ -167,32 +157,35 @@ export default function AccountsReceivableTreeFilter({
 
       {/* Separador */}
       <AnimatePresence>
-        {selectedStatusNode && !statusExpanded && <Separator key="sep2" />}
+        {selectedStatuses.length > 0 && <Separator key="sep2" />}
       </AnimatePresence>
 
       {/* Nivel 3 — Año */}
       <AnimatePresence>
-        {selectedStatusNode && !statusExpanded && (
+        {selectedStatuses.length > 0 && (
           <motion.div
-            key={`year-${selectedSede?.sede_id}-${selectedStatus}`}
+            key="years"
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <Level label="Año" onClear={selectedYear ? clearYear : undefined}>
+            <Level
+              label="Año"
+              onClear={
+                selectedYears.length
+                  ? () => onFiltersChange({ due_year: null })
+                  : undefined
+              }
+            >
               <div className="flex flex-wrap gap-1.5">
                 <AnimatePresence mode="popLayout">
-                  {(yearExpanded
-                    ? selectedStatusNode.years
-                    : selectedStatusNode.years.filter((y) => y === selectedYear)
-                  ).map((year, i) => (
+                  {availableYears.map((year, i) => (
                     <Chip
                       key={year}
                       index={i}
-                      active={selectedYear === year}
-                      collapsed={selectedYear === year && !yearExpanded}
-                      onClick={() => selectYear(year)}
+                      active={selectedYears.includes(year)}
+                      onClick={() => toggleYear(year)}
                     >
                       {year}
                     </Chip>
@@ -271,12 +264,11 @@ function Separator() {
 interface ChipProps {
   children: React.ReactNode;
   active: boolean;
-  collapsed: boolean;
   index: number;
   onClick: () => void;
 }
 
-function Chip({ children, active, collapsed, index, onClick }: ChipProps) {
+function Chip({ children, active, index, onClick }: ChipProps) {
   return (
     <motion.button
       layout
@@ -293,7 +285,6 @@ function Chip({ children, active, collapsed, index, onClick }: ChipProps) {
       )}
     >
       {children}
-      {collapsed && <ChevronDown className="size-3 ml-0.5 opacity-70" />}
     </motion.button>
   );
 }
