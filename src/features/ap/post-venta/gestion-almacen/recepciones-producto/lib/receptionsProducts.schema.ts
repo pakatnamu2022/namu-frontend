@@ -31,6 +31,7 @@ const receptionDetailSchema = z.object({
     .max(255, { message: "Máximo 255 caracteres" })
     .optional(),
   notes: z.string().optional(),
+  is_credit_note: z.boolean().optional(),
 });
 
 const receptionSchemaBase = z.object({

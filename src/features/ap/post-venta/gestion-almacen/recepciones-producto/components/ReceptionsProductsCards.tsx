@@ -17,6 +17,7 @@ import {
   Ban,
   ChevronDown,
   ChevronUp,
+  ReceiptText,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -32,6 +33,8 @@ import { CopyCell } from "@/shared/components/CopyCell.tsx";
 import { InvoiceDetailSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/components/InvoiceDetailSheet.tsx";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 import { translateStatusReception } from "../lib/receptionsProducts.constants";
+import { Switch } from "@/components/ui/switch.tsx";
+import { useUpdateDetailCreditNote } from "../lib/receptionsProducts.hook";
 
 interface Props {
   data: ReceptionResource[];
@@ -41,6 +44,7 @@ interface Props {
   warehouseName?: string;
   onDelete?: (id: number) => void;
   isDeleting?: boolean;
+  onRefresh?: () => void;
 }
 
 export default function ReceptionsProductsCards({
@@ -50,12 +54,15 @@ export default function ReceptionsProductsCards({
   warehouseName,
   onDelete,
   isDeleting,
+  onRefresh,
 }: Props) {
   const [selectedInvoice, setSelectedInvoice] =
     useState<VehiclePurchaseOrderResource | null>(null);
   const [expandedAnnulled, setExpandedAnnulled] = useState<Set<number>>(
     new Set(),
   );
+  const { mutate: updateCreditNote, isPending: isUpdatingCreditNote } =
+    useUpdateDetailCreditNote();
 
   const toggleAnnulled = (id: number) =>
     setExpandedAnnulled((prev) => {
@@ -591,12 +598,36 @@ export default function ReceptionsProductsCards({
                                 <div className="flex items-start gap-2">
                                   <AlertCircle className="size-4 text-yellow-600 shrink-0 mt-0.5" />
                                   <div className="flex-1">
-                                    <p className="font-medium text-yellow-900 text-xs mb-1">
-                                      Cantidad Observada:{" "}
-                                      {Number(detail.observed_quantity).toFixed(
-                                        2,
+                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                      <p className="font-medium text-yellow-900 text-xs">
+                                        Cantidad Observada:{" "}
+                                        {Number(
+                                          detail.observed_quantity,
+                                        ).toFixed(2)}
+                                      </p>
+                                      {detail.is_credit_note && (
+                                        <Badge
+                                          className="text-[10px] h-4 px-1.5 gap-1"
+                                          color="blue"
+                                        >
+                                          <ReceiptText className="size-3" />
+                                          Nota de Crédito
+                                        </Badge>
                                       )}
-                                    </p>
+                                      <Switch
+                                        checked={detail.is_credit_note}
+                                        disabled={isUpdatingCreditNote}
+                                        onCheckedChange={(checked) =>
+                                          updateCreditNote(
+                                            {
+                                              detailId: detail.id,
+                                              isCreditNote: checked,
+                                            },
+                                            { onSuccess: onRefresh },
+                                          )
+                                        }
+                                      />
+                                    </div>
                                     {detail.reason_observation && (
                                       <p className="text-yellow-700 text-xs">
                                         Razón:{" "}

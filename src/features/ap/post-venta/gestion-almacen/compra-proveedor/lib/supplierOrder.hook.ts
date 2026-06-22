@@ -46,5 +46,7 @@ export const usePendingProductsById = (id: number) => {
     queryKey: [QUERY_KEY, "pending-products", id],
     queryFn: () => pendingProductsById(id),
     refetchOnWindowFocus: false,
+    staleTime: 0,
+    gcTime: 0,
   });
 };

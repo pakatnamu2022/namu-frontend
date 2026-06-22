@@ -12,6 +12,7 @@ export interface ReceptionDetailResource {
   product_id: number;
   quantity_received: string | number;
   observed_quantity?: string | number;
+  is_credit_note: boolean;
   reception_type: "ORDERED" | "BONUS" | "GIFT" | "SAMPLE";
   reason_observation?:
     | "DAMAGED"

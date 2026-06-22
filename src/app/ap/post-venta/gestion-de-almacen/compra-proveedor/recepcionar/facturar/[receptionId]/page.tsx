@@ -190,7 +190,9 @@ export default function InvoiceReceptionPage() {
               product_id: detail.product_id.toString(),
               quantity:
                 Number(detail.quantity_received) +
-                Number(detail.observed_quantity),
+                (detail.is_credit_note
+                  ? Number(detail.observed_quantity ?? 0)
+                  : 0),
               unit_price: 0,
               unit_measurement_id:
                 detail.product?.unit_measurement_id?.toString() || "",
