@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { infoToast } from "@/core/core.function";
 
 interface CopyCellProps {
   value: string;
@@ -26,6 +27,7 @@ export function CopyCell({
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      infoToast(value, "Copiado al portapapeles");
     } catch (err) {
       console.error("Error al copiar:", err);
     }
@@ -54,7 +56,7 @@ export function CopyCell({
         size="sm"
         className="h-5 w-5 p-0 hover:bg-slate-200"
         onClick={handleCopy}
-        tooltip="copiar"
+        tooltip="Copiar"
       >
         {copied ? (
           <Check className="h-3 w-3 text-green-600" />
