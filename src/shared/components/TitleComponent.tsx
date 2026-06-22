@@ -10,6 +10,7 @@ interface Props {
   children?: React.ReactNode;
   isTruncate?: boolean;
   backRoute?: string;
+  onBack?: () => void;
 }
 
 export default function TitleComponent({
@@ -20,6 +21,7 @@ export default function TitleComponent({
   children,
   isTruncate = true,
   backRoute,
+  onBack,
 }: Props) {
   const IconComponent = icon
     ? (LucideReact[icon] as React.ComponentType<any>)
@@ -28,7 +30,9 @@ export default function TitleComponent({
   return (
     <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between w-full">
       <div className={`flex items-center gap-4 ${className}`}>
-        {backRoute && <BackButton route={backRoute} name={""} size="icon" />}
+        {(backRoute || onBack) && (
+          <BackButton route={backRoute} name={""} size="icon" onClick={onBack} />
+        )}
         {IconComponent && (
           <div className="text-white bg-primary rounded-md p-2">
             <IconComponent className="size-5 text-white" />
