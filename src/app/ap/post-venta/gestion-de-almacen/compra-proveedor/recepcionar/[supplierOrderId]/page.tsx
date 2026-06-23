@@ -138,11 +138,13 @@ export default function ReceptionsProductsPage() {
             />
           </div>
         </div>
-        {permissions.canCreate && !hasCompleteReception && (
-          <Button size="sm" variant="outline" onClick={handleAddReception}>
-            <Plus className="size-4 mr-2" /> Agregar Recepción
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {permissions.canCreate && !hasCompleteReception && (
+            <Button size="sm" variant="outline" onClick={handleAddReception}>
+              <Plus className="size-4 mr-2" /> Agregar Recepción
+            </Button>
+          )}
+        </div>
       </HeaderTableWrapper>
 
       <Card className="p-4">
@@ -254,6 +256,7 @@ export default function ReceptionsProductsPage() {
             supplierOrderNumber={supplierOrder.order_number}
             warehouseName={supplierOrder?.warehouse?.description || ""}
             onDelete={(id) => setDeleteId(id)}
+            onRefresh={() => Promise.all([refetch(), refetchSupplierOrder()])}
           />
         }
       ></ReceptionsProductsTable>

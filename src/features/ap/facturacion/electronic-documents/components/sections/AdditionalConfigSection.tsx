@@ -5,6 +5,7 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormCombobox } from "@/shared/components/FormCombobox";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -53,8 +54,12 @@ export function AdditionalConfigSection({
     if (!isCredito) {
       form.setValue("credit_days", undefined);
       form.setValue("venta_al_credito", []);
-      form.setValue("fecha_de_vencimiento", undefined);
-    } else {
+      const fechaEmision = form.getValues("fecha_de_emision");
+      form.setValue(
+        "fecha_de_vencimiento",
+        fechaEmision ? String(fechaEmision).split("T")[0] : undefined,
+      );
+    } else if (!form.getValues("credit_days")) {
       form.setValue("credit_days", "30");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,6 +67,25 @@ export function AdditionalConfigSection({
 
   // Recalcular fecha de vencimiento cuando cambian los días de crédito
   const creditDaysValue = form.watch("credit_days");
+
+  function calcFechaVencimiento(days: string): string | null {
+    const numDays = Number(days);
+    if (!days || isNaN(numDays) || numDays < 1 || numDays > 50) return null;
+    const fechaEmision = form.getValues("fecha_de_emision");
+    if (!fechaEmision) return null;
+    const datePart = String(fechaEmision).split("T")[0];
+    const [yyyyE, mmE, ddE] = datePart.split("-").map(Number);
+    if (isNaN(yyyyE) || isNaN(mmE) || isNaN(ddE)) return null;
+    const fechaPago = new Date(yyyyE, mmE - 1, ddE + numDays);
+    const dd = String(fechaPago.getDate()).padStart(2, "0");
+    const mm = String(fechaPago.getMonth() + 1).padStart(2, "0");
+    const yyyy = fechaPago.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  const fechaVencimientoPreview = creditDaysValue
+    ? calcFechaVencimiento(creditDaysValue)
+    : null;
   useEffect(() => {
     if (creditDaysValue) {
       handleCreditDaysChange(creditDaysValue);
@@ -70,18 +94,24 @@ export function AdditionalConfigSection({
   }, [creditDaysValue]);
 
   function handleCreditDaysChange(days: string) {
+    const numDays = Number(days);
+    if (!days || isNaN(numDays) || numDays < 1 || numDays > 50) return;
+
     const fechaEmision = form.getValues("fecha_de_emision");
     const total = form.getValues("total");
     if (!fechaEmision) return;
 
-    const [yyyyE, mmE, ddE] = String(fechaEmision).split("-").map(Number);
-    const fechaPago = new Date(yyyyE, mmE - 1, ddE + Number(days));
+    // Parsear solo la parte de fecha (ignorar la parte de tiempo si existe)
+    const datePart = String(fechaEmision).split("T")[0];
+    const [yyyyE, mmE, ddE] = datePart.split("-").map(Number);
+    if (isNaN(yyyyE) || isNaN(mmE) || isNaN(ddE)) return;
+
+    const fechaPago = new Date(yyyyE, mmE - 1, ddE + numDays);
     const dd = String(fechaPago.getDate()).padStart(2, "0");
     const mm = String(fechaPago.getMonth() + 1).padStart(2, "0");
     const yyyy = fechaPago.getFullYear();
     const fechaFormateada = `${dd}-${mm}-${yyyy}`;
 
-    // Setear la fecha de vencimiento calculada en el form principal
     form.setValue("fecha_de_vencimiento", `${yyyy}-${mm}-${dd}`);
 
     form.setValue("venta_al_credito", [
@@ -162,18 +192,31 @@ export function AdditionalConfigSection({
       />
       {isCredito ? (
         <>
-          <FormSelect
-            control={form.control}
-            label="Días de Crédito"
-            name="credit_days"
-            options={CREDIT_DAYS_OPTIONS.map((o) => ({
-              label: o.label,
-              value: o.value,
-            }))}
-            placeholder="Seleccione o escriba los días"
-            description="La fecha de vencimiento se calculará automáticamente."
-            required
-          />
+          <div className="flex flex-col gap-1">
+            <FormCombobox
+              control={form.control}
+              label="Días de Crédito"
+              name="credit_days"
+              options={CREDIT_DAYS_OPTIONS.map((o) => ({
+                label: o.label,
+                value: o.value,
+              }))}
+              placeholder="Seleccione o escriba los días"
+              description="Ingrese entre 1 y 50 días."
+              required
+              allowCreate
+              validateCreate={(val) => {
+                const num = Number(val);
+                return /^\d+$/.test(val) && num >= 1 && num <= 50;
+              }}
+              formatDisplay={(val) => `${val} día${val === "1" ? "" : "s"}`}
+            />
+            {fechaVencimientoPreview && (
+              <p className="text-xs text-blue-600 font-medium">
+                Vence el: {fechaVencimientoPreview}
+              </p>
+            )}
+          </div>
 
           {useQuotation && (
             <FormSelect

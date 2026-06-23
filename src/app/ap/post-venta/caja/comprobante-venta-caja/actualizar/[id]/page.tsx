@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -112,6 +112,7 @@ function buildFormDefaults(
     bank_id: document.bank?.id?.toString() || undefined,
     operation_number: document.operation_number || undefined,
     financing_type: document.financing_type || undefined,
+    credit_days: document.credit_days?.toString() || undefined,
     placa_vehiculo: document.placa_vehiculo || "",
     orden_compra_servicio: document.orden_compra_servicio || "",
     codigo_unico: document.codigo_unico || "",
@@ -332,6 +333,7 @@ function EditOrderQuotationPage({
   icon,
 }: SubPageProps & { orderQuotationId: number }) {
   const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
+  const queryClient = useQueryClient();
 
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(orderQuotationId);
@@ -343,6 +345,9 @@ function EditOrderQuotationPage({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
       updateElectronicDocument(documentId, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["electronic-documents", documentId],
+      });
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       onSuccess();
     },

@@ -185,9 +185,9 @@ export const ElectronicDocumentSchema = z
     (data) => {
       // Validar fecha de vencimiento
       if (data.fecha_de_vencimiento) {
-        return (
-          new Date(data.fecha_de_vencimiento) > new Date(data.fecha_de_emision)
-        );
+        const venc = data.fecha_de_vencimiento.split("T")[0];
+        const emis = String(data.fecha_de_emision).split("T")[0];
+        return venc >= emis;
       }
       return true;
     },

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ReceptionResource,
   ReceptionResponse,
@@ -7,6 +7,7 @@ import {
   findReceptionById,
   getAllReceptions,
   getReceptions,
+  updateDetailCreditNote,
 } from "./receptionsProducts.actions.ts";
 import { RECEPTION } from "./receptionsProducts.constants.ts";
 
@@ -36,5 +37,21 @@ export const useReceptionById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findReceptionById(id),
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useUpdateDetailCreditNote = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      detailId,
+      isCreditNote,
+    }: {
+      detailId: number;
+      isCreditNote: boolean;
+    }) => updateDetailCreditNote(detailId, isCreditNote),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
   });
 };
