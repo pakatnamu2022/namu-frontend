@@ -35,12 +35,48 @@ export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
   },
   {
     id: "invoice",
-    header: "Factura",
+    header: "Factura / NC",
     enableSorting: false,
     cell: ({ row }) => {
       const po = row.original.purchase_order;
-      if (!po?.invoice_series || !po?.invoice_number) return "-";
-      return `${po.invoice_series}-${po.invoice_number}`;
+      const creditNotes = row.original.credit_notes ?? [];
+      const invoiceLabel =
+        po?.invoice_series && po?.invoice_number
+          ? `${po.invoice_series}-${po.invoice_number}`
+          : null;
+
+      return (
+        <div className="space-y-1">
+          {invoiceLabel ? (
+            <p className="text-sm font-medium">{invoiceLabel}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">-</p>
+          )}
+          {creditNotes.map((nc) => {
+            const totalQty = nc.details.reduce(
+              (acc, d) => acc + parseFloat(d.quantity || "0"),
+              0,
+            );
+            return (
+              <div
+                key={nc.credit_note_number}
+                className="flex items-center gap-1.5 rounded bg-amber-50 border border-amber-200 px-1.5 py-0.5"
+              >
+                <span className="text-xs text-amber-800 font-medium truncate">
+                  {nc.credit_note_number}
+                </span>
+                <span className="ml-auto text-xs text-amber-700 whitespace-nowrap">
+                  -
+                  {totalQty % 1 === 0
+                    ? totalQty.toFixed(0)
+                    : totalQty.toFixed(2)}{" "}
+                  u.
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      );
     },
   },
   {
@@ -65,12 +101,51 @@ export const purchaseHistoryColumns = (): PurchaseHistoryColumns[] => [
     },
   },
   {
-    accessorKey: "quantity_received",
+    id: "quantity",
     header: "Cantidad",
     enableSorting: false,
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return parseFloat(value || "0").toFixed(2);
+    cell: ({ row }) => {
+      const item = row.original;
+      const ordered = parseFloat(item.quantity_ordered || "0");
+      const received = parseFloat(item.quantity_received || "0");
+      const creditNotes = item.credit_notes ?? [];
+      const creditedQty = creditNotes.reduce(
+        (acc, nc) =>
+          acc +
+          nc.details.reduce((a, d) => a + parseFloat(d.quantity || "0"), 0),
+        0,
+      );
+      const missing = ordered - received;
+      const hasCredit = creditedQty > 0;
+
+      const fmt = (n: number) => (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2));
+
+      return (
+        <div className="space-y-0.5 text-right">
+          <p className="text-xs text-muted-foreground">
+            Pedido:{" "}
+            <span className="font-medium text-foreground">{fmt(ordered)}</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Recibido:{" "}
+            <span className="font-medium text-foreground">{fmt(received)}</span>
+          </p>
+          {missing > 0 && !hasCredit && (
+            <p className="text-xs text-muted-foreground">
+              Faltante:{" "}
+              <span className="font-medium text-amber-600">{fmt(missing)}</span>
+            </p>
+          )}
+          {missing > 0 && hasCredit && (
+            <p className="text-xs text-muted-foreground">
+              Faltante:{" "}
+              <span className="font-medium text-green-700">
+                {fmt(missing)} (NC)
+              </span>
+            </p>
+          )}
+        </div>
+      );
     },
   },
   {
