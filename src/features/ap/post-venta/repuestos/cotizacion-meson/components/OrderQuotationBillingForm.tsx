@@ -25,6 +25,7 @@ import { OrderQuotationFinancialInfo } from "./OrderQuotationFinancialInfo";
 import { OrderQuotationSummarySection } from "./OrderQuotationSummarySection";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { FormDebugPanel } from "@/shared/components/FormDebugPanel";
 
 interface OrderQuotationBillingFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -148,6 +149,69 @@ export function OrderQuotationBillingForm({
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
   const pendingBalance = quotation?.payment_summary?.remaining_balance ?? 0;
+
+  // En modo edición: cuando el usuario cambia de Anticipo → Venta Interna,
+  // poner el item al saldo total pendiente real (remaining_balance + total original del doc).
+  const prevIsAdvancePayment = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!isEdit) return;
+
+    const prev = prevIsAdvancePayment.current;
+    prevIsAdvancePayment.current = isAdvancePayment;
+
+    // Solo actuar en el cambio puntual true → false
+    if (prev !== true || isAdvancePayment !== false) return;
+
+    // originalDocTotal.current = total del anticipo capturado al montar (no cambia).
+    // remaining_balance del API ya descuenta ese anticipo, así que sumándolos
+    // obtenemos el saldo real que falta pagar.
+    const totalToPay = pendingBalance;
+
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const igvFactor = (porcentaje_de_igv || DEFAULT_IGV_PERCENTAGE) / 100;
+    const valor_unitario = round2(totalToPay / (1 + igvFactor));
+    const precio_unitario = round2(totalToPay);
+    const subtotal = round2(valor_unitario);
+    const igvAmount = round2(totalToPay - subtotal);
+
+    const currentItems = form.getValues("items");
+    if (currentItems.length > 0) {
+      form.setValue(
+        "items",
+        currentItems.map((item, idx) =>
+          idx !== 0
+            ? item
+            : {
+                ...item,
+                valor_unitario,
+                precio_unitario,
+                subtotal,
+                igv: igvAmount,
+                total: totalToPay,
+              },
+        ),
+        { shouldValidate: false },
+      );
+    }
+
+    // Actualizar tipo de transacción
+    const hasAdvances = (quotation?.payment_summary?.advances_count ?? 0) > 0;
+    const targetCode = hasAdvances ? "04" : "01";
+    // transactionTypes puede no estar cargado aún; si está vacío, el efecto de abajo lo maneja
+    const targetType = transactionTypes.find(
+      (t) => t.code_nubefact === targetCode,
+    );
+    if (targetType) {
+      form.setValue(
+        "sunat_concept_transaction_type_id",
+        targetType.id.toString(),
+        { shouldValidate: false },
+      );
+    }
+    // Las dependencias que importan para el disparo son solo isAdvancePayment e isEdit.
+    // El resto se lee con getValues/refs para evitar re-disparos en cada setValue.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdvancePayment, isEdit]);
 
   // Cambiar tipo de operación según si es anticipo o no
   useEffect(() => {
@@ -621,6 +685,11 @@ export function OrderQuotationBillingForm({
               isEdit={isEdit}
               existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
+            />
+            <FormDebugPanel
+              form={form}
+              isSubmitting={form.formState.isSubmitting}
+              show={true} // Solo en desarrollo o le puedes poner True
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}

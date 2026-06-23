@@ -112,6 +112,7 @@ function buildFormDefaults(
     bank_id: document.bank?.id?.toString() || undefined,
     operation_number: document.operation_number || undefined,
     financing_type: document.financing_type || undefined,
+    credit_days: document.credit_days?.toString() || undefined,
     placa_vehiculo: document.placa_vehiculo || "",
     orden_compra_servicio: document.orden_compra_servicio || "",
     codigo_unico: document.codigo_unico || "",
