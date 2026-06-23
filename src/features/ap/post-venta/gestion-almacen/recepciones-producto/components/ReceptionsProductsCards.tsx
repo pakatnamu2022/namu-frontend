@@ -148,7 +148,7 @@ export default function ReceptionsProductsCards({
                         isSingleCard ? "text-sm mt-1" : "text-xs mt-0.5"
                       }`}
                     >
-                      OC: {supplierOrderNumber || "-"}
+                      {supplierOrderNumber || "-"}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -738,6 +738,7 @@ export default function ReceptionsProductsCards({
                     className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/40 border border-muted text-muted-foreground/70 opacity-60 hover:opacity-90 hover:bg-muted/60 transition-all w-full text-left"
                   >
                     <Ban className="size-3 shrink-0" />
+                    {reception.id}
                     <span className="text-xs font-medium line-through flex-1">
                       {reception.reception_number || `#${reception.id}`}
                     </span>

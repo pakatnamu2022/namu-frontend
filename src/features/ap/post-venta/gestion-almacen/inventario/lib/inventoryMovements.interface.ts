@@ -151,6 +151,20 @@ export interface PurchaseHistoryCurrency {
   symbol: string;
 }
 
+export interface PurchaseHistoryCreditNoteDetail {
+  quantity: string;
+  unit_price: string;
+  subtotal: string;
+}
+
+export interface PurchaseHistoryCreditNote {
+  credit_note_number: string;
+  credit_note_date: string;
+  reason: string;
+  notes: string | null;
+  details: PurchaseHistoryCreditNoteDetail[];
+}
+
 export interface PurchaseHistoryItem {
   id: number;
   reception_id: number;
@@ -171,6 +185,7 @@ export interface PurchaseHistoryItem {
   expiration_date: string | null;
   received_by: string;
   notes: string | null;
+  credit_notes: PurchaseHistoryCreditNote[];
 }
 
 export interface PurchaseHistoryResponse {
