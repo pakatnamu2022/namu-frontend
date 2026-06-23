@@ -34,7 +34,7 @@ const purchaseOrderProductsSchemaBase = z.object({
     }),
   invoice_number: z
     .string()
-    .max(11, { message: "Máximo 11 caracteres" })
+    .max(8, { message: "Máximo 8 caracteres" })
     .refine((value) => value.trim() !== "", {
       message: "Número de factura es requerido",
     }),
