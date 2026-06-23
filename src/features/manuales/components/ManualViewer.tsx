@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { Loader2, BookOpen } from "lucide-react";
 import { getManualContent } from "../lib/manuales.actions";
 import {
@@ -56,6 +57,7 @@ export default function ManualViewer({ id }: ManualViewerProps) {
       <div className="prose prose-sm md:prose-base max-w-none prose-img:rounded-lg prose-img:shadow-sm prose-a:text-primary">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={{
             img({ src, alt }) {
               if (!src) return null;
