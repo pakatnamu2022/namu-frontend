@@ -7,11 +7,19 @@ import { Button } from "@/components/ui/button";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { Link } from "react-router-dom";
 import { SCRUM_SPRINT } from "../lib/scrumSprint.constants";
 import { scrumSprintSchema, ScrumSprintSchema } from "../lib/scrumSprint.schema";
 import { ScrumProjectResource } from "@/features/gp/tics/pm/scrumProject/lib/scrumProject.interface";
 import { useMemo } from "react";
+
+const toLocalDateStr = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+const today = new Date();
+const oneWeekLater = new Date(today);
+oneWeekLater.setDate(today.getDate() + 7);
 
 interface Props {
   defaultValues: Partial<ScrumSprintSchema>;
@@ -40,8 +48,8 @@ export const ScrumSprintForm = ({ defaultValues, onSubmit, isSubmitting = false,
       project_id: "",
       name: "",
       goal: "",
-      start_date: "",
-      end_date: "",
+      start_date: toLocalDateStr(today),
+      end_date: toLocalDateStr(oneWeekLater),
       status: "planeado",
       ...defaultValues,
     },
@@ -67,18 +75,16 @@ export const ScrumSprintForm = ({ defaultValues, onSubmit, isSubmitting = false,
             placeholder="Ej: Sprint 1 – Autenticación"
           />
 
-          <FormInput
+          <DatePickerFormField
             control={form.control}
             name="start_date"
             label="Fecha de inicio"
-            type="date"
           />
 
-          <FormInput
+          <DatePickerFormField
             control={form.control}
             name="end_date"
             label="Fecha de fin"
-            type="date"
           />
 
           <FormSelect

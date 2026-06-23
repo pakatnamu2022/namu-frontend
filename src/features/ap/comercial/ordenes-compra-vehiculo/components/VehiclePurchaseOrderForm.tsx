@@ -87,7 +87,9 @@ export const VehiclePurchaseOrderForm = ({
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
-  const [modelModalMode, setModelModalMode] = useState<"create" | "update">("create");
+  const [modelModalMode, setModelModalMode] = useState<"create" | "update">(
+    "create",
+  );
   const [hasIsc, setHasIsc] = useState(false);
   const hasAddedInitialItem = useRef(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<
@@ -556,6 +558,7 @@ export const VehiclePurchaseOrderForm = ({
                   })}
                   additionalParams={{
                     is_approved: 1,
+                    has_vehicle: 0,
                   }}
                   perPage={10}
                   debounceMs={500}

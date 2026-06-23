@@ -1,7 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ScrumSprintRequest } from "./scrumSprint.interface";
 
-const ROUTE = "pm/sprints";
+const ROUTE = "sprints";
 const ABSOLUTE_ROUTE = `/gp/tics/${ROUTE}`;
 
 export const SCRUM_SPRINT: ModelComplete<ScrumSprintRequest> = {

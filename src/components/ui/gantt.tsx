@@ -702,7 +702,7 @@ export const GanttFeatureDragHelper: FC<GanttFeatureDragHelperProps> = ({
   return (
     <div
       className={cn(
-        "group -translate-y-1/2 !cursor-col-resize absolute top-1/2 z-[3] h-full w-6 rounded-md outline-none",
+        "group -translate-y-1/2 cursor-col-resize! absolute top-1/2 z-3 h-full w-6 rounded-md outline-none",
         direction === "left" ? "-left-2.5" : "-right-2.5",
       )}
       ref={setNodeRef}
@@ -1038,7 +1038,8 @@ export const GanttMarker: FC<
             )}
           >
             {label}
-            <span className="max-h-[0] overflow-hidden opacity-80 transition-all group-hover:max-h-[2rem]">
+            <span className="max-
+            h-0 overflow-hidden opacity-80 transition-all group-hover:max-h-8">
               {formatDate(date, "MMM dd, yyyy")}
             </span>
           </div>
@@ -1341,7 +1342,7 @@ export const GanttToday: FC<GanttTodayProps> = ({ className }) => {
         )}
       >
         {label}
-        <span className="max-h-[0] overflow-hidden opacity-80 transition-all group-hover:max-h-[2rem]">
+        <span className="max-h-0 overflow-hidden opacity-80 transition-all group-hover:max-h-8">
           {formatDate(date, "MMM dd, yyyy")}
         </span>
       </div>

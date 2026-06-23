@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -8,8 +9,11 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Link } from "react-router-dom";
+import { Sparkles, Loader2 } from "lucide-react";
+import { generateText } from "@/shared/lib/ai.actions";
 import { SCRUM_PROJECT } from "../lib/scrumProject.constants";
 import { scrumProjectSchema, ScrumProjectSchema } from "../lib/scrumProject.schema";
+import { ColorPickerForm } from "./ColorPickerForm";
 
 interface Props {
   defaultValues: Partial<ScrumProjectSchema>;
@@ -24,6 +28,7 @@ const STATUS_OPTIONS = [
 
 export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false }: Props) => {
   const { ABSOLUTE_ROUTE } = SCRUM_PROJECT;
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useForm<ScrumProjectSchema>({
     resolver: zodResolver(scrumProjectSchema) as any,
@@ -37,7 +42,20 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
     mode: "onChange",
   });
 
-  const color = form.watch("color");
+  const description = form.watch("description");
+
+  const handleGenerate = async () => {
+    if (!description?.trim()) return;
+    setIsGenerating(true);
+    try {
+      const text = await generateText(description);
+      if (text) {
+        form.setValue("description", text, { shouldValidate: true, shouldDirty: true });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -50,18 +68,7 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
             placeholder="Ej: Sistema de Ventas"
           />
 
-          <div className="flex items-end gap-3">
-            <FormInput
-              control={form.control}
-              name="color"
-              label="Color"
-              placeholder="#3B82F6"
-            />
-            <span
-              className="size-9 rounded-md border shrink-0 mb-0.5"
-              style={{ backgroundColor: color || "#3B82F6" }}
-            />
-          </div>
+          <ColorPickerForm control={form.control} name="color" label="Color" />
 
           <FormSelect
             control={form.control}
@@ -72,12 +79,33 @@ export const ScrumProjectForm = ({ defaultValues, onSubmit, isSubmitting = false
           />
         </div>
 
-        <FormTextArea
-          control={form.control}
-          name="description"
-          label="Descripción"
-          placeholder="Describe el objetivo del proyecto..."
-        />
+        <div className="relative">
+          <FormTextArea
+            control={form.control}
+            name="description"
+            label="Descripción"
+            placeholder="Describe el objetivo del proyecto..."
+          />
+          {description?.trim() && (
+            <div className="flex justify-end mt-1.5">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="gap-1.5 text-xs"
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                {isGenerating ? "Generando..." : "Generar con IA"}
+              </Button>
+            </div>
+          )}
+        </div>
 
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE}>

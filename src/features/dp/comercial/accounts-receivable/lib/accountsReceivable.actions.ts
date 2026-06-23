@@ -16,7 +16,10 @@ export async function getAccountsReceivable(
 ): Promise<AccountsReceivableResponse> {
   const params: Record<string, any> = {};
   Object.entries(filters).forEach(([key, value]) => {
-    if (value !== null && value !== undefined && value !== "") {
+    if (value === null || value === undefined || value === "") return;
+    if (Array.isArray(value)) {
+      if (value.length > 0) params[key] = value;
+    } else {
       params[key] = value;
     }
   });
