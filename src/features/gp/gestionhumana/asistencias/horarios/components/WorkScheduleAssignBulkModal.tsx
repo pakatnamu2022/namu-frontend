@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -64,6 +64,11 @@ export function WorkScheduleAssignBulkModal({
 
   const hasFilters = !!(sedeId || cargoId || areaId || empresaId);
 
+  useEffect(() => {
+    form.setValue("sede_id", null);
+    setPreviewParams(undefined);
+  }, [empresaId]);
+
   const { data: affectedWorkers, isFetching: loadingWorkers } = useAllWorkers(
     previewParams,
     !!previewParams,
@@ -71,10 +76,10 @@ export function WorkScheduleAssignBulkModal({
 
   const handleShowPreview = () => {
     setPreviewParams({
-      "filters[sede_id]": sedeId ?? undefined,
-      "filters[cargo_id]": cargoId ?? undefined,
-      "filters[area_id]": areaId ?? undefined,
-      "filters[empresa_id]": empresaId ?? undefined,
+      ...(sedeId ? { sede_id: sedeId } : {}),
+      ...(cargoId ? { cargo_id: cargoId } : {}),
+      ...(areaId ? { area_id: areaId } : {}),
+      ...(empresaId ? { empresa_id: empresaId } : {}),
     });
   };
 
@@ -162,6 +167,7 @@ export function WorkScheduleAssignBulkModal({
               label: sede.description,
               value: String(sede.id),
             })}
+            additionalParams={empresaId ? { empresa_id: empresaId } : {}}
           />
           <FormSelectAsync
             control={control}
