@@ -69,6 +69,11 @@ export function WorkScheduleAssignBulkModal({
     setPreviewParams(undefined);
   }, [empresaId]);
 
+  useEffect(() => {
+    form.setValue("cargo_id", null);
+    setPreviewParams(undefined);
+  }, [areaId]);
+
   const { data: affectedWorkers, isFetching: loadingWorkers } = useAllWorkers(
     previewParams,
     !!previewParams,
@@ -155,6 +160,7 @@ export function WorkScheduleAssignBulkModal({
             mapOptionFn={(company: CompanyResource) => ({
               label: company.name,
               value: String(company.id),
+              description: company.abbreviation,
             })}
           />
           <FormSelectAsync
@@ -166,6 +172,7 @@ export function WorkScheduleAssignBulkModal({
             mapOptionFn={(sede: SedeResource) => ({
               label: sede.description,
               value: String(sede.id),
+              description: sede.suc_abrev,
             })}
             additionalParams={empresaId ? { empresa_id: empresaId } : {}}
           />
@@ -178,6 +185,7 @@ export function WorkScheduleAssignBulkModal({
             mapOptionFn={(area: AreaResource) => ({
               label: area.name,
               value: String(area.id),
+              description: area.sede,
             })}
           />
           <FormSelectAsync
@@ -189,7 +197,9 @@ export function WorkScheduleAssignBulkModal({
             mapOptionFn={(position: PositionResource) => ({
               label: position.name,
               value: String(position.id),
+              description: position.area,
             })}
+            additionalParams={areaId ? { area_id: areaId } : {}}
           />
 
           <div className="pt-1">
