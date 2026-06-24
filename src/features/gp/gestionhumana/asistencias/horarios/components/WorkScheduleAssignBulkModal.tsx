@@ -120,7 +120,7 @@ export function WorkScheduleAssignBulkModal({
     assignSingle(
       { workerId, workScheduleId },
       {
-        onSuccess: (res) => successToast(res.message),
+        onSuccess: () => successToast("Horario asignado correctamente"),
         onError: (error: any) =>
           errorToast(
             error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "manage"),
@@ -136,8 +136,8 @@ export function WorkScheduleAssignBulkModal({
     assignSingle(
       { workerId: selectedWorkerId, workScheduleId },
       {
-        onSuccess: (res) => {
-          successToast(res.message);
+        onSuccess: () => {
+          successToast("Horario asignado correctamente");
           setSelectedWorkerId(null);
           form.setValue("worker_id", "");
         },
@@ -313,20 +313,29 @@ export function WorkScheduleAssignBulkModal({
                     </p>
                   )}
                 </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="shrink-0"
-                  disabled={pendingWorkerId === selectedWorkerId}
-                  onClick={handleAssignIndividual}
-                >
-                  {pendingWorkerId === selectedWorkerId ? (
-                    <Loader className="mr-1.5 size-3 animate-spin" />
-                  ) : (
-                    <CalendarClock className="mr-1.5 size-3" />
-                  )}
-                  Asignar
-                </Button>
+                {(() => {
+                  const alreadyAssigned =
+                    !loadingWorkerDetail &&
+                    !!workerDetail?.workSchedule &&
+                    workerDetail.workSchedule.id === workScheduleId;
+                  const isAssigning = pendingWorkerId === selectedWorkerId;
+                  return (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="shrink-0"
+                      disabled={isAssigning || alreadyAssigned}
+                      onClick={handleAssignIndividual}
+                    >
+                      {isAssigning ? (
+                        <Loader className="mr-1.5 size-3 animate-spin" />
+                      ) : (
+                        <CalendarClock className="mr-1.5 size-3" />
+                      )}
+                      {alreadyAssigned ? "Ya asignado" : "Asignar"}
+                    </Button>
+                  );
+                })()}
               </div>
             </div>
           )}

@@ -49,8 +49,8 @@ export function WorkScheduleAssignSingleModal({
     mutate(
       { workerId, workScheduleId: Number(data.work_schedule_id) },
       {
-        onSuccess: (res) => {
-          successToast(res.message);
+        onSuccess: () => {
+          successToast("Horario asignado correctamente");
           form.reset();
           onSuccess?.();
           onClose();

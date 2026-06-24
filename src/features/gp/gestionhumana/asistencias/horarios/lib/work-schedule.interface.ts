@@ -67,7 +67,4 @@ export interface WorkScheduleAssignSinglePayload {
   work_schedule_id: number;
 }
 
-export interface WorkScheduleAssignSingleResponse {
-  message: string;
-  data: WorkScheduleResource;
-}
+export type WorkScheduleAssignSingleResponse = WorkScheduleResource;
