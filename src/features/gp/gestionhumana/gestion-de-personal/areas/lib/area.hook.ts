@@ -7,7 +7,7 @@ const { QUERY_KEY } = AREA;
 
 export const useAreas = (params?: Record<string, any>) => {
   return useQuery<AreaResponse>({
-    queryKey: [QUERY_KEY],
+    queryKey: [QUERY_KEY, params],
     queryFn: () => getAreas({ params }),
   });
 };

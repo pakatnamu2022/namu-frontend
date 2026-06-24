@@ -106,6 +106,11 @@ export interface AccountsReceivableDashboardResponse {
   charts: DashboardChart[];
 }
 
+export type DashboardFilters = Pick<
+  AccountsReceivableFilters,
+  "sede_id" | "overdue_status" | "due_year"
+>;
+
 export interface AccountsReceivableFilters {
   search?: string;
   sede_id?: number[] | null;

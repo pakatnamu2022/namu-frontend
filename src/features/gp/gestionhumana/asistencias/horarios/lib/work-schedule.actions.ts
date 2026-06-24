@@ -7,6 +7,8 @@ import type {
   WorkScheduleFilters,
   WorkScheduleAssignBulkPayload,
   WorkScheduleAssignBulkResponse,
+  WorkScheduleAssignSinglePayload,
+  WorkScheduleAssignSingleResponse,
 } from "./work-schedule.interface";
 
 const { ENDPOINT } = WORK_SCHEDULE;
@@ -58,6 +60,17 @@ export async function assignBulkWorkSchedule(
 ): Promise<WorkScheduleAssignBulkResponse> {
   const { data } = await api.post<WorkScheduleAssignBulkResponse>(
     `${ENDPOINT}/assign-bulk`,
+    payload,
+  );
+  return data;
+}
+
+export async function assignWorkSchedule(
+  workerId: number,
+  payload: WorkScheduleAssignSinglePayload,
+): Promise<WorkScheduleAssignSingleResponse> {
+  const { data } = await api.post<WorkScheduleAssignSingleResponse>(
+    `${ENDPOINT}/assign/${workerId}`,
     payload,
   );
   return data;

@@ -6,7 +6,7 @@ import {
   getFilterTree,
   getAccountsReceivableDashboard,
 } from "./accountsReceivable.actions";
-import type { AccountsReceivableFilters } from "./accountsReceivable.interface";
+import type { AccountsReceivableFilters, DashboardFilters } from "./accountsReceivable.interface";
 
 const { QUERY_KEY } = ACCOUNTS_RECEIVABLE;
 
@@ -26,10 +26,10 @@ export const useAccountReceivableById = (id: number | null) => {
   });
 };
 
-export const useAccountsReceivableDashboard = (company: string) => {
+export const useAccountsReceivableDashboard = (company: string, filters?: DashboardFilters) => {
   return useQuery({
-    queryKey: [QUERY_KEY, "dashboard", company],
-    queryFn: () => getAccountsReceivableDashboard(company),
+    queryKey: [QUERY_KEY, "dashboard", company, filters],
+    queryFn: () => getAccountsReceivableDashboard(company, filters),
   });
 };
 
