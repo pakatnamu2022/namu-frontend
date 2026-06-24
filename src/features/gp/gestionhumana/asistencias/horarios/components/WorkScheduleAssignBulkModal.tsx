@@ -24,6 +24,7 @@ import { usePositions } from "../../../gestion-de-personal/posiciones/lib/positi
 import { PositionResource } from "../../../gestion-de-personal/posiciones/lib/position.interface";
 import { useAreas } from "../../../gestion-de-personal/areas/lib/area.hook";
 import { AreaResource } from "../../../gestion-de-personal/areas/lib/area.interface";
+import { STATUS_WORKER } from "../../../gestion-de-personal/posiciones/lib/position.constant";
 import { useAllWorkers } from "../../../gestion-de-personal/trabajadores/lib/worker.hook";
 import { WorkerResource } from "../../../gestion-de-personal/trabajadores/lib/worker.interface";
 
@@ -71,6 +72,7 @@ export function WorkScheduleAssignBulkModal({
 
   const handleShowPreview = () => {
     setPreviewParams({
+      status_id: STATUS_WORKER.ACTIVE,
       ...(sedeId ? { sede_id: sedeId } : {}),
       ...(cargoId ? { cargo_id: cargoId } : {}),
       ...(areaId ? { area_id: areaId } : {}),
