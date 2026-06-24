@@ -26,6 +26,7 @@ import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import MigrationStatusBadge from "./MigrationStatusBadge";
 import { ButtonAction } from "@/shared/components/ButtonAction";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
@@ -82,9 +83,7 @@ export const electronicDocumentColumns = ({
         const isAdvance = row.original.is_advance_payment;
         return (
           <div className="flex flex-col items-start w-fit">
-            <span className="font-mono text-sm font-semibold">
-              <span> {fullNumber}</span>
-            </span>
+            <CopyCell size="sm" font="mono" value={fullNumber} />
             <span className="text-xs">
               {isAdvance ? "ANTICIPO" : "VENTA INTERNA"}
             </span>
