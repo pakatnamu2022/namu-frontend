@@ -16,6 +16,7 @@ export const positionSchemaCreate = z.object({
     "La categoría jerárquica es obligatoria"
   ),
   tiene_jefatura: z.boolean().optional().default(false),
+  no_attendance_required: z.boolean().optional().default(false),
   cargo_id: z.string().optional(),
   ntrabajadores: z.coerce.number().min(0).optional(),
   banda_salarial_min: z.coerce.number().min(0).optional(),
@@ -59,6 +60,7 @@ export const positionSchemaUpdate = z.object({
     "La categoría jerárquica es obligatoria"
   ),
   tiene_jefatura: z.boolean().optional().default(false),
+  no_attendance_required: z.boolean().optional().default(false),
   cargo_id: z.string().optional(),
   ntrabajadores: z.coerce.number().min(0).optional(),
   banda_salarial_min: z.coerce.number().min(0).optional(),
