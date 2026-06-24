@@ -168,10 +168,6 @@ interface SubPageProps {
 
 // ─── Sub-page: Work Order (InvoiceForm) ──────────────────────────────────────
 
-/**
- * Edición de documentos vinculados a una Orden de Trabajo.
- * Replica el mismo setup de hooks que usa BillingTab para construir InvoiceForm.
- */
 function EditWorkOrderInvoicePage({
   documentId,
   workOrderId,
@@ -180,25 +176,11 @@ function EditWorkOrderInvoicePage({
   title,
   icon,
 }: SubPageProps & { workOrderId: number }) {
-  const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
-
-  const form = useForm<ElectronicDocumentSchemaType>({
-    resolver: zodResolver(ElectronicDocumentSchema) as any,
-    defaultValues: {
-      area_id: AREA_TALLER.toString(),
-      is_advance_payment: false,
-      items: [],
-    },
-  });
-
-  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
-  const selectedSeriesId = form.watch("serie");
-  const selectedCurrencyId = form.watch("sunat_concept_currency_id");
-
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery({
     queryKey: ["workOrder", workOrderId],
     queryFn: () => findWorkOrderById(workOrderId),
     enabled: !!workOrderId,
+    staleTime: 0,
   });
 
   const { data: document, isLoading: isLoadingDocument } =
@@ -212,6 +194,52 @@ function EditWorkOrderInvoicePage({
         SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
       ],
     });
+
+  if (isLoadingWorkOrder || isLoadingDocument || isLoadingSunat) {
+    return <FormSkeleton />;
+  }
+
+  if (!workOrder || !document) {
+    if (!workOrder) errorToast("Orden de trabajo no encontrada");
+    onCancel();
+    return <FormSkeleton />;
+  }
+
+  return (
+    <EditWorkOrderInvoiceForm
+      documentId={documentId}
+      document={document}
+      workOrder={workOrder}
+      sunatConcepts={sunatConcepts}
+      onSuccess={onSuccess}
+      onCancel={onCancel}
+      title={title}
+      icon={icon}
+    />
+  );
+}
+
+function EditWorkOrderInvoiceForm({
+  documentId,
+  document,
+  workOrder,
+  sunatConcepts,
+  onSuccess,
+  onCancel,
+  title,
+  icon,
+}: {
+  documentId: number;
+  document: ElectronicDocumentResource;
+  workOrder: any;
+  sunatConcepts: any[];
+  onSuccess: () => void;
+  onCancel: () => void;
+  title: string;
+  icon?: string;
+}) {
+  const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
+  const queryClient = useQueryClient();
 
   const documentTypes = useMemo(
     () =>
@@ -235,6 +263,15 @@ function EditWorkOrderInvoicePage({
     [sunatConcepts],
   );
 
+  const form = useForm<ElectronicDocumentSchemaType>({
+    resolver: zodResolver(ElectronicDocumentSchema) as any,
+    defaultValues: buildFormDefaults(document),
+  });
+
+  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
+  const selectedSeriesId = form.watch("serie");
+  const selectedCurrencyId = form.watch("sunat_concept_currency_id");
+
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
@@ -253,17 +290,10 @@ function EditWorkOrderInvoicePage({
     sede_id: selectedSeries?.sede_id,
   });
 
-  // Cargar los datos del documento existente en el formulario
-  useEffect(() => {
-    if (document) {
-      form.reset(buildFormDefaults(document));
-    }
-  }, [document, form]);
-
   // Sincronizar serie: el documento guarda el string (ej. "F001"),
   // el form necesita el ID numérico de la serie autorizada
   useEffect(() => {
-    if (document && authorizedSeries.length > 0) {
+    if (authorizedSeries.length > 0) {
       const found = authorizedSeries.find(
         (s: AssignSalesSeriesResource) => s.series === document.serie,
       );
@@ -277,6 +307,12 @@ function EditWorkOrderInvoicePage({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
       updateElectronicDocument(documentId, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["electronic-documents", documentId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrder", workOrder.id],
+      });
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       onSuccess();
     },
@@ -285,16 +321,6 @@ function EditWorkOrderInvoicePage({
       errorToast(ERROR_MESSAGE(MODEL, "update", msg));
     },
   });
-
-  if (isLoadingWorkOrder || isLoadingDocument || isLoadingSunat) {
-    return <FormSkeleton />;
-  }
-
-  if (!workOrder) {
-    errorToast("Orden de trabajo no encontrada");
-    onCancel();
-    return <FormSkeleton />;
-  }
 
   return (
     <PageWrapper>

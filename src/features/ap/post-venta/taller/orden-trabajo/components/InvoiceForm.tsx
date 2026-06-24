@@ -93,6 +93,8 @@ export default function InvoiceForm({
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
+    // En modo edición los datos ya vienen del documento existente
+    if (isEdit) return;
     // Esperar a que currencyTypes esté cargado antes de procesar
     if (!workOrder || currencyTypes.length === 0) return;
 
@@ -110,10 +112,12 @@ export default function InvoiceForm({
         );
       }
     }
-  }, [workOrder.id, currencyTypes, form, workOrder]);
+  }, [workOrder.id, currencyTypes, form, workOrder, isEdit]);
 
   // Efecto para cargar items automáticamente desde labours y parts
   useEffect(() => {
+    // En modo edición los items ya vienen del documento existente
+    if (isEdit) return;
     if (igvTypes.length === 0) return;
 
     // Verificar si ya se cargaron los items o si cambió el estado de anticipo/invalid
@@ -290,6 +294,7 @@ export default function InvoiceForm({
     isInvalidWithQuote,
     workOrder.final_amount,
     form,
+    isEdit,
   ]);
 
   // Observar items para re-calcular totales cuando cambien
