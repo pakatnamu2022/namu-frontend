@@ -33,10 +33,15 @@ export const useWorkers = (params?: Record<string, any>) => {
   });
 };
 
-export const useWorkerById = (id: number, params?: getWorkerProps) => {
+export const useWorkerById = (
+  id: number,
+  params?: getWorkerProps,
+  enabled: boolean = true,
+) => {
   return useQuery<WorkerResource>({
-    queryKey: [QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id, params],
     queryFn: () => findWorkerById(id, params),
+    enabled: enabled && id > 0,
   });
 };
 

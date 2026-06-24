@@ -17,6 +17,8 @@ import WorkerTable from "@/features/gp/gestionhumana/gestion-de-personal/trabaja
 import WorkerActions from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerActions";
 import { workerColumns } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerColumns";
 import { deleteWorker } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.actions";
+import { WorkScheduleAssignSingleModal } from "@/features/gp/gestionhumana/asistencias/horarios/components/WorkScheduleAssignSingleModal";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant";
@@ -31,6 +33,7 @@ export default function WorkersPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [assignWorker, setAssignWorker] = useState<WorkerResource | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -71,7 +74,10 @@ export default function WorkersPage() {
       </HeaderTableWrapper>
       <WorkerTable
         isLoading={isLoading}
-        columns={workerColumns({ onDelete: setDeleteId })}
+        columns={workerColumns({
+          onDelete: setDeleteId,
+          onAssignSchedule: setAssignWorker,
+        })}
         data={data?.data || []}
       >
         <WorkerOptions search={search} setSearch={setSearch} />
@@ -84,6 +90,14 @@ export default function WorkersPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <WorkScheduleAssignSingleModal
+        open={!!assignWorker}
+        workerId={assignWorker?.id ?? null}
+        workerName={assignWorker?.name}
+        onClose={() => setAssignWorker(null)}
+        onSuccess={refetch}
+      />
 
       <DataTablePagination
         page={page}

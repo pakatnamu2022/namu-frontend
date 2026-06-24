@@ -62,3 +62,12 @@ export interface WorkScheduleFilters {
   per_page?: number;
   page?: number;
 }
+
+export interface WorkScheduleAssignSinglePayload {
+  work_schedule_id: number;
+}
+
+export interface WorkScheduleAssignSingleResponse {
+  message: string;
+  data: WorkScheduleResource;
+}

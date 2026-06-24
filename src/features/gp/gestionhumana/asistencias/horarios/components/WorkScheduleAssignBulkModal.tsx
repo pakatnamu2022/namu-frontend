@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader, Users } from "lucide-react";
+import { CalendarClock, Loader, Users } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { assignBulkWorkSchedule } from "../lib/work-schedule.actions";
 import {
@@ -15,6 +15,7 @@ import {
 } from "../lib/work-schedule.schema";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { WORK_SCHEDULE } from "../lib/work-schedule.constants";
+import { useAssignWorkSchedule } from "../lib/work-schedule.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { CompanyResource } from "@/features/gp/maestro-general/empresa/lib/company.interface";
@@ -25,7 +26,7 @@ import { PositionResource } from "../../../gestion-de-personal/posiciones/lib/po
 import { useAreas } from "../../../gestion-de-personal/areas/lib/area.hook";
 import { AreaResource } from "../../../gestion-de-personal/areas/lib/area.interface";
 import { STATUS_WORKER } from "../../../gestion-de-personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "../../../gestion-de-personal/trabajadores/lib/worker.hook";
+import { useAllWorkers, useWorkerById, useWorkers } from "../../../gestion-de-personal/trabajadores/lib/worker.hook";
 import { WorkerResource } from "../../../gestion-de-personal/trabajadores/lib/worker.interface";
 
 const { MODEL } = WORK_SCHEDULE;
@@ -44,6 +45,8 @@ export function WorkScheduleAssignBulkModal({
   const [previewParams, setPreviewParams] = useState<
     Record<string, any> | undefined
   >(undefined);
+  const [pendingWorkerId, setPendingWorkerId] = useState<number | null>(null);
+  const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
 
   const form = useForm<WorkScheduleAssignBulkSchema>({
     resolver: zodResolver(workScheduleAssignBulkSchema) as any,
@@ -52,6 +55,7 @@ export function WorkScheduleAssignBulkModal({
       area_id: "",
       sede_id: "",
       empresa_id: "",
+      worker_id: "",
     },
     mode: "onChange",
   });
@@ -102,9 +106,54 @@ export function WorkScheduleAssignBulkModal({
     },
   });
 
+  const { mutate: assignSingle } = useAssignWorkSchedule();
+
+  const { data: workerDetail, isLoading: loadingWorkerDetail } = useWorkerById(
+    selectedWorkerId ?? 0,
+    { showExtra: 1 },
+    !!selectedWorkerId,
+  );
+
+  const handleAssignSingle = (workerId: number) => {
+    if (!workScheduleId) return;
+    setPendingWorkerId(workerId);
+    assignSingle(
+      { workerId, workScheduleId },
+      {
+        onSuccess: (res) => successToast(res.message),
+        onError: (error: any) =>
+          errorToast(
+            error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "manage"),
+          ),
+        onSettled: () => setPendingWorkerId(null),
+      },
+    );
+  };
+
+  const handleAssignIndividual = () => {
+    if (!workScheduleId || !selectedWorkerId) return;
+    setPendingWorkerId(selectedWorkerId);
+    assignSingle(
+      { workerId: selectedWorkerId, workScheduleId },
+      {
+        onSuccess: (res) => {
+          successToast(res.message);
+          setSelectedWorkerId(null);
+          form.setValue("worker_id", "");
+        },
+        onError: (error: any) =>
+          errorToast(
+            error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "manage"),
+          ),
+        onSettled: () => setPendingWorkerId(null),
+      },
+    );
+  };
+
   const handleClose = () => {
     form.reset();
     setPreviewParams(undefined);
+    setSelectedWorkerId(null);
     onClose();
   };
 
@@ -212,7 +261,76 @@ export function WorkScheduleAssignBulkModal({
             </Button>
           </div>
 
-          {/* Preview panel — only appears after clicking Mostrar */}
+          <div className="relative flex items-center py-1">
+            <div className="grow border-t" />
+            <span className="mx-3 shrink-0 text-xs text-muted-foreground">
+              o asignar a un trabajador específico
+            </span>
+            <div className="grow border-t" />
+          </div>
+
+          <FormSelectAsync
+            control={control}
+            name="worker_id"
+            label="Buscar trabajador"
+            placeholder="Buscar por nombre o documento..."
+            useQueryHook={useWorkers as any}
+            mapOptionFn={(worker: WorkerResource) => ({
+              label: worker.name,
+              value: String(worker.id),
+              description: worker.document,
+            })}
+            additionalParams={{ status_id: STATUS_WORKER.ACTIVE }}
+            allowClear
+            onValueChange={(value) =>
+              setSelectedWorkerId(value ? Number(value) : null)
+            }
+          />
+
+          {selectedWorkerId && (
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 space-y-0.5">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Horario actual
+                  </p>
+                  {loadingWorkerDetail ? (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Loader className="size-3 animate-spin" />
+                      Consultando...
+                    </div>
+                  ) : workerDetail?.workSchedule ? (
+                    <p className="text-xs font-medium">
+                      {workerDetail.workSchedule.name}{" "}
+                      <span className="font-normal text-muted-foreground">
+                        ({workerDetail.workSchedule.checkin} —{" "}
+                        {workerDetail.workSchedule.checkout})
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Sin horario asignado
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="shrink-0"
+                  disabled={pendingWorkerId === selectedWorkerId}
+                  onClick={handleAssignIndividual}
+                >
+                  {pendingWorkerId === selectedWorkerId ? (
+                    <Loader className="mr-1.5 size-3 animate-spin" />
+                  ) : (
+                    <CalendarClock className="mr-1.5 size-3" />
+                  )}
+                  Asignar
+                </Button>
+              </div>
+            </div>
+          )}
+
           {previewParams && !loadingWorkers && (
             <div className="rounded-lg border bg-muted/30 overflow-hidden">
               {!affectedWorkers?.length ? (
@@ -237,7 +355,7 @@ export function WorkScheduleAssignBulkModal({
                       <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-semibold text-primary">
                         {worker.name.charAt(0).toUpperCase()}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="text-xs font-medium truncate leading-tight">
                           {worker.name}
                         </p>
@@ -245,6 +363,21 @@ export function WorkScheduleAssignBulkModal({
                           {worker.document}
                         </p>
                       </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 shrink-0"
+                        disabled={pendingWorkerId === worker.id}
+                        onClick={() => handleAssignSingle(worker.id)}
+                        title="Asignar solo a este trabajador"
+                      >
+                        {pendingWorkerId === worker.id ? (
+                          <Loader className="size-3 animate-spin" />
+                        ) : (
+                          <CalendarClock className="size-3" />
+                        )}
+                      </Button>
                     </div>
                   ))}
                 </div>
