@@ -3,11 +3,17 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { Hourglass, Pencil, Signature } from "lucide-react";
+import { CalendarClock, Hourglass, Pencil, Signature } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant.ts";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const { ROUTE_UPDATE } = WORKER;
 
@@ -15,8 +21,10 @@ export type WorkerColumns = ColumnDef<WorkerResource>;
 
 export const workerColumns = ({
   onDelete,
+  onAssignSchedule,
 }: {
   onDelete: (id: number) => void;
+  onAssignSchedule: (worker: WorkerResource) => void;
 }): WorkerColumns[] => [
   {
     accessorKey: "name",
@@ -88,16 +96,42 @@ export const workerColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Edit */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-          >
-            <Pencil className="size-5" />
-          </Button>
-          {/* Delete */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Editar</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => onAssignSchedule(row.original)}
+                >
+                  <CalendarClock className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Asignar horario</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );

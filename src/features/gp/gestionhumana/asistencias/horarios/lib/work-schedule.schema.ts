@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalStringId } from "@/shared/lib/global.schema";
 
 const timeField = z
   .string()
@@ -40,10 +41,11 @@ export const workScheduleSchema = z.object({
 
 export const workScheduleAssignBulkSchema = z
   .object({
-    cargo_id: z.coerce.number().positive().nullable().optional(),
-    area_id: z.coerce.number().positive().nullable().optional(),
-    sede_id: z.coerce.number().positive().nullable().optional(),
-    empresa_id: z.coerce.number().positive().nullable().optional(),
+    cargo_id: optionalStringId("Selecciona una posición"),
+    area_id: optionalStringId("Selecciona un área"),
+    sede_id: optionalStringId("Selecciona una sede"),
+    empresa_id: optionalStringId("Selecciona una empresa"),
+    worker_id: z.string().optional().default(""),
   })
   .refine(
     (data) =>
@@ -51,6 +53,13 @@ export const workScheduleAssignBulkSchema = z
     { message: "Debe especificar al menos un filtro" },
   );
 
+export const workScheduleAssignSingleSchema = z.object({
+  work_schedule_id: z.string().min(1, "Selecciona un horario de trabajo"),
+});
+
+export type WorkScheduleAssignSingleSchema = z.infer<
+  typeof workScheduleAssignSingleSchema
+>;
 export type WorkScheduleSchema = z.infer<typeof workScheduleSchema>;
 export type WorkScheduleDetailSchema = z.infer<typeof workScheduleDetailSchema>;
 export type WorkScheduleAssignBulkSchema = z.infer<
