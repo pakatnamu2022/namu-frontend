@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -47,10 +47,10 @@ export function WorkScheduleAssignBulkModal({
   const form = useForm<WorkScheduleAssignBulkSchema>({
     resolver: zodResolver(workScheduleAssignBulkSchema) as any,
     defaultValues: {
-      cargo_id: null,
-      area_id: null,
-      sede_id: null,
-      empresa_id: null,
+      cargo_id: "",
+      area_id: "",
+      sede_id: "",
+      empresa_id: "",
     },
     mode: "onChange",
   });
@@ -63,16 +63,6 @@ export function WorkScheduleAssignBulkModal({
   });
 
   const hasFilters = !!(sedeId || cargoId || areaId || empresaId);
-
-  useEffect(() => {
-    form.setValue("sede_id", null);
-    setPreviewParams(undefined);
-  }, [empresaId]);
-
-  useEffect(() => {
-    form.setValue("cargo_id", null);
-    setPreviewParams(undefined);
-  }, [areaId]);
 
   const { data: affectedWorkers, isFetching: loadingWorkers } = useAllWorkers(
     previewParams,
@@ -92,10 +82,10 @@ export function WorkScheduleAssignBulkModal({
     mutationFn: (data: WorkScheduleAssignBulkSchema) =>
       assignBulkWorkSchedule({
         work_schedule_id: workScheduleId!,
-        cargo_id: data.cargo_id ?? undefined,
-        area_id: data.area_id ?? undefined,
-        sede_id: data.sede_id ?? undefined,
-        empresa_id: data.empresa_id ?? undefined,
+        cargo_id: data.cargo_id ? Number(data.cargo_id) : undefined,
+        area_id: data.area_id ? Number(data.area_id) : undefined,
+        sede_id: data.sede_id ? Number(data.sede_id) : undefined,
+        empresa_id: data.empresa_id ? Number(data.empresa_id) : undefined,
       }),
     onSuccess: (res) => {
       successToast(res.message);

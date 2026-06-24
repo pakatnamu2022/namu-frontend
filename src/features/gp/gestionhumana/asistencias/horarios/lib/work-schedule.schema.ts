@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalStringId } from "@/shared/lib/global.schema";
 
 const timeField = z
   .string()
@@ -40,10 +41,10 @@ export const workScheduleSchema = z.object({
 
 export const workScheduleAssignBulkSchema = z
   .object({
-    cargo_id: z.coerce.number().positive().nullable().optional(),
-    area_id: z.coerce.number().positive().nullable().optional(),
-    sede_id: z.coerce.number().positive().nullable().optional(),
-    empresa_id: z.coerce.number().positive().nullable().optional(),
+    cargo_id: optionalStringId("Selecciona una posición"),
+    area_id: optionalStringId("Selecciona un área"),
+    sede_id: optionalStringId("Selecciona una sede"),
+    empresa_id: optionalStringId("Selecciona una empresa"),
   })
   .refine(
     (data) =>
