@@ -14,9 +14,11 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
+import FormWrapper from "@/shared/components/FormWrapper";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
 
 export default function AddPositionPage() {
-  const { checkRouteExists, isLoadingModule } = useCurrentModule();
+  const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
   const router = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,7 +36,7 @@ export default function AddPositionPage() {
       if (data.hierarchical_category_id)
         formData.append(
           "hierarchical_category_id",
-          data.hierarchical_category_id.toString()
+          data.hierarchical_category_id.toString(),
         );
       if (data.cargo_id) formData.append("cargo_id", data.cargo_id.toString());
       if (data.ntrabajadores !== undefined)
@@ -44,32 +46,33 @@ export default function AddPositionPage() {
       if (data.banda_salarial_min !== undefined)
         formData.append(
           "banda_salarial_min",
-          data.banda_salarial_min.toString()
+          data.banda_salarial_min.toString(),
         );
       if (data.banda_salarial_media !== undefined)
         formData.append(
           "banda_salarial_media",
-          data.banda_salarial_media.toString()
+          data.banda_salarial_media.toString(),
         );
       if (data.banda_salarial_max !== undefined)
         formData.append(
           "banda_salarial_max",
-          data.banda_salarial_max.toString()
+          data.banda_salarial_max.toString(),
         );
 
       // Agregar otros campos
       if (data.tipo_onboarding_id !== undefined)
         formData.append(
           "tipo_onboarding_id",
-          data.tipo_onboarding_id.toString()
+          data.tipo_onboarding_id.toString(),
         );
       if (data.plazo_proceso_seleccion !== undefined)
         formData.append(
           "plazo_proceso_seleccion",
-          data.plazo_proceso_seleccion.toString()
+          data.plazo_proceso_seleccion.toString(),
         );
       if (data.presupuesto !== undefined)
         formData.append("presupuesto", data.presupuesto.toString());
+      formData.append("no_attendance_required", data.no_attendance_required ? "1" : "0");
 
       // Agregar archivo MOF obligatorio
       if (data.mof_adjunto) {
@@ -89,7 +92,7 @@ export default function AddPositionPage() {
     } catch (error: any) {
       console.error("Error al crear posición:", error);
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "create")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "create"),
       );
     } finally {
       setIsSubmitting(false);
@@ -98,14 +101,20 @@ export default function AddPositionPage() {
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
-    <div className="container mx-auto py-6">
+    <FormWrapper>
+      <TitleFormComponent
+        title={currentView.descripcion}
+        mode="create"
+        icon={currentView.icon}
+      />
       <PositionForm
         mode="create"
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
       />
-    </div>
+    </FormWrapper>
   );
 }

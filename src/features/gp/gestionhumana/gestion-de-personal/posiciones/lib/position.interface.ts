@@ -23,6 +23,9 @@ export interface PositionResource {
   area_id?: number;
   cargo_id?: number;
   hierarchical_category_id?: number;
+  hierarchical_category_name?: string;
+  position_head_name?: string;
+  no_attendance_required?: number | boolean;
 }
 
 export interface PositionCreateRequest {
