@@ -80,7 +80,7 @@ export function WorkScheduleAssignSingleModal({
           : "Asignar un horario de trabajo al trabajador seleccionado"
       }
       icon="Clock"
-      size="sm"
+      size="md"
       childrenFooter={
         <div className="flex w-full justify-end gap-2">
           <Button type="button" variant="outline" onClick={handleClose}>
