@@ -111,6 +111,11 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
             `${purchaseOrder.invoice_series}-${purchaseOrder.invoice_number}`;
           const invoiceLabel = `${purchaseOrder.invoice_series}-${purchaseOrder.invoice_number}`;
 
+          // status=false → NC por corrección (factura anulada), status=true → NC por devolución (factura sigue vigente)
+          const isCorrectionNote =
+            hasCreditNote && purchaseOrder.status === false;
+          const isReturnNote = hasCreditNote && purchaseOrder.status === true;
+
           return (
             <div className="flex flex-col text-sm">
               <span className="font-medium">{purchaseOrder.supplier}</span>
@@ -122,9 +127,14 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span>Dyn : {invoiceDynLabel}</span>
-                {hasCreditNote && (
-                  <Badge variant="outline" color="yellow">
-                    Nota Crédito
+                {isCorrectionNote && (
+                  <Badge variant="outline" color="red">
+                    NC Corrección
+                  </Badge>
+                )}
+                {isReturnNote && (
+                  <Badge variant="outline" color="orange">
+                    NC Devolución
                   </Badge>
                 )}
               </div>

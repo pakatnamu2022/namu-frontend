@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { rebuildCostHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
+import { errorToast, formatMoney, successToast } from "@/core/core.function.ts";
+import { Button } from "@/components/ui/button.tsx";
 import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
@@ -36,6 +39,7 @@ import {
   Warehouse,
   Package,
   Calculator,
+  RefreshCcw,
 } from "lucide-react";
 
 const TAB_OPTIONS = [
@@ -44,8 +48,6 @@ const TAB_OPTIONS = [
 ];
 
 // ─── Movement History columns ─────────────────────────────────────────────────
-
-const pen = (v: number) => `S/ ${v.toFixed(2)}`;
 
 const movementColumns: ColumnDef<StockMovementHistoryItem>[] = [
   {
@@ -99,11 +101,20 @@ const movementColumns: ColumnDef<StockMovementHistoryItem>[] = [
     cell: ({ row }) => {
       const { unit_cost, currency, exchange_rate } = row.original;
       if (unit_cost === 0) return <span className="text-gray-400">—</span>;
-      const label =
-        currency !== "PEN" && exchange_rate
-          ? `${currency} ${unit_cost.toFixed(2)} (×${exchange_rate})`
-          : pen(unit_cost);
-      return label;
+      if (currency !== "PEN" && exchange_rate) {
+        const formatMoney_value = unit_cost * exchange_rate;
+        return (
+          <div className="flex flex-col leading-tight">
+            <span className="font-semibold text-gray-900">
+              {formatMoney(formatMoney_value)}
+            </span>
+            <span className="text-[11px] text-gray-400">
+              {currency} {unit_cost.toFixed(2)} × {exchange_rate}
+            </span>
+          </div>
+        );
+      }
+      return formatMoney(unit_cost);
     },
   },
   {
@@ -113,7 +124,7 @@ const movementColumns: ColumnDef<StockMovementHistoryItem>[] = [
       row.original.total_cost === 0 ? (
         <span className="text-gray-400">—</span>
       ) : (
-        pen(row.original.total_cost)
+        formatMoney(row.original.total_cost)
       ),
   },
   {
@@ -124,7 +135,7 @@ const movementColumns: ColumnDef<StockMovementHistoryItem>[] = [
   {
     accessorKey: "average_cost_after_movement",
     header: "Costo prom. resultante",
-    cell: ({ row }) => pen(row.original.average_cost_after_movement),
+    cell: ({ row }) => formatMoney(row.original.average_cost_after_movement),
   },
 ];
 
@@ -213,7 +224,7 @@ function PriceCalcContent({ data }: { data: PriceCalculationDetailsResponse }) {
             PVP calculado
           </p>
           <p className="mt-2 text-2xl font-semibold text-gray-900">
-            {pen(summary.prices.calculated_pvp)}
+            {formatMoney(summary.prices.calculated_pvp)}
           </p>
           <p className="mt-1 text-xs text-gray-500">{summary.currency}</p>
         </div>
@@ -223,7 +234,7 @@ function PriceCalcContent({ data }: { data: PriceCalculationDetailsResponse }) {
             Costo promedio
           </p>
           <p className="mt-2 text-2xl font-semibold text-gray-900">
-            {pen(summary.prices.average_cost)}
+            {formatMoney(summary.prices.average_cost)}
           </p>
           <p className="mt-1 text-xs text-gray-500">Base de cálculo</p>
         </div>
@@ -233,7 +244,7 @@ function PriceCalcContent({ data }: { data: PriceCalculationDetailsResponse }) {
             Precio mínimo
           </p>
           <p className="mt-2 text-2xl font-semibold text-gray-900">
-            {pen(summary.prices.minimum_sale_price)}
+            {formatMoney(summary.prices.minimum_sale_price)}
           </p>
           <p className="mt-1 text-xs text-gray-500">
             Desc. máx. {summary.configuration.minimum_discount_percent}
@@ -245,7 +256,7 @@ function PriceCalcContent({ data }: { data: PriceCalculationDetailsResponse }) {
             Última compra
           </p>
           <p className="mt-2 text-2xl font-semibold text-gray-900">
-            {pen(summary.prices.last_purchase_price)}
+            {formatMoney(summary.prices.last_purchase_price)}
           </p>
           <p className="mt-1 text-xs text-gray-500">Costo unitario</p>
         </div>
@@ -364,7 +375,7 @@ function PriceCalcContent({ data }: { data: PriceCalculationDetailsResponse }) {
                       key.includes("cost") ||
                       key.includes("price") ||
                       key.includes("pvp") ||
-                      key.includes("pen") ||
+                      key.includes("formatMoney") ||
                       key.includes("minimum_sale");
 
                     const shouldFormatAsMoney =
@@ -376,7 +387,7 @@ function PriceCalcContent({ data }: { data: PriceCalculationDetailsResponse }) {
                           ? "Sí"
                           : "No"
                         : shouldFormatAsMoney && typeof val === "number"
-                          ? pen(val)
+                          ? formatMoney(val)
                           : String(val);
                     return (
                       <DataRow
@@ -455,6 +466,7 @@ export default function PriceCalculationPage() {
   const { ROUTE } = INVENTORY;
   const params = useParams();
   const [activeTab, setActiveTab] = useState<"steps" | "movements">("steps");
+  const [isRebuilding, setIsRebuilding] = useState(false);
 
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
@@ -518,12 +530,39 @@ export default function PriceCalculationPage() {
       )}
 
       {activeTab === "movements" && (
-        <DataTable
-          columns={movementColumns}
-          data={movementsData?.history ?? []}
-          isLoading={isLoadingMovements}
-          isVisibleColumnFilter={false}
-        />
+        <div className="space-y-3">
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isRebuilding}
+              onClick={async () => {
+                setIsRebuilding(true);
+                try {
+                  await rebuildCostHistory(productId, warehouseId);
+                  successToast(
+                    "Historial de costos reconstruido correctamente.",
+                  );
+                } catch {
+                  errorToast("Error al reconstruir el historial de costos.");
+                } finally {
+                  setIsRebuilding(false);
+                }
+              }}
+            >
+              <RefreshCcw
+                className={`h-4 w-4 mr-2 ${isRebuilding ? "animate-spin" : ""}`}
+              />
+              {isRebuilding ? "Reconstruyendo..." : "Reconstruir Historial"}
+            </Button>
+          </div>
+          <DataTable
+            columns={movementColumns}
+            data={movementsData?.history ?? []}
+            isLoading={isLoadingMovements}
+            isVisibleColumnFilter={false}
+          />
+        </div>
       )}
     </div>
   );

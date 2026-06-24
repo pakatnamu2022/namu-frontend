@@ -25,7 +25,6 @@ import { OrderQuotationFinancialInfo } from "./OrderQuotationFinancialInfo";
 import { OrderQuotationSummarySection } from "./OrderQuotationSummarySection";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { FormDebugPanel } from "@/shared/components/FormDebugPanel";
 
 interface OrderQuotationBillingFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -685,11 +684,6 @@ export function OrderQuotationBillingForm({
               isEdit={isEdit}
               existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
-            />
-            <FormDebugPanel
-              form={form}
-              isSubmitting={form.formState.isSubmitting}
-              show={true} // Solo en desarrollo o le puedes poner True
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}
