@@ -5,6 +5,7 @@ import type {
   AccountReceivable,
   AccountReceivableComment,
   AccountsReceivableFilters,
+  DashboardFilters,
   FilterTreeNode,
   AccountsReceivableDashboardResponse,
 } from "./accountsReceivable.interface";
@@ -90,10 +91,15 @@ export async function downloadGlobalExcel(company?: string): Promise<void> {
 
 export async function getAccountsReceivableDashboard(
   company: string,
+  filters?: DashboardFilters,
 ): Promise<AccountsReceivableDashboardResponse> {
+  const params: Record<string, any> = { company };
+  if (filters?.sede_id?.length) params["sede_id"] = filters.sede_id;
+  if (filters?.overdue_status?.length) params["overdue_status"] = filters.overdue_status;
+  if (filters?.due_year?.length) params["due_year"] = filters.due_year;
   const { data } = await api.get<AccountsReceivableDashboardResponse>(
     `${ENDPOINT}/dashboard`,
-    { params: { company } },
+    { params },
   );
   return data;
 }

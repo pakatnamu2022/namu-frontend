@@ -42,7 +42,8 @@ import { successToast, errorToast } from "@/core/core.function";
 import { useAccountsReceivableDashboard } from "../lib/accountsReceivable.hook";
 import { syncAccountsReceivable, sendDueReports } from "../lib/accountsReceivable.actions";
 import { ACCOUNTS_RECEIVABLE } from "../lib/accountsReceivable.constants";
-import type { DashboardChart } from "../lib/accountsReceivable.interface";
+import type { DashboardChart, DashboardFilters, AccountsReceivableFilters } from "../lib/accountsReceivable.interface";
+import AccountsReceivableTreeFilter from "./AccountsReceivableTreeFilter";
 
 const COMPANY_STORAGE_KEY = "ar-dashboard-company";
 const PIE_COLORS = [
@@ -228,10 +229,20 @@ export default function AccountsReceivableDashboard() {
   const [company] = useState<string>(getStoredCompany);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [dashFilters, setDashFilters] = useState<DashboardFilters>({});
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError, refetch } =
-    useAccountsReceivableDashboard(company);
+    useAccountsReceivableDashboard(company, dashFilters);
+
+  const handleFiltersChange = (partial: Partial<AccountsReceivableFilters>) =>
+    setDashFilters((prev) => ({
+      sede_id: partial.sede_id !== undefined ? partial.sede_id : prev.sede_id,
+      overdue_status: partial.overdue_status !== undefined ? partial.overdue_status : prev.overdue_status,
+      due_year: partial.due_year !== undefined ? partial.due_year : prev.due_year,
+    }));
+
+  const handleReset = () => setDashFilters({});
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -352,6 +363,13 @@ export default function AccountsReceivableDashboard() {
         </div>
       </HeaderTableWrapper>
 
+      {/* Filters */}
+      <AccountsReceivableTreeFilter
+        filters={dashFilters}
+        onFiltersChange={handleFiltersChange}
+        onReset={handleReset}
+      />
+
       {/* KPI Cards — always visible (skeleton when loading, real data when ready) */}
       {!isError && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -389,7 +407,7 @@ export default function AccountsReceivableDashboard() {
             isLoading={isLoading}
           />
           <MetricCard
-            title="Saldo Corriente"
+            title="Saldo por Vencer"
             value={summary ? formatPEN(summary.current_balance_pen) : undefined}
             subtitle={currentPercent}
             icon={TrendingUp}
