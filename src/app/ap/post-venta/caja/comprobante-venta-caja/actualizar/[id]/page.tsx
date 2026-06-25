@@ -60,6 +60,8 @@ import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/compo
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
 import { OrderQuotationBillingForm } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingForm.tsx";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface.ts";
+import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
+import { STATUS_WORK_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -231,7 +233,7 @@ function EditWorkOrderInvoiceForm({
 }: {
   documentId: number;
   document: ElectronicDocumentResource;
-  workOrder: any;
+  workOrder: WorkOrderResource;
   sunatConcepts: any[];
   onSuccess: () => void;
   onCancel: () => void;
@@ -331,6 +333,7 @@ function EditWorkOrderInvoiceForm({
         onCancel={onCancel}
         isPending={isPending}
         isEdit={true}
+        existingFileUrl={document.orden_compra_servicio_url ?? ""}
         selectedGroupNumber={null}
         documentTypes={documentTypes}
         currencyTypes={currencyTypes}
@@ -338,6 +341,9 @@ function EditWorkOrderInvoiceForm({
         authorizedSeries={authorizedSeries}
         checkbooks={checkbooks}
         workOrder={workOrder}
+        isTerminado={
+          Number(workOrder.status_id) === STATUS_WORK_ORDER.TERMINADO
+        }
       />
     </PageWrapper>
   );

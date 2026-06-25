@@ -28,6 +28,7 @@ interface InvoiceFormProps {
   onCancel: () => void;
   isPending: boolean;
   isEdit?: boolean;
+  existingFileUrl?: string;
   selectedGroupNumber: number | null;
   documentTypes: SunatConceptsResource[];
   currencyTypes: SunatConceptsResource[];
@@ -45,6 +46,7 @@ export default function InvoiceForm({
   onCancel,
   isPending,
   isEdit = false,
+  existingFileUrl = "",
   selectedGroupNumber,
   documentTypes,
   currencyTypes,
@@ -452,6 +454,8 @@ export default function InvoiceForm({
               showCardLast4={true}
               showInternalNote={true}
               showOrdenCompraServicio={true}
+              isEdit={isEdit}
+              existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
             />
           </div>
