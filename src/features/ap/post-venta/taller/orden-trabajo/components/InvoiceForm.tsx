@@ -12,6 +12,7 @@ import {
   NUBEFACT_CODES,
   QUOTATION_ACCOUNT_PLAN_IDS,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import { SUNAT_TRANSACTIONS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
@@ -70,6 +71,7 @@ export default function InvoiceForm({
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   const lastLoadedIsInvalidWithQuote = useRef<boolean | null>(null);
   const itemsAlreadyLoaded = useRef<boolean>(false);
+  const prevIsAdvancePayment = useRef<boolean | null>(null);
 
   // Watch para obtener valores en tiempo real
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
@@ -92,6 +94,56 @@ export default function InvoiceForm({
       : selectedCurrency?.iso_code === "USD"
         ? "$"
         : "S/";
+
+  // En modo edición: cuando el usuario cambia de Anticipo → Venta Interna,
+  // poner el item al saldo total pendiente real (remaining_balance).
+  useEffect(() => {
+    if (!isEdit) return;
+
+    const prev = prevIsAdvancePayment.current;
+    prevIsAdvancePayment.current = isAdvancePayment;
+
+    // Solo actuar en el cambio puntual true → false
+    if (prev !== true || isAdvancePayment !== false) return;
+
+    const pendingBalance = workOrder?.payment_summary?.remaining_balance ?? 0;
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const igvFactor = (porcentaje_de_igv || DEFAULT_IGV_PERCENTAGE) / 100;
+    const valor_unitario = round2(pendingBalance / (1 + igvFactor));
+    const precio_unitario = round2(pendingBalance);
+    const subtotal = round2(valor_unitario);
+    const igvAmount = round2(pendingBalance - subtotal);
+
+    const currentItems = form.getValues("items");
+    if (currentItems.length > 0) {
+      form.setValue(
+        "items",
+        currentItems.map((item, idx) =>
+          idx !== 0
+            ? item
+            : {
+                ...item,
+                valor_unitario,
+                precio_unitario,
+                subtotal,
+                igv: igvAmount,
+                total: pendingBalance,
+              },
+        ),
+        { shouldValidate: false },
+      );
+    }
+
+    // Actualizar tipo de transacción
+    const hasAdvances = (workOrder?.payment_summary?.advances_count ?? 0) > 0;
+    const targetId = hasAdvances
+      ? SUNAT_TRANSACTIONS_ID.ANTICIPOS
+      : SUNAT_TRANSACTIONS_ID.VENTA_INTERNA;
+    form.setValue("sunat_concept_transaction_type_id", targetId.toString(), {
+      shouldValidate: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdvancePayment, isEdit]);
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
