@@ -33,7 +33,6 @@ export default function UpdatePositionPage() {
   const { data: position, isLoading: loadingPosition } = useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findPositionById(id as string),
-    refetchOnWindowFocus: false,
   });
 
   const { mutate, isPending } = useMutation({
@@ -47,7 +46,7 @@ export default function UpdatePositionPage() {
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     },
   });
@@ -62,7 +61,7 @@ export default function UpdatePositionPage() {
     if (data.hierarchical_category_id)
       formData.append(
         "hierarchical_category_id",
-        data.hierarchical_category_id.toString()
+        data.hierarchical_category_id.toString(),
       );
     if (data.cargo_id) formData.append("cargo_id", data.cargo_id.toString());
     if (data.ntrabajadores !== undefined)
@@ -74,7 +73,7 @@ export default function UpdatePositionPage() {
     if (data.banda_salarial_media !== undefined)
       formData.append(
         "banda_salarial_media",
-        data.banda_salarial_media.toString()
+        data.banda_salarial_media.toString(),
       );
     if (data.banda_salarial_max !== undefined)
       formData.append("banda_salarial_max", data.banda_salarial_max.toString());
@@ -85,10 +84,14 @@ export default function UpdatePositionPage() {
     if (data.plazo_proceso_seleccion !== undefined)
       formData.append(
         "plazo_proceso_seleccion",
-        data.plazo_proceso_seleccion.toString()
+        data.plazo_proceso_seleccion.toString(),
       );
     if (data.presupuesto !== undefined)
       formData.append("presupuesto", data.presupuesto.toString());
+    formData.append(
+      "no_attendance_required",
+      data.no_attendance_required ? "1" : "0",
+    );
 
     // Agregar archivo MOF si se proporciona (opcional en actualización)
     if (data.mof_adjunto) {
@@ -125,6 +128,7 @@ export default function UpdatePositionPage() {
       tipo_onboarding_id: String(data.tipo_onboarding_id),
       plazo_proceso_seleccion: data.plazo_proceso_seleccion,
       presupuesto: data.presupuesto ? parseFloat(data.presupuesto) : undefined,
+      no_attendance_required: Boolean(data.no_attendance_required),
     };
   }
 
@@ -148,6 +152,23 @@ export default function UpdatePositionPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        defaultOptions={{
+          area: position.area_id
+            ? { value: String(position.area_id), label: position.area }
+            : undefined,
+          hierarchicalCategory: position.hierarchical_category_id
+            ? {
+                value: String(position.hierarchical_category_id),
+                label: position.hierarchical_category_name || position.area,
+              }
+            : undefined,
+          cargo: position.cargo_id
+            ? {
+                value: String(position.cargo_id),
+                label: position.position_head_name || position.jefatura,
+              }
+            : undefined,
+        }}
       />
     </FormWrapper>
   );
