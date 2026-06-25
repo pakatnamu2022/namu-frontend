@@ -828,7 +828,6 @@ export default function ProformaMesonForm({
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
-    has_workshop: 1,
   });
 
   const { data: currencyTypes = [] } = useAllCurrencyTypes({
@@ -1300,7 +1299,8 @@ export default function ProformaMesonForm({
         {quotationDate && (
           <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-4">
             <p className="text-xs text-primary">
-              <span className="font-semibold">Comisión de flete:</span> {freightCommissionMultiplier.toFixed(2)}
+              <span className="font-semibold">Comisión de flete:</span>{" "}
+              {freightCommissionMultiplier.toFixed(2)}
             </p>
             {isLoadingExchangeRate ? (
               <p className="text-xs text-primary">

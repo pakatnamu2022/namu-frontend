@@ -134,7 +134,7 @@ export const AssignSalesSeriesForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : "Guardar Asignación de Serie"}
+            {isSubmitting ? "Guardando" : "Guardar Serie"}
           </Button>
         </div>
       </form>
