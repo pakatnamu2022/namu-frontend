@@ -158,7 +158,9 @@ export default function SalesReceiptsCajaPage() {
           icon={currentView.icon}
         />
         <SalesReceiptsActions
-          onOtherSalesClick={() => router(`${ROUTE_ADD}-otros`)}
+          onOtherSalesClick={() =>
+            router(`${ROUTE_ADD}-otros`, { state: { sedeId } })
+          }
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
         />
