@@ -46,7 +46,7 @@ import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/che
 
 // Work order
 import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions.ts";
-import InvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/InvoiceForm.tsx";
+import WorkOrderBillingForm from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderBillingForm";
 import DirectInvoiceForm from "@/features/ap/post-venta/taller/orden-trabajo/components/DirectInvoiceForm.tsx";
 import {
   AREA_TALLER,
@@ -327,7 +327,7 @@ function EditWorkOrderInvoiceForm({
   return (
     <PageWrapper>
       <TitleFormComponent title={title} mode="edit" icon={icon as any} />
-      <InvoiceForm
+      <WorkOrderBillingForm
         form={form}
         onSubmit={(data) => mutate(data)}
         onCancel={onCancel}

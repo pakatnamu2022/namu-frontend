@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
-import WorkOrderBillingForm from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderBillingForm";
+import WorkOrderBillingFormContent from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderBillingFormContent";
 import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useQuery } from "@tanstack/react-query";
 import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
@@ -55,7 +55,7 @@ export default function BillWorkOrderCajaPage() {
           />
         </div>
 
-        <WorkOrderBillingForm workOrderId={workOrderId} />
+        <WorkOrderBillingFormContent workOrderId={workOrderId} />
       </div>
     </WorkOrderProvider>
   );

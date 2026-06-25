@@ -1,464 +1,539 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Receipt, AlertCircle } from "lucide-react";
-import { findWorkOrderById } from "../lib/workOrder.actions";
-import { useWorkOrderContext } from "../contexts/WorkOrderContext";
+import { useEffect, useMemo, useRef } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { Form } from "@/components/ui/form";
 import {
   ElectronicDocumentSchema,
-  ElectronicDocumentSchema as ElectronicDocumentSchemaType,
+  ElectronicDocumentItemSchema,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
-import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
-import InvoiceForm from "./InvoiceForm";
-import InvoiceList from "../../../../facturacion/electronic-documents/components/InvoiceList.tsx";
-import { errorToast, successToast } from "@/core/core.function";
 import {
-  SUNAT_CONCEPTS_TYPE,
-  SUNAT_TRANSACTIONS_ID,
-} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { WORKER_ORDER, STATUS_WORK_ORDER } from "../lib/workOrder.constants";
-import {
-  AREA_TALLER,
-  CM_POSTVENTA_ID,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
+  DEFAULT_IGV_PERCENTAGE,
+  NUBEFACT_CODES,
+  QUOTATION_ACCOUNT_PLAN_IDS,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import { SUNAT_TRANSACTIONS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
+import { InvoiceSummarySection } from "./InvoiceSummarySection";
+import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
+import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
+import { WorkOrderResource } from "../lib/workOrder.interface";
+import { WorkOrderFinancialInfo } from "./WorkOrderFinancialInfo";
 
 interface WorkOrderBillingFormProps {
-  workOrderId: number;
+  form: UseFormReturn<ElectronicDocumentSchema>;
+  onSubmit: (data: ElectronicDocumentSchema) => void;
+  onCancel: () => void;
+  isPending: boolean;
+  isEdit?: boolean;
+  existingFileUrl?: string;
+  selectedGroupNumber: number | null;
+  documentTypes: SunatConceptsResource[];
+  currencyTypes: SunatConceptsResource[];
+  igvTypes: SunatConceptsResource[];
+  authorizedSeries: AssignSalesSeriesResource[];
+  checkbooks: ApBankResource[];
+  workOrder: WorkOrderResource;
+  isInvalidWithQuote?: boolean;
+  isTerminado?: boolean;
 }
 
 export default function WorkOrderBillingForm({
-  workOrderId,
+  form,
+  onSubmit,
+  onCancel,
+  isPending,
+  isEdit = false,
+  existingFileUrl = "",
+  selectedGroupNumber,
+  documentTypes,
+  currencyTypes,
+  igvTypes,
+  authorizedSeries,
+  checkbooks,
+  workOrder,
+  isInvalidWithQuote = false,
+  isTerminado = false,
 }: WorkOrderBillingFormProps) {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
-  const [showForm, setShowForm] = useState(false);
-  const { QUERY_KEY } = WORKER_ORDER;
-
-  // Obtener todos los conceptos SUNAT necesarios en una sola consulta
-  const { data: sunatConcepts = [] } = useAllSunatConcepts({
-    type: [
-      SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-      SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
-      SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
-    ],
-  });
-
-  // Filtrar los conceptos por tipo
-  const documentTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-      ),
-    [sunatConcepts],
+  // Cliente por defecto desde la orden de trabajo y otros datos necesarios
+  const defaultCustomer = workOrder.invoice_to_client;
+  const labours = workOrder.labours;
+  const parts = workOrder.parts;
+  const advances = useMemo(
+    () => workOrder.vouchers?.active ?? [],
+    [workOrder.vouchers?.active],
   );
 
-  const currencyTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
-      ),
-    [sunatConcepts],
-  );
+  // Ref para evitar loops
+  const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
+  const lastLoadedIsInvalidWithQuote = useRef<boolean | null>(null);
+  const itemsAlreadyLoaded = useRef<boolean>(false);
+  const prevIsAdvancePayment = useRef<boolean | null>(null);
 
-  const igvTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
-      ),
-    [sunatConcepts],
-  );
-
-  const form = useForm<ElectronicDocumentSchemaType>({
-    resolver: zodResolver(ElectronicDocumentSchema) as any,
-    defaultValues: {
-      sunat_concept_document_type_id: "",
-      serie: "",
-      sunat_concept_transaction_type_id:
-        SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString(),
-      area_id: AREA_TALLER.toString(),
-      is_advance_payment: false,
-      client_id: "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
-      sunat_concept_currency_id: "",
-      total_gravada: 0,
-      total_inafecta: 0,
-      total_exonerada: 0,
-      total_igv: 0,
-      total_gratuita: 0,
-      total_anticipo: 0,
-      total: 0,
-      condiciones_de_pago: "CONTADO",
-      medio_de_pago: "EFECTIVO",
-      enviar_automaticamente_a_la_sunat: false,
-      enviar_automaticamente_al_cliente: false,
-      items: [],
-    },
-  });
-
-  // Watch para obtener el tipo de documento seleccionado
-  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
-  const selectedSeriesId = form.watch("serie");
+  // Watch para obtener valores en tiempo real
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
+  const isAdvancePayment = form.watch("is_advance_payment") || false;
 
-  // Consultar la orden de trabajo con sus items
-  const { data: workOrder, isLoading } = useQuery({
-    queryKey: ["workOrder", workOrderId],
-    queryFn: () => findWorkOrderById(workOrderId),
-  });
+  const selectedCustomer = defaultCustomer;
 
-  const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
+  // Calcular porcentaje de IGV desde el cliente seleccionado
+  const porcentaje_de_igv =
+    selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
-  // Obtener series autorizadas según el tipo de documento
-  const { data: authorizedSeries = [] } = useAuthorizedSeries({
-    type_operation_id: CM_POSTVENTA_ID,
-    type_receipt_id: documentTypes.find(
-      (dt) => dt.id.toString() === selectedDocumentType,
-    )?.tribute_code,
-    sede_id: workOrder?.sede_id,
-  });
-
-  const selectedSeries = authorizedSeries.find(
-    (s) => s.id.toString() === selectedSeriesId,
-  );
-
+  // Obtener el símbolo de moneda
   const selectedCurrency = currencyTypes.find(
     (c) => c.id === Number(selectedCurrencyId),
   );
 
-  // Solo consultar el siguiente correlativo cuando hay tipo de documento y serie
-  const { data: nextNumber } = useNextCorrelativeElectronicDocument(
-    selectedDocumentType ? Number(selectedDocumentType) : 0,
-    selectedSeriesId ? Number(selectedSeriesId) : 0,
-  );
+  const currencySymbol =
+    selectedCurrency?.iso_code === "PEN"
+      ? "S/"
+      : selectedCurrency?.iso_code === "USD"
+        ? "$"
+        : "S/";
 
-  // Actualizar número de correlativo
+  // En modo edición: cuando el usuario cambia de Anticipo → Venta Interna,
+  // poner el item al saldo total pendiente real (remaining_balance).
   useEffect(() => {
-    const newNumber = nextNumber?.number || "";
-    if (newNumber && form.getValues("numero") !== newNumber) {
-      form.setValue("numero", newNumber, { shouldValidate: false });
+    if (!isEdit) return;
+
+    const prev = prevIsAdvancePayment.current;
+    prevIsAdvancePayment.current = isAdvancePayment;
+
+    // Solo actuar en el cambio puntual true → false
+    if (prev !== true || isAdvancePayment !== false) return;
+
+    const pendingBalance = workOrder?.payment_summary?.remaining_balance ?? 0;
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const igvFactor = (porcentaje_de_igv || DEFAULT_IGV_PERCENTAGE) / 100;
+    const valor_unitario = round2(pendingBalance / (1 + igvFactor));
+    const precio_unitario = round2(pendingBalance);
+    const subtotal = round2(valor_unitario);
+    const igvAmount = round2(pendingBalance - subtotal);
+
+    const currentItems = form.getValues("items");
+    if (currentItems.length > 0) {
+      form.setValue(
+        "items",
+        currentItems.map((item, idx) =>
+          idx !== 0
+            ? item
+            : {
+                ...item,
+                valor_unitario,
+                precio_unitario,
+                subtotal,
+                igv: igvAmount,
+                total: pendingBalance,
+              },
+        ),
+        { shouldValidate: false },
+      );
     }
-  }, [nextNumber?.number, form]);
 
-  // Obtener chequeras según moneda y sede
-  const { data: checkbooks = [] } = useAllApBank({
-    currency_id: selectedCurrency?.currency_type,
-    sede_id: selectedSeries?.sede_id,
-  });
+    // Actualizar tipo de transacción
+    const hasAdvances = (workOrder?.payment_summary?.advances_count ?? 0) > 0;
+    const targetId = hasAdvances
+      ? SUNAT_TRANSACTIONS_ID.ANTICIPOS
+      : SUNAT_TRANSACTIONS_ID.VENTA_INTERNA;
+    form.setValue("sunat_concept_transaction_type_id", targetId.toString(), {
+      shouldValidate: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdvancePayment, isEdit]);
 
-  // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
+  // Efecto para cargar datos de la cotización
   useEffect(() => {
-    if (items.length > 0 && selectedGroupNumber === null) {
-      const firstGroup = Math.min(...items.map((i) => i.group_number));
-      setSelectedGroupNumber(firstGroup);
-    }
-  }, [items, selectedGroupNumber, setSelectedGroupNumber]);
+    // En modo edición los datos ya vienen del documento existente
+    if (isEdit) return;
+    // Esperar a que currencyTypes esté cargado antes de procesar
+    if (!workOrder || currencyTypes.length === 0) return;
 
-  // Mutación para crear documento electrónico
-  const createInvoiceMutation = useMutation({
-    mutationFn: (data: ElectronicDocumentSchemaType) =>
-      storeElectronicDocument(data),
-    onSuccess: () => {
-      successToast("Factura creada exitosamente");
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY, workOrderId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["workOrder", workOrderId],
-      });
-      setShowForm(false);
-      form.reset();
-      // Redirigir a comprobante de venta en caja
-      navigate("/ap/post-venta/caja/comprobante-venta-caja");
-    },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message || "Error al crear la factura";
-      errorToast(errorMessage);
-    },
-  });
+    // Mapear moneda de la cotización con la moneda de SUNAT usando el tribute_code
+    if (workOrder.type_currency?.id) {
+      const matchedCurrency = currencyTypes.find(
+        (c) => c.tribute_code === String(workOrder.type_currency.id),
+      );
 
-  const isInvalidWithQuote = workOrder?.is_invalid_with_quote ?? false;
-  const isTerminado =
-    Number(workOrder?.status_id) === STATUS_WORK_ORDER.TERMINADO;
-
-  const handleCreateInvoice = () => {
-    if (!selectedGroupNumber) {
-      errorToast("Selecciona un grupo primero");
-      return;
-    }
-
-    // Setear moneda por defecto (PEN)
-    const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
-    const isAdvance = !(isTerminado && !isInvalidWithQuote);
-    const transactionTypeId =
-      isTerminado && !isInvalidWithQuote
-        ? SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString()
-        : SUNAT_TRANSACTIONS_ID.ANTICIPOS.toString();
-
-    form.reset({
-      sunat_concept_document_type_id: "",
-      serie: "",
-      sunat_concept_transaction_type_id: transactionTypeId,
-      area_id: AREA_TALLER.toString(),
-      is_advance_payment: isAdvance,
-      client_id: workOrder?.invoice_to_client?.id?.toString() || "",
-      fecha_de_emision: new Date().toISOString().split("T")[0],
-      sunat_concept_currency_id: penCurrency?.id.toString() || "",
-      total_gravada: 0,
-      total_inafecta: 0,
-      total_exonerada: 0,
-      total_igv: 0,
-      total_gratuita: 0,
-      total_anticipo: 0,
-      total: 0,
-      condiciones_de_pago: "CONTADO",
-      medio_de_pago: "EFECTIVO",
-      enviar_automaticamente_a_la_sunat: false,
-      enviar_automaticamente_al_cliente: false,
-      items: [],
-    });
-    setShowForm(true);
-  };
-
-  const handleSubmitInvoice = (data: ElectronicDocumentSchemaType) => {
-    // Validar que el monto del anticipo no sea mayor al total o saldo pendiente
-    if (data.is_advance_payment) {
-      const totalAnticipo = Number(data.total.toFixed(2));
-
-      let totalOrdenTrabajo: number;
-      let saldoPendiente: number;
-
-      if (workOrder?.payment_summary) {
-        totalOrdenTrabajo = Number(workOrder.final_amount.toFixed(2));
-        saldoPendiente = Number(
-          workOrder.payment_summary.remaining_balance.toFixed(2),
+      if (matchedCurrency) {
+        form.setValue(
+          "sunat_concept_currency_id",
+          matchedCurrency.id.toString(),
+          { shouldValidate: false },
         );
-      } else {
-        // Sin datos de referencia, no se puede validar
-        createInvoiceMutation.mutate({
-          ...data,
-          work_order_id: String(workOrderId),
-        });
-        return;
-      }
-
-      // Validar que el anticipo no sea mayor al total de la orden
-      if (totalAnticipo > totalOrdenTrabajo) {
-        errorToast(
-          `El monto del anticipo (${workOrder?.type_currency?.symbol || "S/"} ${totalAnticipo.toFixed(2)}) no puede ser mayor al total de la orden (${workOrder?.type_currency?.symbol || "S/"} ${totalOrdenTrabajo.toFixed(2)})`,
-        );
-        return;
-      }
-
-      // Validar que el anticipo no sea mayor al saldo pendiente
-      if (totalAnticipo > saldoPendiente) {
-        errorToast(
-          `El monto del anticipo (${workOrder?.type_currency?.symbol || "S/"} ${totalAnticipo.toFixed(2)}) no puede ser mayor al saldo pendiente (${workOrder?.type_currency?.symbol || "S/"} ${saldoPendiente.toFixed(2)})`,
-        );
-        return;
       }
     }
+  }, [workOrder.id, currencyTypes, form, workOrder, isEdit]);
 
-    createInvoiceMutation.mutate({
-      ...data,
-      work_order_id: String(workOrderId),
-    });
-  };
+  // Efecto para cargar items automáticamente desde labours y parts
+  useEffect(() => {
+    // En modo edición los items ya vienen del documento existente
+    if (isEdit) return;
+    if (igvTypes.length === 0) return;
 
-  const handleCancelForm = () => {
-    setShowForm(false);
-    form.reset();
-  };
+    // Verificar si ya se cargaron los items o si cambió el estado de anticipo/invalid
+    const shouldReload =
+      !itemsAlreadyLoaded.current ||
+      isAdvancePayment !== lastLoadedAdvancePaymentState.current ||
+      isInvalidWithQuote !== lastLoadedIsInvalidWithQuote.current;
 
-  if (isLoading) {
-    return (
-      <Card className="p-12">
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
-          <p className="text-gray-500">Cargando datos...</p>
-        </div>
-      </Card>
+    if (!shouldReload) return;
+
+    lastLoadedAdvancePaymentState.current = isAdvancePayment;
+    lastLoadedIsInvalidWithQuote.current = isInvalidWithQuote;
+    itemsAlreadyLoaded.current = true;
+
+    const gravadaType = igvTypes.find(
+      (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
     );
-  }
 
-  const vouchers = workOrder?.vouchers;
-  const currencySymbol = workOrder?.type_currency?.symbol || "S/";
+    if (isAdvancePayment) {
+      // MODO ANTICIPO: Consolidar todo en un solo item
+      const allDescriptions: string[] = [];
+
+      // Agregar descripciones de mano de obra
+      labours.forEach((labour) => {
+        allDescriptions.push(labour.description);
+      });
+
+      // Agregar descripciones de repuestos
+      parts.forEach((part) => {
+        allDescriptions.push(part.product_name);
+      });
+
+      const consolidatedDescription =
+        allDescriptions.length > 0
+          ? `ANTICIPO POR ${allDescriptions.join(", ")}`
+          : "ANTICIPO POR SERVICIOS DE TALLER";
+
+      const anticipoItem: ElectronicDocumentItemSchema = {
+        account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+        unidad_de_medida: "ZZ",
+        codigo: selectedGroupNumber?.toString() || "",
+        descripcion: consolidatedDescription,
+        cantidad: 1,
+        valor_unitario: 0,
+        precio_unitario: 0,
+        subtotal: 0,
+        sunat_concept_igv_type_id: gravadaType?.id || 0,
+        igv: 0,
+        total: 0,
+      };
+
+      form.setValue("items", [anticipoItem], { shouldValidate: false });
+    } else {
+      // MODO VENTA NORMAL: Crear items individuales
+      const invoiceItems: ElectronicDocumentItemSchema[] = [];
+
+      // Función auxiliar para redondear a 2 decimales
+      const round2 = (num: number) => Math.round(num * 100) / 100;
+
+      // Agregar items de mano de obra
+      labours.forEach((labour) => {
+        const valor_unitario = parseFloat(labour.hourly_rate || "0");
+        const cantidad = labour.time_spent_decimal;
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
+        const subtotal = valor_unitario * cantidad;
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+
+        invoiceItems.push({
+          account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
+          unidad_de_medida: "ZZ",
+          codigo: labour.id.toString(),
+          descripcion: labour.description,
+          cantidad: cantidad,
+          valor_unitario: round2(valor_unitario),
+          precio_unitario: round2(precio_unitario),
+          subtotal: round2(subtotal),
+          sunat_concept_igv_type_id: gravadaType?.id || 0,
+          igv: round2(igvAmount),
+          total: round2(subtotal + igvAmount),
+        });
+      });
+
+      // Agregar items de repuestos
+      parts.forEach((part) => {
+        const precio_base = parseFloat(part.unit_price?.toString() || "0");
+        const descuento_pct = parseFloat(
+          part.discount_percentage?.toString() || "0",
+        );
+        const cantidad = part.quantity_used;
+        const valor_unitario_sin_dcto = precio_base;
+        const monto_descuento =
+          descuento_pct > 0
+            ? round2(valor_unitario_sin_dcto * cantidad * (descuento_pct / 100))
+            : undefined;
+        const valor_unitario = round2(precio_base * (1 - descuento_pct / 100));
+        const precio_unitario = round2(
+          precio_base * (1 + porcentaje_de_igv / 100),
+        );
+        const subtotal = round2(valor_unitario * cantidad);
+        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+
+        invoiceItems.push({
+          product_id: part.product_id.toString(),
+          account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
+          unidad_de_medida: "NIU",
+          codigo: part.product_code,
+          descripcion: part.product_name,
+          cantidad: cantidad,
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
+          descuento: monto_descuento,
+          subtotal: subtotal,
+          sunat_concept_igv_type_id: gravadaType?.id || 0,
+          igv: igvAmount,
+          total: round2(subtotal + igvAmount),
+        });
+      });
+
+      // AGREGAR ITEMS DE REGULARIZACIÓN DE ANTICIPOS (solo anticipos reales con is_advance_payment = true)
+      if (advances && advances.length > 0) {
+        advances
+          .filter((advance) => advance.is_advance_payment === true)
+          .forEach((advance) => {
+            // Función auxiliar para redondear a 2 decimales
+            const round2 = (num: number) => Math.round(num * 100) / 100;
+
+            // Calcular los valores base del anticipo para restar
+            // IMPORTANTE: Convertir a número porque puede venir como string desde la API
+            const total_con_igv = Number(advance.total) || 0;
+            const precio_unitario = round2(total_con_igv); // El anticipo es cantidad 1
+            const valor_unitario = round2(
+              precio_unitario / (1 + porcentaje_de_igv / 100),
+            );
+            const subtotal = round2(valor_unitario);
+            // IGV = total - subtotal (por residuo, no por multiplicación independiente)
+            // Esto evita que round2(subtotal) + round2(igv) != total_con_igv
+            const igvAmount = round2(total_con_igv - subtotal);
+
+            // Crear item de regularización en NEGATIVO
+            invoiceItems.push({
+              account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+              unidad_de_medida: "ZZ",
+              codigo: advance.id?.toString(),
+              descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
+                advance.issue_date
+                  ? new Date(advance.issue_date).toLocaleDateString("es-PE")
+                  : ""
+              }`,
+              cantidad: 1,
+              valor_unitario: valor_unitario,
+              precio_unitario: precio_unitario,
+              subtotal: subtotal,
+              sunat_concept_igv_type_id: gravadaType?.id || 0,
+              igv: igvAmount,
+              total: total_con_igv,
+              anticipo_regularizacion: true,
+              anticipo_documento_serie: advance.serie,
+              anticipo_documento_numero: Number(advance.numero),
+              reference_document_id: advance.id?.toString(),
+            });
+          });
+      }
+
+      form.setValue("items", invoiceItems, { shouldValidate: false });
+    }
+  }, [
+    labours,
+    parts,
+    advances,
+    igvTypes,
+    porcentaje_de_igv,
+    isAdvancePayment,
+    selectedGroupNumber,
+    isInvalidWithQuote,
+    workOrder.final_amount,
+    form,
+    isEdit,
+  ]);
+
+  // Observar items para re-calcular totales cuando cambien
+  const watchedItems = form.watch("items");
+  const items = useMemo(() => watchedItems || [], [watchedItems]);
+
+  // Calcular totales
+  const totales = useMemo(() => {
+    // Función auxiliar para redondear a 2 decimales
+    const round2 = (num: number) => Math.round(num * 100) / 100;
+
+    // Acumulamos TOTAL (con IGV, ya redondeado al crear el item) para items normales
+    // y TOTAL del anticipo por separado. Así la resta es entre números exactos y no
+    // hay reconstrucción de IGV que introduzca error de floating point.
+    let raw_total_gravada = 0;
+    let raw_total_inafecta = 0;
+    let raw_total_exonerada = 0;
+    let raw_total_gratuita = 0;
+    let raw_total_anticipo = 0; // total con IGV del anticipo
+    let raw_sub_gravada = 0; // subtotal sin IGV de items gravados normales (para desglose)
+    let raw_sub_anticipo = 0; // subtotal sin IGV del anticipo (para desglose)
+
+    items.forEach((item) => {
+      const igvType = igvTypes.find(
+        (t) => t.id === item.sunat_concept_igv_type_id,
+      );
+
+      if (item.anticipo_regularizacion) {
+        raw_total_anticipo += item.total;
+        raw_sub_anticipo += item.subtotal;
+        return;
+      }
+
+      if (igvType?.code_nubefact === "1") {
+        raw_total_gravada += item.total;
+        raw_sub_gravada += item.subtotal;
+      } else if (igvType?.code_nubefact === "20") {
+        raw_total_exonerada += item.total;
+      } else if (igvType?.code_nubefact === "30") {
+        raw_total_inafecta += item.total;
+      } else if (
+        igvType?.code_nubefact?.startsWith("1") ||
+        igvType?.code_nubefact?.startsWith("2")
+      ) {
+        raw_total_gratuita += item.total;
+      }
+    });
+
+    // Redondear cada acumulador antes de operar entre ellos
+    const t_gravada = round2(raw_total_gravada);
+    const t_inafecta = round2(raw_total_inafecta);
+    const t_exonerada = round2(raw_total_exonerada);
+    const t_gratuita = round2(raw_total_gratuita);
+    const t_anticipo = round2(raw_total_anticipo);
+
+    // Total final: suma de totales con IGV menos anticipo (todos ya exactos y redondeados)
+    const total = round2(t_gravada + t_inafecta + t_exonerada - t_anticipo);
+
+    // Subtotales para desglose en el resumen (sin IGV)
+    const total_anticipo = round2(raw_sub_anticipo);
+    const total_gravada = round2(round2(raw_sub_gravada) - total_anticipo);
+    const total_inafecta = round2(
+      raw_total_inafecta / (1 + porcentaje_de_igv / 100),
+    );
+    const total_exonerada = round2(raw_total_exonerada);
+    const total_gratuita = t_gratuita;
+    // IGV = total - (total_gravada + total_inafecta + total_exonerada)
+    const total_igv = round2(
+      total - total_gravada - total_inafecta - total_exonerada,
+    );
+
+    return {
+      total_gravada,
+      total_inafecta,
+      total_exonerada,
+      total_igv,
+      total_gratuita,
+      total_anticipo,
+      total,
+    };
+  }, [items, igvTypes, porcentaje_de_igv]);
+
+  // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
+  useEffect(() => {
+    if (isAdvancePayment) {
+      form.setValue("medio_de_pago", "contado", { shouldValidate: false });
+    }
+  }, [isAdvancePayment, form]);
+
+  // Actualizar form values cuando cambien los cálculos
+  useEffect(() => {
+    form.setValue("total_gravada", totales.total_gravada, {
+      shouldValidate: false,
+    });
+    form.setValue("total_inafecta", totales.total_inafecta, {
+      shouldValidate: false,
+    });
+    form.setValue("total_exonerada", totales.total_exonerada, {
+      shouldValidate: false,
+    });
+    form.setValue("total_igv", totales.total_igv, { shouldValidate: false });
+    form.setValue("total_gratuita", totales.total_gratuita, {
+      shouldValidate: false,
+    });
+    form.setValue("total_anticipo", totales.total_anticipo, {
+      shouldValidate: false,
+    });
+    form.setValue("total", totales.total, { shouldValidate: false });
+  }, [totales, form]);
 
   return (
-    <div className="space-y-6">
-      {/* Selector de grupos en la parte superior */}
-      {/* <GroupSelector
-        items={items}
-        selectedGroupNumber={selectedGroupNumber}
-        onSelectGroup={setSelectedGroupNumber}
-      /> */}
-
-      {/* Contenido del grupo seleccionado */}
-      {selectedGroupNumber ? (
-        <>
-          {/* Bloqueo si no hay cliente asignado para facturar */}
-          {!workOrder?.invoice_to_client && (
-            <Card className="p-4 border border-amber-300 bg-amber-50">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-amber-800">
-                    No se puede facturar esta orden de trabajo
-                  </p>
-                  <p className="text-xs text-amber-700 mt-0.5">
-                    No se ha asignado un cliente para facturar. Asigne un
-                    cliente en la sección de apertura de la orden de trabajo y
-                    vuelva a intentar.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Resumen de Costos - Diseño compacto tipo tabla */}
-          {workOrder && (
-            <Card className="p-2">
-              {/* Header con título y total */}
-              <div className="flex items-center justify-between px-4 py-3 border-b">
-                <div className="flex items-center gap-2">
-                  <Receipt className="h-5 w-5 text-primary" />
-                  <span className="font-medium text-gray-900">
-                    Resumen de Costos
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl font-bold text-primary">
-                    {currencySymbol} {workOrder.final_amount.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Contenido en formato de tabla simple */}
-              <div className="divide-y divide-gray-100">
-                {/* Costos principales */}
-                <div className="text-sm">
-                  <div className="flex justify-between px-4 py-1.5">
-                    <span className="text-gray-600">Mano de Obra</span>
-                    <span className="font-medium">
-                      {currencySymbol} {workOrder.total_labor_cost.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between px-4 py-1.5">
-                    <span className="text-gray-600">Repuestos</span>
-                    <span className="font-medium">
-                      {currencySymbol} {workOrder.total_parts_cost.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Subtotal, Descuento, IGV */}
-                <div className="text-sm">
-                  <div className="flex justify-between px-4 py-1.5">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">
-                      {currencySymbol} {workOrder.subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  {workOrder.discount_amount > 0 && (
-                    <div className="flex justify-between px-4 py-1.5">
-                      <span className="text-green-700">Descuento</span>
-                      <span className="font-medium text-green-700">
-                        - {currencySymbol}{" "}
-                        {workOrder.discount_amount.toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between px-4 py-1.5">
-                    <span className="text-gray-600">IGV (18%)</span>
-                    <span className="font-medium">
-                      {currencySymbol} {workOrder.tax_amount.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Formulario para crear factura */}
-          {showForm ? (
-            <InvoiceForm
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Formulario - 2/3 del ancho */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Información Financiera de la Orden de Trabajo */}
+            <WorkOrderFinancialInfo
+              labours={labours}
+              parts={parts}
+              advances={advances}
+              currencySymbol={currencySymbol}
+              porcentaje_de_igv={porcentaje_de_igv}
+              isInvalidWithQuote={isInvalidWithQuote}
+              finalAmount={workOrder.final_amount}
+            />
+            {/* Información del Documento */}
+            <InvoiceDocumentInfoSection
               form={form}
-              onSubmit={handleSubmitInvoice}
-              onCancel={handleCancelForm}
-              isPending={createInvoiceMutation.isPending}
-              selectedGroupNumber={selectedGroupNumber}
+              isEdit={isEdit}
               documentTypes={documentTypes}
               currencyTypes={currencyTypes}
-              igvTypes={igvTypes}
               authorizedSeries={authorizedSeries}
-              checkbooks={checkbooks}
-              workOrder={workOrder!}
+              defaultCustomer={defaultCustomer!}
+              isAdvancePayment={isAdvancePayment}
               isInvalidWithQuote={isInvalidWithQuote}
               isTerminado={isTerminado}
             />
-          ) : (
-            <Card className="p-4">
-              {/* Resumen compacto con progreso */}
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <h4 className="font-semibold text-gray-900">
-                      Facturas Emitidas
-                    </h4>
-                    {vouchers && vouchers.active.length > 0 && (
-                      <Badge variant="outline" className="bg-primary/5">
-                        {vouchers.active.length}
-                      </Badge>
-                    )}
-                  </div>
-                  {!workOrder?.is_invoiced && (
-                    <Button
-                      onClick={handleCreateInvoice}
-                      size="sm"
-                      disabled={!workOrder?.invoice_to_client}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Nueva Factura
-                    </Button>
-                  )}
-                </div>
-
-                <InvoiceList
-                  vouchers={vouchers ?? { active: [], cancelled: [] }}
-                  currencySymbol={currencySymbol}
-                  totalAmount={workOrder?.final_amount ?? 0}
-                />
-              </div>
-            </Card>
-          )}
-        </>
-      ) : (
-        <Card className="p-12">
-          <div className="flex flex-col items-center justify-center text-center">
-            <Receipt className="h-16 w-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Selecciona un grupo
-            </h3>
-            <p className="text-gray-500">
-              Elige un grupo de la izquierda para gestionar sus facturas
-            </p>
+            {/* Items (solo lectura, cargados automáticamente; editable en modo anticipo) */}
+            <ItemsSection
+              form={form}
+              igvTypes={igvTypes}
+              currencySymbol={currencySymbol}
+              porcentaje_de_igv={porcentaje_de_igv}
+              isAdvancePayment={isAdvancePayment}
+              isFromQuotation={true}
+              showActions={isAdvancePayment}
+              allowEditLastItemDescription={true}
+            />
+            {/* Configuración Adicional */}
+            <AdditionalConfigSection
+              form={form}
+              checkbooks={checkbooks}
+              isModuleCommercial={false}
+              showCardLast4={true}
+              showInternalNote={true}
+              showOrdenCompraServicio={true}
+              isEdit={isEdit}
+              existingFileUrl={existingFileUrl}
+              isAdvancePayment={isAdvancePayment}
+            />
           </div>
-        </Card>
-      )}
-    </div>
+
+          {/* Resumen - 1/3 del ancho */}
+          <InvoiceSummarySection
+            form={form}
+            onCancel={onCancel}
+            isPending={isPending}
+            isEdit={isEdit}
+            selectedGroupNumber={selectedGroupNumber}
+            documentTypes={documentTypes}
+            authorizedSeries={authorizedSeries}
+            defaultCustomer={defaultCustomer!}
+            currencySymbol={currencySymbol}
+            totales={totales}
+            porcentaje_de_igv={porcentaje_de_igv}
+            isAdvancePayment={isAdvancePayment}
+            advancePayments={advances}
+            labours={labours}
+            parts={parts}
+            isInvalidWithQuote={isInvalidWithQuote}
+            isInvoiced={workOrder.is_invoiced}
+          />
+        </div>
+      </form>
+    </Form>
   );
 }
