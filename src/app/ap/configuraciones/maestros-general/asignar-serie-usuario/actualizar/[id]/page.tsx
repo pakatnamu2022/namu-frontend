@@ -86,6 +86,14 @@ export default function UpdateUserSeriesAssignmentPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        defaultWorkerOption={
+          UserSeriesAssignment.worker_name
+            ? {
+                label: UserSeriesAssignment.worker_name,
+                value: UserSeriesAssignment.worker_id.toString(),
+              }
+            : undefined
+        }
       />
     </FormWrapper>
   );

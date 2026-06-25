@@ -2,22 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   TypesOperationSchema,
   typesOperationSchemaCreate,
   typesOperationSchemaUpdate,
 } from "../lib/typesOperation.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface TypesOperationFormProps {
   defaultValues: Partial<TypesOperationSchema>;
@@ -38,7 +31,7 @@ export const TypesOperationForm = ({
     resolver: zodResolver(
       mode === "create"
         ? typesOperationSchemaCreate
-        : typesOperationSchemaUpdate
+        : typesOperationSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -50,18 +43,11 @@ export const TypesOperationForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Vehículo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre"
+            placeholder="Ej: Venta de Bienes"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

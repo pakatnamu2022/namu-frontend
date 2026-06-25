@@ -1,14 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,6 +13,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { CLASS_ARTICLE } from "../lib/classArticle.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ClassArticleFormProps {
   defaultValues: Partial<ClassArticleSchema>;
@@ -37,7 +30,7 @@ export const ClassArticleForm = ({
 }: ClassArticleFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? classArticleSchemaCreate : classArticleSchemaUpdate
+      mode === "create" ? classArticleSchemaCreate : classArticleSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -54,50 +47,29 @@ export const ClassArticleForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="dyn_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod. Dynamics</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: M_VEH_NUE" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod. Dynamics"
+            placeholder="Ej: M_VEH_NUE"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Vehiculos nuevos" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Vehiculos nuevos"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="account"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cuenta</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 20111111" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cuenta"
+            placeholder="Ej: 20111111"
           />
+
           <FormSelect
             name="type_operation_id"
             label="Tipo de Operación"

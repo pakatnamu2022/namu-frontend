@@ -2,15 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
@@ -18,6 +10,7 @@ import {
   voucherTypesSchemaCreate,
   voucherTypesSchemaUpdate,
 } from "../lib/voucherTypes.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface VoucherTypesFormProps {
   defaultValues: Partial<VoucherTypesSchema>;
@@ -36,7 +29,7 @@ export const VoucherTypesForm = ({
 }: VoucherTypesFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? voucherTypesSchemaCreate : voucherTypesSchemaUpdate
+      mode === "create" ? voucherTypesSchemaCreate : voucherTypesSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -48,31 +41,18 @@ export const VoucherTypesForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod.</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 01" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod."
+            placeholder="Ej: 01"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Factura" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Factura"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

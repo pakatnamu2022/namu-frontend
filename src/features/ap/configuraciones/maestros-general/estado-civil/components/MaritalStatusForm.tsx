@@ -2,22 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   MaritalStatusSchema,
   maritalStatusSchemaCreate,
   maritalStatusSchemaUpdate,
 } from "../lib/maritalStatus.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface MaritalStatusFormProps {
   defaultValues: Partial<MaritalStatusSchema>;
@@ -36,7 +29,7 @@ export const MaritalStatusForm = ({
 }: MaritalStatusFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? maritalStatusSchemaCreate : maritalStatusSchemaUpdate
+      mode === "create" ? maritalStatusSchemaCreate : maritalStatusSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -48,20 +41,14 @@ export const MaritalStatusForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Soltero" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre"
+            placeholder="Ej: Soltero"
           />
         </div>
+
         <div className="flex gap-4 w-full justify-end">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar

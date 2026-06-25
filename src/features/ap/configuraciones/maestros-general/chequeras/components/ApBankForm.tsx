@@ -5,15 +5,7 @@ import {
   apBankSchemaUpdate,
 } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -42,7 +34,7 @@ export const ApBankForm = ({
 }: ApBankFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? apBankSchemaCreate : apBankSchemaUpdate
+      mode === "create" ? apBankSchemaCreate : apBankSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -63,23 +55,13 @@ export const ApBankForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod.</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: CIX_BCP_PEN" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod."
+            placeholder="Ej: CIX_BCP_PEN"
           />
 
           <FormInput
@@ -89,32 +71,20 @@ export const ApBankForm = ({
             placeholder="Ej: Chequera BCP PEN"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="account_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Num. Cuenta</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 191-12345678-0-11" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Num. Cuenta"
+            placeholder="Ej: 191-12345678-0-11"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="cci"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CCI</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 002-191-012345678012-32" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="CCI"
+            placeholder="Ej: 002-191-012345678012-32"
           />
+
           <FormSelect
             name="bank_id"
             label="Banco"
