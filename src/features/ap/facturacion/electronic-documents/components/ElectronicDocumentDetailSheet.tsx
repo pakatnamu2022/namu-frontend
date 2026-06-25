@@ -6,7 +6,6 @@ import {
   FileText,
   User,
   Calendar,
-  DollarSign,
   Package,
   Download,
   CheckCircle,
@@ -18,14 +17,9 @@ import {
   Loader2,
   LucideIcon,
 } from "lucide-react";
-import type {
-  ElectronicDocumentResource,
-  ElectronicDocumentItem,
-} from "../lib/electronicDocument.interface";
-import {
-  DetailSheetTable,
-  type DetailSheetTableColumn,
-} from "@/shared/components/DetailSheetTable";
+import type { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
+import { InfoSection } from "@/shared/components/InfoSection";
 import { queryElectronicDocumentStatus } from "../lib/electronicDocument.actions";
 import { successToast, errorToast } from "@/core/core.function";
 import { Link } from "react-router-dom";
@@ -111,28 +105,55 @@ export function ElectronicDocumentDetailSheet({
       open={open}
       onClose={() => onOpenChange(false)}
       icon="FileText"
-      title={`Detalle del Documento Electrónico - ${document.serie}-${String(document.numero).padStart(8, "0")}`}
+      title="Detalle del Documento Electrónico"
       subtitle="Información completa del documento electrónico incluyendo datos del cliente, items y estado SUNAT."
       size="5xl"
     >
       <div className="mt-6 space-y-6">
         {/* Estado y Tipo */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Estado</p>
-            <Badge variant="outline" color={config?.color} icon={config.icon}>
-              <span>{config?.label}</span>
-            </Badge>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">
-              Tipo de Documento
-            </p>
-            <p className="text-sm font-semibold">
-              {document.document_type?.description || "N/A"}
-            </p>
-          </div>
-        </div>
+        <InfoSection
+          title="Información del Documento"
+          icon={FileText}
+          columns={2}
+          fields={[
+            {
+              label: "Estado",
+              value: (
+                <Badge
+                  variant="outline"
+                  color={config?.color}
+                  icon={config.icon}
+                >
+                  <span>{config?.label}</span>
+                </Badge>
+              ),
+            },
+            {
+              label: "Tipo de Documento",
+              value: document.document_type?.description || "N/A",
+            },
+            {
+              label: "Serie",
+              value: (
+                <CopyCell
+                  value={document.serie}
+                  label={document.serie}
+                  className="text-sm font-semibold"
+                />
+              ),
+            },
+            {
+              label: "Número",
+              value: (
+                <CopyCell
+                  value={String(document.numero).padStart(8, "0")}
+                  label={String(document.numero).padStart(8, "0")}
+                  className="text-sm font-semibold"
+                />
+              ),
+            },
+          ]}
+        />
 
         {/* Archivos */}
         <Separator />
@@ -195,277 +216,254 @@ export function ElectronicDocumentDetailSheet({
         <Separator />
 
         {/* Información del Cliente */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold text-primary">
-              Información del Cliente
-            </h3>
-          </div>
-          <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Razón Social</p>
-                <p className="text-sm font-medium">
-                  {document.cliente_denominacion}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  {document.identity_document_type?.description || "Documento"}
-                </p>
-                <p className="text-sm font-medium">
-                  {document.cliente_numero_de_documento}
-                </p>
-              </div>
-            </div>
-            {document.cliente_direccion && (
-              <div>
-                <p className="text-xs text-muted-foreground">Dirección</p>
-                <p className="text-sm">{document.cliente_direccion}</p>
-              </div>
-            )}
-            {document.cliente_email && (
-              <div>
-                <p className="text-xs text-muted-foreground">Email</p>
-                <p className="text-sm">{document.cliente_email}</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <InfoSection
+          title="Información del Cliente"
+          icon={User}
+          columns={2}
+          fields={[
+            { label: "Razón Social", value: document.cliente_denominacion },
+            {
+              label:
+                document.identity_document_type?.description || "Documento",
+              value: document.cliente_numero_de_documento,
+            },
+            ...(document.cliente_direccion
+              ? [
+                  {
+                    label: "Dirección",
+                    value: document.cliente_direccion,
+                    fullWidth: true as const,
+                  },
+                ]
+              : []),
+            ...(document.cliente_email
+              ? [{ label: "Email", value: document.cliente_email }]
+              : []),
+          ]}
+        />
 
         <Separator />
 
         {/* Fechas y Operación */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold text-primary">Fechas y Operación</h3>
-          </div>
-          <div className="grid grid-cols-4 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground">Fecha de Emisión</p>
-              <p className="text-sm font-medium">
-                {new Date(document.fecha_de_emision).toLocaleDateString(
-                  "es-PE",
+        <InfoSection
+          title="Fechas y Operación"
+          icon={Calendar}
+          columns={4}
+          fields={[
+            {
+              label: "Fecha de Emisión",
+              value: new Date(document.fecha_de_emision).toLocaleDateString(
+                "es-PE",
+                {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                },
+              ),
+            },
+            ...(document.fecha_de_vencimiento
+              ? [
                   {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                  },
-                )}
-              </p>
-            </div>
-            {document.fecha_de_vencimiento && (
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  Fecha de Vencimiento
-                </p>
-                <p className="text-sm font-medium">
-                  {new Date(document.fecha_de_vencimiento).toLocaleDateString(
-                    "es-PE",
-                    {
+                    label: "Fecha de Vencimiento",
+                    value: new Date(
+                      document.fecha_de_vencimiento,
+                    ).toLocaleDateString("es-PE", {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",
-                    },
-                  )}
-                </p>
-              </div>
-            )}
-            <div>
-              <p className="text-xs text-muted-foreground">Tipo de Operación</p>
-              <p className="text-sm">
-                {document.transaction_type?.description || "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Módulo de Origen</p>
-              <Badge variant="outline">
-                {document.area_id === AREA_COMERCIAL ? "Comercial" : "Posventa"}
-              </Badge>
-            </div>
-            {document.documento_que_se_modifica_serie &&
-              document.documento_que_se_modifica_numero && (
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Documento que modifica
-                  </p>
-                  <Badge variant="outline">
-                    {`${document.documento_que_se_modifica_serie}-${document.documento_que_se_modifica_numero}`}
-                  </Badge>
-                </div>
-              )}
-            {document.condiciones_de_pago && (
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  Condiciones de Pago
-                </p>
-                <p className="text-sm font-medium">
-                  {document.condiciones_de_pago}
-                </p>
-              </div>
-            )}
-            {document.medio_de_pago && (
-              <div>
-                <p className="text-xs text-muted-foreground">Medio de Pago</p>
-                <p className="text-sm font-medium">{document.medio_de_pago}</p>
-              </div>
-            )}
-          </div>
-        </div>
+                    }),
+                  },
+                ]
+              : []),
+            {
+              label: "Tipo de Operación",
+              value: document.transaction_type?.description || "N/A",
+            },
+            {
+              label: "Módulo de Origen",
+              value: (
+                <Badge variant="outline">
+                  {document.area_id === AREA_COMERCIAL
+                    ? "Comercial"
+                    : "Posventa"}
+                </Badge>
+              ),
+            },
+            ...(document.documento_que_se_modifica_serie &&
+            document.documento_que_se_modifica_numero
+              ? [
+                  {
+                    label: "Documento que modifica",
+                    value: (
+                      <Badge variant="outline">
+                        {`${document.documento_que_se_modifica_serie}-${document.documento_que_se_modifica_numero}`}
+                      </Badge>
+                    ),
+                  },
+                ]
+              : []),
+            ...(document.condiciones_de_pago
+              ? [
+                  {
+                    label: "Condiciones de Pago",
+                    value: document.condiciones_de_pago,
+                  },
+                ]
+              : []),
+            ...(document.medio_de_pago
+              ? [{ label: "Medio de Pago", value: document.medio_de_pago }]
+              : []),
+          ]}
+        />
 
-        <Separator />
-
-        {/* Moneda y Totales */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold text-primary">Moneda y Totales</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground">Moneda</p>
-              <Badge variant="outline" className="font-semibold">
-                {document.currency?.description || "N/A"}
-              </Badge>
-            </div>
-            {document.tipo_de_cambio && (
-              <div>
-                <p className="text-xs text-muted-foreground">Tipo de Cambio</p>
-                <p className="text-sm font-medium">{document.tipo_de_cambio}</p>
-              </div>
-            )}
-          </div>
-          <div className="space-y-2 bg-primary/5 p-4 rounded-lg border border-primary/20">
-            {document.total_gravada && document.total_gravada > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Op. Gravada</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {document.total_gravada.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            )}
-            {document.total_exonerada && document.total_exonerada > 0 ? (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Op. Exonerada</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {document.total_exonerada.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            ) : null}
-            {document.total_inafecta && document.total_inafecta > 0 ? (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Op. Inafecta</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {document.total_inafecta.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            ) : null}
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                IGV ({document.porcentaje_de_igv}%)
-              </span>
-              <span className="font-medium">
-                {currencySymbol}{" "}
-                {(document.total_igv || 0).toLocaleString("es-PE", {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-            <Separator className="my-2" />
-            <div className="flex justify-between text-base font-bold text-primary">
-              <span>Total</span>
-              <span>
-                {currencySymbol}{" "}
-                {document.total.toLocaleString("es-PE", {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Items */}
+        {/* Items del Documento */}
         <Separator />
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold text-primary">
-              Items del Documento ({document.items?.length ?? 0})
-            </h3>
-          </div>
-          {(() => {
-            const itemColumns: DetailSheetTableColumn<ElectronicDocumentItem>[] =
-              [
-                {
-                  header: "Descripción",
-                  render: (item) => (
-                    <div>
-                      <div className="text-xs font-medium text-nowrap! whitespace-pre-line">
-                        {item.descripcion}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {item.unidad_de_medida}
-                      </div>
-                      {item.codigo && !document.is_advance_payment && (
-                        <CopyCell
-                          value={item.codigo}
-                          label={`Cód : ${item.codigo}`}
-                          className="text-xs text-muted-foreground"
-                        />
-                      )}
-                      {item.dyn_code && (
-                        <CopyCell
-                          value={item.dyn_code}
-                          label={`Cód Dyn : ${item.dyn_code}`}
-                          className="text-xs text-muted-foreground"
-                        />
-                      )}
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <Package className="h-5 w-5 text-primary" />
+            Items del Documento ({document.items?.length ?? 0})
+          </h3>
+          <DetailSheetTable
+            rows={document.items ?? []}
+            columns={[
+              {
+                header: "Descripción",
+                render: (item) => (
+                  <div>
+                    <div className="text-xs font-medium text-nowrap! whitespace-pre-line">
+                      {item.descripcion}
                     </div>
-                  ),
-                },
-                {
-                  header: "Cant.",
-                  className: "text-center",
-                  render: (item) => item.cantidad,
-                },
-                {
-                  header: "P. Unit.",
-                  className: "text-right",
-                  render: (item) =>
-                    `${currencySymbol} ${item.precio_unitario.toLocaleString("es-PE", { minimumFractionDigits: 2 })}`,
-                },
-                {
-                  header: "Total",
-                  className: "text-right",
-                  render: (item) => (
-                    <span className="font-medium">
+                    <div className="text-xs text-muted-foreground">
+                      {item.unidad_de_medida}
+                    </div>
+                    {item.codigo && !document.is_advance_payment && (
+                      <CopyCell
+                        value={item.codigo}
+                        label={`Cód : ${item.codigo}`}
+                        className="text-xs text-muted-foreground"
+                      />
+                    )}
+                    {item.dyn_code && (
+                      <CopyCell
+                        value={item.dyn_code}
+                        label={`Cód Dyn : ${item.dyn_code}`}
+                        className="text-xs text-muted-foreground"
+                      />
+                    )}
+                  </div>
+                ),
+              },
+              {
+                header: "Cant.",
+                className: "text-center",
+                render: (item) => item.cantidad,
+              },
+              {
+                header: "P. Unit.",
+                className: "text-right",
+                render: (item) =>
+                  `${currencySymbol} ${item.precio_unitario.toLocaleString("es-PE", { minimumFractionDigits: 2 })}`,
+              },
+              {
+                header: "Total",
+                className: "text-right",
+                render: (item) => (
+                  <span className="font-medium">
+                    {currencySymbol}{" "}
+                    {item.total.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                ),
+              },
+            ]}
+            getKey={(_, index) => index}
+            footer={
+              <div className="flex items-start justify-between gap-6 rounded-lg border border-primary/20 bg-primary/5 px-5 py-4">
+                {/* Moneda */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground">Moneda</span>
+                  <Badge variant="outline" className="font-semibold w-fit">
+                    {document.currency?.description || "N/A"}
+                  </Badge>
+                  {document.tipo_de_cambio && (
+                    <div className="mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        Tipo de Cambio
+                      </span>
+                      <p className="text-sm font-medium">
+                        {document.tipo_de_cambio}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Subtotales + Total */}
+                <div className="flex flex-col gap-1 min-w-[220px]">
+                  {document.total_gravada && document.total_gravada > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Op. Gravada</span>
+                      <span className="font-medium tabular-nums">
+                        {currencySymbol}{" "}
+                        {document.total_gravada.toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {document.total_exonerada && document.total_exonerada > 0 ? (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Op. Exonerada
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        {currencySymbol}{" "}
+                        {document.total_exonerada.toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  ) : null}
+                  {document.total_inafecta && document.total_inafecta > 0 ? (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Op. Inafecta
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        {currencySymbol}{" "}
+                        {document.total_inafecta.toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  ) : null}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      IGV ({document.porcentaje_de_igv}%)
+                    </span>
+                    <span className="font-medium tabular-nums">
                       {currencySymbol}{" "}
-                      {item.total.toLocaleString("es-PE", {
+                      {(document.total_igv || 0).toLocaleString("es-PE", {
                         minimumFractionDigits: 2,
                       })}
                     </span>
-                  ),
-                },
-              ];
-            return (
-              <DetailSheetTable
-                rows={document.items ?? []}
-                columns={itemColumns}
-                getKey={(_, index) => index}
-              />
-            );
-          })()}
+                  </div>
+                  <Separator className="my-1.5" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-primary">
+                      Total
+                    </span>
+                    <span className="text-lg font-bold text-primary tabular-nums">
+                      {currencySymbol}{" "}
+                      {document.total.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+          />
         </div>
 
         {/* Estado SUNAT */}

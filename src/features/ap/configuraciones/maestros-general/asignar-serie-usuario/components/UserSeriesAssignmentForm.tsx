@@ -42,12 +42,14 @@ import { useUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import { USER_SERIES_ASSIGNMENT } from "../lib/userSeriesAssignment.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
+import { Option } from "@/core/core.interface";
 
 interface UserSeriesAssignmentFormProps {
   defaultValues: Partial<UserSeriesAssignmentSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  defaultWorkerOption?: Option;
 }
 
 export const UserSeriesAssignmentForm = ({
@@ -55,6 +57,7 @@ export const UserSeriesAssignmentForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  defaultWorkerOption,
 }: UserSeriesAssignmentFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -115,6 +118,7 @@ export const UserSeriesAssignmentForm = ({
             }}
             control={form.control}
             disabled={mode === "update"}
+            defaultOption={defaultWorkerOption}
           />
 
           {/* Campo de selección multiple */}

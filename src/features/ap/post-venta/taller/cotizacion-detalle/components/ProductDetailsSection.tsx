@@ -111,7 +111,6 @@ export default function ProductDetailsSection({
   currencyId,
   discountRequests,
   warehouseId,
-  brandId,
   permissions,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
@@ -764,9 +763,6 @@ export default function ProductDetailsSection({
                   ),
                   value: product.id.toString(),
                 })}
-                additionalParams={{
-                  brand_id: brandId,
-                }}
                 perPage={10}
                 debounceMs={500}
               />

@@ -1,14 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
@@ -24,6 +16,7 @@ import {
 import { FormSelect } from "@/shared/components/FormSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { DISTRICT } from "../lib/district.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface DistrictFormProps {
   defaultValues: Partial<DistrictSchema>;
@@ -40,7 +33,7 @@ export const DistrictForm = ({
 }: DistrictFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? districtSchemaCreate : districtSchemaUpdate
+      mode === "create" ? districtSchemaCreate : districtSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -62,10 +55,7 @@ export const DistrictForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormSelect
             name="department_id"
@@ -84,8 +74,8 @@ export const DistrictForm = ({
               !selectedDepartmentId
                 ? "Seleccione Departamento"
                 : isLoadingProvinces
-                ? "Cargando..."
-                : "Selecciona una Provincia"
+                  ? "Cargando..."
+                  : "Selecciona una Provincia"
             }
             options={provinces.map((province) => ({
               label: province.name,
@@ -94,31 +84,19 @@ export const DistrictForm = ({
             control={form.control}
             disabled={!selectedDepartmentId || isLoadingProvinces}
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Distrito</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Chiclayo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Distrito"
+            placeholder="Ej: Chiclayo"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="ubigeo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ubigeo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 010101" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Ubigeo"
+            placeholder="Ej: 010101"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

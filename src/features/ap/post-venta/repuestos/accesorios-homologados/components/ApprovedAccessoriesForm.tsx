@@ -14,6 +14,10 @@ import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook.ts";
 import { APPROVED_ACCESSORIES } from "../lib/approvedAccessories.constants.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 interface ApprovedAccesoriesFormProps {
   defaultValues: Partial<ApprovedAccesoriesSchema>;
@@ -25,11 +29,11 @@ interface ApprovedAccesoriesFormProps {
 const typeOperationOptions = [
   {
     label: "Comercial",
-    value: "794",
+    value: String(CM_COMERCIAL_ID),
   },
   {
     label: "Posventa",
-    value: "804",
+    value: String(CM_POSTVENTA_ID),
   },
 ];
 

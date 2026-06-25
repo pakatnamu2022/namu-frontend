@@ -2,14 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
@@ -17,7 +10,7 @@ import {
   clientOriginSchemaCreate,
   clientOriginSchemaUpdate,
 } from "../lib/clientOrigin.schema";
-import { Input } from "@/components/ui/input";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ClientOriginFormProps {
   defaultValues: Partial<ClientOriginSchema>;
@@ -36,7 +29,7 @@ export const ClientOriginForm = ({
 }: ClientOriginFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? clientOriginSchemaCreate : clientOriginSchemaUpdate
+      mode === "create" ? clientOriginSchemaCreate : clientOriginSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -48,18 +41,11 @@ export const ClientOriginForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Sitio Web" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre"
+            placeholder="Ej: Sitio Web"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

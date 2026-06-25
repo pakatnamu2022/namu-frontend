@@ -25,7 +25,10 @@ import {
   SUNAT_TRANSACTIONS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
-import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  AREA_TALLER,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface DirectBillingTabProps {
   workOrderIds: number[];
@@ -120,6 +123,7 @@ export default function WorkOrderDirectBillingForm({
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
 
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
+    type_operation_id: CM_POSTVENTA_ID,
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,

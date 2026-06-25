@@ -81,7 +81,6 @@ export default function OrderQuotationMesonPage() {
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
-    has_workshop: 1,
   });
 
   useEffect(() => {

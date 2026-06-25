@@ -5,15 +5,7 @@ import {
 } from "../lib/warehouse.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
@@ -27,6 +19,7 @@ import { FormSwitch } from "@/shared/components/FormSwitch";
 import { WAREHOUSE } from "../lib/warehouse.constants";
 import { useEffect, useRef } from "react";
 import { useAllWarehouse } from "../lib/warehouse.hook";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface WarehouseFormProps {
   defaultValues: Partial<WarehouseSchema>;
@@ -43,7 +36,7 @@ export const WarehouseForm = ({
 }: WarehouseFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? warehouseSchemaCreate : warehouseSchemaUpdate
+      mode === "create" ? warehouseSchemaCreate : warehouseSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -82,14 +75,14 @@ export const WarehouseForm = ({
     // Después de la primera carga, ejecutar auto-llenado en ambos modos
     if (isReceivedWatch && parentWarehouseIdWatch !== "") {
       const parentWarehouse = parentWarehouses.find(
-        (pw) => pw.id.toString() === parentWarehouseIdWatch
+        (pw) => pw.id.toString() === parentWarehouseIdWatch,
       );
 
       if (parentWarehouse) {
         form.setValue("sede_id", parentWarehouse.sede_id.toString());
         form.setValue(
           "type_operation_id",
-          parentWarehouse.type_operation_id.toString()
+          parentWarehouse.type_operation_id.toString(),
         );
       }
     }
@@ -100,10 +93,7 @@ export const WarehouseForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormSwitch
             name="is_physical_warehouse"
@@ -111,62 +101,32 @@ export const WarehouseForm = ({
             text={form.watch("is_physical_warehouse") ? "Sí" : "No"}
             control={form.control}
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="dyn_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod. Dynamic</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: EXR-SU-TUM" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod. Dynamic"
+            placeholder="Ej: EXR-SU-TUM"
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: EXI. POR REC. SUMINISTROS TUM."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: EXI. POR REC. SUMINISTROS TUM."
           />
+
           {!idParentWarehouseWatch && (
             <>
-              <FormField
+              <FormInput
                 control={form.control}
                 name="inventory_account"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cuenta de Inventario</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: 2011112" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Cuenta de Inventario"
+                placeholder="Ej: 2011112"
               />
-              <FormField
+              <FormInput
                 control={form.control}
                 name="counterparty_account"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cuenta de Contrapartida</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: 0211111" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Cuenta de Contrapartida"
+                placeholder="Ej: 0211111"
               />
               <FormSelect
                 name="article_class_id"
