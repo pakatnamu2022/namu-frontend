@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
@@ -30,6 +31,7 @@ interface OrderQuotationSummarySectionProps {
   isAdvancePayment: boolean;
   quotation?: OrderQuotationResource | null;
   onCancel?: () => void;
+  onSubmit?: () => void;
 }
 
 export function OrderQuotationSummarySection({
@@ -44,6 +46,7 @@ export function OrderQuotationSummarySection({
   isAdvancePayment,
   quotation,
   onCancel,
+  onSubmit,
 }: OrderQuotationSummarySectionProps) {
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
@@ -230,53 +233,78 @@ export function OrderQuotationSummarySection({
           <Separator className="bg-muted-foreground/20" />
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4">
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={
-                isPending ||
-                !form.formState.isValid ||
-                isCompletedWithoutAdvances ||
-                (totales.total <= 0 && !hasRealAdvancePayments)
+          <div className="space-y-2 pt-4 flex gap-4">
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
+                  Cancelar
+                </Button>
               }
-            >
-              {form.watch("enviar_automaticamente_a_la_sunat") ? (
-                <Send className="size-4 mr-2" />
-              ) : (
-                <FileCheck className="size-4 mr-2" />
-              )}
-              {isPending
-                ? "Guardando..."
-                : isEdit
-                  ? "Actualizar Documento"
-                  : form.watch("enviar_automaticamente_a_la_sunat")
-                    ? "Guardar y Enviar a SUNAT"
-                    : "Guardar Documento"}
-            </Button>
-            {isCompletedWithoutAdvances && (
+              title="¿Cancelar?"
+              description="Se perderán todos los datos ingresados. ¿Estás seguro de que deseas cancelar?"
+              confirmText="Sí, cancelar"
+              cancelText="No, continuar"
+              icon="warning"
+              onConfirm={onCancel ?? (() => window.history.back())}
+            />
+
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  className="w-full"
+                  size="lg"
+                  disabled={
+                    isPending ||
+                    !form.formState.isValid ||
+                    isCompletedWithoutAdvances ||
+                    (totales.total <= 0 && !hasRealAdvancePayments)
+                  }
+                >
+                  {form.watch("enviar_automaticamente_a_la_sunat") ? (
+                    <Send className="size-4 mr-2" />
+                  ) : (
+                    <FileCheck className="size-4 mr-2" />
+                  )}
+                  {isPending
+                    ? "Guardando..."
+                    : isEdit
+                      ? "Actualizar Documento"
+                      : form.watch("enviar_automaticamente_a_la_sunat")
+                        ? "Guardar y Enviar a SUNAT"
+                        : "Guardar Documento"}
+                </Button>
+              }
+              title={isEdit ? "¿Actualizar documento?" : "¿Guardar documento?"}
+              description={
+                isEdit
+                  ? "¿Estás seguro de que deseas actualizar este documento electrónico?"
+                  : "¿Estás seguro de que deseas guardar este documento electrónico?"
+              }
+              confirmText={isEdit ? "Sí, actualizar" : "Sí, guardar"}
+              cancelText="No, revisar"
+              icon="info"
+              onConfirm={onSubmit ?? (() => {})}
+            />
+          </div>
+          {isCompletedWithoutAdvances && (
+            <p className="text-xs text-center text-destructive font-medium">
+              Esta cotización ya está completamente facturada. No se puede
+              crear más documentos.
+            </p>
+          )}
+          {!isCompletedWithoutAdvances &&
+            totales.total <= 0 &&
+            !hasRealAdvancePayments && (
               <p className="text-xs text-center text-destructive font-medium">
-                Esta cotización ya está completamente facturada. No se puede
-                crear más documentos.
+                El total debe ser mayor a 0 para guardar el documento
               </p>
             )}
-            {!isCompletedWithoutAdvances &&
-              totales.total <= 0 &&
-              !hasRealAdvancePayments && (
-                <p className="text-xs text-center text-destructive font-medium">
-                  El total debe ser mayor a 0 para guardar el documento
-                </p>
-              )}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={onCancel ?? (() => window.history.back())}
-            >
-              Cancelar
-            </Button>
-          </div>
 
           {/* Footer Info */}
           <div className="pt-4 border-t border-muted-foreground/10">

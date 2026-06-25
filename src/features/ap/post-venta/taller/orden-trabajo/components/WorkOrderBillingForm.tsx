@@ -17,7 +17,7 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
-import { InvoiceSummarySection } from "./InvoiceSummarySection";
+import { WorkOrderSummarySection } from "./WorkOrderSummarySection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { WorkOrderResource } from "../lib/workOrder.interface";
@@ -513,9 +513,10 @@ export default function WorkOrderBillingForm({
           </div>
 
           {/* Resumen - 1/3 del ancho */}
-          <InvoiceSummarySection
+          <WorkOrderSummarySection
             form={form}
             onCancel={onCancel}
+            onSubmit={form.handleSubmit(onSubmit)}
             isPending={isPending}
             isEdit={isEdit}
             selectedGroupNumber={selectedGroupNumber}

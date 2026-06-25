@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
 import {
@@ -603,41 +604,64 @@ export default function DirectInvoiceForm({
                 <Separator className="bg-muted-foreground/20" />
 
                 {/* Botones */}
-                <div className="space-y-2 pt-4">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
-                    disabled={
-                      isPending || !form.formState.isValid || totales.total <= 0
+                <div className="space-y-2 pt-4 flex gap-4">
+                  <ConfirmationDialog
+                    trigger={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        disabled={isPending}
+                      >
+                        Cancelar
+                      </Button>
                     }
-                  >
-                    {form.watch("enviar_automaticamente_a_la_sunat") ? (
-                      <Send className="size-4 mr-2" />
-                    ) : (
-                      <FileCheck className="size-4 mr-2" />
-                    )}
-                    {isPending
-                      ? "Guardando..."
-                      : form.watch("enviar_automaticamente_a_la_sunat")
-                        ? "Guardar y Enviar a SUNAT"
-                        : "Guardar Documento"}
-                  </Button>
-                  {totales.total <= 0 && form.formState.isSubmitted && (
-                    <p className="text-xs text-center text-destructive font-medium">
-                      El total debe ser mayor a 0 para guardar el documento
-                    </p>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={onCancel}
-                    disabled={isPending}
-                  >
-                    Cancelar
-                  </Button>
+                    title="¿Cancelar?"
+                    description="Se perderán todos los datos ingresados. ¿Estás seguro de que deseas cancelar?"
+                    confirmText="Sí, cancelar"
+                    cancelText="No, continuar"
+                    icon="warning"
+                    onConfirm={onCancel}
+                  />
+
+                  <ConfirmationDialog
+                    trigger={
+                      <Button
+                        type="button"
+                        className="w-full"
+                        size="lg"
+                        disabled={
+                          isPending ||
+                          !form.formState.isValid ||
+                          totales.total <= 0
+                        }
+                      >
+                        {form.watch("enviar_automaticamente_a_la_sunat") ? (
+                          <Send className="size-4 mr-2" />
+                        ) : (
+                          <FileCheck className="size-4 mr-2" />
+                        )}
+                        {isPending
+                          ? "Guardando..."
+                          : form.watch("enviar_automaticamente_a_la_sunat")
+                            ? "Guardar y Enviar a SUNAT"
+                            : "Guardar Documento"}
+                      </Button>
+                    }
+                    title="¿Guardar documento?"
+                    description="¿Estás seguro de que deseas guardar este documento electrónico?"
+                    confirmText="Sí, guardar"
+                    cancelText="No, revisar"
+                    icon="info"
+                    onConfirm={form.handleSubmit(onSubmit)}
+                  />
                 </div>
+                {totales.total <= 0 && form.formState.isSubmitted && (
+                  <p className="text-xs text-center text-destructive font-medium">
+                    El total debe ser mayor a 0 para guardar el documento
+                  </p>
+                )}
 
                 <div className="pt-4 border-t border-muted-foreground/10">
                   <p className="text-xs text-center text-muted-foreground">

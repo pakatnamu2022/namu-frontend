@@ -701,6 +701,7 @@ export function OrderQuotationBillingForm({
             isAdvancePayment={isAdvancePayment}
             quotation={quotation}
             onCancel={onCancel}
+            onSubmit={form.handleSubmit(onSubmit)}
           />
         </div>
       </form>
