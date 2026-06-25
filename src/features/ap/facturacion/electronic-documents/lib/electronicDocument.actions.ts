@@ -243,6 +243,12 @@ export async function cancelElectronicDocument(
   return response.data;
 }
 
+export async function cancelConsolidatedInvoice(
+  id: number,
+): Promise<void> {
+  await api.delete(`${ENDPOINT}/${id}/consolidated-invoice`);
+}
+
 export async function getNextCreditNoteNumber(
   id: number,
   series: number,
