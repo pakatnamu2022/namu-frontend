@@ -43,7 +43,7 @@ import { ASSIGN_BRAND_CONSULTANT } from "../lib/assignBrandConsultant.constants"
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import MetaIndicators from "./AssignBrandConsultantMetaIndicator";
 import { useAllWorkersBySede } from "../../asignar-sede/lib/assignCompanyBranch.hook";
-import { TYPES_OPERATION_ID } from "../../../maestros-general/tipos-operacion/lib/typesOperation.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface AssignBrandConsultantFormProps {
   defaultValues: Partial<AssignBrandConsultantSchema>;
@@ -91,12 +91,12 @@ export const AssignBrandConsultantForm = ({
   });
 
   const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands({
-    type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
+    type_operation_id: CM_COMERCIAL_ID,
   });
 
   const { data: asesores = [], isLoading: isLoadingAsesores } =
     useAllWorkersBySede(
-      sedeSeleccionada ? Number(sedeSeleccionada) : undefined
+      sedeSeleccionada ? Number(sedeSeleccionada) : undefined,
     );
 
   const metaSellIn = data?.meta_sell_in || 0;
@@ -112,10 +112,10 @@ export const AssignBrandConsultantForm = ({
 
   // Obtener nombres para mostrar
   const sedeName = companyBranchs.find(
-    (s) => s.id.toString() === sedeSeleccionada
+    (s) => s.id.toString() === sedeSeleccionada,
   )?.abreviatura;
   const brandName = brands.find(
-    (b) => b.id.toString() === brandSeleccionada
+    (b) => b.id.toString() === brandSeleccionada,
   )?.name;
 
   useEffect(() => {

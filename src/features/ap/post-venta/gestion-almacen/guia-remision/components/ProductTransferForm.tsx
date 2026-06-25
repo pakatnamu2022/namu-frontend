@@ -55,11 +55,11 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { useEstablishmentBySede } from "@/features/ap/comercial/establecimientos/lib/establishments.hook.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -208,7 +208,7 @@ export const ProductTransferForm = ({
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
-      type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
+      type_operation_id: CM_POSTVENTA_ID,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     },
   );

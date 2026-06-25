@@ -25,6 +25,7 @@ import { OrderQuotationFinancialInfo } from "./OrderQuotationFinancialInfo";
 import { OrderQuotationSummarySection } from "./OrderQuotationSummarySection";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface OrderQuotationBillingFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -124,6 +125,7 @@ export function OrderQuotationBillingForm({
 
   // Consultar series autorizadas
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
+    type_operation_id: CM_POSTVENTA_ID,
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,

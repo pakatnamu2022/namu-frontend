@@ -44,7 +44,6 @@ import { useState } from "react";
 import { api } from "@/core/api.ts";
 import { format, addDays, parseISO } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
@@ -53,6 +52,7 @@ import { FormTextArea } from "@/shared/components/FormTextArea";
 import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -291,7 +291,7 @@ export const PurchaseOrderProductsForm = ({
           ? format(data.due_date, "yyyy-MM-dd")
           : data.due_date,
       igv: data.total_tax || 0, // Enviar el monto del IGV calculado
-      type_operation_id: data.type_operation_id || TYPES_OPERATION_ID.POSTVENTA,
+      type_operation_id: data.type_operation_id || CM_POSTVENTA_ID,
     };
 
     onSubmit(transformedData);

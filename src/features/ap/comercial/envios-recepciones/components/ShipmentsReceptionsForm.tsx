@@ -48,7 +48,10 @@ import { EstablishmentsResource } from "../../establecimientos/lib/establishment
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
-import { useAllEstablishments, useEstablishmentBySede } from "../../establecimientos/lib/establishments.hook";
+import {
+  useAllEstablishments,
+  useEstablishmentBySede,
+} from "../../establecimientos/lib/establishments.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import {
   SUNAT_CONCEPTS_TYPE,
@@ -62,7 +65,6 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import { useVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { useNextShippingGuideDocumentNumber } from "../lib/shipmentsReceptions.hook";
@@ -244,12 +246,14 @@ export const ShipmentsReceptionsForm = ({
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
-      type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
+      type_operation_id: CM_COMERCIAL_ID,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     },
   );
 
-  const selectedSerie = series.find((s) => s.id.toString() === watchDocumentSeriesId);
+  const selectedSerie = series.find(
+    (s) => s.id.toString() === watchDocumentSeriesId,
+  );
   const serieSedeId = selectedSerie?.sede_id ?? null;
   const { data: serieEstablishments = [] } = useEstablishmentBySede(
     mode === "create" ? serieSedeId : null,
