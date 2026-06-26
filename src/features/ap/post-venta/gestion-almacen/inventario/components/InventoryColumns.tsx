@@ -59,6 +59,14 @@ export const inventoryColumns = ({
     },
   },
   {
+    accessorKey: "sale_price_min",
+    header: "PVP min",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return formatMoney(value);
+    },
+  },
+  {
     accessorKey: "quantity",
     header: "Stock Total",
     enableSorting: true,

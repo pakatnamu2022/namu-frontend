@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
@@ -13,9 +14,10 @@ import { ActiveDocument } from "../lib/workOrder.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
-interface InvoiceSummarySectionProps {
+interface WorkOrderSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
   onCancel: () => void;
+  onSubmit?: () => void;
   isPending: boolean;
   isEdit?: boolean;
   selectedGroupNumber: number | null;
@@ -41,9 +43,10 @@ interface InvoiceSummarySectionProps {
   isInvoiced?: boolean;
 }
 
-export function InvoiceSummarySection({
+export function WorkOrderSummarySection({
   form,
   onCancel,
+  onSubmit,
   isPending,
   isEdit = false,
   documentTypes,
@@ -58,7 +61,7 @@ export function InvoiceSummarySection({
   parts,
   isInvalidWithQuote = false,
   isInvoiced = false,
-}: InvoiceSummarySectionProps) {
+}: WorkOrderSummarySectionProps) {
   //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
@@ -334,57 +337,82 @@ export function InvoiceSummarySection({
           <Separator className="bg-muted-foreground/20" />
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4">
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={
-                isPending ||
-                !form.formState.isValid ||
-                isCompletedWithoutAdvances ||
-                (!isInvalidWithQuote &&
-                  totales.total <= 0 &&
-                  !hasRealAdvancePayments)
+          <div className="space-y-2 pt-4 flex gap-4">
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  disabled={isPending}
+                >
+                  Cancelar
+                </Button>
               }
-            >
-              {form.watch("enviar_automaticamente_a_la_sunat") ? (
-                <Send className="size-4 mr-2" />
-              ) : (
-                <FileCheck className="size-4 mr-2" />
-              )}
-              {isPending
-                ? "Guardando..."
-                : isEdit
-                  ? "Actualizar Documento"
-                  : form.watch("enviar_automaticamente_a_la_sunat")
-                    ? "Guardar y Enviar a SUNAT"
-                    : "Guardar Documento"}
-            </Button>
-            {isCompletedWithoutAdvances && (
+              title="¿Cancelar?"
+              description="Se perderán todos los datos ingresados. ¿Estás seguro de que deseas cancelar?"
+              confirmText="Sí, cancelar"
+              cancelText="No, continuar"
+              icon="warning"
+              onConfirm={onCancel}
+            />
+
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  className="w-full"
+                  size="lg"
+                  disabled={
+                    isPending ||
+                    !form.formState.isValid ||
+                    isCompletedWithoutAdvances ||
+                    (!isInvalidWithQuote &&
+                      totales.total <= 0 &&
+                      !hasRealAdvancePayments)
+                  }
+                >
+                  {form.watch("enviar_automaticamente_a_la_sunat") ? (
+                    <Send className="size-4 mr-2" />
+                  ) : (
+                    <FileCheck className="size-4 mr-2" />
+                  )}
+                  {isPending
+                    ? "Guardando..."
+                    : isEdit
+                      ? "Actualizar Documento"
+                      : form.watch("enviar_automaticamente_a_la_sunat")
+                        ? "Guardar y Enviar a SUNAT"
+                        : "Guardar Documento"}
+                </Button>
+              }
+              title={isEdit ? "¿Actualizar documento?" : "¿Guardar documento?"}
+              description={
+                isEdit
+                  ? "¿Estás seguro de que deseas actualizar este documento electrónico?"
+                  : "¿Estás seguro de que deseas guardar este documento electrónico?"
+              }
+              confirmText={isEdit ? "Sí, actualizar" : "Sí, guardar"}
+              cancelText="No, revisar"
+              icon="info"
+              onConfirm={onSubmit ?? (() => {})}
+            />
+          </div>
+          {isCompletedWithoutAdvances && (
+            <p className="text-xs text-center text-destructive font-medium">
+              Esta orden ya está completamente facturada. No se puede crear más
+              documentos.
+            </p>
+          )}
+          {!isInvalidWithQuote &&
+            !isCompletedWithoutAdvances &&
+            totales.total <= 0 &&
+            !hasRealAdvancePayments && (
               <p className="text-xs text-center text-destructive font-medium">
-                Esta orden ya está completamente facturada. No se puede crear
-                más documentos.
+                El total debe ser mayor a 0 para guardar el documento
               </p>
             )}
-            {!isInvalidWithQuote &&
-              !isCompletedWithoutAdvances &&
-              totales.total <= 0 &&
-              !hasRealAdvancePayments && (
-                <p className="text-xs text-center text-destructive font-medium">
-                  El total debe ser mayor a 0 para guardar el documento
-                </p>
-              )}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={onCancel}
-              disabled={isPending}
-            >
-              Cancelar
-            </Button>
-          </div>
 
           {/* Footer Info */}
           <div className="pt-4 border-t border-muted-foreground/10">

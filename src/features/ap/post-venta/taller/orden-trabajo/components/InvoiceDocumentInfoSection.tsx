@@ -307,7 +307,7 @@ export function InvoiceDocumentInfoSection({
               ? "El correlativo no se puede modificar"
               : "Se genera automáticamente"
           }
-          disabled
+          readOnly
         />
       </GroupFormSection>
     </>
