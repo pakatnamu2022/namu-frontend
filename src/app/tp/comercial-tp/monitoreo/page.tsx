@@ -126,6 +126,15 @@ export default function MonitoreoPage() {
         }
     }, []);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refetchDrivers();
+            refetchStats();
+        }, 10000); // Cada 10 segundos
+
+        return () => clearInterval(interval);
+    }, [refetchDrivers, refetchStats]);
+
     if (isLoadingModule) return <PageSkeleton />;
     if (!checkRouteExists("monitoreo")) notFound();
     if (!currentView) notFound();

@@ -53,8 +53,9 @@ export const useDrivers = (props?: GetDriversProps) => {
     return useQuery<DriversResponse>({
         queryKey: [QUERY_KEY, "drivers", props],
         queryFn: () => getDrivers(props || {}),
-        refetchOnWindowFocus: false,
-        refetchInterval: 30000, // Refrescar cada 30 segundos
+        refetchOnWindowFocus: true,
+        refetchInterval: 10000, // Refrescar cada 10 segundos
+        staleTime: 5000,
     });
 };
 
@@ -62,8 +63,9 @@ export const useDriverStats = () => {
     return useQuery<DriversStats>({
         queryKey: [QUERY_KEY, "stats"],
         queryFn: getDriverStats,
-        refetchOnWindowFocus: false,
-        refetchInterval: 30000,
+        refetchOnWindowFocus: true,
+        refetchInterval: 10000, // Refrescar cada 10 segundos
+        staleTime: 5000,
     });
 };
 
