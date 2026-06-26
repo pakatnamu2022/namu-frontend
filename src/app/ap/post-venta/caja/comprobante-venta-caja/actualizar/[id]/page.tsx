@@ -791,6 +791,7 @@ function EditMassiveInvoicePage({
   icon,
 }: SubPageProps) {
   const { MODEL } = ELECTRONIC_DOCUMENT_CAJA;
+  const queryClient = useQueryClient();
 
   const { data: document, isLoading: isLoadingDocument } =
     useElectronicDocument(documentId);
@@ -899,6 +900,8 @@ function EditMassiveInvoicePage({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
       updateElectronicDocument(documentId, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["electronic-documents", documentId] });
+      queryClient.invalidateQueries({ queryKey: ["electronic-documents", documentId, "work-orders"] });
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       onSuccess();
     },
