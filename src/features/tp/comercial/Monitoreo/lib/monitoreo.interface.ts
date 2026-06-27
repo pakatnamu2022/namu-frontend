@@ -6,6 +6,8 @@ export type ViewMode = "list" | "map";
 export interface DriverLocation {
     id: number;
     driver_id: number;
+    driver_name: string;
+    driver_code: string;
     latitude: number | null;
     longitude: number | null;
     accuracy: number | null;
