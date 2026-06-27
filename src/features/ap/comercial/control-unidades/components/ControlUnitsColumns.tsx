@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Badge, BadgeColor } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
   Pencil,
@@ -21,6 +21,7 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import type { ControlUnitsResource } from "../lib/controlUnits.interface";
 import { CONTROL_UNITS } from "../lib/controlUnits.constants";
 import { VEHICLE_PURCHASE_ORDER } from "../../ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
@@ -35,10 +36,9 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { Popover } from "@radix-ui/react-popover";
-import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type ControlUnitsColumns = ColumnDef<ControlUnitsResource>;
 
@@ -123,10 +123,6 @@ export const ControlUnitsColumns = ({
   permissions,
 }: Props): ControlUnitsColumns[] => [
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     accessorKey: "document_number",
     header: "Número Doc.",
     cell: ({ row }) => {
@@ -149,14 +145,10 @@ export const ControlUnitsColumns = ({
     header: "Tipo Doc.",
     cell: ({ row }) => {
       const type = row.getValue("document_type") as string;
-      const isConsignment = !!row.original.is_consignment;
       return (
-        <div className="flex flex-col gap-1">
-          <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
-            {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
-          </Badge>
-          {isConsignment && <Badge color="purple">Consignación</Badge>}
-        </div>
+        <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
+          {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
+        </Badge>
       );
     },
   },
@@ -182,6 +174,34 @@ export const ControlUnitsColumns = ({
           </div>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "entities",
+    header: "",
+    cell: ({ row }) => {
+      const transmitter = row.original.transmitter_name;
+      const receiver = row.original.receiver_name;
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <span className="font-semibold">Remitente: </span>
+            <span title={transmitter}>{transmitter}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Destinatario: </span>
+            <span title={receiver}>{receiver}</span>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "vin",
+    header: "VIN",
+    cell: ({ row }) => {
+      const vin = row.original.vehicle?.vin;
+      return vin ? <CopyCell value={vin} /> : "-";
     },
   },
   {
@@ -285,6 +305,98 @@ export const ControlUnitsColumns = ({
     },
   },
   {
+    accessorKey: "sent_at",
+    id: "sent_at",
+    meta: {
+      title: "Enviado SUNAT",
+    },
+    header: () => (
+      <div className="flex items-center gap-1.5">
+        <span>Enviado SUNAT</span>
+        <Badge
+          variant="ghost"
+          tooltipVariant="muted"
+          tooltip={
+            <div className="space-y-2">
+              <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-green-600" />
+                  <span>Aceptado por SUNAT</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-primary" />
+                  <span>En espera de respuesta</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-destructive" />
+                  <span>Rechazado (&gt;5h sin respuesta)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-gray-400" />
+                  <span>No enviado</span>
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+        </Badge>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const sentAt = row.getValue("sent_at") as string | null;
+      const aceptadaPorSunat = row.original.aceptada_por_sunat;
+      const WAITING_TIME_HOURS = 5;
+
+      if (sentAt) {
+        const sentDate = new Date(sentAt);
+        const now = new Date();
+        const hoursDiff =
+          (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
+
+        let variant: "green" | "destructive" | "blue";
+        let label: string;
+        let icon: LucideIcon;
+
+        if (aceptadaPorSunat === true) {
+          variant = "green";
+          label = "Aceptado";
+          icon = CheckCircle2;
+        } else if (
+          aceptadaPorSunat === false &&
+          hoursDiff > WAITING_TIME_HOURS
+        ) {
+          variant = "destructive";
+          label = "Rechazado";
+          icon = XCircle;
+        } else {
+          variant = "blue";
+          label = "En espera";
+          icon = CheckCircle2;
+        }
+
+        return (
+          <div className="flex flex-col gap-1">
+            <Badge icon={icon} color={variant} className="w-fit">
+              {label}
+            </Badge>
+            <span className="text-xs text-muted-foreground font-mono">
+              {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
+            </span>
+          </div>
+        );
+      }
+
+      return (
+        <Badge color="gray">
+          <XCircle className="size-3" />
+          No enviado
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "notes",
     header: "Nota Guía",
     cell: ({ row }) => {
@@ -342,124 +454,6 @@ export const ControlUnitsColumns = ({
     },
   },
   {
-    accessorKey: "sent_at",
-    id: "sent_at",
-    meta: {
-      title: "Enviado SUNAT",
-    },
-    header: () => (
-      <div className="flex items-center gap-1.5">
-        <span>Enviado SUNAT</span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="focus:outline-none">
-              <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-3" align="start">
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-green-600" />
-                  <span>Aceptado por SUNAT</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-primary" />
-                  <span>En espera de respuesta</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-destructive" />
-                  <span>Rechazado (&gt;5h sin respuesta)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-gray-400" />
-                  <span>No enviado</span>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-    ),
-    cell: ({ row }) => {
-      const sentAt = row.getValue("sent_at") as string | null;
-      const aceptadaPorSunat = row.original.aceptada_por_sunat;
-      const WAITING_TIME_HOURS = 5;
-
-      // Configuración de estados con estilos modernos
-      const statusConfig: {
-        [key: string]: {
-          label: string;
-          icon: LucideIcon;
-          color: BadgeColor;
-        };
-      } = {
-        accepted: {
-          label: "Aceptado",
-          icon: CheckCircle2,
-          color: "green",
-        },
-        rejected: {
-          label: "Rechazado",
-          icon: XCircle,
-          color: "red",
-        },
-        pending: {
-          label: "En espera",
-          icon: CheckCircle2,
-          color: "blue",
-        },
-        notSent: {
-          label: "No enviado",
-          icon: XCircle,
-          color: "gray",
-        },
-      };
-
-      if (sentAt) {
-        const sentDate = new Date(sentAt);
-        const now = new Date();
-        const hoursDiff =
-          (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
-
-        // Determinar estado
-        let status: keyof typeof statusConfig;
-
-        if (aceptadaPorSunat === true) {
-          status = "accepted";
-        } else if (
-          aceptadaPorSunat === false &&
-          hoursDiff > WAITING_TIME_HOURS
-        ) {
-          status = "rejected";
-        } else {
-          status = "pending";
-        }
-
-        const config = statusConfig[status];
-
-        return (
-          <div className="flex flex-col gap-1 w-fit">
-            <Badge icon={config.icon} color={config.color}>
-              <span>{config.label}</span>
-            </Badge>
-            <span className="text-xs text-muted-foreground">
-              {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
-            </span>
-          </div>
-        );
-      }
-
-      const config = statusConfig.notSent;
-      return (
-        <Badge color={config.color} icon={config.icon}>
-          <span>{config.label}</span>
-        </Badge>
-      );
-    },
-  },
-  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -500,21 +494,14 @@ export const ControlUnitsColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Ver detalles */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
+          <ButtonAction
+            icon={Eye}
             tooltip="Ver detalles"
             onClick={() => onViewDetails(row.original)}
-          >
-            <Eye className="size-4" />
-          </Button>
+          />
 
-          {/* Historial - Solo cuando fue aceptada por SUNAT */}
           {isAcceptedBySunat && <ShippingGuideHistory shippingGuideId={id} />}
 
-          {/* Enviar a Nubefact - Solo si requiere SUNAT y aún no fue enviado */}
           {requires_sunat && !sent_at && (
             <ConfirmationDialog
               title="Confirmar envío a Nubefact"
@@ -523,128 +510,75 @@ export const ControlUnitsColumns = ({
               icon="info"
               confirmText="Sí, enviar"
               cancelText="No, cancelar"
-              trigger={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Enviar a Nubefact"
-                >
-                  <Send className="size-4" />
-                </Button>
-              }
+              trigger={<ButtonAction icon={Send} tooltip="Enviar a Nubefact" />}
             />
           )}
 
-          {/* Consultar estado en SUNAT - Si fue enviado pero no aceptado */}
-          {requires_sunat && sent_at && !isAcceptedBySunat && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Consultar estado en SUNAT"
-              onClick={() => onQueryFromNubefact(id)}
-            >
-              <RefreshCw className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={RefreshCw}
+            tooltip="Consultar estado en SUNAT"
+            onClick={() => onQueryFromNubefact(id)}
+            canRender={requires_sunat && !!sent_at && !isAcceptedBySunat}
+          />
 
-          {/* Marcar como Recibido - Solo para TRASLADO ENTRE SEDES */}
-          {isTrasladoSede && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip={
-                isAlreadyReceived
-                  ? "Ya ha sido recepcionado"
-                  : "Marcar como recibido"
-              }
-              onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
-              disabled={isAlreadyReceived}
-            >
-              <PackageCheck className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={PackageCheck}
+            tooltip={
+              isAlreadyReceived
+                ? "Ya ha sido recepcionado"
+                : "Marcar como recibido"
+            }
+            onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
+            disabled={isAlreadyReceived}
+            canRender={isTrasladoSede}
+          />
 
-          {/* Checklist de Recepción - Para COMPRA o CONSIGNACIÓN, solo si aceptada por SUNAT */}
-          {(isPurchase || isConsignment) && canReceive && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip={receiveTooltip}
-              onClick={() =>
-                canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
-              }
-              disabled={!canReceive}
-            >
-              <CarFront className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={CarFront}
+            tooltip={receiveTooltip}
+            onClick={() =>
+              canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
+            }
+            disabled={!canReceive}
+            canRender={(isPurchase || isConsignment) && canReceive}
+          />
 
-          {/* Generar OC de Consignación */}
-          {isConsignment && isAcceptedBySunat && isAlreadyReceived && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Generar Orden de Compra de Consignación"
-              onClick={() =>
-                router(
-                  `${VEHICLE_PURCHASE_ORDER.ROUTE_ADD}?consignment_id=${id}`,
-                )
-              }
-            >
-              <ShoppingCart className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={ShoppingCart}
+            tooltip="Generar Orden de Compra de Consignación"
+            onClick={() =>
+              router(`${VEHICLE_PURCHASE_ORDER.ROUTE_ADD}?consignment_id=${id}`)
+            }
+            canRender={isConsignment && isAcceptedBySunat && isAlreadyReceived}
+          />
 
-          {/* Edit */}
-          {permissions.canUpdate &&
-            !isAlreadyReceived &&
-            !isAcceptedBySunat && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-                onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            )}
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            canRender={
+              permissions.canUpdate && !isAlreadyReceived && !isAcceptedBySunat
+            }
+          />
 
-          {/* Delete - Oculto si ya está recepcionado */}
           {permissions.canDelete &&
             !isAlreadyReceived &&
             !isAcceptedBySunat && <DeleteButton onClick={() => onDelete(id)} />}
 
-          {/* Migrar */}
-          {onMigrate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Migrar"
-              onClick={() => onMigrate(id)}
-            >
-              <ArrowRightLeft className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={ArrowRightLeft}
+            tooltip="Migrar"
+            onClick={() => onMigrate && onMigrate(id)}
+            canRender={!!onMigrate}
+          />
 
-          {/* Cancelar guía - Solo cuando ya fue recepcionado y está ACTIVO */}
-          {isAlreadyReceived && status && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7 text-secondary hover:text-secondary hover:bg-red-50"
-              tooltip="Cancelar guía"
-              onClick={() => onCancel(id)}
-            >
-              <Ban className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Ban}
+            tooltip="Cancelar guía"
+            onClick={() => onCancel(id)}
+            color="red"
+            canRender={isAlreadyReceived && status}
+          />
         </div>
       );
     },

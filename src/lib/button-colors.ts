@@ -301,7 +301,7 @@ export const compoundVariants = [
   {
     variant: "outline" as const,
     color: undefined,
-    class: "hover:bg-accent ",
+    class: "hover:bg-accent",
   },
   {
     variant: "secondary" as const,
@@ -339,7 +339,7 @@ export const compoundVariants = [
   ...colorKeys.map((color) => ({
     variant: "outline" as const,
     color,
-    class: `${colorClasses[color].text} ${colorClasses[color].border} ${colorClasses[color].hoverOutline}`,
+    class: `${colorClasses[color].text} ${colorClasses[color].hoverOutline}`,
   })),
 
   // Ghost + colores

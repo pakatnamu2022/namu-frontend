@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import { Building2, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { SuppliersResource } from "../lib/suppliers.interface";
 
@@ -89,30 +89,19 @@ export const suppliersColumns = ({
       return (
         <div className="flex items-center gap-2">
           {/* Establecimientos */}
-          {
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Establecimientos"
-              onClick={() => onEstablishments(id)}
-            >
-              <Building2 className="size-5" />
-            </Button>
-          }
+          <ButtonAction
+            icon={Building2}
+            tooltip="Establecimientos"
+            onClick={() => onEstablishments(id)}
+          />
 
           {/* Edit */}
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            canRender={permissions.canUpdate}
+            onClick={() => onUpdate(id)}
+          />
 
           {/* Delete */}
           {permissions.canDelete && (

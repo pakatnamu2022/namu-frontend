@@ -14,7 +14,7 @@ export function ButtonAction({
   icon: Icon,
   variant = "outline",
   canRender = true,
-  color,
+  color = "muted",
   ...props
 }: ButtonActionProps) {
   if (!canRender) return null;

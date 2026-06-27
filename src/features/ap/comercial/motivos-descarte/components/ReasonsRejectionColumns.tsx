@@ -2,9 +2,9 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { ReasonsRejectionResource } from "../lib/reasonsRejection.interface";
-import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -69,14 +69,10 @@ export const reasonsRejectionColumns = ({
 
           {/* Edit */}
           {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
+            <ButtonAction
+              icon={Pencil}
               onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
+            />
           )}
 
           {/* Delete */}

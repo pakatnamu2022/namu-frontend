@@ -22,7 +22,6 @@ export default function ControlUnitsTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          id: false,
           document_type: false,
           issue_date: false,
           transfer_reason_description: true,
@@ -35,6 +34,7 @@ export default function ControlUnitsTable({
           driver_name: false,
           license: false,
           transfer_modality: false,
+          requires_sunat: false,
           reception_checklist: true,
           notes: false,
           note_received: false,

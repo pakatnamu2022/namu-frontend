@@ -178,6 +178,26 @@ export const ShipmentsReceptionsColumns = ({
     },
   },
   {
+    accessorKey: "entities",
+    header: "",
+    cell: ({ row }) => {
+      const transmitter = row.original.transmitter_name;
+      const receiver = row.original.receiver_name;
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <span className="font-semibold">Remitente: </span>
+            <span title={transmitter}>{transmitter}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Destinatario: </span>
+            <span title={receiver}>{receiver}</span>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "created_at",
     header: "Fecha Emisión",
     cell: ({ row }) => {
@@ -506,154 +526,101 @@ export const ShipmentsReceptionsColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Ver detalles */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
+          <ButtonAction
+            icon={Eye}
             tooltip="Ver detalles"
             onClick={() => onViewDetails(row.original)}
-          >
-            <Eye className="size-4" />
-          </Button>
+          />
 
-          {/* Historial - Solo para GUIA_REMISION */}
           {isGuiaRemision && <ShippingGuideHistory shippingGuideId={id} />}
 
-          {/* Enviar a Nubefact - Solo para GUIA_REMISION y si no ha sido enviado */}
-          {isGuiaRemision && !isSent && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Enviar a Nubefact"
-              onClick={() => onSendToNubefact(id)}
-            >
-              <Send className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Send}
+            tooltip="Enviar a Nubefact"
+            onClick={() => onSendToNubefact(id)}
+            canRender={isGuiaRemision && !isSent}
+          />
 
-          {/* Consultar estado en Nubefact - Solo para GUIA_REMISION, si ya fue enviado y no está aceptado */}
-          {isGuiaRemision && isSent && aceptada_por_sunat !== true && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Consultar estado en SUNAT"
-              onClick={() => onQueryFromNubefact(id)}
-            >
-              <RefreshCw className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={RefreshCw}
+            tooltip="Consultar estado en SUNAT"
+            onClick={() => onQueryFromNubefact(id)}
+            canRender={isGuiaRemision && isSent && aceptada_por_sunat !== true}
+          />
 
-          {/* Marcar como Recibido - Solo para TRASLADO ENTRE SEDES (ID: 21) después de ser aceptado por SUNAT */}
-          {isTrasladoSede && aceptada_por_sunat === true && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip={
-                isAlreadyReceived
-                  ? "Ya ha sido recepcionado"
-                  : "Marcar como recibido"
-              }
-              onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
-              disabled={isAlreadyReceived}
-            >
-              <PackageCheck className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={PackageCheck}
+            tooltip={
+              isAlreadyReceived
+                ? "Ya ha sido recepcionado"
+                : "Marcar como recibido"
+            }
+            onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
+            disabled={isAlreadyReceived}
+            canRender={isTrasladoSede && aceptada_por_sunat === true}
+          />
 
-          {/* Checklist de Recepción - Solo para COMPRA */}
-          {isPurchase && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip={receiveTooltip}
-              onClick={() =>
-                canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
-              }
-              disabled={!canReceive}
-            >
-              <CarFront className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={CarFront}
+            tooltip={receiveTooltip}
+            onClick={() =>
+              canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
+            }
+            disabled={!canReceive}
+            canRender={isPurchase}
+          />
 
-          {/* Edit - Oculto si: (GUIA_REMISION y enviado) o (NO es GUIA_REMISION y recepcionado) */}
-          {permissions.canUpdate &&
-            (isGuiaRemision ? !isSent : !isAlreadyReceived) && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-                onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            )}
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            canRender={
+              permissions.canUpdate &&
+              (isGuiaRemision ? !isSent : !isAlreadyReceived)
+            }
+          />
 
-          {/* Delete - Oculto si: (GUIA_REMISION y enviado) o (NO es GUIA_REMISION y recepcionado) */}
           {permissions.canDelete &&
             (isGuiaRemision ? !isSent : !isAlreadyReceived) && (
               <DeleteButton onClick={() => onDelete(id)} />
             )}
 
           <ButtonAction
+            icon={ArrowRightLeft}
             tooltip="Migrar"
             onClick={() => onMigrate && onMigrate(id)}
-            icon={ArrowRightLeft}
             canRender={
-              onMigrate &&
+              !!onMigrate &&
               isGuiaRemision &&
               row.original.migration_status !== "completed"
             }
           />
 
-          {/* Cancelar guía - Solo para GUIA_REMISION, cuando ya fue recepcionado y está ACTIVO */}
-          {isGuiaRemision && isAlreadyReceived && status && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7 text-secondary hover:text-secondary hover:bg-red-50"
-              tooltip="Cancelar guía"
-              onClick={() => onCancel(id)}
-            >
-              <Ban className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Ban}
+            tooltip="Cancelar guía"
+            onClick={() => onCancel(id)}
+            color="red"
+            canRender={isGuiaRemision && isAlreadyReceived && status}
+          />
 
-          {/*Generamos la OT de PDI tomado el ap_vehicle_id*/}
-          {ap_vehicle_id && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Generar OT de PDI para el vehículo asociado"
-              onClick={() =>
-                ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
-              }
-            >
-              <BookCheck className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={BookCheck}
+            tooltip="Generar OT de PDI para el vehículo asociado"
+            onClick={() =>
+              ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
+            }
+            canRender={!!ap_vehicle_id}
+          />
 
-          {/*Generamos la OT de instalación de accesorios tomando el ap_vehicle_id*/}
-          {ap_vehicle_id && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
-              onClick={() =>
-                ap_vehicle_id &&
-                onGenerateInstAccessories(Number(ap_vehicle_id))
-              }
-            >
-              <PackageCheck className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={PackageCheck}
+            tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
+            onClick={() =>
+              ap_vehicle_id && onGenerateInstAccessories(Number(ap_vehicle_id))
+            }
+            canRender={!!ap_vehicle_id}
+          />
         </div>
       );
     },

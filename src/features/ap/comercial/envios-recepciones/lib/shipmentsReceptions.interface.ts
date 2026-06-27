@@ -1,4 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
+import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 
 export interface ShipmentsReceptionsResponse {
   data: ShipmentsReceptionsResource[];
@@ -75,6 +76,7 @@ export interface ShipmentsReceptionsResource {
   is_accounted: boolean;
   is_annulled: boolean;
   vin?: string | null;
+  vehicle?: VehicleResource;
 }
 
 export interface ShipmentItemResource {
