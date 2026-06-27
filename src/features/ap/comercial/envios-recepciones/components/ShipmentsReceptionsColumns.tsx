@@ -39,7 +39,8 @@ import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { CopyCell } from "@/shared/components/CopyCell";
 
-export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
+export type ShipmentsReceptionsColumnsType =
+  ColumnDef<ShipmentsReceptionsResource>;
 
 interface Props {
   onDelete: (id: number) => void;
@@ -123,7 +124,7 @@ export const ShipmentsReceptionsColumns = ({
   onGeneratePDI,
   onGenerateInstAccessories,
   permissions,
-}: Props): ShipmentsReceptionsColumns[] => [
+}: Props): ShipmentsReceptionsColumnsType[] => [
   {
     accessorKey: "document_number",
     header: "Número Doc.",
