@@ -10,7 +10,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Attachment,
+  AttachmentMedia,
+  AttachmentContent,
+  AttachmentTitle,
+  AttachmentDescription,
+} from "@/components/ui/attachment";
+import { Marker, MarkerIcon, MarkerContent } from "@/components/ui/marker";
+import { cn } from "@/lib/utils";
 import type { AccountReceivable } from "../lib/accountsReceivable.interface";
 
 interface Props {
@@ -65,29 +73,23 @@ export default function BulkCommentModal({
 
         {/* Preview de documentos */}
         <div className="rounded-lg border bg-muted/40 overflow-hidden">
-          <div className="flex items-center gap-1.5 px-3 py-2 border-b bg-muted/60">
-            <FileText className="size-3 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Comprobantes seleccionados
-            </span>
+          <Marker variant="border" className="px-3 py-2 bg-muted/60">
+            <MarkerIcon><FileText className="size-3" /></MarkerIcon>
+            <MarkerContent className="text-xs font-medium">Comprobantes seleccionados</MarkerContent>
+          </Marker>
+          <div className={cn("flex flex-col gap-1.5 p-2", count > 5 && "max-h-44 overflow-y-auto")}>
+            {selectedRecords.map((r) => (
+              <Attachment key={r.id} size="sm" className="w-full max-w-full">
+                <AttachmentMedia>
+                  <FileText />
+                </AttachmentMedia>
+                <AttachmentContent>
+                  <AttachmentTitle>{r.document_number}</AttachmentTitle>
+                  <AttachmentDescription>{r.client_name}</AttachmentDescription>
+                </AttachmentContent>
+              </Attachment>
+            ))}
           </div>
-          <ScrollArea className={count > 5 ? "h-40" : undefined}>
-            <div className="divide-y divide-border/60">
-              {selectedRecords.map((r) => (
-                <div
-                  key={r.id}
-                  className="flex items-center justify-between px-3 py-2 gap-3"
-                >
-                  <span className="text-xs font-mono font-medium text-foreground shrink-0">
-                    {r.document_number}
-                  </span>
-                  <span className="text-xs text-muted-foreground truncate text-right">
-                    {r.client_name}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
         </div>
 
         <Textarea
