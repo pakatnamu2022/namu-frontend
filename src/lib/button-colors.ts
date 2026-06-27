@@ -289,37 +289,37 @@ export const compoundVariants = [
   // COLORES POR DEFECTO (sin especificar color)
   // ============================================
   {
-    variant: "default",
+    variant: "default" as const,
     color: undefined,
     class: "bg-primary text-primary-foreground hover:bg-primary/90",
   },
   {
-    variant: "destructive",
+    variant: "destructive" as const,
     color: undefined,
     class: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   },
   {
-    variant: "outline",
+    variant: "outline" as const,
     color: undefined,
     class: "hover:bg-accent ",
   },
   {
-    variant: "secondary",
+    variant: "secondary" as const,
     color: undefined,
     class: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   },
   {
-    variant: "ghost",
+    variant: "ghost" as const,
     color: undefined,
     class: "hover:bg-accent hover:text-accent-foreground",
   },
   {
-    variant: "link",
+    variant: "link" as const,
     color: undefined,
     class: "text-primary",
   },
   {
-    variant: "tertiary",
+    variant: "tertiary" as const,
     color: undefined,
     class: "bg-tertiary text-tertiary-foreground hover:bg-tertiary/80",
   },
@@ -339,7 +339,7 @@ export const compoundVariants = [
   ...colorKeys.map((color) => ({
     variant: "outline" as const,
     color,
-    class: `${colorClasses[color].text} ${colorClasses[color].hoverOutline}`,
+    class: `${colorClasses[color].text} ${colorClasses[color].border} ${colorClasses[color].hoverOutline}`,
   })),
 
   // Ghost + colores
@@ -376,6 +376,6 @@ export const compoundVariants = [
     color,
     class: `${colorClasses[color].text}`,
   })),
-] as const;
+];
 
 export type ButtonColors = keyof typeof colorClasses;
