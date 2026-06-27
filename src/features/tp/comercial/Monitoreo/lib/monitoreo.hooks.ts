@@ -73,8 +73,9 @@ export const useLatestLocations = () => {
     return useQuery<DriverLocation[]>({
         queryKey: [QUERY_KEY, "locations", "latest"],
         queryFn: getLatestLocations,
-        refetchOnWindowFocus: false,
-        refetchInterval: 15000, // Refrescar más seguido para ubicaciones
+        refetchOnWindowFocus: true,     // ← Cambiar a true
+        refetchInterval: 10000,          // ← Cambiar a 10 segundos
+        staleTime: 5000,
     });
 };
 
