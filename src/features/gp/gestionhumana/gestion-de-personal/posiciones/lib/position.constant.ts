@@ -37,6 +37,7 @@ export const POSITION_TYPE = {
     329, 333, 350, 299,
   ],
   TRACTOR_TRUCK_DRIVER: [11],
+  SPARE_PARTS_ADVISOR: [62, 72, 88, 130, 349],
 };
 
 export const STATUS_WORKER = {

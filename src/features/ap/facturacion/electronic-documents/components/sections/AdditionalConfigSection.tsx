@@ -1,10 +1,11 @@
 import { UseFormReturn } from "react-hook-form";
 import { useEffect } from "react";
-import { Settings } from "lucide-react";
+import { ExternalLink, FileText, Settings } from "lucide-react";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormCombobox } from "@/shared/components/FormCombobox";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -13,7 +14,6 @@ import {
   PAYMENT_CONDITION_CREDIT,
   CREDIT_DAYS_OPTIONS,
 } from "../../lib/electronicDocument.constants";
-import { CHECKBOOKS_ID } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -24,7 +24,8 @@ interface AdditionalConfigSectionProps {
   showInternalNote?: boolean;
   showOrdenCompraServicio?: boolean;
   isEdit?: boolean;
-  isAdvancePayment?: boolean; // Nuevo prop para indicar si es un anticipo
+  existingFileUrl?: string;
+  isAdvancePayment?: boolean;
 }
 
 export function AdditionalConfigSection({
@@ -36,6 +37,7 @@ export function AdditionalConfigSection({
   showInternalNote = false,
   showOrdenCompraServicio = false,
   isEdit = false,
+  existingFileUrl = "",
   isAdvancePayment = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
@@ -45,14 +47,19 @@ export function AdditionalConfigSection({
 
   // Limpiar al cambiar a CONTADO; poner 30 días por defecto al cambiar a CREDITO.
   // En modo edición, esperamos a que medio_de_pago tenga un valor real antes de limpiar.
-  const medioDePagoInitialized = medioDePago !== "" && medioDePago !== undefined;
+  const medioDePagoInitialized =
+    medioDePago !== "" && medioDePago !== undefined;
   useEffect(() => {
     if (isEdit && !medioDePagoInitialized) return;
     if (!isCredito) {
       form.setValue("credit_days", undefined);
       form.setValue("venta_al_credito", []);
-      form.setValue("fecha_de_vencimiento", undefined);
-    } else {
+      const fechaEmision = form.getValues("fecha_de_emision");
+      form.setValue(
+        "fecha_de_vencimiento",
+        fechaEmision ? String(fechaEmision).split("T")[0] : undefined,
+      );
+    } else if (!form.getValues("credit_days")) {
       form.setValue("credit_days", "30");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,6 +67,25 @@ export function AdditionalConfigSection({
 
   // Recalcular fecha de vencimiento cuando cambian los días de crédito
   const creditDaysValue = form.watch("credit_days");
+
+  function calcFechaVencimiento(days: string): string | null {
+    const numDays = Number(days);
+    if (!days || isNaN(numDays) || numDays < 1 || numDays > 50) return null;
+    const fechaEmision = form.getValues("fecha_de_emision");
+    if (!fechaEmision) return null;
+    const datePart = String(fechaEmision).split("T")[0];
+    const [yyyyE, mmE, ddE] = datePart.split("-").map(Number);
+    if (isNaN(yyyyE) || isNaN(mmE) || isNaN(ddE)) return null;
+    const fechaPago = new Date(yyyyE, mmE - 1, ddE + numDays);
+    const dd = String(fechaPago.getDate()).padStart(2, "0");
+    const mm = String(fechaPago.getMonth() + 1).padStart(2, "0");
+    const yyyy = fechaPago.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  const fechaVencimientoPreview = creditDaysValue
+    ? calcFechaVencimiento(creditDaysValue)
+    : null;
   useEffect(() => {
     if (creditDaysValue) {
       handleCreditDaysChange(creditDaysValue);
@@ -68,18 +94,24 @@ export function AdditionalConfigSection({
   }, [creditDaysValue]);
 
   function handleCreditDaysChange(days: string) {
+    const numDays = Number(days);
+    if (!days || isNaN(numDays) || numDays < 1 || numDays > 50) return;
+
     const fechaEmision = form.getValues("fecha_de_emision");
     const total = form.getValues("total");
     if (!fechaEmision) return;
 
-    const [yyyyE, mmE, ddE] = String(fechaEmision).split("-").map(Number);
-    const fechaPago = new Date(yyyyE, mmE - 1, ddE + Number(days));
+    // Parsear solo la parte de fecha (ignorar la parte de tiempo si existe)
+    const datePart = String(fechaEmision).split("T")[0];
+    const [yyyyE, mmE, ddE] = datePart.split("-").map(Number);
+    if (isNaN(yyyyE) || isNaN(mmE) || isNaN(ddE)) return;
+
+    const fechaPago = new Date(yyyyE, mmE - 1, ddE + numDays);
     const dd = String(fechaPago.getDate()).padStart(2, "0");
     const mm = String(fechaPago.getMonth() + 1).padStart(2, "0");
     const yyyy = fechaPago.getFullYear();
     const fechaFormateada = `${dd}-${mm}-${yyyy}`;
 
-    // Setear la fecha de vencimiento calculada en el form principal
     form.setValue("fecha_de_vencimiento", `${yyyy}-${mm}-${dd}`);
 
     form.setValue("venta_al_credito", [
@@ -95,7 +127,7 @@ export function AdditionalConfigSection({
         )
       : condicionesDePago === "TARJETA"
         ? checkbooks.filter((checkbook) =>
-            Object.values(CHECKBOOKS_ID).includes(checkbook.id),
+            checkbook.code.toUpperCase().includes("QR"),
           )
         : checkbooks.filter(
             (checkbook) => !checkbook.code.toUpperCase().includes("CAJ"),
@@ -160,18 +192,31 @@ export function AdditionalConfigSection({
       />
       {isCredito ? (
         <>
-          <FormSelect
-            control={form.control}
-            label="Días de Crédito"
-            name="credit_days"
-            options={CREDIT_DAYS_OPTIONS.map((o) => ({
-              label: o.label,
-              value: o.value,
-            }))}
-            placeholder="Seleccione o escriba los días"
-            description="La fecha de vencimiento se calculará automáticamente."
-            required
-          />
+          <div className="flex flex-col gap-1">
+            <FormCombobox
+              control={form.control}
+              label="Días de Crédito"
+              name="credit_days"
+              options={CREDIT_DAYS_OPTIONS.map((o) => ({
+                label: o.label,
+                value: o.value,
+              }))}
+              placeholder="Seleccione o escriba los días"
+              description="Ingrese entre 1 y 50 días."
+              required
+              allowCreate
+              validateCreate={(val) => {
+                const num = Number(val);
+                return /^\d+$/.test(val) && num >= 1 && num <= 50;
+              }}
+              formatDisplay={(val) => `${val} día${val === "1" ? "" : "s"}`}
+            />
+            {fechaVencimientoPreview && (
+              <p className="text-xs text-blue-600 font-medium">
+                Vence el: {fechaVencimientoPreview}
+              </p>
+            )}
+          </div>
 
           {useQuotation && (
             <FormSelect
@@ -262,10 +307,31 @@ export function AdditionalConfigSection({
             description="Número de orden de compra o servicio relacionado (opcional)."
             maxLength={255}
           />
-          {!!ordenCompraServicio && !isEdit && (
-            <div className="col-span-full">
+          {!!ordenCompraServicio && (
+            <div className="col-span-full space-y-2">
+              {existingFileUrl && !form.watch("orden_compra_servicio_file") && (
+                <div className="flex items-center gap-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2.5">
+                  <FileText className="h-4 w-4 shrink-0 text-blue-600" />
+                  <span className="flex-1 truncate text-sm text-blue-800">
+                    Archivo actual guardado
+                  </span>
+                  <a
+                    href={existingFileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex shrink-0 items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Ver archivo
+                  </a>
+                </div>
+              )}
               <FileUploadWithCamera
-                label="Archivo de orden de compra/servicio (opcional)"
+                label={
+                  existingFileUrl
+                    ? "Reemplazar archivo (opcional)"
+                    : "Archivo de orden de compra/servicio (opcional)"
+                }
                 value={form.watch("orden_compra_servicio_file") ?? null}
                 onChange={(file) =>
                   form.setValue("orden_compra_servicio_file", file)

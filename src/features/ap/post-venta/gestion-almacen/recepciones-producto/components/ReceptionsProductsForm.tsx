@@ -15,6 +15,8 @@ import {
   ShoppingCart,
   Trash2,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch.tsx";
+import { Label } from "@/components/ui/label.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
@@ -97,6 +99,7 @@ export const ReceptionsProductsForm = ({
         observation_notes: "",
         bonus_reason: "",
         notes: "",
+        is_credit_note: false,
       }));
 
       form.setValue("details", initialDetails);
@@ -144,6 +147,7 @@ export const ReceptionsProductsForm = ({
       observation_notes: "",
       bonus_reason: "",
       notes: "",
+      is_credit_note: false,
     });
   };
 
@@ -372,7 +376,7 @@ export const ReceptionsProductsForm = ({
                           <FormInput
                             control={form.control}
                             name={`details.${index}.observed_quantity`}
-                            label="Cant. Nota Crédito"
+                            label="Cant. Pendiente"
                             placeholder="0"
                             type="number"
                             min="0"
@@ -444,12 +448,11 @@ export const ReceptionsProductsForm = ({
                       {hasObservation && (
                         <div className="bg-orange-50 border border-orange-200 rounded-md p-2.5">
                           <p className="text-xs font-semibold text-orange-700 mb-1.5">
-                            Observación Detectada
+                            Observación Detectada *
                           </p>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 gap-2">
                             <FormSelect
                               name={`details.${index}.reason_observation`}
-                              label="Motivo de Observación *"
                               placeholder="Selecciona motivo"
                               options={OBSERVATION_REASONS.map((reason) => ({
                                 label: reason.label,
@@ -457,15 +460,27 @@ export const ReceptionsProductsForm = ({
                               }))}
                               control={form.control}
                               disabled={mode === "update"}
+                              required
                             />
-
-                            <FormInput
-                              name={`details.${index}.observation_notes`}
-                              label="Notas de Observación"
-                              placeholder="Detalles adicionales..."
-                              control={form.control}
-                              disabled={mode === "update"}
-                            />
+                            <div className="flex items-center gap-2 pt-1">
+                              <Switch
+                                id={`is_credit_note_${index}`}
+                                checked={!!detail?.is_credit_note}
+                                onCheckedChange={(checked) =>
+                                  form.setValue(
+                                    `details.${index}.is_credit_note`,
+                                    checked,
+                                  )
+                                }
+                                disabled={mode === "update"}
+                              />
+                              <Label
+                                htmlFor={`is_credit_note_${index}`}
+                                className="text-xs text-orange-700 cursor-pointer"
+                              >
+                                Nota de crédito por faltante
+                              </Label>
+                            </div>
                           </div>
                         </div>
                       )}

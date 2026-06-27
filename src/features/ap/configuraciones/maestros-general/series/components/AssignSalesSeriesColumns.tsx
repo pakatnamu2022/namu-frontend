@@ -7,7 +7,11 @@ import { AssignSalesSeriesResource } from "../lib/assignSalesSeries.interface";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { ASSIGN_SALES_SERIES } from "../lib/assignSalesSeries.constants";
+import {
+  ASSIGN_SALES_SERIES,
+  SERIES_TYPE_CONFIG,
+  type SeriesType,
+} from "../lib/assignSalesSeries.constants";
 
 export type AssignSalesSeriesColumns = ColumnDef<AssignSalesSeriesResource>;
 
@@ -52,6 +56,16 @@ export const assignSalesSeriesColumns = ({
   {
     accessorKey: "type",
     header: "Tipo",
+    cell: ({ getValue }) => {
+      const value = getValue() as SeriesType;
+      const config = SERIES_TYPE_CONFIG[value];
+      if (!config) return value;
+      return (
+        <Badge color={config.color} variant="outline">
+          {config.label}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -59,10 +73,7 @@ export const assignSalesSeriesColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge
-          color={value ? "default" : "secondary"}
-          className="capitalize w-20 flex items-center justify-center"
-        >
+        <Badge variant="outline" color={value ? "green" : "red"}>
           {value ? "Activo" : "Inactivo"}
         </Badge>
       );

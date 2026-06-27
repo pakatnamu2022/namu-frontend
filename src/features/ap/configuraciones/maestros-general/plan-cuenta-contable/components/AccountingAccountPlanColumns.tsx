@@ -38,7 +38,8 @@ export const accountingAccountPlanColumns = ({
   },
   {
     accessorKey: "code_dynamics",
-    header: "Código Dynamics",
+    header: "Cód. Dyn",
+    enableSorting: true,
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return (
@@ -55,8 +56,25 @@ export const accountingAccountPlanColumns = ({
     header: "Descripción",
   },
   {
-    accessorKey: "accounting_type",
-    header: "Tipo Cuenta Contable",
+    id: "habilitado_para",
+    header: "Habilitado para",
+    cell: ({ row }) => {
+      const { enable_commercial, enable_after_sales } = row.original;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {enable_commercial && (
+            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+              Comercial
+            </Badge>
+          )}
+          {enable_after_sales && (
+            <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
+              Post Venta
+            </Badge>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "is_detraction",

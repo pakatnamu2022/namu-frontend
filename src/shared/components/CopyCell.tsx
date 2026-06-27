@@ -17,7 +17,7 @@ export function CopyCell({
   value,
   label,
   className,
-  size,
+  size = "sm",
   font,
 }: CopyCellProps) {
   const [copied, setCopied] = useState(false);

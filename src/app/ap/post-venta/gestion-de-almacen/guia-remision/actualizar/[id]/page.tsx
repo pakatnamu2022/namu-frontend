@@ -80,11 +80,17 @@ export default function UpdateProductTransferPage() {
           : BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID,
       transfer_modality_id: String(data.reference.transfer_modality_id),
       transport_company_id: String(data.reference.transport_company_id),
-      transmitter_origin_id: String(data.reference.transmitter_origin_id ?? AUTOMOTORES_PAKATNAMU_ID),
-      receiver_destination_id: String(data.reference.receiver_destination_id ?? AUTOMOTORES_PAKATNAMU_ID),
+      transmitter_origin_id: String(
+        data.reference.transmitter_origin_id ?? AUTOMOTORES_PAKATNAMU_ID,
+      ),
+      receiver_destination_id: String(
+        data.reference.receiver_destination_id ?? AUTOMOTORES_PAKATNAMU_ID,
+      ),
       total_packages: Number(data.reference.total_packages),
       total_weight: Number(data.reference.total_weight),
-      issue_date: data.created_at ? new Date(data.created_at) : undefined,
+      issue_date: data.reference.issue_date
+        ? new Date(data.reference.issue_date)
+        : undefined,
       details:
         data.details?.map((item) => ({
           product_id: String(item.product_id),

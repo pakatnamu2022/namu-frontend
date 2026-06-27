@@ -1,4 +1,5 @@
 import { type ModelComplete } from "@/core/core.interface";
+import type { BadgeColor } from "@/components/ui/badge";
 import { AssignSalesSeriesResource } from "./assignSalesSeries.interface";
 
 const ROUTE = "series";
@@ -35,4 +36,23 @@ export const TYPE_RECEIPT_SERIES = {
   NOTA_CREDITO: 801,
   NOTA_DEBITO: 802,
   GUIA_REMISION: 803,
+};
+
+export type SeriesType = "SALE" | "PURCHASE" | "GUIDES" | "OTHERS";
+
+export const SERIES_TYPE_OPTIONS: { label: string; value: SeriesType }[] = [
+  { label: "VENTA", value: "SALE" },
+  { label: "COMPRA", value: "PURCHASE" },
+  { label: "GUÍAS", value: "GUIDES" },
+  { label: "OTROS", value: "OTHERS" },
+];
+
+export const SERIES_TYPE_CONFIG: Record<
+  SeriesType,
+  { label: string; color: BadgeColor }
+> = {
+  SALE: { label: "Venta", color: "green" },
+  PURCHASE: { label: "Compra", color: "blue" },
+  GUIDES: { label: "Guías", color: "orange" },
+  OTHERS: { label: "Otros", color: "gray" },
 };

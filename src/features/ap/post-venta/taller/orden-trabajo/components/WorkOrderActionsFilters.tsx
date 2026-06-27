@@ -22,22 +22,24 @@ const VIEW_CONFIG: Record<
   }
 > = {
   OT: {
-    label: "OT Individual",
+    label: "Factura Individual",
     shortLabel: "Individual",
-    description: "Se factura 1 OT en 1 factura.",
+    description:
+      "Factura una sola OT a la vez, generando una factura por cada orden de trabajo.",
     icon: FileText,
   },
   PENDING: {
-    label: "Por Facturar (Masiva)",
-    shortLabel: "Por Facturar",
+    label: "Pendientes — Factura Masiva",
+    shortLabel: "Pendientes Masivas",
     description:
-      "OT pendientes para facturar en una sola factura masiva (2 o más OT).",
+      "OTs pendientes de facturar. Aquí puedes seleccionar varias OTs y emitir una sola factura masiva para todas.",
     icon: Files,
   },
   INVOICED: {
-    label: "Facturadas (Masiva)",
-    shortLabel: "Facturadas",
-    description: "OT ya facturadas en una factura masiva (2 o más OT).",
+    label: "Facturadas — Factura Masiva",
+    shortLabel: "Facturadas Masivas",
+    description:
+      "OTs que ya fueron incluidas en una factura masiva (2 o más OTs en una sola factura).",
     icon: ReceiptText,
   },
 };

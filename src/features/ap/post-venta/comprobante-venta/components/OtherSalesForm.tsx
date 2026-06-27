@@ -31,6 +31,8 @@ interface ElectronicDocumentFormProps {
   igvTypes?: SunatConceptsResource[];
   creditNoteTypes?: SunatConceptsResource[];
   debitNoteTypes?: SunatConceptsResource[];
+  isCommercial?: boolean;
+  sedeId?: string;
 }
 
 export function OtherSalesForm({
@@ -43,6 +45,8 @@ export function OtherSalesForm({
   identityDocumentTypes = [],
   currencyTypes = [],
   igvTypes = [],
+  isCommercial = true,
+  sedeId,
 }: ElectronicDocumentFormProps) {
   // Estado para el cliente seleccionado (manejado por DocumentInfoSection)
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -89,6 +93,7 @@ export function OtherSalesForm({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
+    ...(sedeId ? { sede_id: sedeId } : {}),
   });
 
   const selectedSeries = authorizedSeries.find(
@@ -233,6 +238,7 @@ export function OtherSalesForm({
               igvTypes={igvTypes}
               currencySymbol={currencySymbol}
               porcentaje_de_igv={porcentaje_de_igv}
+              isCommercial={isCommercial}
             />
             {/* Configuración Adicional */}
             <AdditionalConfigSection

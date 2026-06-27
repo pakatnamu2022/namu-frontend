@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -19,15 +19,16 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper.tsx";
 import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
-import { useSidebar } from "@/components/ui/sidebar.tsx";
 import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm.tsx";
 
 export default function AddGeneralSalesReceiptsCajaPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
   const router = useNavigate();
+  const location = useLocation();
+  const sedeId: string | undefined = location.state?.sedeId || undefined;
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
 
   // Fetch all SunatConcepts in a single query
@@ -147,12 +148,6 @@ export default function AddGeneralSalesReceiptsCajaPage() {
     mutate(data);
   };
 
-  const { setOpen, setOpenMobile } = useSidebar();
-  useEffect(() => {
-    setOpen(false);
-    setOpenMobile(false);
-  }, [setOpen, setOpenMobile]);
-
   if (isLoadingModule) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -181,6 +176,8 @@ export default function AddGeneralSalesReceiptsCajaPage() {
         igvTypes={igvTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
+        isCommercial={false}
+        sedeId={sedeId}
       />
     </PageWrapper>
   );

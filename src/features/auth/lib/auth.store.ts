@@ -18,8 +18,9 @@ interface AuthState {
   isAuthenticated: boolean;
   user: UserResource;
   isHydrated: boolean;
-  permissions?: ViewsResponseOpcionesMenu[]; // Access tree for navigation
-  permissionsModules?: ModulePermissions; // Module permissions { "module.action": true }
+  permissions?: ViewsResponseOpcionesMenu[];
+  permissionsModules?: ModulePermissions;
+  general?: { freight_commission: number };
   setToken?: (token: string) => void;
   login: (request: AuthRequest) => Promise<void>;
   verifyWith2FA: (request: TwoFactorVerifyRequest) => Promise<void>;
@@ -34,7 +35,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: !!getInitialToken(),
   user: {} as UserResource,
   permissions: [],
-  permissionsModules: [], // Initialize as empty array (backend sends array)
+  permissionsModules: [],
+  general: undefined,
   isHydrated: false,
   hasPermission: (permissionCode: string) => {
     const { permissionsModules } = get();
@@ -60,6 +62,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           "permissions",
           JSON.stringify(authResponse.permissions),
         );
+        localStorage.setItem("general", JSON.stringify(authResponse.general));
       }
       set({
         isAuthenticated: true,
@@ -67,6 +70,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         token: authResponse.access_token,
         permissions: authResponse.permissions?.access_tree || [],
         permissionsModules: authResponse.permissions?.permissions_modules || {},
+        general: authResponse.general,
       });
     } else {
       if (typeof window !== "undefined") {
@@ -90,6 +94,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.setItem("token", response.access_token);
       localStorage.setItem("user", JSON.stringify(response.user));
       localStorage.setItem("permissions", JSON.stringify(response.permissions));
+      localStorage.setItem("general", JSON.stringify(response.general));
     }
     set({
       isAuthenticated: true,
@@ -97,6 +102,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       token: response.access_token,
       permissions: response.permissions?.access_tree || [],
       permissionsModules: response.permissions?.permissions_modules || {},
+      general: response.general,
     });
   },
   setUserTwoFactor: (enabled) => {
@@ -113,6 +119,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("permissions");
+      localStorage.removeItem("general");
     }
 
     set({
@@ -121,6 +128,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isHydrated: true,
       permissions: [],
       permissionsModules: {},
+      general: undefined,
     });
   },
   authenticate: async () => {
@@ -146,13 +154,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // Token exists, proceed with authentication
-    const { user, permissions } = await authenticate();
+    const { user, permissions, general } = await authenticate();
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("general", JSON.stringify(general));
       set({
         user,
         permissions: permissions?.access_tree || [],
         permissionsModules: permissions?.permissions_modules || {},
+        general,
         isAuthenticated: true,
       });
     } else {

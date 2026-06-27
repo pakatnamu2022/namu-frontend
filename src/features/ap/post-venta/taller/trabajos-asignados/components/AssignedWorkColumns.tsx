@@ -9,8 +9,6 @@ import {
   getPlanningVisualState,
   getPlanningActions,
 } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
-import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   Clock,
   Calendar,
@@ -34,6 +32,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PLANNING_TYPE_LABELS } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.constants";
 import { ElapsedTimer } from "../../planificacion-orden-trabajo/components/ElapsedTimer";
+import { formatDateTime, formatHours } from "@/core/core.function";
 
 interface AssignedWorkColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
@@ -94,9 +93,7 @@ export const assignedWorkColumns = ({
       return (
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">
-            {format(parseISO(datetime), "dd/MM/yyyy HH:mm", { locale: es })}
-          </span>
+          <span className="text-sm">{formatDateTime(datetime)}</span>
         </div>
       );
     },
@@ -110,7 +107,7 @@ export const assignedWorkColumns = ({
         <div className="flex items-center gap-1">
           <Clock className="h-4 w-4 text-primary" />
           <span className="font-medium text-primary">
-            {hours ? `${hours}h` : "-"}
+            {hours ? `${formatHours(hours)}` : "-"}
           </span>
         </div>
       );
@@ -140,7 +137,7 @@ export const assignedWorkColumns = ({
               isOvertime ? "text-red-600" : "text-green-600"
             }`}
           >
-            {hours === null ? "-" : `${hours}h`}
+            {hours === null ? "-" : `${formatHours(hours)}`}
           </span>
         </div>
       );

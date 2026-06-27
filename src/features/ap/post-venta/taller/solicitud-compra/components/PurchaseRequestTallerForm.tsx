@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
+import { Plus, Trash2, Package, PackagePlus, FileText, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +13,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -416,60 +415,67 @@ export default function PurchaseRequestTallerForm({
 
         {/* Checkbox para adjuntar cotización */}
         {showQuotationOption && (
-          <FormField
-            control={form.control}
-            name="has_appointment"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>¿Adjuntar Cotización?</FormLabel>
-                  <p className="text-sm text-muted-foreground">
-                    Marque esta opción si desea adjuntar una cotización a la
-                    solicitud de compra.
-                  </p>
-                </div>
-              </FormItem>
-            )}
-          />
-        )}
-
-        {/* Selector de Cotización - Solo visible si has_appointment es true */}
-        {showQuotationOption && hasAppointment && (
-          <FormField
-            control={form.control}
-            name="ap_order_quotation_id"
-            render={() => (
-              <FormItem>
-                <FormLabel>Cotización</FormLabel>
-                <FormControl>
-                  <div className="space-y-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setIsQuotationModalOpen(true);
-                      }}
-                      disabled={isLoadingQuotations}
-                    >
-                      <Search className="h-4 w-4 mr-2" />
-                      {isLoadingQuotations
-                        ? "Cargando cotizaciones..."
-                        : getSelectedQuotationLabel() ||
-                          "Buscar y seleccionar cotización"}
-                    </Button>
+          <div className="mt-4">
+            <FormField
+              control={form.control}
+              name="has_appointment"
+              render={({ field }) => (
+                <FormItem className="rounded-md border p-4 space-y-0">
+                  {/* Fila del checkbox */}
+                  <div className="flex flex-row items-start space-x-3">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        disabled={isLoadingQuotations}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            field.onChange(true);
+                            setIsQuotationModalOpen(true);
+                          } else {
+                            field.onChange(false);
+                            form.setValue("ap_order_quotation_id", "");
+                            setSelectedQuotationData(null);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="cursor-pointer">
+                        ¿Adjuntar Cotización?
+                      </FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        {isLoadingQuotations
+                          ? "Cargando cotización..."
+                          : "Marque para adjuntar una cotización a la solicitud."}
+                      </p>
+                    </div>
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+                  {/* Tarjeta de cotización seleccionada */}
+                  {hasAppointment && selectedQuotationData && (
+                    <div className="mt-3 ml-7 flex items-center justify-between rounded-md bg-muted/50 border px-3 py-2 gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="h-4 w-4 text-primary shrink-0" />
+                        <span className="text-sm font-medium truncate">
+                          {getSelectedQuotationLabel()}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsQuotationModalOpen(true)}
+                        tooltip="Cambiar cotización"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </FormItem>
+              )}
+            />
+          </div>
         )}
 
         <FormTextArea
@@ -951,7 +957,12 @@ export default function PurchaseRequestTallerForm({
         <QuotationSelectionTallerModal
           open={isQuotationModalOpen}
           sedeId={selectedWarehouse?.sede_id}
-          onOpenChange={setIsQuotationModalOpen}
+          onOpenChange={(open) => {
+            setIsQuotationModalOpen(open);
+            if (!open && !form.getValues("ap_order_quotation_id")) {
+              form.setValue("has_appointment", false);
+            }
+          }}
           onSelectQuotation={handleSelectQuotation}
         />
 

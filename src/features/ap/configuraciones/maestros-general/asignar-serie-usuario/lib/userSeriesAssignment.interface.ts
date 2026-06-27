@@ -8,6 +8,7 @@ export interface UserSeriesAssignmentResponse {
 
 export interface UserSeriesAssignmentResource {
   worker_id: string;
+  worker_name?: string;
   vouchers: VouchersResource[];
 }
 

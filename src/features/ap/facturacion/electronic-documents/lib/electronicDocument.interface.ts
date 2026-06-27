@@ -93,8 +93,10 @@ export interface ElectronicDocumentResource {
   operation_number?: string;
   financing_type?: string;
   medio_de_pago?: string;
+  credit_days?: number;
   placa_vehiculo?: string;
   orden_compra_servicio?: string;
+  orden_compra_servicio_url?: string;
   codigo_unico?: string;
   enviar_automaticamente_a_la_sunat?: boolean;
   enviar_automaticamente_al_cliente?: boolean;

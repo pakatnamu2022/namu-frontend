@@ -17,6 +17,7 @@ import {
   Ban,
   ChevronDown,
   ChevronUp,
+  ReceiptText,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -32,6 +33,11 @@ import { CopyCell } from "@/shared/components/CopyCell.tsx";
 import { InvoiceDetailSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/components/InvoiceDetailSheet.tsx";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 import { translateStatusReception } from "../lib/receptionsProducts.constants";
+import { Switch } from "@/components/ui/switch.tsx";
+import { useUpdateDetailCreditNote } from "../lib/receptionsProducts.hook";
+import { useQueryClient } from "@tanstack/react-query";
+import { RECEPTION } from "../lib/receptionsProducts.constants";
+import { successToast, errorToast } from "@/core/core.function";
 
 interface Props {
   data: ReceptionResource[];
@@ -41,6 +47,7 @@ interface Props {
   warehouseName?: string;
   onDelete?: (id: number) => void;
   isDeleting?: boolean;
+  onRefresh?: () => void;
 }
 
 export default function ReceptionsProductsCards({
@@ -50,12 +57,16 @@ export default function ReceptionsProductsCards({
   warehouseName,
   onDelete,
   isDeleting,
+  onRefresh,
 }: Props) {
   const [selectedInvoice, setSelectedInvoice] =
     useState<VehiclePurchaseOrderResource | null>(null);
   const [expandedAnnulled, setExpandedAnnulled] = useState<Set<number>>(
     new Set(),
   );
+  const queryClient = useQueryClient();
+  const { mutate: updateCreditNote, isPending: isUpdatingCreditNote } =
+    useUpdateDetailCreditNote();
 
   const toggleAnnulled = (id: number) =>
     setExpandedAnnulled((prev) => {
@@ -137,7 +148,7 @@ export default function ReceptionsProductsCards({
                         isSingleCard ? "text-sm mt-1" : "text-xs mt-0.5"
                       }`}
                     >
-                      OC: {supplierOrderNumber || "-"}
+                      {supplierOrderNumber || "-"}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -591,12 +602,56 @@ export default function ReceptionsProductsCards({
                                 <div className="flex items-start gap-2">
                                   <AlertCircle className="size-4 text-yellow-600 shrink-0 mt-0.5" />
                                   <div className="flex-1">
-                                    <p className="font-medium text-yellow-900 text-xs mb-1">
-                                      Cantidad Observada:{" "}
-                                      {Number(detail.observed_quantity).toFixed(
-                                        2,
+                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                      <p className="font-medium text-yellow-900 text-xs">
+                                        Cantidad Pendiente:{" "}
+                                        {Number(
+                                          detail.observed_quantity,
+                                        ).toFixed(2)}
+                                      </p>
+                                      {detail.is_credit_note && (
+                                        <Badge
+                                          className="text-[10px] h-4 px-1.5 gap-1"
+                                          color="blue"
+                                        >
+                                          <ReceiptText className="size-3" />
+                                          Nota de Crédito
+                                        </Badge>
                                       )}
-                                    </p>
+                                      <Switch
+                                        checked={detail.is_credit_note}
+                                        disabled={isUpdatingCreditNote}
+                                        onCheckedChange={(checked) =>
+                                          updateCreditNote(
+                                            {
+                                              detailId: detail.id,
+                                              isCreditNote: checked,
+                                            },
+                                            {
+                                              onSuccess: () => {
+                                                successToast(
+                                                  "Detalle actualizado correctamente",
+                                                );
+                                                queryClient.removeQueries({
+                                                  queryKey: [
+                                                    RECEPTION.QUERY_KEY,
+                                                    reception.id,
+                                                  ],
+                                                });
+                                                onRefresh?.();
+                                              },
+                                              onError: (error: any) => {
+                                                const msg =
+                                                  error?.response?.data
+                                                    ?.message ||
+                                                  "Error al actualizar detalle";
+                                                errorToast(msg);
+                                              },
+                                            },
+                                          )
+                                        }
+                                      />
+                                    </div>
                                     {detail.reason_observation && (
                                       <p className="text-yellow-700 text-xs">
                                         Razón:{" "}
@@ -683,6 +738,7 @@ export default function ReceptionsProductsCards({
                     className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/40 border border-muted text-muted-foreground/70 opacity-60 hover:opacity-90 hover:bg-muted/60 transition-all w-full text-left"
                   >
                     <Ban className="size-3 shrink-0" />
+                    {reception.id}
                     <span className="text-xs font-medium line-through flex-1">
                       {reception.reception_number || `#${reception.id}`}
                     </span>

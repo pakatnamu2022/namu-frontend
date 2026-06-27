@@ -182,7 +182,9 @@ export default function InvoiceReceptionPage() {
           sede_id: String(reception.warehouse.sede_id) || "",
           warehouse_id: reception.warehouse_id.toString(),
           currency_id: String(reception.type_currency_id) || "",
-          emission_date: new Date(),
+          emission_date: reception.reception_date
+            ? new Date(reception.reception_date)
+            : new Date(),
           due_date: new Date(),
           payment_terms: "30_DAYS",
           items:
@@ -190,7 +192,9 @@ export default function InvoiceReceptionPage() {
               product_id: detail.product_id.toString(),
               quantity:
                 Number(detail.quantity_received) +
-                Number(detail.observed_quantity),
+                (detail.is_credit_note
+                  ? Number(detail.observed_quantity ?? 0)
+                  : 0),
               unit_price: 0,
               unit_measurement_id:
                 detail.product?.unit_measurement_id?.toString() || "",

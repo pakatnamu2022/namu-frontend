@@ -104,7 +104,6 @@ function ProductDetailItem({
   isDetailsDisabled = false,
   showStock,
   onToggleStock,
-  selectedVehicle,
 }: {
   index: number;
   form: any;
@@ -209,9 +208,9 @@ function ProductDetailItem({
                   ),
                   value: product.id.toString(),
                 })}
-                additionalParams={{
-                  brand_id: selectedVehicle?.model.brand_id,
-                }}
+                // additionalParams={{
+                //   brand_id: selectedVehicle?.model.brand_id,
+                // }}
                 perPage={10}
                 debounceMs={500}
                 defaultOption={defaultProductOption}
@@ -780,9 +779,10 @@ export default function ProformaMesonForm({
         }
       : undefined,
   );
-  const { user } = useAuthStore();
+  const { user, general } = useAuthStore();
   const defaultDiscount =
     user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+  const freightCommissionMultiplier = 1 + (general?.freight_commission ?? 0.05);
   const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
 
   // Determinar si los detalles deben estar deshabilitados
@@ -828,7 +828,6 @@ export default function ProformaMesonForm({
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
-    has_workshop: 1,
   });
 
   const { data: currencyTypes = [] } = useAllCurrencyTypes({
@@ -955,7 +954,7 @@ export default function ProformaMesonForm({
       observations: "",
       retail_price_external: undefined,
       exchange_rate: exchangeRate || 0,
-      freight_commission: 1.05,
+      freight_commission: freightCommissionMultiplier,
       supply_type: "STOCK",
     });
   };
@@ -963,7 +962,8 @@ export default function ProformaMesonForm({
   const calculateUnitPrice = (index: number) => {
     const detail = form.watch(`details.${index}`);
     const retail = detail?.retail_price_external || 0;
-    const commission = detail?.freight_commission || 1.05;
+    const commission =
+      detail?.freight_commission || freightCommissionMultiplier;
 
     // Si la moneda seleccionada es USD (id: 1), no aplicar tipo de cambio
     // Si es PEN (id: 3), aplicar el tipo de cambio
@@ -1299,7 +1299,8 @@ export default function ProformaMesonForm({
         {quotationDate && (
           <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-4">
             <p className="text-xs text-primary">
-              <span className="font-semibold">Comisión de flete:</span> 1.05
+              <span className="font-semibold">Comisión de flete:</span>{" "}
+              {freightCommissionMultiplier.toFixed(2)}
             </p>
             {isLoadingExchangeRate ? (
               <p className="text-xs text-primary">

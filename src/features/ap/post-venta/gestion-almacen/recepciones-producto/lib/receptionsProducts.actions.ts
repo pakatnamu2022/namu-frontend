@@ -72,3 +72,14 @@ export async function deleteReception(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function updateDetailCreditNote(
+  detailId: number,
+  isCreditNote: boolean,
+): Promise<GeneralResponse> {
+  const { data } = await api.patch<GeneralResponse>(
+    `/ap/postVenta/purchaseReceptionDetails/${detailId}/credit-note`,
+    { is_credit_note: isCreditNote },
+  );
+  return data;
+}

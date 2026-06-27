@@ -89,7 +89,24 @@ export async function getElectronicDocumentsByEntity(
 export async function storeElectronicDocument(
   data: ElectronicDocumentSchema,
 ): Promise<ElectronicDocumentResource> {
-  const response = await api.post<ElectronicDocumentResource>(ENDPOINT, data);
+  const { orden_compra_servicio_file, ...rest } = data;
+  const formData = new FormData();
+
+  Object.entries(rest).forEach(([key, value]) => {
+    appendToFormData(formData, key, value);
+  });
+
+  if (orden_compra_servicio_file instanceof File) {
+    formData.append("orden_compra_servicio_file", orden_compra_servicio_file);
+  }
+
+  const response = await api.post<ElectronicDocumentResource>(
+    ENDPOINT,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    },
+  );
   return response.data;
 }
 
@@ -163,9 +180,23 @@ export async function updateElectronicDocument(
   id: number,
   data: ElectronicDocumentSchema,
 ): Promise<ElectronicDocumentResource> {
-  const response = await api.put<ElectronicDocumentResource>(
+  const { orden_compra_servicio_file, ...rest } = data;
+  const formData = new FormData();
+
+  formData.append("_method", "PUT");
+
+  Object.entries(rest).forEach(([key, value]) => {
+    appendToFormData(formData, key, value);
+  });
+
+  if (orden_compra_servicio_file instanceof File) {
+    formData.append("orden_compra_servicio_file", orden_compra_servicio_file);
+  }
+
+  const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}`,
-    data,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
   );
   return response.data;
 }
@@ -210,6 +241,12 @@ export async function cancelElectronicDocument(
     { reason },
   );
   return response.data;
+}
+
+export async function cancelConsolidatedInvoice(
+  id: number,
+): Promise<void> {
+  await api.delete(`${ENDPOINT}/${id}/consolidated-invoice`);
 }
 
 export async function getNextCreditNoteNumber(

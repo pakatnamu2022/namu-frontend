@@ -55,11 +55,11 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { useEstablishmentBySede } from "@/features/ap/comercial/establecimientos/lib/establishments.hook.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -68,6 +68,7 @@ interface ProductTransferFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   transferData?: any;
+  sedeId?: string;
 }
 
 export const ProductTransferForm = ({
@@ -76,6 +77,7 @@ export const ProductTransferForm = ({
   isSubmitting = false,
   mode = "create",
   transferData,
+  sedeId,
 }: ProductTransferFormProps) => {
   const { ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const router = useNavigate();
@@ -175,13 +177,38 @@ export const ProductTransferForm = ({
   const watchTransferReasonId = form.watch("transfer_reason_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
 
+  const AUTOMOTORES_PAKATNAMU_ID = "17";
+
+  // Al seleccionar TRASLADO ENTRE SEDES: setear AUTOMOTORES PAKATNAMU en ambas ubicaciones
+  // y limpiar solo el establecimiento destino
+  useEffect(() => {
+    if (mode !== "create") return;
+    if (
+      watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+    )
+      return;
+
+    form.setValue("transmitter_origin_id", AUTOMOTORES_PAKATNAMU_ID, {
+      shouldValidate: true,
+    });
+    form.setValue("receiver_destination_id", AUTOMOTORES_PAKATNAMU_ID, {
+      shouldValidate: true,
+    });
+    setSelectedDestinationEstablishment(null);
+    setSelectedCustomer({
+      id: Number(AUTOMOTORES_PAKATNAMU_ID),
+      name: "20538993400 | AUTOMOTORES PAKATNAMU SOCIEDAD ANONIMA CERRADA",
+    });
+    form.setValue("receiver_id", "", { shouldValidate: true });
+  }, [watchTransferReasonId, mode, form]);
+
   // Obtener clientes y proveedores
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
     useAllTypeClient();
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
-      type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
+      type_operation_id: CM_POSTVENTA_ID,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     },
   );
@@ -1253,6 +1280,7 @@ export const ProductTransferForm = ({
             });
           }}
           sede_id={selectedOriginEstablishment?.sede_id?.toString()}
+          filterSedeId={serieSedeId?.toString() ?? sedeId}
         />
 
         <EstablishmentSelectorModal

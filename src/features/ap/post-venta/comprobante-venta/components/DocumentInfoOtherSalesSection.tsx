@@ -212,7 +212,6 @@ export function DocumentInfoOtherSalesSection({
         control={form.control}
         name="numero"
         label="Número"
-        type="number"
         placeholder="Auto-generado"
         readOnly
         optional

@@ -257,3 +257,13 @@ export async function updateInventoryStockMinMax(
   );
   return response.data;
 }
+
+export async function rebuildCostHistory(
+  productId: number,
+  warehouseId: number,
+): Promise<void> {
+  await api.post(`/ap/postVenta/productWarehouseStock/rebuild-cost-history`, {
+    product_id: productId,
+    warehouse_id: warehouseId,
+  });
+}

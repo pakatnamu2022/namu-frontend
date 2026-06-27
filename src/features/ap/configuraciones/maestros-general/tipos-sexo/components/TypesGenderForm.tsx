@@ -2,22 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   TypeGenderSchema,
   typeGenderSchemaCreate,
   typeGenderSchemaUpdate,
 } from "../lib/typesGender.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface TypeGenderFormProps {
   defaultValues: Partial<TypeGenderSchema>;
@@ -36,7 +29,7 @@ export const TypeGenderForm = ({
 }: TypeGenderFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? typeGenderSchemaCreate : typeGenderSchemaUpdate
+      mode === "create" ? typeGenderSchemaCreate : typeGenderSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -48,18 +41,11 @@ export const TypeGenderForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Masculino" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre"
+            placeholder="Ej: Masculino"
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

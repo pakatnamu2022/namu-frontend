@@ -15,7 +15,10 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllVoucherTypes } from "../../tipos-comprobante/lib/voucherTypes.hook";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
-import { ASSIGN_SALES_SERIES } from "../lib/assignSalesSeries.constants";
+import {
+  ASSIGN_SALES_SERIES,
+  SERIES_TYPE_OPTIONS,
+} from "../lib/assignSalesSeries.constants";
 import { FormInput } from "@/shared/components/FormInput";
 
 interface AssignSalesSeriesFormProps {
@@ -113,12 +116,7 @@ export const AssignSalesSeriesForm = ({
             name="type"
             label="Tipo"
             placeholder="Selecciona un Tipo"
-            options={[
-              { label: "VENTA", value: "SALE" },
-              { label: "COMPRA", value: "PURCHASE" },
-              { label: "GUÍAS", value: "GUIDES" },
-              { label: "OTROS", value: "OTHERS" },
-            ]}
+            options={SERIES_TYPE_OPTIONS}
             control={form.control}
           />
         </div>
@@ -136,7 +134,7 @@ export const AssignSalesSeriesForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : "Guardar Asignación de Serie"}
+            {isSubmitting ? "Guardando" : "Guardar Serie"}
           </Button>
         </div>
       </form>

@@ -2,23 +2,16 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   TaxClassTypesSchema,
   taxClassTypesSchemaCreate,
   taxClassTypesSchemaUpdate,
 } from "../lib/taxClassTypes.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface TaxClassTypesFormProps {
   defaultValues: Partial<TaxClassTypesSchema>;
@@ -48,7 +41,7 @@ export const TaxClassTypesForm = ({
 }: TaxClassTypesFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? taxClassTypesSchemaCreate : taxClassTypesSchemaUpdate
+      mode === "create" ? taxClassTypesSchemaCreate : taxClassTypesSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -60,47 +53,28 @@ export const TaxClassTypesForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="dyn_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod. Dynamics</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: EMP" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod. Dyn"
+            placeholder="Ej: EMP"
           />
-          <FormField
+
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Empleado" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Empleado"
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="tax_class"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Clase de Impuesto</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: R_4TA8%" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Clase de Impuesto"
+            placeholder="Ej: R_4TA8%"
           />
+
           <FormSelect
             name="type"
             label="Tipo"

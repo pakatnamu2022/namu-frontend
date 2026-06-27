@@ -34,6 +34,7 @@ interface ItemsSectionProps {
   isDetraction?: boolean;
   minRetentionPrice?: number;
   allowEditLastItemDescription?: boolean;
+  isCommercial?: boolean;
 }
 
 export function ItemsSection({
@@ -49,10 +50,12 @@ export function ItemsSection({
   isDetraction = false,
   minRetentionPrice,
   allowEditLastItemDescription = false,
+  isCommercial = true,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
     is_detraction: isDetraction ? 1 : 0,
     type: ACP_TYPE_SALE,
+    ...(isCommercial ? { enable_commercial: 1 } : { enable_after_sales: 1 }),
   });
 
   // Validate existing items when detraction mode changes

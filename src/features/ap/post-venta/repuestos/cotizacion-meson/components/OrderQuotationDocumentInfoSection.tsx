@@ -373,7 +373,7 @@ export function OrderQuotationDocumentInfoSection({
               ? "El correlativo no se puede modificar"
               : "Se genera automáticamente"
           }
-          disabled
+          readOnly
         />
       </GroupFormSection>
     </>

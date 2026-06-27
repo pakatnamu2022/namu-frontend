@@ -44,7 +44,6 @@ import { useState } from "react";
 import { api } from "@/core/api.ts";
 import { format, addDays, parseISO } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
@@ -53,6 +52,7 @@ import { FormTextArea } from "@/shared/components/FormTextArea";
 import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -116,11 +116,6 @@ export const PurchaseOrderProductsForm = ({
     },
     mode: "onChange",
   });
-
-  // const { fields, append, remove } = useFieldArray({
-  //   control: form.control,
-  //   name: "items",
-  // });
 
   const { fields } = useFieldArray({
     control: form.control,
@@ -283,22 +278,6 @@ export const PurchaseOrderProductsForm = ({
     return <FormSkeleton />;
   }
 
-  // const handleAddItem = () => {
-  //   append({
-  //     product_id: "",
-  //     quantity: 1,
-  //     item_total: 0,
-  //     unit_price: 0,
-  //     discount: 0,
-  //     tax_rate: 18,
-  //     notes: "",
-  //   });
-  // };
-
-  // const handleRemoveItem = (index: number) => {
-  //   remove(index);
-  // };
-
   const handleSubmit = (data: any) => {
     // Transformar fechas a formato Y-m-d antes de enviar
     const transformedData = {
@@ -312,7 +291,7 @@ export const PurchaseOrderProductsForm = ({
           ? format(data.due_date, "yyyy-MM-dd")
           : data.due_date,
       igv: data.total_tax || 0, // Enviar el monto del IGV calculado
-      type_operation_id: data.type_operation_id || TYPES_OPERATION_ID.POSTVENTA,
+      type_operation_id: data.type_operation_id || CM_POSTVENTA_ID,
     };
 
     onSubmit(transformedData);
@@ -582,14 +561,6 @@ export const PurchaseOrderProductsForm = ({
                       </TableHead>
                       <TableHead className="w-32 text-end">Precio</TableHead>
                       <TableHead className="w-32 text-end">Total</TableHead>
-                      {/* {watchedCurrencyTypeId &&
-                        watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                        exchangeRate && (
-                          <TableHead className="w-32 text-end">
-                            Total Soles
-                          </TableHead>
-                        )} */}
-                      {/* <TableHead className="w-20 text-center">Acción</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -630,7 +601,7 @@ export const PurchaseOrderProductsForm = ({
                                   currentItem?.product_code
                                     ? {
                                         value: currentItem.product_id,
-                                        label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.unit_measurement_id || "Sin unidad"}`,
+                                        label: `${currentItem.product_name} - ${currentItem.product_code}`,
                                       }
                                     : undefined
                                 }
@@ -769,50 +740,12 @@ export const PurchaseOrderProductsForm = ({
                               )}
                             />
                           </TableCell>
-                          {/* {watchedCurrencyTypeId &&
-                            watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                            exchangeRate && (
-                              <TableCell className="align-middle p-1.5 text-end">
-                                <div className="text-sm font-medium text-green-700">
-                                  S/.{" "}
-                                  {(itemTotal * exchangeRate)
-                                    .toFixed(4)
-                                    .replace(/\.?0+$/, "")}
-                                </div>
-                              </TableCell>
-                            )} */}
-                          {/* <TableCell className="align-middle text-center p-1.5">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveItem(index)}
-                              disabled={
-                                mode === "update" || Boolean(supplierOrderData)
-                              }
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell> */}
                         </TableRow>
                       );
                     })}
                   </TableBody>
                 </Table>
               </div>
-
-              {/* Botón para actualizar items */}
-              {/* <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddItem}
-                className="w-full"
-                disabled={mode === "update" || Boolean(supplierOrderData)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Agregar Producto
-              </Button> */}
 
               {/* Campo de notas dentro de items */}
               {fields.length > 0 && (
