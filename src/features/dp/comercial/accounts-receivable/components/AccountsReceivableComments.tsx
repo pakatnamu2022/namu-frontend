@@ -1,19 +1,16 @@
 import { useState } from "react";
 import { Send, MessageSquare, Pencil, Trash2, Check, X } from "lucide-react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { ButtonAction } from "@/shared/components/ButtonAction";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   Message,
   MessageAvatar,
   MessageContent,
-  MessageHeader,
   MessageFooter,
 } from "@/components/ui/message";
-import { Bubble, BubbleGroup, BubbleContent } from "@/components/ui/bubble";
+import { Bubble, BubbleGroup, BubbleContent, BubbleReactions } from "@/components/ui/bubble";
 import {
   MessageScrollerProvider,
   MessageScroller,
@@ -24,6 +21,7 @@ import {
 } from "@/components/ui/message-scroller";
 import { Marker, MarkerIcon, MarkerContent } from "@/components/ui/marker";
 import { formatDateTime, errorToast, successToast } from "@/core/core.function";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
   addAccountComment,
   updateAccountComment,
@@ -40,6 +38,8 @@ const AVATAR_COLORS = [
   "bg-rose-100 text-rose-700",
   "bg-cyan-100 text-cyan-700",
 ];
+
+const TRUNCATE_LIMIT = 180;
 
 function isToday(dateStr: string): boolean {
   const d = new Date(dateStr);
@@ -69,18 +69,25 @@ function avatarColor(name: string): string {
 interface CommentItemProps {
   comment: AccountReceivableComment;
   canUpdate: boolean;
+  isOwn: boolean;
   isLast: boolean;
   onEdit: (id: number, text: string) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }
 
-function CommentItem({ comment, canUpdate, isLast, onEdit, onDelete }: CommentItemProps) {
+function CommentItem({ comment, canUpdate, isOwn, isLast, onEdit, onDelete }: CommentItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(comment.comment);
+  const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const editable = canUpdate && isToday(comment.created_at) && comment.id !== 0;
   const name = comment.user?.name ?? "Usuario";
+  const align = isOwn ? "end" : "start";
+
+  const isLong = comment.comment.length > TRUNCATE_LIMIT;
+  const displayText =
+    isLong && !expanded ? comment.comment.slice(0, TRUNCATE_LIMIT) + "…" : comment.comment;
 
   const handleSaveEdit = async () => {
     if (!editText.trim() || editText.trim() === comment.comment) {
@@ -113,53 +120,31 @@ function CommentItem({ comment, canUpdate, isLast, onEdit, onDelete }: CommentIt
 
   return (
     <MessageScrollerItem scrollAnchor={isLast}>
-      <Message align="start">
-        <MessageAvatar>
-          <div
-            className={cn(
-              "size-8 rounded-full flex items-center justify-center text-[11px] font-bold",
-              avatarColor(name)
-            )}
-          >
-            {getInitials(name)}
-          </div>
-        </MessageAvatar>
+      <Message align={align}>
+        {/* Avatar with name tooltip */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <MessageAvatar>
+              <div
+                className={cn(
+                  "size-8 rounded-full flex items-center justify-center text-[11px] font-bold cursor-default select-none",
+                  avatarColor(name)
+                )}
+              >
+                {getInitials(name)}
+              </div>
+            </MessageAvatar>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            {isOwn ? "Tú" : name}
+            {!isOwn && comment.sede && ` · ${comment.sede.abreviatura}`}
+          </TooltipContent>
+        </Tooltip>
 
         <MessageContent>
-          <MessageHeader>
-            <span className="font-semibold truncate">{name}</span>
-            {comment.sede && (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 ml-1 shrink-0">
-                {comment.sede.abreviatura}
-              </Badge>
-            )}
-            {editable && !editing && (
-              <ButtonGroup className="ml-auto opacity-0 group-hover/message:opacity-100 transition-opacity duration-150">
-                <ButtonAction
-                  icon={Pencil}
-                  disabled={loading}
-                  onClick={() => {
-                    setEditText(comment.comment);
-                    setEditing(true);
-                  }}
-                />
-                <ConfirmationDialog
-                  trigger={<ButtonAction icon={Trash2} color="red" disabled={loading} />}
-                  title="¿Eliminar comentario?"
-                  description="Esta acción no se puede deshacer. ¿Deseas eliminar este comentario?"
-                  confirmText="Sí, eliminar"
-                  cancelText="Cancelar"
-                  onConfirm={handleDelete}
-                  variant="destructive"
-                  icon="danger"
-                />
-              </ButtonGroup>
-            )}
-          </MessageHeader>
-
           <BubbleGroup>
             {editing ? (
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 w-full">
                 <Textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
@@ -192,13 +177,77 @@ function CommentItem({ comment, canUpdate, isLast, onEdit, onDelete }: CommentIt
                 </div>
               </div>
             ) : (
-              <Bubble variant="muted" align="start">
-                <BubbleContent className="text-xs">{comment.comment}</BubbleContent>
+              <Bubble variant={isOwn ? "tinted" : "muted"} align={align}>
+                <BubbleContent className="text-xs">
+                  {displayText}
+                  {isLong && (
+                    <button
+                      onClick={() => setExpanded((v) => !v)}
+                      className="mt-1 block text-[10px] font-semibold text-primary/70 hover:text-primary transition-colors"
+                    >
+                      {expanded ? "Ver menos" : "Ver más"}
+                    </button>
+                  )}
+                </BubbleContent>
+
+                {/* Check reaction with full datetime tooltip for own messages */}
+                {isOwn && (
+                  <BubbleReactions className="p-0" align="end" side="bottom">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon-xs">
+                          <Check className="size-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        {formatDateTime(comment.created_at)}
+                      </TooltipContent>
+                    </Tooltip>
+                  </BubbleReactions>
+                )}
               </Bubble>
             )}
           </BubbleGroup>
 
-          <MessageFooter>{formatDateTime(comment.created_at)}</MessageFooter>
+          {/* Edit / delete actions — visible on hover */}
+          {editable && !editing && (
+            <MessageFooter className="gap-0.5 opacity-0 group-hover/message:opacity-100 transition-opacity duration-150">
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                disabled={loading}
+                title="Editar"
+                aria-label="Editar"
+                onClick={() => {
+                  setEditText(comment.comment);
+                  setEditing(true);
+                }}
+              >
+                <Pencil className="size-3" />
+              </Button>
+              <ConfirmationDialog
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    disabled={loading}
+                    title="Eliminar"
+                    aria-label="Eliminar"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                }
+                title="¿Eliminar comentario?"
+                description="Esta acción no se puede deshacer."
+                confirmText="Sí, eliminar"
+                cancelText="Cancelar"
+                onConfirm={handleDelete}
+                variant="destructive"
+                icon="danger"
+              />
+            </MessageFooter>
+          )}
         </MessageContent>
       </Message>
     </MessageScrollerItem>
@@ -216,6 +265,7 @@ export default function AccountsReceivableComments({
   canUpdate,
   initialComments,
 }: Props) {
+  const loggedUser = useAuthStore((s) => s.user);
   const [newComment, setNewComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [localComments, setLocalComments] = useState<AccountReceivableComment[]>([]);
@@ -224,7 +274,6 @@ export default function AccountsReceivableComments({
   const comments = commentsLoaded ? localComments : initialComments;
   const syncBase = () => (commentsLoaded ? localComments : initialComments);
 
-  // Display oldest → newest so the scroller auto-scrolls to the latest comment
   const displayComments = [...comments].sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
   );
@@ -288,6 +337,7 @@ export default function AccountsReceivableComments({
                     key={c.id}
                     comment={c}
                     canUpdate={canUpdate}
+                    isOwn={loggedUser?.id === c.user_id}
                     isLast={i === displayComments.length - 1}
                     onEdit={handleEditComment}
                     onDelete={handleDeleteComment}
