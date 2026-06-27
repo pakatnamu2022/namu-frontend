@@ -1,16 +1,33 @@
 import { useState } from "react";
-import { Send, MessageSquare, Pencil, Trash2, Check, X } from "lucide-react";
+import {
+  Send,
+  MessageSquare,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  ChevronDown,
+} from "lucide-react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import {
   Message,
   MessageAvatar,
   MessageContent,
   MessageFooter,
 } from "@/components/ui/message";
-import { Bubble, BubbleGroup, BubbleContent, BubbleReactions } from "@/components/ui/bubble";
+import {
+  Bubble,
+  BubbleGroup,
+  BubbleContent,
+  BubbleReactions,
+} from "@/components/ui/bubble";
 import {
   MessageScrollerProvider,
   MessageScroller,
@@ -19,8 +36,16 @@ import {
   MessageScrollerItem,
   MessageScrollerButton,
 } from "@/components/ui/message-scroller";
-import { Marker, MarkerIcon, MarkerContent } from "@/components/ui/marker";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
 import { formatDateTime, errorToast, successToast } from "@/core/core.function";
+import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
   addAccountComment,
@@ -62,7 +87,8 @@ function getInitials(name: string): string {
 
 function avatarColor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
@@ -75,7 +101,14 @@ interface CommentItemProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-function CommentItem({ comment, canUpdate, isOwn, isLast, onEdit, onDelete }: CommentItemProps) {
+function CommentItem({
+  comment,
+  canUpdate,
+  isOwn,
+  isLast,
+  onEdit,
+  onDelete,
+}: CommentItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(comment.comment);
   const [expanded, setExpanded] = useState(false);
@@ -86,8 +119,7 @@ function CommentItem({ comment, canUpdate, isOwn, isLast, onEdit, onDelete }: Co
   const align = isOwn ? "end" : "start";
 
   const isLong = comment.comment.length > TRUNCATE_LIMIT;
-  const displayText =
-    isLong && !expanded ? comment.comment.slice(0, TRUNCATE_LIMIT) + "…" : comment.comment;
+  const preview = comment.comment.slice(0, TRUNCATE_LIMIT) + "…";
 
   const handleSaveEdit = async () => {
     if (!editText.trim() || editText.trim() === comment.comment) {
@@ -128,7 +160,7 @@ function CommentItem({ comment, canUpdate, isOwn, isLast, onEdit, onDelete }: Co
               <div
                 className={cn(
                   "size-8 rounded-full flex items-center justify-center text-[11px] font-bold cursor-default select-none",
-                  avatarColor(name)
+                  avatarColor(name),
                 )}
               >
                 {getInitials(name)}
@@ -142,17 +174,18 @@ function CommentItem({ comment, canUpdate, isOwn, isLast, onEdit, onDelete }: Co
         </Tooltip>
 
         <MessageContent>
-          <BubbleGroup>
+          <BubbleGroup className="w-full">
             {editing ? (
               <div className="space-y-1.5 w-full">
                 <Textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   rows={2}
-                  className="text-xs resize-none"
+                  className="text-xs resize-none w-full"
                   autoFocus
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSaveEdit();
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey))
+                      handleSaveEdit();
                     if (e.key === "Escape") handleCancelEdit();
                   }}
                 />
@@ -178,16 +211,23 @@ function CommentItem({ comment, canUpdate, isOwn, isLast, onEdit, onDelete }: Co
               </div>
             ) : (
               <Bubble variant={isOwn ? "tinted" : "muted"} align={align}>
-                <BubbleContent className="text-xs">
-                  {displayText}
-                  {isLong && (
-                    <button
-                      onClick={() => setExpanded((v) => !v)}
-                      className="mt-1 block text-[10px] font-semibold text-primary/70 hover:text-primary transition-colors"
-                    >
-                      {expanded ? "Ver menos" : "Ver más"}
-                    </button>
-                  )}
+                <BubbleContent className="text-xs w-full">
+                  <Collapsible open={expanded} onOpenChange={setExpanded}>
+                    {expanded || !isLong ? comment.comment : preview}
+                    {isLong && (
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="link"
+                          className="gap-1 p-0 h-auto text-[10px] text-muted-foreground"
+                        >
+                          {expanded ? "Ver menos" : "Ver más"}
+                          <ChevronDown
+                            className={`size-3 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+                          />
+                        </Button>
+                      </CollapsibleTrigger>
+                    )}
+                  </Collapsible>
                 </BubbleContent>
 
                 {/* Check reaction with full datetime tooltip for own messages */}
@@ -268,14 +308,17 @@ export default function AccountsReceivableComments({
   const loggedUser = useAuthStore((s) => s.user);
   const [newComment, setNewComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [localComments, setLocalComments] = useState<AccountReceivableComment[]>([]);
+  const [localComments, setLocalComments] = useState<
+    AccountReceivableComment[]
+  >([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
 
   const comments = commentsLoaded ? localComments : initialComments;
   const syncBase = () => (commentsLoaded ? localComments : initialComments);
 
   const displayComments = [...comments].sort(
-    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
   const handleSaveComment = async () => {
@@ -297,7 +340,9 @@ export default function AccountsReceivableComments({
   const handleEditComment = async (id: number, text: string) => {
     try {
       await updateAccountComment(id, text);
-      setLocalComments(syncBase().map((c) => (c.id === id ? { ...c, comment: text } : c)));
+      setLocalComments(
+        syncBase().map((c) => (c.id === id ? { ...c, comment: text } : c)),
+      );
       setCommentsLoaded(true);
       successToast("Comentario actualizado.");
     } catch {
@@ -317,64 +362,88 @@ export default function AccountsReceivableComments({
   };
 
   return (
-    <section>
-      <Marker variant="separator" className="my-3">
-        <MarkerIcon>
-          <MessageSquare className="size-3.5" />
-        </MarkerIcon>
-        <MarkerContent className="text-xs font-semibold uppercase tracking-wider">
-          Comentarios ({comments.length})
-        </MarkerContent>
-      </Marker>
+    <Card className="gap-0 py-0 h-full">
+      {/* Header */}
+      <CardHeader className="px-4 py-3 border-b [.border-b]:pb-1">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <MessageSquare className="size-4 text-muted-foreground" />
+          Comentarios
+          <span className="text-muted-foreground font-normal">
+            ({comments.length})
+          </span>
+        </CardTitle>
+      </CardHeader>
 
-      {displayComments.length > 0 ? (
-        <MessageScrollerProvider>
-          <MessageScroller className="max-h-80 rounded-xl bg-muted/30">
-            <MessageScrollerViewport className="px-3 py-2">
-              <MessageScrollerContent className="gap-3">
-                {displayComments.map((c, i) => (
-                  <CommentItem
-                    key={c.id}
-                    comment={c}
-                    canUpdate={canUpdate}
-                    isOwn={loggedUser?.id === c.user_id}
-                    isLast={i === displayComments.length - 1}
-                    onEdit={handleEditComment}
-                    onDelete={handleDeleteComment}
-                  />
-                ))}
-              </MessageScrollerContent>
-            </MessageScrollerViewport>
-            <MessageScrollerButton />
-          </MessageScroller>
-        </MessageScrollerProvider>
-      ) : (
-        <p className="text-xs text-muted-foreground text-center py-6">Sin comentarios aún.</p>
-      )}
+      {/* Messages */}
+      <CardContent className="flex-1 overflow-hidden p-0">
+        {displayComments.length > 0 ? (
+          <MessageScrollerProvider>
+            <MessageScroller className="h-full">
+              <MessageScrollerViewport className="px-3 py-2">
+                <MessageScrollerContent className="gap-3">
+                  {displayComments.map((c, i) => (
+                    <CommentItem
+                      key={c.id}
+                      comment={c}
+                      canUpdate={canUpdate}
+                      isOwn={loggedUser?.id === c.user_id}
+                      isLast={i === displayComments.length - 1}
+                      onEdit={handleEditComment}
+                      onDelete={handleDeleteComment}
+                    />
+                  ))}
+                </MessageScrollerContent>
+              </MessageScrollerViewport>
+              <MessageScrollerButton />
+            </MessageScroller>
+          </MessageScrollerProvider>
+        ) : (
+          <Empty className="h-full border-0">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <MessageSquare />
+              </EmptyMedia>
+              <EmptyTitle className="text-sm">Sin comentarios</EmptyTitle>
+              <EmptyDescription className="text-xs">
+                Agrega el primer comentario para este comprobante.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+      </CardContent>
 
+      {/* Input */}
       {canUpdate && (
-        <div className="mt-3 space-y-2">
-          <Textarea
-            placeholder="Escribir un comentario... (Ctrl+Enter para guardar)"
-            className="text-sm resize-none"
-            rows={3}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSaveComment();
-            }}
-          />
-          <Button
-            size="sm"
-            className="gap-1.5"
-            disabled={!newComment.trim() || isSaving}
-            onClick={handleSaveComment}
-          >
-            <Send className="size-3.5" />
-            {isSaving ? "Guardando..." : "Guardar"}
-          </Button>
+        <div className="px-3 pb-3 pt-2">
+          <div className="relative">
+            <Textarea
+              placeholder="Escribir un comentario... (Ctrl+Enter para guardar)"
+              rows={3}
+              value={newComment}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setNewComment(e.target.value)
+              }
+              onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                if (e.key === "Enter" && (e.ctrlKey || e.metaKey))
+                  handleSaveComment();
+              }}
+              disabled={isSaving}
+              className="text-sm resize-none rounded-2xl p-4 bg-muted border-0 focus-visible:ring-0 shadow-none"
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="default"
+              disabled={!newComment.trim() || isSaving}
+              onClick={handleSaveComment}
+              aria-label="Guardar comentario"
+              className="absolute bottom-2 right-2 size-7"
+            >
+              <Send className="size-3.5" />
+            </Button>
+          </div>
         </div>
       )}
-    </section>
+    </Card>
   );
 }
