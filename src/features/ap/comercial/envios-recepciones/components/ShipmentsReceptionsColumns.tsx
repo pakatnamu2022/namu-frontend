@@ -37,6 +37,7 @@ import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -195,6 +196,14 @@ export const ShipmentsReceptionsColumns = ({
           </div>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "vin",
+    header: "VIN",
+    cell: ({ row }) => {
+      const vin = row.original.vehicle?.vin;
+      return vin ? <CopyCell value={vin} /> : "-";
     },
   },
   {
