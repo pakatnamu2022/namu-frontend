@@ -545,12 +545,13 @@ export const ShipmentsReceptionsColumns = ({
         !isAlreadyReceived &&
         permissions.canReceive;
 
-      // Para GUIA_REMISION: requiere aceptación SUNAT y no estar recibido
-      // Para GUIA_TRASLADO con motivo COMPRA: solo no estar recibido
+      // Solo aplica para guías de remisión de compra, aceptadas por SUNAT y no recibidas
       const canReceive =
-        (isGuiaRemision
-          ? isAcceptedBySunat && !isAlreadyReceived
-          : isPurchase && !isAlreadyReceived) && permissions.canReceive;
+        isGuiaRemision &&
+        isPurchase &&
+        isAcceptedBySunat &&
+        !isAlreadyReceived &&
+        permissions.canReceive;
 
       const canEdit =
         permissions.canUpdate &&
