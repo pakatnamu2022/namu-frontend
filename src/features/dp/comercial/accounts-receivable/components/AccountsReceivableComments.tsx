@@ -54,6 +54,7 @@ import {
 } from "../lib/accountsReceivable.actions";
 import type { AccountReceivableComment } from "../lib/accountsReceivable.interface";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const AVATAR_COLORS = [
   "bg-blue-100 text-blue-700",
@@ -151,7 +152,7 @@ function CommentItem({
   };
 
   return (
-    <MessageScrollerItem scrollAnchor={isLast}>
+    <MessageScrollerItem scrollAnchor={isLast} className="pb-5">
       <Message align={align}>
         {/* Avatar with name tooltip */}
         <Tooltip>
@@ -169,7 +170,7 @@ function CommentItem({
           </TooltipTrigger>
           <TooltipContent side="top">
             {isOwn ? "Tú" : name}
-            {!isOwn && comment.sede && ` · ${comment.sede.abreviatura}`}
+            {!isOwn && comment.user.sede && ` · ${comment.user.sede}`}
           </TooltipContent>
         </Tooltip>
 
@@ -189,24 +190,27 @@ function CommentItem({
                     if (e.key === "Escape") handleCancelEdit();
                   }}
                 />
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    className="h-6 px-2 text-[11px] gap-1"
-                    disabled={loading}
-                    onClick={handleSaveEdit}
-                  >
-                    <Check className="size-3" /> Guardar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 px-2 text-[11px] gap-1"
-                    onClick={handleCancelEdit}
-                    disabled={loading}
-                  >
-                    <X className="size-3" /> Cancelar
-                  </Button>
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      className="h-6 px-2 text-[11px] gap-1"
+                      disabled={loading}
+                      onClick={handleSaveEdit}
+                    >
+                      <Check className="size-3" /> Guardar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 px-2 text-[11px] gap-1"
+                      onClick={handleCancelEdit}
+                      disabled={loading}
+                    >
+                      <X className="size-3" /> Cancelar
+                    </Button>
+                  </div>
+                  <Badge size="xxs">{formatDateTime(comment.created_at)}</Badge>
                 </div>
               </div>
             ) : (
@@ -230,21 +234,11 @@ function CommentItem({
                   </Collapsible>
                 </BubbleContent>
 
-                {/* Check reaction with full datetime tooltip for own messages */}
-                {isOwn && (
-                  <BubbleReactions className="p-0" align="end" side="bottom">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon-xs">
-                          <Check className="size-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        {formatDateTime(comment.created_at)}
-                      </TooltipContent>
-                    </Tooltip>
-                  </BubbleReactions>
-                )}
+                <BubbleReactions align={isOwn ? "end" : "start"} side="bottom">
+                  <span className="text-[9px] text-muted-foreground px-1 truncate">
+                    {formatDateTime(comment.created_at)}
+                  </span>
+                </BubbleReactions>
               </Bubble>
             )}
           </BubbleGroup>
