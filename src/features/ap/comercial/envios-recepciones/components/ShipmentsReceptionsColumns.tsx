@@ -639,7 +639,7 @@ export const ShipmentsReceptionsColumns = ({
 
           <ButtonAction
             icon={BookCheck}
-            tooltip="Generar OT de PDI para el vehículo asociado"
+            tooltip="Generar OT de PDI"
             onClick={() =>
               ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
             }
@@ -648,7 +648,7 @@ export const ShipmentsReceptionsColumns = ({
 
           <ButtonAction
             icon={PackageCheck}
-            tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
+            tooltip="Generar OT de instalación de accesorios"
             onClick={() =>
               ap_vehicle_id && onGenerateInstAccessories(Number(ap_vehicle_id))
             }
