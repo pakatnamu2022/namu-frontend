@@ -354,8 +354,6 @@ export const vehicleDeliveryColumns = ({
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
-      const { canViewHistory, canGenerate, canSend, canMigrate, canDelete } =
-        permissions;
 
       const isAcceptedBySunat = !!sent_at && aceptada_por_sunat === true;
       const isChecklistConfirmed = checklist_status === "confirmed";
@@ -363,51 +361,80 @@ export const vehicleDeliveryColumns = ({
         migrationStatus === "completed" ||
         migrationStatus === "updated_with_nc";
 
+      /**
+       * PERMISSIONS
+       */
+      const canView = permissions.canView;
+
+      const canOpenChecklist = permissions.canChecklist;
+
+      const canDownloadChecklistPDF =
+        isChecklistConfirmed && permissions.canGenerate;
+
+      const canGenerateGuiaRemision =
+        isChecklistConfirmed &&
+        (!sent_at || aceptada_por_sunat !== true) &&
+        permissions.canGenerate;
+
+      const canSendToNubefact =
+        !!shipping_guide_id && !isAcceptedBySunat && permissions.canSend;
+
+      const canQueryFromNubefact =
+        !!shipping_guide_id && !isAcceptedBySunat && permissions.canSend;
+
+      const canMigrate =
+        !!onMigrate &&
+        !!shipping_guide_id &&
+        !isMigrated &&
+        permissions.canMigrate;
+
+      const canViewHistory =
+        !!shipping_guide_id && isMigrated && permissions.canViewHistory;
+
+      const canDelete = !shipping_guide_id && permissions.canDelete;
+
       return (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Ver detalles"
-            onClick={() => onViewDetails(row.original)}
-          >
-            <Eye className="size-4" />
-          </Button>
+          {canView && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Ver detalles"
+              onClick={() => onViewDetails(row.original)}
+            >
+              <Eye className="size-4" />
+            </Button>
+          )}
 
-          {/* Checklist editable: solo hasta que no esté confirmado */}
           <ButtonAction
             tooltip="Checklist de Entrega"
             onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
             icon={ClipboardList}
             color="amber"
             variant="secondary"
+            canRender={canOpenChecklist}
           />
 
-          {/* PDF del checklist: solo cuando está confirmado */}
           <ButtonAction
             tooltip="Ver PDF Checklist"
             onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
             icon={Download}
             color="green"
             variant="secondary"
+            canRender={canDownloadChecklistPDF}
           />
 
-          {/* Guía de remisión: solo cuando checklist confirmado y aún no enviada/aceptada */}
           <ButtonAction
             tooltip="Guía de Remisión"
             onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
             icon={FileText}
             color="sky"
             variant="secondary"
-            canRender={
-              isChecklistConfirmed &&
-              (!sent_at || aceptada_por_sunat !== true) &&
-              canGenerate
-            }
+            canRender={canGenerateGuiaRemision}
           />
 
-          {shipping_guide_id && !isAcceptedBySunat && canSend && (
+          {canSendToNubefact && (
             <Button
               variant="outline"
               size="icon"
@@ -419,7 +446,7 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {shipping_guide_id && !isAcceptedBySunat && canSend && (
+          {canQueryFromNubefact && (
             <Button
               variant="outline"
               size="icon"
@@ -431,26 +458,23 @@ export const vehicleDeliveryColumns = ({
             </Button>
           )}
 
-          {/* Migrar: cuando hay guía y aún no fue migrada */}
-          {onMigrate && shipping_guide_id && canMigrate && !isMigrated && (
+          {canMigrate && (
             <Button
               variant="outline"
               size="icon"
               color="orange"
               className="size-7"
               tooltip="Migrar a Dynamics"
-              onClick={() => onMigrate(shipping_guide_id)}
+              onClick={() => onMigrate!(shipping_guide_id!)}
             >
               <ArrowRightLeft className="size-4" />
             </Button>
           )}
 
-          {/* Historial: solo cuando ya está migrado */}
-          {shipping_guide_id && canViewHistory && isMigrated && (
-            <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
+          {canViewHistory && (
+            <ShippingGuideHistory shippingGuideId={shipping_guide_id!} />
           )}
 
-          {/* Sincronizar asiento contable: entregado en Dynamics pero aún no contabilizado en GL */}
           {onSyncAccountingEntry &&
             status_delivery === "completed" &&
             !is_accounted && (
@@ -466,9 +490,7 @@ export const vehicleDeliveryColumns = ({
               </Button>
             )}
 
-          {canDelete && !shipping_guide_id && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
+          {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
         </div>
       );
     },

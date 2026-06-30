@@ -40,7 +40,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { CopyCell } from "@/shared/components/CopyCell";
 
-export type ControlUnitsColumns = ColumnDef<ControlUnitsResource>;
+export type ControlUnitsColumnsType = ColumnDef<ControlUnitsResource>;
 
 interface Props {
   onDelete: (id: number) => void;
@@ -51,8 +51,14 @@ interface Props {
   onQueryFromNubefact: (id: number) => void;
   onMigrate?: (id: number) => void;
   permissions: {
+    canView: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canSend: boolean;
+    canReceive: boolean;
+    canGenerate: boolean;
+    canMigrate: boolean;
+    canAnnul: boolean;
   };
 }
 
@@ -121,7 +127,7 @@ export const ControlUnitsColumns = ({
   onQueryFromNubefact,
   onMigrate,
   permissions,
-}: Props): ControlUnitsColumns[] => [
+}: Props): ControlUnitsColumnsType[] => [
   {
     accessorKey: "document_number",
     header: "Número Doc.",
@@ -479,30 +485,73 @@ export const ControlUnitsColumns = ({
       const isAlreadyReceived = !!is_received;
       const isAcceptedBySunat = !!(sent_at && aceptada_por_sunat === true);
 
+      const receiveTooltip = "Recepcionar";
+
+      /**
+       * PERMISSIONS
+       */
+
+      // Para enviar a Nubefact: requiere ser enviado a SUNAT, no haber sido enviado aún y tener permiso de envío
+      const canSendToNubefact =
+        requires_sunat && !sent_at && permissions.canSend;
+
       // Para COMPRA o CONSIGNACIÓN: aceptada por SUNAT y NO estar recibido
       const canReceive =
         (isPurchase || isConsignment) &&
         isAcceptedBySunat &&
-        !isAlreadyReceived;
+        !isAlreadyReceived &&
+        permissions.canReceive;
 
-      // Tooltip dinámico para recepcionar
-      const receiveTooltip = isAlreadyReceived
-        ? "Ya ha sido recepcionado"
-        : !isAcceptedBySunat
-          ? "Debe ser aceptado por SUNAT primero"
-          : "Recepcionar";
+      // Para ver detalles: requiere permiso de visualización
+      const canView = permissions.canView;
+
+      // Para consultar estado en SUNAT: requiere ser enviado a SUNAT y no estar aceptado por SUNAT
+      const canConsult =
+        requires_sunat &&
+        !!sent_at &&
+        !isAcceptedBySunat &&
+        permissions.canView;
+
+      const canViewHistory = isAcceptedBySunat && permissions.canView;
+      const canMarkAsReceived =
+        isTrasladoSede && !isAlreadyReceived && permissions.canReceive;
+
+      const canGeneratePurchaseOrder =
+        isConsignment &&
+        isAcceptedBySunat &&
+        isAlreadyReceived &&
+        permissions.canGenerate;
+
+      const canEdit =
+        permissions.canUpdate && !isAlreadyReceived && !isAcceptedBySunat;
+
+      const canDelete =
+        permissions.canDelete && !isAlreadyReceived && !isAcceptedBySunat;
+
+      const canMigrate =
+        !!onMigrate &&
+        isAlreadyReceived &&
+        isAcceptedBySunat &&
+        permissions.canMigrate;
+
+      const canCancel =
+        permissions.canAnnul &&
+        isAlreadyReceived &&
+        isAcceptedBySunat &&
+        status;
 
       return (
         <div className="flex items-center gap-2">
           <ButtonAction
             icon={Eye}
+            canRender={canView}
             tooltip="Ver detalles"
             onClick={() => onViewDetails(row.original)}
           />
 
-          {isAcceptedBySunat && <ShippingGuideHistory shippingGuideId={id} />}
+          {canViewHistory && <ShippingGuideHistory shippingGuideId={id} />}
 
-          {requires_sunat && !sent_at && (
+          {canSendToNubefact && (
             <ConfirmationDialog
               title="Confirmar envío a Nubefact"
               description="¿Está seguro de que desea enviar esta guía a Nubefact/SUNAT? Esta acción no se puede deshacer."
@@ -518,19 +567,14 @@ export const ControlUnitsColumns = ({
             icon={RefreshCw}
             tooltip="Consultar estado en SUNAT"
             onClick={() => onQueryFromNubefact(id)}
-            canRender={requires_sunat && !!sent_at && !isAcceptedBySunat}
+            canRender={canConsult}
           />
 
           <ButtonAction
             icon={PackageCheck}
-            tooltip={
-              isAlreadyReceived
-                ? "Ya ha sido recepcionado"
-                : "Marcar como recibido"
-            }
-            onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
-            disabled={isAlreadyReceived}
-            canRender={isTrasladoSede}
+            tooltip="Marcar como recibido"
+            onClick={() => onMarkAsReceived(id)}
+            canRender={canMarkAsReceived}
           />
 
           <ButtonAction
@@ -540,7 +584,7 @@ export const ControlUnitsColumns = ({
               canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
             }
             disabled={!canReceive}
-            canRender={(isPurchase || isConsignment) && canReceive}
+            canRender={canReceive}
           />
 
           <ButtonAction
@@ -549,27 +593,23 @@ export const ControlUnitsColumns = ({
             onClick={() =>
               router(`${VEHICLE_PURCHASE_ORDER.ROUTE_ADD}?consignment_id=${id}`)
             }
-            canRender={isConsignment && isAcceptedBySunat && isAlreadyReceived}
+            canRender={canGeneratePurchaseOrder}
           />
 
           <ButtonAction
             icon={Pencil}
             tooltip="Editar"
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            canRender={
-              permissions.canUpdate && !isAlreadyReceived && !isAcceptedBySunat
-            }
+            canRender={canEdit}
           />
 
-          {permissions.canDelete &&
-            !isAlreadyReceived &&
-            !isAcceptedBySunat && <DeleteButton onClick={() => onDelete(id)} />}
+          {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
 
           <ButtonAction
             icon={ArrowRightLeft}
             tooltip="Migrar"
             onClick={() => onMigrate && onMigrate(id)}
-            canRender={!!onMigrate}
+            canRender={canMigrate}
           />
 
           <ButtonAction
@@ -577,7 +617,7 @@ export const ControlUnitsColumns = ({
             tooltip="Cancelar guía"
             onClick={() => onCancel(id)}
             color="red"
-            canRender={isAlreadyReceived && status}
+            canRender={canCancel}
           />
         </div>
       );
