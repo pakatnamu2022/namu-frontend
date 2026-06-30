@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import { Building2, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { CustomersResource } from "../lib/customers.interface";
 import { CUSTOMERS } from "../lib/customers.constants";
 import OpportunitiesSheet from "./OpportunitiesSheet";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type CustomersColumns = ColumnDef<CustomersResource>;
 
@@ -130,30 +130,19 @@ export const customersColumns = ({
           <OpportunitiesSheet customerId={id} />
 
           {/* Establecimientos */}
-          {
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Establecimientos"
-              onClick={() => router(`${ABSOLUTE_ROUTE}/establecimientos/${id}`)}
-            >
-              <Building2 className="size-5" />
-            </Button>
-          }
+          <ButtonAction
+            icon={Building2}
+            tooltip="Establecimientos"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/establecimientos/${id}`)}
+          />
 
           {/* Edit */}
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            canRender={permissions.canUpdate}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+          />
 
           {/* Delete */}
           {permissions.canDelete && (

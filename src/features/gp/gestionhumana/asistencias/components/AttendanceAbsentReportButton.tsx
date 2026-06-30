@@ -26,7 +26,12 @@ export default function AttendanceAbsentReportButton({ date }: Props) {
   };
 
   return (
-    <Button size="sm" variant="outline" onClick={handleClick} disabled={loading}>
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={handleClick}
+      disabled={loading}
+    >
       {loading ? (
         <Loader2 className="size-4 mr-1.5 animate-spin" />
       ) : (
