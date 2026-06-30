@@ -152,7 +152,7 @@ function CommentItem({
   };
 
   return (
-    <MessageScrollerItem scrollAnchor={isLast}>
+    <MessageScrollerItem scrollAnchor={isLast} className="pb-5">
       <Message align={align}>
         {/* Avatar with name tooltip */}
         <Tooltip>
@@ -170,7 +170,7 @@ function CommentItem({
           </TooltipTrigger>
           <TooltipContent side="top">
             {isOwn ? "Tú" : name}
-            {!isOwn && comment.sede && ` · ${comment.sede.abreviatura}`}
+            {!isOwn && comment.user.sede && ` · ${comment.user.sede}`}
           </TooltipContent>
         </Tooltip>
 
@@ -210,16 +210,7 @@ function CommentItem({
                       <X className="size-3" /> Cancelar
                     </Button>
                   </div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon-xs">
-                        <Check className="size-3" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      {formatDateTime(comment.created_at)}
-                    </TooltipContent>
-                  </Tooltip>
+                  <Badge size="xxs">{formatDateTime(comment.created_at)}</Badge>
                 </div>
               </div>
             ) : (
@@ -243,12 +234,10 @@ function CommentItem({
                   </Collapsible>
                 </BubbleContent>
 
-                <BubbleReactions
-                  className="p-0"
-                  align={isOwn ? "end" : "start"}
-                  side="bottom"
-                >
-                  <Badge size="xxs">{formatDateTime(comment.created_at)}</Badge>
+                <BubbleReactions align={isOwn ? "end" : "start"} side="bottom">
+                  <span className="text-[9px] text-muted-foreground px-1 truncate">
+                    {formatDateTime(comment.created_at)}
+                  </span>
                 </BubbleReactions>
               </Bubble>
             )}
