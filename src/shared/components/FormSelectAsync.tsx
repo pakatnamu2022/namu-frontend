@@ -33,6 +33,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const noopFindById = (_id: any): { data: undefined; isLoading: false } => ({
   data: undefined,
   isLoading: false,
@@ -345,136 +346,140 @@ export function FormSelectAsync({
                   </FormLabel>
                 )}
 
-            <div className="flex gap-2 items-center">
-              <Popover
-                open={readOnly ? false : open}
-                onOpenChange={readOnly ? undefined : handleOpenChange}
-              >
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      disabled={disabled}
-                      onClick={readOnly ? (e) => e.preventDefault() : undefined}
-                      className={cn(
-                        "w-full justify-between flex truncate",
-                        !field.value && "text-muted-foreground",
-                        field.value && "bg-muted",
-                        readOnly && "cursor-default pointer-events-none",
-                        className,
-                      )}
-                    >
-                      <span className="text-nowrap! line-clamp-1">
-                        {selected
-                          ? typeof selected.label === "function"
-                            ? selected.label()
-                            : selected.label
-                          : placeholder}
-                      </span>
-                      {!readOnly && (
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      )}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-
-                <PopoverContent
-                  container={portalContainer}
-                  className="p-0 min-w-(--radix-popover-trigger-width) w-auto"
-                  onWheel={(e) => e.stopPropagation()}
-                  onWheelCapture={(e) => e.stopPropagation()}
-                  onTouchMove={(e) => e.stopPropagation()}
+            <div className="flex gap-2 items-center min-w-0">
+              <div className="min-w-0 flex-1">
+                <Popover
+                  open={readOnly ? false : open}
+                  onOpenChange={readOnly ? undefined : handleOpenChange}
                 >
-                  <Command
-                    className="max-h-72 overflow-hidden"
-                    shouldFilter={false}
+                  <PopoverTrigger asChild className="min-w-0">
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        disabled={disabled}
+                        onClick={
+                          readOnly ? (e) => e.preventDefault() : undefined
+                        }
+                        className={cn(
+                          "w-full justify-between flex truncate min-w-0",
+                          !field.value && "text-muted-foreground",
+                          field.value && "bg-muted",
+                          readOnly && "cursor-default pointer-events-none",
+                          className,
+                        )}
+                      >
+                        <span className="text-nowrap! line-clamp-1">
+                          {selected
+                            ? typeof selected.label === "function"
+                              ? selected.label()
+                              : selected.label
+                            : placeholder}
+                        </span>
+                        {!readOnly && (
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        )}
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+
+                  <PopoverContent
+                    container={portalContainer}
+                    className="p-0 min-w-(--radix-popover-trigger-width) w-auto"
+                    onWheel={(e) => e.stopPropagation()}
+                    onWheelCapture={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
                   >
-                    <CommandInput
-                      className="border-none focus:ring-0"
-                      placeholder="Buscar..."
-                      value={search}
-                      onValueChange={setSearch}
-                    />
-                    <CommandList
-                      className="max-h-60 overflow-y-auto"
-                      ref={scrollRef}
-                      onScroll={handleScroll}
+                    <Command
+                      className="max-h-72 overflow-hidden"
+                      shouldFilter={false}
                     >
-                      {isLoading && page === 1 ? (
-                        <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                          <span className="text-muted-foreground">
-                            Buscando...
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <CommandEmpty className="py-4 text-center text-sm">
-                            No hay resultados.
-                          </CommandEmpty>
-                          {allOptions.map((option) => (
-                            <CommandItem
-                              key={option.value}
-                              className="cursor-pointer"
-                              onSelect={() => {
-                                const newValue =
-                                  option.value === field.value && allowClear
-                                    ? ""
-                                    : option.value;
-                                field.onChange(newValue);
-                                if (onValueChange) {
-                                  const selectedItem = newValue
-                                    ? rawItemsRef.current.get(option.value)
-                                    : undefined;
-                                  // Si tenemos el item, marcamos como notificado para que useFindByIdHook no duplique
-                                  if (newValue && selectedItem)
-                                    notifiedByIdRef.current.add(newValue);
-                                  else notifiedByIdRef.current.clear();
-                                  onValueChange(newValue, selectedItem);
-                                }
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4 shrink-0",
-                                  option.value === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0",
-                                )}
-                              />
-                              <div className="flex flex-col min-w-0 flex-1">
-                                <span
-                                  className={cn("truncate", classNameOption)}
-                                >
-                                  {typeof option.label === "function"
-                                    ? option.label()
-                                    : option.label}
-                                </span>
-                                {option.description && (
-                                  <span className="text-[10px] text-muted-foreground truncate">
-                                    {withValue && `${option.value} - `}{" "}
-                                    {option.description}
+                      <CommandInput
+                        className="border-none focus:ring-0"
+                        placeholder="Buscar..."
+                        value={search}
+                        onValueChange={setSearch}
+                      />
+                      <CommandList
+                        className="max-h-60 overflow-y-auto"
+                        ref={scrollRef}
+                        onScroll={handleScroll}
+                      >
+                        {isLoading && page === 1 ? (
+                          <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            <span className="text-muted-foreground">
+                              Buscando...
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <CommandEmpty className="py-4 text-center text-sm">
+                              No hay resultados.
+                            </CommandEmpty>
+                            {allOptions.map((option) => (
+                              <CommandItem
+                                key={option.value}
+                                className="cursor-pointer"
+                                onSelect={() => {
+                                  const newValue =
+                                    option.value === field.value && allowClear
+                                      ? ""
+                                      : option.value;
+                                  field.onChange(newValue);
+                                  if (onValueChange) {
+                                    const selectedItem = newValue
+                                      ? rawItemsRef.current.get(option.value)
+                                      : undefined;
+                                    // Si tenemos el item, marcamos como notificado para que useFindByIdHook no duplique
+                                    if (newValue && selectedItem)
+                                      notifiedByIdRef.current.add(newValue);
+                                    else notifiedByIdRef.current.clear();
+                                    onValueChange(newValue, selectedItem);
+                                  }
+                                  setOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4 shrink-0",
+                                    option.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                                <div className="flex flex-col min-w-0 flex-1">
+                                  <span
+                                    className={cn("truncate", classNameOption)}
+                                  >
+                                    {typeof option.label === "function"
+                                      ? option.label()
+                                      : option.label}
                                   </span>
-                                )}
+                                  {option.description && (
+                                    <span className="text-[10px] text-muted-foreground truncate">
+                                      {withValue && `${option.value} - `}{" "}
+                                      {option.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </CommandItem>
+                            ))}
+                            {isFetching && page > 1 && (
+                              <div className="py-2 text-center text-sm flex items-center justify-center gap-2">
+                                <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                <span className="text-xs text-muted-foreground">
+                                  Cargando más...
+                                </span>
                               </div>
-                            </CommandItem>
-                          ))}
-                          {isFetching && page > 1 && (
-                            <div className="py-2 text-center text-sm flex items-center justify-center gap-2">
-                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                              <span className="text-xs text-muted-foreground">
-                                Cargando más...
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                            )}
+                          </>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
               {children}
             </div>
             {description && (
