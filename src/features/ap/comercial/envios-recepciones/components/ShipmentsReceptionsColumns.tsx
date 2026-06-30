@@ -532,7 +532,8 @@ export const ShipmentsReceptionsColumns = ({
 
       const canView = permissions.canView;
 
-      const canSendToNubefact = isGuiaRemision && !isSent && permissions.canSend;
+      const canSendToNubefact =
+        isGuiaRemision && !isSent && permissions.canSend;
 
       const canConsult =
         isGuiaRemision && isSent && !isAcceptedBySunat && permissions.canView;
@@ -563,7 +564,6 @@ export const ShipmentsReceptionsColumns = ({
 
       const canMigrate =
         !!onMigrate &&
-        isGuiaRemision &&
         row.original.migration_status !== "completed" &&
         permissions.canMigrate;
 
