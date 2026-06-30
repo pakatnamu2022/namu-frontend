@@ -485,12 +485,7 @@ export const ControlUnitsColumns = ({
       const isAlreadyReceived = !!is_received;
       const isAcceptedBySunat = !!(sent_at && aceptada_por_sunat === true);
 
-      // Tooltip dinámico para recepcionar
-      const receiveTooltip = isAlreadyReceived
-        ? "Ya ha sido recepcionado"
-        : !isAcceptedBySunat
-          ? "Debe ser aceptado por SUNAT primero"
-          : "Recepcionar";
+      const receiveTooltip = "Recepcionar";
 
       /**
        * PERMISSIONS
@@ -504,7 +499,8 @@ export const ControlUnitsColumns = ({
       const canReceive =
         (isPurchase || isConsignment) &&
         isAcceptedBySunat &&
-        !isAlreadyReceived;
+        !isAlreadyReceived &&
+        permissions.canReceive;
 
       // Para ver detalles: requiere permiso de visualización
       const canView = permissions.canView;
@@ -588,7 +584,7 @@ export const ControlUnitsColumns = ({
               canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
             }
             disabled={!canReceive}
-            canRender={(isPurchase || isConsignment) && canReceive}
+            canRender={canReceive}
           />
 
           <ButtonAction
