@@ -1,7 +1,7 @@
 import type { MarkType } from "./attendance.interface";
 
 export const ATTENDANCE = {
-  ENDPOINT: "/admin/attendance",
+  ENDPOINT: "/gp/gh/attendance",
   QUERY_KEY: "gp-attendance",
   ROUTE: "asistencias",
   ABSOLUTE_ROUTE: "/gp/gestion-humana/asistencias/asistencias",
