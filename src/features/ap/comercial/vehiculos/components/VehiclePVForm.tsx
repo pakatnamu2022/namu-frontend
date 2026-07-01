@@ -112,7 +112,7 @@ export const VehiclePVForm = ({
     if (plateData?.success && plateData.data) {
       const plateInfo = plateData.data;
       form.setValue("vin", plateInfo.vin);
-      form.setValue("engine_number", plateInfo.engine_number);
+      form.setValue("engine_number", plateInfo.engine_number?.trim() ?? "");
       setIsSuccessfulResponse(true);
     } else {
       form.setValue("vin", "");
@@ -220,7 +220,9 @@ export const VehiclePVForm = ({
             label="Número de Motor"
             placeholder="Ej: ENG32345XYZA"
             control={form.control}
-            disabled={issuccessfulResponse && !!plateData?.data?.engine_number}
+            disabled={
+              issuccessfulResponse && !!plateData?.data?.engine_number?.trim()
+            }
           />
 
           <FormInput
