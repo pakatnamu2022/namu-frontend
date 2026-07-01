@@ -455,6 +455,7 @@ import WorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/page.
 import AddWorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/agregar/page.tsx";
 import UpdateWorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/actualizar/[id]/page.tsx";
 import AttendanceExclusionPage from "./app/gp/gestion-humana/asistencias/exclusiones/page.tsx";
+import AttendanceCodeMappingPage from "./app/gp/gestion-humana/asistencias/mapeo-codigos/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -2133,6 +2134,10 @@ function App() {
               <Route
                 path="asistencias/exclusiones"
                 element={<AttendanceExclusionPage />}
+              />
+              <Route
+                path="asistencias/mapeo-codigos"
+                element={<AttendanceCodeMappingPage />}
               />
             </Route>
 
