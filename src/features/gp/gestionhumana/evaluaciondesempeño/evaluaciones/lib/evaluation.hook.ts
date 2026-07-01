@@ -1,15 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
-import { EvaluationResource, EvaluationResponse } from "./evaluation.interface";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  EvaluationResource,
+  EvaluationResponse,
+  EvaluationEligibleWorkerResource,
+} from "./evaluation.interface";
+import {
+  addWorkersToEvaluation,
   findEvaluationById,
   getAllEvaluations,
   getBossesInEvaluation,
   getCategoriesInEvaluation,
+  getEligibleWorkersInEvaluation,
   getEvaluation,
   getPersonsInEvaluation,
   getPositionsInEvaluation,
 } from "./evaluation.actions";
 import { EVALUATION } from "./evaluation.constans";
+import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
 
 const { QUERY_KEY } = EVALUATION;
 
@@ -60,5 +67,42 @@ export const useCategoriesInEvaluation = (idEvaluation: number) => {
   return useQuery({
     queryKey: ["evaluation", idEvaluation, "categories"],
     queryFn: () => getCategoriesInEvaluation(idEvaluation.toString()),
+  });
+};
+
+export const useEligibleWorkersInEvaluation = (
+  idEvaluation: number,
+  enabled = false
+) => {
+  return useQuery<EvaluationEligibleWorkerResource[]>({
+    queryKey: ["evaluation", idEvaluation, "eligible-workers"],
+    queryFn: () => getEligibleWorkersInEvaluation(idEvaluation),
+    refetchOnWindowFocus: false,
+    enabled,
+  });
+};
+
+export const useAddWorkersToEvaluation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      evaluationId,
+      workerIds,
+    }: {
+      evaluationId: number;
+      workerIds: number[];
+    }) => addWorkersToEvaluation(evaluationId, workerIds),
+    onSuccess: (_, { evaluationId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["evaluation", evaluationId, "eligible-workers"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["evaluation", evaluationId, "persons"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [EVALUATION_PERSON.QUERY_KEY],
+      });
+    },
   });
 };

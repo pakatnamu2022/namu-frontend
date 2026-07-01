@@ -21,6 +21,12 @@ import {
 export type EvaluationPersonCompetenceColumns = ColumnDef<Subcompetence>;
 
 const scoreColors = ["orange", "amber", "lime", "emerald"] as const;
+const scoreLabels = [
+  "No Cumple",
+  "Necesita desarrollo",
+  "Satisfactorio",
+  "Excelente",
+] as const;
 
 function EvaluationCell({
   evaluator,
@@ -71,6 +77,7 @@ function EvaluationCell({
               size="icon-xs"
               variant={displayValue === value ? "default" : "outline"}
               color={color}
+              tooltip={scoreLabels[i]}
               onClick={() => onUpdateCell(evaluator.id, value)}
             >
               {value}

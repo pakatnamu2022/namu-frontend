@@ -5,6 +5,8 @@ import {
   getEvaluationsProps,
   EvaluationResource,
   EvaluationResponse,
+  EvaluationEligibleWorkerResource,
+  AddWorkersToEvaluationResponse,
 } from "./evaluation.interface";
 import { EVALUATION } from "./evaluation.constans";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
@@ -171,6 +173,26 @@ export async function sendEvaluationReminder(
   const { data } = await api.post<NotificationResponse>(
     `${ENDPOINT}/notifications/send-reminders`,
     { evaluation_id: id }
+  );
+  return data;
+}
+
+export async function getEligibleWorkersInEvaluation(
+  evaluationId: number
+): Promise<EvaluationEligibleWorkerResource[]> {
+  const { data } = await api.get<EvaluationEligibleWorkerResource[]>(
+    `${ENDPOINT}/${evaluationId}/eligible-workers`
+  );
+  return data;
+}
+
+export async function addWorkersToEvaluation(
+  evaluationId: number,
+  workerIds: number[]
+): Promise<AddWorkersToEvaluationResponse> {
+  const { data } = await api.post<AddWorkersToEvaluationResponse>(
+    `${ENDPOINT}/${evaluationId}/workers`,
+    { worker_ids: workerIds }
   );
   return data;
 }
