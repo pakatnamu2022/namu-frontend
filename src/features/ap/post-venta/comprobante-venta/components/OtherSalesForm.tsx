@@ -156,42 +156,65 @@ export function OtherSalesForm({
   const items = useMemo(() => rawItems || [], [rawItems]);
 
   const totales = useMemo(() => {
-    let total_gravada = 0;
-    let total_inafecta = 0;
-    let total_exonerada = 0;
-    let total_igv = 0;
-    let total_gratuita = 0;
-    const total_anticipo = 0;
+    const round2 = (n: number) => Math.round(n * 100) / 100;
+
+    let raw_total_gravada = 0;
+    let raw_total_inafecta = 0;
+    let raw_total_exonerada = 0;
+    let raw_total_gratuita = 0;
+    let raw_total_anticipo = 0;
+    let raw_sub_gravada = 0;
+    let raw_sub_anticipo = 0;
+    let raw_igv = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
         (t) => t.id === item.sunat_concept_igv_type_id,
       );
+
+      // Los items marcados como anticipo se descuentan del total a pagar
+      if (item.anticipo_regularizacion) {
+        raw_total_anticipo += item.total;
+        raw_sub_anticipo += item.subtotal;
+        return;
+      }
+
       if (igvType?.code_nubefact === "1") {
-        total_gravada += item.subtotal;
-        total_igv += item.igv;
+        raw_total_gravada += item.total;
+        raw_sub_gravada += item.subtotal;
+        raw_igv += item.igv;
       } else if (igvType?.code_nubefact === "20") {
-        total_exonerada += item.subtotal;
+        raw_total_exonerada += item.subtotal;
       } else if (igvType?.code_nubefact === "30") {
-        total_inafecta += item.subtotal;
+        raw_total_inafecta += item.subtotal;
       } else if (
         igvType?.code_nubefact?.startsWith("1") ||
         igvType?.code_nubefact?.startsWith("2")
       ) {
-        total_gratuita += item.subtotal;
+        raw_total_gratuita += item.subtotal;
       }
     });
 
-    const total = total_gravada + total_inafecta + total_exonerada + total_igv;
-    const round2 = (n: number) => Math.round(n * 100) / 100;
+    const t_anticipo = round2(raw_total_anticipo);
+    const total_anticipo = round2(raw_sub_anticipo);
+    const total_gravada = round2(round2(raw_sub_gravada) - total_anticipo);
+    const total_inafecta = round2(raw_total_inafecta);
+    const total_exonerada = round2(raw_total_exonerada);
+    const total_gratuita = round2(raw_total_gratuita);
+    const total_igv = round2(raw_igv);
+
+    const total = round2(
+      round2(raw_total_gravada) + total_inafecta + total_exonerada - t_anticipo,
+    );
+
     return {
-      total_gravada: round2(total_gravada),
-      total_inafecta: round2(total_inafecta),
-      total_exonerada: round2(total_exonerada),
-      total_igv: round2(total_igv),
-      total_gratuita: round2(total_gratuita),
-      total_anticipo: round2(total_anticipo),
-      total: round2(total),
+      total_gravada,
+      total_inafecta,
+      total_exonerada,
+      total_igv,
+      total_gratuita,
+      total_anticipo,
+      total,
     };
   }, [items, igvTypes]);
 
