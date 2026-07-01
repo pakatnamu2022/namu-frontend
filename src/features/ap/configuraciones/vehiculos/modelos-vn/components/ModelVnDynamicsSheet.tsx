@@ -59,7 +59,7 @@ export default function ModelVnDynamicsSheet({
     {
       page,
       per_page,
-      ...(modelId ? { model_id: modelId } : {}),
+      ...(modelId ? { model_vn_id: modelId } : {}),
       ...(search ? { code: search } : {}),
       ...(statusFilter ? { status: statusFilter as SyncStatus } : {}),
     },
