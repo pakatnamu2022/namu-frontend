@@ -25,7 +25,7 @@ import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/
 import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
-import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -86,11 +86,11 @@ export const VehiclePVForm = ({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
-  const { data: warehouses = [] } = useWarehouseByModelSede({
-    model_vn_id: String(form.watch("ap_models_vn_id")),
-    sede_id: String(form.watch("sede_id")),
-    is_received: 1,
-  });
+  const { data: warehousesPhysical = [] } = useMyPhysicalWarehouse();
+  const selectedSedeId = form.watch("sede_id");
+  const filteredWarehouses = warehousesPhysical.filter(
+    (w) => String(w.sede_id) === String(selectedSedeId),
+  );
 
   // Watch para plate
   const plateWatch = form.watch("plate");
@@ -121,12 +121,16 @@ export const VehiclePVForm = ({
     }
   }, [plateData, form, plateChanged]);
 
-  // Auto-seleccionar el primer almacén cuando se carguen los datos
+  // Limpiar y auto-seleccionar almacén cuando cambie la sede
   useEffect(() => {
-    if (warehouses.length > 0 && !form.watch("warehouse_physical_id")) {
-      form.setValue("warehouse_physical_id", warehouses[0].id.toString());
+    form.setValue("warehouse_physical_id", "");
+    if (filteredWarehouses.length > 0) {
+      form.setValue(
+        "warehouse_physical_id",
+        filteredWarehouses[0].id.toString(),
+      );
     }
-  }, [warehouses, form]);
+  }, [selectedSedeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-seleccionar primera sede por defecto
   useEffect(() => {
@@ -373,7 +377,7 @@ export const VehiclePVForm = ({
             name="warehouse_physical_id"
             placeholder="Seleccionar almacén"
             control={form.control}
-            options={warehouses.map((warehouse) => ({
+            options={filteredWarehouses.map((warehouse) => ({
               value: warehouse.id.toString(),
               label: warehouse.description,
             }))}
