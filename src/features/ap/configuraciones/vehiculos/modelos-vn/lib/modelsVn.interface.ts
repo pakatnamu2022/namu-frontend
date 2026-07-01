@@ -142,3 +142,37 @@ export interface VerifyModelsVnResponse {
   existing: VerifyModelsVnExisting[];
   not_found: VerifyModelsVnNotFound[];
 }
+
+export type SyncStatus = "pending" | "in_progress" | "completed" | "failed";
+
+export interface ModelVnSyncLog {
+  id: number;
+  model_vn_id: number;
+  code: string;
+  status: SyncStatus;
+  proceso_estado: number;
+  dynamics_payload: Record<string, any> | null;
+  error_message: string | null;
+  attempts: number;
+  last_attempt_at: string | null;
+  completed_at: string | null;
+  model: {
+    id: number;
+    version: string;
+    model_year: number;
+    fuel_id: number;
+  };
+}
+
+export interface ModelVnSyncLogsResponse {
+  data: ModelVnSyncLog[];
+  meta: Meta;
+}
+
+export interface ModelVnSyncResponse {
+  log_id: number;
+  model_id: number;
+  code: string;
+  status: string;
+  message: string;
+}

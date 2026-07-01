@@ -19,6 +19,7 @@ import {
 } from "@/core/core.function";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
+import ModelVnSyncStatusCard from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnSyncStatusCard";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
@@ -112,6 +113,9 @@ export default function UpdateModelsVnPage() {
         mode="edit"
         icon={currentView.icon}
       />
+      {ModelsVn.type_operation_id === CM_COMERCIAL_ID && (
+        <ModelVnSyncStatusCard modelId={Number(id)} />
+      )}
       <ModelsVnForm
         defaultValues={mapModelsVnToForm(ModelsVn)}
         onSubmit={handleSubmit}

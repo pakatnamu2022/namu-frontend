@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, FileSearch, FileUp, Plus } from "lucide-react";
+import { Download, FileSearch, FileUp, Plus, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
@@ -35,7 +35,7 @@ export default function ModelsVnActions({
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingVerify, setIsDownloadingVerify] = useState(false);
 
-  const { ROUTE_ADD } =
+  const { ROUTE_ADD, ABSOLUTE_ROUTE } =
     isCommercial === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
 
   const handleDownloadTemplate = async () => {
@@ -105,6 +105,16 @@ export default function ModelsVnActions({
           onClick={() => setVerifyOpen(true)}
         >
           <FileSearch className="size-4 mr-2" /> Verificar
+        </Button>
+      )}
+
+      {isCommercial === CM_COMERCIAL_ID && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => router(`${ABSOLUTE_ROUTE}/dynamics`)}
+        >
+          <RefreshCw className="size-4 mr-2" /> Artículos Dynamics
         </Button>
       )}
 

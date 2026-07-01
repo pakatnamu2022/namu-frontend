@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { ModelsVnResource, ModelsVnResponse } from "./modelsVn.interface";
+import { ModelVnSyncLogsResponse, ModelsVnResource, ModelsVnResponse } from "./modelsVn.interface";
 import {
   findModelsVnById,
   getAllModelsVn,
+  getModelVnSyncLogs,
   getModelsVn,
   getModelsVnSearch,
 } from "./modelsVn.actions";
@@ -46,6 +47,14 @@ export const useBrandById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findBrandsById(id),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useModelVnSyncLogs = (params?: Record<string, any>) => {
+  return useQuery<ModelVnSyncLogsResponse>({
+    queryKey: [QUERY_KEY, "sync-logs", params],
+    queryFn: () => getModelVnSyncLogs(params),
     refetchOnWindowFocus: false,
   });
 };
