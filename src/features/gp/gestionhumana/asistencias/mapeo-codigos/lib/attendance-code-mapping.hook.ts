@@ -15,7 +15,6 @@ export const useAttendanceCodeMappings = (params?: Record<string, any>) => {
   return useQuery<AttendanceCodeMappingResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAttendanceCodeMappings(params),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -24,6 +23,5 @@ export const useAttendanceCodeMappingById = (id?: number | null) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findAttendanceCodeMappingById(id as number),
     enabled: !!id,
-    refetchOnWindowFocus: false,
   });
 };
