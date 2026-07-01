@@ -6,7 +6,6 @@ export const workerSchemaUpdate = z.object({
   sede: z.string().max(100).min(1).optional(),
   position: z.string().max(100).min(1).optional(),
   work_schedule_id: z.string().optional(),
-  no_attendance_required: z.boolean().optional(),
   supervisor_id: z.string().optional(),
   worker_signature: z.string().nullable().optional(),
 });
