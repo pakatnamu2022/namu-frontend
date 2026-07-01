@@ -11,7 +11,7 @@ export const ATTENDANCE_EXCLUSION: ModelComplete<AttendanceExclusionResource> = 
     gender: false,
   },
   ICON: "UserX",
-  ENDPOINT: "/admin/attendance-exclusions",
+  ENDPOINT: "/gp/gh/attendance/exclusions",
   QUERY_KEY: "attendance-exclusions",
   ROUTE,
   ABSOLUTE_ROUTE,

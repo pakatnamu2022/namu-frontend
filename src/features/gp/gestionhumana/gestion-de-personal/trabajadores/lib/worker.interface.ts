@@ -27,7 +27,6 @@ export interface WorkerResource {
    * SHOW EXTRA = 1 => Show extra data (inclusion_reason, has_category, has_objectives, has_competences)
    */
   workSchedule?: WorkScheduleResource;
-  no_attendance_required?: boolean;
 }
 
 export interface getWorkersProps {

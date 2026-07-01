@@ -6,13 +6,11 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { FormInput } from "@/shared/components/FormInput";
-import { Switch } from "@/components/ui/switch.tsx";
 import { workerSchemaUpdate } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.schema.ts";
 import { Calendar, Clock, Loader, PenLine, User } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -30,6 +28,7 @@ import type { WorkScheduleResource } from "@/features/gp/gestionhumana/asistenci
 import { useWorkSchedules } from "@/features/gp/gestionhumana/asistencias/horarios/lib/work-schedule.hook";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { usePositions } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.hook";
+import { WorkerAttendanceExclusion } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerAttendanceExclusion";
 
 const useWorkSchedulesSelect = (params: {
   search?: string;
@@ -48,6 +47,8 @@ interface WorkerFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   workSchedule?: WorkScheduleResource;
+  workerId?: number;
+  workerName?: string;
 }
 
 export const WorkerForm = ({
@@ -55,6 +56,8 @@ export const WorkerForm = ({
   onSubmit,
   isSubmitting = false,
   workSchedule,
+  workerId,
+  workerName,
 }: WorkerFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = WORKER;
 
@@ -86,8 +89,6 @@ export const WorkerForm = ({
     defaultValues: { ...defaultValues },
     mode: "onChange",
   });
-
-  const noAttendanceRequired = form.watch("no_attendance_required");
 
   return (
     <Form {...form}>
@@ -201,39 +202,25 @@ export const WorkerForm = ({
               color="violet"
               cols={{ sm: 1 }}
             >
-              {!noAttendanceRequired && (
-                <FormSelectAsync
-                  control={form.control}
-                  name="work_schedule_id"
-                  label="Asignar horario"
-                  placeholder="Buscar horario..."
-                  useQueryHook={useWorkSchedulesSelect}
-                  mapOptionFn={(ws) => ({ value: ws.id.toString(), label: ws.name })}
-                  perPage={10}
-                  debounceMs={400}
-                  defaultOption={workScheduleDefaultOption}
-                  allowClear
+              <FormSelectAsync
+                control={form.control}
+                name="work_schedule_id"
+                label="Asignar horario"
+                placeholder="Buscar horario..."
+                useQueryHook={useWorkSchedulesSelect}
+                mapOptionFn={(ws) => ({ value: ws.id.toString(), label: ws.name })}
+                perPage={10}
+                debounceMs={400}
+                defaultOption={workScheduleDefaultOption}
+                allowClear
+              />
+
+              {workerId && (
+                <WorkerAttendanceExclusion
+                  workerId={workerId}
+                  workerName={workerName ?? defaultValues.name ?? ""}
                 />
               )}
-
-              <FormField
-                control={form.control}
-                name="no_attendance_required"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <FormLabel className="cursor-pointer">
-                      No requiere control de asistencia
-                    </FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={!!field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={isSubmitting}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
             </GroupFormSection>
           </div>
         </div>

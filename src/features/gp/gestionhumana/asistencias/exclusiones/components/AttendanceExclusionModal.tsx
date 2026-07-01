@@ -23,6 +23,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   title: string;
+  presetPersonId?: number;
+  presetPersonName?: string;
 }
 
 export default function AttendanceExclusionModal({
@@ -30,13 +32,16 @@ export default function AttendanceExclusionModal({
   open,
   onClose,
   title,
+  presetPersonId,
+  presetPersonName,
 }: Props) {
   const queryClient = useQueryClient();
   const isEdit = !!id;
+  const hasPresetPerson = !isEdit && !!presetPersonId;
 
   const { data: persons, isLoading: isLoadingPersons } = useAllWorkers(
     { status_id: 22 },
-    open && !isEdit,
+    open && !isEdit && !hasPresetPerson,
   );
 
   const { data: exclusion, isLoading: isLoadingExclusion } =
@@ -66,13 +71,16 @@ export default function AttendanceExclusionModal({
 
   const isLoadingAny = isEdit
     ? isLoadingExclusion || !exclusion
-    : isLoadingPersons || !persons;
+    : hasPresetPerson
+      ? false
+      : isLoadingPersons || !persons;
 
   return (
     <GeneralModal open={open} onClose={onClose} title={title}>
       {!isLoadingAny ? (
         <AttendanceExclusionForm
           isEdit={isEdit}
+          hidePersonSelect={isEdit || hasPresetPerson}
           defaultValues={
             isEdit
               ? {
@@ -80,13 +88,13 @@ export default function AttendanceExclusionModal({
                   active: exclusion?.active ?? true,
                 }
               : {
-                  person_id: "",
+                  person_id: hasPresetPerson ? presetPersonId!.toString() : "",
                   reason: "",
                   active: true,
                 }
           }
           persons={persons}
-          personLabel={exclusion?.person?.name}
+          personLabel={isEdit ? exclusion?.person?.name : presetPersonName}
           onCancel={onClose}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
