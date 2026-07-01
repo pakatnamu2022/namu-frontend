@@ -221,7 +221,7 @@ export const VehiclePVForm = ({
             label="Número de Motor"
             placeholder="Ej: ENG32345XYZA"
             control={form.control}
-            disabled={issuccessfulResponse}
+            disabled={issuccessfulResponse && !!plateData?.data?.engine_number}
           />
 
           <FormInput
