@@ -35,6 +35,7 @@ interface ActionsCellProps {
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
+    canApprove: boolean;
   };
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
@@ -147,7 +148,7 @@ export const ProformaMesonActionsCell = ({
     !was_segmented &&
     !parent_quotation_id;
 
-  const isVisibleApprove = isForInvoicing;
+  const isVisibleApprove = permissions.canApprove && isForInvoicing;
 
   const isVisibleEdit =
     !isDiscarded &&

@@ -1,20 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import {
-  BellRing,
-  CheckCircle,
-  Download,
-  Eye,
-  Pencil,
-  XCircle,
-} from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
-import { errorToast, formatDate, successToast } from "@/core/core.function";
-import { downloadPurchaseRequestPdf } from "../lib/purchaseRequest.actions";
+import { formatDate } from "@/core/core.function";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { PurchaseRequestActionsCell } from "./PurchaseRequestActionsCell";
 
 export type PurchaseRequestColumns = ColumnDef<PurchaseRequestResource>;
 
@@ -222,103 +212,17 @@ export const purchaseRequestColumns = ({
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => {
-      const { id, ap_order_quotation_id, status, approved } = row.original;
-
-      const hasQuotation = ap_order_quotation_id !== null;
-      const isLockedStatus = approved || status === "cancelled";
-      const hideOptions =
-        !hasQuotation && !isLockedStatus && status === "pending";
-      const hideOptionsDelete = !isLockedStatus && status === "pending";
-
-      const handleDownloadPdf = async (id: number) => {
-        try {
-          await downloadPurchaseRequestPdf(id);
-          successToast(
-            `PDF descargado correctamente para la solicitud de compra`,
-          );
-        } catch {
-          errorToast("Error al descargar el PDF");
-        }
-      };
-
-      return (
-        <div className="flex items-center gap-2">
-          {onViewDetail && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Ver Detalle"
-              onClick={() => onViewDetail(row.original)}
-            >
-              <Eye className="size-5" />
-            </Button>
-          )}
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Descargar PDF"
-            onClick={() => handleDownloadPdf(id)}
-          >
-            <Download className="size-5" />
-          </Button>
-
-          {permissions.canNotify && hideOptions && onNotifyManagers && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7 text-blue-500 hover:text-blue-600"
-              tooltip="Notificar a Jefatura"
-              onClick={() => onNotifyManagers(id)}
-            >
-              <BellRing className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canApprove && hideOptions && onApprove && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7 text-green-600 hover:text-green-700"
-              tooltip="Aprobar"
-              onClick={() => onApprove(id)}
-            >
-              <CheckCircle className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canReject && hideOptions && onCancel && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7 text-red-500 hover:text-red-600"
-              tooltip="Rechazar"
-              onClick={() => onCancel(id)}
-            >
-              <XCircle className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canUpdate && hideOptions && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canDelete && hideOptionsDelete && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <PurchaseRequestActionsCell
+        row={row.original}
+        permissions={permissions}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+        onViewDetail={onViewDetail}
+        onApprove={onApprove}
+        onCancel={onCancel}
+        onNotifyManagers={onNotifyManagers}
+      />
+    ),
   },
 ];
