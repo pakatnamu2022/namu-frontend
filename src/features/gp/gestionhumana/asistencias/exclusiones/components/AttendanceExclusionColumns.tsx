@@ -39,6 +39,11 @@ export const attendanceExclusionColumns = ({
     cell: ({ getValue }) => <span>{getValue() as string}</span>,
   },
   {
+    accessorKey: "person.position",
+    header: "Cargo",
+    cell: ({ getValue }) => <span>{getValue() as string}</span>,
+  },
+  {
     accessorKey: "reason",
     header: "Motivo",
     cell: ({ getValue }) => {
