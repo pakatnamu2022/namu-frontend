@@ -117,3 +117,28 @@ export interface ImportModelsVnResponse {
   created: number;
   created_rows: ImportModelsVnRow[];
 }
+
+export interface VerifyModelsVnExisting {
+  fila: number;
+  id: number;
+  code: string;
+  version: string;
+  model_year: number;
+  fuel: string;
+}
+
+export interface VerifyModelsVnNotFound {
+  fila: number;
+  version: string;
+  model_year: number;
+  fuel: string;
+  motivo: string;
+}
+
+export interface VerifyModelsVnResponse {
+  rows_processed: number;
+  existing_count: number;
+  not_found_count: number;
+  existing: VerifyModelsVnExisting[];
+  not_found: VerifyModelsVnNotFound[];
+}
