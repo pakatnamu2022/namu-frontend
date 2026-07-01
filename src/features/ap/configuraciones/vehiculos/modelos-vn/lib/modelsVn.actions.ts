@@ -2,6 +2,9 @@ import type { AxiosRequestConfig } from "axios";
 import {
   getModelsVnProps,
   ImportModelsVnResponse,
+  ModelVnSyncAllResponse,
+  ModelVnSyncLogsResponse,
+  ModelVnSyncResponse,
   ModelsVnResource,
   ModelsVnResponse,
   VerifyModelsVnResponse,
@@ -130,5 +133,33 @@ export async function verifyModelsVn(
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
+  return data;
+}
+
+export async function getModelVnSyncLogs(
+  params?: Record<string, any>
+): Promise<ModelVnSyncLogsResponse> {
+  const config: AxiosRequestConfig = { params };
+  const { data } = await api.get<ModelVnSyncLogsResponse>(
+    `${ENDPOINT}/sync-logs`,
+    config
+  );
+  return data;
+}
+
+export async function syncModelVn(id: number): Promise<ModelVnSyncResponse> {
+  const { data } = await api.post<ModelVnSyncResponse>(`${ENDPOINT}/${id}/sync`);
+  return data;
+}
+
+export async function syncAllModelsVn(): Promise<ModelVnSyncAllResponse> {
+  const { data } = await api.post<ModelVnSyncAllResponse>(`${ENDPOINT}/sync-all`);
+  return data;
+}
+
+export async function getModelVnDynamicsPayload(
+  id: number
+): Promise<Record<string, any>> {
+  const { data } = await api.get<Record<string, any>>(`${ENDPOINT}/${id}/dynamics`);
   return data;
 }

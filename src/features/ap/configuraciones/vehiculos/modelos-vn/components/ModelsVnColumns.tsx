@@ -2,7 +2,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { History, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +16,7 @@ export type ModelsVnColumns = ColumnDef<ModelsVnResource>;
 interface Props {
   onDelete: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
+  onViewDynamics?: (modelId: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -25,6 +27,7 @@ interface Props {
 export const modelsVnColumns = ({
   onDelete,
   onToggleStatus,
+  onViewDynamics,
   permissions,
   isCommercial = CM_COMERCIAL_ID,
 }: Props): ModelsVnColumns[] => [
@@ -203,7 +206,6 @@ export const modelsVnColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Toggle Status */}
           {permissions.canUpdate && (
             <Switch
               checked={status}
@@ -213,20 +215,39 @@ export const modelsVnColumns = ({
             />
           )}
 
-          {/* Edit */}
           {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-              disabled={type_operation_id !== isCommercial}
-            >
-              <Pencil className="size-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+                  disabled={type_operation_id !== isCommercial}
+                >
+                  <Pencil className="size-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Editar</TooltipContent>
+            </Tooltip>
           )}
 
-          {/* Delete */}
+          {isCommercial === CM_COMERCIAL_ID && onViewDynamics && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => onViewDynamics(id)}
+                >
+                  <History className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Ver historial Dynamics</TooltipContent>
+            </Tooltip>
+          )}
+
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}

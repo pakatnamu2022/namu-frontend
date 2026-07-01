@@ -22,6 +22,7 @@ import ModelsVnActions from "@/features/ap/configuraciones/vehiculos/modelos-vn/
 import ModelsVnTable from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnTable";
 import { modelsVnColumns } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnColumns";
 import ModelsVnOptions from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnOptions";
+import ModelVnDynamicsSheet from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnDynamicsSheet";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
@@ -36,6 +37,7 @@ export default function ModelsVnPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [brandId, setBrandId] = useState<string>("");
+  const [dynamicsModelId, setDynamicsModelId] = useState<number | null>(null);
   const { ROUTE, MODEL } = MODELS_VN;
   const permissions = useModulePermissions(ROUTE);
 
@@ -102,6 +104,7 @@ export default function ModelsVnPage() {
         columns={modelsVnColumns({
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
+          onViewDynamics: setDynamicsModelId,
           permissions,
           isCommercial: CM_COMERCIAL_ID,
         })}
@@ -131,6 +134,12 @@ export default function ModelsVnPage() {
         onPageChange={setPage}
         per_page={per_page}
         setPerPage={setPerPage}
+      />
+
+      <ModelVnDynamicsSheet
+        open={dynamicsModelId !== null}
+        onClose={() => setDynamicsModelId(null)}
+        modelId={dynamicsModelId ?? undefined}
       />
     </div>
   );
