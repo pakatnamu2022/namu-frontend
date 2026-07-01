@@ -297,7 +297,7 @@ export default function NamuPerformanceEvaluationPage() {
                   onUpdateCell={handleUpdateResultCell}
                   onCommentCell={handleCommentSubmit}
                   readOnly={
-                    evaluationPersonResult.details[0].chief_id !==
+                    evaluationPersonResult.details[0]?.chief_id !==
                     user.partner_id
                   }
                 />
