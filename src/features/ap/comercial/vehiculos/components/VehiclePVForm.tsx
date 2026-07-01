@@ -86,7 +86,8 @@ export const VehiclePVForm = ({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
-  const { data: warehousesPhysical = [] } = useMyPhysicalWarehouse();
+  const { data: warehousesPhysical = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
   const selectedSedeId = form.watch("sede_id");
   const filteredWarehouses = warehousesPhysical.filter(
     (w) => String(w.sede_id) === String(selectedSedeId),
@@ -121,16 +122,23 @@ export const VehiclePVForm = ({
     }
   }, [plateData, form, plateChanged]);
 
-  // Limpiar y auto-seleccionar almacén cuando cambie la sede
+  // Auto-seleccionar almacén cuando cambie la sede o cuando lleguen los almacenes
   useEffect(() => {
-    form.setValue("warehouse_physical_id", "");
-    if (filteredWarehouses.length > 0) {
-      form.setValue(
-        "warehouse_physical_id",
-        filteredWarehouses[0].id.toString(),
-      );
-    }
-  }, [selectedSedeId]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!selectedSedeId || isLoadingWarehouses) return;
+
+    const currentWarehouseId = form.getValues("warehouse_physical_id");
+    const stillValid = filteredWarehouses.some(
+      (w) => String(w.id) === String(currentWarehouseId),
+    );
+
+    if (stillValid) return;
+
+    form.setValue(
+      "warehouse_physical_id",
+      filteredWarehouses.length > 0 ? filteredWarehouses[0].id.toString() : "",
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSedeId, filteredWarehouses, isLoadingWarehouses]);
 
   // Auto-seleccionar primera sede por defecto
   useEffect(() => {
@@ -144,7 +152,8 @@ export const VehiclePVForm = ({
   // Obtener la información de la API para mostrar como guía
   const apiInfo = plateData?.success && plateData.data ? plateData.data : null;
 
-  const isLoading = isLoadingEngineTypes || isLoadingMySedes;
+  const isLoading =
+    isLoadingEngineTypes || isLoadingMySedes || isLoadingWarehouses;
 
   if (isLoading) return <FormSkeleton />;
 
