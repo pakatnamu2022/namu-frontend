@@ -18,7 +18,6 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import {
   Car,
-  ExternalLink,
   FileText,
   User,
   Gauge,
@@ -27,6 +26,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
+import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/VehicleRepuestosModal";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -36,7 +36,6 @@ import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hoo
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { OrderQuotationResource } from "../lib/proforma.interface";
-import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { DataCard } from "@/components/DataCard";
 import { FormSwitch } from "@/shared/components/FormSwitch";
@@ -60,6 +59,19 @@ export default function OrderQuotationForm({
 }: OrderQuotationFormProps) {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [vehicleDefaultOption, setVehicleDefaultOption] = useState<
+    { value: string; label: string } | undefined
+  >(
+    proforma
+      ? {
+          value: proforma.vehicle.id.toString(),
+          label: proforma.vehicle.plate
+            ? `${proforma.vehicle.plate} - ${proforma.vehicle.vin || ""}`
+            : proforma.vehicle.vin || "-",
+        }
+      : undefined,
+  );
 
   const form = useForm({
     resolver: zodResolver(
@@ -191,26 +203,17 @@ export default function OrderQuotationForm({
             })}
             perPage={10}
             debounceMs={500}
-            defaultOption={
-              proforma
-                ? {
-                    value: proforma.vehicle.id.toString(),
-                    label: proforma.vehicle.plate
-                      ? `${proforma.vehicle.plate} - ${proforma.vehicle.vin || ""}`
-                      : proforma.vehicle.vin || "-",
-                  }
-                : undefined
-            }
+            defaultOption={vehicleDefaultOption}
           >
             <Button
               type="button"
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(VEHICLES_TLL.ROUTE_ADD, "_blank")}
+              onClick={() => setIsVehicleModalOpen(true)}
               tooltip="Agregar nuevo vehículo"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -363,6 +366,30 @@ export default function OrderQuotationForm({
           }
         }}
         title="Agregar Nuevo Cliente"
+      />
+
+      <VehicleRepuestosModal
+        open={isVehicleModalOpen}
+        onClose={(newVehicle) => {
+          setIsVehicleModalOpen(false);
+          if (newVehicle) {
+            form.setValue("vehicle_id", newVehicle.id.toString(), {
+              shouldValidate: true,
+            });
+            setVehicleDefaultOption({
+              value: newVehicle.id.toString(),
+              label: newVehicle.plate
+                ? `${newVehicle.plate} - ${newVehicle.vin || ""}`
+                : newVehicle.vin || "-",
+            });
+          }
+        }}
+        title="Agregar Nuevo Vehículo"
+        sedeId={form.watch("sede_id")}
+        sedeName={
+          mySedes.find((s) => s.id.toString() === form.watch("sede_id"))
+            ?.abreviatura
+        }
       />
     </Form>
   );
