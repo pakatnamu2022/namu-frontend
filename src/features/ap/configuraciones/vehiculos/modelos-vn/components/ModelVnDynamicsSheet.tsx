@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import GeneralSheet from "@/shared/components/GeneralSheet";
@@ -33,7 +37,11 @@ interface Props {
   modelId?: number;
 }
 
-export default function ModelVnDynamicsSheet({ open, onClose, modelId }: Props) {
+export default function ModelVnDynamicsSheet({
+  open,
+  onClose,
+  modelId,
+}: Props) {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -55,7 +63,7 @@ export default function ModelVnDynamicsSheet({ open, onClose, modelId }: Props) 
       ...(search ? { code: search } : {}),
       ...(statusFilter ? { status: statusFilter as SyncStatus } : {}),
     },
-    { enabled: open }
+    { enabled: open },
   );
 
   const handleRetry = async (log: ModelVnSyncLog) => {
@@ -63,11 +71,13 @@ export default function ModelVnDynamicsSheet({ open, onClose, modelId }: Props) 
     try {
       await syncModelVn(log.model_vn_id);
       successToast(`Sincronización iniciada para ${log.code}.`);
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, "sync-logs"] });
+      await queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY, "sync-logs"],
+      });
       await refetch();
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al iniciar la sincronización."
+        error?.response?.data?.message || "Error al iniciar la sincronización.",
       );
     } finally {
       setRetryingId(null);
@@ -105,7 +115,8 @@ export default function ModelVnDynamicsSheet({ open, onClose, modelId }: Props) 
             </FilterWrapper>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="sm" variant="ghost" onClick={() => refetch()}>
+                <Button variant="outline" onClick={() => refetch()}>
+                  Actualizar
                   <RefreshCw className="size-4" />
                 </Button>
               </TooltipTrigger>
