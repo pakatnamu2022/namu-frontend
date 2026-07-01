@@ -176,3 +176,8 @@ export interface ModelVnSyncResponse {
   status: string;
   message: string;
 }
+
+export interface ModelVnSyncAllResponse {
+  dispatched: number;
+  message: string;
+}

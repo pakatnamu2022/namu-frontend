@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, ExternalLink } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { RefreshCw, History } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useModelVnSyncLogs } from "../lib/modelsVn.hook";
 import { syncModelVn } from "../lib/modelsVn.actions";
 import { SyncStatus } from "../lib/modelsVn.interface";
 import { errorToast, successToast } from "@/core/core.function";
 import { MODELS_VN } from "../lib/modelsVn.constanst";
+import ModelVnDynamicsSheet from "./ModelVnDynamicsSheet";
 
 interface Props {
   modelId: number;
@@ -38,8 +40,10 @@ const STATUS_CONFIG: Record<SyncStatus, { label: string; className: string }> =
   };
 
 export default function ModelVnSyncStatusCard({ modelId }: Props) {
-  const router = useNavigate();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { QUERY_KEY } = MODELS_VN;
 
   const { data, refetch } = useModelVnSyncLogs({
     model_id: modelId,
@@ -56,6 +60,7 @@ export default function ModelVnSyncStatusCard({ modelId }: Props) {
     try {
       await syncModelVn(modelId);
       successToast("Sincronización iniciada.");
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, "sync-logs"] });
       await refetch();
     } catch (error: any) {
       const msg =
@@ -101,24 +106,40 @@ export default function ModelVnSyncStatusCard({ modelId }: Props) {
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleSync}
-          disabled={isSyncing || latest?.status === "in_progress"}
-        >
-          <RefreshCw className={`size-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-          {isSyncing ? "Sincronizando..." : "Sincronizar"}
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => router(MODELS_VN.ABSOLUTE_ROUTE + "/dynamics")}
-          title="Ver historial completo"
-        >
-          <ExternalLink className="size-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleSync}
+              disabled={isSyncing || latest?.status === "in_progress"}
+            >
+              <RefreshCw className={`size-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+              {isSyncing ? "Sincronizando..." : "Sincronizar"}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Enviar a Dynamics</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setHistoryOpen(true)}
+            >
+              <History className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Ver historial completo</TooltipContent>
+        </Tooltip>
       </div>
+
+      <ModelVnDynamicsSheet
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        modelId={modelId}
+      />
     </div>
   );
 }

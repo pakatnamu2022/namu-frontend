@@ -2,6 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import {
   getModelsVnProps,
   ImportModelsVnResponse,
+  ModelVnSyncAllResponse,
   ModelVnSyncLogsResponse,
   ModelVnSyncResponse,
   ModelsVnResource,
@@ -148,6 +149,11 @@ export async function getModelVnSyncLogs(
 
 export async function syncModelVn(id: number): Promise<ModelVnSyncResponse> {
   const { data } = await api.post<ModelVnSyncResponse>(`${ENDPOINT}/${id}/sync`);
+  return data;
+}
+
+export async function syncAllModelsVn(): Promise<ModelVnSyncAllResponse> {
+  const { data } = await api.post<ModelVnSyncAllResponse>(`${ENDPOINT}/sync-all`);
   return data;
 }
 

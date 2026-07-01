@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ModelVnSyncLog, SyncStatus } from "../lib/modelsVn.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Eye, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -132,27 +133,29 @@ export const modelVnSyncLogsColumns = ({
       return (
         <div className="flex items-center gap-1">
           {log.status === "completed" && log.dynamics_payload && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onViewPayload(log)}
-              title="Ver payload"
-            >
-              <Eye className="size-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="sm" variant="ghost" onClick={() => onViewPayload(log)}>
+                  <Eye className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Ver payload</TooltipContent>
+            </Tooltip>
           )}
           {log.status === "failed" && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onRetry(log)}
-              disabled={retryingId === log.id}
-              title="Reintentar"
-            >
-              <RefreshCw
-                className={`size-4 ${retryingId === log.id ? "animate-spin" : ""}`}
-              />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onRetry(log)}
+                  disabled={retryingId === log.id}
+                >
+                  <RefreshCw className={`size-4 ${retryingId === log.id ? "animate-spin" : ""}`} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Reintentar</TooltipContent>
+            </Tooltip>
           )}
         </div>
       );

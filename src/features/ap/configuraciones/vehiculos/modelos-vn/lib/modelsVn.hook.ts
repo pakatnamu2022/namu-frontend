@@ -23,7 +23,6 @@ export const useModelsVnSearch = (params?: Record<string, any>) => {
   return useQuery<ModelsVnResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getModelsVnSearch({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -39,7 +38,6 @@ export const useAllModelsVn = (params?: Record<string, any>) => {
   return useQuery<ModelsVnResource[]>({
     queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllModelsVn({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -47,14 +45,16 @@ export const useBrandById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findBrandsById(id),
-    refetchOnWindowFocus: false,
   });
 };
 
-export const useModelVnSyncLogs = (params?: Record<string, any>) => {
+export const useModelVnSyncLogs = (
+  params?: Record<string, any>,
+  options?: { enabled?: boolean }
+) => {
   return useQuery<ModelVnSyncLogsResponse>({
     queryKey: [QUERY_KEY, "sync-logs", params],
     queryFn: () => getModelVnSyncLogs(params),
-    refetchOnWindowFocus: false,
+    enabled: options?.enabled !== false,
   });
 };
