@@ -1,10 +1,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { History, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -215,38 +214,21 @@ export const modelsVnColumns = ({
             />
           )}
 
-          {permissions.canUpdate && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-                  disabled={type_operation_id !== isCommercial}
-                >
-                  <Pencil className="size-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Editar</TooltipContent>
-            </Tooltip>
-          )}
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            disabled={type_operation_id !== isCommercial}
+            canRender={permissions.canUpdate}
+          />
 
-          {isCommercial === CM_COMERCIAL_ID && onViewDynamics && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={() => onViewDynamics(id)}
-                >
-                  <History className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Ver historial Dynamics</TooltipContent>
-            </Tooltip>
-          )}
+          <ButtonAction
+            icon={History}
+            tooltip="Ver historial Dynamics"
+            variant="ghost"
+            onClick={() => onViewDynamics && onViewDynamics(id)}
+            canRender={isCommercial === CM_COMERCIAL_ID && !!onViewDynamics}
+          />
 
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
