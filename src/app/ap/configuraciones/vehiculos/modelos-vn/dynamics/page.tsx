@@ -18,7 +18,6 @@ import { syncModelVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/
 import { modelVnSyncLogsColumns } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnSyncLogsColumns";
 import ModelVnDynamicsPayloadSheet from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnDynamicsPayloadSheet";
 import type { ModelVnSyncLog, SyncStatus } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
-import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 
 const STATUS_OPTIONS = [
   { value: "pending", label: "Pendiente" },
