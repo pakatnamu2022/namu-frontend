@@ -81,7 +81,6 @@ export const VehiclePVForm = ({
     },
     mode: "onChange",
   });
-  const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const { data: engineTypes = [], isLoading: isLoadingEngineTypes } =
     useAllEngineTypes();
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -95,12 +94,8 @@ export const VehiclePVForm = ({
 
   // Watch para plate
   const plateWatch = form.watch("plate");
-
-  useEffect(() => {
-    if (isFirstLoad && plateWatch) {
-      setIsFirstLoad(false);
-    }
-  }, [isFirstLoad, plateWatch]);
+  const [originalPlate] = useState(defaultValues.plate ?? "");
+  const plateChanged = mode === "update" ? plateWatch !== originalPlate : true;
 
   const {
     data: plateData,
@@ -108,11 +103,11 @@ export const VehiclePVForm = ({
     error: plateError,
   } = usePlateValidation(
     plateWatch,
-    !isFirstLoad && !!plateWatch && plateWatch.length === Number(6),
+    plateChanged && !!plateWatch && plateWatch.length === 6,
   );
 
   useEffect(() => {
-    if (isFirstLoad) return;
+    if (!plateChanged) return;
 
     if (plateData?.success && plateData.data) {
       const plateInfo = plateData.data;
@@ -124,7 +119,7 @@ export const VehiclePVForm = ({
       form.setValue("engine_number", "");
       setIsSuccessfulResponse(false);
     }
-  }, [plateData, form, isFirstLoad]);
+  }, [plateData, form, plateChanged]);
 
   // Auto-seleccionar el primer almacén cuando se carguen los datos
   useEffect(() => {
