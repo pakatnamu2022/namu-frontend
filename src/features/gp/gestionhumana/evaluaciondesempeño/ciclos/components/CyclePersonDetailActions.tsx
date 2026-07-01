@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Users, Scale } from "lucide-react";
 import CycleWeightsPreviewSheet from "./CycleWeightsPreviewSheet";
-import CycleEligibleWorkersSheet from "./CycleEligibleWorkersSheet";
 
 interface Props {
   id: number;
@@ -19,7 +18,6 @@ export default function CyclePersonDetailActions({
   onAssign,
 }: Props) {
   const [openWeightsPreview, setOpenWeightsPreview] = useState(false);
-  const [openEligibleWorkers, setOpenEligibleWorkers] = useState(false);
 
   return (
     <>
@@ -29,18 +27,6 @@ export default function CyclePersonDetailActions({
           <Button variant="outline" size="sm" onClick={() => onAssign(id)}>
             <Users className="size-5" />
             Asignar
-          </Button>
-        )}
-
-        {/* Assign eligible workers — only when details already exist */}
-        {hasDetails && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setOpenEligibleWorkers(true)}
-          >
-            <Users className="size-5" />
-            Asignar Trabajadores
           </Button>
         )}
 
@@ -58,12 +44,6 @@ export default function CyclePersonDetailActions({
       <CycleWeightsPreviewSheet
         open={openWeightsPreview}
         onClose={() => setOpenWeightsPreview(false)}
-        cycleId={id}
-      />
-
-      <CycleEligibleWorkersSheet
-        open={openEligibleWorkers}
-        onClose={() => setOpenEligibleWorkers(false)}
         cycleId={id}
       />
     </>
