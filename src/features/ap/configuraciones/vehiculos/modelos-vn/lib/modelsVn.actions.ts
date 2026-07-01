@@ -4,6 +4,7 @@ import {
   ImportModelsVnResponse,
   ModelsVnResource,
   ModelsVnResponse,
+  VerifyModelsVnResponse,
 } from "./modelsVn.interface";
 import { api } from "@/core/api";
 import { STATUS_ACTIVE } from "@/core/core.constants";
@@ -96,6 +97,36 @@ export async function importModelsVn(
   formData.append("file", file);
   const { data } = await api.post<ImportModelsVnResponse>(
     `${ENDPOINT}/import`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
+}
+
+export async function downloadVerifyTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/verify/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "modelos_vn_verificacion_template.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function verifyModelsVn(
+  file: File
+): Promise<VerifyModelsVnResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<VerifyModelsVnResponse>(
+    `${ENDPOINT}/verify`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
