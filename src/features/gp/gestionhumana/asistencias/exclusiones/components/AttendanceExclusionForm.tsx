@@ -28,6 +28,7 @@ interface Props {
   isSubmitting?: boolean;
   persons?: WorkerResource[];
   personLabel?: string;
+  hidePersonSelect?: boolean;
   onCancel?: () => void;
   portalContainer?: HTMLElement | null;
 }
@@ -39,6 +40,7 @@ export const AttendanceExclusionForm = ({
   isSubmitting = false,
   persons = [],
   personLabel,
+  hidePersonSelect = false,
   onCancel,
   portalContainer,
 }: Props) => {
@@ -58,7 +60,7 @@ export const AttendanceExclusionForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          {isEdit ? (
+          {hidePersonSelect ? (
             <div className="text-sm">
               <span className="text-muted-foreground">Colaborador: </span>
               <span className="font-semibold">{personLabel}</span>

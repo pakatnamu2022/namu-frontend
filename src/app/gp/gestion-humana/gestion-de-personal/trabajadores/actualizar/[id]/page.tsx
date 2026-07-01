@@ -50,7 +50,6 @@ export default function UpdateWorkerPage() {
       document: worker?.document ?? "",
       sede: worker?.sede ?? "",
       position: worker?.position ?? "",
-      no_attendance_required: worker?.no_attendance_required ?? false,
       work_schedule_id: worker?.workSchedule?.id?.toString() ?? "",
       supervisor_id: worker?.supervisor_id?.toString() ?? "",
       worker_signature: null,
@@ -74,6 +73,8 @@ export default function UpdateWorkerPage() {
         onSubmit={mutate}
         isSubmitting={isPending}
         workSchedule={worker.workSchedule}
+        workerId={worker.id}
+        workerName={worker.name}
       />
     </PageWrapper>
   );
