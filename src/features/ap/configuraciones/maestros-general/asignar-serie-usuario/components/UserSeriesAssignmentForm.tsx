@@ -112,6 +112,7 @@ export const UserSeriesAssignmentForm = ({
                 ...POSITION_TYPE.WAREHOUSE,
                 ...POSITION_TYPE.REPUESTOS,
                 ...POSITION_TYPE.WAREHOUSE_ASSISTANT,
+                ...POSITION_TYPE.POSVENTA_ASSISTANT,
                 ...POSITION_TYPE.SPARE_PARTS_ADVISOR,
               ],
               status_id: STATUS_WORKER.ACTIVE,

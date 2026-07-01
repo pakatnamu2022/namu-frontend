@@ -1,9 +1,9 @@
 import { DataTable } from "@/shared/components/DataTable";
-import { ControlUnitsColumns } from "./ControlUnitsColumns";
+import { ControlUnitsColumnsType } from "./ControlUnitsColumns";
 import { ControlUnitsResource } from "../lib/controlUnits.interface";
 
 interface Props {
-  columns: ControlUnitsColumns[];
+  columns: ControlUnitsColumnsType[];
   data: ControlUnitsResource[];
   children?: React.ReactNode;
   isLoading?: boolean;

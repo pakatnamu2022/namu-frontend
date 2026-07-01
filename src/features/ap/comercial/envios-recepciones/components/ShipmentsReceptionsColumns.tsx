@@ -53,9 +53,14 @@ interface Props {
   onGeneratePDI: (ap_vehicle_id: number) => void;
   onGenerateInstAccessories: (ap_vehicle_id: number) => void;
   permissions: {
+    canView: boolean;
     canSend: boolean;
+    canReceive: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canGenerate: boolean;
+    canMigrate: boolean;
+    canAnnul: boolean;
   };
 }
 
@@ -519,20 +524,55 @@ export const ShipmentsReceptionsColumns = ({
         transfer_reason_id.toString() ===
         SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE;
       const isAlreadyReceived = !!is_received;
-      const notAcceptedBySunat = aceptada_por_sunat !== true;
+      const isAcceptedBySunat = aceptada_por_sunat === true;
 
-      // Para GUIA_REMISION: requiere que esté aceptada por SUNAT y NO estar recibido
-      // Para GUIA_TRASLADO con motivo COMPRA: NO estar recibido
-      const canReceive = isGuiaRemision
-        ? aceptada_por_sunat === true && !isAlreadyReceived
-        : isPurchase && !isAlreadyReceived;
+      /**
+       * PERMISSIONS
+       */
 
-      // Tooltip dinámico para recepcionar
-      const receiveTooltip = isAlreadyReceived
-        ? "Ya ha sido recepcionado"
-        : isGuiaRemision && notAcceptedBySunat
-          ? "Debe ser aceptado por SUNAT primero"
-          : "Recepcionar";
+      const canView = permissions.canView;
+
+      const canSendToNubefact =
+        isGuiaRemision && !isSent && permissions.canSend;
+
+      const canConsult =
+        isGuiaRemision && isSent && !isAcceptedBySunat && permissions.canView;
+
+      const canViewHistory = isGuiaRemision && permissions.canView;
+
+      const canMarkAsReceived =
+        isTrasladoSede &&
+        isAcceptedBySunat &&
+        !isAlreadyReceived &&
+        permissions.canReceive;
+
+      // Solo aplica para guías de remisión de compra, aceptadas por SUNAT y no recibidas
+      const canReceive =
+        isGuiaRemision &&
+        isPurchase &&
+        isAcceptedBySunat &&
+        !isAlreadyReceived &&
+        permissions.canReceive;
+
+      const canEdit =
+        permissions.canUpdate &&
+        (isGuiaRemision ? !isSent : !isAlreadyReceived);
+
+      const canDelete =
+        permissions.canDelete &&
+        (isGuiaRemision ? !isSent : !isAlreadyReceived);
+
+      const canMigrate =
+        !!onMigrate &&
+        row.original.migration_status !== "completed" &&
+        permissions.canMigrate;
+
+      const canCancel =
+        isGuiaRemision && isAlreadyReceived && status && permissions.canAnnul;
+
+      const canGeneratePDI = !!ap_vehicle_id && permissions.canGenerate;
+
+      const canGenerateAccessories = !!ap_vehicle_id && permissions.canGenerate;
 
       return (
         <div className="flex items-center gap-2">
@@ -540,70 +580,53 @@ export const ShipmentsReceptionsColumns = ({
             icon={Eye}
             tooltip="Ver detalles"
             onClick={() => onViewDetails(row.original)}
+            canRender={canView}
           />
 
-          {isGuiaRemision && <ShippingGuideHistory shippingGuideId={id} />}
+          {canViewHistory && <ShippingGuideHistory shippingGuideId={id} />}
 
           <ButtonAction
             icon={Send}
             tooltip="Enviar a Nubefact"
             onClick={() => onSendToNubefact(id)}
-            canRender={isGuiaRemision && !isSent}
+            canRender={canSendToNubefact}
           />
 
           <ButtonAction
             icon={RefreshCw}
             tooltip="Consultar estado en SUNAT"
             onClick={() => onQueryFromNubefact(id)}
-            canRender={isGuiaRemision && isSent && aceptada_por_sunat !== true}
+            canRender={canConsult}
           />
 
           <ButtonAction
             icon={PackageCheck}
-            tooltip={
-              isAlreadyReceived
-                ? "Ya ha sido recepcionado"
-                : "Marcar como recibido"
-            }
-            onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
-            disabled={isAlreadyReceived}
-            canRender={isTrasladoSede && aceptada_por_sunat === true}
+            tooltip="Marcar como recibido"
+            onClick={() => onMarkAsReceived(id)}
+            canRender={canMarkAsReceived}
           />
 
           <ButtonAction
             icon={CarFront}
-            tooltip={receiveTooltip}
-            onClick={() =>
-              canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
-            }
-            disabled={!canReceive}
-            canRender={isPurchase}
+            tooltip="Recepcionar"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
+            canRender={canReceive}
           />
 
           <ButtonAction
             icon={Pencil}
             tooltip="Editar"
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            canRender={
-              permissions.canUpdate &&
-              (isGuiaRemision ? !isSent : !isAlreadyReceived)
-            }
+            canRender={canEdit}
           />
 
-          {permissions.canDelete &&
-            (isGuiaRemision ? !isSent : !isAlreadyReceived) && (
-              <DeleteButton onClick={() => onDelete(id)} />
-            )}
+          {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
 
           <ButtonAction
             icon={ArrowRightLeft}
             tooltip="Migrar"
             onClick={() => onMigrate && onMigrate(id)}
-            canRender={
-              !!onMigrate &&
-              isGuiaRemision &&
-              row.original.migration_status !== "completed"
-            }
+            canRender={canMigrate}
           />
 
           <ButtonAction
@@ -611,25 +634,25 @@ export const ShipmentsReceptionsColumns = ({
             tooltip="Cancelar guía"
             onClick={() => onCancel(id)}
             color="red"
-            canRender={isGuiaRemision && isAlreadyReceived && status}
+            canRender={canCancel}
           />
 
           <ButtonAction
             icon={BookCheck}
-            tooltip="Generar OT de PDI para el vehículo asociado"
+            tooltip="Generar OT de PDI"
             onClick={() =>
               ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
             }
-            canRender={!!ap_vehicle_id}
+            canRender={canGeneratePDI}
           />
 
           <ButtonAction
             icon={PackageCheck}
-            tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
+            tooltip="Generar OT de instalación de accesorios"
             onClick={() =>
               ap_vehicle_id && onGenerateInstAccessories(Number(ap_vehicle_id))
             }
-            canRender={!!ap_vehicle_id}
+            canRender={canGenerateAccessories}
           />
         </div>
       );

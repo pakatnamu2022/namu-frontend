@@ -2,8 +2,12 @@ import type { AxiosRequestConfig } from "axios";
 import {
   getModelsVnProps,
   ImportModelsVnResponse,
+  ModelVnSyncAllResponse,
+  ModelVnSyncLogsResponse,
+  ModelVnSyncResponse,
   ModelsVnResource,
   ModelsVnResponse,
+  VerifyModelsVnResponse,
 } from "./modelsVn.interface";
 import { api } from "@/core/api";
 import { STATUS_ACTIVE } from "@/core/core.constants";
@@ -99,5 +103,63 @@ export async function importModelsVn(
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
+  return data;
+}
+
+export async function downloadVerifyTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/verify/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "modelos_vn_verificacion_template.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function verifyModelsVn(
+  file: File
+): Promise<VerifyModelsVnResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<VerifyModelsVnResponse>(
+    `${ENDPOINT}/verify`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
+}
+
+export async function getModelVnSyncLogs(
+  params?: Record<string, any>
+): Promise<ModelVnSyncLogsResponse> {
+  const config: AxiosRequestConfig = { params };
+  const { data } = await api.get<ModelVnSyncLogsResponse>(
+    `${ENDPOINT}/sync-logs`,
+    config
+  );
+  return data;
+}
+
+export async function syncModelVn(id: number): Promise<ModelVnSyncResponse> {
+  const { data } = await api.post<ModelVnSyncResponse>(`${ENDPOINT}/${id}/sync`);
+  return data;
+}
+
+export async function syncAllModelsVn(): Promise<ModelVnSyncAllResponse> {
+  const { data } = await api.post<ModelVnSyncAllResponse>(`${ENDPOINT}/sync-all`);
+  return data;
+}
+
+export async function getModelVnDynamicsPayload(
+  id: number
+): Promise<Record<string, any>> {
+  const { data } = await api.get<Record<string, any>>(`${ENDPOINT}/${id}/dynamics`);
   return data;
 }
