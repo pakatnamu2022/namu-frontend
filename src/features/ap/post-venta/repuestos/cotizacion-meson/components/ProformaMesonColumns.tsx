@@ -20,6 +20,7 @@ interface Props {
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
+    canApprove: boolean;
   };
 }
 
