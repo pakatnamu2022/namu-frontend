@@ -96,7 +96,11 @@ export default function ProductPVPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductActions permissions={permissions} module="ALMACEN" />
+        <ProductActions
+          permissions={permissions}
+          module="ALMACEN"
+          search={search}
+        />
       </HeaderTableWrapper>
       <ProductTable
         isLoading={isLoading}
