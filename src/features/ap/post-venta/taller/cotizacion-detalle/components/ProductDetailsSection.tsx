@@ -215,11 +215,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doApprove, isPending: isApproving } = useMutation({
     mutationFn: approveDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -230,11 +231,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doReject, isPending: isRejecting } = useMutation({
     mutationFn: rejectDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud rechazada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -245,11 +247,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doRevert, isPending: isReverting } = useMutation({
     mutationFn: revertDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Aprobación revertida correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
