@@ -62,3 +62,17 @@ export async function rejectDiscountRequestOrderQuotation(
   const response = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/reject`);
   return response.data;
 }
+
+export async function revertDiscountRequestOrderQuotation({
+  id,
+  reason,
+}: {
+  id: number;
+  reason?: string;
+}): Promise<GeneralResponse> {
+  const response = await api.put<GeneralResponse>(
+    `${ENDPOINT}/${id}/revert`,
+    reason ? { reason } : undefined,
+  );
+  return response.data;
+}

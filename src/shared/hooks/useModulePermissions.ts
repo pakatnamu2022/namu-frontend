@@ -236,7 +236,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     label: "Agrupar",
     icon: "Layers",
     description: "Permite agrupar registros para acciones masivas",
-  }
+  },
+  {
+    value: "reverseDiscount",
+    label: "Revertir Descuento",
+    icon: "RotateCw",
+    description: "Permite revertir descuentos aplicados a cotizaciones",
+  },
 ];
 
 /**
@@ -311,5 +317,6 @@ export function useModulePermissions(moduleCode: string) {
     ),
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
+    canReverseDiscount: hasModulePermission("reverseDiscount"),
   };
 }
