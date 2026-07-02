@@ -94,9 +94,9 @@ export default function AppointmentTimeSlotPicker({
     setViewMode("day");
   };
 
-  const handleSlotClick = (slot: TimeSlot) => {
-    if (slot.available) {
-      onSelect(slot.date, slot.time);
+  const handleSlotClick = (date: string, time: string, isAvailable: boolean) => {
+    if (isAvailable) {
+      onSelect(date, time);
       onClose();
     }
   };
@@ -106,9 +106,31 @@ export default function AppointmentTimeSlotPicker({
     return availableSlots.find((s) => s.date === dateStr)?.slots || [];
   };
 
-  const getAvailableCount = (day: Date) => {
+  // Agrupa los slots de un día por hora: en modo entrega varias entregas
+  // pueden compartir el mismo horario, mientras que una reservación (cita)
+  // siempre ocupa el horario en exclusiva.
+  const getGroupedSlotsForDay = (day: Date) => {
     const slots = getSlotsForDay(day);
-    return slots.filter((s) => s.available).length;
+    const byTime = new Map<string, TimeSlot[]>();
+    for (const slot of slots) {
+      const group = byTime.get(slot.time);
+      if (group) {
+        group.push(slot);
+      } else {
+        byTime.set(slot.time, [slot]);
+      }
+    }
+    return Array.from(byTime.entries()).map(([time, timeSlots]) => {
+      const hasAppointment = timeSlots.some(
+        (s) => !s.available && s.type !== "Entrega"
+      );
+      const deliveryCount = timeSlots.filter(
+        (s) => !s.available && s.type === "Entrega"
+      ).length;
+      // Representante del grupo para conservar campos como advisor/date.
+      const base = timeSlots[0];
+      return { time, base, hasAppointment, deliveryCount };
+    });
   };
 
   // Para modo entrega: verifica si un día es anterior a la fecha de cita
@@ -119,14 +141,26 @@ export default function AppointmentTimeSlotPicker({
     return dayNormalized < apptDay;
   };
 
-  // Para modo entrega: verifica si un slot está bloqueado por ser igual/anterior a la cita
-  const isSlotBlockedByAppointment = (slot: TimeSlot, day: Date): boolean => {
+  const isTimeSlotPast = (time: string, day: Date): boolean => {
+    const isToday = isSameDay(day, new Date());
+    if (!isToday) return false;
+
+    const now = new Date();
+    const [hours, minutes] = time.split(":").map(Number);
+    const slotDate = new Date(day);
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    return slotDate < now;
+  };
+
+  // Para modo entrega: verifica si un horario está bloqueado por ser
+  // igual/anterior a la hora de la cita (recibe la hora directamente).
+  const isTimeBlockedByAppointment = (time: string, day: Date): boolean => {
     if (mode !== "delivery" || !appointmentDate || !appointmentTime) return false;
     const dayStr = format(day, "yyyy-MM-dd");
     if (dayStr !== appointmentDate) return false;
-    // Mismo día: bloquear slots iguales o anteriores a la hora de cita
     const [apptH, apptM] = appointmentTime.split(":").map(Number);
-    const [slotH, slotM] = slot.time.split(":").map(Number);
+    const [slotH, slotM] = time.split(":").map(Number);
     return slotH * 60 + slotM <= apptH * 60 + apptM;
   };
 
@@ -168,8 +202,14 @@ export default function AppointmentTimeSlotPicker({
       {/* Week Days Grid */}
       <div className="grid grid-cols-7 gap-3">
         {weekDays.map((day) => {
-          const availableCount = getAvailableCount(day);
-          const totalSlots = getSlotsForDay(day).length;
+          const groupedSlots = getGroupedSlotsForDay(day);
+          const availableCount = groupedSlots.filter((group) => {
+            if (isTimeSlotPast(group.time, day)) return false;
+            if (mode === "delivery" && isTimeBlockedByAppointment(group.time, day))
+              return false;
+            return !group.hasAppointment;
+          }).length;
+          const totalSlots = groupedSlots.length;
           const isToday = isSameDay(day, new Date());
           const isPast = day < new Date() && !isToday;
           const isBeforeAppointment = isDayBeforeAppointment(day);
@@ -235,30 +275,35 @@ export default function AppointmentTimeSlotPicker({
     </div>
   );
 
-  const isTimeSlotPast = (slot: TimeSlot, day: Date): boolean => {
-    const isToday = isSameDay(day, new Date());
-    if (!isToday) return false;
-
-    const now = new Date();
-    const [hours, minutes] = slot.time.split(":").map(Number);
-    const slotDate = new Date(day);
-    slotDate.setHours(hours, minutes, 0, 0);
-
-    return slotDate < now;
-  };
-
   const renderDayView = () => {
     if (!selectedDay) return null;
 
-    const slots = getSlotsForDay(selectedDay);
-    const morningSlots = slots.filter((s) => {
+    const groupedSlots = getGroupedSlotsForDay(selectedDay);
+    const morningSlots = groupedSlots.filter((s) => {
       const hour = parseInt(s.time.split(":")[0]);
       return hour < 12;
     });
-    const afternoonSlots = slots.filter((s) => {
+    const afternoonSlots = groupedSlots.filter((s) => {
       const hour = parseInt(s.time.split(":")[0]);
       return hour >= 12;
     });
+
+    // Un grupo es seleccionable si: no pasó, no lo bloquea la hora de la
+    // cita (modo entrega) y, en modo entrega, no hay una reservación (cita)
+    // ya agendada en ese horario (aunque sí haya entregas agendadas, esas
+    // no bloquean, solo se muestran como contador).
+    const isGroupAvailable = (group: {
+      time: string;
+      hasAppointment: boolean;
+    }): boolean => {
+      const isPast = isTimeSlotPast(group.time, selectedDay);
+      if (isPast) return false;
+      if (mode === "delivery") {
+        if (isTimeBlockedByAppointment(group.time, selectedDay)) return false;
+        return !group.hasAppointment;
+      }
+      return !group.hasAppointment;
+    };
 
     return (
       <div className="space-y-6">
@@ -295,19 +340,19 @@ export default function AppointmentTimeSlotPicker({
               </div>
               <h3 className="font-semibold text-gray-800">Mañana</h3>
               <span className="text-sm text-gray-600">
-                ({morningSlots.filter((s) => s.available).length} disponibles)
+                ({morningSlots.filter(isGroupAvailable).length} disponibles)
               </span>
             </div>
             <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-2">
-              {morningSlots.map((slot) => {
-                const isPast = isTimeSlotPast(slot, selectedDay);
-                const isBlocked = isSlotBlockedByAppointment(slot, selectedDay);
-                const isAvailable = slot.available && !isPast && !isBlocked;
+              {morningSlots.map((group) => {
+                const isAvailable = isGroupAvailable(group);
 
                 return (
                   <button
-                    key={slot.time}
-                    onClick={() => handleSlotClick(slot)}
+                    key={group.time}
+                    onClick={() =>
+                      handleSlotClick(group.base.date, group.time, isAvailable)
+                    }
                     disabled={!isAvailable}
                     className={cn(
                       "relative p-3 rounded-lg border-2 transition-all duration-200",
@@ -318,23 +363,28 @@ export default function AppointmentTimeSlotPicker({
                     )}
                   >
                     {isAvailable ? (
-                      <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
+                      <>
+                        <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
+                        {mode === "delivery" && group.deliveryCount > 0 && (
+                          <div className="absolute top-1 left-1 h-4 w-4 rounded-full bg-orange-500 flex items-center justify-center text-white text-[10px] font-bold">
+                            {group.deliveryCount}
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <>
                         <div
                           className={cn(
                             "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
-                            slot.type === "Entrega"
-                              ? "bg-green-500"
-                              : "bg-primary"
+                            group.hasAppointment ? "bg-primary" : "bg-green-500"
                           )}
                         >
-                          {slot.type === "Entrega" ? "E" : "R"}
+                          {group.hasAppointment ? "R" : group.deliveryCount}
                         </div>
                         <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
                       </>
                     )}
-                    <span>{slot.time}</span>
+                    <span>{group.time}</span>
                   </button>
                 );
               })}
@@ -349,19 +399,19 @@ export default function AppointmentTimeSlotPicker({
               </div>
               <h3 className="font-semibold text-gray-800">Tarde</h3>
               <span className="text-sm text-gray-600">
-                ({afternoonSlots.filter((s) => s.available).length} disponibles)
+                ({afternoonSlots.filter(isGroupAvailable).length} disponibles)
               </span>
             </div>
             <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-2">
-              {afternoonSlots.map((slot) => {
-                const isPast = isTimeSlotPast(slot, selectedDay);
-                const isBlocked = isSlotBlockedByAppointment(slot, selectedDay);
-                const isAvailable = slot.available && !isPast && !isBlocked;
+              {afternoonSlots.map((group) => {
+                const isAvailable = isGroupAvailable(group);
 
                 return (
                   <button
-                    key={slot.time}
-                    onClick={() => handleSlotClick(slot)}
+                    key={group.time}
+                    onClick={() =>
+                      handleSlotClick(group.base.date, group.time, isAvailable)
+                    }
                     disabled={!isAvailable}
                     className={cn(
                       "relative p-3 rounded-lg border-2 transition-all duration-200",
@@ -372,23 +422,28 @@ export default function AppointmentTimeSlotPicker({
                     )}
                   >
                     {isAvailable ? (
-                      <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
+                      <>
+                        <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
+                        {mode === "delivery" && group.deliveryCount > 0 && (
+                          <div className="absolute top-1 left-1 h-4 w-4 rounded-full bg-orange-500 flex items-center justify-center text-white text-[10px] font-bold">
+                            {group.deliveryCount}
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <>
                         <div
                           className={cn(
                             "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
-                            slot.type === "Entrega"
-                              ? "bg-red-500"
-                              : "bg-primary"
+                            group.hasAppointment ? "bg-primary" : "bg-red-500"
                           )}
                         >
-                          {slot.type === "Entrega" ? "E" : "R"}
+                          {group.hasAppointment ? "R" : group.deliveryCount}
                         </div>
                         <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
                       </>
                     )}
-                    <span>{slot.time}</span>
+                    <span>{group.time}</span>
                   </button>
                 );
               })}
@@ -437,6 +492,16 @@ export default function AppointmentTimeSlotPicker({
                 </div>
                 <span className="text-sm text-gray-600">Entrega</span>
               </div>
+              {mode === "delivery" && (
+                <div className="flex items-center space-x-2">
+                  <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+                    2
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    Entregas ya agendadas en ese horario
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
