@@ -71,7 +71,7 @@ interface LaborDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canDelete: boolean;
+    canRemoveLabor: boolean;
   };
 }
 
@@ -522,7 +522,9 @@ export default function LaborDetailsSection({
           onReject={(id) => doReject(id)}
           renderName={(detail) => (
             <div>
-              <p className="text-sm font-medium truncate">{detail.description}</p>
+              <p className="text-sm font-medium truncate">
+                {detail.description}
+              </p>
               {detail.observations && (
                 <p className="text-xs text-muted-foreground truncate mt-0.5">
                   {detail.observations}

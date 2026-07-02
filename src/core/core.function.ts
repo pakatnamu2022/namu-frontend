@@ -411,6 +411,29 @@ export const formatHours = (
   return `${h} h ${m} min`;
 };
 
+/**
+ * Formatea una hora en formato "HH:mm" o "HH:mm:ss" (24h) a formato amigable 12h.
+ * @param time - Hora en formato "HH:mm" o "HH:mm:ss"
+ * @returns Hora formateada (ej: "5:30 pm") o "-" si el valor es inválido
+ */
+export const formatTime = (
+  time: string | null | undefined,
+): string => {
+  if (!time) return "-";
+
+  const match = time.trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (!match) return time;
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return time;
+
+  const period = hours >= 12 ? "pm" : "am";
+  const hours12 = hours % 12 === 0 ? 12 : hours % 12;
+
+  return `${hours12}:${String(minutes).padStart(2, "0")} ${period}`;
+};
+
 export const formatDateTimeLocalInput = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");

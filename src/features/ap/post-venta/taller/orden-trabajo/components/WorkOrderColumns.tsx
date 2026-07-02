@@ -51,7 +51,7 @@ export const workOrderColumns = ({
       const mileage = row.original.mileage;
       return (
         <div className="flex flex-col gap-0.5">
-          <span className="font-medium">{plate || "-"}</span>
+          <CopyCell className="font-semibold" value={plate} />
           <span className="text-xs text-muted-foreground">
             {mileage ? `${mileage} km` : "-"}
           </span>

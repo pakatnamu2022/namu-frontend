@@ -84,3 +84,26 @@ export async function getWarehousesByProduct(
   );
   return data;
 }
+
+export async function exportProduct({
+  params,
+}: getProductProps): Promise<void> {
+  const config: AxiosRequestConfig = {
+    params,
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export/excel`, config);
+
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `productos-repuestos-${new Date().toISOString().split("T")[0]}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}

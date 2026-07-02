@@ -238,6 +238,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite agrupar registros para acciones masivas",
   },
   {
+    value: "reverseDiscount",
+    label: "Revertir Descuento",
+    icon: "RotateCw",
+    description: "Permite revertir descuentos aplicados a cotizaciones",
+  },
+  {
+    value: "removeLabor",
+    label: "Eliminar Mano de Obra",
+    icon: "Trash2",
+    description: "Permite eliminar detalles de mano de obra de una cotización",
+  },
+  {
     value: "viewExternal",
     label: "Ver Externo",
     icon: "Eye",
@@ -317,6 +329,5 @@ export function useModulePermissions(moduleCode: string) {
     ),
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
-    canViewExternal: hasModulePermission("viewExternal"),
   };
 }

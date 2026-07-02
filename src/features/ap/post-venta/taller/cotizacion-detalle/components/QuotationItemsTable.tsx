@@ -1,7 +1,10 @@
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Pencil, Tag, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { CheckCircle, XCircle, Pencil, Tag, Trash2, Undo2 } from "lucide-react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { EditableCell } from "@/shared/components/EditableCell";
 import { OrderQuotationDetailsResource } from "../lib/proformaDetails.interface";
@@ -35,10 +38,12 @@ interface QuotationItemsTableProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canDelete: boolean;
+    canRemoveLabor: boolean;
+    canReverseDiscount?: boolean;
   };
   isApproving: boolean;
   isRejecting: boolean;
+  isReverting?: boolean;
   onDiscountUpdate: (
     detail: OrderQuotationDetailsResource,
     newPct: number,
@@ -54,6 +59,7 @@ interface QuotationItemsTableProps {
   ) => void;
   onApprove: (id: number) => void;
   onReject: (id: number) => void;
+  onRevert?: (id: number, reason?: string) => void;
   /** Columnas extra insertadas entre "% Desc." y "Total" — sólo desktop */
   extraColumns?: QuotationItemColumn[];
   /** Campos extra renderizados en la vista móvil de cada ítem */
@@ -76,8 +82,10 @@ function DiscountRequestBadge({
   permissions,
   isApproving,
   isRejecting,
+  isReverting,
   onApprove,
   onReject,
+  onRevert,
   onOpenEdit,
 }: {
   request: DiscountRequestOrderQuotationResource;
@@ -85,13 +93,17 @@ function DiscountRequestBadge({
   permissions: QuotationItemsTableProps["permissions"];
   isApproving: boolean;
   isRejecting: boolean;
+  isReverting?: boolean;
   onApprove: (id: number) => void;
   onReject: (id: number) => void;
+  onRevert?: (id: number, reason?: string) => void;
   onOpenEdit: (
     r: DiscountRequestOrderQuotationResource,
     d?: OrderQuotationDetailsResource,
   ) => void;
 }) {
+  const [revertReason, setRevertReason] = useState("");
+
   const color =
     request.status === STATUS_APPROVED
       ? "green"
@@ -169,6 +181,50 @@ function DiscountRequestBadge({
           )}
         </>
       )}
+      {request.status === STATUS_APPROVED &&
+        permissions.canReverseDiscount &&
+        onRevert && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7 text-amber-600 hover:text-amber-600 hover:bg-amber-50"
+                tooltip="Revertir aprobación"
+                disabled={isReverting}
+              >
+                <Undo2 className="size-4" />
+              </Button>
+            }
+            title="¿Revertir descuento aprobado?"
+            description="Se revertirá la aprobación del descuento solicitado. Puedes indicar un motivo (opcional)."
+            confirmText="Sí, revertir"
+            cancelText="Cancelar"
+            variant="destructive"
+            icon="warning"
+            onConfirm={() => {
+              onRevert(request.id, revertReason.trim() || undefined);
+              setRevertReason("");
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label
+                htmlFor={`revert-reason-${request.id}`}
+                className="text-xs"
+              >
+                Motivo (opcional)
+              </Label>
+              <Textarea
+                id={`revert-reason-${request.id}`}
+                value={revertReason}
+                onChange={(e) => setRevertReason(e.target.value)}
+                placeholder="Ej: Se corrigió el porcentaje por error de digitación"
+                className="text-sm"
+                rows={3}
+              />
+            </div>
+          </ConfirmationDialog>
+        )}
     </div>
   );
 }
@@ -185,12 +241,14 @@ export function QuotationItemsTable({
   permissions,
   isApproving,
   isRejecting,
+  isReverting,
   onDiscountUpdate,
   onDelete,
   onOpenCreate,
   onOpenEdit,
   onApprove,
   onReject,
+  onRevert,
   extraColumns = [],
   extraMobileFields,
   renderName,
@@ -312,8 +370,10 @@ export function QuotationItemsTable({
                           permissions={permissions}
                           isApproving={isApproving}
                           isRejecting={isRejecting}
+                          isReverting={isReverting}
                           onApprove={onApprove}
                           onReject={onReject}
+                          onRevert={onRevert}
                           onOpenEdit={onOpenEdit}
                         />
                       ) : (
@@ -331,7 +391,7 @@ export function QuotationItemsTable({
                         )
                       )}
 
-                      {permissions.canDelete && (
+                      {permissions.canRemoveLabor && (
                         <Button
                           variant="ghost"
                           color="red"
@@ -368,7 +428,7 @@ export function QuotationItemsTable({
               {/* Fila superior: nombre + botón eliminar */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">{renderName(detail)}</div>
-                {permissions.canDelete && (
+                {permissions.canRemoveLabor && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -430,8 +490,10 @@ export function QuotationItemsTable({
                       permissions={permissions}
                       isApproving={isApproving}
                       isRejecting={isRejecting}
+                      isReverting={isReverting}
                       onApprove={onApprove}
                       onReject={onReject}
+                      onRevert={onRevert}
                       onOpenEdit={onOpenEdit}
                     />
                   ) : (

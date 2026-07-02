@@ -96,7 +96,11 @@ export default function ProductRepuestoPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductActions permissions={permissions} module="REPUESTOS" />
+        <ProductActions
+          permissions={permissions}
+          module="REPUESTOS"
+          search={search}
+        />
       </HeaderTableWrapper>
       <ProductTable
         isLoading={isLoading}

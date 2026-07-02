@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Form,
   FormField,
@@ -76,6 +76,17 @@ export const AppointmentPlanningForm = ({
   const [showDeliveryTimePicker, setShowDeliveryTimePicker] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
+  // Solo se activa cuando el usuario escribe/cambia el documento a mano;
+  // evita que la carga inicial (defaultValues en edición) dispare la
+  // validación DNI/RUC y sobreescriba el nombre ya guardado en la cita.
+  const [isCustomerDocDirty, setIsCustomerDocDirty] = useState(
+    mode !== "update",
+  );
+  // Último ap_vehicle_id para el que ya se procesó el auto-fill/clear del
+  // cliente. Evita repisar los campos cuando el efecto se re-dispara por un
+  // nuevo objeto `fetchedVehicle` (misma referencia de vehículo) en vez de
+  // un cambio real de vehículo hecho por el usuario.
+  const lastProcessedVehicleIdRef = useRef<string | null>(null);
   const { ABSOLUTE_ROUTE } = APPOINTMENT_PLANNING;
 
   const form = useForm({
@@ -129,7 +140,7 @@ export const AppointmentPlanningForm = ({
     error: dniError,
   } = useDniValidation(
     watchCustomer,
-    !isFirstLoad && !!watchCustomer && isDni,
+    isCustomerDocDirty && !!watchCustomer && isDni,
     true,
   );
 
@@ -140,7 +151,7 @@ export const AppointmentPlanningForm = ({
     error: rucError,
   } = useRucValidation(
     watchCustomer,
-    !isFirstLoad && !!watchCustomer && isRuc,
+    isCustomerDocDirty && !!watchCustomer && isRuc,
     true,
   );
 
@@ -151,13 +162,27 @@ export const AppointmentPlanningForm = ({
 
   // Effect para cargar datos del cliente cuando se selecciona un vehículo
   useEffect(() => {
-    if (isFirstLoad) {
-      setIsFirstLoad(false);
-      return;
-    }
-
     if (watchVehicleId && fetchedVehicle) {
       setSelectedVehicle(fetchedVehicle);
+
+      // En edición, la primera vez que llega el vehículo (el que ya tenía
+      // la cita guardada) no debemos pisar los datos del cliente ya
+      // registrados en la cita. Solo autocompletamos cuando el usuario
+      // cambia de vehículo manualmente.
+      if (isFirstLoad) {
+        setIsFirstLoad(false);
+        lastProcessedVehicleIdRef.current = watchVehicleId;
+        return;
+      }
+
+      // El efecto se re-dispara cada vez que `fetchedVehicle` cambia de
+      // referencia (ej. refetch de React Query), no solo cuando el usuario
+      // cambia de vehículo. Solo autocompletar/limpiar si el vehículo
+      // realmente es distinto al último procesado.
+      if (lastProcessedVehicleIdRef.current === watchVehicleId) {
+        return;
+      }
+      lastProcessedVehicleIdRef.current = watchVehicleId;
 
       // Si el vehículo tiene cliente (owner), autocompletar los campos
       if (fetchedVehicle.owner && fetchedVehicle.owner !== null) {
@@ -172,14 +197,21 @@ export const AppointmentPlanningForm = ({
         form.setValue("email_client", "");
         form.setValue("phone_client", "");
       }
+      // El documento fue seteado por código (autocompletado), no por el
+      // usuario: permitir que la validación DNI/RUC corra sobre este valor.
+      setIsCustomerDocDirty(true);
     } else if (!watchVehicleId) {
       setSelectedVehicle(null);
+      lastProcessedVehicleIdRef.current = null;
+      if (isFirstLoad) {
+        setIsFirstLoad(false);
+      }
     }
   }, [watchVehicleId, fetchedVehicle, form, isFirstLoad]);
 
   // UseEffect para autocompletar datos del cliente
   useEffect(() => {
-    if (isFirstLoad) return;
+    if (!isCustomerDocDirty) return;
 
     if (customerData?.success && customerData.data) {
       // Si es DNI (persona natural)
@@ -195,7 +227,7 @@ export const AppointmentPlanningForm = ({
     } else if (customerData && !customerData.success) {
       form.setValue("full_name_client", "");
     }
-  }, [customerData, dniData, rucData, form, isFirstLoad]);
+  }, [customerData, dniData, rucData, form, isCustomerDocDirty, watchCustomer]);
 
   // Deshabilitar campos de cliente si se encontró información
   const shouldDisableCustomerFields = Boolean(
@@ -335,6 +367,10 @@ export const AppointmentPlanningForm = ({
                       className="h-8 md:h-9 text-xs md:text-sm"
                       placeholder="8 dígitos (DNI) o 11 dígitos (RUC)"
                       {...field}
+                      onChange={(e) => {
+                        setIsCustomerDocDirty(true);
+                        field.onChange(e);
+                      }}
                       maxLength={11}
                       type="number"
                     />

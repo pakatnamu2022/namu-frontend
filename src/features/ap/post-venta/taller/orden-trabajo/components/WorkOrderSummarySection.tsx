@@ -337,7 +337,7 @@ export function WorkOrderSummarySection({
           <Separator className="bg-muted-foreground/20" />
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4 flex gap-4">
+          <div className="space-y-2 pt-4 flex flex-col gap-2">
             <ConfirmationDialog
               trigger={
                 <Button

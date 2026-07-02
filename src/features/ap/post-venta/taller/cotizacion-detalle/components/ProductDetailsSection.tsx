@@ -12,9 +12,11 @@ import {
   Percent,
   CheckCircle,
   XCircle,
+  Undo2,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +61,7 @@ import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuen
 import {
   approveDiscountRequestOrderQuotation,
   rejectDiscountRequestOrderQuotation,
+  revertDiscountRequestOrderQuotation,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import {
@@ -95,8 +98,9 @@ interface ProductDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canDelete: boolean;
+    canRemoveLabor: boolean;
     canCreateSpare: boolean;
+    canReverseDiscount?: boolean;
   };
 }
 
@@ -238,6 +242,23 @@ export default function ProductDetailsSection({
       errorToast(message);
     },
   });
+
+  const { mutate: doRevert, isPending: isReverting } = useMutation({
+    mutationFn: revertDiscountRequestOrderQuotation,
+    onSuccess: () => {
+      successToast("Aprobación revertida correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Error al revertir la aprobación";
+      errorToast(message);
+    },
+  });
+
+  const [globalRevertReason, setGlobalRevertReason] = useState("");
 
   const handleOpenCreate = (
     type: "GLOBAL" | "PARTIAL",
@@ -990,6 +1011,54 @@ export default function ProductDetailsSection({
                       )}
                     </>
                   )}
+                  {globalRequest.status === STATUS_APPROVED &&
+                    permissions.canReverseDiscount && (
+                      <ConfirmationDialog
+                        trigger={
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7 text-amber-600 hover:text-amber-600 hover:bg-amber-50"
+                            tooltip="Revertir aprobación global"
+                            disabled={isReverting}
+                          >
+                            <Undo2 className="size-4" />
+                          </Button>
+                        }
+                        title="¿Revertir descuento aprobado?"
+                        description="Se revertirá la aprobación del descuento global. Puedes indicar un motivo (opcional)."
+                        confirmText="Sí, revertir"
+                        cancelText="Cancelar"
+                        variant="destructive"
+                        icon="warning"
+                        onConfirm={() => {
+                          doRevert({
+                            id: globalRequest.id,
+                            reason: globalRevertReason.trim() || undefined,
+                          });
+                          setGlobalRevertReason("");
+                        }}
+                      >
+                        <div className="space-y-1.5">
+                          <Label
+                            htmlFor="global-revert-reason"
+                            className="text-xs"
+                          >
+                            Motivo (opcional)
+                          </Label>
+                          <Textarea
+                            id="global-revert-reason"
+                            value={globalRevertReason}
+                            onChange={(e) =>
+                              setGlobalRevertReason(e.target.value)
+                            }
+                            placeholder="Ej: Se corrigió el porcentaje por error de digitación"
+                            className="text-sm"
+                            rows={3}
+                          />
+                        </div>
+                      </ConfirmationDialog>
+                    )}
                 </div>
               ) : (
                 !hasPartialRequests && (
@@ -1020,12 +1089,14 @@ export default function ProductDetailsSection({
           permissions={permissions}
           isApproving={isApproving}
           isRejecting={isRejecting}
+          isReverting={isReverting}
           onDiscountUpdate={handleDiscountUpdate}
           onDelete={onDelete}
           onOpenCreate={handleOpenCreate}
           onOpenEdit={handleOpenEdit}
           onApprove={(id) => doApprove(id)}
           onReject={(id) => doReject(id)}
+          onRevert={(id, reason) => doRevert({ id, reason })}
           renderName={(detail) => (
             <div>
               <p className="text-sm font-medium truncate">
