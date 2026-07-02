@@ -135,6 +135,7 @@ export const TIPO_LEADS = {
   VISITA: "VISITA",
   LEADS: "LEADS",
   SALESFORCE: "SALESFORCE",
+  EXTERNAL: "EXTERNAL",
 };
 
 export const INCOME_SECTOR = {
@@ -142,4 +143,5 @@ export const INCOME_SECTOR = {
   TALLER_ID: "828",
   SITIO_WEB_ID: "829",
   SALESFORCE_ID: "991",
+  EXTERNAL_ID: "1018",
 };

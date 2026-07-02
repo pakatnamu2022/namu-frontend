@@ -249,6 +249,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Trash2",
     description: "Permite eliminar detalles de mano de obra de una cotización",
   },
+  {
+    value: "viewExternal",
+    label: "Ver Externo",
+    icon: "Eye",
+    description: "Permite ver información de manera externa",
+  },
 ];
 
 /**
@@ -325,5 +331,6 @@ export function useModulePermissions(moduleCode: string) {
     canGroup: hasModulePermission("group"),
     canReverseDiscount: hasModulePermission("reverseDiscount"),
     canRemoveLabor: hasModulePermission("removeLabor"),
+    canViewExternal: hasModulePermission("viewExternal"),
   };
 }
