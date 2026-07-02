@@ -68,6 +68,7 @@ export default function UpdateAppointmentPlanningPage() {
   function mapAppointmentPlanningToForm(
     data: AppointmentPlanningResource,
   ): Partial<AppointmentPlanningSchema> {
+    console.log("[DEBUG] appointmentPlanning recibido de la API", data);
     return {
       description: data.description,
       delivery_date: toDateOnly(data.delivery_date),
