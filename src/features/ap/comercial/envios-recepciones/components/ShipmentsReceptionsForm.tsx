@@ -885,6 +885,27 @@ export const ShipmentsReceptionsForm = ({
               name="correlative"
               label="Correlativo"
               placeholder="Ej: 00001234"
+              inputMode="numeric"
+              onKeyDown={(e) => {
+                if (
+                  ["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Home", "End"].includes(
+                    e.key,
+                  ) ||
+                  e.ctrlKey ||
+                  e.metaKey
+                ) {
+                  return;
+                }
+                if (!/^\d$/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => {
+                const pasted = e.clipboardData.getData("text");
+                if (!/^\d+$/.test(pasted)) {
+                  e.preventDefault();
+                }
+              }}
             />
           )}
 
@@ -961,7 +982,10 @@ export const ShipmentsReceptionsForm = ({
                 model$class_id: watchArticleClassId || undefined,
                 is_received: 0,
               }}
-              disabled={!watchSedeTransmitterId || !watchArticleClassId}
+              disabled={
+                (watchIssuerType !== "PROVEEDOR" && !watchSedeTransmitterId) ||
+                !watchArticleClassId
+              }
               onValueChange={handleVehicleChange}
               withValue={false}
               perPage={20}

@@ -21,7 +21,12 @@ const shipmentsReceptionsSchemaBase = z.object({
         message: "La serie debe empezar con 'T' y tener máximo 4 caracteres",
       },
     ),
-  correlative: z.string().optional(),
+  correlative: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d+$/.test(val), {
+      message: "El correlativo solo debe contener números",
+    }),
   issue_date: z.coerce.date().optional(),
   sede_transmitter_id: requiredStringId("La sede del emisor es requerida"),
   sede_receiver_id: z.string().optional(),

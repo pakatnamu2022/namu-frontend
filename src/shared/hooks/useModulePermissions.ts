@@ -236,7 +236,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     label: "Agrupar",
     icon: "Layers",
     description: "Permite agrupar registros para acciones masivas",
-  }
+  },
+  {
+    value: "viewExternal",
+    label: "Ver Externo",
+    icon: "Eye",
+    description: "Permite ver información de manera externa",
+  },
 ];
 
 /**
@@ -311,5 +317,6 @@ export function useModulePermissions(moduleCode: string) {
     ),
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
+    canViewExternal: hasModulePermission("viewExternal"),
   };
 }
