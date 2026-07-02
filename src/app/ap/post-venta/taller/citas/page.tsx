@@ -42,6 +42,7 @@ export default function AppointmentPlanningPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
+  const [advisorId, setAdvisorId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
   const { MODEL, ROUTE, ROUTE_UPDATE } = APPOINTMENT_PLANNING;
@@ -88,6 +89,7 @@ export default function AppointmentPlanningPage() {
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
       sede_id: sedeId || undefined,
+      advisor_id: advisorId || undefined,
     },
     enabled: !!sedeId,
   });
@@ -129,7 +131,7 @@ export default function AppointmentPlanningPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 w-full md:w-auto *:shrink-0">
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <Button
               variant={viewMode === "table" ? "default" : "ghost"}
@@ -150,7 +152,20 @@ export default function AppointmentPlanningPage() {
               Calendario
             </Button>
           </div>
-          <AppointmentPlanningActions permissions={permissions} />
+          <div className="w-fit">
+            <AppointmentPlanningActions
+              permissions={permissions}
+              filters={{
+                search,
+                created_at:
+                  dateFrom && dateTo
+                    ? [formatDate(dateFrom), formatDate(dateTo)]
+                    : undefined,
+                sede_id: sedeId || undefined,
+                advisor_id: advisorId || undefined,
+              }}
+            />
+          </div>
         </div>
       </HeaderTableWrapper>
 
@@ -175,6 +190,9 @@ export default function AppointmentPlanningPage() {
               sedes={mySedes}
               sedeId={sedeId}
               setSedeId={setSedeId}
+              asesores={asesores}
+              advisorId={advisorId}
+              setAdvisorId={setAdvisorId}
             />
           </AppointmentPlanningTable>
 
