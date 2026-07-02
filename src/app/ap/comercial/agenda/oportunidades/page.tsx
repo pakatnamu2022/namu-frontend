@@ -88,6 +88,7 @@ export default function OpportunitiesKanbanPage() {
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [salesforceModalOpen, setSalesforceModalOpen] = useState(false);
+  const [externalModalOpen, setExternalModalOpen] = useState(false);
   const permissions = useModulePermissions(ROUTE);
   const invalidateQuery = useInvalidateQuery();
   const { MODEL: STORE_VISITS_MODEL } = STORE_VISITS;
@@ -98,14 +99,26 @@ export default function OpportunitiesKanbanPage() {
   const [calendarYear] = useCalendarYear();
 
   // Check if user has permission to view all users' opportunities
-  const canViewAdvisors = permissions.canViewAdvisors || false;
-  const canSalesforce = permissions.canSalesforce || false;
+  const { canViewAdvisors, canSalesforce, canViewExternal } = permissions;
 
   const salesforceMutation = useMutation({
     mutationFn: storeStoreVisits,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(STORE_VISITS_MODEL, "create"));
       setSalesforceModalOpen(false);
+      invalidateQuery([LEADS_QUERY_KEY, "my"]);
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(STORE_VISITS_MODEL, "create", msg));
+    },
+  });
+
+  const externalMutation = useMutation({
+    mutationFn: storeStoreVisits,
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(STORE_VISITS_MODEL, "create"));
+      setExternalModalOpen(false);
       invalidateQuery([LEADS_QUERY_KEY, "my"]);
     },
     onError: (error: any) => {
@@ -400,24 +413,34 @@ export default function OpportunitiesKanbanPage() {
           {/* Leads Carousel */}
           <div className="p-2 space-y-3">
             <div className="flex items-center justify-between gap-3">
-             <div className="flex gap-2">
-               <Input
-                type="text"
-                placeholder="Buscar lead..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-xs h-8 text-sm"
-              />
-              {canSalesforce && (
-                <Button
-                  color="blue"
-                  onClick={() => setSalesforceModalOpen(true)}
-                >
-                  <Plus className="size-3" />
-                  Salesforce Lead
-                </Button>
-              )}
-             </div>
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  placeholder="Buscar lead..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-xs h-8 text-sm"
+                />
+                {canSalesforce && (
+                  <Button
+                    color="blue"
+                    onClick={() => setSalesforceModalOpen(true)}
+                  >
+                    <Plus className="size-3" />
+                    Salesforce Lead
+                  </Button>
+                )}
+
+                {canViewExternal && (
+                  <Button
+                    color="indigo"
+                    onClick={() => setExternalModalOpen(true)}
+                  >
+                    <Plus className="size-3" />
+                    External Lead
+                  </Button>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-medium text-tertiary">
                   Leads Validados
@@ -594,6 +617,45 @@ export default function OpportunitiesKanbanPage() {
           lockedType={TIPO_LEADS.LEADS}
           disableIncomeSector
           onCancel={() => setSalesforceModalOpen(false)}
+          canViewAdvisors={canViewAdvisors}
+          loggedWorkerId={loggedUser?.partner_id}
+        />
+      </GeneralModal>
+
+      <GeneralModal
+        open={externalModalOpen}
+        onClose={() => setExternalModalOpen(false)}
+        title="Nuevo External Lead"
+        subtitle="Registra un lead desde External"
+        icon="ContactRound"
+        size="4xl"
+      >
+        <StoreVisitsForm
+          defaultValues={{
+            num_doc: "",
+            full_name: "",
+            phone: "",
+            email: "",
+            sede_id: "",
+            vehicle_brand_id: "",
+            document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
+            income_sector_id: INCOME_SECTOR.EXTERNAL_ID,
+            area_id: "",
+          }}
+          onSubmit={(data) =>
+            externalMutation.mutate({
+              ...data,
+              registration_date: new Date()
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " "),
+            })
+          }
+          isSubmitting={externalMutation.isPending}
+          mode="create"
+          lockedType={TIPO_LEADS.EXTERNAL}
+          disableIncomeSector
+          onCancel={() => setExternalModalOpen(false)}
           canViewAdvisors={canViewAdvisors}
           loggedWorkerId={loggedUser?.partner_id}
         />
