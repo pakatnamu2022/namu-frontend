@@ -329,5 +329,8 @@ export function useModulePermissions(moduleCode: string) {
     ),
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
+    canReverseDiscount: hasModulePermission("reverseDiscount"),
+    canRemoveLabor: hasModulePermission("removeLabor"),
+    canViewExternal: hasModulePermission("viewExternal"),
   };
 }
