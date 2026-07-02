@@ -98,7 +98,7 @@ interface ProductDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canDelete: boolean;
+    canRemoveLabor: boolean;
     canCreateSpare: boolean;
     canReverseDiscount?: boolean;
   };
