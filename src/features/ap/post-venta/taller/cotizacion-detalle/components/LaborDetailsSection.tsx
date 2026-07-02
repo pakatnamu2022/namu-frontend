@@ -10,11 +10,14 @@ import {
   Percent,
   CheckCircle,
   XCircle,
+  Undo2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Form } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   errorToast,
   successToast,
@@ -44,6 +47,7 @@ import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuen
 import {
   approveDiscountRequestOrderQuotation,
   rejectDiscountRequestOrderQuotation,
+  revertDiscountRequestOrderQuotation,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import {
@@ -72,6 +76,7 @@ interface LaborDetailsSectionProps {
     canReject: boolean;
     canRequest: boolean;
     canRemoveLabor: boolean;
+    canReverseDiscount?: boolean;
   };
 }
 
@@ -116,11 +121,12 @@ export default function LaborDetailsSection({
 
   const { mutate: doApprove, isPending: isApproving } = useMutation({
     mutationFn: approveDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -131,11 +137,12 @@ export default function LaborDetailsSection({
 
   const { mutate: doReject, isPending: isRejecting } = useMutation({
     mutationFn: rejectDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud rechazada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -143,6 +150,24 @@ export default function LaborDetailsSection({
       errorToast(message);
     },
   });
+
+  const { mutate: doRevert, isPending: isReverting } = useMutation({
+    mutationFn: revertDiscountRequestOrderQuotation,
+    onSuccess: async () => {
+      successToast("Aprobación revertida correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
+      });
+      await onRefresh();
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Error al revertir la aprobación";
+      errorToast(message);
+    },
+  });
+
+  const [globalRevertReason, setGlobalRevertReason] = useState("");
 
   const handleOpenCreate = (
     type: "GLOBAL" | "PARTIAL",
@@ -266,13 +291,21 @@ export default function LaborDetailsSection({
   );
   const hasMultipleItems = laborDetails.length > 1;
 
-  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
-  const hasPartialRequests = discountRequests.some(
+  // Las solicitudes revertidas (reverted_by_id != null) se tratan como descartadas,
+  // permitiendo volver a solicitar el descuento.
+  const activeDiscountRequests = discountRequests.filter(
+    (r) => r.reverted_by_id == null,
+  );
+
+  const globalRequest = activeDiscountRequests.find(
+    (r) => r.type === TYPE_GLOBAL,
+  );
+  const hasPartialRequests = activeDiscountRequests.some(
     (r) => r.type === TYPE_PARTIAL,
   );
 
   // Calcular descuento máximo permitido (para formulario)
-  const globalApprovedRequest = discountRequests.find(
+  const globalApprovedRequest = activeDiscountRequests.find(
     (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
   );
   const maxDiscountAllowed = globalApprovedRequest
@@ -483,6 +516,54 @@ export default function LaborDetailsSection({
                       )}
                     </>
                   )}
+                  {globalRequest.status === STATUS_APPROVED &&
+                    permissions.canReverseDiscount && (
+                      <ConfirmationDialog
+                        trigger={
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7 text-amber-600 hover:text-amber-600 hover:bg-amber-50"
+                            tooltip="Revertir aprobación global"
+                            disabled={isReverting}
+                          >
+                            <Undo2 className="size-4" />
+                          </Button>
+                        }
+                        title="¿Revertir descuento aprobado?"
+                        description="Se revertirá la aprobación del descuento global. Puedes indicar un motivo (opcional)."
+                        confirmText="Sí, revertir"
+                        cancelText="Cancelar"
+                        variant="destructive"
+                        icon="warning"
+                        onConfirm={() => {
+                          doRevert({
+                            id: globalRequest.id,
+                            reason: globalRevertReason.trim() || undefined,
+                          });
+                          setGlobalRevertReason("");
+                        }}
+                      >
+                        <div className="space-y-1.5">
+                          <Label
+                            htmlFor="global-revert-reason-labor"
+                            className="text-xs"
+                          >
+                            Motivo (opcional)
+                          </Label>
+                          <Textarea
+                            id="global-revert-reason-labor"
+                            value={globalRevertReason}
+                            onChange={(e) =>
+                              setGlobalRevertReason(e.target.value)
+                            }
+                            placeholder="Ej: Se corrigió el porcentaje por error de digitación"
+                            className="text-sm"
+                            rows={3}
+                          />
+                        </div>
+                      </ConfirmationDialog>
+                    )}
                 </div>
               ) : (
                 permissions.canRequest &&
@@ -509,17 +590,19 @@ export default function LaborDetailsSection({
           emptyMessage="No hay items de mano de obra"
           formatCurrency={formatCurrency}
           maxDiscountAllowed={maxDiscountAllowed}
-          discountRequests={discountRequests}
+          discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
           isApproving={isApproving}
           isRejecting={isRejecting}
+          isReverting={isReverting}
           onDiscountUpdate={handleDiscountUpdate}
           onDelete={onDelete}
           onOpenCreate={handleOpenCreate}
           onOpenEdit={handleOpenEdit}
           onApprove={(id) => doApprove(id)}
           onReject={(id) => doReject(id)}
+          onRevert={(id, reason) => doRevert({ id, reason })}
           renderName={(detail) => (
             <div>
               <p className="text-sm font-medium truncate">

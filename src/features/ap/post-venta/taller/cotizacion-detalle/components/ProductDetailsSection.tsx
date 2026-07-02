@@ -215,11 +215,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doApprove, isPending: isApproving } = useMutation({
     mutationFn: approveDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -230,11 +231,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doReject, isPending: isRejecting } = useMutation({
     mutationFn: rejectDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud rechazada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -245,11 +247,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doRevert, isPending: isReverting } = useMutation({
     mutationFn: revertDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Aprobación revertida correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -501,13 +504,21 @@ export default function ProductDetailsSection({
   );
   const hasMultipleItems = productDetails.length > 1;
 
-  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
-  const hasPartialRequests = discountRequests.some(
+  // Las solicitudes revertidas (reverted_by_id != null) se tratan como descartadas,
+  // permitiendo volver a solicitar el descuento.
+  const activeDiscountRequests = discountRequests.filter(
+    (r) => r.reverted_by_id == null,
+  );
+
+  const globalRequest = activeDiscountRequests.find(
+    (r) => r.type === TYPE_GLOBAL,
+  );
+  const hasPartialRequests = activeDiscountRequests.some(
     (r) => r.type === TYPE_PARTIAL,
   );
 
   // Calcular descuento máximo permitido (para formulario y modal)
-  const globalApprovedRequest = discountRequests.find(
+  const globalApprovedRequest = activeDiscountRequests.find(
     (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
   );
   const maxDiscountAllowed = globalApprovedRequest
@@ -1084,7 +1095,7 @@ export default function ProductDetailsSection({
           emptyMessage="No hay items de repuestos"
           formatCurrency={formatCurrency}
           maxDiscountAllowed={maxDiscountAllowed}
-          discountRequests={discountRequests}
+          discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
           isApproving={isApproving}
