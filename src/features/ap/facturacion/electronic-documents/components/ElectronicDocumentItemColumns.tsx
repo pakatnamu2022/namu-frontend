@@ -13,6 +13,7 @@ interface ElectronicDocumentItemColumnsProps {
   showActions?: boolean;
   canRemoveItem?: boolean;
   allowEditLastItemDescription?: boolean;
+  allowEditAdvanceItems?: boolean;
   totalItems?: number;
 }
 
@@ -24,6 +25,7 @@ export const getElectronicDocumentItemColumns = ({
   showActions = true,
   canRemoveItem = false,
   allowEditLastItemDescription = false,
+  allowEditAdvanceItems = false,
   totalItems = 0,
 }: ElectronicDocumentItemColumnsProps): ColumnDef<
   ElectronicDocumentItemSchema & { index: number }
@@ -161,7 +163,7 @@ export const getElectronicDocumentItemColumns = ({
             row: { original: ElectronicDocumentItemSchema & { index: number } };
           }) => {
             const isAdvanceRegularization =
-              row.original.anticipo_regularizacion;
+              row.original.anticipo_regularizacion && !allowEditAdvanceItems;
             // Los items de regularización de anticipos no se pueden editar ni eliminar
             const cannotEdit = isAdvanceRegularization;
             const cannotDelete = isAdvanceRegularization || !canRemoveItem;

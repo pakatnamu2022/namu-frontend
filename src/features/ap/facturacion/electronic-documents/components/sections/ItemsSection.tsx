@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { errorToast } from "@/core/core.function";
 import { FormInput } from "@/shared/components/FormInput";
 import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
+import { QUOTATION_ACCOUNT_PLAN_IDS } from "../../lib/electronicDocument.constants";
 
 interface ItemsSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -90,20 +91,31 @@ export function ItemsSection({
     }
   }, [isDetraction, accountPlans]);
 
-  const [newItem, setNewItem] = useState({
+  const emptyNewItem = {
     unidad_de_medida: "NIU",
     descripcion: "",
     cantidad: 1,
     precio_unitario: 0,
     descuento: 0,
     account_plan_id: "",
-  });
+    anticipo_documento_serie: "",
+    anticipo_documento_numero: "",
+  };
+
+  const [newItem, setNewItem] = useState(emptyNewItem);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const items = form.watch("items") || [];
-  const isAddItemDisabled = isFromQuotation || items.length >= 1;
+  const isAddItemDisabled =
+    isFromQuotation || (isAdvancePayment && items.length >= 1);
+
+  // Cuenta contable de anticipo seleccionada libremente (no proviene de una cotización)
+  const isFreeAdvanceAccount =
+    !isFromQuotation &&
+    !isAdvancePayment &&
+    newItem.account_plan_id === QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT;
 
   // Auto-expand textarea
   const adjustTextareaHeight = () => {
@@ -119,14 +131,7 @@ export function ItemsSection({
   }, [newItem.descripcion]);
 
   const openSheetForNewItem = () => {
-    setNewItem({
-      unidad_de_medida: "NIU",
-      descripcion: "",
-      cantidad: 1,
-      precio_unitario: 0,
-      descuento: 0,
-      account_plan_id: "",
-    });
+    setNewItem(emptyNewItem);
     setEditingIndex(null);
     setIsSheetOpen(true);
   };
@@ -178,6 +183,19 @@ export function ItemsSection({
       return;
     }
 
+    // Validar serie y número cuando el item corresponde a un anticipo agregado libremente
+    if (isFreeAdvanceAccount) {
+      if (
+        !newItem.anticipo_documento_serie ||
+        !newItem.anticipo_documento_numero
+      ) {
+        errorToast(
+          "Debe indicar la serie y el número del anticipo para esta cuenta contable.",
+        );
+        return;
+      }
+    }
+
     const item: ElectronicDocumentItemSchema = {
       unidad_de_medida: newItem.unidad_de_medida,
       descripcion: newItem.descripcion,
@@ -191,19 +209,22 @@ export function ItemsSection({
       igv: igv,
       total: total,
       account_plan_id: newItem.account_plan_id.toString(),
-      anticipo_regularizacion: isAdvancePayment ? false : undefined,
+      anticipo_regularizacion: isAdvancePayment
+        ? false
+        : isFreeAdvanceAccount
+          ? true
+          : undefined,
+      anticipo_documento_serie: isFreeAdvanceAccount
+        ? newItem.anticipo_documento_serie
+        : undefined,
+      anticipo_documento_numero: isFreeAdvanceAccount
+        ? Number(newItem.anticipo_documento_numero)
+        : undefined,
     };
 
     form.setValue("items", [...items, item], { shouldValidate: true });
     setIsSheetOpen(false);
-    setNewItem({
-      unidad_de_medida: "NIU",
-      descripcion: "",
-      cantidad: 1,
-      precio_unitario: 0,
-      descuento: 0,
-      account_plan_id: "",
-    });
+    setNewItem(emptyNewItem);
   };
 
   const removeItem = (index: number) => {
@@ -221,6 +242,10 @@ export function ItemsSection({
       precio_unitario: item.precio_unitario,
       descuento: item.descuento || 0,
       account_plan_id: item.account_plan_id.toString(),
+      anticipo_documento_serie: item.anticipo_documento_serie || "",
+      anticipo_documento_numero: item.anticipo_documento_numero
+        ? item.anticipo_documento_numero.toString()
+        : "",
     });
     setEditingIndex(index);
     setIsSheetOpen(true);
@@ -238,14 +263,7 @@ export function ItemsSection({
       };
       form.setValue("items", updatedItems, { shouldValidate: true });
       setIsSheetOpen(false);
-      setNewItem({
-        unidad_de_medida: "NIU",
-        descripcion: "",
-        cantidad: 1,
-        precio_unitario: 0,
-        descuento: 0,
-        account_plan_id: "",
-      });
+      setNewItem(emptyNewItem);
       setEditingIndex(null);
       return;
     }
@@ -282,6 +300,19 @@ export function ItemsSection({
       return;
     }
 
+    // Validar serie y número cuando el item corresponde a un anticipo agregado libremente
+    if (isFreeAdvanceAccount) {
+      if (
+        !newItem.anticipo_documento_serie ||
+        !newItem.anticipo_documento_numero
+      ) {
+        errorToast(
+          "Debe indicar la serie y el número del anticipo para esta cuenta contable.",
+        );
+        return;
+      }
+    }
+
     const updatedItem: ElectronicDocumentItemSchema = {
       ...items[editingIndex],
       unidad_de_medida: newItem.unidad_de_medida,
@@ -294,6 +325,13 @@ export function ItemsSection({
       igv: igv,
       total: total,
       account_plan_id: newItem.account_plan_id,
+      anticipo_regularizacion: isFreeAdvanceAccount ? true : undefined,
+      anticipo_documento_serie: isFreeAdvanceAccount
+        ? newItem.anticipo_documento_serie
+        : undefined,
+      anticipo_documento_numero: isFreeAdvanceAccount
+        ? Number(newItem.anticipo_documento_numero)
+        : undefined,
     };
 
     const updatedItems = [...items];
@@ -301,27 +339,13 @@ export function ItemsSection({
     form.setValue("items", updatedItems, { shouldValidate: true });
 
     setIsSheetOpen(false);
-    setNewItem({
-      unidad_de_medida: "NIU",
-      descripcion: "",
-      cantidad: 1,
-      precio_unitario: 0,
-      descuento: 0,
-      account_plan_id: "",
-    });
+    setNewItem(emptyNewItem);
     setEditingIndex(null);
   };
 
   const closeSheet = () => {
     setIsSheetOpen(false);
-    setNewItem({
-      unidad_de_medida: "NIU",
-      descripcion: "",
-      cantidad: 1,
-      precio_unitario: 0,
-      descuento: 0,
-      account_plan_id: "",
-    });
+    setNewItem(emptyNewItem);
     setEditingIndex(null);
   };
 
@@ -386,6 +410,7 @@ export function ItemsSection({
           showActions={showActions}
           canRemoveItem={!useQuotation}
           allowEditLastItemDescription={allowEditLastItemDescription}
+          allowEditAdvanceItems={!isFromQuotation}
         />
       </GroupFormSection>
 
@@ -455,6 +480,59 @@ export function ItemsSection({
                     disabled={isFromQuotation}
                   />
                 </div>
+
+                {isFreeAdvanceAccount && (
+                  <Alert className="text-sm p-2">
+                    <AlertTitle className="flex items-center gap-2">
+                      <Info className="size-5" />
+                      Este item se registrará como Anticipo
+                    </AlertTitle>
+                    <AlertDescription className="text-xs text-muted-foreground">
+                      Indique la serie y el número del documento de anticipo
+                      asociado.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {isFreeAdvanceAccount && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="item-anticipo-serie">Serie *</Label>
+                      <Input
+                        id="item-anticipo-serie"
+                        placeholder="Ej: F001"
+                        maxLength={4}
+                        value={newItem.anticipo_documento_serie}
+                        onChange={(e) =>
+                          setNewItem({
+                            ...newItem,
+                            anticipo_documento_serie:
+                              e.target.value.toUpperCase(),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="item-anticipo-numero">
+                        Correlativo *
+                      </Label>
+                      <Input
+                        id="item-anticipo-numero"
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="Ej: 123"
+                        value={newItem.anticipo_documento_numero}
+                        onChange={(e) =>
+                          setNewItem({
+                            ...newItem,
+                            anticipo_documento_numero: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="item-quantity">Cantidad *</Label>
@@ -552,7 +630,10 @@ export function ItemsSection({
                   ? !newItem.descripcion
                   : !newItem.descripcion ||
                     newItem.precio_unitario <= 0 ||
-                    !newItem.account_plan_id
+                    !newItem.account_plan_id ||
+                    (isFreeAdvanceAccount &&
+                      (!newItem.anticipo_documento_serie ||
+                        !newItem.anticipo_documento_numero))
               }
             >
               {editingIndex !== null ? "Actualizar" : "Agregar"}
