@@ -11,6 +11,8 @@ export interface WorkOrderPlanningResource {
   id: number;
   work_order_id: number;
   work_order_correlative?: string;
+  vehicle_plate: string;
+  mileage: number | null;
   worker_id: number;
   worker_name: string;
   description: string;
