@@ -4,7 +4,12 @@ import { Pencil, Download, Calendar, Clock, FileText } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { downloadAppointmentPlanningPdf } from "../lib/appointmentPlanning.actions";
-import { errorToast, formatDate, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  formatDate,
+  formatTime,
+  successToast,
+} from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
@@ -71,7 +76,7 @@ export const appointmentPlanningColumns = ({
             {time && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Clock className="h-3.5 w-3.5" />
-                <span>{time}</span>
+                <span>{formatTime(time)}</span>
               </div>
             )}
           </div>
@@ -100,7 +105,7 @@ export const appointmentPlanningColumns = ({
             {time && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Clock className="h-3.5 w-3.5" />
-                <span>{time}</span>
+                <span>{formatTime(time)}</span>
               </div>
             )}
           </div>

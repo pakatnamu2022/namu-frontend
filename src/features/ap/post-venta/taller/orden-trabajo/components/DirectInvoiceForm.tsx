@@ -177,6 +177,19 @@ export default function DirectInvoiceForm({
     setSingleItemDraft(text);
   }, [emisionDate, typePlanningId, workOrders]);
 
+  // En modo edición, sincronizar solo la descripción del ítem único cuando cambia singleItemText
+  useEffect(() => {
+    if (!isSingleItemMode) return;
+    if (!isEditMode) return;
+    const currentItems = form.getValues("items");
+    if (!currentItems || currentItems.length === 0) return;
+    const updated = currentItems.map((item, idx) =>
+      idx === 0 ? { ...item, descripcion: singleItemText || "SERVICIO" } : item,
+    );
+    form.setValue("items", updated, { shouldValidate: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [singleItemText, isSingleItemMode, isEditMode]);
+
   // Sincronizar el ítem único al form cuando cambia singleItemText
   useEffect(() => {
     if (!isSingleItemMode) return;

@@ -167,6 +167,14 @@ export function DocumentInfoOtherSalesSection({
         }
       />
 
+      <FormSwitch
+        control={form.control}
+        name="detraccion"
+        label="Detracción"
+        text="Aplicar Detracción"
+        description="Se aplicará el 12% de detracción al documento"
+      />
+
       <FormSelect
         control={form.control}
         name="sunat_concept_currency_id"

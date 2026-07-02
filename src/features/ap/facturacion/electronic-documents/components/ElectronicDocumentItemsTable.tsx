@@ -13,6 +13,7 @@ interface ElectronicDocumentItemsTableProps {
   showActions?: boolean;
   canRemoveItem?: boolean;
   allowEditLastItemDescription?: boolean;
+  allowEditAdvanceItems?: boolean;
 }
 
 export function ElectronicDocumentItemsTable({
@@ -24,6 +25,7 @@ export function ElectronicDocumentItemsTable({
   showActions = true,
   canRemoveItem = false,
   allowEditLastItemDescription = false,
+  allowEditAdvanceItems = false,
 }: ElectronicDocumentItemsTableProps) {
   // Agregar índice a cada item para el manejo de eliminación
   const itemsWithIndex = items.map((item, index) => ({ ...item, index }));
@@ -36,6 +38,7 @@ export function ElectronicDocumentItemsTable({
     showActions,
     canRemoveItem,
     allowEditLastItemDescription,
+    allowEditAdvanceItems,
     totalItems: items.length,
   });
 

@@ -37,8 +37,10 @@ import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
+import { CopyCell } from "@/shared/components/CopyCell";
 
-export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
+export type ShipmentsReceptionsColumnsType =
+  ColumnDef<ShipmentsReceptionsResource>;
 
 interface Props {
   onDelete: (id: number) => void;
@@ -51,9 +53,14 @@ interface Props {
   onGeneratePDI: (ap_vehicle_id: number) => void;
   onGenerateInstAccessories: (ap_vehicle_id: number) => void;
   permissions: {
+    canView: boolean;
     canSend: boolean;
+    canReceive: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canGenerate: boolean;
+    canMigrate: boolean;
+    canAnnul: boolean;
   };
 }
 
@@ -122,7 +129,7 @@ export const ShipmentsReceptionsColumns = ({
   onGeneratePDI,
   onGenerateInstAccessories,
   permissions,
-}: Props): ShipmentsReceptionsColumns[] => [
+}: Props): ShipmentsReceptionsColumnsType[] => [
   {
     accessorKey: "document_number",
     header: "Número Doc.",
@@ -175,6 +182,34 @@ export const ShipmentsReceptionsColumns = ({
           </div>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "entities",
+    header: "",
+    cell: ({ row }) => {
+      const transmitter = row.original.transmitter_name;
+      const receiver = row.original.receiver_name;
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <span className="font-semibold">Remitente: </span>
+            <span title={transmitter}>{transmitter}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Destinatario: </span>
+            <span title={receiver}>{receiver}</span>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "vin",
+    header: "VIN",
+    cell: ({ row }) => {
+      const vin = row.original.vehicle?.vin;
+      return vin ? <CopyCell value={vin} /> : "-";
     },
   },
   {
@@ -489,171 +524,136 @@ export const ShipmentsReceptionsColumns = ({
         transfer_reason_id.toString() ===
         SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE;
       const isAlreadyReceived = !!is_received;
-      const notAcceptedBySunat = aceptada_por_sunat !== true;
+      const isAcceptedBySunat = aceptada_por_sunat === true;
 
-      // Para GUIA_REMISION: requiere que esté aceptada por SUNAT y NO estar recibido
-      // Para GUIA_TRASLADO con motivo COMPRA: NO estar recibido
-      const canReceive = isGuiaRemision
-        ? aceptada_por_sunat === true && !isAlreadyReceived
-        : isPurchase && !isAlreadyReceived;
+      /**
+       * PERMISSIONS
+       */
 
-      // Tooltip dinámico para recepcionar
-      const receiveTooltip = isAlreadyReceived
-        ? "Ya ha sido recepcionado"
-        : isGuiaRemision && notAcceptedBySunat
-          ? "Debe ser aceptado por SUNAT primero"
-          : "Recepcionar";
+      const canView = permissions.canView;
+
+      const canSendToNubefact =
+        isGuiaRemision && !isSent && permissions.canSend;
+
+      const canConsult =
+        isGuiaRemision && isSent && !isAcceptedBySunat && permissions.canView;
+
+      const canViewHistory = isGuiaRemision && permissions.canView;
+
+      const canMarkAsReceived =
+        isTrasladoSede &&
+        isAcceptedBySunat &&
+        !isAlreadyReceived &&
+        permissions.canReceive;
+
+      // Solo aplica para guías de remisión de compra, aceptadas por SUNAT y no recibidas
+      const canReceive =
+        isGuiaRemision &&
+        isPurchase &&
+        isAcceptedBySunat &&
+        !isAlreadyReceived &&
+        permissions.canReceive;
+
+      const canEdit =
+        permissions.canUpdate &&
+        (isGuiaRemision ? !isSent : !isAlreadyReceived);
+
+      const canDelete =
+        permissions.canDelete &&
+        (isGuiaRemision ? !isSent : !isAlreadyReceived);
+
+      const canMigrate =
+        !!onMigrate &&
+        row.original.migration_status !== "completed" &&
+        permissions.canMigrate;
+
+      const canCancel =
+        isGuiaRemision && isAlreadyReceived && status && permissions.canAnnul;
+
+      const canGeneratePDI = !!ap_vehicle_id && permissions.canGenerate;
+
+      const canGenerateAccessories = !!ap_vehicle_id && permissions.canGenerate;
 
       return (
         <div className="flex items-center gap-2">
-          {/* Ver detalles */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
+          <ButtonAction
+            icon={Eye}
             tooltip="Ver detalles"
             onClick={() => onViewDetails(row.original)}
-          >
-            <Eye className="size-4" />
-          </Button>
-
-          {/* Historial - Solo para GUIA_REMISION */}
-          {isGuiaRemision && <ShippingGuideHistory shippingGuideId={id} />}
-
-          {/* Enviar a Nubefact - Solo para GUIA_REMISION y si no ha sido enviado */}
-          {isGuiaRemision && !isSent && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Enviar a Nubefact"
-              onClick={() => onSendToNubefact(id)}
-            >
-              <Send className="size-4" />
-            </Button>
-          )}
-
-          {/* Consultar estado en Nubefact - Solo para GUIA_REMISION, si ya fue enviado y no está aceptado */}
-          {isGuiaRemision && isSent && aceptada_por_sunat !== true && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Consultar estado en SUNAT"
-              onClick={() => onQueryFromNubefact(id)}
-            >
-              <RefreshCw className="size-4" />
-            </Button>
-          )}
-
-          {/* Marcar como Recibido - Solo para TRASLADO ENTRE SEDES (ID: 21) después de ser aceptado por SUNAT */}
-          {isTrasladoSede && aceptada_por_sunat === true && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip={
-                isAlreadyReceived
-                  ? "Ya ha sido recepcionado"
-                  : "Marcar como recibido"
-              }
-              onClick={() => !isAlreadyReceived && onMarkAsReceived(id)}
-              disabled={isAlreadyReceived}
-            >
-              <PackageCheck className="size-4" />
-            </Button>
-          )}
-
-          {/* Checklist de Recepción - Solo para COMPRA */}
-          {isPurchase && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip={receiveTooltip}
-              onClick={() =>
-                canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
-              }
-              disabled={!canReceive}
-            >
-              <CarFront className="size-4" />
-            </Button>
-          )}
-
-          {/* Edit - Oculto si: (GUIA_REMISION y enviado) o (NO es GUIA_REMISION y recepcionado) */}
-          {permissions.canUpdate &&
-            (isGuiaRemision ? !isSent : !isAlreadyReceived) && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-                onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-              >
-                <Pencil className="size-4" />
-              </Button>
-            )}
-
-          {/* Delete - Oculto si: (GUIA_REMISION y enviado) o (NO es GUIA_REMISION y recepcionado) */}
-          {permissions.canDelete &&
-            (isGuiaRemision ? !isSent : !isAlreadyReceived) && (
-              <DeleteButton onClick={() => onDelete(id)} />
-            )}
-
-          <ButtonAction
-            tooltip="Migrar"
-            onClick={() => onMigrate && onMigrate(id)}
-            icon={ArrowRightLeft}
-            canRender={
-              onMigrate &&
-              isGuiaRemision &&
-              row.original.migration_status !== "completed"
-            }
+            canRender={canView}
           />
 
-          {/* Cancelar guía - Solo para GUIA_REMISION, cuando ya fue recepcionado y está ACTIVO */}
-          {isGuiaRemision && isAlreadyReceived && status && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7 text-secondary hover:text-secondary hover:bg-red-50"
-              tooltip="Cancelar guía"
-              onClick={() => onCancel(id)}
-            >
-              <Ban className="size-4" />
-            </Button>
-          )}
+          {canViewHistory && <ShippingGuideHistory shippingGuideId={id} />}
 
-          {/*Generamos la OT de PDI tomado el ap_vehicle_id*/}
-          {ap_vehicle_id && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Generar OT de PDI para el vehículo asociado"
-              onClick={() =>
-                ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
-              }
-            >
-              <BookCheck className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Send}
+            tooltip="Enviar a Nubefact"
+            onClick={() => onSendToNubefact(id)}
+            canRender={canSendToNubefact}
+          />
 
-          {/*Generamos la OT de instalación de accesorios tomando el ap_vehicle_id*/}
-          {ap_vehicle_id && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Generar OT de instalación de accesorios para el vehículo asociado"
-              onClick={() =>
-                ap_vehicle_id &&
-                onGenerateInstAccessories(Number(ap_vehicle_id))
-              }
-            >
-              <PackageCheck className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={RefreshCw}
+            tooltip="Consultar estado en SUNAT"
+            onClick={() => onQueryFromNubefact(id)}
+            canRender={canConsult}
+          />
+
+          <ButtonAction
+            icon={PackageCheck}
+            tooltip="Marcar como recibido"
+            onClick={() => onMarkAsReceived(id)}
+            canRender={canMarkAsReceived}
+          />
+
+          <ButtonAction
+            icon={CarFront}
+            tooltip="Recepcionar"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
+            canRender={canReceive}
+          />
+
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            canRender={canEdit}
+          />
+
+          {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
+
+          <ButtonAction
+            icon={ArrowRightLeft}
+            tooltip="Migrar"
+            onClick={() => onMigrate && onMigrate(id)}
+            canRender={canMigrate}
+          />
+
+          <ButtonAction
+            icon={Ban}
+            tooltip="Cancelar guía"
+            onClick={() => onCancel(id)}
+            color="red"
+            canRender={canCancel}
+          />
+
+          <ButtonAction
+            icon={BookCheck}
+            tooltip="Generar OT de PDI"
+            onClick={() =>
+              ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
+            }
+            canRender={canGeneratePDI}
+          />
+
+          <ButtonAction
+            icon={PackageCheck}
+            tooltip="Generar OT de instalación de accesorios"
+            onClick={() =>
+              ap_vehicle_id && onGenerateInstAccessories(Number(ap_vehicle_id))
+            }
+            canRender={canGenerateAccessories}
+          />
         </div>
       );
     },

@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import {
   Pencil,
   Check,
@@ -205,7 +204,6 @@ export const purchaseRequestQuoteColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* PDF - Only show if user has export permission */}
           <ExportButtons
             variant="separate-icon"
             pdfVariant="outline"
@@ -213,90 +211,51 @@ export const purchaseRequestQuoteColumns = ({
             onPdfDownload={() => onDownloadPdf(id)}
             disablePdf={!permissions.canExport}
           />
-          {/* View Detail */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
+          <ButtonAction
+            icon={Eye}
             tooltip="Ver Detalle"
             onClick={() => onViewDetail(row.original.id)}
-          >
-            <Eye className="size-5" />
-          </Button>
-          {/* Assign Vehicle */}
-          {canAssignVehicle && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Asignar Vehículo"
-              onClick={() => onAssignVehicle(row.original)}
-            >
-              <Car className="size-5" />
-            </Button>
-          )}
-          {/* Swap Vehicle */}
-          {canSwapVehicle && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Cambiar Vehículo"
-              onClick={() => onSwapVehicle(row.original)}
-            >
-              <ArrowLeftRight className="size-5" />
-            </Button>
-          )}
-          {/* Unassign Vehicle */}
-          {canUnassignVehicle && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Desasignar Vehículo"
-              onClick={() => onUnassignVehicle(id)}
-            >
-              <Link2Off className="size-5" />
-            </Button>
-          )}
-          {/* Generar Declaración Jurada KYC */}
-          {permissions.canCreateKyc && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Generar DJ KYC"
-              onClick={() =>
-                router(
-                  `${KYC_ROUTE_ADD}?quote_id=${id}&partner_id=${holder_id}&sede_id=${sede_id}&person_type=${holderPersonType}`,
-                )
-              }
-            >
-              <FileCheck className="size-5" />
-            </Button>
-          )}
-          {/* Edit - Only show if user has update permission */}
-          {canEdit && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
-
-          {/* Approve - Only show if user has approve permission */}
+          />
           <ButtonAction
-            variant="outline"
-            className="size-7"
+            icon={Car}
+            tooltip="Asignar Vehículo"
+            onClick={() => onAssignVehicle(row.original)}
+            canRender={canAssignVehicle}
+          />
+          <ButtonAction
+            icon={ArrowLeftRight}
+            tooltip="Cambiar Vehículo"
+            onClick={() => onSwapVehicle(row.original)}
+            canRender={canSwapVehicle}
+          />
+          <ButtonAction
+            icon={Link2Off}
+            tooltip="Desasignar Vehículo"
+            onClick={() => onUnassignVehicle(id)}
+            canRender={canUnassignVehicle}
+          />
+          <ButtonAction
+            icon={FileCheck}
+            tooltip="Generar DJ KYC"
+            onClick={() =>
+              router(
+                `${KYC_ROUTE_ADD}?quote_id=${id}&partner_id=${holder_id}&sede_id=${sede_id}&person_type=${holderPersonType}`,
+              )
+            }
+            canRender={permissions.canCreateKyc}
+          />
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            canRender={canEdit}
+          />
+          <ButtonAction
+            icon={Check}
             tooltip="Confirmar"
             color="emerald"
             onClick={() => onApprove(id)}
             canRender={!isApproved && permissions.canApprove}
-            icon={Check}
           />
         </div>
       );

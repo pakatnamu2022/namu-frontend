@@ -1,7 +1,6 @@
 "use client";
 
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   errorToast,
@@ -10,17 +9,17 @@ import {
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
 import { updateWorker } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.actions";
-import { WorkerSignatureSchema } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.schema";
+import type { WorkerSchema } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.schema";
 import { WorkerForm } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import FormWrapper from "@/shared/components/FormWrapper";
+import PageWrapper from "@/shared/components/PageWrapper";
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useWorkerById } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 
-export default function UpdateWorkerSignaturePage() {
+export default function UpdateWorkerPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -32,13 +31,10 @@ export default function UpdateWorkerSignaturePage() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: WorkerSignatureSchema) =>
-      updateWorker(id as string, data),
+    mutationFn: (data: WorkerSchema) => updateWorker(id as string, data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      await queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY, id],
-      });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
@@ -48,39 +44,38 @@ export default function UpdateWorkerSignaturePage() {
     },
   });
 
-  const handleSubmit = (data: WorkerSignatureSchema) => {
-    mutate(data);
-  };
-
-  function mapWorkerToForm(): Partial<WorkerSignatureSchema> {
+  function mapWorkerToForm(): Partial<WorkerSchema> {
     return {
+      name: worker?.name ?? "",
+      document: worker?.document ?? "",
+      sede: worker?.sede ?? "",
+      position: worker?.position ?? "",
+      work_schedule_id: worker?.workSchedule?.id?.toString() ?? "",
+      supervisor_id: worker?.supervisor_id?.toString() ?? "",
       worker_signature: null,
-      supervisor_id: worker?.supervisor_id?.toString() || "",
     };
   }
 
-  const isLoadingAny = loadingWorker || !worker;
-
-  if (isLoadingAny) {
-    return <FormSkeleton />;
-  }
+  if (loadingWorker || !worker) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <WorkerForm
         defaultValues={mapWorkerToForm()}
-        onSubmit={handleSubmit}
+        onSubmit={mutate}
         isSubmitting={isPending}
-        mode="signature"
         workSchedule={worker.workSchedule}
+        workerId={worker.id}
+        workerName={worker.name}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

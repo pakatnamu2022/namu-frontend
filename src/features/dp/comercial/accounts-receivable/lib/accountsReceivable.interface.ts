@@ -10,7 +10,7 @@ export interface AccountReceivableComment {
   sede_id: number;
   sede: Sede;
   user_id: number;
-  user: { id: number; name: string };
+  user: { id: number; name: string; sede: string };
   created_at: string;
 }
 

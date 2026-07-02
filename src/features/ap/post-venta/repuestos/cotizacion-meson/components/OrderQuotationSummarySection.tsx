@@ -233,7 +233,7 @@ export function OrderQuotationSummarySection({
           <Separator className="bg-muted-foreground/20" />
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4 flex gap-4">
+          <div className="space-y-2 pt-4 flex flex-col gap-2">
             <ConfirmationDialog
               trigger={
                 <Button
@@ -294,8 +294,8 @@ export function OrderQuotationSummarySection({
           </div>
           {isCompletedWithoutAdvances && (
             <p className="text-xs text-center text-destructive font-medium">
-              Esta cotización ya está completamente facturada. No se puede
-              crear más documentos.
+              Esta cotización ya está completamente facturada. No se puede crear
+              más documentos.
             </p>
           )}
           {!isCompletedWithoutAdvances &&

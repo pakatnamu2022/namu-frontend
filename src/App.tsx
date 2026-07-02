@@ -388,6 +388,7 @@ import EquipmentPage from "./app/gp/tics/equipos/page.tsx";
 import AddEquipmentPage from "./app/gp/tics/equipos/agregar/page.tsx";
 import UpdateEquipmentPage from "./app/gp/tics/equipos/actualizar/[id]/page.tsx";
 import AuditLogsPage from "./app/gp/tics/auditoria/page.tsx";
+import ActiveSessionsPage from "./app/gp/tics/sesiones-activas/page.tsx";
 import ScrumProjectPage from "./app/gp/tics/pm/proyectos/page.tsx";
 import AddScrumProjectPage from "./app/gp/tics/pm/proyectos/agregar/page.tsx";
 import UpdateScrumProjectPage from "./app/gp/tics/pm/proyectos/actualizar/[id]/page.tsx";
@@ -453,6 +454,8 @@ import InternalReportPage from "./app/gp/gestion-humana/asistencias/interno/page
 import WorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/page.tsx";
 import AddWorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/agregar/page.tsx";
 import UpdateWorkSchedulePage from "./app/gp/gestion-humana/asistencias/horarios/actualizar/[id]/page.tsx";
+import AttendanceExclusionPage from "./app/gp/gestion-humana/asistencias/exclusiones/page.tsx";
+import AttendanceCodeMappingPage from "./app/gp/gestion-humana/asistencias/mapeo-codigos/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -2128,6 +2131,14 @@ function App() {
                 path="asistencias/horarios/actualizar/:id"
                 element={<UpdateWorkSchedulePage />}
               />
+              <Route
+                path="asistencias/exclusiones"
+                element={<AttendanceExclusionPage />}
+              />
+              <Route
+                path="asistencias/mapeo-codigos"
+                element={<AttendanceCodeMappingPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -2175,6 +2186,10 @@ function App() {
             >
               <Route index element={<TICsModulePage />} />
               <Route path="auditoria" element={<AuditLogsPage />} />
+              <Route
+                path="sesiones-activas"
+                element={<ActiveSessionsPage />}
+              />
               {RouterCrud(
                 "equipos",
                 <EquipmentPage />,

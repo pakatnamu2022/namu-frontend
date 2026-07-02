@@ -12,6 +12,7 @@ export interface DiscountRequestOrderQuotationResource {
   is_approved: boolean;
   item_type: "PRODUCT" | "LABOR";
   status: "pending" | "approved" | "rejected";
+  reverted_by_id: number | null;
 }
 
 export interface DiscountRequestOrderQuotationRequest {

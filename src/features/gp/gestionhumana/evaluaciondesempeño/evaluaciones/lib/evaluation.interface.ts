@@ -62,3 +62,37 @@ export interface ResultsStatsRange {
 export interface getEvaluationsProps {
   params?: Record<string, any>;
 }
+
+export interface EvaluationEligibleWorkerResource {
+  person_id: number;
+  name: string;
+  dni: string;
+  fecha_inicio: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  hierarchical_category_id: number;
+  evaluator: string;
+  evaluator_position: string;
+  will_have: {
+    objectives?: number;
+    competences?: number;
+  };
+}
+
+export interface AddWorkersToEvaluationResponse {
+  persons_added: number;
+  persons_skipped: number;
+  errors: string[];
+  added_details: {
+    id: number;
+    name: string;
+    dni: string;
+    position: string;
+    area: string;
+    hierarchical_category: string;
+    fecha_inicio: string;
+    reason: string;
+  }[];
+}

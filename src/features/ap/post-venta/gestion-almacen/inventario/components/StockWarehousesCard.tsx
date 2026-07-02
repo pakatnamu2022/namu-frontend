@@ -95,10 +95,7 @@ export function StockWarehousesCard({
                     {warehouse.warehouse_name}
                   </span>
                   {warehouse.is_out_of_stock && (
-                    <Badge
-                      color="destructive"
-                      className="text-xs py-0 px-1 h-4"
-                    >
+                    <Badge variant="outline" color="red" size="sm">
                       Sin Stock
                     </Badge>
                   )}
@@ -160,7 +157,7 @@ export function StockWarehousesCard({
               disponibles
             </span>
             {stock.warehouses.length > 1 && (
-              <Badge color="secondary" className="text-xs">
+              <Badge color="cyan" className="text-xs">
                 {stock.warehouses.length} almacenes
               </Badge>
             )}

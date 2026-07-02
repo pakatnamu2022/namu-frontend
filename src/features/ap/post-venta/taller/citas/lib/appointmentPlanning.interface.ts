@@ -56,9 +56,10 @@ export interface TimeSlot {
   time: string;
   available: boolean;
   appointment_id?: number;
-  type: string;
-  advisor_id: number;
-  advisor_name: string;
+  type: "Reservación" | "Entrega" | "Ambos" | null;
+  deliveries_count: number;
+  advisor_id: number | null;
+  advisor_name: string | null;
 }
 
 export interface AvailableSlotsResponse {

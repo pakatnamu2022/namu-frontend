@@ -7,27 +7,30 @@ import { Loader2 } from "lucide-react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import SearchInput from "@/shared/components/SearchInput";
 import {
-  useAssignWorkersToCycle,
-  useEligibleWorkers,
-} from "../lib/cycle.hook";
+  useAddWorkersToEvaluation,
+  useEligibleWorkersInEvaluation,
+} from "../lib/evaluation.hook";
 import { toast } from "sonner";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  cycleId: number;
+  evaluationId: number;
 }
 
-export default function CycleEligibleWorkersSheet({
+export default function EvaluationEligibleWorkersSheet({
   open,
   onClose,
-  cycleId,
+  evaluationId,
 }: Props) {
   const [selected, setSelected] = useState<number[]>([]);
   const [search, setSearch] = useState("");
 
-  const { data: workers = [], isLoading } = useEligibleWorkers(cycleId, open);
-  const assignMutation = useAssignWorkersToCycle();
+  const { data: workers = [], isLoading } = useEligibleWorkersInEvaluation(
+    evaluationId,
+    open,
+  );
+  const addMutation = useAddWorkersToEvaluation();
 
   useEffect(() => {
     if (!open) {
@@ -39,7 +42,7 @@ export default function CycleEligibleWorkersSheet({
   const filtered = workers.filter(
     (w) =>
       w.name.toLowerCase().includes(search.toLowerCase()) ||
-      w.document.toLowerCase().includes(search.toLowerCase()),
+      w.dni.toLowerCase().includes(search.toLowerCase()),
   );
 
   const toggleWorker = (id: number) => {
@@ -52,19 +55,26 @@ export default function CycleEligibleWorkersSheet({
     if (selected.length === filtered.length && filtered.length > 0) {
       setSelected([]);
     } else {
-      setSelected(filtered.map((w) => w.id));
+      setSelected(filtered.map((w) => w.person_id));
     }
   };
 
   const handleSave = async () => {
     try {
-      await assignMutation.mutateAsync({ cycleId, workerIds: selected });
-      toast.success("Trabajadores asignados correctamente.");
+      const result = await addMutation.mutateAsync({
+        evaluationId,
+        workerIds: selected,
+      });
+      toast.success(
+        `${result.persons_added} trabajador(es) agregado(s) correctamente.`,
+      );
+      if (result.errors.length > 0) {
+        result.errors.forEach((error) => toast.error(error));
+      }
       onClose();
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message ??
-          "Error al asignar los trabajadores.",
+        error?.response?.data?.message ?? "Error al agregar los trabajadores.",
       );
     }
   };
@@ -75,10 +85,10 @@ export default function CycleEligibleWorkersSheet({
         Cancelar
       </Button>
       <Button
-        disabled={selected.length === 0 || assignMutation.isPending}
+        disabled={selected.length === 0 || addMutation.isPending}
         onClick={handleSave}
       >
-        {assignMutation.isPending ? (
+        {addMutation.isPending ? (
           <>
             <Loader2 className="mr-2 size-4 animate-spin" />
             Guardando...
@@ -94,8 +104,8 @@ export default function CycleEligibleWorkersSheet({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title="Asignar Trabajadores"
-      subtitle="Selecciona los trabajadores elegibles para asignar al ciclo"
+      title="Agregar Trabajadores"
+      subtitle="Selecciona los trabajadores elegibles para agregar a la evaluación"
       size="2xl"
       icon="Users"
       childrenFooter={footer}
@@ -139,23 +149,38 @@ export default function CycleEligibleWorkersSheet({
             <div className="space-y-1">
               {filtered.map((worker) => (
                 <div
-                  key={worker.id}
+                  key={worker.person_id}
                   className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer"
-                  onClick={() => toggleWorker(worker.id)}
+                  onClick={() => toggleWorker(worker.person_id)}
                 >
                   <Checkbox
-                    checked={selected.includes(worker.id)}
-                    onCheckedChange={() => toggleWorker(worker.id)}
+                    checked={selected.includes(worker.person_id)}
+                    onCheckedChange={() => toggleWorker(worker.person_id)}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{worker.name}</p>
+                    <p className="text-sm font-medium truncate">
+                      {worker.name}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      {worker.document} · {worker.position}
+                      {worker.dni} · {worker.position} ·{" "}
+                      {worker.hierarchical_category}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      Evaluador: {worker.evaluator}
                     </p>
                   </div>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {worker.sede}
-                  </span>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs text-muted-foreground block">
+                      {worker.sede}
+                    </span>
+                    <span className="text-xs text-muted-foreground block">
+                      {worker.will_have.objectives != null
+                        ? `${worker.will_have.objectives} objetivo(s)`
+                        : worker.will_have.competences != null
+                          ? `${worker.will_have.competences} competencia(s)`
+                          : null}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

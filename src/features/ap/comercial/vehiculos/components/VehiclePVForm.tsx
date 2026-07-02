@@ -25,7 +25,7 @@ import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/
 import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
-import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -81,26 +81,22 @@ export const VehiclePVForm = ({
     },
     mode: "onChange",
   });
-  const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const { data: engineTypes = [], isLoading: isLoadingEngineTypes } =
     useAllEngineTypes();
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
-  const { data: warehouses = [] } = useWarehouseByModelSede({
-    model_vn_id: String(form.watch("ap_models_vn_id")),
-    sede_id: String(form.watch("sede_id")),
-    is_received: 1,
-  });
+  const { data: warehousesPhysical = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
+  const selectedSedeId = form.watch("sede_id");
+  const filteredWarehouses = warehousesPhysical.filter(
+    (w) => String(w.sede_id) === String(selectedSedeId),
+  );
 
   // Watch para plate
   const plateWatch = form.watch("plate");
-
-  useEffect(() => {
-    if (isFirstLoad && plateWatch) {
-      setIsFirstLoad(false);
-    }
-  }, [isFirstLoad, plateWatch]);
+  const [originalPlate] = useState(defaultValues.plate ?? "");
+  const plateChanged = mode === "update" ? plateWatch !== originalPlate : true;
 
   const {
     data: plateData,
@@ -108,30 +104,41 @@ export const VehiclePVForm = ({
     error: plateError,
   } = usePlateValidation(
     plateWatch,
-    !isFirstLoad && !!plateWatch && plateWatch.length === Number(6),
+    plateChanged && !!plateWatch && plateWatch.length === 6,
   );
 
   useEffect(() => {
-    if (isFirstLoad) return;
+    if (!plateChanged) return;
 
     if (plateData?.success && plateData.data) {
       const plateInfo = plateData.data;
       form.setValue("vin", plateInfo.vin);
-      form.setValue("engine_number", plateInfo.engine_number);
+      form.setValue("engine_number", plateInfo.engine_number?.trim() ?? "");
       setIsSuccessfulResponse(true);
     } else {
       form.setValue("vin", "");
       form.setValue("engine_number", "");
       setIsSuccessfulResponse(false);
     }
-  }, [plateData, form, isFirstLoad]);
+  }, [plateData, form, plateChanged]);
 
-  // Auto-seleccionar el primer almacén cuando se carguen los datos
+  // Auto-seleccionar almacén cuando cambie la sede o cuando lleguen los almacenes
   useEffect(() => {
-    if (warehouses.length > 0 && !form.watch("warehouse_physical_id")) {
-      form.setValue("warehouse_physical_id", warehouses[0].id.toString());
-    }
-  }, [warehouses, form]);
+    if (!selectedSedeId || isLoadingWarehouses) return;
+
+    const currentWarehouseId = form.getValues("warehouse_physical_id");
+    const stillValid = filteredWarehouses.some(
+      (w) => String(w.id) === String(currentWarehouseId),
+    );
+
+    if (stillValid) return;
+
+    form.setValue(
+      "warehouse_physical_id",
+      filteredWarehouses.length > 0 ? filteredWarehouses[0].id.toString() : "",
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSedeId, filteredWarehouses, isLoadingWarehouses]);
 
   // Auto-seleccionar primera sede por defecto
   useEffect(() => {
@@ -144,6 +151,9 @@ export const VehiclePVForm = ({
 
   // Obtener la información de la API para mostrar como guía
   const apiInfo = plateData?.success && plateData.data ? plateData.data : null;
+
+  const vinWatch = form.watch("vin");
+  const isVinDisabled = issuccessfulResponse && vinWatch?.length === 17;
 
   const isLoading = isLoadingEngineTypes || isLoadingMySedes;
 
@@ -213,7 +223,7 @@ export const VehiclePVForm = ({
             label="VIN"
             placeholder="Ej: 1HGBH41AX1N109189"
             control={form.control}
-            disabled={issuccessfulResponse}
+            disabled={isVinDisabled}
           />
 
           <FormInput
@@ -221,7 +231,9 @@ export const VehiclePVForm = ({
             label="Número de Motor"
             placeholder="Ej: ENG32345XYZA"
             control={form.control}
-            disabled={issuccessfulResponse}
+            disabled={
+              issuccessfulResponse && !!plateData?.data?.engine_number?.trim()
+            }
           />
 
           <FormInput
@@ -378,7 +390,7 @@ export const VehiclePVForm = ({
             name="warehouse_physical_id"
             placeholder="Seleccionar almacén"
             control={form.control}
-            options={warehouses.map((warehouse) => ({
+            options={filteredWarehouses.map((warehouse) => ({
               value: warehouse.id.toString(),
               label: warehouse.description,
             }))}

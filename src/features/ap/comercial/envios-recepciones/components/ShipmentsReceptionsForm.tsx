@@ -680,6 +680,20 @@ export const ShipmentsReceptionsForm = ({
     }
   };
 
+  // PROVEEDOR: al elegir la Sede Origen, la Ubicación Destino es siempre nuestra empresa
+  useEffect(() => {
+    if (watchIssuerType === "PROVEEDOR" && watchSedeTransmitterId) {
+      const currentReceiverDestinationId = form.getValues(
+        "receiver_destination_id",
+      );
+      if (currentReceiverDestinationId !== AUTOMOTORES_PAKATNAMU_ID) {
+        form.setValue("receiver_destination_id", AUTOMOTORES_PAKATNAMU_ID, {
+          shouldValidate: true,
+        });
+      }
+    }
+  }, [watchIssuerType, watchSedeTransmitterId]);
+
   // Manejar sede destino cuando cambia el motivo de traslado
   useEffect(() => {
     if (watchTransferReasonId) {
@@ -814,22 +828,20 @@ export const ShipmentsReceptionsForm = ({
             strictFilter={true}
           />
 
-          {vehiclesIsReceived ? (
-            <FormSelect
-              key={`sede-transmitter-${watchArticleClassId}`}
-              name="sede_transmitter_id"
-              label="Sede Origen"
-              placeholder="Selecciona sede"
-              options={mySedes.map((item) => ({
-                label: item.sede,
-                description: item.description,
-                value: item.sede_id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={!watchArticleClassId || isLoadingMySedes}
-            />
-          ) : null}
+          <FormSelect
+            key={`sede-transmitter-${watchArticleClassId}`}
+            name="sede_transmitter_id"
+            label="Sede Origen"
+            placeholder="Selecciona sede"
+            options={mySedes.map((item) => ({
+              label: item.sede,
+              description: item.description,
+              value: item.sede_id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+            disabled={!watchArticleClassId || isLoadingMySedes}
+          />
 
           {watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
             watchTransferReasonId !==
@@ -885,6 +897,33 @@ export const ShipmentsReceptionsForm = ({
               name="correlative"
               label="Correlativo"
               placeholder="Ej: 00001234"
+              inputMode="numeric"
+              onKeyDown={(e) => {
+                if (
+                  [
+                    "Backspace",
+                    "Delete",
+                    "Tab",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Home",
+                    "End",
+                  ].includes(e.key) ||
+                  e.ctrlKey ||
+                  e.metaKey
+                ) {
+                  return;
+                }
+                if (!/^\d$/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              onPaste={(e) => {
+                const pasted = e.clipboardData.getData("text");
+                if (!/^\d+$/.test(pasted)) {
+                  e.preventDefault();
+                }
+              }}
             />
           )}
 
@@ -961,7 +1000,10 @@ export const ShipmentsReceptionsForm = ({
                 model$class_id: watchArticleClassId || undefined,
                 is_received: 0,
               }}
-              disabled={!watchSedeTransmitterId || !watchArticleClassId}
+              disabled={
+                (watchIssuerType !== "PROVEEDOR" && !watchSedeTransmitterId) ||
+                !watchArticleClassId
+              }
               onValueChange={handleVehicleChange}
               withValue={false}
               perPage={20}

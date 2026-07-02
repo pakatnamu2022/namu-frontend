@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, ButtonColors } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipTrigger,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { api } from "@/core/api";
 import { promiseToast } from "@/core/core.function";
+import { ButtonColors } from "@/lib/button-colors";
 import { Sheet, FileDown, type LucideIcon } from "lucide-react";
 
 type ButtonVariant =

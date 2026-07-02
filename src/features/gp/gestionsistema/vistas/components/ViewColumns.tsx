@@ -2,11 +2,11 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { ViewResource } from "../lib/view.interface";
-import { Button } from "@/components/ui/button";
 import { Copy, Pencil, ShieldCheck, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { EditableSelectCell } from "@/shared/components/EditableSelectCell";
 import { EditableCell } from "@/shared/components/EditableCell";
@@ -197,49 +197,24 @@ export const viewColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Roles */}
-          <Button
+          <ButtonAction
+            icon={Users}
             tooltip="Ver Roles con Acceso"
-            variant="outline"
-            size="icon"
-            className="size-7"
             onClick={() => onOpenRoles(id)}
-          >
-            <Users className="size-5" />
-          </Button>
-          {/* Permissions */}
-          <Button
+          />
+          <ButtonAction
+            icon={ShieldCheck}
             tooltip="Gestionar Permisos"
-            variant="outline"
-            size="icon"
-            className="size-7"
             disabled={submodule || route === null}
             onClick={() => onOpenPermissions(id)}
-          >
-            <ShieldCheck className="size-5" />
-          </Button>
-          {/* Edit */}
-          <Button
+          />
+          <ButtonAction
+            icon={Pencil}
             tooltip="Editar"
-            variant="outline"
-            size="icon"
-            className="size-7"
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-          >
-            <Pencil className="size-5" />
-          </Button>
-          {/* Duplicate */}
+          />
           <ConfirmationDialog
-            trigger={
-              <Button
-                tooltip="Duplicar"
-                variant="outline"
-                size="icon"
-                className="size-7"
-              >
-                <Copy className="size-5" />
-              </Button>
-            }
+            trigger={<ButtonAction icon={Copy} tooltip="Duplicar" />}
             title="¿Duplicar vista?"
             description="Se creará una copia de esta vista. ¿Deseas continuar?"
             confirmText="Sí, duplicar"
@@ -247,7 +222,6 @@ export const viewColumns = ({
             icon="info"
             onConfirm={() => onDuplicate(id)}
           />
-          {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );
