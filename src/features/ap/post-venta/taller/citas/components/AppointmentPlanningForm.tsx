@@ -101,13 +101,6 @@ export const AppointmentPlanningForm = ({
     mode: "onChange",
   });
 
-  console.log("[DEBUG] render form", {
-    mode,
-    defaultValues,
-    isFirstLoad,
-    isCustomerDocDirty,
-  });
-
   const { data: typesOperations = [], isLoading: isLoadingOperations } =
     useAllTypesOperationsAppointment();
   const { data: typesPlanning = [], isLoading: isLoadingPlanning } =
@@ -169,18 +162,6 @@ export const AppointmentPlanningForm = ({
 
   // Effect para cargar datos del cliente cuando se selecciona un vehículo
   useEffect(() => {
-    console.log("[DEBUG] effect vehiculo", {
-      watchVehicleId,
-      fetchedVehicle,
-      isFirstLoad,
-      currentFormValues: form.getValues([
-        "num_doc_client",
-        "full_name_client",
-        "email_client",
-        "phone_client",
-      ]),
-    });
-
     if (watchVehicleId && fetchedVehicle) {
       setSelectedVehicle(fetchedVehicle);
 
@@ -189,7 +170,6 @@ export const AppointmentPlanningForm = ({
       // registrados en la cita. Solo autocompletamos cuando el usuario
       // cambia de vehículo manualmente.
       if (isFirstLoad) {
-        console.log("[DEBUG] effect vehiculo -> es first load, no piso nada");
         setIsFirstLoad(false);
         lastProcessedVehicleIdRef.current = watchVehicleId;
         return;
@@ -200,9 +180,6 @@ export const AppointmentPlanningForm = ({
       // cambia de vehículo. Solo autocompletar/limpiar si el vehículo
       // realmente es distinto al último procesado.
       if (lastProcessedVehicleIdRef.current === watchVehicleId) {
-        console.log(
-          "[DEBUG] effect vehiculo -> mismo vehiculo ya procesado, no piso nada",
-        );
         return;
       }
       lastProcessedVehicleIdRef.current = watchVehicleId;
@@ -210,15 +187,11 @@ export const AppointmentPlanningForm = ({
       // Si el vehículo tiene cliente (owner), autocompletar los campos
       if (fetchedVehicle.owner && fetchedVehicle.owner !== null) {
         const client = fetchedVehicle.owner;
-        console.log("[DEBUG] effect vehiculo -> PISANDO con owner", client);
         form.setValue("num_doc_client", client.num_doc || "");
         form.setValue("full_name_client", client.full_name || "");
         form.setValue("email_client", client.email || "");
         form.setValue("phone_client", client.phone || "");
       } else {
-        console.log(
-          "[DEBUG] effect vehiculo -> PISANDO con vacios (sin owner)",
-        );
         form.setValue("num_doc_client", "");
         form.setValue("full_name_client", "");
         form.setValue("email_client", "");
@@ -238,39 +211,20 @@ export const AppointmentPlanningForm = ({
 
   // UseEffect para autocompletar datos del cliente
   useEffect(() => {
-    console.log("[DEBUG] effect validacion DNI/RUC", {
-      isCustomerDocDirty,
-      watchCustomer,
-      customerData,
-      dniData,
-      rucData,
-    });
-
     if (!isCustomerDocDirty) return;
 
     if (customerData?.success && customerData.data) {
       // Si es DNI (persona natural)
       if (dniData?.success && dniData.data) {
         const clientInfo = dniData.data;
-        console.log(
-          "[DEBUG] effect validacion -> PISANDO full_name_client con DNI",
-          clientInfo,
-        );
         form.setValue("full_name_client", clientInfo.names || "");
       }
       // Si es RUC (persona jurídica)
       else if (rucData?.success && rucData.data) {
         const clientInfo = rucData.data;
-        console.log(
-          "[DEBUG] effect validacion -> PISANDO full_name_client con RUC",
-          clientInfo,
-        );
         form.setValue("full_name_client", clientInfo.business_name || "");
       }
     } else if (customerData && !customerData.success) {
-      console.log(
-        "[DEBUG] effect validacion -> LIMPIANDO full_name_client (customerData sin success)",
-      );
       form.setValue("full_name_client", "");
     }
   }, [customerData, dniData, rucData, form, isCustomerDocDirty, watchCustomer]);
