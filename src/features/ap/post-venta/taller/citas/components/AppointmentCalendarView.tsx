@@ -112,17 +112,23 @@ export default function AppointmentCalendarView({
     );
   };
 
+  // Un slot "ocupado" es aquel con reservación y/o entrega(s), es decir
+  // type !== null. `available` ya no indica ocupación: un slot de tipo
+  // "Entrega" puede seguir disponible para agendar una cita.
   const getOccupiedCount = (day: Date) => {
     const slots = getSlotsForDay(day);
-    return slots.filter((s) => !s.available).length;
+    return slots.filter((s) => s.type !== null).length;
   };
 
   const getTotalSlots = (day: Date) => {
     return getSlotsForDay(day).length;
   };
 
-  const getSlotsByType = (slots: TimeSlot[], type: string) => {
-    return slots.filter((s) => !s.available && s.type === type);
+  const getSlotsByType = (
+    slots: TimeSlot[],
+    type: "Reservación" | "Entrega",
+  ) => {
+    return slots.filter((s) => s.type === type || s.type === "Ambos");
   };
 
   const renderWeekView = () => (
@@ -312,7 +318,7 @@ export default function AppointmentCalendarView({
     if (!selectedDay) return null;
 
     const slots = getSlotsForDay(selectedDay);
-    const occupiedSlots = slots.filter((s) => !s.available);
+    const occupiedSlots = slots.filter((s) => s.type !== null);
 
     const morningSlots = occupiedSlots.filter((s) => {
       const hour = parseInt(s.time.split(":")[0]);
@@ -324,19 +330,21 @@ export default function AppointmentCalendarView({
       return hour >= 12;
     });
 
-    // Agrupar por asesor
+    // Agrupar por asesor. Las entregas sin cita asociada llegan con
+    // advisor_id null: se agrupan aparte en "Sin asesor asignado".
     const slotsByAdvisor = occupiedSlots.reduce(
       (acc, slot) => {
-        if (!acc[slot.advisor_id]) {
-          acc[slot.advisor_id] = {
-            name: slot.advisor_name,
+        const key = slot.advisor_id ?? "none";
+        if (!acc[key]) {
+          acc[key] = {
+            name: slot.advisor_name ?? "Sin asesor asignado",
             slots: [],
           };
         }
-        acc[slot.advisor_id].slots.push(slot);
+        acc[key].slots.push(slot);
         return acc;
       },
-      {} as Record<number, { name: string; slots: TimeSlot[] }>,
+      {} as Record<number | "none", { name: string; slots: TimeSlot[] }>,
     );
 
     return (
@@ -389,12 +397,16 @@ export default function AppointmentCalendarView({
                         <div
                           className={cn(
                             "h-6 w-6 rounded-full flex items-center justify-center text-white text-xs font-bold",
-                            slot.type === "Entrega"
-                              ? "bg-red-500"
-                              : "bg-primary",
+                            slot.type === "Ambos"
+                              ? "bg-purple-500"
+                              : slot.type === "Entrega"
+                                ? "bg-orange-500"
+                                : "bg-primary",
                           )}
                         >
-                          {slot.type === "Entrega" ? "E" : "R"}
+                          {slot.type === "Entrega"
+                            ? slot.deliveries_count
+                            : "R"}
                         </div>
                         <span className="font-semibold text-gray-800">
                           {slot.time}
@@ -402,10 +414,16 @@ export default function AppointmentCalendarView({
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <User className="h-4 w-4" />
-                        <span>{slot.advisor_name}</span>
+                        <span>{slot.advisor_name ?? "Sin asesor"}</span>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{slot.type}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {slot.type === "Ambos"
+                        ? `Reservación + ${slot.deliveries_count} Entrega(s)`
+                        : slot.type === "Entrega"
+                          ? `${slot.deliveries_count} Entrega(s)`
+                          : slot.type}
+                    </p>
                   </div>
                 ))
               ) : (
@@ -439,12 +457,16 @@ export default function AppointmentCalendarView({
                         <div
                           className={cn(
                             "h-6 w-6 rounded-full flex items-center justify-center text-white text-xs font-bold",
-                            slot.type === "Entrega"
-                              ? "bg-red-500"
-                              : "bg-primary",
+                            slot.type === "Ambos"
+                              ? "bg-purple-500"
+                              : slot.type === "Entrega"
+                                ? "bg-orange-500"
+                                : "bg-primary",
                           )}
                         >
-                          {slot.type === "Entrega" ? "E" : "R"}
+                          {slot.type === "Entrega"
+                            ? slot.deliveries_count
+                            : "R"}
                         </div>
                         <span className="font-semibold text-gray-800">
                           {slot.time}
@@ -452,10 +474,16 @@ export default function AppointmentCalendarView({
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <User className="h-4 w-4" />
-                        <span>{slot.advisor_name}</span>
+                        <span>{slot.advisor_name ?? "Sin asesor"}</span>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{slot.type}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {slot.type === "Ambos"
+                        ? `Reservación + ${slot.deliveries_count} Entrega(s)`
+                        : slot.type === "Entrega"
+                          ? `${slot.deliveries_count} Entrega(s)`
+                          : slot.type}
+                    </p>
                   </div>
                 ))
               ) : (
@@ -487,7 +515,14 @@ export default function AppointmentCalendarView({
                     <div className="space-y-1">
                       <p className="text-sm text-primary font-medium">
                         Total Citas:{" "}
-                        {getSlotsByType(data.slots, "Entrega").length}
+                        {getSlotsByType(data.slots, "Reservación").length}
+                      </p>
+                      <p className="text-sm text-orange-600 font-medium">
+                        Total Entregas:{" "}
+                        {getSlotsByType(data.slots, "Entrega").reduce(
+                          (sum, s) => sum + s.deliveries_count,
+                          0,
+                        )}
                       </p>
                     </div>
                   </div>
@@ -513,18 +548,26 @@ export default function AppointmentCalendarView({
 
       {/* Legend */}
       <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex items-center justify-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <div className="h-6 w-6 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">
-              E
-            </div>
-            <span className="text-sm text-gray-600">Entrega</span>
-          </div>
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <div className="flex items-center space-x-2">
             <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold">
               R
             </div>
             <span className="text-sm text-gray-600">Reservación</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+              3
+            </div>
+            <span className="text-sm text-gray-600">Entrega(s)</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-6 w-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">
+              R
+            </div>
+            <span className="text-sm text-gray-600">
+              Reservación + Entrega(s)
+            </span>
           </div>
         </div>
       </div>
