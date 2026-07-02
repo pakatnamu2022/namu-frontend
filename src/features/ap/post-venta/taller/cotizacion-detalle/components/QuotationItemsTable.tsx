@@ -38,7 +38,7 @@ interface QuotationItemsTableProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canDelete: boolean;
+    canRemoveLabor: boolean;
     canReverseDiscount?: boolean;
   };
   isApproving: boolean;
@@ -391,7 +391,7 @@ export function QuotationItemsTable({
                         )
                       )}
 
-                      {permissions.canDelete && (
+                      {permissions.canRemoveLabor && (
                         <Button
                           variant="ghost"
                           color="red"
@@ -428,7 +428,7 @@ export function QuotationItemsTable({
               {/* Fila superior: nombre + botón eliminar */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">{renderName(detail)}</div>
-                {permissions.canDelete && (
+                {permissions.canRemoveLabor && (
                   <Button
                     variant="ghost"
                     size="icon"

@@ -243,6 +243,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "RotateCw",
     description: "Permite revertir descuentos aplicados a cotizaciones",
   },
+  {
+    value: "removeLabor",
+    label: "Eliminar Mano de Obra",
+    icon: "Trash2",
+    description: "Permite eliminar detalles de mano de obra de una cotización",
+  },
 ];
 
 /**
@@ -318,5 +324,6 @@ export function useModulePermissions(moduleCode: string) {
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
     canReverseDiscount: hasModulePermission("reverseDiscount"),
+    canRemoveLabor: hasModulePermission("removeLabor"),
   };
 }
