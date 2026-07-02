@@ -145,6 +145,9 @@ export const VehiclePVForm = ({
   // Obtener la información de la API para mostrar como guía
   const apiInfo = plateData?.success && plateData.data ? plateData.data : null;
 
+  const vinWatch = form.watch("vin");
+  const isVinDisabled = issuccessfulResponse && vinWatch?.length === 17;
+
   const isLoading = isLoadingEngineTypes || isLoadingMySedes;
 
   if (isLoading) return <FormSkeleton />;
@@ -213,7 +216,7 @@ export const VehiclePVForm = ({
             label="VIN"
             placeholder="Ej: 1HGBH41AX1N109189"
             control={form.control}
-            disabled={issuccessfulResponse}
+            disabled={isVinDisabled}
           />
 
           <FormInput
