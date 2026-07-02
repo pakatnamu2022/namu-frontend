@@ -5,6 +5,7 @@ import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interf
 import { TypesPlanningResource } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.interface";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { type WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import RadioButton from "@/shared/components/RadioButton";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 
@@ -31,6 +32,9 @@ interface Props {
   sedes: SedeResource[];
   sedeId: string;
   setSedeId: (value: string) => void;
+  asesores?: WorkerResource[];
+  advisorId?: string;
+  setAdvisorId?: (value: string) => void;
   typesPlanning?: TypesPlanningResource[];
   typePlanningId?: string;
   setTypePlanningId?: (value: string) => void;
@@ -54,6 +58,9 @@ export default function WorkOrderOptions({
   sedes = [],
   sedeId,
   setSedeId,
+  asesores = [],
+  advisorId,
+  setAdvisorId,
   typesPlanning = [],
   typePlanningId,
   setTypePlanningId,
@@ -83,6 +90,19 @@ export default function WorkOrderOptions({
         classNameOption="text-xs"
         allowClear={false}
       />
+      {setAdvisorId && (
+        <SearchableSelect
+          options={asesores.map((item) => ({
+            value: item.id.toString(),
+            label: item.name,
+          }))}
+          value={advisorId!}
+          onChange={setAdvisorId}
+          placeholder="Filtrar por asesor de servicio"
+          className="min-w-72"
+          classNameOption="text-xs"
+        />
+      )}
       {typesPlanning && setTypePlanningId && (
         <SearchableSelect
           options={typesPlanning.map((item) => ({

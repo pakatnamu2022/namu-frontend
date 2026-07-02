@@ -32,6 +32,11 @@ import { useNavigate } from "react-router-dom";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 
 export default function WorkOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -39,6 +44,7 @@ export default function WorkOrderPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
+  const [advisorId, setAdvisorId] = useState<string>("");
   const [typePlanningId, setTypePlanningId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [internalNoteId, setInternalNoteId] = useState<number | null>(null);
@@ -66,6 +72,12 @@ export default function WorkOrderPage() {
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
+  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
+    cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
+
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       setDateTo(dateFrom);
@@ -87,6 +99,7 @@ export default function WorkOrderPage() {
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
       sede_id: sedeId || undefined,
+      advisor_id: advisorId || undefined,
       items$typePlanning$id: typePlanningId || undefined,
     },
     enabled: !!sedeId,
@@ -133,7 +146,12 @@ export default function WorkOrderPage() {
     router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
 
-  if (isLoadingModule || isLoadingSedes || isLoadingTypesPlanning)
+  if (
+    isLoadingModule ||
+    isLoadingSedes ||
+    isLoadingTypesPlanning ||
+    isLoadingAsesores
+  )
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -146,7 +164,19 @@ export default function WorkOrderPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <WorkOrderActions permissions={permissions} />
+        <WorkOrderActions
+          permissions={permissions}
+          filters={{
+            search,
+            opening_date:
+              dateFrom && dateTo
+                ? [formatDate(dateFrom), formatDate(dateTo)]
+                : undefined,
+            sede_id: sedeId || undefined,
+            advisor_id: advisorId || undefined,
+            items$typePlanning$id: typePlanningId || undefined,
+          }}
+        />
       </HeaderTableWrapper>
 
       <WorkOrderTable
@@ -172,6 +202,9 @@ export default function WorkOrderPage() {
           sedes={mySedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          asesores={asesores}
+          advisorId={advisorId}
+          setAdvisorId={setAdvisorId}
           typesPlanning={typesPlanning}
           typePlanningId={typePlanningId}
           setTypePlanningId={setTypePlanningId}

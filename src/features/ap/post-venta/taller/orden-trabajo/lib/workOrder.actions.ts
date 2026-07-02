@@ -85,6 +85,29 @@ export async function deleteWorkOrder(id: number): Promise<GeneralResponse> {
   return data;
 }
 
+export async function exportWorkOrder({
+  params,
+}: getWorkOrderProps): Promise<void> {
+  const config: AxiosRequestConfig = {
+    params,
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export`, config);
+
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `ordenes-trabajo-${new Date().toISOString().split("T")[0]}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export async function downloadWorkOrderPdf(id: number): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
     responseType: "blob",
