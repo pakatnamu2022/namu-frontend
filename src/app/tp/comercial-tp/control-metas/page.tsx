@@ -181,10 +181,12 @@ export default function ControlGoalPage() {
           <GoalTravelAlerts />
         </TabsContent>
 
+        {/* COMPARATIVA */}
         <TabsContent value="comparativa" className="mt-0">
           <ComparativaMensual />
         </TabsContent>
 
+        {/* NO FACTURADOS*/}
         <TabsContent value="no-facturados" className="mt-0">
           <ViajesNoFacturados />
         </TabsContent>

@@ -13,6 +13,20 @@ export interface ComparativaMensualResponse {
   viajes_anterior: number[];
   produccion_actual: number[];
   produccion_anterior: number[];
+  participacion_actual: number[];
+  participacion_anterior: number[];
+  resumen: {
+    actual: {
+      viajes: number;
+      produccion: number;
+      label: string;
+    };
+    anterior: {
+      viajes: number;
+      produccion: number;
+      label: string;
+    };
+  };
   periodo_actual: {
     mes: number;
     anio: number;
