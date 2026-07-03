@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Camera, X, FileText, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { compressImageFiles } from "@/shared/lib/image";
 
 export interface UploadedFile {
   id: string;
@@ -42,6 +43,7 @@ export function MultipleFileUploadWithCamera({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Detectar si hay cámara disponible
   const hasCameraAvailable = useMemo(() => {
@@ -66,56 +68,63 @@ export function MultipleFileUploadWithCamera({
     return isMobileDevice;
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const fileList = files ? Array.from(files) : [];
+    // Limpiar el input antes del await: el SyntheticEvent se recicla tras ceder el hilo
+    e.target.value = "";
+    if (fileList.length === 0) return;
 
     setError("");
 
     // Verificar si se excede el límite de archivos
-    if (value.length + files.length > maxFiles) {
+    if (value.length + fileList.length > maxFiles) {
       setError(`Solo puedes subir un máximo de ${maxFiles} archivos`);
-      e.target.value = "";
       return;
     }
 
-    const newFiles: UploadedFile[] = [];
+    setIsProcessing(true);
+    try {
+      // Comprimir el lote en paralelo antes de validar el tamaño
+      const compressedFiles = await compressImageFiles(fileList);
 
-    // Procesar cada archivo
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+      const newFiles: UploadedFile[] = [];
+      let sizeErrorMessage = "";
 
-      // Verificar tamaño del archivo
-      const fileSizeMB = file.size / 1024 / 1024;
-      if (fileSizeMB > maxSize) {
-        setError(
-          `El archivo "${file.name}" excede el tamaño máximo de ${maxSize}MB`,
-        );
-        continue;
-      }
+      compressedFiles.forEach((file, i) => {
+        // Verificar tamaño del archivo ya comprimido
+        const fileSizeMB = file.size / 1024 / 1024;
+        if (fileSizeMB > maxSize) {
+          sizeErrorMessage = `El archivo "${file.name}" excede el tamaño máximo de ${maxSize}MB`;
+          return;
+        }
 
-      // Crear preview URL
-      let previewUrl = objectUrlCache.get(file);
-      if (!previewUrl) {
-        previewUrl = URL.createObjectURL(file);
-        objectUrlCache.set(file, previewUrl);
-      }
+        // Crear preview URL
+        let previewUrl = objectUrlCache.get(file);
+        if (!previewUrl) {
+          previewUrl = URL.createObjectURL(file);
+          objectUrlCache.set(file, previewUrl);
+        }
 
-      // Agregar archivo a la lista
-      newFiles.push({
-        id: `${Date.now()}-${i}`,
-        file,
-        previewUrl,
+        // Agregar archivo a la lista
+        newFiles.push({
+          id: `${Date.now()}-${i}`,
+          file,
+          previewUrl,
+        });
       });
-    }
 
-    // Actualizar la lista de archivos
-    if (newFiles.length > 0) {
-      onChange([...value, ...newFiles]);
-    }
+      if (sizeErrorMessage) {
+        setError(sizeErrorMessage);
+      }
 
-    // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
-    e.target.value = "";
+      // Actualizar la lista de archivos
+      if (newFiles.length > 0) {
+        onChange([...value, ...newFiles]);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleRemoveFile = (id: string) => {
@@ -132,6 +141,7 @@ export function MultipleFileUploadWithCamera({
   };
 
   const handleUploadClick = () => {
+    if (isProcessing) return;
     if (value.length >= maxFiles) {
       setError(`Ya has alcanzado el límite de ${maxFiles} archivos`);
       return;
@@ -140,6 +150,7 @@ export function MultipleFileUploadWithCamera({
   };
 
   const handleCameraClick = () => {
+    if (isProcessing) return;
     if (value.length >= maxFiles) {
       setError(`Ya has alcanzado el límite de ${maxFiles} archivos`);
       return;
@@ -168,6 +179,12 @@ export function MultipleFileUploadWithCamera({
       {error && (
         <div className="mb-2 p-2 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">
           {error}
+        </div>
+      )}
+
+      {isProcessing && (
+        <div className="mb-2 p-2 bg-muted rounded text-sm text-muted-foreground">
+          Comprimiendo imágenes...
         </div>
       )}
 
@@ -209,7 +226,7 @@ export function MultipleFileUploadWithCamera({
                     variant="ghost"
                     className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => handleRemoveFile(uploadedFile.id)}
-                    disabled={disabled}
+                    disabled={disabled || isProcessing}
                     type="button"
                   >
                     <X className="h-4 w-4" />
@@ -225,7 +242,7 @@ export function MultipleFileUploadWithCamera({
                     onChange={(e) =>
                       handleDescriptionChange(uploadedFile.id, e.target.value)
                     }
-                    disabled={disabled}
+                    disabled={disabled || isProcessing}
                     rows={2}
                     className="resize-none text-sm"
                   />
@@ -244,7 +261,7 @@ export function MultipleFileUploadWithCamera({
               accept={accept}
               className="hidden"
               onChange={handleFileChange}
-              disabled={disabled}
+              disabled={disabled || isProcessing}
               multiple
             />
 
@@ -256,7 +273,7 @@ export function MultipleFileUploadWithCamera({
                 capture="environment"
                 className="hidden"
                 onChange={handleFileChange}
-                disabled={disabled}
+                disabled={disabled || isProcessing}
               />
             )}
 
@@ -266,7 +283,7 @@ export function MultipleFileUploadWithCamera({
                   type="button"
                   variant="outline"
                   onClick={handleUploadClick}
-                  disabled={disabled}
+                  disabled={disabled || isProcessing}
                   className="h-24 border-2 border-dashed"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -285,7 +302,7 @@ export function MultipleFileUploadWithCamera({
                   type="button"
                   variant="outline"
                   onClick={handleCameraClick}
-                  disabled={disabled}
+                  disabled={disabled || isProcessing}
                   className="h-24 border-2 border-dashed"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -299,7 +316,7 @@ export function MultipleFileUploadWithCamera({
                 type="button"
                 variant="outline"
                 onClick={handleUploadClick}
-                disabled={disabled}
+                disabled={disabled || isProcessing}
                 className="w-full h-24 border-2 border-dashed"
               >
                 <div className="flex flex-col items-center gap-2">
