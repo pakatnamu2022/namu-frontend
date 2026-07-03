@@ -1,3 +1,4 @@
+import { type WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import FilterWrapper from "@/shared/components/FilterWrapper";
@@ -14,6 +15,9 @@ interface Props {
   sedes: SedeResource[];
   sedeId: string;
   setSedeId: (value: string) => void;
+  asesores: WorkerResource[];
+  advisorId: string;
+  setAdvisorId: (value: string) => void;
 }
 
 export default function AppointmentPlanningOptions({
@@ -26,6 +30,9 @@ export default function AppointmentPlanningOptions({
   sedes = [],
   sedeId,
   setSedeId,
+  asesores = [],
+  advisorId,
+  setAdvisorId,
 }: Props) {
   return (
     <FilterWrapper>
@@ -33,6 +40,17 @@ export default function AppointmentPlanningOptions({
         value={search}
         onChange={setSearch}
         placeholder="Buscar cita..."
+      />
+      <SearchableSelect
+        options={asesores.map((item) => ({
+          value: item.id.toString(),
+          label: item.name,
+        }))}
+        value={advisorId}
+        onChange={setAdvisorId}
+        placeholder="Filtrar por asesor de servicio"
+        className="min-w-72"
+        classNameOption="text-xs"
       />
       <SearchableSelect
         options={sedes.map((item) => ({
