@@ -137,7 +137,6 @@ import ModulesCompanyPage from "./app/modules/[company]/page.tsx";
 import ModulesCompanyModulePage from "./app/modules/[company]/[module]/page.tsx";
 import FeedRoutePage from "./app/feed/page.tsx";
 import TestPage from "./app/test/page.tsx";
-import TestCompresionPage from "./app/test-compresion/page.tsx";
 import TrainingPage from "./app/perfil/capacitaciones/page.tsx";
 import DocumentPage from "./app/perfil/documentos/page.tsx";
 import TeamPage from "./app/perfil/equipo/page.tsx";
@@ -583,7 +582,6 @@ function App() {
 
             {/* Test */}
             <Route path="/test" element={<TestPage />} />
-            <Route path="/test-compresion" element={<TestCompresionPage />} />
 
             {/* ======================================================== */}
             {/* PERFIL SECTION */}
