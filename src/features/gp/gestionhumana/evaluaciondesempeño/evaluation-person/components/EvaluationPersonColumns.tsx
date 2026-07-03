@@ -35,8 +35,8 @@ export const EvaluationPersonColumns = ({
     ),
   },
   {
-    accessorKey: "supervisor",
-    header: "Jefe Inmediato",
+    accessorKey: "evaluator",
+    header: "Evaluador",
     cell: ({ getValue }) => (
       <span className="font-semibold">
         {(getValue() as WorkerResource)?.name}
