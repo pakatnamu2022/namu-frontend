@@ -29,7 +29,6 @@ export default function EvaluationPersonTable({
           sede: false,
           area: false,
           category: false,
-          supervisor: false,
           competencesResult: evaluation.typeEvaluation !== 0,
         }}
       >
