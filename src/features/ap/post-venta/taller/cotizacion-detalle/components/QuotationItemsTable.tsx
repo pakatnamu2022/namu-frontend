@@ -38,9 +38,12 @@ interface QuotationItemsTableProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canRemoveLabor: boolean;
+    canRemoveSparePartQuote?: boolean;
+    canRemoveSparePartLabor: boolean;
     canReverseDiscount?: boolean;
   };
+  /** Tipo de ítem de la tabla: determina qué permiso habilita el botón de eliminar */
+  itemType: "PART" | "LABOR";
   isApproving: boolean;
   isRejecting: boolean;
   isReverting?: boolean;
@@ -239,6 +242,7 @@ export function QuotationItemsTable({
   discountRequests,
   globalRequest,
   permissions,
+  itemType,
   isApproving,
   isRejecting,
   isReverting,
@@ -256,6 +260,11 @@ export function QuotationItemsTable({
   getQuantity,
   getPrice,
 }: QuotationItemsTableProps) {
+  const canRemove =
+    itemType === "PART"
+      ? !!permissions.canRemoveSparePartQuote
+      : permissions.canRemoveSparePartLabor;
+
   const getPartialRequest = (detailId: number) =>
     discountRequests.find(
       (r) =>
@@ -391,7 +400,7 @@ export function QuotationItemsTable({
                         )
                       )}
 
-                      {permissions.canRemoveLabor && (
+                      {canRemove && (
                         <Button
                           variant="ghost"
                           color="red"
@@ -428,7 +437,7 @@ export function QuotationItemsTable({
               {/* Fila superior: nombre + botón eliminar */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">{renderName(detail)}</div>
-                {permissions.canRemoveLabor && (
+                {canRemove && (
                   <Button
                     variant="ghost"
                     size="icon"
