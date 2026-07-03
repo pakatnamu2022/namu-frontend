@@ -166,28 +166,6 @@ export const VehiclePurchaseOrderForm = ({
   // Store initial values to compare against
   const initialValues = useRef(defaultValues);
 
-  // Track if form has actual changes by comparing current values with initial values
-  const hasChanges = useMemo(() => {
-    if (mode !== "resend") return true;
-
-    const currentValues = form.getValues();
-    const initial = initialValues.current;
-
-    // Compare each field
-    return Object.keys(currentValues).some((key) => {
-      const currentVal = currentValues[key as keyof typeof currentValues];
-      const initialVal = initial[key as keyof typeof initial];
-
-      // Handle null/undefined comparisons
-      if (currentVal === initialVal) return false;
-      if (currentVal == null && initialVal == null) return false;
-
-      // Convert to string for comparison to handle numeric strings
-      return String(currentVal) !== String(initialVal);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, form.watch()]);
-
   // Obtener lista de campos que cambiaron
   const changedFields = useMemo(() => {
     if (mode !== "resend") return [];
@@ -1256,7 +1234,6 @@ export const VehiclePurchaseOrderForm = ({
                   disabled={
                     isSubmitting ||
                     !form.formState.isValid ||
-                    (mode === "resend" && !hasChanges) ||
                     subtotalDifference > 1
                   }
                 >
@@ -1290,7 +1267,6 @@ export const VehiclePurchaseOrderForm = ({
               confirmDisabled={
                 isSubmitting ||
                 !form.formState.isValid ||
-                (mode === "resend" && !hasChanges) ||
                 subtotalDifference > 1
               }
             />
