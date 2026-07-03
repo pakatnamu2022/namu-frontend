@@ -119,6 +119,8 @@ export function WorkerTimeline({
   const timelineRectRef = useRef<DOMRect | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
+  const [selectedWorkOrderData, setSelectedWorkOrderData] =
+    useState<WorkOrderResource | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [openWorkOrderSelect, setOpenWorkOrderSelect] = useState(false);
@@ -212,11 +214,10 @@ export function WorkerTimeline({
   // Encontrar el nombre de la sede seleccionada
   const selectedSede = mySedes.find((s) => s.id.toString() === sedeId);
 
-  // Obtener la orden de trabajo seleccionada
-  const selectedWorkOrder = useMemo(() => {
-    if (!selectedWorkOrderId) return null;
-    return workOrders.find((wo) => wo.id.toString() === selectedWorkOrderId);
-  }, [selectedWorkOrderId, workOrders]);
+  // Orden de trabajo seleccionada: se guarda el objeto completo al momento de
+  // seleccionarla para no depender de que siga presente en la lista paginada/
+  // filtrada (que se recarga sin filtro al limpiar la búsqueda tras elegir).
+  const selectedWorkOrder = selectedWorkOrderData;
 
   // Obtener los grupos únicos de los items
   const availableGroups = useMemo(() => {
@@ -683,6 +684,7 @@ export function WorkerTimeline({
       setSelectedTime(null);
       setHoveredSlot(null);
       setSelectedWorkOrderId("");
+      setSelectedWorkOrderData(null);
       setSelectedGroup(null);
       setSelectedItemId(null);
     }
@@ -807,7 +809,7 @@ export function WorkerTimeline({
                     {selectedWorkOrderId ? (
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="font-mono text-xs">
-                          #{selectedWorkOrder?.correlative}
+                          {selectedWorkOrder?.correlative}
                         </Badge>
                         <span className="text-sm">
                           {selectedWorkOrder?.vehicle_plate}
@@ -847,6 +849,7 @@ export function WorkerTimeline({
                             value={wo.id.toString()}
                             onSelect={() => {
                               setSelectedWorkOrderId(wo.id.toString());
+                              setSelectedWorkOrderData(wo);
                               setSelectedGroup(null);
                               setSelectedItemId(null);
                               setOpenWorkOrderSelect(false);
