@@ -8,7 +8,6 @@ import GoalTravelModal from "@/features/tp/comercial/ControlMetas/components/Goa
 import GoalTravelOptions from "@/features/tp/comercial/ControlMetas/components/GoalTravelOptions";
 import GoalTravelTable from "@/features/tp/comercial/ControlMetas/components/GoalTravelTable";
 import { deleteGoalTravel } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.actions";
-import { GOALTRAVELCONTROL } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.constants";
 import { useGoalTravelControl } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.hook";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
