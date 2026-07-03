@@ -33,7 +33,7 @@ export default function VehiclePurchaseOrderTable({
           warehouse: false,
           sede: false,
           status: true,
-          credit_note_dynamics: false,
+          credit_note_dynamics: true,
           creator_name: false,
         }}
       >
