@@ -1,22 +1,17 @@
-import { MapPin, Battery, Gauge } from "lucide-react";
-import { DriverRowProps } from "../lib/monitoreo.interface";
+import { MapPin, Battery, Gauge, History } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { DriverAvatar } from "./DriverAvatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-//import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { DriverRowProps } from "../lib/monitoreo.interface";
 
 
-
-export function DriverRow({ driver, onViewOnMap }: DriverRowProps) {
+export function DriverRow({ driver, onViewOnMap, onShowHistory }: DriverRowProps) {
     const { last_location } = driver;
 
     const coords = last_location?.coordinates || "No disponible";
     const hasLocation = !!last_location?.latitude && !!last_location?.longitude;
     const batteryLevel = last_location?.battery_level;
-
-    //permisos
-    //const permissions = useModulePermissions("monitoreo");
 
     return (
         <tr className="border-b border-border transition-colors hover:bg-muted/50">
@@ -83,27 +78,22 @@ export function DriverRow({ driver, onViewOnMap }: DriverRowProps) {
                         <span className="text-xs text-muted-foreground">—</span>
                     )}
 
-                    {/* {canUpdate && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <DeviceManagementDialog
-                                    driver={driver}
-                                    onSuccess={onRefresh}
-                                    trigger={
-                                        <Button variant='outline' size="sm" className="gap-1.5">
-                                            <Smartphone className={`h-4 w-4 ${driver.device_id ? "text-green-500" : "text-gray-400"}`} />
-                                            <span className="text-xs">
-                                                {driver.device_id ? "Cambiar" : "Activar"}
-                                            </span>
-                                        </Button>
-                                    }
-                                />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{driver.device_id ? "Cambiar dispositivo" : "Activar dispositivo"}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    )} */}
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onShowHistory?.(driver)}
+                                className="gap-1.5"
+                            >
+                                <History className="h-4 w-4 text-purple-500" />
+                                <span className="text-xs">Historial</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Ver historial de ruta</p>
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
             </td>
         </tr>

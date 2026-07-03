@@ -1,4 +1,4 @@
-import { Battery, BatteryWarning, Crosshair, MapPin } from "lucide-react";
+import { Battery, BatteryWarning, Crosshair, History, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DriverAvatar } from "./DriverAvatar";
 import { DriverListCardProps, DriverStatus } from "../lib/monitoreo.interface";
@@ -20,7 +20,7 @@ function formatCoordinate(coord: number | string | null | undefined): string {
 }
 
 
-export function DriverListCard({ driver, selected, onSelect, onCenter }: DriverListCardProps) {
+export function DriverListCard({ driver, selected, onSelect, onCenter, onHistory }: DriverListCardProps) {
     const location = driver.last_location;
     const lowBattery = (location?.battery_level ?? 100) < 20;
     const statusInfo = statusConfig[driver.status];
@@ -84,7 +84,7 @@ export function DriverListCard({ driver, selected, onSelect, onCenter }: DriverL
                 >
                     <Crosshair className="mr-1 h-3 w-3" /> Centrar
                 </Button>
-                {/* <Button
+                <Button
                     size="sm"
                     variant="ghost"
                     className="h-7 flex-1 text-xs"
@@ -94,7 +94,7 @@ export function DriverListCard({ driver, selected, onSelect, onCenter }: DriverL
                     }}
                 >
                     <History className="mr-1 h-3 w-3" /> Historial
-                </Button> */}
+                </Button>
             </div>
         </div>
     );
