@@ -63,7 +63,7 @@ export const EvaluationCompetenceDetailColumns =
           "-";
         return (
           <Badge color={color} className="text-xs">
-            {label}
+            {typeof label === "function" ? label() : label}
           </Badge>
         );
       },
