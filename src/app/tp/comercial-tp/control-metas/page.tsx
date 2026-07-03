@@ -8,7 +8,6 @@ import GoalTravelModal from "@/features/tp/comercial/ControlMetas/components/Goa
 import GoalTravelOptions from "@/features/tp/comercial/ControlMetas/components/GoalTravelOptions";
 import GoalTravelTable from "@/features/tp/comercial/ControlMetas/components/GoalTravelTable";
 import { deleteGoalTravel } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.actions";
-import { GOALTRAVELCONTROL } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.constants";
 import { useGoalTravelControl } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.hook";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -40,8 +39,7 @@ export default function ControlGoalPage() {
   const [updateId, setUpdateId] = useState<number | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { ROUTE } = GOALTRAVELCONTROL;
-  const permissions = useModulePermissions(ROUTE);
+  const permissions = useModulePermissions("control-metas");
 
   useEffect(() => {
     setPage(1);
@@ -89,7 +87,7 @@ export default function ControlGoalPage() {
   const availableYears = data?.available_years || [];
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) notFound();
+  if (!checkRouteExists("control-metas")) notFound();
   if (!currentView) notFound();
 
   return (
