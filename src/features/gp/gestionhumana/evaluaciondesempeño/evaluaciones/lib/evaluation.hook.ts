@@ -12,11 +12,11 @@ import {
   getCategoriesInEvaluation,
   getEligibleWorkersInEvaluation,
   getEvaluation,
-  getEvaluationCompetenceDetails,
+  getEvaluationCompetenceDetailsGrouped,
   getPersonsInEvaluation,
   getPositionsInEvaluation,
 } from "./evaluation.actions";
-import { EvaluationPersonCompetenceDetailResponse } from "./evaluationPersonCompetenceDetail.interface";
+import { EvaluationPersonCompetenceDetailGroupedResponse } from "./evaluationPersonCompetenceDetail.interface";
 import { EVALUATION } from "./evaluation.constans";
 import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
 
@@ -84,14 +84,14 @@ export const useEligibleWorkersInEvaluation = (
   });
 };
 
-export const useEvaluationCompetenceDetails = (
+export const useEvaluationCompetenceDetailsGrouped = (
   idEvaluation: number,
   params?: Record<string, any>
 ) => {
-  return useQuery<EvaluationPersonCompetenceDetailResponse>({
-    queryKey: ["evaluation", idEvaluation, "competences", params],
+  return useQuery<EvaluationPersonCompetenceDetailGroupedResponse>({
+    queryKey: ["evaluation", idEvaluation, "competences", "grouped", params],
     queryFn: () =>
-      getEvaluationCompetenceDetails(idEvaluation.toString(), params),
+      getEvaluationCompetenceDetailsGrouped(idEvaluation.toString(), params),
     enabled: !!idEvaluation,
   });
 };

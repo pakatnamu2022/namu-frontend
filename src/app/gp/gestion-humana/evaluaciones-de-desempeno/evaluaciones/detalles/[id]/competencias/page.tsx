@@ -17,13 +17,12 @@ import { Trash2 } from "lucide-react";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import {
   useEvaluation,
-  useEvaluationCompetenceDetails,
+  useEvaluationCompetenceDetailsGrouped,
   usePersonsInEvaluation,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
 import { destroyManyPersonCompetenceDetails } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
-import EvaluationCompetenceDetailTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationCompetenceDetailTable";
-import { EvaluationCompetenceDetailColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationCompetenceDetailColumns";
+import EvaluationCompetenceDetailGroupedList from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationCompetenceDetailGroupedList";
 import EvaluationCompetenceDetailOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationCompetenceDetailOptions";
 import { DeletePersonCompetenceDetailDialog } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/DeletePersonCompetenceDetailDialog";
 
@@ -53,7 +52,7 @@ export default function EvaluationCompetenceDetailPage() {
 
   const { data: evaluation } = useEvaluation(idEvaluation);
 
-  const { data, isLoading, refetch } = useEvaluationCompetenceDetails(
+  const { data, isLoading, refetch } = useEvaluationCompetenceDetailsGrouped(
     idEvaluation,
     {
       page,
@@ -71,9 +70,26 @@ export default function EvaluationCompetenceDetailPage() {
   const { data: competences = [], isLoading: isLoadingCompetences } =
     useAllCompetences();
 
+  const groups = data?.data || [];
+
   const selectedIds = Object.keys(rowSelection).map(Number);
-  const selectedRecords = (data?.data || []).filter(
-    (record) => rowSelection[String(record.id)],
+  const selectedRecords = groups.flatMap((group) =>
+    group.subcompetences
+      .filter((sub) => rowSelection[String(sub.id)])
+      .map((sub) => ({
+        id: sub.id,
+        evaluation_id: idEvaluation,
+        evaluator_id: sub.evaluator_id,
+        person_id: group.person_id,
+        competence_id: group.competence_id,
+        sub_competence_id: sub.sub_competence_id,
+        person: group.person,
+        evaluator: sub.evaluator,
+        competence: group.competence,
+        sub_competence: sub.sub_competence,
+        evaluatorType: sub.evaluatorType,
+        result: sub.result,
+      })),
   );
 
   const handleDelete = async (cascade: boolean) => {
@@ -98,7 +114,12 @@ export default function EvaluationCompetenceDetailPage() {
     }
   };
 
-  if (isLoadingModule || isLoadingPersons || isLoadingCompetences || !evaluation)
+  if (
+    isLoadingModule ||
+    isLoadingPersons ||
+    isLoadingCompetences ||
+    !evaluation
+  )
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -126,26 +147,25 @@ export default function EvaluationCompetenceDetailPage() {
         )}
       </HeaderTableWrapper>
 
-      <EvaluationCompetenceDetailTable
+      <EvaluationCompetenceDetailOptions
+        search={search}
+        setSearch={setSearch}
+        persons={persons}
+        personId={personId}
+        setPersonId={setPersonId}
+        competences={competences}
+        competenceId={competenceId}
+        setCompetenceId={setCompetenceId}
+        evaluatorType={evaluatorType}
+        setEvaluatorType={setEvaluatorType}
+      />
+
+      <EvaluationCompetenceDetailGroupedList
+        groups={groups}
         isLoading={isLoading}
-        columns={EvaluationCompetenceDetailColumns()}
-        data={data?.data || []}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
-      >
-        <EvaluationCompetenceDetailOptions
-          search={search}
-          setSearch={setSearch}
-          persons={persons}
-          personId={personId}
-          setPersonId={setPersonId}
-          competences={competences}
-          competenceId={competenceId}
-          setCompetenceId={setCompetenceId}
-          evaluatorType={evaluatorType}
-          setEvaluatorType={setEvaluatorType}
-        />
-      </EvaluationCompetenceDetailTable>
+      />
 
       <DeletePersonCompetenceDetailDialog
         open={openDelete}

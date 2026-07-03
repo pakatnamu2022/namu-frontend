@@ -434,7 +434,10 @@ export function ItemsSection({
                 className="min-h-[100px] resize-none uppercase"
                 value={newItem.descripcion}
                 onChange={(e) =>
-                  setNewItem({ ...newItem, descripcion: e.target.value })
+                  setNewItem({
+                    ...newItem,
+                    descripcion: e.target.value.toUpperCase(),
+                  })
                 }
                 onInput={adjustTextareaHeight}
               />
