@@ -40,8 +40,7 @@ export default function ControlGoalPage() {
   const [updateId, setUpdateId] = useState<number | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { ROUTE } = GOALTRAVELCONTROL;
-  const permissions = useModulePermissions(ROUTE);
+  const permissions = useModulePermissions("control-metas");
 
   useEffect(() => {
     setPage(1);
@@ -89,7 +88,7 @@ export default function ControlGoalPage() {
   const availableYears = data?.available_years || [];
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) notFound();
+  if (!checkRouteExists("control-metas")) notFound();
   if (!currentView) notFound();
 
   return (
