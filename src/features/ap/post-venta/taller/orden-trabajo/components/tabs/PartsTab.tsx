@@ -707,123 +707,125 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h3 className="text-lg font-semibold">Repuestos Registrados</h3>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadPartsReportPdf}
-              disabled={isDownloadingPdf}
-              className="gap-2"
-            >
-              {isDownloadingPdf ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <FileDown className="size-4" />
-              )}
-              Reporte PDF
-            </Button>
-
-            {permissions.canAssignSparePartsOT &&
-              filteredParts.some((p) => !p.part_fully_delivered) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setAssignBulkSheetOpen(true)}
-                  className="gap-2"
-                >
-                  <UserCheck className="size-4" />
-                  Asignar a técnico (masivo)
-                </Button>
-              )}
-
-            {hasMultipleItems && (
-              <div className="flex items-center gap-2 flex-wrap">
-                {globalRequest ? (
-                  <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
-                    <span className="text-muted-foreground text-xs">
-                      Desc. global:
-                    </span>
-                    <span className="font-semibold">
-                      {Number(
-                        globalRequest.requested_discount_percentage,
-                      ).toFixed(2)}
-                      %
-                    </span>
-                    {renderStatusBadge(globalRequest.status)}
-                    {globalRequest.status === "pending" && (
-                      <>
-                        {permissions.canApprove && (
-                          <ConfirmationDialog
-                            trigger={
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                                tooltip="Aprobar solicitud global"
-                                disabled={isApproving}
-                              >
-                                <CheckCircle className="size-4" />
-                              </Button>
-                            }
-                            title="¿Aprobar solicitud?"
-                            description="Se aprobará el descuento global para los repuestos. ¿Deseas continuar?"
-                            confirmText="Sí, aprobar"
-                            cancelText="Cancelar"
-                            icon="info"
-                            onConfirm={() => doApprove(globalRequest.id)}
-                          />
-                        )}
-                        {permissions.canEditDiscount && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7"
-                            tooltip="Editar solicitud global"
-                            onClick={() => handleOpenEdit(globalRequest)}
-                          >
-                            <Pencil className="size-4" />
-                          </Button>
-                        )}
-                        {permissions.canReject && (
-                          <ConfirmationDialog
-                            trigger={
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                tooltip="Rechazar solicitud global"
-                                disabled={isRejecting}
-                              >
-                                <XCircle className="size-4" />
-                              </Button>
-                            }
-                            title="¿Rechazar solicitud?"
-                            description="Se rechazará el descuento global para los repuestos. ¿Deseas continuar?"
-                            confirmText="Sí, rechazar"
-                            cancelText="Cancelar"
-                            variant="destructive"
-                            icon="danger"
-                            onConfirm={() => doReject(globalRequest.id)}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadPartsReportPdf}
+                disabled={isDownloadingPdf}
+                className="gap-2"
+              >
+                {isDownloadingPdf ? (
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  permissions.canRequest &&
-                  !hasPartialRequests && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenCreate(TYPE_GLOBAL)}
-                      className="gap-2"
-                    >
-                      <Percent className="size-4" />
-                      Desc. global
-                    </Button>
-                  )
+                  <FileDown className="size-4" />
                 )}
-              </div>
-            )}
+                Reporte PDF
+              </Button>
+
+              {permissions.canAssignSparePartsOT &&
+                filteredParts.some((p) => !p.part_fully_delivered) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAssignBulkSheetOpen(true)}
+                    className="gap-2"
+                  >
+                    <UserCheck className="size-4" />
+                    Asignar a técnico (masivo)
+                  </Button>
+                )}
+
+              {hasMultipleItems && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {globalRequest ? (
+                    <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
+                      <span className="text-muted-foreground text-xs">
+                        Desc. global:
+                      </span>
+                      <span className="font-semibold">
+                        {Number(
+                          globalRequest.requested_discount_percentage,
+                        ).toFixed(2)}
+                        %
+                      </span>
+                      {renderStatusBadge(globalRequest.status)}
+                      {globalRequest.status === "pending" && (
+                        <>
+                          {permissions.canApprove && (
+                            <ConfirmationDialog
+                              trigger={
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                  tooltip="Aprobar solicitud global"
+                                  disabled={isApproving}
+                                >
+                                  <CheckCircle className="size-4" />
+                                </Button>
+                              }
+                              title="¿Aprobar solicitud?"
+                              description="Se aprobará el descuento global para los repuestos. ¿Deseas continuar?"
+                              confirmText="Sí, aprobar"
+                              cancelText="Cancelar"
+                              icon="info"
+                              onConfirm={() => doApprove(globalRequest.id)}
+                            />
+                          )}
+                          {permissions.canEditDiscount && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7"
+                              tooltip="Editar solicitud global"
+                              onClick={() => handleOpenEdit(globalRequest)}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                          {permissions.canReject && (
+                            <ConfirmationDialog
+                              trigger={
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  tooltip="Rechazar solicitud global"
+                                  disabled={isRejecting}
+                                >
+                                  <XCircle className="size-4" />
+                                </Button>
+                              }
+                              title="¿Rechazar solicitud?"
+                              description="Se rechazará el descuento global para los repuestos. ¿Deseas continuar?"
+                              confirmText="Sí, rechazar"
+                              cancelText="Cancelar"
+                              variant="destructive"
+                              icon="danger"
+                              onConfirm={() => doReject(globalRequest.id)}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    permissions.canRequest &&
+                    !hasPartialRequests && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenCreate(TYPE_GLOBAL)}
+                        className="gap-2"
+                      >
+                        <Percent className="size-4" />
+                        Desc. global
+                      </Button>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {filteredParts[0]?.warehouse_name && (
