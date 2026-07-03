@@ -16,8 +16,8 @@ import { MONTHS } from "../lib/GoalTravelControl.constants";
 import { Badge } from "@/components/ui/badge";
 
 export default function ComparativaMensual() {
-    const [year, setYear] = useState<number>(2024);
-    const [month, setMonth] = useState<number>(3);
+    const [year, setYear] = useState<number>(new Date().getFullYear());
+    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
     const { data, isLoading, error } = useComparativaMensual(year, month);
     const { data: availableYears = [] } = useAvailableYearsGoalTravel();
 
