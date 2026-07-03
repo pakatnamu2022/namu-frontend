@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import RegenerateEvaluationSheet from "./RegenerateEvaluationSheet";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
+import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
 import EvaluationEligibleWorkersSheet from "../../evaluaciones/components/EvaluationEligibleWorkersSheet";
 
 interface RegenerateEvaluationParams {
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const { ABSOLUTE_ROUTE } = EVALUATION;
+const { ABSOLUTE_ROUTE: EVALUATION_PERSON_ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
 export default function EvaluationPersonActions({
   idEvaluation,
@@ -43,6 +45,13 @@ export default function EvaluationPersonActions({
         <Button size="sm" variant="outline" color="primary">
           <LayoutDashboard className="w-4 h-4" />
           Dashboard
+        </Button>
+      </Link>
+
+      <Link to={`${EVALUATION_PERSON_ABSOLUTE_ROUTE}/${idEvaluation}/competencias`}>
+        <Button size="sm" variant="outline">
+          <TrendingUp className="w-4 h-4" />
+          Ver Competencias
         </Button>
       </Link>
       <RegenerateEvaluationSheet

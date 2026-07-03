@@ -18,6 +18,21 @@ export const EVALUATION: ModelComplete = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+export const PERSON_COMPETENCE_DETAIL_ENDPOINT =
+  "/gp/gh/performanceEvaluation/personCompetenceDetail";
+
+export const EVALUATOR_TYPE_JEFE = { value: "0", label: "Jefe" };
+export const EVALUATOR_TYPE_AUTO = { value: "1", label: "Auto" };
+export const EVALUATOR_TYPE_COMPANEROS = { value: "2", label: "Compañeros" };
+export const EVALUATOR_TYPE_REPORTES = { value: "3", label: "Reportes" };
+
+export const EVALUATOR_TYPES: Option[] = [
+  EVALUATOR_TYPE_JEFE,
+  EVALUATOR_TYPE_AUTO,
+  EVALUATOR_TYPE_COMPANEROS,
+  EVALUATOR_TYPE_REPORTES,
+];
+
 export const EVALUATION_OBJECTIVE = {
   ID: "0",
   NAME: "Evaluación de Objetivos",

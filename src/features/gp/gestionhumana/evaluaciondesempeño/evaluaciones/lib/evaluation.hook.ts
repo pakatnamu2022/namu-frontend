@@ -12,9 +12,11 @@ import {
   getCategoriesInEvaluation,
   getEligibleWorkersInEvaluation,
   getEvaluation,
+  getEvaluationCompetenceDetailsGrouped,
   getPersonsInEvaluation,
   getPositionsInEvaluation,
 } from "./evaluation.actions";
+import { EvaluationPersonCompetenceDetailGroupedResponse } from "./evaluationPersonCompetenceDetail.interface";
 import { EVALUATION } from "./evaluation.constans";
 import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
 
@@ -79,6 +81,18 @@ export const useEligibleWorkersInEvaluation = (
     queryFn: () => getEligibleWorkersInEvaluation(idEvaluation),
     refetchOnWindowFocus: false,
     enabled,
+  });
+};
+
+export const useEvaluationCompetenceDetailsGrouped = (
+  idEvaluation: number,
+  params?: Record<string, any>
+) => {
+  return useQuery<EvaluationPersonCompetenceDetailGroupedResponse>({
+    queryKey: ["evaluation", idEvaluation, "competences", "grouped", params],
+    queryFn: () =>
+      getEvaluationCompetenceDetailsGrouped(idEvaluation.toString(), params),
+    enabled: !!idEvaluation,
   });
 };
 

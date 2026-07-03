@@ -23,9 +23,9 @@ export type EvaluationPersonCompetenceColumns = ColumnDef<Subcompetence>;
 const scoreColors = ["orange", "amber", "lime", "emerald"] as const;
 const scoreLabels = [
   "No Cumple",
-  "Necesita desarrollo",
-  "Satisfactorio",
-  "Excelente",
+  "Cumple parcialmente",
+  "Cumple",
+  "Cumple con excelencia",
 ] as const;
 
 function EvaluationCell({

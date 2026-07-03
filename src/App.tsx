@@ -26,6 +26,7 @@ import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desemp
 import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
 import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page";
+import EvaluationCompetenceDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/competencias/page";
 import AgendaPage from "./app/ap/comercial/agenda/page";
 import OpportunitiesKanbanPage from "./app/ap/comercial/agenda/oportunidades/page";
 import AddOpportunityPage from "./app/ap/comercial/agenda/oportunidades/agregar/page";
@@ -1945,6 +1946,10 @@ function App() {
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones/detalles/:id"
                 element={<EvaluationDetailPage />}
+              />
+              <Route
+                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/competencias"
+                element={<EvaluationCompetenceDetailPage />}
               />
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/:person"
