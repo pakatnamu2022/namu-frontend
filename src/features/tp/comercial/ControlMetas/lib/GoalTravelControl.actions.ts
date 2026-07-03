@@ -1,14 +1,164 @@
 import { api } from "@/core/api";
 import { GOALTRAVELCONTROL } from "./GoalTravelControl.constants";
 import {
+  AlertasCumplimiento,
+  ComparativaMensualResponse,
+  DashboardGoalTravelControlResponse,
   GoalTravelControlResource,
   GoalTravelControlResponse,
+  RankingConductor,
+  ViajesNoFacturadosResponse,
   getGoalTravelControlProps,
 } from "./GoalTravelControl.interface";
 import { AxiosRequestConfig } from "axios";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 
 const { ENDPOINT } = GOALTRAVELCONTROL;
+
+export async function getDashboardGoalTravel({
+  params,
+}: getGoalTravelControlProps): Promise<DashboardGoalTravelControlResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  try {
+    const response = await api.get<DashboardGoalTravelControlResponse>(ENDPOINT + "/dashboard", config);
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`,
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
+export async function getRankingGoalTravel({
+  params,
+}: getGoalTravelControlProps): Promise<RankingConductor[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  try {
+    const response = await api.get<RankingConductor[]>(
+      ENDPOINT + "/ranking",
+      config
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
+export async function getAlertsGoalTravel(): Promise<AlertasCumplimiento> {
+  try {
+    const response = await api.get<AlertasCumplimiento>(
+      ENDPOINT + "/alerts"
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
+export async function getComparativaMensual({
+  params,
+}: getGoalTravelControlProps): Promise<ComparativaMensualResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  try {
+    const response = await api.get<ComparativaMensualResponse>(
+      ENDPOINT + "/comparativa-mensual",
+      config
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
+export async function getViajesNoFacturados({
+  params,
+}: getGoalTravelControlProps): Promise<ViajesNoFacturadosResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  try {
+    const response = await api.get<ViajesNoFacturadosResponse>(
+      ENDPOINT + "/viajes-no-facturados",
+      config
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
+
+export async function getAvailableYearsGoalTravel(): Promise<number[]> {
+  try {
+    const response = await api.get<number[]>(
+      ENDPOINT + "/available-years"
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
 
 export async function getGoalTravel({
   params,
@@ -73,3 +223,4 @@ export async function updateGoalTravel(
   );
   return response.data;
 }
+
