@@ -205,7 +205,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
 
     try {
       setIsDownloading(true);
-      await downloadOrderReceiptPdf(inspection.id);
+      await downloadOrderReceiptPdf(workOrderId);
       successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);

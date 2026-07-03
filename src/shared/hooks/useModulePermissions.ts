@@ -244,8 +244,8 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite revertir descuentos aplicados a cotizaciones",
   },
   {
-    value: "removeLabor",
-    label: "Eliminar Mano de Obra",
+    value: "removeSparePartLabor",
+    label: "Eliminar Mano de Obra Cotización",
     icon: "Trash2",
     description: "Permite eliminar detalles de mano de obra de una cotización",
   },
@@ -254,6 +254,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     label: "Ver Externo",
     icon: "Eye",
     description: "Permite ver información de manera externa",
+  },
+  {
+    value: "removeSparePartQuote",
+    label: "Eliminar Repuesto Cotización",
+    icon: "Trash2",
+    description: "Permite eliminar repuestos de una cotización",
   },
 ];
 
@@ -330,7 +336,8 @@ export function useModulePermissions(moduleCode: string) {
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
     canReverseDiscount: hasModulePermission("reverseDiscount"),
-    canRemoveLabor: hasModulePermission("removeLabor"),
+    canRemoveSparePartLabor: hasModulePermission("removeSparePartLabor"),
     canViewExternal: hasModulePermission("viewExternal"),
+    canRemoveSparePartQuote: hasModulePermission("removeSparePartQuote"),
   };
 }

@@ -75,7 +75,8 @@ interface LaborDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canRemoveLabor: boolean;
+    canRemoveSparePartQuote: boolean;
+    canRemoveSparePartLabor: boolean;
     canReverseDiscount?: boolean;
   };
 }
@@ -593,6 +594,7 @@ export default function LaborDetailsSection({
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
+          itemType="LABOR"
           isApproving={isApproving}
           isRejecting={isRejecting}
           isReverting={isReverting}

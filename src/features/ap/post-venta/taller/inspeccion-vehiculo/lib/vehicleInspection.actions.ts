@@ -8,8 +8,10 @@ import {
   VehicleInspectionRequest,
 } from "./vehicleInspection.interface";
 import { VEHICLE_INSPECTION } from "./vehicleInspection.constants";
+import { WORKER_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
 
 const { ENDPOINT } = VEHICLE_INSPECTION;
+const { ENDPOINT: WORK_ORDER_ENDPOINT } = WORKER_ORDER;
 
 export async function getVehicleInspection({
   params,
@@ -109,10 +111,15 @@ export async function uploadInspectionPhoto(
   return response.data;
 }
 
-export async function downloadVehicleInspectionPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/reception-report`, {
-    responseType: "blob",
-  });
+export async function downloadVehicleInspectionPdf(
+  workOrderId: number
+): Promise<void> {
+  const response = await api.get(
+    `${WORK_ORDER_ENDPOINT}/${workOrderId}/reception-report`,
+    {
+      responseType: "blob",
+    }
+  );
 
   // Crear un blob desde la respuesta
   const blob = new Blob([response.data], { type: "application/pdf" });
@@ -121,7 +128,7 @@ export async function downloadVehicleInspectionPdf(id: number): Promise<void> {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `recepcion-vehiculo-${id}.pdf`);
+  link.setAttribute("download", `recepcion-vehiculo-${workOrderId}.pdf`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);
@@ -132,17 +139,22 @@ export async function downloadVehicleInspectionPdf(id: number): Promise<void> {
   window.URL.revokeObjectURL(url);
 }
 
-export async function downloadOrderReceiptPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/order-receipt`, {
-    responseType: "blob",
-  });
+export async function downloadOrderReceiptPdf(
+  workOrderId: number
+): Promise<void> {
+  const response = await api.get(
+    `${WORK_ORDER_ENDPOINT}/${workOrderId}/order-receipt`,
+    {
+      responseType: "blob",
+    }
+  );
 
   const blob = new Blob([response.data], { type: "application/pdf" });
 
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `orden-recepcion-personal-${id}.pdf`);
+  link.setAttribute("download", `orden-recepcion-personal-${workOrderId}.pdf`);
 
   document.body.appendChild(link);
   link.click();

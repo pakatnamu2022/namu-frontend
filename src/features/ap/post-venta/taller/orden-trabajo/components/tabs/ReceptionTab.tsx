@@ -81,7 +81,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
     try {
       setIsDownloading(true);
-      await downloadVehicleInspectionPdf(inspection.id);
+      await downloadVehicleInspectionPdf(workOrderId);
       successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);

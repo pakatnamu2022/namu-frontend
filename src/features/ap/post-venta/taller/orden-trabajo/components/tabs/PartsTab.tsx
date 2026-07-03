@@ -13,6 +13,7 @@ import {
   XCircle,
   Percent,
   UserCheck,
+  FileDown,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,10 +39,12 @@ import {
   storeBulkFromQuotation,
   deleteWorkOrderParts,
   updateWorkOrderParts,
+  downloadWorkOrderPartsReportPdf,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
 import { EditableCell } from "@/shared/components/EditableCell";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { AssignPartToTechnicianSheet } from "../AssignPartToTechnicianSheet";
+import { AssignPartsBulkSheet } from "../AssignPartsBulkSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
@@ -103,6 +106,24 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   }) => {
     setAssignPart(part);
     setAssignSheetOpen(true);
+  };
+
+  // Sheet asignar repuestos a técnico (masivo)
+  const [assignBulkSheetOpen, setAssignBulkSheetOpen] = useState(false);
+
+  // Descarga de reporte PDF de repuestos
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+
+  const handleDownloadPartsReportPdf = async () => {
+    setIsDownloadingPdf(true);
+    try {
+      await downloadWorkOrderPartsReportPdf(workOrderId);
+      successToast("PDF descargado correctamente");
+    } catch {
+      errorToast("Error al descargar el PDF del reporte de repuestos");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   };
 
   // Modal de descuento
@@ -686,6 +707,34 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h3 className="text-lg font-semibold">Repuestos Registrados</h3>
 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPartsReportPdf}
+              disabled={isDownloadingPdf}
+              className="gap-2"
+            >
+              {isDownloadingPdf ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <FileDown className="size-4" />
+              )}
+              Reporte PDF
+            </Button>
+
+            {permissions.canAssignSparePartsOT &&
+              filteredParts.some((p) => !p.part_fully_delivered) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAssignBulkSheetOpen(true)}
+                  className="gap-2"
+                >
+                  <UserCheck className="size-4" />
+                  Asignar a técnico (masivo)
+                </Button>
+              )}
+
             {hasMultipleItems && (
               <div className="flex items-center gap-2 flex-wrap">
                 {globalRequest ? (
@@ -1042,6 +1091,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         workOrderId={workOrderId}
         part={assignPart}
         permission={permissions.canRemoveAssignSparePartsOT}
+      />
+
+      {/* Sheet Asignar Repuestos a Técnico (masivo) */}
+      <AssignPartsBulkSheet
+        open={assignBulkSheetOpen}
+        onClose={() => setAssignBulkSheetOpen(false)}
+        workOrderId={workOrderId}
+        parts={filteredParts}
       />
 
       {/* Modal Solicitar Descuento */}

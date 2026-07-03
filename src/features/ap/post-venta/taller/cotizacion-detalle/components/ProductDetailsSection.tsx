@@ -98,7 +98,8 @@ interface ProductDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canRemoveLabor: boolean;
+    canRemoveSparePartQuote: boolean;
+    canRemoveSparePartLabor: boolean;
     canCreateSpare: boolean;
     canReverseDiscount?: boolean;
   };
@@ -1098,6 +1099,7 @@ export default function ProductDetailsSection({
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
+          itemType="PART"
           isApproving={isApproving}
           isRejecting={isRejecting}
           isReverting={isReverting}
