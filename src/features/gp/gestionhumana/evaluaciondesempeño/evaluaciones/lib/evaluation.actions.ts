@@ -14,7 +14,7 @@ import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-persona
 import { HierarchicalCategoryResource } from "../../categorias-jerarquicas/lib/hierarchicalCategory.interface";
 import {
   DestroyManyPersonCompetenceDetailResponse,
-  EvaluationPersonCompetenceDetailResponse,
+  EvaluationPersonCompetenceDetailGroupedResponse,
 } from "./evaluationPersonCompetenceDetail.interface";
 
 const { ENDPOINT } = EVALUATION;
@@ -211,16 +211,17 @@ export async function sendEvaluationClosed(
   return data;
 }
 
-export async function getEvaluationCompetenceDetails(
+export async function getEvaluationCompetenceDetailsGrouped(
   id: string,
   params?: Record<string, any>
-): Promise<EvaluationPersonCompetenceDetailResponse> {
+): Promise<EvaluationPersonCompetenceDetailGroupedResponse> {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
+      grouped: 1,
     },
   };
-  const { data } = await api.get<EvaluationPersonCompetenceDetailResponse>(
+  const { data } = await api.get<EvaluationPersonCompetenceDetailGroupedResponse>(
     `${ENDPOINT}/${id}/competences`,
     config
   );
