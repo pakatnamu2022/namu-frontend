@@ -1,7 +1,8 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, Camera, X, FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { compressImageFile } from "@/shared/lib/image";
 
 interface FileUploadWithCameraProps {
   label?: string;
@@ -31,6 +32,7 @@ export function FileUploadWithCamera({
 }: FileUploadWithCameraProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   // Generar preview URL usando cache para evitar memory leaks
   const internalPreviewUrl = useMemo(() => {
@@ -71,15 +73,21 @@ export function FileUploadWithCamera({
     return isMobileDevice;
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const localPreviewUrl = URL.createObjectURL(file);
-      objectUrlCache.set(file, localPreviewUrl);
-      onChange(file, localPreviewUrl);
-    }
-    // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
+    // Limpiar el input antes del await: el SyntheticEvent se recicla tras ceder el hilo
     e.target.value = "";
+    if (!file) return;
+
+    setIsCompressing(true);
+    try {
+      const processedFile = await compressImageFile(file);
+      const localPreviewUrl = URL.createObjectURL(processedFile);
+      objectUrlCache.set(processedFile, localPreviewUrl);
+      onChange(processedFile, localPreviewUrl);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleRemoveFile = () => {
@@ -137,7 +145,7 @@ export function FileUploadWithCamera({
                 variant="destructive"
                 className="absolute top-2 right-2"
                 onClick={handleRemoveFile}
-                disabled={disabled}
+                disabled={disabled || isCompressing}
                 type="button"
               >
                 <X className="h-4 w-4 mr-1" />
@@ -165,7 +173,7 @@ export function FileUploadWithCamera({
               accept={accept}
               className="hidden"
               onChange={handleFileChange}
-              disabled={disabled}
+              disabled={disabled || isCompressing}
             />
 
             {/* Input oculto para capturar desde cámara */}
@@ -177,7 +185,7 @@ export function FileUploadWithCamera({
                 capture="environment"
                 className="hidden"
                 onChange={handleFileChange}
-                disabled={disabled}
+                disabled={disabled || isCompressing}
               />
             )}
 
@@ -188,7 +196,7 @@ export function FileUploadWithCamera({
                   type="button"
                   variant="outline"
                   onClick={handleUploadClick}
-                  disabled={disabled}
+                  disabled={disabled || isCompressing}
                   className="h-32 border-2 border-dashed"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -204,7 +212,7 @@ export function FileUploadWithCamera({
                   type="button"
                   variant="outline"
                   onClick={handleCameraClick}
-                  disabled={disabled}
+                  disabled={disabled || isCompressing}
                   className="h-32 border-2 border-dashed"
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -221,7 +229,7 @@ export function FileUploadWithCamera({
                 type="button"
                 variant="outline"
                 onClick={handleUploadClick}
-                disabled={disabled}
+                disabled={disabled || isCompressing}
                 className="w-full h-32 border-2 border-dashed"
               >
                 <div className="flex flex-col items-center gap-2">
