@@ -818,35 +818,8 @@ export function WorkerTimeline({
 
       {selectionMode && onEstimatedHoursChange && (
         <div className="space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
-          {/* Duración y Orden de Trabajo */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label
-                htmlFor="estimated-hours"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Duración de la tarea
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="estimated-hours"
-                  type="number"
-                  min="0.5"
-                  step="0.5"
-                  value={Number(estimatedHours.toFixed(2))}
-                  onChange={(e) =>
-                    onEstimatedHoursChange(
-                      Math.round(Number(e.target.value) * 100) / 100,
-                    )
-                  }
-                  className="w-24 text-center font-semibold"
-                />
-                <span className="text-sm text-slate-600 font-medium">
-                  horas
-                </span>
-              </div>
-            </div>
-
+          {/* Orden de Trabajo -> Duración -> Trabajo a Realizar (en ese orden de flujo) */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_140px_1.7fr] gap-4 items-start">
             <div className="space-y-2">
               <Label
                 htmlFor="work-order"
@@ -942,108 +915,157 @@ export function WorkerTimeline({
                 </PopoverContent>
               </Popover>
             </div>
-          </div>
 
-          {/* Selector de Grupo si hay más de uno */}
-          {selectedWorkOrder && availableGroups.length > 1 && (
-            <div className="space-y-2 p-4 bg-white rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Seleccionar Grupo
-              </Label>
-              <RadioGroup
-                value={selectedGroup?.toString() || ""}
-                onValueChange={(value) => {
-                  setSelectedGroup(Number(value));
-                  setSelectedItemId(null);
-                }}
+            <div className="space-y-2">
+              <Label
+                htmlFor="estimated-hours"
+                className="text-sm font-semibold text-slate-700"
               >
-                <div className="flex flex-wrap gap-2">
-                  {availableGroups.map((group) => {
-                    const itemCount = selectedWorkOrder.items.filter(
-                      (item) => item.group_number === group,
-                    ).length;
-                    return (
-                      <div key={group} className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value={group.toString()}
-                          id={`group-${group}`}
-                        />
-                        <Label
-                          htmlFor={`group-${group}`}
-                          className="cursor-pointer font-medium text-sm"
-                        >
-                          Grupo {group}{" "}
-                          <span className="text-muted-foreground">
-                            ({itemCount} trabajos)
-                          </span>
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </RadioGroup>
+                Duración de la tarea
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="estimated-hours"
+                  type="number"
+                  min="0.5"
+                  step="0.5"
+                  value={Number(estimatedHours.toFixed(2))}
+                  onChange={(e) =>
+                    onEstimatedHoursChange(
+                      Math.round(Number(e.target.value) * 100) / 100,
+                    )
+                  }
+                  className="w-24 text-center font-semibold"
+                />
+                <span className="text-sm text-slate-600 font-medium">
+                  horas
+                </span>
+              </div>
             </div>
-          )}
 
-          {/* Lista de Descripciones */}
-          {selectedWorkOrder && activeGroup !== null && (
-            <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-                <ListChecks className="h-4 w-4" />
-                Seleccionar Descripción de Trabajo
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold text-slate-700">
+                Trabajo a Realizar
               </Label>
-              <RadioGroup
-                value={effectiveSelectedItemId?.toString() || ""}
-                onValueChange={(value) => setSelectedItemId(Number(value))}
-              >
-                <div className="space-y-1 max-h-56 overflow-y-auto">
-                  {filteredItems.length > 0 ? (
-                    filteredItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
-                          effectiveSelectedItemId === item.id
-                            ? "bg-blue-50 border-blue-300"
-                            : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
-                        }`}
-                        onClick={() => handleItemSelect(item.id)}
+
+              {!selectedWorkOrder ? (
+                <div className="flex items-center justify-center min-h-24 rounded-lg border border-dashed border-slate-300 bg-white/50 px-4 py-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Selecciona una orden de trabajo para ver los trabajos
+                    disponibles
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Selector de Grupo si hay más de uno */}
+                  {availableGroups.length > 1 && (
+                    <div className="space-y-2 p-3 bg-white rounded-lg border border-slate-200">
+                      <Label className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                        <Package className="h-3.5 w-3.5" />
+                        Seleccionar Grupo
+                      </Label>
+                      <RadioGroup
+                        value={selectedGroup?.toString() || ""}
+                        onValueChange={(value) => {
+                          setSelectedGroup(Number(value));
+                          setSelectedItemId(null);
+                        }}
                       >
-                        <RadioGroupItem
-                          value={item.id.toString()}
-                          id={`item-${item.id}`}
-                          className="mt-0.5 shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
-                            >
-                              {item.type_planning.description}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
-                            >
-                              {item.type_operation_name}
-                            </Badge>
-                          </div>
-                          <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
-                            {item.description}
-                          </p>
+                        <div className="flex flex-wrap gap-2">
+                          {availableGroups.map((group) => {
+                            const itemCount = selectedWorkOrder.items.filter(
+                              (item) => item.group_number === group,
+                            ).length;
+                            return (
+                              <div
+                                key={group}
+                                className="flex items-center space-x-2"
+                              >
+                                <RadioGroupItem
+                                  value={group.toString()}
+                                  id={`group-${group}`}
+                                />
+                                <Label
+                                  htmlFor={`group-${group}`}
+                                  className="cursor-pointer font-medium text-sm"
+                                >
+                                  Grupo {group}{" "}
+                                  <span className="text-muted-foreground">
+                                    ({itemCount} trabajos)
+                                  </span>
+                                </Label>
+                              </div>
+                            );
+                          })}
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-3">
-                      No hay items disponibles para este grupo
-                    </p>
+                      </RadioGroup>
+                    </div>
                   )}
-                </div>
-              </RadioGroup>
+
+                  {/* Lista de Descripciones */}
+                  {activeGroup !== null && (
+                    <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                        <ListChecks className="h-4 w-4" />
+                        Seleccionar Descripción de Trabajo
+                      </Label>
+                      <RadioGroup
+                        value={effectiveSelectedItemId?.toString() || ""}
+                        onValueChange={(value) =>
+                          setSelectedItemId(Number(value))
+                        }
+                      >
+                        <div className="space-y-1 max-h-56 overflow-y-auto">
+                          {filteredItems.length > 0 ? (
+                            filteredItems.map((item) => (
+                              <div
+                                key={item.id}
+                                className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
+                                  effectiveSelectedItemId === item.id
+                                    ? "bg-blue-50 border-blue-300"
+                                    : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
+                                }`}
+                                onClick={() => handleItemSelect(item.id)}
+                              >
+                                <RadioGroupItem
+                                  value={item.id.toString()}
+                                  id={`item-${item.id}`}
+                                  className="mt-0.5 shrink-0"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                                    >
+                                      {item.type_planning.description}
+                                    </Badge>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                                    >
+                                      {item.type_operation_name}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
+                                    {item.description}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground text-center py-3">
+                              No hay items disponibles para este grupo
+                            </p>
+                          )}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -1675,6 +1697,50 @@ export function WorkerTimeline({
                             <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
                           </div>
                         </div>
+                      );
+                    })()}
+
+                  {/* Botón flotante de confirmación, arriba y fuera del bloque azul,
+                      para no tener que subir hasta el panel superior */}
+                  {selectionMode &&
+                    selectedTime &&
+                    selectedTime.workerId === worker.id &&
+                    (() => {
+                      const confirmEndTime = addWorkHours(
+                        selectedTime.time,
+                        estimatedHours,
+                      );
+                      const confirmStartPos = calculatePositionFromDate(
+                        selectedTime.time,
+                      );
+                      const confirmEndPos = Math.min(
+                        calculatePositionFromDate(confirmEndTime),
+                        100,
+                      );
+                      const confirmCenterPos =
+                        (confirmStartPos + confirmEndPos) / 2;
+                      const fmt = (d: Date) =>
+                        `${format(d, "h")}${format(d, "a").toLowerCase()}`;
+
+                      return (
+                        <button
+                          className={`absolute -top-9 z-50 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-lg whitespace-nowrap ${
+                            canConfirm
+                              ? "bg-primary text-white cursor-pointer animate-pulse hover:animate-none"
+                              : "bg-slate-300 text-slate-500 cursor-not-allowed"
+                          }`}
+                          style={{ left: `${confirmCenterPos}%` }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (canConfirm) handleConfirmSelection();
+                          }}
+                          disabled={!canConfirm}
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                          Confirmar ({fmt(selectedTime.time)} -{" "}
+                          {fmt(confirmEndTime)})
+                        </button>
                       );
                     })()}
 
