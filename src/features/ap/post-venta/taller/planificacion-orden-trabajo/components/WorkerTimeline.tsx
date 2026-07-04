@@ -26,15 +26,16 @@ import {
   Minus,
   MousePointerClick,
   Package,
+  Pencil,
 } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useMemo, useEffect, useRef, useReducer } from "react";
@@ -80,6 +81,12 @@ interface WorkerTimelineProps {
   selectedDate: Date;
   data?: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
+  onEdit?: (planning: WorkOrderPlanningResource) => void;
+  onDelete?: (id: number) => void;
+  permissions?: {
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
   selectionMode?: boolean;
   estimatedHours?: number;
   onTimeSelect?: (
@@ -102,6 +109,9 @@ export function WorkerTimeline({
   onOpenChange,
   selectedDate,
   onPlanningClick,
+  onEdit,
+  onDelete,
+  permissions,
   selectionMode = false,
   estimatedHours = 0,
   onTimeSelect,
@@ -1275,184 +1285,202 @@ export function WorkerTimeline({
                       ? overtimeEndPos - overtimeStartPos
                       : 0;
 
+                    const visibleEdit =
+                      permissions?.canUpdate && planning.status === "planned";
+                    const visibleDelete =
+                      permissions?.canDelete && planning.status === "planned";
+
                     return (
-                      <TooltipProvider key={planning.id}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className="absolute cursor-pointer"
-                              style={{
-                                left: `${startPos}%`,
-                                width: `${width}%`,
-                                top: verticalTop,
-                                transform: "translateY(-50%)",
-                              }}
-                              onClick={() => onPlanningClick?.(planning)}
-                            >
-                              {/* Barra única - color según estado visual */}
-                              <div
-                                className={`h-5 rounded border-2 ${
-                                  isExternal
-                                    ? "border-amber-500 bg-amber-200"
-                                    : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
-                                }`}
-                              ></div>
-
-                              {/* Texto centrado */}
-                              <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
-                                <div className="flex items-center gap-1 px-1">
-                                  <span
-                                    className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
-                                  >
-                                    {planning.work_order_correlative}
-                                  </span>
-                                  {isExternal && (
-                                    <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
-                                      EXT
-                                    </Badge>
-                                  )}
-                                  {getEfficiencyIcon(planning)}
-                                </div>
-                              </div>
-
-                              {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
-                              {hasOvertime && overtimeWidth > 0 && (
-                                <div
-                                  className="absolute top-0 h-5 pointer-events-none z-40"
-                                  style={{
-                                    left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
-                                    width: `${(overtimeWidth / width) * 100}%`,
-                                  }}
-                                >
-                                  <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
-                                    <span className="text-[9px] font-bold text-white px-0.5 truncate">
-                                      +
-                                      {Math.round(
-                                        (parseISO(
-                                          planning.actual_end_datetime!,
-                                        ).getTime() -
-                                          parseISO(
-                                            planning.planned_end_datetime!,
-                                          ).getTime()) /
-                                          60000,
-                                      )}
-                                      m
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                      <HoverCard key={planning.id} openDelay={150}>
+                        <HoverCardTrigger asChild>
+                          <div
+                            className="absolute cursor-pointer"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${width}%`,
+                              top: verticalTop,
+                              transform: "translateY(-50%)",
+                            }}
+                            onClick={() => onPlanningClick?.(planning)}
                           >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <div className="font-semibold">
+                            {/* Barra única - color según estado visual */}
+                            <div
+                              className={`h-5 rounded border-2 ${
+                                isExternal
+                                  ? "border-amber-500 bg-amber-200"
+                                  : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
+                              }`}
+                            ></div>
+
+                            {/* Texto centrado */}
+                            <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
+                              <div className="flex items-center gap-1 px-1">
+                                <span
+                                  className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
+                                >
                                   {planning.work_order_correlative}
-                                </div>
-                                {planning.type === "external" && (
-                                  <Badge className="text-[10px] bg-amber-600 text-white">
-                                    Caso Excepcional
+                                </span>
+                                {isExternal && (
+                                  <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
+                                    EXT
                                   </Badge>
                                 )}
+                                {getEfficiencyIcon(planning)}
                               </div>
-                              <div className="text-sm">
-                                {planning.description}
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div>
-                                  <span className="text-muted-foreground ">
-                                    Planificado:
-                                  </span>
-                                  <p>
-                                    {planning.planned_start_datetime &&
-                                      format(
+                            </div>
+
+                            {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
+                            {hasOvertime && overtimeWidth > 0 && (
+                              <div
+                                className="absolute top-0 h-5 pointer-events-none z-40"
+                                style={{
+                                  left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
+                                  width: `${(overtimeWidth / width) * 100}%`,
+                                }}
+                              >
+                                <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
+                                  <span className="text-[9px] font-bold text-white px-0.5 truncate">
+                                    +
+                                    {Math.round(
+                                      (parseISO(
+                                        planning.actual_end_datetime!,
+                                      ).getTime() -
                                         parseISO(
-                                          planning.planned_start_datetime,
+                                          planning.planned_end_datetime!,
+                                        ).getTime()) /
+                                        60000,
+                                    )}
+                                    m
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent
+                          side="top"
+                          className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <div className="font-semibold">
+                                {planning.work_order_correlative}
+                              </div>
+                              {planning.type === "external" && (
+                                <Badge className="text-[10px] bg-amber-600 text-white">
+                                  Caso Excepcional
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-sm">
+                              {planning.description}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground ">
+                                  Planificado:
+                                </span>
+                                <p>
+                                  {planning.planned_start_datetime &&
+                                    format(
+                                      parseISO(planning.planned_start_datetime),
+                                      "HH:mm",
+                                    )}{" "}
+                                  -{" "}
+                                  {planning.planned_end_datetime &&
+                                    format(
+                                      parseISO(planning.planned_end_datetime),
+                                      "HH:mm",
+                                    )}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Real:
+                                </span>
+                                <p>
+                                  {planning.actual_start_datetime
+                                    ? `${format(
+                                        parseISO(
+                                          planning.actual_start_datetime,
                                         ),
                                         "HH:mm",
-                                      )}{" "}
-                                    -{" "}
-                                    {planning.planned_end_datetime &&
-                                      format(
-                                        parseISO(planning.planned_end_datetime),
-                                        "HH:mm",
-                                      )}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Real:
-                                  </span>
-                                  <p>
-                                    {planning.actual_start_datetime
-                                      ? `${format(
-                                          parseISO(
-                                            planning.actual_start_datetime,
-                                          ),
-                                          "HH:mm",
-                                        )} - ${
-                                          planning.actual_end_datetime
-                                            ? format(
-                                                parseISO(
-                                                  planning.actual_end_datetime,
-                                                ),
-                                                "HH:mm",
-                                              )
-                                            : "En curso"
-                                        }`
-                                      : "No iniciado"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Estimado:
-                                  </span>
-                                  <p>
-                                    {planning.estimated_hours != null
-                                      ? formatDecimalHours(
-                                          planning.estimated_hours,
-                                        )
-                                      : "N/A"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Real:
-                                  </span>
-                                  <p>
-                                    {planning.actual_hours != null
-                                      ? formatDecimalHours(
-                                          planning.actual_hours,
-                                        )
-                                      : "N/A"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Eficiencia:
-                                  </span>
-                                  <p className="flex items-center gap-1">
-                                    {getEfficiencyPercentage(planning)}
-                                    {getEfficiencyIcon(planning)}
-                                  </p>
-                                </div>
+                                      )} - ${
+                                        planning.actual_end_datetime
+                                          ? format(
+                                              parseISO(
+                                                planning.actual_end_datetime,
+                                              ),
+                                              "HH:mm",
+                                            )
+                                          : "En curso"
+                                      }`
+                                    : "No iniciado"}
+                                </p>
                               </div>
-                              <Badge
-                                className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
-                              >
-                                {
-                                  PLANNING_VISUAL_STATE_LABELS[
-                                    getPlanningVisualState(planning)
-                                  ]
-                                }
-                              </Badge>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Estimado:
+                                </span>
+                                <p>
+                                  {planning.estimated_hours != null
+                                    ? formatDecimalHours(
+                                        planning.estimated_hours,
+                                      )
+                                    : "N/A"}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Real:
+                                </span>
+                                <p>
+                                  {planning.actual_hours != null
+                                    ? formatDecimalHours(planning.actual_hours)
+                                    : "N/A"}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Eficiencia:
+                                </span>
+                                <p className="flex items-center gap-1">
+                                  {getEfficiencyPercentage(planning)}
+                                  {getEfficiencyIcon(planning)}
+                                </p>
+                              </div>
                             </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                            <Badge
+                              className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
+                            >
+                              {
+                                PLANNING_VISUAL_STATE_LABELS[
+                                  getPlanningVisualState(planning)
+                                ]
+                              }
+                            </Badge>
+                            {(visibleEdit || visibleDelete) && (
+                              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
+                                {visibleEdit && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => onEdit?.(planning)}
+                                    tooltip="Editar planificación"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                {visibleDelete && (
+                                  <DeleteButton
+                                    onClick={() => onDelete?.(planning.id)}
+                                  />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     );
                   })}
 

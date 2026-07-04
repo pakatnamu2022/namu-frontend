@@ -248,6 +248,9 @@ export default function PlanningPage() {
           <PlanningCalendar
             data={plannings}
             onPlanningClick={handleViewPlanning}
+            onEdit={handleEditPlanning}
+            onDelete={handleDeletePlanning}
+            permissions={permissions}
             onNewPlanning={handleOpenCreatePlanning}
             sedeId={sedeId}
             onRefresh={refetch}
