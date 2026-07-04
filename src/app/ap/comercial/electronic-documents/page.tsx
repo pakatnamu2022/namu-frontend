@@ -72,6 +72,7 @@ export default function ElectronicDocumentsPage() {
   const canCreateCreditNote = permissions.canCreate || false; // Usar mismo permiso que crear
   const canCreateDebitNote = permissions.canCreate || false;
   const canMigrate = permissions.canMigrate || false;
+  const canGenerate = permissions.canGenerate || false;
 
   const { data: documentTypes } = useAllSunatConcepts({
     type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
@@ -169,6 +170,7 @@ export default function ElectronicDocumentsPage() {
           isLoading={isFetching && !isLoading}
           permissions={{
             canCreate: permissions.canCreate || false,
+            canGenerate: canGenerate,
           }}
         />
       </HeaderTableWrapper>
