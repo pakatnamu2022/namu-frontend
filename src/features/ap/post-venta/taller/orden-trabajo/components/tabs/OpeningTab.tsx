@@ -303,17 +303,17 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
             {
               header: "Planificación",
               render: (item) => (
-                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                <div className="text-xs sm:text-sm text-gray-900 max-w-xs line-clamp-2">
                   {item.type_planning.description}
-                </Badge>
+                </div>
               ),
             },
             {
               header: "Operación",
               render: (item) => (
-                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                <div className="text-xs sm:text-sm text-gray-900 max-w-xs line-clamp-2">
                   {item.type_operation_name}
-                </Badge>
+                </div>
               ),
             },
             {
