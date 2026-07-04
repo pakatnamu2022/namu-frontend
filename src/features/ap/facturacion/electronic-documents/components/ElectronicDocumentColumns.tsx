@@ -372,9 +372,8 @@ export const electronicDocumentColumns = ({
         const document = row.original;
 
         const canMigrate =
-          onMigrate &&
-          document.migration_status !== "completed" &&
-          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
+          onMigrate && document.migration_status !== "completed";
+        //  &&          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
 
         const canSendToSunat =
           document.status === "draft" && onSendToSunat && permissions.canSend;
@@ -530,7 +529,9 @@ export const electronicDocumentColumns = ({
             <ConfirmationDialog
               title="Cancelar factura consolidada"
               description="¿Está seguro de que desea cancelar esta factura consolidada? Esta acción no se puede deshacer."
-              onConfirm={() => onCancelConsolidated && onCancelConsolidated(document.id)}
+              onConfirm={() =>
+                onCancelConsolidated && onCancelConsolidated(document.id)
+              }
               icon="warning"
               confirmText="Sí, cancelar"
               cancelText="No, volver"
