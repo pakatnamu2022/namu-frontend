@@ -627,7 +627,9 @@ export const VehiclePurchaseOrderForm = ({
                       " | " +
                       item.body_type +
                       " | " +
-                      item.transmission,
+                      item.transmission +
+                      " | " +
+                      item.model_year,
                   })}
                   additionalParams={{
                     family$brand_id: form.watch("ap_brand_id"),
