@@ -16,6 +16,9 @@ import {
   Paperclip,
   Unlink,
   Ban,
+  User,
+  UserRoundCheck,
+  Receipt,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -284,6 +287,79 @@ export default function ManageWorkOrderPage() {
                 <span className="hidden sm:inline">Información General</span>
                 <span className="sm:hidden">Info. Gen.</span>
               </Button>
+            </div>
+
+            {/* Información de propietario, contacto, recojo y facturación */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <User className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Propietario
+                  </p>
+                  <p className="text-sm font-medium truncate">
+                    {workOrder.vehicle?.owner?.full_name || "—"}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {workOrder.vehicle?.owner?.num_doc &&
+                      `DNI: ${workOrder.vehicle.owner.num_doc}`}
+                    {workOrder.vehicle?.owner?.phone &&
+                      ` · ${workOrder.vehicle.owner.phone}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <ClipboardCheck className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Entregó el vehículo
+                  </p>
+                  <p className="text-sm font-medium truncate">
+                    {workOrder.full_contact_name || "—"}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {workOrder.num_doc_contact &&
+                      `DNI: ${workOrder.num_doc_contact}`}
+                    {workOrder.phone_contact && ` · ${workOrder.phone_contact}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <UserRoundCheck className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Recogerá el vehículo
+                  </p>
+                  <p className="text-sm font-medium truncate">
+                    {workOrder.full_pickup_name || "—"}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {workOrder.num_doc_pickup &&
+                      `DNI: ${workOrder.num_doc_pickup}`}
+                    {workOrder.phone_pickup && ` · ${workOrder.phone_pickup}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <Receipt className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Se factura a
+                  </p>
+                  <p className="text-sm font-medium truncate">
+                    {workOrder.invoice_to_client?.full_name || "—"}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {workOrder.invoice_to_client?.num_doc &&
+                      `DNI: ${workOrder.invoice_to_client.num_doc}`}
+                    {workOrder.invoice_to_client?.phone &&
+                      ` · ${workOrder.invoice_to_client.phone}`}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </Card>
