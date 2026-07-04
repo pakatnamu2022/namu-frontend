@@ -26,7 +26,6 @@ import {
   Minus,
   MousePointerClick,
   Package,
-  ListChecks,
 } from "lucide-react";
 import {
   Tooltip,
@@ -818,128 +817,133 @@ export function WorkerTimeline({
 
       {selectionMode && onEstimatedHoursChange && (
         <div className="space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
-          {/* Orden de Trabajo -> Duración -> Trabajo a Realizar (en ese orden de flujo) */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_140px_1.7fr] gap-4 items-start">
-            <div className="space-y-2">
-              <Label
-                htmlFor="work-order"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Orden de Trabajo
-              </Label>
-              <Popover
-                open={openWorkOrderSelect}
-                onOpenChange={setOpenWorkOrderSelect}
-              >
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={openWorkOrderSelect}
-                    className="w-full justify-between font-medium"
-                  >
-                    {selectedWorkOrderId ? (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {selectedWorkOrder?.correlative}
-                        </Badge>
-                        <span className="text-sm">
-                          {selectedWorkOrder?.vehicle_plate}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        Buscar OT...
-                      </span>
-                    )}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-[400px] p-0 overflow-hidden"
-                  align="start"
+          {/* Orden de Trabajo + Duración (columna izquierda) -> Trabajo a Realizar (columna derecha, proporcional) */}
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 items-start">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="work-order"
+                  className="text-sm font-semibold text-slate-700"
                 >
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      placeholder="Buscar por correlativo o placa..."
-                      value={searchWorkOrder}
-                      onValueChange={setSearchWorkOrder}
-                    />
-                    <CommandList className="max-h-60 overflow-y-auto">
-                      {isLoadingWorkOrders ? (
-                        <div className="flex items-center justify-center py-6">
-                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                        </div>
-                      ) : workOrders.length === 0 ? (
-                        <CommandEmpty>
-                          No se encontraron órdenes de trabajo.
-                        </CommandEmpty>
-                      ) : (
-                        workOrders.map((wo) => (
-                          <CommandItem
-                            key={wo.id}
-                            value={wo.id.toString()}
-                            onSelect={() => {
-                              setSelectedWorkOrderId(wo.id.toString());
-                              setSelectedWorkOrderData(wo);
-                              setSelectedGroup(null);
-                              setSelectedItemId(null);
-                              setOpenWorkOrderSelect(false);
-                              setSearchWorkOrder("");
-                            }}
+                  Orden de Trabajo
+                </Label>
+                <Popover
+                  open={openWorkOrderSelect}
+                  onOpenChange={setOpenWorkOrderSelect}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openWorkOrderSelect}
+                      className="w-full justify-between font-medium"
+                    >
+                      {selectedWorkOrderId ? (
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="font-mono text-xs"
                           >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedWorkOrderId === wo.id.toString()
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                variant="outline"
-                                className="font-mono text-xs"
-                              >
-                                {wo.correlative}
-                              </Badge>
-                              <span className="text-sm">
-                                {wo.vehicle_plate}
-                              </span>
-                            </div>
-                          </CommandItem>
-                        ))
+                            {selectedWorkOrder?.correlative}
+                          </Badge>
+                          <span className="text-sm">
+                            {selectedWorkOrder?.vehicle_plate}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Buscar OT...
+                        </span>
                       )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[400px] p-0 overflow-hidden"
+                    align="start"
+                  >
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Buscar por correlativo o placa..."
+                        value={searchWorkOrder}
+                        onValueChange={setSearchWorkOrder}
+                      />
+                      <CommandList className="max-h-60 overflow-y-auto">
+                        {isLoadingWorkOrders ? (
+                          <div className="flex items-center justify-center py-6">
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : workOrders.length === 0 ? (
+                          <CommandEmpty>
+                            No se encontraron órdenes de trabajo.
+                          </CommandEmpty>
+                        ) : (
+                          workOrders.map((wo) => (
+                            <CommandItem
+                              key={wo.id}
+                              value={wo.id.toString()}
+                              onSelect={() => {
+                                setSelectedWorkOrderId(wo.id.toString());
+                                setSelectedWorkOrderData(wo);
+                                setSelectedGroup(null);
+                                setSelectedItemId(null);
+                                setOpenWorkOrderSelect(false);
+                                setSearchWorkOrder("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedWorkOrderId === wo.id.toString()
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-xs"
+                                >
+                                  {wo.correlative}
+                                </Badge>
+                                <span className="text-sm">
+                                  {wo.vehicle_plate}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-            <div className="space-y-2">
-              <Label
-                htmlFor="estimated-hours"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Duración de la tarea
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="estimated-hours"
-                  type="number"
-                  min="0.5"
-                  step="0.5"
-                  value={Number(estimatedHours.toFixed(2))}
-                  onChange={(e) =>
-                    onEstimatedHoursChange(
-                      Math.round(Number(e.target.value) * 100) / 100,
-                    )
-                  }
-                  className="w-24 text-center font-semibold"
-                />
-                <span className="text-sm text-slate-600 font-medium">
-                  horas
-                </span>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="estimated-hours"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Duración del trabajo
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="estimated-hours"
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={Number(estimatedHours.toFixed(2))}
+                    onChange={(e) =>
+                      onEstimatedHoursChange(
+                        Math.round(Number(e.target.value) * 100) / 100,
+                      )
+                    }
+                    className="w-24 text-center font-semibold"
+                  />
+                  <span className="text-sm text-slate-600 font-medium">
+                    horas
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1005,10 +1009,6 @@ export function WorkerTimeline({
                   {/* Lista de Descripciones */}
                   {activeGroup !== null && (
                     <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
-                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-                        <ListChecks className="h-4 w-4" />
-                        Seleccionar Descripción de Trabajo
-                      </Label>
                       <RadioGroup
                         value={effectiveSelectedItemId?.toString() || ""}
                         onValueChange={(value) =>
@@ -1076,7 +1076,7 @@ export function WorkerTimeline({
             selectedTime.time,
             estimatedHours,
           );
-          const hasOverflow = overflowHours > 0;
+          if (overflowHours <= 0) return null;
           const overflowMins = Math.round(overflowHours * 60);
           const overflowLabel =
             overflowMins % 60 === 0
@@ -1085,51 +1085,13 @@ export function WorkerTimeline({
                 ? `${overflowMins}min`
                 : `${Math.floor(overflowMins / 60)}h ${overflowMins % 60}min`;
           return (
-            <div className="space-y-2">
-              {hasOverflow && (
-                <Alert className="border-orange-300 bg-orange-50">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                  <AlertDescription className="text-orange-700 font-medium">
-                    El horario excede las 18:00.{" "}
-                    <strong>{overflowLabel}</strong> continuará al día siguiente
-                    desde las 08:00.
-                  </AlertDescription>
-                </Alert>
-              )}
-              <div
-                className={`p-5 rounded-xl shadow-md border-2 ${hasOverflow ? "bg-linear-to-r from-orange-50 to-amber-50 border-orange-300" : "bg-linear-to-r from-blue-50 to-indigo-50 border-blue-300"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p
-                      className={`text-sm font-medium ${hasOverflow ? "text-orange-700" : "text-primary"}`}
-                    >
-                      Horario seleccionado:
-                    </p>
-                    <p
-                      className={`text-2xl font-bold ${hasOverflow ? "text-orange-700" : "text-primary"}`}
-                    >
-                      {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
-                      {format(
-                        addWorkHours(selectedTime.time, estimatedHours),
-                        "HH:mm",
-                        {
-                          locale: es,
-                        },
-                      )}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleConfirmSelection}
-                    disabled={!canConfirm}
-                    size="lg"
-                    className="bg-primary hover:bg-primary"
-                  >
-                    Confirmar y Crear Planificación
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <Alert className="border-orange-300 bg-orange-50">
+              <Clock className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-700 font-medium">
+                El horario excede las 18:00. <strong>{overflowLabel}</strong>{" "}
+                continuará al día siguiente desde las 08:00.
+              </AlertDescription>
+            </Alert>
           );
         })()}
 
