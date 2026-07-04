@@ -39,6 +39,12 @@ import { formatHours } from "@/core/core.function";
 interface PlanningCalendarProps {
   data: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
+  onEdit?: (planning: WorkOrderPlanningResource) => void;
+  onDelete?: (id: number) => void;
+  permissions?: {
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
   onNewPlanning?: (date: Date) => void;
   sedeId?: string;
   onRefresh?: () => void;
@@ -47,6 +53,9 @@ interface PlanningCalendarProps {
 export function PlanningCalendar({
   data,
   onPlanningClick,
+  onEdit,
+  onDelete,
+  permissions,
   onNewPlanning,
   sedeId,
   onRefresh,
@@ -103,6 +112,9 @@ export function PlanningCalendar({
         selectedDate={selectedDayForTimeline}
         data={data}
         onPlanningClick={onPlanningClick}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        permissions={permissions}
         onBack={handleBackToCalendar}
         sedeId={sedeId}
         onRefresh={onRefresh}

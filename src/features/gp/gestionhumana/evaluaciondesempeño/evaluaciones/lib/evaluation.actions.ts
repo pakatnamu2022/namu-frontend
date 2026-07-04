@@ -8,10 +8,14 @@ import {
   EvaluationEligibleWorkerResource,
   AddWorkersToEvaluationResponse,
 } from "./evaluation.interface";
-import { EVALUATION } from "./evaluation.constans";
+import { EVALUATION, PERSON_COMPETENCE_DETAIL_ENDPOINT } from "./evaluation.constans";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
 import { HierarchicalCategoryResource } from "../../categorias-jerarquicas/lib/hierarchicalCategory.interface";
+import {
+  DestroyManyPersonCompetenceDetailResponse,
+  EvaluationPersonCompetenceDetailGroupedResponse,
+} from "./evaluationPersonCompetenceDetail.interface";
 
 const { ENDPOINT } = EVALUATION;
 
@@ -203,6 +207,34 @@ export async function sendEvaluationClosed(
   const { data } = await api.post<NotificationResponse>(
     `${ENDPOINT}/notifications/send-closed`,
     { evaluation_id: id }
+  );
+  return data;
+}
+
+export async function getEvaluationCompetenceDetailsGrouped(
+  id: string,
+  params?: Record<string, any>
+): Promise<EvaluationPersonCompetenceDetailGroupedResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      grouped: 1,
+    },
+  };
+  const { data } = await api.get<EvaluationPersonCompetenceDetailGroupedResponse>(
+    `${ENDPOINT}/${id}/competences`,
+    config
+  );
+  return data;
+}
+
+export async function destroyManyPersonCompetenceDetails(
+  ids: number[],
+  cascade?: boolean
+): Promise<DestroyManyPersonCompetenceDetailResponse> {
+  const { data } = await api.delete<DestroyManyPersonCompetenceDetailResponse>(
+    `${PERSON_COMPETENCE_DETAIL_ENDPOINT}/destroyMany`,
+    { data: cascade ? { ids, cascade } : { ids } }
   );
   return data;
 }

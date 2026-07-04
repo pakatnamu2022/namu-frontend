@@ -270,6 +270,7 @@ export function OtherSalesForm({
               showCardLast4={true}
               showOrdenCompraServicio={true}
               isEdit={isEdit}
+              isModuleCommercial={isCommercial}
             />
           </div>
 

@@ -26,19 +26,20 @@ import {
   Minus,
   MousePointerClick,
   Package,
-  ListChecks,
+  Pencil,
 } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useMemo, useEffect, useRef, useReducer } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { ExceptionalCaseSheet } from "./ExceptionalCaseSheet";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
@@ -63,7 +64,13 @@ import {
   CommandList,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Loader2,
+  MoveHorizontal,
+  Eraser,
+} from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
 import { STATUS_WORK_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
@@ -74,6 +81,12 @@ interface WorkerTimelineProps {
   selectedDate: Date;
   data?: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
+  onEdit?: (planning: WorkOrderPlanningResource) => void;
+  onDelete?: (id: number) => void;
+  permissions?: {
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
   selectionMode?: boolean;
   estimatedHours?: number;
   onTimeSelect?: (
@@ -96,6 +109,9 @@ export function WorkerTimeline({
   onOpenChange,
   selectedDate,
   onPlanningClick,
+  onEdit,
+  onDelete,
+  permissions,
   selectionMode = false,
   estimatedHours = 0,
   onTimeSelect,
@@ -117,8 +133,24 @@ export function WorkerTimeline({
   const dragStartXRef = useRef(0);
   const dragStartHoursRef = useRef(0);
   const timelineRectRef = useRef<DOMRect | null>(null);
+  // Tooltip flotante que sigue al cursor mientras se hace resize del bloque azul,
+  // para que se vea la hora de inicio/fin aunque el técnico esté abajo en la lista
+  const [resizeTooltip, setResizeTooltip] = useState<{
+    x: number;
+    y: number;
+    label: string;
+  } | null>(null);
+  // Tooltip flotante que sigue al cursor antes de hacer clic, para previsualizar
+  // la hora de inicio/fin del bloque a ubicar
+  const [hoverTooltip, setHoverTooltip] = useState<{
+    x: number;
+    y: number;
+    label: string;
+  } | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
+  const [selectedWorkOrderData, setSelectedWorkOrderData] =
+    useState<WorkOrderResource | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [openWorkOrderSelect, setOpenWorkOrderSelect] = useState(false);
@@ -212,11 +244,10 @@ export function WorkerTimeline({
   // Encontrar el nombre de la sede seleccionada
   const selectedSede = mySedes.find((s) => s.id.toString() === sedeId);
 
-  // Obtener la orden de trabajo seleccionada
-  const selectedWorkOrder = useMemo(() => {
-    if (!selectedWorkOrderId) return null;
-    return workOrders.find((wo) => wo.id.toString() === selectedWorkOrderId);
-  }, [selectedWorkOrderId, workOrders]);
+  // Orden de trabajo seleccionada: se guarda el objeto completo al momento de
+  // seleccionarla para no depender de que siga presente en la lista paginada/
+  // filtrada (que se recarga sin filtro al limpiar la búsqueda tras elegir).
+  const selectedWorkOrder = selectedWorkOrderData;
 
   // Obtener los grupos únicos de los items
   const availableGroups = useMemo(() => {
@@ -493,6 +524,8 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
+    // No permitir elegir horario hasta que haya una OT seleccionada
+    if (!selectedWorkOrderId) return;
     // Si ya hay un slot seleccionado, no permitir reposicionar sin usar el botón "Mover"
     if (selectedTime) return;
 
@@ -532,6 +565,7 @@ export function WorkerTimeline({
       // Tiene bloques: el inicio es el fin del último bloque o la hora actual (lo que sea mayor)
       if (isSlotAvailable(effectiveStart, workerPlannings)) {
         setSelectedTime({ time: effectiveStart, workerId });
+        setHoverTooltip(null);
       }
     } else {
       // Sin bloques: libre desde hora actual
@@ -541,6 +575,7 @@ export function WorkerTimeline({
       const clickedTime = positionToTime(position);
       if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
         setSelectedTime({ time: clickedTime, workerId });
+        setHoverTooltip(null);
       }
     }
   };
@@ -556,6 +591,17 @@ export function WorkerTimeline({
     dragStartXRef.current = e.clientX;
     dragStartHoursRef.current = estimatedHours;
     timelineRectRef.current = timelineEl.getBoundingClientRect();
+
+    if (selectedTime) {
+      setResizeTooltip({
+        x: e.clientX,
+        y: e.clientY,
+        label: `${format(selectedTime.time, "HH:mm")} - ${format(
+          addWorkHours(selectedTime.time, estimatedHours),
+          "HH:mm",
+        )}`,
+      });
+    }
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!isDraggingRef.current || !timelineRectRef.current || !selectedTime)
@@ -579,10 +625,20 @@ export function WorkerTimeline({
       newHours = Math.round(newHours * 60) / 60;
 
       onEstimatedHoursChange?.(newHours);
+
+      setResizeTooltip({
+        x: ev.clientX,
+        y: ev.clientY,
+        label: `${format(selectedTime.time, "HH:mm")} - ${format(
+          addWorkHours(selectedTime.time, newHours),
+          "HH:mm",
+        )}`,
+      });
     };
 
     const onMouseUp = () => {
       isDraggingRef.current = false;
+      setResizeTooltip(null);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
@@ -597,6 +653,8 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
+    // No mostrar preview de horario hasta que haya una OT seleccionada
+    if (!selectedWorkOrderId) return;
     // Si ya hay un slot seleccionado, no mostrar hover (solo se mueve con el botón)
     if (selectedTime) return;
 
@@ -607,6 +665,7 @@ export function WorkerTimeline({
       const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
       if (lastEndTotalMin >= AFTERNOON_END) {
         setHoveredSlot(null);
+        setHoverTooltip(null);
         return;
       }
 
@@ -639,8 +698,17 @@ export function WorkerTimeline({
       // Tiene bloques: preview fijo al fin del último bloque o la hora actual (lo que sea mayor)
       if (isSlotAvailable(effectiveStart, workerPlannings)) {
         setHoveredSlot({ time: effectiveStart, workerId });
+        setHoverTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          label: `${format(effectiveStart, "hh:mm a")} - ${format(
+            addWorkHours(effectiveStart, estimatedHours),
+            "hh:mm a",
+          )}`,
+        });
       } else {
         setHoveredSlot(null);
+        setHoverTooltip(null);
       }
     } else {
       // Sin bloques: preview libre siguiendo el cursor
@@ -650,8 +718,17 @@ export function WorkerTimeline({
       const hoveredTime = positionToTime(position);
       if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
         setHoveredSlot({ time: hoveredTime, workerId });
+        setHoverTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          label: `${format(hoveredTime, "hh:mm a")} - ${format(
+            addWorkHours(hoveredTime, estimatedHours),
+            "hh:mm a",
+          )}`,
+        });
       } else {
         setHoveredSlot(null);
+        setHoverTooltip(null);
       }
     }
   };
@@ -682,7 +759,10 @@ export function WorkerTimeline({
       // Limpiar selecciones
       setSelectedTime(null);
       setHoveredSlot(null);
+      setHoverTooltip(null);
+      setResizeTooltip(null);
       setSelectedWorkOrderId("");
+      setSelectedWorkOrderData(null);
       setSelectedGroup(null);
       setSelectedItemId(null);
     }
@@ -691,6 +771,20 @@ export function WorkerTimeline({
   const handleItemSelect = (itemId: number) => {
     // Si se selecciona el mismo item, deseleccionarlo; si no, seleccionar el nuevo
     setSelectedItemId(selectedItemId === itemId ? null : itemId);
+  };
+
+  // Limpia la OT, grupo, item, duración y horario seleccionados para volver a empezar
+  const handleClearSelection = () => {
+    setSelectedWorkOrderId("");
+    setSelectedWorkOrderData(null);
+    setSelectedGroup(null);
+    setSelectedItemId(null);
+    setSelectedTime(null);
+    setHoveredSlot(null);
+    setHoverTooltip(null);
+    setResizeTooltip(null);
+    setSearchWorkOrder("");
+    onEstimatedHoursChange?.(1);
   };
 
   const canConfirm =
@@ -756,232 +850,268 @@ export function WorkerTimeline({
       </div>
 
       {selectionMode && onEstimatedHoursChange && (
-        <div className="space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
-          {/* Duración y Orden de Trabajo */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label
-                htmlFor="estimated-hours"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Duración de la tarea
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="estimated-hours"
-                  type="number"
-                  min="0.5"
-                  step="0.5"
-                  value={Number(estimatedHours.toFixed(2))}
-                  onChange={(e) =>
-                    onEstimatedHoursChange(
-                      Math.round(Number(e.target.value) * 100) / 100,
-                    )
-                  }
-                  className="w-24 text-center font-semibold"
-                />
-                <span className="text-sm text-slate-600 font-medium">
-                  horas
-                </span>
+        <div className="relative space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
+          {selectedWorkOrderId && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleClearSelection}
+              className="absolute right-3 top-3 gap-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-200/60"
+            >
+              <Eraser className="h-3.5 w-3.5" />
+              Limpiar
+            </Button>
+          )}
+          {/* Orden de Trabajo + Duración (columna izquierda) -> Trabajo a Realizar (columna derecha, proporcional) */}
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 items-start">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="work-order"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Orden de Trabajo
+                </Label>
+                <Popover
+                  open={openWorkOrderSelect}
+                  onOpenChange={setOpenWorkOrderSelect}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openWorkOrderSelect}
+                      className="w-full justify-between font-medium"
+                    >
+                      {selectedWorkOrderId ? (
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="font-mono text-xs"
+                          >
+                            {selectedWorkOrder?.correlative}
+                          </Badge>
+                          <span className="text-sm">
+                            {selectedWorkOrder?.vehicle_plate}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Buscar OT...
+                        </span>
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[400px] p-0 overflow-hidden"
+                    align="start"
+                  >
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Buscar por correlativo o placa..."
+                        value={searchWorkOrder}
+                        onValueChange={setSearchWorkOrder}
+                      />
+                      <CommandList className="max-h-60 overflow-y-auto">
+                        {isLoadingWorkOrders ? (
+                          <div className="flex items-center justify-center py-6">
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : workOrders.length === 0 ? (
+                          <CommandEmpty>
+                            No se encontraron órdenes de trabajo.
+                          </CommandEmpty>
+                        ) : (
+                          workOrders.map((wo) => (
+                            <CommandItem
+                              key={wo.id}
+                              value={wo.id.toString()}
+                              onSelect={() => {
+                                setSelectedWorkOrderId(wo.id.toString());
+                                setSelectedWorkOrderData(wo);
+                                setSelectedGroup(null);
+                                setSelectedItemId(null);
+                                setOpenWorkOrderSelect(false);
+                                setSearchWorkOrder("");
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedWorkOrderId === wo.id.toString()
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-xs"
+                                >
+                                  {wo.correlative}
+                                </Badge>
+                                <span className="text-sm">
+                                  {wo.vehicle_plate}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="estimated-hours"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Duración del trabajo
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="estimated-hours"
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={Number(estimatedHours.toFixed(2))}
+                    onChange={(e) =>
+                      onEstimatedHoursChange(
+                        Math.round(Number(e.target.value) * 100) / 100,
+                      )
+                    }
+                    className="w-24 text-center font-semibold"
+                  />
+                  <span className="text-sm text-slate-600 font-medium">
+                    horas
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label
-                htmlFor="work-order"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Orden de Trabajo
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold text-slate-700">
+                Trabajo a Realizar
               </Label>
-              <Popover
-                open={openWorkOrderSelect}
-                onOpenChange={setOpenWorkOrderSelect}
-              >
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={openWorkOrderSelect}
-                    className="w-full justify-between font-medium"
-                  >
-                    {selectedWorkOrderId ? (
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="font-mono text-xs">
-                          #{selectedWorkOrder?.correlative}
-                        </Badge>
-                        <span className="text-sm">
-                          {selectedWorkOrder?.vehicle_plate}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        Buscar OT...
-                      </span>
-                    )}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-[400px] p-0 overflow-hidden"
-                  align="start"
-                >
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      placeholder="Buscar por correlativo o placa..."
-                      value={searchWorkOrder}
-                      onValueChange={setSearchWorkOrder}
-                    />
-                    <CommandList className="max-h-60 overflow-y-auto">
-                      {isLoadingWorkOrders ? (
-                        <div className="flex items-center justify-center py-6">
-                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                        </div>
-                      ) : workOrders.length === 0 ? (
-                        <CommandEmpty>
-                          No se encontraron órdenes de trabajo.
-                        </CommandEmpty>
-                      ) : (
-                        workOrders.map((wo) => (
-                          <CommandItem
-                            key={wo.id}
-                            value={wo.id.toString()}
-                            onSelect={() => {
-                              setSelectedWorkOrderId(wo.id.toString());
-                              setSelectedGroup(null);
-                              setSelectedItemId(null);
-                              setOpenWorkOrderSelect(false);
-                              setSearchWorkOrder("");
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedWorkOrderId === wo.id.toString()
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                variant="outline"
-                                className="font-mono text-xs"
+
+              {!selectedWorkOrder ? (
+                <div className="flex items-center justify-center min-h-24 rounded-lg border border-dashed border-slate-300 bg-white/50 px-4 py-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Selecciona una orden de trabajo para ver los trabajos
+                    disponibles
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Selector de Grupo si hay más de uno */}
+                  {availableGroups.length > 1 && (
+                    <div className="space-y-2 p-3 bg-white rounded-lg border border-slate-200">
+                      <Label className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                        <Package className="h-3.5 w-3.5" />
+                        Seleccionar Grupo
+                      </Label>
+                      <RadioGroup
+                        value={selectedGroup?.toString() || ""}
+                        onValueChange={(value) => {
+                          setSelectedGroup(Number(value));
+                          setSelectedItemId(null);
+                        }}
+                      >
+                        <div className="flex flex-wrap gap-2">
+                          {availableGroups.map((group) => {
+                            const itemCount = selectedWorkOrder.items.filter(
+                              (item) => item.group_number === group,
+                            ).length;
+                            return (
+                              <div
+                                key={group}
+                                className="flex items-center space-x-2"
                               >
-                                #{wo.correlative}
-                              </Badge>
-                              <span className="text-sm">
-                                {wo.vehicle_plate}
-                              </span>
-                            </div>
-                          </CommandItem>
-                        ))
-                      )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                                <RadioGroupItem
+                                  value={group.toString()}
+                                  id={`group-${group}`}
+                                />
+                                <Label
+                                  htmlFor={`group-${group}`}
+                                  className="cursor-pointer font-medium text-sm"
+                                >
+                                  Grupo {group}{" "}
+                                  <span className="text-muted-foreground">
+                                    ({itemCount} trabajos)
+                                  </span>
+                                </Label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+
+                  {/* Lista de Descripciones */}
+                  {activeGroup !== null && (
+                    <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
+                      <RadioGroup
+                        value={effectiveSelectedItemId?.toString() || ""}
+                        onValueChange={(value) =>
+                          setSelectedItemId(Number(value))
+                        }
+                      >
+                        <div className="space-y-1 max-h-56 overflow-y-auto">
+                          {filteredItems.length > 0 ? (
+                            filteredItems.map((item) => (
+                              <div
+                                key={item.id}
+                                className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
+                                  effectiveSelectedItemId === item.id
+                                    ? "bg-blue-50 border-blue-300"
+                                    : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
+                                }`}
+                                onClick={() => handleItemSelect(item.id)}
+                              >
+                                <RadioGroupItem
+                                  value={item.id.toString()}
+                                  id={`item-${item.id}`}
+                                  className="mt-0.5 shrink-0"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                                    >
+                                      {item.type_planning.description}
+                                    </Badge>
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                                    >
+                                      {item.type_operation_name}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
+                                    {item.description}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground text-center py-3">
+                              No hay items disponibles para este grupo
+                            </p>
+                          )}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
-
-          {/* Selector de Grupo si hay más de uno */}
-          {selectedWorkOrder && availableGroups.length > 1 && (
-            <div className="space-y-2 p-4 bg-white rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Seleccionar Grupo
-              </Label>
-              <RadioGroup
-                value={selectedGroup?.toString() || ""}
-                onValueChange={(value) => {
-                  setSelectedGroup(Number(value));
-                  setSelectedItemId(null);
-                }}
-              >
-                <div className="flex flex-wrap gap-2">
-                  {availableGroups.map((group) => {
-                    const itemCount = selectedWorkOrder.items.filter(
-                      (item) => item.group_number === group,
-                    ).length;
-                    return (
-                      <div key={group} className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value={group.toString()}
-                          id={`group-${group}`}
-                        />
-                        <Label
-                          htmlFor={`group-${group}`}
-                          className="cursor-pointer font-medium text-sm"
-                        >
-                          Grupo {group}{" "}
-                          <span className="text-muted-foreground">
-                            ({itemCount} trabajos)
-                          </span>
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </RadioGroup>
-            </div>
-          )}
-
-          {/* Lista de Descripciones */}
-          {selectedWorkOrder && activeGroup !== null && (
-            <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-                <ListChecks className="h-4 w-4" />
-                Seleccionar Descripción de Trabajo
-              </Label>
-              <RadioGroup
-                value={effectiveSelectedItemId?.toString() || ""}
-                onValueChange={(value) => setSelectedItemId(Number(value))}
-              >
-                <div className="space-y-1 max-h-56 overflow-y-auto">
-                  {filteredItems.length > 0 ? (
-                    filteredItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
-                          effectiveSelectedItemId === item.id
-                            ? "bg-blue-50 border-blue-300"
-                            : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
-                        }`}
-                        onClick={() => handleItemSelect(item.id)}
-                      >
-                        <RadioGroupItem
-                          value={item.id.toString()}
-                          id={`item-${item.id}`}
-                          className="mt-0.5 shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
-                            >
-                              {item.type_planning.description}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
-                            >
-                              {item.type_operation_name}
-                            </Badge>
-                          </div>
-                          <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-3">
-                      No hay items disponibles para este grupo
-                    </p>
-                  )}
-                </div>
-              </RadioGroup>
-            </div>
-          )}
         </div>
       )}
 
@@ -992,7 +1122,7 @@ export function WorkerTimeline({
             selectedTime.time,
             estimatedHours,
           );
-          const hasOverflow = overflowHours > 0;
+          if (overflowHours <= 0) return null;
           const overflowMins = Math.round(overflowHours * 60);
           const overflowLabel =
             overflowMins % 60 === 0
@@ -1001,51 +1131,13 @@ export function WorkerTimeline({
                 ? `${overflowMins}min`
                 : `${Math.floor(overflowMins / 60)}h ${overflowMins % 60}min`;
           return (
-            <div className="space-y-2">
-              {hasOverflow && (
-                <Alert className="border-orange-300 bg-orange-50">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                  <AlertDescription className="text-orange-700 font-medium">
-                    El horario excede las 18:00.{" "}
-                    <strong>{overflowLabel}</strong> continuará al día siguiente
-                    desde las 08:00.
-                  </AlertDescription>
-                </Alert>
-              )}
-              <div
-                className={`p-5 rounded-xl shadow-md border-2 ${hasOverflow ? "bg-linear-to-r from-orange-50 to-amber-50 border-orange-300" : "bg-linear-to-r from-blue-50 to-indigo-50 border-blue-300"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p
-                      className={`text-sm font-medium ${hasOverflow ? "text-orange-700" : "text-primary"}`}
-                    >
-                      Horario seleccionado:
-                    </p>
-                    <p
-                      className={`text-2xl font-bold ${hasOverflow ? "text-orange-700" : "text-primary"}`}
-                    >
-                      {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
-                      {format(
-                        addWorkHours(selectedTime.time, estimatedHours),
-                        "HH:mm",
-                        {
-                          locale: es,
-                        },
-                      )}
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleConfirmSelection}
-                    disabled={!canConfirm}
-                    size="lg"
-                    className="bg-primary hover:bg-primary"
-                  >
-                    Confirmar y Crear Planificación
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <Alert className="border-orange-300 bg-orange-50">
+              <Clock className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-700 font-medium">
+                El horario excede las 18:00. <strong>{overflowLabel}</strong>{" "}
+                continuará al día siguiente desde las 08:00.
+              </AlertDescription>
+            </Alert>
           );
         })()}
 
@@ -1092,7 +1184,13 @@ export function WorkerTimeline({
                 <div
                   className={`timeline-row relative rounded border ${
                     hasExceptional ? "h-32" : "h-20"
-                  } ${selectionMode ? "cursor-pointer" : ""}`}
+                  } ${
+                    selectionMode
+                      ? selectedWorkOrderId
+                        ? "cursor-pointer"
+                        : "cursor-not-allowed"
+                      : ""
+                  }`}
                   onClick={(e) =>
                     selectionMode
                       ? handleTimelineClick(e, worker.id, plannings)
@@ -1103,9 +1201,12 @@ export function WorkerTimeline({
                       ? handleTimelineHover(e, worker.id, plannings)
                       : undefined
                   }
-                  onMouseLeave={() =>
-                    selectionMode ? setHoveredSlot(null) : undefined
-                  }
+                  onMouseLeave={() => {
+                    if (selectionMode) {
+                      setHoveredSlot(null);
+                      setHoverTooltip(null);
+                    }
+                  }}
                 >
                   {/* Área de mañana */}
                   <div
@@ -1184,184 +1285,202 @@ export function WorkerTimeline({
                       ? overtimeEndPos - overtimeStartPos
                       : 0;
 
+                    const visibleEdit =
+                      permissions?.canUpdate && planning.status === "planned";
+                    const visibleDelete =
+                      permissions?.canDelete && planning.status === "planned";
+
                     return (
-                      <TooltipProvider key={planning.id}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className="absolute cursor-pointer"
-                              style={{
-                                left: `${startPos}%`,
-                                width: `${width}%`,
-                                top: verticalTop,
-                                transform: "translateY(-50%)",
-                              }}
-                              onClick={() => onPlanningClick?.(planning)}
-                            >
-                              {/* Barra única - color según estado visual */}
-                              <div
-                                className={`h-5 rounded border-2 ${
-                                  isExternal
-                                    ? "border-amber-500 bg-amber-200"
-                                    : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
-                                }`}
-                              ></div>
-
-                              {/* Texto centrado */}
-                              <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
-                                <div className="flex items-center gap-1 px-1">
-                                  <span
-                                    className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
-                                  >
-                                    {planning.work_order_correlative}
-                                  </span>
-                                  {isExternal && (
-                                    <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
-                                      EXT
-                                    </Badge>
-                                  )}
-                                  {getEfficiencyIcon(planning)}
-                                </div>
-                              </div>
-
-                              {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
-                              {hasOvertime && overtimeWidth > 0 && (
-                                <div
-                                  className="absolute top-0 h-5 pointer-events-none z-40"
-                                  style={{
-                                    left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
-                                    width: `${(overtimeWidth / width) * 100}%`,
-                                  }}
-                                >
-                                  <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
-                                    <span className="text-[9px] font-bold text-white px-0.5 truncate">
-                                      +
-                                      {Math.round(
-                                        (parseISO(
-                                          planning.actual_end_datetime!,
-                                        ).getTime() -
-                                          parseISO(
-                                            planning.planned_end_datetime!,
-                                          ).getTime()) /
-                                          60000,
-                                      )}
-                                      m
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                      <HoverCard key={planning.id} openDelay={150}>
+                        <HoverCardTrigger asChild>
+                          <div
+                            className="absolute cursor-pointer"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${width}%`,
+                              top: verticalTop,
+                              transform: "translateY(-50%)",
+                            }}
+                            onClick={() => onPlanningClick?.(planning)}
                           >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <div className="font-semibold">
+                            {/* Barra única - color según estado visual */}
+                            <div
+                              className={`h-5 rounded border-2 ${
+                                isExternal
+                                  ? "border-amber-500 bg-amber-200"
+                                  : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
+                              }`}
+                            ></div>
+
+                            {/* Texto centrado */}
+                            <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
+                              <div className="flex items-center gap-1 px-1">
+                                <span
+                                  className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
+                                >
                                   {planning.work_order_correlative}
-                                </div>
-                                {planning.type === "external" && (
-                                  <Badge className="text-[10px] bg-amber-600 text-white">
-                                    Caso Excepcional
+                                </span>
+                                {isExternal && (
+                                  <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
+                                    EXT
                                   </Badge>
                                 )}
+                                {getEfficiencyIcon(planning)}
                               </div>
-                              <div className="text-sm">
-                                {planning.description}
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div>
-                                  <span className="text-muted-foreground ">
-                                    Planificado:
-                                  </span>
-                                  <p>
-                                    {planning.planned_start_datetime &&
-                                      format(
+                            </div>
+
+                            {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
+                            {hasOvertime && overtimeWidth > 0 && (
+                              <div
+                                className="absolute top-0 h-5 pointer-events-none z-40"
+                                style={{
+                                  left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
+                                  width: `${(overtimeWidth / width) * 100}%`,
+                                }}
+                              >
+                                <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
+                                  <span className="text-[9px] font-bold text-white px-0.5 truncate">
+                                    +
+                                    {Math.round(
+                                      (parseISO(
+                                        planning.actual_end_datetime!,
+                                      ).getTime() -
                                         parseISO(
-                                          planning.planned_start_datetime,
+                                          planning.planned_end_datetime!,
+                                        ).getTime()) /
+                                        60000,
+                                    )}
+                                    m
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent
+                          side="top"
+                          className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <div className="font-semibold">
+                                {planning.work_order_correlative}
+                              </div>
+                              {planning.type === "external" && (
+                                <Badge className="text-[10px] bg-amber-600 text-white">
+                                  Caso Excepcional
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-sm">
+                              {planning.description}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground ">
+                                  Planificado:
+                                </span>
+                                <p>
+                                  {planning.planned_start_datetime &&
+                                    format(
+                                      parseISO(planning.planned_start_datetime),
+                                      "HH:mm",
+                                    )}{" "}
+                                  -{" "}
+                                  {planning.planned_end_datetime &&
+                                    format(
+                                      parseISO(planning.planned_end_datetime),
+                                      "HH:mm",
+                                    )}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Real:
+                                </span>
+                                <p>
+                                  {planning.actual_start_datetime
+                                    ? `${format(
+                                        parseISO(
+                                          planning.actual_start_datetime,
                                         ),
                                         "HH:mm",
-                                      )}{" "}
-                                    -{" "}
-                                    {planning.planned_end_datetime &&
-                                      format(
-                                        parseISO(planning.planned_end_datetime),
-                                        "HH:mm",
-                                      )}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Real:
-                                  </span>
-                                  <p>
-                                    {planning.actual_start_datetime
-                                      ? `${format(
-                                          parseISO(
-                                            planning.actual_start_datetime,
-                                          ),
-                                          "HH:mm",
-                                        )} - ${
-                                          planning.actual_end_datetime
-                                            ? format(
-                                                parseISO(
-                                                  planning.actual_end_datetime,
-                                                ),
-                                                "HH:mm",
-                                              )
-                                            : "En curso"
-                                        }`
-                                      : "No iniciado"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Estimado:
-                                  </span>
-                                  <p>
-                                    {planning.estimated_hours != null
-                                      ? formatDecimalHours(
-                                          planning.estimated_hours,
-                                        )
-                                      : "N/A"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Real:
-                                  </span>
-                                  <p>
-                                    {planning.actual_hours != null
-                                      ? formatDecimalHours(
-                                          planning.actual_hours,
-                                        )
-                                      : "N/A"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Eficiencia:
-                                  </span>
-                                  <p className="flex items-center gap-1">
-                                    {getEfficiencyPercentage(planning)}
-                                    {getEfficiencyIcon(planning)}
-                                  </p>
-                                </div>
+                                      )} - ${
+                                        planning.actual_end_datetime
+                                          ? format(
+                                              parseISO(
+                                                planning.actual_end_datetime,
+                                              ),
+                                              "HH:mm",
+                                            )
+                                          : "En curso"
+                                      }`
+                                    : "No iniciado"}
+                                </p>
                               </div>
-                              <Badge
-                                className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
-                              >
-                                {
-                                  PLANNING_VISUAL_STATE_LABELS[
-                                    getPlanningVisualState(planning)
-                                  ]
-                                }
-                              </Badge>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Estimado:
+                                </span>
+                                <p>
+                                  {planning.estimated_hours != null
+                                    ? formatDecimalHours(
+                                        planning.estimated_hours,
+                                      )
+                                    : "N/A"}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Real:
+                                </span>
+                                <p>
+                                  {planning.actual_hours != null
+                                    ? formatDecimalHours(planning.actual_hours)
+                                    : "N/A"}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Eficiencia:
+                                </span>
+                                <p className="flex items-center gap-1">
+                                  {getEfficiencyPercentage(planning)}
+                                  {getEfficiencyIcon(planning)}
+                                </p>
+                              </div>
                             </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                            <Badge
+                              className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
+                            >
+                              {
+                                PLANNING_VISUAL_STATE_LABELS[
+                                  getPlanningVisualState(planning)
+                                ]
+                              }
+                            </Badge>
+                            {(visibleEdit || visibleDelete) && (
+                              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
+                                {visibleEdit && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => onEdit?.(planning)}
+                                    tooltip="Editar planificación"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                {visibleDelete && (
+                                  <DeleteButton
+                                    onClick={() => onDelete?.(planning.id)}
+                                  />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     );
                   })}
 
@@ -1613,6 +1732,50 @@ export function WorkerTimeline({
                       );
                     })()}
 
+                  {/* Botón flotante de confirmación, arriba y fuera del bloque azul,
+                      para no tener que subir hasta el panel superior */}
+                  {selectionMode &&
+                    selectedTime &&
+                    selectedTime.workerId === worker.id &&
+                    (() => {
+                      const confirmEndTime = addWorkHours(
+                        selectedTime.time,
+                        estimatedHours,
+                      );
+                      const confirmStartPos = calculatePositionFromDate(
+                        selectedTime.time,
+                      );
+                      const confirmEndPos = Math.min(
+                        calculatePositionFromDate(confirmEndTime),
+                        100,
+                      );
+                      const confirmCenterPos =
+                        (confirmStartPos + confirmEndPos) / 2;
+                      const fmt = (d: Date) =>
+                        `${format(d, "h")}${format(d, "a").toLowerCase()}`;
+
+                      return (
+                        <button
+                          className={`absolute -top-9 z-50 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-lg whitespace-nowrap ${
+                            canConfirm
+                              ? "bg-primary text-white cursor-pointer animate-pulse hover:animate-none"
+                              : "bg-slate-300 text-slate-500 cursor-not-allowed"
+                          }`}
+                          style={{ left: `${confirmCenterPos}%` }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (canConfirm) handleConfirmSelection();
+                          }}
+                          disabled={!canConfirm}
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                          Confirmar ({fmt(selectedTime.time)} -{" "}
+                          {fmt(confirmEndTime)})
+                        </button>
+                      );
+                    })()}
+
                   {plannings.length === 0 && !selectionMode && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-sm text-muted-foreground">
@@ -1680,6 +1843,38 @@ export function WorkerTimeline({
           sedeId={sedeId}
         />
       )}
+
+      {/* Tooltip flotante que sigue al cursor antes de ubicar el bloque (preview) */}
+      {hoverTooltip &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-100 pointer-events-none px-3 py-1.5 rounded-lg shadow-lg border-2 border-blue-400 bg-white text-blue-600 text-sm font-bold whitespace-nowrap"
+            style={{
+              left: hoverTooltip.x + 16,
+              top: hoverTooltip.y - 36,
+            }}
+          >
+            {hoverTooltip.label}
+          </div>,
+          document.body,
+        )}
+
+      {/* Tooltip flotante que sigue al cursor mientras se arrastra el resize */}
+      {resizeTooltip &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-100 pointer-events-none px-3 py-1.5 rounded-lg shadow-lg border-2 border-primary bg-white text-primary text-sm font-bold whitespace-nowrap"
+            style={{
+              left: resizeTooltip.x + 16,
+              top: resizeTooltip.y - 36,
+            }}
+          >
+            {resizeTooltip.label}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

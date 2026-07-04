@@ -53,21 +53,22 @@ export function EditPlanningModal({
   useEffect(() => {
     if (planning && open) {
       // Convertir la fecha ISO a formato local datetime (YYYY-MM-DDTHH:mm)
-      let formattedDateTime = "";
-      if (planning.planned_start_datetime) {
-        const date = parseISO(planning.planned_start_datetime);
+      const toLocalDateTime = (isoString: string): string => {
+        const date = parseISO(isoString);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
         const hours = String(date.getHours()).padStart(2, "0");
         const minutes = String(date.getMinutes()).padStart(2, "0");
-        formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-      }
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
 
       form.reset({
-        planned_start_datetime: formattedDateTime,
+        planned_start_datetime: planning.planned_start_datetime
+          ? toLocalDateTime(planning.planned_start_datetime)
+          : "",
         planned_end_datetime: planning.planned_end_datetime
-          ? parseISO(planning.planned_end_datetime).toISOString().slice(0, 16)
+          ? toLocalDateTime(planning.planned_end_datetime)
           : "",
       });
     }

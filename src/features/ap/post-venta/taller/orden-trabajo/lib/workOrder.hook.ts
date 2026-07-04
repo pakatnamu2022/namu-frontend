@@ -10,6 +10,8 @@ import {
   getWorkOrderWithInternalNotes,
   sendToFinished,
   revertFinished,
+  updateWorkOrderItems,
+  UpdateWorkOrderItemData,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -133,6 +135,25 @@ export function useRevertFinished() {
     mutationFn: (id: number) => revertFinished(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+}
+
+export function useUpdateWorkOrderItems(workOrderId: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateWorkOrderItemData) =>
+      updateWorkOrderItems(workOrderId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+      successToast("Trabajo actualizado");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || "Error al actualizar el trabajo";
+      errorToast(errorMessage);
     },
   });
 }

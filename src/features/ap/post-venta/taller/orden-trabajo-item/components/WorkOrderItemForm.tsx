@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,10 +10,13 @@ import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tip
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useStoreWorkOrderItem } from "../lib/workOrderItem.hook";
-import { WorkOrderItemRequest } from "../lib/workOrderItem.interface";
-import { FormInput } from "@/shared/components/FormInput";
+import {
+  WorkOrderItemRequest,
+  WorkOrderItemResource,
+} from "../lib/workOrderItem.interface";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
+import { useUpdateWorkOrderItems } from "../../orden-trabajo/lib/workOrder.hook";
 
 const workOrderItemSchema = z.object({
   work_order_id: z.number(),
@@ -28,6 +31,7 @@ type WorkOrderItemFormValues = z.infer<typeof workOrderItemSchema>;
 interface WorkOrderItemFormProps {
   workOrderId: number;
   defaultGroupNumber: number;
+  item?: WorkOrderItemResource;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -35,9 +39,12 @@ interface WorkOrderItemFormProps {
 export default function WorkOrderItemForm({
   workOrderId,
   defaultGroupNumber,
+  item,
   onSuccess,
   onCancel,
 }: WorkOrderItemFormProps) {
+  const isEditing = !!item;
+
   const { data: typesPlanning = [], isLoading: isLoadingTypes } =
     useAllTypesPlanning();
 
@@ -45,15 +52,20 @@ export default function WorkOrderItemForm({
     useAllTypesOperationsAppointment();
 
   const storeMutation = useStoreWorkOrderItem();
+  const updateMutation = useUpdateWorkOrderItems(workOrderId);
 
   const form = useForm<WorkOrderItemFormValues>({
     resolver: zodResolver(workOrderItemSchema),
     defaultValues: {
       work_order_id: workOrderId,
-      group_number: defaultGroupNumber,
-      type_planning_id: "",
-      type_operation_id: "",
-      description: "",
+      group_number: item?.group_number ?? defaultGroupNumber,
+      type_planning_id: item?.type_planning_id
+        ? item.type_planning_id.toString()
+        : "",
+      type_operation_id: item?.type_operation_id
+        ? item.type_operation_id.toString()
+        : "",
+      description: item?.description ?? "",
     },
   });
 
@@ -62,8 +74,16 @@ export default function WorkOrderItemForm({
     name: "type_planning_id",
   });
 
+  const skipAutoSetRef = useRef(isEditing);
+
   useEffect(() => {
     if (!watchedTypePlanningId) return;
+    if (isLoadingTypes || isLoadingTypesOperation) return;
+
+    if (skipAutoSetRef.current) {
+      skipAutoSetRef.current = false;
+      return;
+    }
 
     const planningSelected = typesPlanning.find(
       (tp) => tp.id.toString() === watchedTypePlanningId,
@@ -85,9 +105,33 @@ export default function WorkOrderItemForm({
         shouldValidate: false,
       });
     }
-  }, [watchedTypePlanningId, typesPlanning, typesOperation, form]);
+  }, [
+    watchedTypePlanningId,
+    typesPlanning,
+    typesOperation,
+    form,
+    isLoadingTypes,
+    isLoadingTypesOperation,
+  ]);
 
   const onSubmit = (data: WorkOrderItemFormValues) => {
+    if (isEditing && item) {
+      updateMutation.mutate(
+        {
+          id: item.id,
+          type_planning_id: Number(data.type_planning_id),
+          type_operation_id: Number(data.type_operation_id),
+          description: data.description,
+        },
+        {
+          onSuccess: () => {
+            onSuccess();
+          },
+        },
+      );
+      return;
+    }
+
     const payload: WorkOrderItemRequest = {
       work_order_id: data.work_order_id,
       group_number: data.group_number,
@@ -104,17 +148,11 @@ export default function WorkOrderItemForm({
     });
   };
 
+  const isPending = storeMutation.isPending || updateMutation.isPending;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormInput
-          control={form.control}
-          name="group_number"
-          label="Número de Grupo"
-          type="number"
-          placeholder="1"
-        />
-
         <FormSelect
           name="type_planning_id"
           label="Tipo de Planificación"
@@ -152,8 +190,12 @@ export default function WorkOrderItemForm({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
-          <Button type="submit" disabled={storeMutation.isPending}>
-            {storeMutation.isPending ? "Guardando..." : "Agregar Trabajo"}
+          <Button type="submit" disabled={isPending}>
+            {isPending
+              ? "Guardando..."
+              : isEditing
+                ? "Guardar Cambios"
+                : "Agregar Trabajo"}
           </Button>
         </div>
       </form>

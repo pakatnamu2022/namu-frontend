@@ -681,7 +681,7 @@ export default function PurchaseRequestForm({
 
                               <div className="col-span-1">
                                 <DecimalInput
-                                  decimals={2}
+                                  decimals={6}
                                   value={detail.unit_price}
                                   onChange={(val) =>
                                     handleUpdateUnitPrice(index, val)
@@ -828,7 +828,7 @@ export default function PurchaseRequestForm({
                                       Precio Unit.
                                     </label>
                                     <DecimalInput
-                                      decimals={2}
+                                      decimals={6}
                                       value={detail.unit_price}
                                       onChange={(val) =>
                                         handleUpdateUnitPrice(index, val)

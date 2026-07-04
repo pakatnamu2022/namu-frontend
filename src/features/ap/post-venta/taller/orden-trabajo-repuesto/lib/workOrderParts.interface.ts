@@ -108,3 +108,13 @@ export interface WorkOrderPartAssignmentsResponse {
 export interface ConfirmPartsDeliveryRequest {
   delivery_ids: number[];
 }
+
+export interface AssignPartToTechnicianBulkItem {
+  work_order_part_id: number;
+  delivered_quantity: number;
+}
+
+export interface AssignPartToTechnicianBulkRequest {
+  delivered_to: number;
+  assignments: AssignPartToTechnicianBulkItem[];
+}

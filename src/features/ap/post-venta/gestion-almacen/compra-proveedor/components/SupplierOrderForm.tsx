@@ -1080,7 +1080,7 @@ export const SupplierOrderForm = ({
                                           <DecimalInput
                                             placeholder="0.00"
                                             className="text-end"
-                                            decimals={2}
+                                            decimals={6}
                                             value={
                                               field.value as number | undefined
                                             }
