@@ -295,3 +295,21 @@ export async function updatePickupPerson(
   );
   return response.data;
 }
+
+export interface UpdateWorkOrderItemData {
+  id: number;
+  type_planning_id: number;
+  type_operation_id: number;
+  description: string;
+}
+
+export async function updateWorkOrderItems(
+  workOrderId: number,
+  data: UpdateWorkOrderItemData,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${workOrderId}/update-items`,
+    data,
+  );
+  return response.data;
+}
