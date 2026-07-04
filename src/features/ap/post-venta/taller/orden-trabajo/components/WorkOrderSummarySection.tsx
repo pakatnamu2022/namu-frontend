@@ -11,8 +11,6 @@ import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestro
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ActiveDocument } from "../lib/workOrder.interface";
-import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
-import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
 interface WorkOrderSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -37,8 +35,7 @@ interface WorkOrderSummarySectionProps {
   porcentaje_de_igv: number;
   isAdvancePayment: boolean;
   advancePayments?: ActiveDocument[];
-  labours: WorkOrderLabourResource[];
-  parts: WorkOrderPartsResource[];
+  remainingBalance: number;
   isInvalidWithQuote?: boolean;
   isInvoiced?: boolean;
 }
@@ -57,8 +54,7 @@ export function WorkOrderSummarySection({
   porcentaje_de_igv,
   isAdvancePayment,
   advancePayments = [],
-  labours,
-  parts,
+  remainingBalance,
   isInvalidWithQuote = false,
   isInvoiced = false,
 }: WorkOrderSummarySectionProps) {
@@ -80,25 +76,9 @@ export function WorkOrderSummarySection({
     (advance) => advance.is_advance_payment === true,
   );
 
-  // Calcular el total de la orden de trabajo (solo usado cuando isInvalidWithQuote = false)
-  const workOrderTotal = (() => {
-    const laboursTotal = labours.reduce(
-      (sum, labour) => sum + labour.net_amount,
-      0,
-    );
-    const partsTotal = parts.reduce((sum, part) => sum + part.net_amount, 0);
-    return (laboursTotal + partsTotal) * (1 + porcentaje_de_igv / 100);
-  })();
-
-  // Total pagado con todos los advances (solo usado cuando isInvalidWithQuote = false)
-  const totalPaid = advancePayments.reduce(
-    (sum, advance) => sum + (Number(advance.total) || 0),
-    0,
-  );
-
   // Determinar si está completamente facturado (bloquear botón)
   // Cuando isInvalidWithQuote = true: todos los pagos son anticipos → el parámetro que manda es isInvoiced
-  // Cuando isInvalidWithQuote = false: usar workOrderTotal y totalPaid, pero solo bloquear si isInvoiced = true
+  // Cuando isInvalidWithQuote = false: usar el saldo que ya calculó el backend (remainingBalance)
   const isCompletedWithoutAdvances = (() => {
     if (isInvalidWithQuote) {
       // Con cotización inválida: solo bloquear si el backend ya marcó como facturado
@@ -106,9 +86,8 @@ export function WorkOrderSummarySection({
     }
     // Sin cotización inválida: bloquear si el saldo está en 0 sin anticipos pendientes,
     // PERO solo si isInvoiced = true (el backend confirmó que ya está cerrada)
-    const pendingBalance = Math.round((workOrderTotal - totalPaid) * 100) / 100;
     if (isInvoiced) return true;
-    return pendingBalance <= 0 && !hasRealAdvancePayments;
+    return remainingBalance <= 0 && !hasRealAdvancePayments;
   })();
 
   return (

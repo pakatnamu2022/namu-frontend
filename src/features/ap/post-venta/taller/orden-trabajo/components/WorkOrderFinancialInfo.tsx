@@ -1,52 +1,23 @@
 import { TrendingUp } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Progress } from "@/components/ui/progress";
-import { ActiveDocument } from "../lib/workOrder.interface";
-import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
-import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
+import { ActiveDocument, WorkOrderResource } from "../lib/workOrder.interface";
 
 interface WorkOrderFinancialInfoProps {
-  labours: WorkOrderLabourResource[];
-  parts: WorkOrderPartsResource[];
   advances: ActiveDocument[];
   currencySymbol: string;
-  porcentaje_de_igv: number;
-  isInvalidWithQuote?: boolean;
-  finalAmount?: number;
+  paymentSummary: WorkOrderResource["payment_summary"];
 }
 
 export function WorkOrderFinancialInfo({
-  labours,
-  parts,
   advances,
   currencySymbol,
-  porcentaje_de_igv,
-  isInvalidWithQuote = false,
-  finalAmount,
+  paymentSummary,
 }: WorkOrderFinancialInfoProps) {
-  const laboursTotal = labours.reduce(
-    (sum, labour) => sum + labour.net_amount,
-    0,
-  );
-
-  const partsTotal = parts.reduce((sum, part) => sum + part.net_amount, 0);
-
-  const subtotal = laboursTotal + partsTotal;
-  const igvAmount = subtotal * (porcentaje_de_igv / 100);
-  const workOrderTotal =
-    isInvalidWithQuote && finalAmount ? finalAmount : subtotal + igvAmount;
-
-  // Las notas de crédito vienen como modifications con type "credit_note" → restan
-  const totalAdvances = advances.reduce((sum, doc) => {
-    const creditNoteTotal = (doc.modifications ?? [])
-      .filter((m) => m.type === "credit_note")
-      .reduce((s: number, m) => s + Number(m.total), 0);
-    return sum + Number(doc.total) - creditNoteTotal;
-  }, 0);
-
-  const pendingBalance = workOrderTotal - totalAdvances;
-  const paymentPercentage =
-    workOrderTotal > 0 ? (totalAdvances / workOrderTotal) * 100 : 0;
+  const totalAdvances = paymentSummary.paid_amount;
+  const pendingBalance = paymentSummary.remaining_balance;
+  const workOrderTotal = totalAdvances + pendingBalance;
+  const paymentPercentage = paymentSummary.payment_percentage;
 
   return (
     <GroupFormSection

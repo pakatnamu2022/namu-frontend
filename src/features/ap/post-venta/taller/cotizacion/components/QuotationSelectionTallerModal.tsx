@@ -53,7 +53,6 @@ export const QuotationSelectionTallerModal = ({
     {
       page,
       per_page,
-      is_take: 1,
       sede_id: sedeId,
       quotation_date:
         dateFrom && dateTo

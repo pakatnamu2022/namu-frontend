@@ -13,6 +13,12 @@ interface WorkerTimelineViewProps {
   selectedDate: Date;
   data: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
+  onEdit?: (planning: WorkOrderPlanningResource) => void;
+  onDelete?: (id: number) => void;
+  permissions?: {
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
   onBack: () => void;
   sedeId?: string;
   onRefresh?: () => void;
@@ -23,6 +29,9 @@ export function WorkerTimelineView({
   selectedDate,
   data,
   onPlanningClick,
+  onEdit,
+  onDelete,
+  permissions,
   onBack,
   sedeId,
   onRefresh,
@@ -58,6 +67,9 @@ export function WorkerTimelineView({
           selectedDate={selectedDate}
           data={data}
           onPlanningClick={onPlanningClick}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          permissions={permissions}
           fullPage={true}
           sedeId={sedeId}
           onRefresh={onRefresh}

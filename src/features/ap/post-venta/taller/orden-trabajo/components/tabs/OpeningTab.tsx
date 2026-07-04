@@ -5,8 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, User, Save } from "lucide-react";
+import { Plus, FileText, User, Save, Pencil } from "lucide-react";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import {
   findWorkOrderById,
@@ -16,6 +15,7 @@ import {
 } from "../../lib/workOrder.actions";
 import WorkOrderItemForm from "../../../orden-trabajo-item/components/WorkOrderItemForm";
 import { deleteWorkOrderItem } from "../../../orden-trabajo-item/lib/workOrderItem.actions";
+import { WorkOrderItemResource } from "../../../orden-trabajo-item/lib/workOrderItem.interface";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { WORKER_ORDER_ITEM } from "../../../orden-trabajo-item/lib/workOrderItem.constants";
@@ -58,6 +58,9 @@ interface OpeningTabProps {
 export default function OpeningTab({ workOrderId }: OpeningTabProps) {
   const isTablet = useIsTablet();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<WorkOrderItemResource | null>(
+    null,
+  );
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
@@ -219,12 +222,24 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
     setIsDialogOpen(true);
   };
 
+  const handleEditItem = (item: WorkOrderItemResource) => {
+    setItemToEdit(item);
+  };
+
   const handleSuccess = () => {
     setIsDialogOpen(false);
   };
 
   const handleCancel = () => {
     setIsDialogOpen(false);
+  };
+
+  const handleEditSuccess = () => {
+    setItemToEdit(null);
+  };
+
+  const handleEditCancel = () => {
+    setItemToEdit(null);
   };
 
   const handleConfirmDelete = async () => {
@@ -287,17 +302,17 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
             {
               header: "Planificación",
               render: (item) => (
-                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                <div className="text-xs sm:text-sm text-gray-900 max-w-xs line-clamp-2">
                   {item.type_planning.description}
-                </Badge>
+                </div>
               ),
             },
             {
               header: "Operación",
               render: (item) => (
-                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                <div className="text-xs sm:text-sm text-gray-900 max-w-xs line-clamp-2">
                   {item.type_operation_name}
-                </Badge>
+                </div>
               ),
             },
             {
@@ -306,6 +321,20 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                 <div className="text-xs sm:text-sm text-gray-900 max-w-xs line-clamp-2">
                   {item.description}
                 </div>
+              ),
+            },
+            {
+              header: "Acciones",
+              render: (item) => (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => handleEditItem(item)}
+                  tooltip="Editar trabajo"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               ),
             },
           ]}
@@ -546,6 +575,25 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
           onSuccess={handleSuccess}
           onCancel={handleCancel}
         />
+      </GeneralSheet>
+
+      {/* Edit GeneralSheet */}
+      <GeneralSheet
+        open={!!itemToEdit}
+        onClose={handleEditCancel}
+        title="Editar Trabajo"
+        type={isTablet ? "tablet" : "default"}
+        className="sm:max-w-2xl"
+      >
+        {itemToEdit && (
+          <WorkOrderItemForm
+            workOrderId={workOrderId}
+            defaultGroupNumber={defaultGroupNumber}
+            item={itemToEdit}
+            onSuccess={handleEditSuccess}
+            onCancel={handleEditCancel}
+          />
+        )}
       </GeneralSheet>
 
       <CustomerModal
