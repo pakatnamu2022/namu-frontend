@@ -63,7 +63,13 @@ import {
   CommandList,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Loader2, MoveHorizontal } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Loader2,
+  MoveHorizontal,
+  Eraser,
+} from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
 import { STATUS_WORK_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
@@ -508,6 +514,8 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
+    // No permitir elegir horario hasta que haya una OT seleccionada
+    if (!selectedWorkOrderId) return;
     // Si ya hay un slot seleccionado, no permitir reposicionar sin usar el botón "Mover"
     if (selectedTime) return;
 
@@ -635,6 +643,8 @@ export function WorkerTimeline({
     workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
+    // No mostrar preview de horario hasta que haya una OT seleccionada
+    if (!selectedWorkOrderId) return;
     // Si ya hay un slot seleccionado, no mostrar hover (solo se mueve con el botón)
     if (selectedTime) return;
 
@@ -753,6 +763,20 @@ export function WorkerTimeline({
     setSelectedItemId(selectedItemId === itemId ? null : itemId);
   };
 
+  // Limpia la OT, grupo, item, duración y horario seleccionados para volver a empezar
+  const handleClearSelection = () => {
+    setSelectedWorkOrderId("");
+    setSelectedWorkOrderData(null);
+    setSelectedGroup(null);
+    setSelectedItemId(null);
+    setSelectedTime(null);
+    setHoveredSlot(null);
+    setHoverTooltip(null);
+    setResizeTooltip(null);
+    setSearchWorkOrder("");
+    onEstimatedHoursChange?.(1);
+  };
+
   const canConfirm =
     selectedTime &&
     selectedWorkOrderId &&
@@ -816,7 +840,19 @@ export function WorkerTimeline({
       </div>
 
       {selectionMode && onEstimatedHoursChange && (
-        <div className="space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
+        <div className="relative space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
+          {selectedWorkOrderId && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleClearSelection}
+              className="absolute right-3 top-3 gap-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-200/60"
+            >
+              <Eraser className="h-3.5 w-3.5" />
+              Limpiar
+            </Button>
+          )}
           {/* Orden de Trabajo + Duración (columna izquierda) -> Trabajo a Realizar (columna derecha, proporcional) */}
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 items-start">
             <div className="space-y-4">
@@ -1138,7 +1174,13 @@ export function WorkerTimeline({
                 <div
                   className={`timeline-row relative rounded border ${
                     hasExceptional ? "h-32" : "h-20"
-                  } ${selectionMode ? "cursor-pointer" : ""}`}
+                  } ${
+                    selectionMode
+                      ? selectedWorkOrderId
+                        ? "cursor-pointer"
+                        : "cursor-not-allowed"
+                      : ""
+                  }`}
                   onClick={(e) =>
                     selectionMode
                       ? handleTimelineClick(e, worker.id, plannings)
