@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useMemo, useEffect, useRef, useReducer } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { ExceptionalCaseSheet } from "./ExceptionalCaseSheet";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
@@ -117,6 +118,20 @@ export function WorkerTimeline({
   const dragStartXRef = useRef(0);
   const dragStartHoursRef = useRef(0);
   const timelineRectRef = useRef<DOMRect | null>(null);
+  // Tooltip flotante que sigue al cursor mientras se hace resize del bloque azul,
+  // para que se vea la hora de inicio/fin aunque el técnico esté abajo en la lista
+  const [resizeTooltip, setResizeTooltip] = useState<{
+    x: number;
+    y: number;
+    label: string;
+  } | null>(null);
+  // Tooltip flotante que sigue al cursor antes de hacer clic, para previsualizar
+  // la hora de inicio/fin del bloque a ubicar
+  const [hoverTooltip, setHoverTooltip] = useState<{
+    x: number;
+    y: number;
+    label: string;
+  } | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
   const [selectedWorkOrderData, setSelectedWorkOrderData] =
@@ -533,6 +548,7 @@ export function WorkerTimeline({
       // Tiene bloques: el inicio es el fin del último bloque o la hora actual (lo que sea mayor)
       if (isSlotAvailable(effectiveStart, workerPlannings)) {
         setSelectedTime({ time: effectiveStart, workerId });
+        setHoverTooltip(null);
       }
     } else {
       // Sin bloques: libre desde hora actual
@@ -542,6 +558,7 @@ export function WorkerTimeline({
       const clickedTime = positionToTime(position);
       if (clickedTime && isSlotAvailable(clickedTime, workerPlannings)) {
         setSelectedTime({ time: clickedTime, workerId });
+        setHoverTooltip(null);
       }
     }
   };
@@ -557,6 +574,17 @@ export function WorkerTimeline({
     dragStartXRef.current = e.clientX;
     dragStartHoursRef.current = estimatedHours;
     timelineRectRef.current = timelineEl.getBoundingClientRect();
+
+    if (selectedTime) {
+      setResizeTooltip({
+        x: e.clientX,
+        y: e.clientY,
+        label: `${format(selectedTime.time, "HH:mm")} - ${format(
+          addWorkHours(selectedTime.time, estimatedHours),
+          "HH:mm",
+        )}`,
+      });
+    }
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!isDraggingRef.current || !timelineRectRef.current || !selectedTime)
@@ -580,10 +608,20 @@ export function WorkerTimeline({
       newHours = Math.round(newHours * 60) / 60;
 
       onEstimatedHoursChange?.(newHours);
+
+      setResizeTooltip({
+        x: ev.clientX,
+        y: ev.clientY,
+        label: `${format(selectedTime.time, "HH:mm")} - ${format(
+          addWorkHours(selectedTime.time, newHours),
+          "HH:mm",
+        )}`,
+      });
     };
 
     const onMouseUp = () => {
       isDraggingRef.current = false;
+      setResizeTooltip(null);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
     };
@@ -608,6 +646,7 @@ export function WorkerTimeline({
       const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
       if (lastEndTotalMin >= AFTERNOON_END) {
         setHoveredSlot(null);
+        setHoverTooltip(null);
         return;
       }
 
@@ -640,8 +679,17 @@ export function WorkerTimeline({
       // Tiene bloques: preview fijo al fin del último bloque o la hora actual (lo que sea mayor)
       if (isSlotAvailable(effectiveStart, workerPlannings)) {
         setHoveredSlot({ time: effectiveStart, workerId });
+        setHoverTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          label: `${format(effectiveStart, "hh:mm a")} - ${format(
+            addWorkHours(effectiveStart, estimatedHours),
+            "hh:mm a",
+          )}`,
+        });
       } else {
         setHoveredSlot(null);
+        setHoverTooltip(null);
       }
     } else {
       // Sin bloques: preview libre siguiendo el cursor
@@ -651,8 +699,17 @@ export function WorkerTimeline({
       const hoveredTime = positionToTime(position);
       if (hoveredTime && isSlotAvailable(hoveredTime, workerPlannings)) {
         setHoveredSlot({ time: hoveredTime, workerId });
+        setHoverTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          label: `${format(hoveredTime, "hh:mm a")} - ${format(
+            addWorkHours(hoveredTime, estimatedHours),
+            "hh:mm a",
+          )}`,
+        });
       } else {
         setHoveredSlot(null);
+        setHoverTooltip(null);
       }
     }
   };
@@ -683,6 +740,8 @@ export function WorkerTimeline({
       // Limpiar selecciones
       setSelectedTime(null);
       setHoveredSlot(null);
+      setHoverTooltip(null);
+      setResizeTooltip(null);
       setSelectedWorkOrderId("");
       setSelectedWorkOrderData(null);
       setSelectedGroup(null);
@@ -869,7 +928,7 @@ export function WorkerTimeline({
                                 variant="outline"
                                 className="font-mono text-xs"
                               >
-                                #{wo.correlative}
+                                {wo.correlative}
                               </Badge>
                               <span className="text-sm">
                                 {wo.vehicle_plate}
@@ -1106,9 +1165,12 @@ export function WorkerTimeline({
                       ? handleTimelineHover(e, worker.id, plannings)
                       : undefined
                   }
-                  onMouseLeave={() =>
-                    selectionMode ? setHoveredSlot(null) : undefined
-                  }
+                  onMouseLeave={() => {
+                    if (selectionMode) {
+                      setHoveredSlot(null);
+                      setHoverTooltip(null);
+                    }
+                  }}
                 >
                   {/* Área de mañana */}
                   <div
@@ -1683,6 +1745,38 @@ export function WorkerTimeline({
           sedeId={sedeId}
         />
       )}
+
+      {/* Tooltip flotante que sigue al cursor antes de ubicar el bloque (preview) */}
+      {hoverTooltip &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-100 pointer-events-none px-3 py-1.5 rounded-lg shadow-lg border-2 border-blue-400 bg-white text-blue-600 text-sm font-bold whitespace-nowrap"
+            style={{
+              left: hoverTooltip.x + 16,
+              top: hoverTooltip.y - 36,
+            }}
+          >
+            {hoverTooltip.label}
+          </div>,
+          document.body,
+        )}
+
+      {/* Tooltip flotante que sigue al cursor mientras se arrastra el resize */}
+      {resizeTooltip &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-100 pointer-events-none px-3 py-1.5 rounded-lg shadow-lg border-2 border-primary bg-white text-primary text-sm font-bold whitespace-nowrap"
+            style={{
+              left: resizeTooltip.x + 16,
+              top: resizeTooltip.y - 36,
+            }}
+          >
+            {resizeTooltip.label}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
