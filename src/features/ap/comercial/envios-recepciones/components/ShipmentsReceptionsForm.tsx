@@ -59,7 +59,7 @@ import {
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.constants";
-import { ImageUploadField } from "@/shared/components/ImageUploadField";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useVehicles } from "../../vehiculos/lib/vehicles.hook";
@@ -1357,12 +1357,23 @@ export const ShipmentsReceptionsForm = ({
             />
           </div>
 
-          <ImageUploadField
-            form={form}
+          <FormField
+            control={form.control}
             name="file"
-            label="Foto de la Guía de Remisión"
-            maxSizeInMB={5}
-            required={false}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto de la Guía de Remisión"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </GroupFormSection>
 

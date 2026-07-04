@@ -175,6 +175,7 @@ export interface DriverRowProps {
     driver: DriverResource;
     onViewOnMap?: (driver: DriverResource) => void;
     onRefresh?: () => void;
+    onShowHistory?: (driver: DriverResource) => void;
 }
 
 //Interfaces del componente DriverTableProps
@@ -183,6 +184,7 @@ export interface DriverTableProps {
     isLoading: boolean;
     onViewOnMap?: (driver: DriverResource) => void;
     onRefresh?: () => void;
+    onShowHistory?: (driver: DriverResource) => void;
 }
 
 //Interfaces del componente MapView

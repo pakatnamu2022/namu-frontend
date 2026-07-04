@@ -11,6 +11,7 @@ import {
     getEquipmentBySerial,
     getLatestLocations,
     getLocationByDriverId,
+    getLocationHistory,
     getLocations,
     getStatusLogs,
     getStatusLogsByDriver,
@@ -403,61 +404,49 @@ export function useLocationTracker({
 
 //HOOK DE ROUTE HISTORY MODAL
 export function useRouteHistory({ driverId, enabled = true }: UseRouteHistoryProps) {
-    const [data, setData] = useState<HistoryPoint[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
 
-    const fetchedRef = useRef(false);
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: [QUERY_KEY, "location-history", driverId],
+        queryFn: () => getLocationHistory(driverId!, 2, 1000),
+        enabled: enabled && !!driverId,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        retry: 1,
+    });
 
-    const fetchHistory = useCallback(async () => {
-        if (!driverId || !enabled) return;
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            // TODO: Reemplazar con tu API real
-            // const response = await getLocationHistory(driverId);
-            // setData(response);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const mockData: HistoryPoint[] = [
-                { lat: -12.0464, lng: -77.0428, time: "08:00", label: "Inicio de ruta", type: "start" },
-                { lat: -12.0500, lng: -77.0450, time: "09:30", label: "Parada técnica", type: "stop" },
-                { lat: -12.0600, lng: -77.0550, time: "10:45", label: "Entrega completada", type: "end" },
-            ];
-            setData(mockData);
-        } catch (error) {
-            setError(error as Error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [driverId, enabled]);
-
-    useEffect(() => {
-
-        if (!driverId) {
-            fetchedRef.current = false;
-            setData([]);
-            return;
+    const historyPoints: HistoryPoint[] = data?.map((loc) => {
+        let timeStr = '';
+        if (loc.reported_at) {
+            const date = new Date(loc.reported_at);
+            timeStr = date.toLocaleDateString('es-PE', {
+                hour: '2-digit',
+                minute: '2-digit',
+            });
         }
 
-        if (enabled && !fetchedRef.current) {
-            fetchedRef.current = true,
-                fetchHistory();
-        }
-    }, [driverId, enabled, fetchHistory]);
+        return {
+            lat: loc.latitude ?? 0,
+            lng: loc.longitude ?? 0,
+            time: timeStr,
+            label: loc.reported_at ? new Date(loc.reported_at).toLocaleDateString('es-PE') : undefined,
+        };
+    }) ?? [];
 
-    const refetch = useCallback(() => {
-        fetchedRef.current = false;
-        fetchHistory();
-    }, [fetchHistory]);
+    const sortedPoints = [...historyPoints].sort((a, b) => {
+        if (!a.time && !b.time) return 0;
+        if (!a.time) return 1;
+        if (!b.time) return -1;
+        return a.time.localeCompare(b.time);
+    });
 
     return {
-        data,
+        data: sortedPoints,
         isLoading,
-        error,
+        error: error as Error | null,
         refetch,
-    }
+    };
+
+
 }
 
 // ============================================================

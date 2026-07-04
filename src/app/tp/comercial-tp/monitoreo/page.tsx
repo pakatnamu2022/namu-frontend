@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -86,7 +85,9 @@ export default function MonitoreoPage() {
     const { selectedDriverId, focusTarget, sidebarFilter, setSidebarFilter, handleSelectDriver, handleCenterDriver } = useMapState(isMobile, viewMode);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(new Date());
-    const [historyDriver, setHistoryDriver] = useState<DriverResource | null>(null);
+
+    const [selectedDriver, setSelectedDriver] = useState<DriverResource | null>(null);
+    const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
     const { data: driversData, isLoading: isLoadingDrivers, refetch: refetchDrivers } = useDrivers({
         page,
@@ -110,8 +111,15 @@ export default function MonitoreoPage() {
 
     const handleShowHistory = useCallback((id: number) => {
         const driver = drivers.find(d => d.id === id);
-        setHistoryDriver(driver || null);
+        if (driver) {
+            setSelectedDriver(driver);
+            setHistoryModalOpen(true);
+        }
     }, [drivers]);
+    const handleShowHistoryFromTable = useCallback((driver: DriverResource) => {
+        setSelectedDriver(driver);
+        setHistoryModalOpen(true);
+    }, []);
 
     const handleRefresh = useCallback(async () => {
         setIsRefreshing(true);
@@ -164,6 +172,7 @@ export default function MonitoreoPage() {
                         isLoading={isLoadingDrivers}
                         onViewOnMap={handleViewOnMap}
                         onRefresh={handleRefresh}
+                        onShowHistory={handleShowHistoryFromTable}
                     />
                     <DataTablePagination
                         page={page}
@@ -185,7 +194,7 @@ export default function MonitoreoPage() {
                                 drivers={drivers}
                                 selectedId={selectedDriverId ? String(selectedDriverId) : null}
                                 onSelect={(id) => handleSelectDriver(Number(id))}
-                                onShowHistory={(id) => handleShowHistory(Number(id))}
+                                onShowHistory={(id: string) => handleShowHistory(Number(id))}
                                 focusTarget={focusTarget ? { id: String(focusTarget.id), ts: focusTarget.ts } : null}
                             />
                         </div>
@@ -235,9 +244,9 @@ export default function MonitoreoPage() {
 
             {/* Modal de historial */}
             <RouteHistoryModal
-                driver={historyDriver}
-                open={!!historyDriver}
-                onOpenChange={(open) => !open && setHistoryDriver(null)}
+                driver={selectedDriver}
+                open={historyModalOpen}
+                onOpenChange={setHistoryModalOpen}
             />
         </div>
     )
