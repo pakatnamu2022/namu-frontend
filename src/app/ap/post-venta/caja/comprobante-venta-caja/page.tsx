@@ -14,6 +14,7 @@ import {
   preCancelElectronicDocument,
   dispatchElectronicDocumentMigration,
   cancelConsolidatedInvoice,
+  syncAccountingStatusById,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable.tsx";
 import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns.tsx";
@@ -82,6 +83,7 @@ export default function SalesReceiptsCajaPage() {
   const canSend = permissions.canSend || false;
   const canCreateCreditNote = permissions.canCreate || false; // Usar mismo permiso que crear
   const canCreateDebitNote = permissions.canCreate || false;
+  const canMigrate = permissions.canMigrate || false;
 
   const { data: documentTypes } = useAllSunatConcepts({
     type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
@@ -157,6 +159,22 @@ export default function SalesReceiptsCajaPage() {
     cancelConsolidatedMutation.mutate(id);
   };
 
+  const syncAccountingStatusMutation = useMutation({
+    mutationFn: syncAccountingStatusById,
+    onSuccess: (data) => {
+      successToast(
+        `Sincronizado: ${data.is_accounted ? "Contabilizado" : "No contabilizado"}${
+          data.is_annulled ? " (Anulado)" : ""
+        }`,
+      );
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al sincronizar contabilización: ${msg}`);
+    },
+  });
+
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
     refetch();
@@ -192,12 +210,15 @@ export default function SalesReceiptsCajaPage() {
           onPreCancel: handlePreCancel,
           onMigrate: (id) => migrateMutation.mutate(id),
           onCancelConsolidated: handleCancelConsolidated,
+          onSyncAccountingStatus: (id) =>
+            syncAccountingStatusMutation.mutate(id),
           permissions: {
             canUpdate,
             canAnnul,
             canSend,
             canCreateCreditNote,
             canCreateDebitNote,
+            canMigrate,
           },
           routeAbsolute: ABSOLUTE_ROUTE,
         })}

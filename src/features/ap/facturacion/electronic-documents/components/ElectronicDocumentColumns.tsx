@@ -39,12 +39,14 @@ interface Props {
   onPreCancel?: (id: number) => Promise<boolean>;
   onMigrate?: (id: number) => void;
   onCancelConsolidated?: (id: number) => void;
+  onSyncAccountingStatus?: (id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
     canAnnul: boolean;
     canCreateCreditNote: boolean;
     canCreateDebitNote: boolean;
+    canMigrate?: boolean;
   };
 }
 
@@ -56,6 +58,7 @@ export const electronicDocumentColumns = ({
   onPreCancel,
   onMigrate,
   onCancelConsolidated,
+  onSyncAccountingStatus,
   permissions,
 }: Props): ElectronicDocumentColumn[] => {
   // Determinar la ruta según el módulo
@@ -375,6 +378,11 @@ export const electronicDocumentColumns = ({
           onMigrate && document.migration_status !== "completed";
         //  &&          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
 
+        const canSyncAccountingStatus =
+          !!onSyncAccountingStatus &&
+          !!permissions.canMigrate &&
+          document.migration_status === "completed";
+
         const canSendToSunat =
           document.status === "draft" && onSendToSunat && permissions.canSend;
         const canEdit = document.status === "draft" && permissions.canUpdate;
@@ -519,6 +527,28 @@ export const electronicDocumentColumns = ({
                     tooltip="Migrar"
                     icon={ArrowRightLeft}
                     canRender={canMigrate}
+                    color="indigo"
+                  />
+                }
+              />
+            )}
+
+            {/* Sincronizar contabilización */}
+            {canSyncAccountingStatus && (
+              <ConfirmationDialog
+                title="Confirmar sincronización"
+                description="¿Está seguro de que desea sincronizar el estado contable de este documento? Esto puede afectar inventario y órdenes de trabajo/cotización relacionadas."
+                onConfirm={() =>
+                  onSyncAccountingStatus && onSyncAccountingStatus(document.id)
+                }
+                icon="info"
+                confirmText="Sí, sincronizar"
+                cancelText="No, cancelar"
+                trigger={
+                  <ButtonAction
+                    tooltip="Sincronizar Contabilización"
+                    icon={BookCheck}
+                    canRender={canSyncAccountingStatus}
                     color="indigo"
                   />
                 }
