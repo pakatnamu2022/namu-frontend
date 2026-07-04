@@ -620,7 +620,14 @@ export const VehiclePurchaseOrderForm = ({
                   mapOptionFn={(item: ModelsVnResource) => ({
                     label: item.version,
                     value: item.id.toString(),
-                    description: item.code,
+                    description:
+                      item.code +
+                      " | " +
+                      item.fuel +
+                      " | " +
+                      item.body_type +
+                      " | " +
+                      item.transmission,
                   })}
                   additionalParams={{
                     family$brand_id: form.watch("ap_brand_id"),
