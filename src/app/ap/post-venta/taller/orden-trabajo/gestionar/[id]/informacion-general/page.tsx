@@ -19,11 +19,13 @@ import {
   CheckCircle2,
   AlertCircle,
   CircleDollarSign,
+  RefreshCw,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   findWorkOrderById,
   changeCurrency,
+  recalculateTotals,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import { WORK_ORDER_STATUS_COLORS } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import InvoiceList from "@/features/ap/facturacion/electronic-documents/components/InvoiceList.tsx";
@@ -91,6 +93,21 @@ export default function GeneralInformationPage() {
       shouldDirty: false,
     });
   }, [workOrder?.currency_id, currencyForm]);
+
+  // Mutation to recalculate totals
+  const { mutate: handleRecalculateTotals, isPending: isRecalculating } =
+    useMutation({
+      mutationFn: () => recalculateTotals(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["workOrder", id] });
+        successToast("Montos recalculados correctamente");
+      },
+      onError: (error: any) => {
+        errorToast(
+          error?.response?.data?.message || "Error al recalcular los montos",
+        );
+      },
+    });
 
   // Fetch appointment data if exists
   const { data: appointment, isLoading: isLoadingAppointment } = useQuery({
@@ -671,13 +688,26 @@ export default function GeneralInformationPage() {
                 <Wrench className="h-5 w-5 text-gray-500" />
                 Mano de Obra y Repuestos
               </h3>
-              {String(workOrder.type_currency?.id) ===
-                CURRENCY_TYPE_IDS.DOLLARS && (
-                <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
-                  <span className="font-medium">Tipo de cambio:</span>
-                  <span>S/ {workOrder.exchange_rate?.toFixed(2)}</span>
-                </div>
-              )}
+              <div className="flex flex-wrap items-center gap-3">
+                {String(workOrder.type_currency?.id) ===
+                  CURRENCY_TYPE_IDS.DOLLARS && (
+                  <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
+                    <span className="font-medium">Tipo de cambio:</span>
+                    <span>S/ {workOrder.exchange_rate?.toFixed(2)}</span>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRecalculateTotals()}
+                  disabled={isRecalculating}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 mr-2 ${isRecalculating ? "animate-spin" : ""}`}
+                  />
+                  Recalcular Montos
+                </Button>
+              </div>
             </div>
 
             {/* Mano de Obra */}
