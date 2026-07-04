@@ -395,6 +395,16 @@ export async function syncAccountingStatus(): Promise<void> {
   await api.post(`${ENDPOINT}/sync-accounting-status`);
 }
 
+export async function syncAccountingStatusById(
+  id: number,
+): Promise<{ is_accounted: boolean; is_annulled: boolean }> {
+  const { data } = await api.post<{
+    is_accounted: boolean;
+    is_annulled: boolean;
+  }>(`${ENDPOINT}/${id}/sync-accounting-status`);
+  return data;
+}
+
 export async function getInvoiceWithWorkOrders(
   id: number,
 ): Promise<InvoiceWithWorkOrdersResponse> {
