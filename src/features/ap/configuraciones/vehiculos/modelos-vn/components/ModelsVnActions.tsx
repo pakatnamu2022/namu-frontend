@@ -7,11 +7,13 @@ import { Download, FileSearch, FileUp, Plus, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
   downloadTemplateModelsVn,
   downloadVerifyTemplateModelsVn,
+  exportModelsVn,
   syncAllModelsVn,
 } from "../lib/modelsVn.actions";
 import { errorToast, successToast } from "@/core/core.function";
@@ -24,14 +26,17 @@ interface ModelsVnActionsProps {
   permissions: {
     canCreate: boolean;
     canImport: boolean;
+    canExport?: boolean;
   };
   onImportSuccess: () => void;
+  filters?: Record<string, any>;
 }
 
 export default function ModelsVnActions({
   permissions,
   isCommercial = CM_COMERCIAL_ID,
   onImportSuccess,
+  filters,
 }: ModelsVnActionsProps) {
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -84,12 +89,19 @@ export default function ModelsVnActions({
     }
   };
 
-  if (!permissions.canCreate && !permissions.canImport) {
+  if (!permissions.canCreate && !permissions.canImport && !permissions.canExport) {
     return null;
   }
 
   return (
     <ActionsWrapper>
+      {permissions.canExport && (
+        <ExportButtons
+          onExcelDownload={() => exportModelsVn({ ...filters })}
+          onPdfDownload={() => exportModelsVn({ ...filters, format: "pdf" })}
+        />
+      )}
+
       {(permissions.canCreate || permissions.canImport) && (
         <Tooltip>
           <TooltipTrigger asChild>
