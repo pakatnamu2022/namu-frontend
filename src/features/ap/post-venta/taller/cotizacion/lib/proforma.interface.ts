@@ -33,6 +33,8 @@ export interface OrderQuotationResource {
   notes: string | null;
   details: OrderQuotationDetailsResource[];
   vouchers: ProformaDocumentsTreeResource;
+  items_invoice?: OrderQuotationInvoiceItemResource[];
+  invoice_preview?: OrderQuotationInvoicePreviewResource;
   payment_summary: {
     paid_amount: number;
     pending_amount: number;
@@ -78,6 +80,39 @@ export interface OrderQuotationResource {
   shipping_guide?:
     | import("@/features/ap/shipping_guides/lib/shippingGuides.interface").ShippingGuidesResource
     | null;
+}
+
+export interface OrderQuotationInvoiceItemResource {
+  type: "part" | "labour" | "anticipo_regularizacion";
+  source_id: number;
+  account_plan_id: number;
+  unidad_de_medida: string;
+  codigo: string | null;
+  product_id: number | null;
+  descripcion: string;
+  cantidad: number;
+  sunat_concept_igv_type_id: number;
+  anticipo_regularizacion: boolean;
+  anticipo_documento_serie: string | null;
+  anticipo_documento_numero: number | null;
+  reference_document_id: number | string | null;
+  from_quotation: boolean;
+  valor_unitario: number;
+  precio_unitario: number;
+  descuento: number | null;
+  subtotal: number;
+  igv: number;
+  total: number;
+}
+
+export interface OrderQuotationInvoicePreviewResource {
+  total_gravada: number;
+  total_inafecta: number;
+  total_exonerada: number;
+  total_igv: number;
+  total_gratuita: number;
+  total_anticipo: number;
+  total: number;
 }
 
 export interface ApprovalRequest {

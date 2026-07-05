@@ -182,3 +182,12 @@ export async function dissociateShippingGuide(
   );
   return response.data;
 }
+
+export async function recalculateOrderQuotationTotals(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/recalculate-totals`,
+  );
+  return response.data;
+}

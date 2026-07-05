@@ -127,6 +127,15 @@ export async function cancelPlanning(
   return response.data;
 }
 
+export async function autoCompletePlanning(
+  id: number,
+): Promise<WorkOrderPlanningResource> {
+  const response = await api.post<WorkOrderPlanningResource>(
+    `${ENDPOINT}/${id}/auto-complete`,
+  );
+  return response.data;
+}
+
 export async function supervisorComplete(
   id: number,
   end_datetime: string,

@@ -14,7 +14,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
+import { DEFAULT_MEDIUM_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -33,7 +33,7 @@ import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 export default function OrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
+  const [per_page, setPerPage] = useState<number>(DEFAULT_MEDIUM_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedDeliveryId, setSelectedDeliveryId] = useState<number | null>(
