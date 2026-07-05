@@ -97,6 +97,7 @@ export default function ModelsVnPage() {
           permissions={permissions}
           isCommercial={CM_COMERCIAL_ID}
           onImportSuccess={refetch}
+          filters={{ search, family$brand_id: brandId }}
         />
       </HeaderTableWrapper>
       <ModelsVnTable
