@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Copy, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -13,10 +13,12 @@ export type ModelsVnColumns = ColumnDef<ModelsVnResource>;
 interface Props {
   onUpdate: (id: number) => void;
   onDelete: (id: number) => void;
+  onDuplicate: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
+    canCreate: boolean;
   };
   isCommercial: number;
 }
@@ -24,6 +26,7 @@ interface Props {
 export const modelsVnPvColumns = ({
   onUpdate,
   onDelete,
+  onDuplicate,
   onToggleStatus,
   permissions,
   isCommercial = CM_COMERCIAL_ID,
@@ -219,6 +222,18 @@ export const modelsVnPvColumns = ({
               disabled={type_operation_id !== isCommercial}
             >
               <Pencil className="size-5" />
+            </Button>
+          )}
+
+          {/* Duplicate */}
+          {permissions.canCreate && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onDuplicate(id)}
+            >
+              <Copy className="size-5" />
             </Button>
           )}
 
