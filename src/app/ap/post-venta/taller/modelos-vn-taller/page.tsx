@@ -36,6 +36,7 @@ export default function ModelsVnPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [updateId, setUpdateId] = useState<number | null>(null);
+  const [duplicateId, setDuplicateId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [brandId, setBrandId] = useState<string>("");
   const { ROUTE, MODEL } = MODELS_VN_POSTVENTA;
@@ -102,6 +103,7 @@ export default function ModelsVnPage() {
         isLoading={isLoading}
         columns={modelsVnPvColumns({
           onUpdate: setUpdateId,
+          onDuplicate: setDuplicateId,
           onDelete: setDeleteId,
           onToggleStatus: handleToggleStatus,
           permissions,
@@ -127,6 +129,18 @@ export default function ModelsVnPage() {
             setUpdateId(null);
           }}
           mode="update"
+        />
+      )}
+
+      {duplicateId !== null && (
+        <ModelsVnModal
+          id={duplicateId}
+          title={"Duplicar Modelo VN"}
+          open={true}
+          onClose={() => {
+            setDuplicateId(null);
+          }}
+          mode="duplicate"
         />
       )}
 
