@@ -75,6 +75,7 @@ export default function WorkOrderPage() {
   const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
     cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
+    sede_id: sedeId || undefined,
     sede$empresa_id: EMPRESA_AP.id,
   });
 
