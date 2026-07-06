@@ -42,7 +42,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts"
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { useState } from "react";
 import { api } from "@/core/api.ts";
-import { format, addDays, parseISO } from "date-fns";
+import { format, addDays } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
@@ -368,14 +368,10 @@ export const PurchaseOrderProductsForm = ({
               placeholder="Selecciona una fecha"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
-              disabledRange={
-                receptionData?.reception_date
-                  ? [
-                      { before: parseISO(receptionData.reception_date) },
-                      { after: new Date() },
-                    ]
-                  : { after: new Date() }
-              }
+              disabledRange={[
+                { before: new Date(new Date().getFullYear(), 6, 1) },
+                { after: new Date() },
+              ]}
             />
 
             <DatePickerFormField
