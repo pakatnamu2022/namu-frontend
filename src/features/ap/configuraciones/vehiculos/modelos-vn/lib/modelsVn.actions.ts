@@ -136,6 +136,43 @@ export async function verifyModelsVn(
   return data;
 }
 
+export async function downloadMatchExcelTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/match-excel/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_match_modelos_vn.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function matchExcelModelsVn(file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post(`${ENDPOINT}/match-excel`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = file.name.replace(/\.(xlsx|xls)$/i, "_match.xlsx");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export async function getModelVnSyncLogs(
   params?: Record<string, any>
 ): Promise<ModelVnSyncLogsResponse> {

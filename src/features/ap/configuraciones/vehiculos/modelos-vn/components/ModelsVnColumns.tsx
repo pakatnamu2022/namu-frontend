@@ -3,6 +3,7 @@ import { ModelsVnResource } from "../lib/modelsVn.interface";
 import { useNavigate } from "react-router-dom";
 import { Copy, History, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { CopyCell } from "@/shared/components/CopyCell";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -36,7 +37,7 @@ export const modelsVnColumns = ({
     header: "Cod.",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell value={value} className="font-semibold" />;
     },
   },
   {
