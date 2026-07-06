@@ -2,14 +2,22 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Users, Truck } from "lucide-react";
+import { AlertTriangle, Users, Truck, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAlertsGoalTravel } from "../lib/GoalTravelControl.hook";
+import { useAlertsGoalTravel, useAvailableYearsGoalTravel } from "../lib/GoalTravelControl.hook";
+import { useState } from "react";
+import { MONTHS } from "../lib/GoalTravelControl.constants";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 
 export default function GoalTravelAlerts() {
-    const { data: alerts, isLoading, error } = useAlertsGoalTravel();
+    const [year, setYear] = useState<number>(new Date().getFullYear());
+    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
+
+
+    const { data: alerts, isLoading, error } = useAlertsGoalTravel(year, month);
+    const { data: availableYears = [] } = useAvailableYearsGoalTravel();
 
     if (isLoading) {
         return (
@@ -42,15 +50,68 @@ export default function GoalTravelAlerts() {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-green-500" />
-                        Alertas de Cumplimiento
-                    </CardTitle>
+                    <div className="flex flex-col gap-4">
+                        <CardTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-green-500" />
+                            Alertas de Cumplimiento
+                        </CardTitle>
+                        <div className="flex items-center gap-4 flex-wrap">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium">Período:</span>
+                            </div>
+                            <Select
+                                value={month.toString()}
+                                onValueChange={(value) => setMonth(parseInt(value))}
+                            >
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Mes" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {MONTHS.map((m) => (
+                                        <SelectItem key={m.value} value={m.value}>
+                                            {m.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select
+                                value={year.toString()}
+                                onValueChange={(value) => setYear(parseInt(value))}
+                            >
+                                <SelectTrigger className="w-[120px]">
+                                    <SelectValue placeholder="Año" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableYears.length > 0 ? (
+                                        availableYears.map((y) => (
+                                            <SelectItem key={y} value={y.toString()}>
+                                                {y}
+                                            </SelectItem>
+                                        ))
+                                    ) : (
+                                        // Si no hay años disponibles, mostrar años recientes
+                                        Array.from({ length: 5 }, (_, i) => {
+                                            const yearOption = new Date().getFullYear() - i;
+                                            return (
+                                                <SelectItem key={yearOption} value={yearOption.toString()}>
+                                                    {yearOption}
+                                                </SelectItem>
+                                            );
+                                        })
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <div className="text-center py-6 text-muted-foreground">
                         <div className="text-2xl mb-2">✅</div>
                         <p>Todos los conductores y vehículos están cumpliendo con sus metas</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                            para {MONTHS.find(m => m.value === month.toString())?.label} {year}
+                        </p>
                     </div>
                 </CardContent>
             </Card>
@@ -60,13 +121,64 @@ export default function GoalTravelAlerts() {
     return (
         <Card className="border-red-200 bg-red-50">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-700">
-                    <AlertTriangle className="h-5 w-5" />
-                    Alertas de Bajo Cumplimiento
-                    <Badge variant="outline" className="ml-2">
-                        {totalAlerts}
-                    </Badge>
-                </CardTitle>
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2 text-red-700">
+                            <AlertTriangle className="h-5 w-5" />
+                            Alertas de Bajo Cumplimiento
+                            <Badge variant="outline" className="ml-2">
+                                {totalAlerts}
+                            </Badge>
+                        </CardTitle>
+                    </div>
+                    <div className="flex items-center gap-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Período:</span>
+                        </div>
+                        <Select
+                            value={month.toString()}
+                            onValueChange={(value) => setMonth(parseInt(value))}
+                        >
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Mes" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {MONTHS.map((m) => (
+                                    <SelectItem key={m.value} value={m.value}>
+                                        {m.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select
+                            value={year.toString()}
+                            onValueChange={(value) => setYear(parseInt(value))}
+                        >
+                            <SelectTrigger className="w-[120px]">
+                                <SelectValue placeholder="Año" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableYears.length > 0 ? (
+                                    availableYears.map((y) => (
+                                        <SelectItem key={y} value={y.toString()}>
+                                            {y}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    Array.from({ length: 5 }, (_, i) => {
+                                        const yearOption = new Date().getFullYear() - i;
+                                        return (
+                                            <SelectItem key={yearOption} value={yearOption.toString()}>
+                                                {yearOption}
+                                            </SelectItem>
+                                        );
+                                    })
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
             </CardHeader>
             <CardContent className="space-y-4">
                 {alerts?.conductores && alerts.conductores.length > 0 && (
