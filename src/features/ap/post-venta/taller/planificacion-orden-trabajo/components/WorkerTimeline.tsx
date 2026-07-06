@@ -1489,7 +1489,9 @@ export function WorkerTimeline({
                                   <Button
                                     variant="outline"
                                     size="icon"
-                                    onClick={() => handleAutoComplete(planning.id)}
+                                    onClick={() =>
+                                      handleAutoComplete(planning.id)
+                                    }
                                     disabled={autoCompleteMutation.isPending}
                                     tooltip="Auto-completar planificación"
                                   >
