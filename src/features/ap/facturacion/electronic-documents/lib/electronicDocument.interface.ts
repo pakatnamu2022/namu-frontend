@@ -40,6 +40,8 @@ export interface ElectronicDocumentResource {
   purchase_request_quote_id?: number;
   order_quotation_id?: number;
   work_order_id?: number;
+  related_document_number?: string | null;
+  related_document_type?: string | null;
   credit_note_id?: number;
   credit_note_number?: string;
   debit_note_id?: number;
