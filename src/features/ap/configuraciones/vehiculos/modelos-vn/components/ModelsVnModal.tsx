@@ -22,7 +22,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   title: string;
-  mode: "create" | "update";
+  mode: "create" | "update" | "duplicate";
 }
 
 export default function ModelsVnModal({
@@ -52,18 +52,23 @@ export default function ModelsVnModal({
     : // eslint-disable-next-line react-hooks/rules-of-hooks
       useModelVnById(id!);
 
+  const isCreateLike = mode === "create" || mode === "duplicate";
+
   const { mutate, isPending } = useMutation({
     mutationFn: (data: ModelsVnSchema) =>
-      mode === "create" ? storeModelsVn(data) : updateModelsVn(id!, data),
+      isCreateLike ? storeModelsVn(data) : updateModelsVn(id!, data),
     onSuccess: async () => {
-      successToast(SUCCESS_MESSAGE(MODEL, mode));
+      successToast(SUCCESS_MESSAGE(MODEL, isCreateLike ? "create" : mode));
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });
       await refetch();
     },
     onError: (error: any) => {
-      errorToast(error.response?.data?.message, ERROR_MESSAGE(MODEL, mode));
+      errorToast(
+        error.response?.data?.message,
+        ERROR_MESSAGE(MODEL, isCreateLike ? "create" : mode),
+      );
     },
   });
 
@@ -92,7 +97,7 @@ export default function ModelsVnModal({
           onCancel={onClose}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
-          mode={mode}
+          mode={isCreateLike ? "create" : "update"}
         />
       ) : (
         <FormSkeleton />

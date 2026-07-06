@@ -1,8 +1,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
 import { useNavigate } from "react-router-dom";
-import { History, Pencil } from "lucide-react";
+import { Copy, History, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { CopyCell } from "@/shared/components/CopyCell";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -17,6 +18,7 @@ interface Props {
   onToggleStatus: (id: number, newStatus: boolean) => void;
   onViewDynamics?: (modelId: number) => void;
   permissions: {
+    canCreate: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -35,7 +37,7 @@ export const modelsVnColumns = ({
     header: "Cod.",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell value={value} className="font-semibold" />;
     },
   },
   {
@@ -197,7 +199,7 @@ export const modelsVnColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { ROUTE_UPDATE } =
+      const { ROUTE_ADD, ROUTE_UPDATE } =
         isCommercial === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
@@ -220,6 +222,14 @@ export const modelsVnColumns = ({
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             disabled={type_operation_id !== isCommercial}
             canRender={permissions.canUpdate}
+          />
+
+          <ButtonAction
+            icon={Copy}
+            tooltip="Duplicar"
+            variant="ghost"
+            onClick={() => router(`${ROUTE_ADD}?duplicate=${id}`)}
+            canRender={permissions.canCreate}
           />
 
           <ButtonAction
