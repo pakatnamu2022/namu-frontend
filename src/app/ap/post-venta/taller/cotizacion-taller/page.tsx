@@ -14,7 +14,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
+import { DEFAULT_MEDIUM_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
@@ -36,7 +36,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 export default function OrderQuotationPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
+  const [per_page, setPerPage] = useState<number>(DEFAULT_MEDIUM_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);

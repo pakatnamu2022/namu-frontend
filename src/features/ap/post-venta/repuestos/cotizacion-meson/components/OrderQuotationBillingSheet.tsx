@@ -22,6 +22,7 @@ import {
   Truck,
   LinkIcon,
   Unlink,
+  RefreshCw,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -44,6 +45,7 @@ import {
   updateOrderQuotationInvoiceTo,
   associateShippingGuide,
   dissociateShippingGuide,
+  recalculateOrderQuotationTotals,
 } from "../lib/quotationMeson.actions";
 import { getShippingGuides } from "@/features/ap/shipping_guides/lib/shippingGuides.actions";
 import { SHIPPING_GUIDES } from "@/features/ap/shipping_guides/lib/shippingGuides.constants";
@@ -331,6 +333,22 @@ export function BillingSheetContent({
       errorToast(
         error?.response?.data?.message ||
           "Error al desasociar la guía de remisión",
+      );
+    },
+  });
+
+  const recalculateTotalsMutation = useMutation({
+    mutationFn: () => recalculateOrderQuotationTotals(orderQuotation.id),
+    onSuccess: () => {
+      successToast("Montos recalculados correctamente");
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", orderQuotation.id],
+      });
+      onRefresh?.();
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al recalcular los montos",
       );
     },
   });
@@ -1025,16 +1043,32 @@ export function BillingSheetContent({
           <h3 className="font-semibold text-lg">
             Documentos Electrónicos ({activeVouchers.length})
           </h3>
-          {hasAdvances && (
-            <Badge variant="outline" className="text-sm">
-              Pagado:{" "}
-              {formatMoney(
-                orderQuotation.payment_summary?.paid_amount,
-                2,
-                currencySymbol,
-              )}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {hasAdvances && (
+              <Badge variant="outline" className="text-sm">
+                Pagado:{" "}
+                {formatMoney(
+                  orderQuotation.payment_summary?.paid_amount,
+                  2,
+                  currencySymbol,
+                )}
+              </Badge>
+            )}
+            {!readOnly && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={recalculateTotalsMutation.isPending}
+                onClick={() => recalculateTotalsMutation.mutate()}
+              >
+                <RefreshCw
+                  className={`h-4 w-4 mr-2 ${recalculateTotalsMutation.isPending ? "animate-spin" : ""}`}
+                />
+                Recalcular Montos
+              </Button>
+            )}
+          </div>
         </div>
 
         {!hasAdvances ? (

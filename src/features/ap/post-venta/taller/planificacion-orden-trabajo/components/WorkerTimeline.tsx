@@ -27,6 +27,7 @@ import {
   MousePointerClick,
   Package,
   Pencil,
+  CheckCircle,
 } from "lucide-react";
 import {
   HoverCard,
@@ -72,8 +73,18 @@ import {
   Eraser,
 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useGetWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
+import {
+  useGetWorkOrderPlanning,
+  useAutoCompleteWorkOrderPlanning,
+} from "../lib/workOrderPlanning.hook";
 import { STATUS_WORK_ORDER } from "../../orden-trabajo/lib/workOrder.constants";
+import { WORK_ORDER_PLANNING } from "../lib/workOrderPlanning.constants";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -347,6 +358,19 @@ export function WorkerTimeline({
       },
       enabled: !!sedeId,
     });
+
+  const autoCompleteMutation = useAutoCompleteWorkOrderPlanning();
+
+  const handleAutoComplete = async (id: number) => {
+    try {
+      await autoCompleteMutation.mutateAsync(id);
+      successToast(SUCCESS_MESSAGE(WORK_ORDER_PLANNING.MODEL, "update"));
+      refetchPlanning();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(WORK_ORDER_PLANNING.MODEL, "update", msg));
+    }
+  };
 
   const dayPlannings = (ownPlanningData?.data ?? []).filter((planning) => {
     if (!planning.planned_start_datetime) return false;
@@ -1461,6 +1485,19 @@ export function WorkerTimeline({
                             </Badge>
                             {(visibleEdit || visibleDelete) && (
                               <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
+                                {visibleEdit && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() =>
+                                      handleAutoComplete(planning.id)
+                                    }
+                                    disabled={autoCompleteMutation.isPending}
+                                    tooltip="Auto-completar planificación"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                  </Button>
+                                )}
                                 {visibleEdit && (
                                   <Button
                                     variant="outline"

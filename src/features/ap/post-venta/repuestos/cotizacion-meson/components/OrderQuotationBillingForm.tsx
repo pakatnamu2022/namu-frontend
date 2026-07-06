@@ -380,7 +380,53 @@ export function OrderQuotationBillingForm({
 
         form.setValue("is_advance_payment", true, { shouldValidate: false });
         form.setValue("items", quotationItems, { shouldValidate: false });
+      } else if (
+        quotation.items_invoice &&
+        quotation.items_invoice.length > 0
+      ) {
+        // MODO VENTA NORMAL: items ya calculados por el backend (fuente de verdad)
+        const invoiceItems: ElectronicDocumentItemSchema[] =
+          quotation.items_invoice.map((item) => {
+            // El backend manda el ítem de anticipo en negativo para que el
+            // invoice_preview sume fácil, pero el endpoint de guardado espera
+            // los montos en positivo (la resta la indica el flag anticipo_regularizacion).
+            const sign = item.anticipo_regularizacion
+              ? Math.abs
+              : (n: number) => n;
+
+            return {
+              reference_document_id:
+                item.reference_document_id != null
+                  ? item.reference_document_id.toString()
+                  : undefined,
+              unidad_de_medida: item.unidad_de_medida,
+              codigo: item.codigo ?? undefined,
+              descripcion: item.descripcion,
+              cantidad: item.cantidad,
+              valor_unitario: sign(item.valor_unitario),
+              precio_unitario: sign(item.precio_unitario),
+              descuento: item.descuento ?? undefined,
+              subtotal: sign(item.subtotal),
+              sunat_concept_igv_type_id: item.sunat_concept_igv_type_id,
+              igv: sign(item.igv),
+              total: sign(item.total),
+              account_plan_id: item.account_plan_id.toString(),
+              product_id:
+                item.product_id != null
+                  ? item.product_id.toString()
+                  : undefined,
+              anticipo_regularizacion:
+                item.anticipo_regularizacion || undefined,
+              anticipo_documento_serie:
+                item.anticipo_documento_serie ?? undefined,
+              anticipo_documento_numero:
+                item.anticipo_documento_numero ?? undefined,
+            };
+          });
+
+        form.setValue("items", invoiceItems, { shouldValidate: false });
       } else {
+        // FALLBACK: sin items_invoice del backend, calcular en el frontend
         // ITEMS NORMALES (SIN CONSOLIDAR)
         // Función auxiliar para redondear a 2 decimales
         const round2 = (num: number) => Math.round(num * 100) / 100;
@@ -478,6 +524,7 @@ export function OrderQuotationBillingForm({
     quotation.id,
     quotation.details,
     quotation.vouchers,
+    quotation.items_invoice,
     igvTypes,
     porcentaje_de_igv,
     isAdvancePayment,
@@ -487,11 +534,23 @@ export function OrderQuotationBillingForm({
   ]);
 
   // Observar items para re-calcular totales cuando cambien
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const items = form.watch("items") || [];
+  const watchedItems = form.watch("items");
+  const items = useMemo(() => watchedItems || [], [watchedItems]);
 
   // Calcular totales
   const totales = useMemo(() => {
+    // Si el backend ya calculó el desglose para esta cotización (venta normal, no edición,
+    // no anticipo consolidado), usarlo directo como fuente de verdad.
+    if (
+      !isEdit &&
+      !isAdvancePayment &&
+      quotation.items_invoice &&
+      quotation.items_invoice.length > 0 &&
+      quotation.invoice_preview
+    ) {
+      return quotation.invoice_preview;
+    }
+
     const round2 = (num: number) => Math.round(num * 100) / 100;
 
     let raw_total_gravada = 0;
@@ -556,7 +615,15 @@ export function OrderQuotationBillingForm({
       total_anticipo,
       total,
     };
-  }, [items, igvTypes, porcentaje_de_igv]);
+  }, [
+    items,
+    igvTypes,
+    porcentaje_de_igv,
+    isEdit,
+    isAdvancePayment,
+    quotation.items_invoice,
+    quotation.invoice_preview,
+  ]);
 
   // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
   useEffect(() => {
