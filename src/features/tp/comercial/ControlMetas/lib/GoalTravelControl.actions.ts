@@ -66,10 +66,20 @@ export async function getRankingGoalTravel({
   }
 }
 
-export async function getAlertsGoalTravel(): Promise<AlertasCumplimiento> {
+export async function getAlertsGoalTravel(
+  {
+    params
+  }: getGoalTravelControlProps
+): Promise<AlertasCumplimiento> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
   try {
     const response = await api.get<AlertasCumplimiento>(
-      ENDPOINT + "/alerts"
+      ENDPOINT + "/alerts",
+      config
     );
     return response.data;
   } catch (error: any) {
