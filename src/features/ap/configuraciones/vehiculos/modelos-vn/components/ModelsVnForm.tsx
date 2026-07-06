@@ -58,6 +58,21 @@ export const ModelsVnForm = ({
       total_purchase_incl_igv: 0,
       sale_price: 0,
       margin: 0,
+      power: 0,
+      wheelbase: 0,
+      axles_number: 0,
+      width: 0,
+      length: 0,
+      height: 0,
+      seats_number: 0,
+      doors_number: 0,
+      net_weight: 0,
+      gross_weight: 0,
+      payload: 0,
+      displacement: 0,
+      cylinders_number: 0,
+      passengers_number: 0,
+      wheels_number: 0,
       ...defaultValues,
       type_operation_id: String(CM_COMERCIAL_ID),
     },
@@ -259,16 +274,13 @@ export const ModelsVnForm = ({
               type="number"
               disabled={mode === "update"}
             />
-            <FormSelect
-              name="class_id"
-              label="Clase Artículo"
-              placeholder="Selecciona una clase"
-              options={articleClasses.map((classArticle) => ({
-                label: classArticle.description,
-                value: classArticle.id.toString(),
-              }))}
+            <FormInput
+              name="version"
+              label="Versión"
+              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
               control={form.control}
-              disabled={mode === "update"}
+              readOnly={mode === "update" || isLoadingbrands}
+              uppercase
             />
             <FormSelect
               name="fuel_id"
@@ -277,6 +289,61 @@ export const ModelsVnForm = ({
               options={fuelTypes.map((fuelType) => ({
                 label: fuelType.description,
                 value: fuelType.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="vehicle_type_id"
+              label="Tipo Vehículo"
+              placeholder="Seleccionar Tipo"
+              options={typesVehicles.map((typeVehicle) => ({
+                label: typeVehicle.description,
+                value: typeVehicle.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="body_type_id"
+              label="Tipo Carrocería"
+              placeholder="Seleccionar Tipo"
+              options={bodyTypes.map((bodyType) => ({
+                label: bodyType.description,
+                value: bodyType.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="traction_type_id"
+              label="Tipo Tracción"
+              placeholder="Seleccionar Tipo"
+              options={tractionTypes.map((tractionType) => ({
+                label: tractionType.description,
+                value: tractionType.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="transmission_id"
+              label="Tipo Transmisión"
+              placeholder="Seleccionar Tipo"
+              options={vehicleTransmissions.map((vehicleTransmission) => ({
+                label: vehicleTransmission.description,
+                value: vehicleTransmission.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="class_id"
+              label="Clase Artículo"
+              placeholder="Selecciona una clase"
+              options={articleClasses.map((classArticle) => ({
+                label: classArticle.description,
+                value: classArticle.id.toString(),
               }))}
               control={form.control}
               disabled={mode === "update"}
@@ -307,15 +374,6 @@ export const ModelsVnForm = ({
             gap="gap-3"
           >
             <FormInput
-              name="version"
-              label="Versión"
-              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
-              control={form.control}
-              readOnly={mode === "update" || isLoadingbrands}
-              uppercase
-            />
-
-            <FormInput
               name="power"
               label="Potencia"
               placeholder="Ej: 0.00"
@@ -334,49 +392,6 @@ export const ModelsVnForm = ({
               label="Núm. Ejes"
               placeholder="Ej: 0"
               control={form.control}
-            />
-
-            <FormSelect
-              name="vehicle_type_id"
-              label="Tipo Vehículo"
-              placeholder="Seleccionar Tipo"
-              options={typesVehicles.map((typeVehicle) => ({
-                label: typeVehicle.description,
-                value: typeVehicle.id.toString(),
-              }))}
-              control={form.control}
-            />
-
-            <FormSelect
-              name="body_type_id"
-              label="Tipo Carrocería"
-              placeholder="Seleccionar Tipo"
-              options={bodyTypes.map((bodyType) => ({
-                label: bodyType.description,
-                value: bodyType.id.toString(),
-              }))}
-              control={form.control}
-            />
-            <FormSelect
-              name="traction_type_id"
-              label="Tipo Tracción"
-              placeholder="Seleccionar Tipo"
-              options={tractionTypes.map((tractionType) => ({
-                label: tractionType.description,
-                value: tractionType.id.toString(),
-              }))}
-              control={form.control}
-            />
-            <FormSelect
-              name="transmission_id"
-              label="Tipo Transmisión"
-              placeholder="Seleccionar Tipo"
-              options={vehicleTransmissions.map((vehicleTransmission) => ({
-                label: vehicleTransmission.description,
-                value: vehicleTransmission.id.toString(),
-              }))}
-              control={form.control}
-              disabled={mode === "update"}
             />
 
             <FormInput

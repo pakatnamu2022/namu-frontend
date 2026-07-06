@@ -49,13 +49,13 @@ export const useRankingGoalTravel = (
   });
 };
 
-export const useAlertsGoalTravel = () => {
+export const useAlertsGoalTravel = (year?: number, month?: number) => {
   return useQuery<AlertasCumplimiento>({
-    queryKey: ["alerts-goal"],
-    queryFn: () => getAlertsGoalTravel(),
+    queryKey: ["alerts-goal", year, month],
+    queryFn: () => getAlertsGoalTravel({ params: { year, month } }),
     refetchOnWindowFocus: false,
-    // Refetch cada 5 minutos
     refetchInterval: 5 * 60 * 1000,
+    enabled: !!year && !!month,
   });
 };
 
@@ -77,13 +77,14 @@ export const useComparativaMensual = (year?: number, month?: number) => {
   });
 };
 
-export const useViajesNoFacturados = (dias: number = 4) => {
+export const useViajesNoFacturados = (dias: number = 4, year?: number, month?: number) => {
   return useQuery<ViajesNoFacturadosResponse>({
-    queryKey: ["viajes-no-facturados", dias],
-    queryFn: () => getViajesNoFacturados({ params: { dias } }),
+    queryKey: ["viajes-no-facturados", dias, year, month],
+    queryFn: () => getViajesNoFacturados({ params: { dias, year, month } }),
     refetchOnWindowFocus: false,
     refetchInterval: 10 * 60 * 1000,
     staleTime: 5 * 60 * 1000,
+    enabled: !!year,
   });
 };
 

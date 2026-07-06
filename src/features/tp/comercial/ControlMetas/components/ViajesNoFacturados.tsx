@@ -7,11 +7,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar, Truck, AlertCircle, RefreshCw } from "lucide-react";
-import { useViajesNoFacturados } from "../lib/GoalTravelControl.hook";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { useViajesNoFacturados, useAvailableYearsGoalTravel } from "../lib/GoalTravelControl.hook";
+import { MONTHS } from "../lib/GoalTravelControl.constants";
 
 export default function ViajesNoFacturados() {
+    const [year, setYear] = useState<number>(new Date().getFullYear());
+    const [month, setMonth] = useState<number | null>(null); // null = "Todos los meses"
     const [dias, setDias] = useState<number>(4);
-    const { data, isLoading, error, refetch } = useViajesNoFacturados(dias);
+
+    const { data, isLoading, error, refetch } = useViajesNoFacturados(dias, year, month ?? undefined);
+    const { data: availableYears = [] } = useAvailableYearsGoalTravel();
 
     if (isLoading) {
         return (
@@ -54,17 +66,6 @@ export default function ViajesNoFacturados() {
                             </Badge>
                         </CardTitle>
                         <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium">Días:</span>
-                            </div>
-                            <Input
-                                type="number"
-                                value={dias}
-                                onChange={(e) => setDias(parseInt(e.target.value) || 4)}
-                                className="w-16 h-8"
-                                min="1"
-                            />
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -76,8 +77,74 @@ export default function ViajesNoFacturados() {
                             </Button>
                         </div>
                     </div>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Año:</span>
+                        </div>
+                        <Select
+                            value={year.toString()}
+                            onValueChange={(value) => setYear(parseInt(value))}
+                        >
+                            <SelectTrigger className="w-[120px]">
+                                <SelectValue placeholder="Año" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableYears.length > 0 ? (
+                                    availableYears.map((y) => (
+                                        <SelectItem key={y} value={y.toString()}>
+                                            {y}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    // Si no hay años en metas, mostrar años recientes
+                                    Array.from({ length: 5 }, (_, i) => {
+                                        const yearOption = new Date().getFullYear() - i;
+                                        return (
+                                            <SelectItem key={yearOption} value={yearOption.toString()}>
+                                                {yearOption}
+                                            </SelectItem>
+                                        );
+                                    })
+                                )}
+                            </SelectContent>
+                        </Select>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">Mes:</span>
+                        </div>
+                        <Select
+                            value={month?.toString() ?? "all"}
+                            onValueChange={(value) => setMonth(value === "all" ? null : parseInt(value))}
+                        >
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Todos los meses" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos los meses</SelectItem>
+                                {MONTHS.map((m) => (
+                                    <SelectItem key={m.value} value={m.value}>
+                                        {m.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">Días:</span>
+                        </div>
+                        <Input
+                            type="number"
+                            value={dias}
+                            onChange={(e) => setDias(parseInt(e.target.value) || 4)}
+                            className="w-16 h-8"
+                            min="1"
+                        />
+                        <span className="text-sm text-muted-foreground">(mayor a)</span>
+                    </div>
+
                     {totalViajes > 0 && (
-                        <div className="bg-muted/30 p-3 rounded-lg grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-muted/30 p-3 rounded-lg grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <span className="text-sm text-muted-foreground">Total Viajes</span>
                                 <p className="text-xl font-bold">{totalViajes}</p>
@@ -89,6 +156,13 @@ export default function ViajesNoFacturados() {
                             <div>
                                 <span className="text-sm text-muted-foreground">Fecha Límite</span>
                                 <p className="text-xl font-bold">{fechaLimite}</p>
+                            </div>
+                            <div>
+                                <span className="text-sm text-muted-foreground">Período</span>
+                                <p className="text-xl font-bold">
+                                    {year}
+                                    {month ? ` - ${MONTHS.find(m => m.value === month.toString())?.label}` : ' (todos)'}
+                                </p>
                             </div>
                         </div>
                     )}
