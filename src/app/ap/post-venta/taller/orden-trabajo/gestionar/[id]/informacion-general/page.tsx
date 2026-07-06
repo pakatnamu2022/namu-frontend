@@ -203,13 +203,13 @@ export default function GeneralInformationPage() {
             <div>
               <p className="text-sm text-gray-600">Modelo</p>
               <p className="font-semibold">
-                {workOrder.vehicle.model.version || "N/A"}
+                {workOrder.vehicle?.model?.version || "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Marca</p>
               <p className="font-semibold">
-                {workOrder.vehicle.model.brand || "N/A"}
+                {workOrder.vehicle?.model?.brand || "N/A"}
               </p>
             </div>
             <div>
