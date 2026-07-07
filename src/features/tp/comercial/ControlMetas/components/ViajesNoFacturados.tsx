@@ -62,7 +62,6 @@ export default function ViajesNoFacturados() {
 
     const totalViajes = data?.resumen?.total_viajes || 0;
     const totalProduccion = data?.resumen?.total_produccion || 0;
-    const fechaLimite = data?.resumen?.fecha_limite || "";
     const viajes = data?.data || [];
 
     return (
