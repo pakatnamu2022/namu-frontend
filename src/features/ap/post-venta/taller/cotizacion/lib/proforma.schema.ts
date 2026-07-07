@@ -1,5 +1,6 @@
 import {
   optionalStringId,
+  requiredDate,
   requiredNumber,
   requiredStringId,
 } from "@/shared/lib/global.schema";
@@ -9,8 +10,8 @@ export const orderQuotationSchemaCreate = z.object({
   client_id: requiredStringId("Cliente es requerido"),
   vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
-  quotation_date: z.coerce.date({ error: "Fecha de cotización es requerida" }),
-  expiration_date: z.coerce.date(),
+  quotation_date: requiredDate("Fecha de cotización es requerida"),
+  expiration_date: requiredDate("Fecha de expiración es requerida"),
   observations: z.string().min(0).max(500).optional(),
   area_id: optionalStringId("Área es requerido"),
   currency_id: requiredStringId("Moneda es requerida"),

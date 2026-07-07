@@ -15,16 +15,10 @@ const workOrderSchemaBase = z.object({
   vehicle_inspection_id: z.string().optional(),
   vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
-  opening_date: z.coerce.date(),
   currency_id: requiredStringId("Moneda es requerida"),
   estimated_delivery_time: z
     .string()
     .min(1, "La fecha y hora de inicio es requerida"),
-  diagnosis_date: z
-    .union([z.literal(""), z.date()])
-    .refine((val) => val !== "", {
-      message: "Fecha de diagnóstico es requerida",
-    }),
   observations: z.string().max(250),
   items: z
     .array(workOrderItemSchema)
