@@ -2,6 +2,7 @@ import { api } from "@/core/api";
 import { GOALTRAVELCONTROL } from "./GoalTravelControl.constants";
 import {
   AlertasCumplimiento,
+  AnalisisEstrategicoResponse,
   ComparativaMensualResponse,
   DashboardGoalTravelControlResponse,
   GoalTravelControlResource,
@@ -232,5 +233,24 @@ export async function updateGoalTravel(
     data,
   );
   return response.data;
+}
+
+export async function getAnalisisEstrategico(): Promise<AnalisisEstrategicoResponse> {
+  try {
+    const response = await api.get<AnalisisEstrategicoResponse>(
+      ENDPOINT + "/analisis-estrategico"
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
 }
 

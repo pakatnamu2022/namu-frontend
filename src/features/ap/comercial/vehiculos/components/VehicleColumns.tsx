@@ -141,7 +141,7 @@ export const vehicleColumns = ({
           )}
 
           {/* Change Location */}
-          {(permissions.canChangeLocation ?? true) &&
+          {permissions.canChangeLocation &&
             ap_vehicle_status_id === VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO && (
               <ChangeLocationModal
                 vehicleId={id}

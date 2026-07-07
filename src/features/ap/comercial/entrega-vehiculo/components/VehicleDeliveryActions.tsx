@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCcw, Send } from "lucide-react";
+import { FileOutput, Plus, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
+import { ROUTE_GUIA_SALIDA, VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 import { useMutation } from "@tanstack/react-query";
 import { dispatchAllShippingGuides } from "../lib/vehicleDelivery.actions";
 import { toast } from "sonner";
@@ -62,8 +62,15 @@ export default function VehicleDeliveryActions({
         </Button>
       )}
       {canCreate && (
+        <Link to={ROUTE_GUIA_SALIDA}>
+          <Button size="sm" variant="outline" className="ml-auto">
+            <FileOutput className="size-4 mr-2" /> Guía de Salida
+          </Button>
+        </Link>
+      )}
+      {canCreate && (
         <Link to={ROUTE_ADD}>
-          <Button size="sm" className="ml-auto">
+          <Button size="sm">
             <Plus className="size-4 mr-2" /> Programar Entrega
           </Button>
         </Link>

@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, ArrowRightLeft } from "lucide-react";
+import { Eye, ArrowRightLeft, CloudUpload } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { ShipmentsReceptionsResource } from "../../envios-recepciones/lib/shipmentsReceptions.interface";
@@ -16,11 +16,13 @@ export type TransfersColumn = ColumnDef<ShipmentsReceptionsResource>;
 interface Props {
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onMigrate?: (id: number) => void;
+  onSyncWithDynamics?: (id: number) => void;
 }
 
 export const TransfersColumns = ({
   onViewDetails,
   onMigrate,
+  onSyncWithDynamics,
 }: Props): TransfersColumn[] => [
   {
     accessorKey: "document_number",
@@ -100,15 +102,30 @@ export const TransfersColumns = ({
     accessorKey: "is_accounted",
     header: "Contabilización",
     cell: ({ row }) => {
-      const was_migrated = row.original.migration_status === "completed";
-      const value = row.original.is_accounted;
-      if (value === true) {
+      const { id, migration_status, is_accounted } = row.original;
+      const was_migrated = migration_status === "completed";
+      if (is_accounted === true) {
         return (
           <Badge variant="outline" color="green" icon={BookCheck}>
             <span>Contabilizado</span>
           </Badge>
         );
       }
+
+      if (was_migrated && onSyncWithDynamics) {
+        return (
+          <Button
+            variant="outline"
+            size="xs"
+            color="blue"
+            onClick={() => onSyncWithDynamics(id)}
+          >
+            <CloudUpload className="size-3.5" />
+            Sincronizar
+          </Button>
+        );
+      }
+
       return (
         <Badge color={was_migrated ? "orange" : "gray"} variant="outline" icon={BookX}>
           <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>

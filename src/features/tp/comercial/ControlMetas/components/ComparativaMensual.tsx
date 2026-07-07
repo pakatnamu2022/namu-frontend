@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -10,17 +10,110 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Calendar, BarChart3, TrendingUp, TrendingDown } from "lucide-react";
+import { Calendar, BarChart3, TrendingUp, TrendingDown, AlertCircle, RefreshCw } from "lucide-react";
 import { useComparativaMensual, useAvailableYearsGoalTravel } from "../lib/GoalTravelControl.hook";
 import { MONTHS } from "../lib/GoalTravelControl.constants";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export default function ComparativaMensual() {
-    const [year, setYear] = useState<number>(new Date().getFullYear());
-    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
-    const { data, isLoading, error } = useComparativaMensual(year, month);
+    // Período 1 (siempre activo)
+    const [year1, setYear1] = useState<number>(2024);
+    const [month1, setMonth1] = useState<number>(3);
+
+    // Período 2 (puede desactivarse)
+    const [year2, setYear2] = useState<number>(2024);
+    const [month2, setMonth2] = useState<number>(2);
+    const [compararPersonalizado, setCompararPersonalizado] = useState<boolean>(false);
+
+    // Validación de fechas futuras
+    const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
+    const [tipoError, setTipoError] = useState<"future" | "igual" | null>(null);
+
+    const { data, isLoading, error } = useComparativaMensual(
+        year1,
+        month1,
+        compararPersonalizado ? year2 : undefined,
+        compararPersonalizado ? month2 : undefined
+    );
     const { data: availableYears = [] } = useAvailableYearsGoalTravel();
 
+    // Validar fechas al cambiar
+    useEffect(() => {
+        validarFechas();
+    }, [year1, month1, year2, month2, compararPersonalizado]);
+
+    const validarFechas = () => {
+        const ahora = new Date();
+        const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+
+        const fecha1 = new Date(year1, month1 - 1, 1);
+        const esFuturo1 = fecha1 > hoy;
+
+        let esFuturo2 = false;
+        if (compararPersonalizado) {
+            const fecha2 = new Date(year2, month2 - 1, 1);
+            esFuturo2 = fecha2 > hoy;
+        }
+
+        if (esFuturo1) {
+            setErrorMensaje("El período principal no puede ser una fecha futura.");
+            setTipoError("future");
+            return;
+        }
+
+        if (esFuturo2) {
+            setErrorMensaje("El período de comparación no puede ser una fecha futura.");
+            setTipoError("future");
+            return;
+        }
+
+        if (compararPersonalizado && year1 === year2 && month1 === month2) {
+            setErrorMensaje("Los períodos de comparación no pueden ser iguales.");
+            setTipoError("igual");
+            return;
+        }
+
+        setErrorMensaje(null);
+        setTipoError(null);
+    };
+
+    // Función para ajustar automáticamente el período 2
+    const ajustarPeriodo2 = () => {
+        if (tipoError === "igual") {
+            // Buscar un mes diferente dentro del mismo año
+            let nuevoMes = month2 - 1;
+            let nuevoAnio = year2;
+            if (nuevoMes === 0) {
+                nuevoMes = 12;
+                nuevoAnio = year2 - 1;
+            }
+            // Si aún es igual, buscar otro mes
+            if (nuevoMes === month1 && nuevoAnio === year1) {
+                nuevoMes = month2 + 1;
+                if (nuevoMes === 13) {
+                    nuevoMes = 1;
+                    nuevoAnio = year2 + 1;
+                }
+            }
+            setMonth2(nuevoMes);
+            setYear2(nuevoAnio);
+        } else if (tipoError === "future") {
+            // Ajustar al mes actual
+            const ahora = new Date();
+            setYear1(ahora.getFullYear());
+            setMonth1(ahora.getMonth() + 1);
+        }
+    };
+
+    // Función para desactivar la comparación personalizada
+    const desactivarComparacion = () => {
+        setCompararPersonalizado(false);
+    };
+    // Estado de carga
     if (isLoading) {
         return (
             <div className="space-y-4">
@@ -35,6 +128,7 @@ export default function ComparativaMensual() {
         );
     }
 
+    // Error de red/backend
     if (error) {
         return (
             <Card>
@@ -45,6 +139,56 @@ export default function ComparativaMensual() {
         );
     }
 
+    // Error de validación (fechas futuras, períodos iguales)
+    if (errorMensaje) {
+        return (
+            <Card className="border-red-200 bg-red-50">
+                <CardContent className="py-8">
+                    <div className="flex flex-col items-center text-center">
+                        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+                        <p className="text-lg font-medium text-red-700">{errorMensaje}</p>
+                        <p className="text-sm text-red-500/70 mt-1">Ajusta los períodos seleccionados.</p>
+
+                        <div className="flex flex-wrap gap-3 mt-6 justify-center">
+                            {tipoError === "igual" && (
+                                <Button
+                                    variant="outline"
+                                    className="border-red-300 hover:bg-red-50"
+                                    onClick={ajustarPeriodo2}
+                                >
+                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    Cambiar período 2
+                                </Button>
+                            )}
+
+                            {tipoError === "future" && (
+                                <Button
+                                    variant="outline"
+                                    className="border-red-300 hover:bg-red-50"
+                                    onClick={ajustarPeriodo2}
+                                >
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Usar mes actual
+                                </Button>
+                            )}
+
+                            {compararPersonalizado && (
+                                <Button
+                                    variant="outline"
+                                    className="border-red-300 hover:bg-red-50"
+                                    onClick={desactivarComparacion}
+                                >
+                                    Usar comparación automática
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    // Sin datos
     if (!data || data.clientes.length === 0) {
         return (
             <Card>
@@ -76,42 +220,95 @@ export default function ComparativaMensual() {
             {/* Filtros */}
             <Card>
                 <CardHeader>
-                    <div className="flex items-center gap-4 flex-wrap">
-                        <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">Período:</span>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-wrap items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium">Período 1:</span>
+                            </div>
+                            <Select value={month1.toString()} onValueChange={(value) => setMonth1(parseInt(value))}>
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Mes" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {MONTHS.map((m) => (
+                                        <SelectItem key={m.value} value={m.value}>
+                                            {m.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select value={year1.toString()} onValueChange={(value) => setYear1(parseInt(value))}>
+                                <SelectTrigger className="w-[120px]">
+                                    <SelectValue placeholder="Año" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableYears.map((y) => (
+                                        <SelectItem key={y} value={y.toString()}>
+                                            {y}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <div className="flex items-center gap-3 ml-4">
+                                <Switch
+                                    checked={compararPersonalizado}
+                                    onCheckedChange={setCompararPersonalizado}
+                                    id="comparar-personalizado"
+                                />
+                                <Label htmlFor="comparar-personalizado" className="text-sm font-medium cursor-pointer">
+                                    Comparar con otro período
+                                </Label>
+                            </div>
                         </div>
-                        <Select value={month.toString()} onValueChange={(value) => setMonth(parseInt(value))}>
-                            <SelectTrigger className="w-[150px]">
-                                <SelectValue placeholder="Mes" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {MONTHS.map((m) => (
-                                    <SelectItem key={m.value} value={m.value}>
-                                        {m.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Select value={year.toString()} onValueChange={(value) => setYear(parseInt(value))}>
-                            <SelectTrigger className="w-[120px]">
-                                <SelectValue placeholder="Año" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableYears.map((y) => (
-                                    <SelectItem key={y} value={y.toString()}>
-                                        {y}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+
+                        {compararPersonalizado && (
+                            <div className="flex flex-wrap items-center gap-4 border-t pt-4">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">Período 2:</span>
+                                </div>
+                                <Select value={month2.toString()} onValueChange={(value) => setMonth2(parseInt(value))}>
+                                    <SelectTrigger className="w-[150px]">
+                                        <SelectValue placeholder="Mes" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {MONTHS.map((m) => (
+                                            <SelectItem key={m.value} value={m.value}>
+                                                {m.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Select value={year2.toString()} onValueChange={(value) => setYear2(parseInt(value))}>
+                                    <SelectTrigger className="w-[120px]">
+                                        <SelectValue placeholder="Año" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableYears.map((y) => (
+                                            <SelectItem key={y} value={y.toString()}>
+                                                {y}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
+                        {!compararPersonalizado && (
+                            <div className="text-sm text-muted-foreground border-t pt-3">
+                                Comparando con: <span className="font-medium">{data.periodo_anterior.label}</span>
+                                (mes anterior automático)
+                            </div>
+                        )}
                     </div>
                 </CardHeader>
             </Card>
 
             {/* Resumen General */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card>
+                <Card className="border-l-4 border-l-blue-500">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">
                             {data.resumen.actual.label}
@@ -124,7 +321,7 @@ export default function ComparativaMensual() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className={cn("border-l-4", compararPersonalizado ? "border-l-orange-500" : "border-l-purple-500")}>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">
                             {data.resumen.anterior.label}
@@ -143,7 +340,7 @@ export default function ComparativaMensual() {
             <Card>
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Variación Mes a Mes
+                        Variación {compararPersonalizado ? 'entre períodos' : 'Mes a Mes'}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -176,7 +373,7 @@ export default function ComparativaMensual() {
                 </CardContent>
             </Card>
 
-            {/* Gráfico de Barras (con tooltip mejorado) */}
+            {/* Gráfico de Barras */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -189,9 +386,12 @@ export default function ComparativaMensual() {
                             <span>{data.periodo_actual.label}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="w-4 h-4 bg-orange-400 rounded"></span>
+                            <span className={cn("w-4 h-4 rounded", compararPersonalizado ? "bg-orange-400" : "bg-purple-500")}></span>
                             <span>{data.periodo_anterior.label}</span>
                         </div>
+                        {compararPersonalizado && (
+                            <span className="text-xs text-muted-foreground">(Personalizado)</span>
+                        )}
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -223,7 +423,7 @@ export default function ComparativaMensual() {
                                                     </span>
                                                 </span>
                                                 <span className="flex items-center gap-1">
-                                                    <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                                                    <span className={cn("w-2 h-2 rounded-full", compararPersonalizado ? "bg-orange-400" : "bg-purple-500")}></span>
                                                     {viajesAnterior} v (S/. {prodAnterior.toFixed(0)})
                                                     <span className="text-[10px] bg-orange-100 text-orange-700 px-1 rounded">
                                                         {pctAnterior}%
@@ -238,7 +438,7 @@ export default function ComparativaMensual() {
                                                 title={`${cliente} (Actual): ${viajesActual} viajes, S/. ${prodActual.toFixed(2)}`}
                                             />
                                             <div
-                                                className="bg-orange-400 h-full rounded-r transition-all duration-500 hover:opacity-80"
+                                                className={cn("h-full rounded-r transition-all duration-500 hover:opacity-80", compararPersonalizado ? "bg-orange-400" : "bg-purple-500")}
                                                 style={{ width: `${porcentajeAnterior}%` }}
                                                 title={`${cliente} (Anterior): ${viajesAnterior} viajes, S/. ${prodAnterior.toFixed(2)}`}
                                             />
@@ -249,7 +449,8 @@ export default function ComparativaMensual() {
                         </div>
                     </div>
                     <div className="mt-4 text-sm text-muted-foreground text-center">
-                        Barras: {data.periodo_actual.label} (azul) vs {data.periodo_anterior.label} (naranja). Hover para ver detalles.
+                        Barras: {data.periodo_actual.label} (azul) vs {data.periodo_anterior.label}
+                        {compararPersonalizado ? ' (personalizado)' : ' (mes anterior automático)'}
                     </div>
                 </CardContent>
             </Card>
@@ -267,6 +468,7 @@ export default function ComparativaMensual() {
                                     <th className="text-left py-2 font-medium">Cliente</th>
                                     <th className="text-center py-2 font-medium" colSpan={2}>Viajes</th>
                                     <th className="text-center py-2 font-medium" colSpan={2}>Producción</th>
+                                    <th className="text-center py-2 font-medium">Variación</th>
                                 </tr>
                                 <tr className="border-b text-xs text-muted-foreground">
                                     <th></th>
@@ -274,6 +476,7 @@ export default function ComparativaMensual() {
                                     <th className="text-center">Anterior</th>
                                     <th className="text-center">Actual</th>
                                     <th className="text-center">Anterior</th>
+                                    <th className="text-center">%</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -283,22 +486,17 @@ export default function ComparativaMensual() {
                                     const pAct = data.produccion_actual[index] || 0;
                                     const pAnt = data.produccion_anterior[index] || 0;
                                     const diffV = vAct - vAnt;
-                                    const diffP = pAct - pAnt;
                                     const pctV = vAnt > 0 ? (diffV / vAnt) * 100 : 0;
-                                    const pctP = pAnt > 0 ? (diffP / pAnt) * 100 : 0;
 
                                     return (
                                         <tr key={index} className="border-b hover:bg-muted/50">
                                             <td className="py-2 font-medium">{cliente}</td>
                                             <td className="text-center">{vAct}</td>
                                             <td className="text-center">{vAnt}</td>
-                                            <td className={`text-center font-medium ${diffV > 0 ? 'text-green-600' : diffV < 0 ? 'text-red-600' : ''}`}>
-                                                {diffV !== 0 ? `${diffV > 0 ? '+' : ''}${diffV} (${pctV > 0 ? '+' : ''}${pctV.toFixed(1)}%)` : '-'}
-                                            </td>
                                             <td className="text-center">S/. {pAct.toFixed(2)}</td>
                                             <td className="text-center">S/. {pAnt.toFixed(2)}</td>
-                                            <td className={`text-center font-medium ${diffP > 0 ? 'text-green-600' : diffP < 0 ? 'text-red-600' : ''}`}>
-                                                {diffP !== 0 ? `${diffP > 0 ? '+' : ''}S/. ${diffP.toFixed(2)} (${pctP > 0 ? '+' : ''}${pctP.toFixed(1)}%)` : '-'}
+                                            <td className={`text-center font-medium ${diffV > 0 ? 'text-green-600' : diffV < 0 ? 'text-red-600' : ''}`}>
+                                                {diffV !== 0 ? `${diffV > 0 ? '+' : ''}${diffV} (${pctV > 0 ? '+' : ''}${pctV.toFixed(1)}%)` : '-'}
                                             </td>
                                         </tr>
                                     );

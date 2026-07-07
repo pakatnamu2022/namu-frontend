@@ -77,7 +77,10 @@ export default function VehiclesPage() {
           subtitle={"Gestión de vehículos"}
           icon={currentView.icon}
         />
-        <VehicleActions />
+        <VehicleActions
+          permissions={{ canImport: permissions.canImport }}
+          onUpdateSuccess={refetch}
+        />
       </HeaderTableWrapper>
       <VehicleTable
         isLoading={isLoading}

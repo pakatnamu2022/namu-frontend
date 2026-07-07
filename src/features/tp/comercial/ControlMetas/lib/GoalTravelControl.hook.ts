@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertasCumplimiento,
+  AnalisisEstrategicoResponse,
   ComparativaMensualResponse,
   DashboardGoalTravelControlResponse,
   GoalTravelControlResponse,
@@ -8,7 +9,7 @@ import {
   RankingConductor,
   ViajesNoFacturadosResponse,
 } from "./GoalTravelControl.interface";
-import { findGoalTravelById, getAlertsGoalTravel, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
+import { findGoalTravelById, getAlertsGoalTravel, getAnalisisEstrategico, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
 
 export const useGoalTravelControl = (params?: GoalTravelQueryParams) => {
   return useQuery<GoalTravelControlResponse>({
@@ -67,12 +68,19 @@ export const useAvailableYearsGoalTravel = () => {
   });
 };
 
-export const useComparativaMensual = (year?: number, month?: number) => {
+export const useComparativaMensual = (
+  year1?: number,
+  month1?: number,
+  year2?: number,
+  month2?: number
+) => {
   return useQuery<ComparativaMensualResponse>({
-    queryKey: ["comparativa-mensual", year, month],
-    queryFn: () => getComparativaMensual({ params: { year, month } }),
+    queryKey: ["comparativa-mensual", year1, month1, year2, month2],
+    queryFn: () => getComparativaMensual({
+      params: { year1, month1, year2, month2 }
+    }),
     refetchOnWindowFocus: false,
-    enabled: !!year && !!month,
+    enabled: !!year1 && !!month1,
     staleTime: 5 * 60 * 1000,
   });
 };
@@ -85,6 +93,15 @@ export const useViajesNoFacturados = (dias: number = 4, year?: number, month?: n
     refetchInterval: 10 * 60 * 1000,
     staleTime: 5 * 60 * 1000,
     enabled: !!year,
+  });
+};
+
+export const useAnalisisEstrategico = () => {
+  return useQuery<AnalisisEstrategicoResponse>({
+    queryKey: ["analisis-estrategico"],
+    queryFn: () => getAnalisisEstrategico(),
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
