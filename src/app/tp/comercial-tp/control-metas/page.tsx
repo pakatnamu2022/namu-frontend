@@ -18,13 +18,14 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, List, Trophy, AlertTriangle, BarChart3, AlertCircle } from "lucide-react";
+import { LayoutDashboard, List, Trophy, AlertTriangle, BarChart3, AlertCircle, TrendingUp } from "lucide-react";
 import RankingConductores from "@/features/tp/comercial/ControlMetas/components/RankingConductores";
 import GoalTravelAlerts from "@/features/tp/comercial/ControlMetas/components/GoalTravelAlerts";
 import DashboardGoalTravel from "@/features/tp/comercial/ControlMetas/components/DashboardGoalTravel";
 import ComparativaMensual from "@/features/tp/comercial/ControlMetas/components/ComparativaMensual";
 import ViajesNoFacturados from "@/features/tp/comercial/ControlMetas/components/ViajesNoFacturados";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import AnalisisEstrategico from "@/features/tp/comercial/ControlMetas/components/AnalisiEstrategico";
 
 export default function ControlGoalPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -127,6 +128,10 @@ export default function ControlGoalPage() {
             <AlertCircle className="h-4 w-4" />
             No Facturados
           </TabsTrigger>
+          <TabsTrigger value="analisis" className="gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Análisis Estratégico
+          </TabsTrigger>
 
         </TabsList>
 
@@ -189,6 +194,11 @@ export default function ControlGoalPage() {
         {/* NO FACTURADOS*/}
         <TabsContent value="no-facturados" className="mt-0">
           <ViajesNoFacturados />
+        </TabsContent>
+
+        {/* ANALISIS ESTRATEGICO */}
+        <TabsContent value="analisis" className="mt-0">
+          <AnalisisEstrategico />
         </TabsContent>
       </Tabs>
 
