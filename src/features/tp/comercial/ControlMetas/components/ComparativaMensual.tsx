@@ -33,7 +33,7 @@ export default function ComparativaMensual() {
     const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
     const [tipoError, setTipoError] = useState<"future" | "igual" | null>(null);
 
-    const { data, isLoading, error, refetch } = useComparativaMensual(
+    const { data, isLoading, error } = useComparativaMensual(
         year1,
         month1,
         compararPersonalizado ? year2 : undefined,
@@ -113,20 +113,6 @@ export default function ComparativaMensual() {
     const desactivarComparacion = () => {
         setCompararPersonalizado(false);
     };
-
-    // Calcular mes anterior automático cuando no está activo el modo personalizado
-    const obtenerMesAnterior = () => {
-        let mes = month1 - 1;
-        let anio = year1;
-        if (mes === 0) {
-            mes = 12;
-            anio = year1 - 1;
-        }
-        return { mes, anio };
-    };
-
-    const mesAnteriorAuto = obtenerMesAnterior();
-
     // Estado de carga
     if (isLoading) {
         return (
