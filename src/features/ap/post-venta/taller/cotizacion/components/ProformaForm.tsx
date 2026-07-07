@@ -10,6 +10,7 @@ import {
   orderQuotationSchemaUpdate,
 } from "../lib/proforma.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { FormInput } from "@/shared/components/FormInput";
 import {
   useVehicleById,
   useVehicles,
@@ -96,7 +97,10 @@ export default function OrderQuotationForm({
 
   useEffect(() => {
     setSelectedVehicle(vehicleById ?? null);
-  }, [vehicleById]);
+    if (vehicleById?.mileage != null) {
+      form.setValue("mileage", vehicleById.mileage, { shouldValidate: true });
+    }
+  }, [vehicleById, form]);
 
   useEffect(() => {
     if (quotationDate) {
@@ -230,6 +234,15 @@ export default function OrderQuotationForm({
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
             disabled={true}
+          />
+
+          <FormInput
+            name="mileage"
+            label="Kilometraje"
+            placeholder="Ingrese el kilometraje"
+            type="number"
+            control={form.control}
+            required
           />
         </div>
 

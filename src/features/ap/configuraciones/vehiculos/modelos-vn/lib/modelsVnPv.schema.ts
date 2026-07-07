@@ -18,3 +18,20 @@ export const modelsVnPvSchemaCreate = z.object({
 export const modelsVnPvSchemaUpdate = modelsVnPvSchemaCreate.partial();
 
 export type ModelsVnPvSchema = z.infer<typeof modelsVnPvSchemaCreate>;
+
+export const modelsVnPvAutomaticSchema = z.object({
+  version: z
+    .string()
+    .max(50)
+    .refine((value) => value.trim() !== "", {
+      message: "Versión es requerido",
+    }),
+
+  brand_id: requiredStringId("Marca es requerida"),
+  type_operation_id: z.string().optional(),
+  class_id: z.string().optional(),
+});
+
+export type ModelsVnPvAutomaticSchema = z.infer<
+  typeof modelsVnPvAutomaticSchema
+>;

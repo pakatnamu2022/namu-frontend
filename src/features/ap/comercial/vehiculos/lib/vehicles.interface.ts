@@ -50,6 +50,7 @@ export interface VehicleResource {
   sede_warehouse_id?: number;
   sede_warehouse_physical_id?: number;
   supplier_id?: number | null;
+  mileage?: number | null;
 }
 
 export interface VehicleResourceWithCosts {

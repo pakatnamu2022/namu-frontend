@@ -39,7 +39,7 @@ import {
   useModelsVn,
 } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
-import ModelsVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnModal";
+import ModelsVnPvAutomaticModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnPvAutomaticModal";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { BRAND_ID } from "@/features/ap/configuraciones/vehiculos/grupos-marcas/lib/brandGroup.constants";
 
@@ -361,7 +361,7 @@ export default function VehicleRepuestosModal({
         </form>
       </Form>
 
-      <ModelsVnModal
+      <ModelsVnPvAutomaticModal
         open={isModelModalOpen}
         onClose={() => {
           setIsModelModalOpen(false);
@@ -370,7 +370,6 @@ export default function VehicleRepuestosModal({
           });
         }}
         title="Agregar Nuevo Modelo VN"
-        mode="create"
       />
     </GeneralModal>
   );

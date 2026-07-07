@@ -64,6 +64,14 @@ export async function storeModelsVn(data: any): Promise<ModelsVnResource> {
   return response.data;
 }
 
+export async function storeAutomaticModelsVn(data: any): Promise<ModelsVnResource> {
+  const response = await api.post<ModelsVnResource>(
+    `${ENDPOINT}/store-automatic`,
+    data
+  );
+  return response.data;
+}
+
 export async function updateModelsVn(
   id: number,
   data: any
