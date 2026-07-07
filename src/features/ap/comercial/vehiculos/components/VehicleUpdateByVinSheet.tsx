@@ -91,28 +91,13 @@ export default function VehicleUpdateByVinSheet({
 
           {result.errors.length > 0 && (
             <div className="overflow-hidden rounded-md border">
-              <table className="w-full text-xs">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium">Fila</th>
-                    <th className="px-3 py-2 text-left font-medium">VIN</th>
-                    <th className="px-3 py-2 text-left font-medium">
-                      Motivo
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.errors.map((err, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="px-3 py-2">{err.fila}</td>
-                      <td className="px-3 py-2 font-mono">{err.vin}</td>
-                      <td className="px-3 py-2 text-red-600">
-                        {err.motivo}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ul className="divide-y text-xs">
+                {result.errors.map((err, i) => (
+                  <li key={i} className="px-3 py-2 text-red-600">
+                    {err}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
