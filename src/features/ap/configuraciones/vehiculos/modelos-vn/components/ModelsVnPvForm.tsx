@@ -20,8 +20,8 @@ import {
 import { FormInput } from "@/shared/components/FormInput";
 import { CLASS_ARTICLE_ID } from "../../../maestros-general/clase-articulo/lib/classArticle.constants";
 import BrandsModal from "../../marcas/components/BrandsModal";
-import FamiliesModal from "../../familias/components/FamiliesModal";
 import { BrandsResource } from "../../marcas/lib/brands.interface";
+import FamiliesModal from "../../familias/components/FamiliesModal";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnPvSchema>;

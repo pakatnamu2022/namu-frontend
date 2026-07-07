@@ -34,27 +34,38 @@ export default function FamiliesModal({
   defaultBrandId,
 }: Props) {
   const queryClient = useQueryClient();
-  const { MODEL, EMPTY, QUERY_KEY } = FAMILIES;
-  const {
-    data: Families,
-    isLoading: loadingFamilies,
-    refetch,
-  } = mode === "create"
-    ? {
-        data: { ...EMPTY, brand_id: defaultBrandId ?? EMPTY.brand_id },
-        isLoading: false,
-        refetch: () => {},
-      }
-    : useFamiliesById(id!);
+  const { MODEL, QUERY_KEY } = FAMILIES;
 
-  function mapRoleToForm(
-    data: FamiliesResource | FamiliesSchema
-  ): Partial<FamiliesSchema> {
+  let updateQuery: ReturnType<typeof useFamiliesById> | null = null;
+  if (mode === "update") {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    updateQuery = useFamiliesById(id!);
+  }
+
+  const familiesData = updateQuery?.data;
+  const loadingFamilies = updateQuery?.isLoading ?? false;
+  const refetchFamilies = updateQuery?.refetch ?? (async () => undefined);
+
+  function mapFamilyToForm(data: FamiliesResource): Partial<FamiliesSchema> {
     return {
       description: data.description,
       brand_id: String(data.brand_id),
+      status: data.status,
     };
   }
+
+  const createDefaultValues: Partial<FamiliesSchema> = {
+    description: "",
+    status: true,
+    brand_id: defaultBrandId ?? "",
+  };
+
+  const defaultValues: Partial<FamiliesSchema> =
+    mode === "create"
+      ? createDefaultValues
+      : familiesData
+        ? mapFamilyToForm(familiesData)
+        : {};
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FamiliesSchema) =>
@@ -62,7 +73,7 @@ export default function FamiliesModal({
     onSuccess: async (newFamily) => {
       successToast(SUCCESS_MESSAGE(MODEL, mode));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      await refetch();
+      await refetchFamilies();
       onSuccess?.(newFamily as FamiliesResource);
     },
     onError: (error: any) => {
@@ -71,27 +82,24 @@ export default function FamiliesModal({
   });
 
   const handleSubmit = (data: FamiliesSchema) => {
-    mutate({
-      ...data,
-    } as any);
-
+    mutate(data as FamiliesSchema);
     onClose();
   };
 
-  const isLoadingAny = loadingFamilies || !Families;
+  const isLoadingAny = mode === "update" && (loadingFamilies || !familiesData);
 
   return (
     <GeneralModal open={open} onClose={onClose} title={title}>
-      {!isLoadingAny && Families ? (
+      {isLoadingAny ? (
+        <FormSkeleton />
+      ) : (
         <FamiliesForm
-          defaultValues={mapRoleToForm(Families)}
+          defaultValues={defaultValues}
           onCancel={onClose}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
           mode={mode}
         />
-      ) : (
-        <FormSkeleton />
       )}
     </GeneralModal>
   );
