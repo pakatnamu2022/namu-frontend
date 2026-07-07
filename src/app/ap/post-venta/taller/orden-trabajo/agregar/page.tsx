@@ -58,8 +58,6 @@ export default function AddWorkOrderPage() {
           vehicle_id: "",
           currency_id: CURRENCY_TYPE_IDS.SOLES,
           sede_id: "",
-          opening_date: new Date(),
-          diagnosis_date: "",
           observations: "",
           has_appointment: fromAppointment,
           num_doc_contact: "",

@@ -57,44 +57,57 @@ export const orderQuotationColumns = ({
   {
     accessorKey: "quotation_number",
     header: "Número de Cotización",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      return value && <CopyCell className="font-semibold" value={value} />;
+      const plate = row.original.vehicle?.plate;
+      return (
+        <div className="flex flex-col gap-0.5">
+          {value && <CopyCell className="font-semibold" value={value} />}
+          {plate && (
+            <CopyCell
+              className="text-muted-foreground"
+              size="xs"
+              value={plate}
+            />
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const formatDate = (date: string | null | undefined) => {
+        if (!date) return "-";
+        try {
+          return format(new Date(date), "dd/MM/yyyy", { locale: es });
+        } catch {
+          return date;
+        }
+      };
+
+      return (
+        <div className="flex flex-col gap-0.5 text-sm">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Apertura:
+            </span>
+            <span>{formatDate(row.original.quotation_date)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Vencimiento:
+            </span>
+            <span>{formatDate(row.original.expiration_date)}</span>
+          </div>
+        </div>
+      );
     },
   },
   {
     accessorKey: "client.full_name",
     header: "Cliente",
-  },
-  {
-    accessorKey: "quotation_date",
-    header: "Fecha de Cotización",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
-  },
-  {
-    accessorKey: "expiration_date",
-    header: "Fecha de Vencimiento",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
-  },
-  {
-    accessorKey: "vehicle.plate",
-    header: "Placa",
   },
   {
     accessorKey: "type_currency.name",

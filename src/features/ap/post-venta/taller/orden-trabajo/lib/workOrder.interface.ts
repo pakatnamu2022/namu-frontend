@@ -139,9 +139,7 @@ export interface WorkOrderRequest {
   appointment_planning_id?: string;
   vehicle_id: string;
   sede_id: string;
-  opening_date: string | Date;
   estimated_delivery_time: string | Date;
-  diagnosis_date: string | Date;
   observations: string;
 }
 

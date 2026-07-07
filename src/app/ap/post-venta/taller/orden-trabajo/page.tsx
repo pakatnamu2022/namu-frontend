@@ -72,7 +72,7 @@ export default function WorkOrderPage() {
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
-  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
+  const { data: asesores = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
     sede_id: sedeId || undefined,
@@ -147,12 +147,7 @@ export default function WorkOrderPage() {
     router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
 
-  if (
-    isLoadingModule ||
-    isLoadingSedes ||
-    isLoadingTypesPlanning ||
-    isLoadingAsesores
-  )
+  if (isLoadingModule || isLoadingSedes || isLoadingTypesPlanning)
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();

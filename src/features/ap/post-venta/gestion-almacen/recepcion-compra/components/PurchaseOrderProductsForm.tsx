@@ -84,15 +84,23 @@ export const PurchaseOrderProductsForm = ({
 
         if (orderDetail) {
           const itemTotal =
-            Math.round(
-              Number(item.quantity || 0) *
-                Number(orderDetail.unit_price || 0) *
-                100,
-            ) / 100;
+            orderDetail.total !== undefined && orderDetail.total !== null
+              ? Math.round(Number(orderDetail.total) * 100) / 100
+              : Math.round(
+                  Number(item.quantity || 0) *
+                    Number(orderDetail.unit_price || 0) *
+                    100,
+                ) / 100;
+
+          const quantity = Number(item.quantity || 0);
+          const unitPrice =
+            quantity > 0
+              ? Math.round((itemTotal / quantity) * 10000) / 10000
+              : Number(orderDetail.unit_price || 0);
 
           return {
             ...item,
-            unit_price: Number(orderDetail.unit_price || 0),
+            unit_price: unitPrice,
             item_total: itemTotal,
           };
         }
@@ -369,7 +377,11 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={[
-                { before: new Date(new Date().getFullYear(), 6, 1) },
+                {
+                  before: receptionData?.supplier_order?.order_date
+                    ? new Date(receptionData.supplier_order.order_date)
+                    : new Date(new Date().getFullYear(), 6, 1),
+                },
                 { after: new Date() },
               ]}
             />
@@ -662,7 +674,7 @@ export const PurchaseOrderProductsForm = ({
                           </TableCell>
                           <TableCell className="align-middle p-1.5 text-end">
                             <div className="text-sm font-medium bg-muted/50 px-3 py-2 rounded-md">
-                              {unitPrice.toFixed(4).replace(/\.?0+$/, "")}
+                              {unitPrice.toFixed(6).replace(/\.?0+$/, "")}
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5">
