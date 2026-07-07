@@ -159,4 +159,45 @@ export interface GoalTravelQueryParams extends GoalTravelSearchFilters {
   page?: number;
   per_page?: number;
 }
+export interface TendenciaMes {
+  periodo: string;
+  meta: number;
+  real: number;
+  cumplimiento: number;
+}
+
+export interface ClienteVariacion {
+  cliente_id: number;
+  cliente: string;
+  actual: number;
+  anterior: number;
+  diferencia: number;
+  variacion: number;
+}
+
+export interface ProyeccionCierre {
+  acumulado: number;
+  promedio_diario: number;
+  proyeccion: number;
+  meta: number;
+  cumplimiento: number;
+  dias_transcurridos: number;
+  dias_totales: number;
+}
+
+export interface DistribucionCliente {
+  cliente: string;
+  produccion: number;
+  porcentaje: number;
+  acumulado?: number;
+}
+
+export interface AnalisisEstrategicoResponse {
+  tendencia: TendenciaMes[];
+  top_crecimiento: ClienteVariacion[];
+  top_decrecimiento: ClienteVariacion[];
+  proyeccion: ProyeccionCierre;
+  distribucion: DistribucionCliente[];
+}
+
 

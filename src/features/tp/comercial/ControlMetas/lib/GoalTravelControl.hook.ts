@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertasCumplimiento,
+  AnalisisEstrategicoResponse,
   ComparativaMensualResponse,
   DashboardGoalTravelControlResponse,
   GoalTravelControlResponse,
@@ -8,7 +9,7 @@ import {
   RankingConductor,
   ViajesNoFacturadosResponse,
 } from "./GoalTravelControl.interface";
-import { findGoalTravelById, getAlertsGoalTravel, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
+import { findGoalTravelById, getAlertsGoalTravel, getAnalisisEstrategico, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
 
 export const useGoalTravelControl = (params?: GoalTravelQueryParams) => {
   return useQuery<GoalTravelControlResponse>({
@@ -92,6 +93,15 @@ export const useViajesNoFacturados = (dias: number = 4, year?: number, month?: n
     refetchInterval: 10 * 60 * 1000,
     staleTime: 5 * 60 * 1000,
     enabled: !!year,
+  });
+};
+
+export const useAnalisisEstrategico = () => {
+  return useQuery<AnalisisEstrategicoResponse>({
+    queryKey: ["analisis-estrategico"],
+    queryFn: () => getAnalisisEstrategico(),
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
