@@ -24,6 +24,7 @@ import {
   markAsReceived,
   cancelShippingGuide,
   getNextShippingGuideDocumentNumber,
+  syncShippingGuideWithDynamics,
 } from "./shipmentsReceptions.actions";
 import { successToast, errorToast } from "@/core/core.function";
 import { toast } from "sonner";
@@ -292,6 +293,33 @@ export const useCancelShippingGuide = () => {
           errorToast(`${key}: ${errors[key].join(", ")}`);
         });
       }
+    },
+  });
+};
+
+// Hook para sincronizar guía de remisión con Dynamics
+export const useSyncShippingGuideWithDynamics = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => syncShippingGuideWithDynamics(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(
+          response.message || "Error al sincronizar la guía con Dynamics",
+        );
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al sincronizar la guía con Dynamics";
+
+      errorToast(errorMessage);
     },
   });
 };

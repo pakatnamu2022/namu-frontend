@@ -8,7 +8,10 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useShipmentsReceptions } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
+import {
+  useShipmentsReceptions,
+  useSyncShippingGuideWithDynamics,
+} from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
 import { TRANSFERS } from "@/features/ap/comercial/traslados/lib/transfers.constants";
@@ -53,6 +56,7 @@ export default function TransfersPage() {
       errorToast(`Error al despachar migración: ${msg}`);
     },
   });
+  const syncWithDynamicsMutation = useSyncShippingGuideWithDynamics();
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -78,6 +82,7 @@ export default function TransfersPage() {
         columns={TransfersColumns({
           onViewDetails: setSelectedShipment,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
         })}
         data={data?.data || []}
       >
