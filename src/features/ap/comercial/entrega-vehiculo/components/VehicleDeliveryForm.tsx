@@ -164,7 +164,7 @@ export const VehicleDeliveryForm = ({
     );
 
   const hasReception = debtInfo?.reception != null;
-  const canSave = (debtInfo?.debt_summary.debt_is_paid ?? false) && hasReception;
+  // const canSave = (debtInfo?.debt_summary.debt_is_paid ?? false) && hasReception;
 
   useEffect(() => {
     const currentVehicleId = form.getValues("vehicle_id");
@@ -243,18 +243,7 @@ export const VehicleDeliveryForm = ({
                 description:
                   item.sede_name_warehouse + " - " + item.warehouse_name || "",
               })}
-              additionalParams={{
-                ...(isSupplier
-                  ? {}
-                  : {
-                      warehouse$sede_id: watchSedeId
-                        ? Number(watchSedeId)
-                        : undefined,
-                    }),
-                warehouse$is_received: 1,
-                warehouse$article_class_id: watchArticleClassId,
-                is_paid: 1,
-              }}
+              
               control={form.control}
               disabled={
                 isSupplier ? isLoadingVehicles : !watchSedeId || isLoadingVehicles
@@ -769,7 +758,6 @@ export const VehicleDeliveryForm = ({
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || !form.formState.isValid || !canSave}
           >
             <Loader className={`mr-2 h-4 w-4 animate-spin ${!isSubmitting ? "hidden" : ""}`} />
             {isSubmitting ? "Guardando…" : "Guardar Entrega"}
