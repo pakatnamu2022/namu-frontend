@@ -14,10 +14,10 @@ const controlUnitsSchemaBase = z.object({
     .refine(
       (val) => {
         if (!val) return true; // Si está vacío, lo permitimos (la validación requerida se hace en otro lado)
-        return val.startsWith("T") && val.length <= 4;
+        return val.length <= 4;
       },
       {
-        message: "La serie debe empezar con 'T' y tener máximo 4 caracteres",
+        message: "La serie debe tener máximo 4 caracteres",
       },
     ),
   correlative: z.string().optional(),
