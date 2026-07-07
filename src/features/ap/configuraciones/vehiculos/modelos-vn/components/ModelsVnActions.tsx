@@ -2,8 +2,20 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Download, FileSearch, FileSearch2, FileUp, PackagePlus, Plus, RefreshCw } from "lucide-react";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import {
+  Download,
+  FileSearch,
+  FileSearch2,
+  FileUp,
+  PackagePlus,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
@@ -52,7 +64,8 @@ export default function ModelsVnActions({
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingVerify, setIsDownloadingVerify] = useState(false);
   const [isDownloadingMatchExcel, setIsDownloadingMatchExcel] = useState(false);
-  const [isDownloadingInitialStock, setIsDownloadingInitialStock] = useState(false);
+  const [isDownloadingInitialStock, setIsDownloadingInitialStock] =
+    useState(false);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
 
   const { ROUTE_ADD, QUERY_KEY } =
@@ -111,17 +124,24 @@ export default function ModelsVnActions({
     try {
       const result = await syncAllModelsVn();
       successToast(result.message);
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, "sync-logs"] });
+      await queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY, "sync-logs"],
+      });
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al despachar sincronización masiva."
+        error?.response?.data?.message ||
+          "Error al despachar sincronización masiva.",
       );
     } finally {
       setIsSyncingAll(false);
     }
   };
 
-  if (!permissions.canCreate && !permissions.canImport && !permissions.canExport) {
+  if (
+    !permissions.canCreate &&
+    !permissions.canImport &&
+    !permissions.canExport
+  ) {
     return null;
   }
 
@@ -133,35 +153,6 @@ export default function ModelsVnActions({
           onPdfDownload={() => exportModelsVn({ ...filters, format: "pdf" })}
         />
       )}
-
-      {(permissions.canCreate || permissions.canImport) && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleDownloadTemplate}
-              disabled={isDownloading}
-            >
-              <Download className="size-4 mr-2" />
-              {isDownloading ? "Descargando..." : "Template"}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Descargar template de importación</TooltipContent>
-        </Tooltip>
-      )}
-
-      {permissions.canImport && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
-              <FileUp className="size-4 mr-2" /> Importar
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Importar modelos desde Excel</TooltipContent>
-        </Tooltip>
-      )}
-
       {permissions.canImport && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -182,7 +173,11 @@ export default function ModelsVnActions({
       {permissions.canImport && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button size="sm" variant="outline" onClick={() => setVerifyOpen(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setVerifyOpen(true)}
+            >
               <FileSearch className="size-4 mr-2" /> Verificar
             </Button>
           </TooltipTrigger>
@@ -210,7 +205,11 @@ export default function ModelsVnActions({
       {permissions.canImport && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button size="sm" variant="outline" onClick={() => setMatchExcelOpen(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setMatchExcelOpen(true)}
+            >
               <FileSearch2 className="size-4 mr-2" /> Cotejar
             </Button>
           </TooltipTrigger>
@@ -228,25 +227,12 @@ export default function ModelsVnActions({
               disabled={isDownloadingInitialStock}
             >
               <Download className="size-4 mr-2" />
-              {isDownloadingInitialStock ? "Descargando..." : "Tmpl. Stock Inicial"}
+              {isDownloadingInitialStock
+                ? "Descargando..."
+                : "Tmpl. Stock Inicial"}
             </Button>
           </TooltipTrigger>
           <TooltipContent>Descargar template de stock inicial</TooltipContent>
-        </Tooltip>
-      )}
-
-      {permissions.canImport && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setImportInitialStockOpen(true)}
-            >
-              <PackagePlus className="size-4 mr-2" /> Importar Stock Inicial
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Importar stock inicial desde Excel</TooltipContent>
         </Tooltip>
       )}
 
@@ -260,20 +246,30 @@ export default function ModelsVnActions({
                 onClick={handleSyncAll}
                 disabled={isSyncingAll}
               >
-                <RefreshCw className={`size-4 mr-2 ${isSyncingAll ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`size-4 mr-2 ${isSyncingAll ? "animate-spin" : ""}`}
+                />
                 {isSyncingAll ? "Despachando..." : "Sync. Todos"}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Sincronizar todos los modelos pendientes a Dynamics</TooltipContent>
+            <TooltipContent>
+              Sincronizar todos los modelos pendientes a Dynamics
+            </TooltipContent>
           </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="sm" variant="outline" onClick={() => setDynamicsOpen(true)}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setDynamicsOpen(true)}
+              >
                 <RefreshCw className="size-4 mr-2" /> Artículos Dynamics
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Ver historial de sincronización con Dynamics</TooltipContent>
+            <TooltipContent>
+              Ver historial de sincronización con Dynamics
+            </TooltipContent>
           </Tooltip>
         </>
       )}
@@ -284,32 +280,84 @@ export default function ModelsVnActions({
         </Button>
       )}
 
-      <ModelsVnImportDialog
-        open={importOpen}
-        onClose={() => setImportOpen(false)}
-        onSuccess={onImportSuccess}
-      />
+      {false && (
+        <>
+          {(permissions.canCreate || permissions.canImport) && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDownloadTemplate}
+                  disabled={isDownloading}
+                >
+                  <Download className="size-4 mr-2" />
+                  {isDownloading ? "Descargando..." : "Template"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Descargar template de importación</TooltipContent>
+            </Tooltip>
+          )}
 
-      <ModelsVnVerifyDialog
-        open={verifyOpen}
-        onClose={() => setVerifyOpen(false)}
-      />
+          {permissions.canImport && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setImportOpen(true)}
+                >
+                  <FileUp className="size-4 mr-2" /> Importar
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Importar modelos desde Excel</TooltipContent>
+            </Tooltip>
+          )}
 
-      <ModelsVnMatchExcelDialog
-        open={matchExcelOpen}
-        onClose={() => setMatchExcelOpen(false)}
-      />
+          {permissions.canImport && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setImportInitialStockOpen(true)}
+                >
+                  <PackagePlus className="size-4 mr-2" /> Importar Stock Inicial
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Importar stock inicial desde Excel
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <ModelsVnImportDialog
+            open={importOpen}
+            onClose={() => setImportOpen(false)}
+            onSuccess={onImportSuccess}
+          />
 
-      <ModelsVnImportInitialStockDialog
-        open={importInitialStockOpen}
-        onClose={() => setImportInitialStockOpen(false)}
-        onSuccess={onImportSuccess}
-      />
+          <ModelsVnVerifyDialog
+            open={verifyOpen}
+            onClose={() => setVerifyOpen(false)}
+          />
 
-      <ModelVnDynamicsSheet
-        open={dynamicsOpen}
-        onClose={() => setDynamicsOpen(false)}
-      />
+          <ModelsVnMatchExcelDialog
+            open={matchExcelOpen}
+            onClose={() => setMatchExcelOpen(false)}
+          />
+
+          <ModelsVnImportInitialStockDialog
+            open={importInitialStockOpen}
+            onClose={() => setImportInitialStockOpen(false)}
+            onSuccess={onImportSuccess}
+          />
+
+          <ModelVnDynamicsSheet
+            open={dynamicsOpen}
+            onClose={() => setDynamicsOpen(false)}
+          />
+        </>
+      )}
     </ActionsWrapper>
   );
 }
