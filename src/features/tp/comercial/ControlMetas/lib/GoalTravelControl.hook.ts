@@ -96,12 +96,13 @@ export const useViajesNoFacturados = (dias: number = 4, year?: number, month?: n
   });
 };
 
-export const useAnalisisEstrategico = () => {
+export const useAnalisisEstrategico = (fechaInicio?: string, fechaFin?: string) => {
   return useQuery<AnalisisEstrategicoResponse>({
-    queryKey: ["analisis-estrategico"],
-    queryFn: () => getAnalisisEstrategico(),
+    queryKey: ["analisis-estrategico", fechaInicio, fechaFin],
+    queryFn: () => getAnalisisEstrategico({ params: { fecha_inicio: fechaInicio, fecha_fin: fechaFin } }),
     refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    enabled: !!fechaInicio && !!fechaFin,
   });
 };
 
