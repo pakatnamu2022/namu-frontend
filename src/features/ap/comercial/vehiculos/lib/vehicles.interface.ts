@@ -201,6 +201,18 @@ export interface VinMatchResponse {
   found_different_status: VinFoundDifferentStatus[];
 }
 
+export interface UpdateVehiclesByVinError {
+  fila: number;
+  vin?: string;
+  motivo: string;
+}
+
+export interface UpdateVehiclesByVinResponse {
+  updated: number;
+  rows_processed: number;
+  errors: UpdateVehiclesByVinError[];
+}
+
 export interface VehiclePurchaseOrderData {
   vehicle: VehicleResource;
   purchase_order: {
