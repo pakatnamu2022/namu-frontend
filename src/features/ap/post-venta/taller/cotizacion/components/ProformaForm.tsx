@@ -16,14 +16,7 @@ import {
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import {
-  Car,
-  FileText,
-  User,
-  Gauge,
-  Calendar,
-  Plus,
-} from "lucide-react";
+import { Car, FileText, User, Gauge, Calendar, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/VehicleRepuestosModal";
@@ -39,6 +32,7 @@ import { OrderQuotationResource } from "../lib/proforma.interface";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { DataCard } from "@/components/DataCard";
 import { FormSwitch } from "@/shared/components/FormSwitch";
+import { toLocalDateString } from "@/core/core.function";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -109,7 +103,7 @@ export default function OrderQuotationForm({
       const quotationDateObj = new Date(String(quotationDate));
       const expirationDateObj = new Date(quotationDateObj);
       expirationDateObj.setDate(quotationDateObj.getDate() + 7);
-      form.setValue("expiration_date", expirationDateObj);
+      form.setValue("expiration_date", toLocalDateString(expirationDateObj));
     } else {
       form.setValue("expiration_date", "");
     }
@@ -121,7 +115,7 @@ export default function OrderQuotationForm({
         form.setValue("sede_id", mySedes[0].id.toString());
       }
       if (!form.getValues("quotation_date")) {
-        form.setValue("quotation_date", new Date());
+        form.setValue("quotation_date", toLocalDateString(new Date()));
       }
     }
   }, [mode, mySedes, form]);

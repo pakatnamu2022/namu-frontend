@@ -377,7 +377,11 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={[
-                { before: new Date(new Date().getFullYear(), 6, 1) },
+                {
+                  before: receptionData?.supplier_order?.order_date
+                    ? new Date(receptionData.supplier_order.order_date)
+                    : new Date(new Date().getFullYear(), 6, 1),
+                },
                 { after: new Date() },
               ]}
             />

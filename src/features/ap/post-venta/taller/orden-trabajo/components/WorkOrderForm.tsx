@@ -117,8 +117,6 @@ export const WorkOrderForm = ({
                 description: "-",
               },
             ],
-      diagnosis_date:
-        defaultValues.diagnosis_date || defaultValues.opening_date,
     },
     mode: "onChange",
   });
@@ -198,7 +196,11 @@ export const WorkOrderForm = ({
   }, [form, dniData]);
 
   useEffect(() => {
-    if (dniPickupData?.data && dniPickupData.success && dniPickupData.data.valid) {
+    if (
+      dniPickupData?.data &&
+      dniPickupData.success &&
+      dniPickupData.data.valid
+    ) {
       form.setValue("full_pickup_name", dniPickupData.data.names, {
         shouldValidate: true,
       });
@@ -915,9 +917,19 @@ export const WorkOrderForm = ({
               variant="outline"
               size="sm"
               onClick={() => {
-                form.setValue("num_doc_pickup", form.getValues("num_doc_contact"), { shouldValidate: true });
-                form.setValue("full_pickup_name", form.getValues("full_contact_name") ?? "", { shouldValidate: true });
-                form.setValue("phone_pickup", form.getValues("phone_contact"), { shouldValidate: true });
+                form.setValue(
+                  "num_doc_pickup",
+                  form.getValues("num_doc_contact"),
+                  { shouldValidate: true },
+                );
+                form.setValue(
+                  "full_pickup_name",
+                  form.getValues("full_contact_name") ?? "",
+                  { shouldValidate: true },
+                );
+                form.setValue("phone_pickup", form.getValues("phone_contact"), {
+                  shouldValidate: true,
+                });
               }}
             >
               Igual que contacto
@@ -947,7 +959,9 @@ export const WorkOrderForm = ({
                 show={!!watchedNumDocPickup}
                 isValidating={isDniPickupLoading}
                 isValid={dniPickupData?.success && !!dniPickupData.data}
-                hasError={!!dniPickupError || (dniPickupData && !dniPickupData.success)}
+                hasError={
+                  !!dniPickupError || (dniPickupData && !dniPickupData.success)
+                }
                 positioned={false}
               />
             }
