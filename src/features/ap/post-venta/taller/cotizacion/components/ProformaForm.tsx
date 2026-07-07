@@ -10,20 +10,14 @@ import {
   orderQuotationSchemaUpdate,
 } from "../lib/proforma.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { FormInput } from "@/shared/components/FormInput";
 import {
   useVehicleById,
   useVehicles,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import {
-  Car,
-  FileText,
-  User,
-  Gauge,
-  Calendar,
-  Plus,
-} from "lucide-react";
+import { Car, FileText, User, Gauge, Calendar, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
 import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/VehicleRepuestosModal";
@@ -102,7 +96,10 @@ export default function OrderQuotationForm({
 
   useEffect(() => {
     setSelectedVehicle(vehicleById ?? null);
-  }, [vehicleById]);
+    if (vehicleById?.mileage != null) {
+      form.setValue("mileage", vehicleById.mileage, { shouldValidate: true });
+    }
+  }, [vehicleById, form]);
 
   useEffect(() => {
     if (quotationDate) {
@@ -236,6 +233,15 @@ export default function OrderQuotationForm({
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
             disabled={true}
+          />
+
+          <FormInput
+            name="mileage"
+            label="Kilometraje"
+            placeholder="Ingrese el kilometraje"
+            type="number"
+            control={form.control}
+            required
           />
         </div>
 

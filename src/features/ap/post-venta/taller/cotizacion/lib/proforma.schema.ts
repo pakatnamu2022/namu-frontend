@@ -1,4 +1,8 @@
-import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
+import {
+  optionalStringId,
+  requiredNumber,
+  requiredStringId,
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const orderQuotationSchemaCreate = z.object({
@@ -11,6 +15,7 @@ export const orderQuotationSchemaCreate = z.object({
   area_id: optionalStringId("Área es requerido"),
   currency_id: requiredStringId("Moneda es requerida"),
   is_requested_by_management: z.boolean().optional(),
+  mileage: requiredNumber("Kilometraje es requerido"),
 });
 
 export const orderQuotationSchemaUpdate = orderQuotationSchemaCreate.partial();

@@ -8,42 +8,33 @@ import { Button } from "@/components/ui/button";
 import { ClipboardMinus } from "lucide-react";
 import { useAllBrands } from "../../marcas/lib/brands.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useAllFamilies } from "../../familias/lib/families.hook";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
-  ModelsVnPvSchema,
-  modelsVnPvSchemaCreate,
-  modelsVnPvSchemaUpdate,
+  ModelsVnPvAutomaticSchema,
+  modelsVnPvAutomaticSchema,
 } from "../lib/modelsVnPv.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { CLASS_ARTICLE_ID } from "../../../maestros-general/clase-articulo/lib/classArticle.constants";
 import BrandsModal from "../../marcas/components/BrandsModal";
-import FamiliesModal from "../../familias/components/FamiliesModal";
 import { BrandsResource } from "../../marcas/lib/brands.interface";
 
-interface ModelsVnFormProps {
-  defaultValues: Partial<ModelsVnPvSchema>;
-  onSubmit: (data: any) => void;
+interface ModelsVnPvAutomaticFormProps {
+  defaultValues: Partial<ModelsVnPvAutomaticSchema>;
+  onSubmit: (data: ModelsVnPvAutomaticSchema) => void;
   isSubmitting?: boolean;
-  mode?: "create" | "update";
   onCancel: () => void;
 }
 
-export const ModelsVnPvForm = ({
+export const ModelsVnPvAutomaticForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
-  mode = "create",
   onCancel,
-}: ModelsVnFormProps) => {
+}: ModelsVnPvAutomaticFormProps) => {
   const form = useForm({
-    resolver: zodResolver(
-      mode === "create"
-        ? modelsVnPvSchemaCreate
-        : (modelsVnPvSchemaUpdate as any),
-    ),
+    resolver: zodResolver(modelsVnPvAutomaticSchema),
     defaultValues: {
       ...defaultValues,
       type_operation_id:
@@ -53,60 +44,7 @@ export const ModelsVnPvForm = ({
     mode: "onChange",
   });
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
-  const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
-  const marcaSeleccionada = form.watch("brand_id");
   const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands();
-  const { data: families = [], isLoading: isLoadingFamilies } = useAllFamilies({
-    brand_id: marcaSeleccionada,
-  });
-
-  const initialBrandId = useRef(defaultValues.brand_id ?? "");
-
-  useEffect(() => {
-    if (marcaSeleccionada === initialBrandId.current) return;
-    // Solo limpiar family_id cuando el usuario cambia la marca respecto al valor inicial
-    form.setValue("family_id", "", {
-      shouldValidate: false,
-      shouldDirty: true,
-    });
-  }, [marcaSeleccionada, form]);
-
-  const getFamilyOptions = () => {
-    if (!marcaSeleccionada) {
-      return [
-        {
-          label: "Primero seleccione una marca",
-          value: "",
-          disabled: true,
-        },
-      ];
-    }
-
-    if (isLoadingFamilies) {
-      return [
-        {
-          label: "Cargando familias...",
-          value: "",
-          disabled: true,
-        },
-      ];
-    }
-
-    if (families.length === 0) {
-      return [
-        {
-          label: "No hay familias disponibles",
-          value: "",
-          disabled: true,
-        },
-      ];
-    }
-
-    return families.map((family) => ({
-      label: family.description,
-      value: family.id.toString(),
-    }));
-  };
 
   return (
     <Form {...form}>
@@ -143,37 +81,9 @@ export const ModelsVnPvForm = ({
                 <Plus className="h-4 w-4" />
               </Button>
             </FormSelect>
-            <FormSelect
-              name="family_id"
-              label="Familia"
-              placeholder={
-                !marcaSeleccionada
-                  ? "Primero seleccione una marca"
-                  : "Selecciona una Familia"
-              }
-              options={getFamilyOptions()}
-              control={form.control}
-              disabled={!marcaSeleccionada || isLoadingFamilies}
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-lg"
-                className="aspect-square"
-                onClick={() => setIsFamilyModalOpen(true)}
-                disabled={!marcaSeleccionada}
-                tooltip={
-                  !marcaSeleccionada
-                    ? "Primero seleccione una marca"
-                    : "Agregar nueva familia"
-                }
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </FormSelect>
             <FormInput
               name="version"
-              label="Versión"
+              label="Modelo VN"
               placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
               control={form.control}
               disabled={isLoadingbrands}
@@ -206,19 +116,6 @@ export const ModelsVnPvForm = ({
           });
         }}
         title="Agregar Nueva Marca"
-      />
-
-      <FamiliesModal
-        open={isFamilyModalOpen}
-        onClose={() => setIsFamilyModalOpen(false)}
-        onSuccess={(newFamily) => {
-          form.setValue("family_id", newFamily.id.toString(), {
-            shouldValidate: true,
-          });
-        }}
-        title="Agregar Nueva Familia"
-        mode="create"
-        defaultBrandId={marcaSeleccionada}
       />
     </Form>
   );

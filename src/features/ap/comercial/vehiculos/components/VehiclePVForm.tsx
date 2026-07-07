@@ -35,7 +35,7 @@ import { usePlateValidation } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
-import ModelsVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnModal";
+import ModelsVnPvAutomaticModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnPvAutomaticModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
@@ -269,7 +269,7 @@ export const VehiclePVForm = ({
             useQueryHook={useModelsVn}
             mapOptionFn={(item: ModelsVnResource) => ({
               value: item.id.toString(),
-              label: `${item.code} - ${item.version}`,
+              label: `${item.brand} - ${item.version}`,
             })}
             perPage={10}
             debounceMs={500}
@@ -277,7 +277,7 @@ export const VehiclePVForm = ({
               vehicleData?.model
                 ? {
                     value: vehicleData.model.id.toString(),
-                    label: `${vehicleData.model.code} - ${vehicleData.model.version}`,
+                    label: `${vehicleData.model.brand} - ${vehicleData.model.version}`,
                   }
                 : undefined
             }
@@ -436,7 +436,7 @@ export const VehiclePVForm = ({
         mode="create"
       />
 
-      <ModelsVnModal
+      <ModelsVnPvAutomaticModal
         open={isModelModalOpen}
         onClose={() => {
           setIsModelModalOpen(false);
@@ -445,7 +445,6 @@ export const VehiclePVForm = ({
           });
         }}
         title="Agregar Nuevo Modelo VN"
-        mode="create"
       />
 
       <CustomerModal

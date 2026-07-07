@@ -64,6 +64,7 @@ export interface OrderQuotationResource {
   customer_signature_delivery_url: string | null;
   delivery_document_number: string | null;
   has_management_discount: boolean;
+  mileage: string;
   //Confirmacion virtual
   confirmed_at: string | null;
   confirmation_channel: string | null;
@@ -125,6 +126,7 @@ export interface OrderQuotationRequest {
   quotation_date: string | Date;
   expiration_date: string | Date;
   observations?: string;
+  mileage?: number;
 }
 
 export interface getOrderQuotationProps {

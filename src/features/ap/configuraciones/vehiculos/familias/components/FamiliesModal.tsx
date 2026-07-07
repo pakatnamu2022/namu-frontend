@@ -18,16 +18,20 @@ interface Props {
   id?: number;
   open: boolean;
   onClose: () => void;
+  onSuccess?: (newFamily: FamiliesResource) => void;
   title: string;
   mode: "create" | "update";
+  defaultBrandId?: string;
 }
 
 export default function FamiliesModal({
   id,
   open,
   onClose,
+  onSuccess,
   title,
   mode,
+  defaultBrandId,
 }: Props) {
   const queryClient = useQueryClient();
   const { MODEL, EMPTY, QUERY_KEY } = FAMILIES;
@@ -36,7 +40,11 @@ export default function FamiliesModal({
     isLoading: loadingFamilies,
     refetch,
   } = mode === "create"
-    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    ? {
+        data: { ...EMPTY, brand_id: defaultBrandId ?? EMPTY.brand_id },
+        isLoading: false,
+        refetch: () => {},
+      }
     : useFamiliesById(id!);
 
   function mapRoleToForm(
@@ -51,10 +59,11 @@ export default function FamiliesModal({
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FamiliesSchema) =>
       mode === "create" ? storeFamilies(data) : updateFamilies(id!, data),
-    onSuccess: async () => {
+    onSuccess: async (newFamily) => {
       successToast(SUCCESS_MESSAGE(MODEL, mode));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       await refetch();
+      onSuccess?.(newFamily as FamiliesResource);
     },
     onError: (error: any) => {
       errorToast(error.response?.data?.message, ERROR_MESSAGE(MODEL, mode));

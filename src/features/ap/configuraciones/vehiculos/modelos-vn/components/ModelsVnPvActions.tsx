@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import ModelsVnModal from "./ModelsVnModal";
+import ModelsVnPvAutomaticModal from "./ModelsVnPvAutomaticModal";
 import { useState } from "react";
 
 interface ModelsVnActionsProps {
@@ -32,11 +32,10 @@ export default function ModelsVnPvActions({
       >
         <Plus className="size-4 mr-2" /> Agregar Modelo VN
       </Button>
-      <ModelsVnModal
+      <ModelsVnPvAutomaticModal
         title={"Crear Modelo VN"}
         open={open}
         onClose={() => setOpen(false)}
-        mode="create"
       />
     </ActionsWrapper>
   );
