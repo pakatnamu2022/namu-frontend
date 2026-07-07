@@ -188,6 +188,7 @@ export function WorkerTimeline({
           STATUS_WORK_ORDER.APERTURADO,
           STATUS_WORK_ORDER.RECEPCIONADO,
           STATUS_WORK_ORDER.EN_TRABAJO,
+          STATUS_WORK_ORDER.FIN_TRABAJO,
         ],
         sede_id: sedeId,
       },
