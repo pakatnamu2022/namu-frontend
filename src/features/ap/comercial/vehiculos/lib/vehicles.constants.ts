@@ -20,6 +20,11 @@ export const VEHICLES: ModelComplete<VehicleResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+export const VEHICLES_EXPORT = {
+  ENDPOINT_EXPORT_EXCEL: `${VEHICLES.ENDPOINT}/export?format=excel`,
+  ENDPOINT_EXPORT_PDF: `${VEHICLES.ENDPOINT}/export?format=pdf`,
+};
+
 // VEHICULOS TALLER
 const ROUTE_TLL = "vehiculos-taller";
 const ABSOLUTE_ROUTE_TLL = `/ap/post-venta/taller/${ROUTE_TLL}`;
