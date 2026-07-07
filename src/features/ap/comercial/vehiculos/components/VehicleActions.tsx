@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/tooltip";
 import { FileUp } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 import VehicleUpdateByVinSheet from "./VehicleUpdateByVinSheet";
+import { VEHICLES_EXPORT } from "../lib/vehicles.constants";
 
 interface VehicleActionsProps {
   permissions?: {
@@ -44,6 +46,14 @@ export default function VehicleActions({
         open={updateByVinOpen}
         onClose={() => setUpdateByVinOpen(false)}
         onSuccess={onUpdateSuccess}
+      />
+
+      <ExportButtons
+        excelEndpoint={VEHICLES_EXPORT.ENDPOINT_EXPORT_EXCEL}
+        pdfEndpoint={VEHICLES_EXPORT.ENDPOINT_EXPORT_PDF}
+        excelFileName="vehiculos.xlsx"
+        pdfFileName="vehiculos.pdf"
+        variant="grouped"
       />
     </ActionsWrapper>
   );
