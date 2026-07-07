@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Target, AlertCircle, Users, DollarSign, Calendar, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertCircle, Users, DollarSign, Calendar, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import {
     Bar,
     XAxis,
@@ -119,7 +119,7 @@ export default function AnalisisEstrategico() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                {/* <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                             <Target className="h-4 w-4" />
@@ -134,7 +134,7 @@ export default function AnalisisEstrategico() {
                             Meta: {formatCurrency(Number(proyeccion.meta.toFixed(2)))}
                         </div>
                     </CardContent>
-                </Card>
+                </Card> */}
 
                 <Card className={cn("border-l-4", getStatusColor(proyeccion.cumplimiento))}>
                     <CardHeader className="pb-2">
