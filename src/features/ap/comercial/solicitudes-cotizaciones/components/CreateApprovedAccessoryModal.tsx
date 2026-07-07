@@ -16,6 +16,7 @@ import {
   approvedAccesoriesSchemaCreate,
   ApprovedAccesoriesSchema,
 } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.schema";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface CreateApprovedAccessoryModalProps {
   open: boolean;
@@ -37,7 +38,7 @@ export function CreateApprovedAccessoryModal({
       code: "",
       description: "",
       price: 0,
-      type_operation_id: 794,
+      type_operation_id: CM_COMERCIAL_ID,
     },
     mode: "onChange",
   });

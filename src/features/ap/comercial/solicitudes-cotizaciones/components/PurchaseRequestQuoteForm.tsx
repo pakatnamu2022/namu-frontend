@@ -60,6 +60,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
 import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -327,7 +328,6 @@ export const PurchaseRequestQuoteForm = ({
   const billedCost = vehicleVnSelected?.billed_cost
     ? parseFloat(vehicleVnSelected.billed_cost.toString())
     : 0;
-
 
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
@@ -647,7 +647,7 @@ export const PurchaseRequestQuoteForm = ({
         const unitPrice = Number(accessory.price) + (row.additional_price ?? 0);
         const accessoryPrice = unitPrice * row.quantity;
         const accessoryCurrencyId =
-          accessory.type_operation_id === 794 ? usdId : solesId;
+          accessory.type_operation_id === CM_COMERCIAL_ID ? usdId : solesId;
 
         return (
           total +
@@ -747,7 +747,9 @@ export const PurchaseRequestQuoteForm = ({
       base_selling_price: round2(totals.salePrice),
       sale_price: round2(totals.salePrice + totals.accessoriesTotal),
       doc_sale_price: round2(finalTotal),
-      down_payment: data.down_payment ? parseFloat(data.down_payment) : undefined,
+      down_payment: data.down_payment
+        ? parseFloat(data.down_payment)
+        : undefined,
     };
 
     onSubmit(finalData);
@@ -960,7 +962,10 @@ export const PurchaseRequestQuoteForm = ({
                       value: item.id.toString(),
                       label: item.code + " - " + item.version,
                     })}
-                    additionalParams={{ family_id: selectedFamilyId }}
+                    additionalParams={{
+                      family_id: selectedFamilyId,
+                      type_operation_id: CM_COMERCIAL_ID,
+                    }}
                     useFindByIdHook={useModelVnById}
                   />
 
@@ -1020,27 +1025,28 @@ export const PurchaseRequestQuoteForm = ({
                 {/* Mostrar información adicional según el modo */}
                 {withVinWatch && vehicleVnWatch && (
                   <div className="mt-2 space-y-2 w-full">
-                    {canManage && (billedCost > 0 ? (
-                      <>
-                        <Alert variant="info">
+                    {canManage &&
+                      (billedCost > 0 ? (
+                        <>
+                          <Alert variant="info">
+                            <AlertDescription>
+                              <span className="font-medium">Costo Compra:</span>{" "}
+                              {currencySymbol}{" "}
+                              {billedCost.toLocaleString("es-PE", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </AlertDescription>
+                          </Alert>
+                        </>
+                      ) : (
+                        <Alert variant="warning">
                           <AlertDescription>
-                            <span className="font-medium">Costo Compra:</span>{" "}
-                            {currencySymbol}{" "}
-                            {billedCost.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                            Este vehículo no tiene costo de compra registrado.
+                            Revisar el registro del vehículo.
                           </AlertDescription>
                         </Alert>
-                      </>
-                    ) : (
-                      <Alert variant="warning">
-                        <AlertDescription>
-                          Este vehículo no tiene costo de compra registrado.
-                          Revisar el registro del vehículo.
-                        </AlertDescription>
-                      </Alert>
-                    ))}
+                      ))}
                     {parseFloat(salePriceWatch || "0") === 0 && (
                       <Alert variant="destructive">
                         <AlertTitle>Precio de venta en 0</AlertTitle>
@@ -1049,11 +1055,10 @@ export const PurchaseRequestQuoteForm = ({
                             "No se pudo cargar la información del modelo de este vehículo. Verifique que el vehículo pertenezca a la familia de la oportunidad seleccionada."
                           ) : originalPrice === 0 ? (
                             <>
-                              El modelo{" "}
-                              <strong>"{selectedModel.code}"</strong> (ID:{" "}
-                              {selectedModel.id}) de este vehículo no tiene precio
-                              de venta configurado. Ir a Configuraciones → Modelos
-                              VN para agregarlo.
+                              El modelo <strong>"{selectedModel.code}"</strong>{" "}
+                              (ID: {selectedModel.id}) de este vehículo no tiene
+                              precio de venta configurado. Ir a Configuraciones
+                              → Modelos VN para agregarlo.
                             </>
                           ) : (
                             <>
@@ -1083,11 +1088,10 @@ export const PurchaseRequestQuoteForm = ({
                             "No se pudo cargar la información del modelo seleccionado."
                           ) : originalPrice === 0 ? (
                             <>
-                              El modelo{" "}
-                              <strong>"{selectedModel.code}"</strong> (ID:{" "}
-                              {selectedModel.id}) no tiene precio de venta
-                              configurado. Ir a Configuraciones → Modelos VN para
-                              agregarlo.
+                              El modelo <strong>"{selectedModel.code}"</strong>{" "}
+                              (ID: {selectedModel.id}) no tiene precio de venta
+                              configurado. Ir a Configuraciones → Modelos VN
+                              para agregarlo.
                             </>
                           ) : (
                             <>

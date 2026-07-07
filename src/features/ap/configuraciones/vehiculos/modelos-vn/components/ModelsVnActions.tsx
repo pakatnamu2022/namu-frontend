@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Download, FileSearch, FileSearch2, FileUp, Plus, RefreshCw } from "lucide-react";
+import { Download, FileSearch, FileSearch2, FileUp, PackagePlus, Plus, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
@@ -11,6 +11,7 @@ import ExportButtons from "@/shared/components/ExportButtons";
 import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
+  downloadInitialStockTemplateModelsVn,
   downloadMatchExcelTemplateModelsVn,
   downloadTemplateModelsVn,
   downloadVerifyTemplateModelsVn,
@@ -21,6 +22,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import ModelsVnImportDialog from "./ModelsVnImportDialog";
 import ModelsVnVerifyDialog from "./ModelsVnVerifyDialog";
 import ModelsVnMatchExcelDialog from "./ModelsVnMatchExcelDialog";
+import ModelsVnImportInitialStockDialog from "./ModelsVnImportInitialStockDialog";
 import ModelVnDynamicsSheet from "./ModelVnDynamicsSheet";
 
 interface ModelsVnActionsProps {
@@ -45,10 +47,12 @@ export default function ModelsVnActions({
   const [importOpen, setImportOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [matchExcelOpen, setMatchExcelOpen] = useState(false);
+  const [importInitialStockOpen, setImportInitialStockOpen] = useState(false);
   const [dynamicsOpen, setDynamicsOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingVerify, setIsDownloadingVerify] = useState(false);
   const [isDownloadingMatchExcel, setIsDownloadingMatchExcel] = useState(false);
+  const [isDownloadingInitialStock, setIsDownloadingInitialStock] = useState(false);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
 
   const { ROUTE_ADD, QUERY_KEY } =
@@ -87,6 +91,18 @@ export default function ModelsVnActions({
       errorToast("Error al descargar el template de cotejo.");
     } finally {
       setIsDownloadingMatchExcel(false);
+    }
+  };
+
+  const handleDownloadInitialStockTemplate = async () => {
+    setIsDownloadingInitialStock(true);
+    try {
+      await downloadInitialStockTemplateModelsVn();
+      successToast("Template de stock inicial descargado correctamente.");
+    } catch {
+      errorToast("Error al descargar el template de stock inicial.");
+    } finally {
+      setIsDownloadingInitialStock(false);
     }
   };
 
@@ -202,6 +218,38 @@ export default function ModelsVnActions({
         </Tooltip>
       )}
 
+      {permissions.canImport && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDownloadInitialStockTemplate}
+              disabled={isDownloadingInitialStock}
+            >
+              <Download className="size-4 mr-2" />
+              {isDownloadingInitialStock ? "Descargando..." : "Tmpl. Stock Inicial"}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Descargar template de stock inicial</TooltipContent>
+        </Tooltip>
+      )}
+
+      {permissions.canImport && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setImportInitialStockOpen(true)}
+            >
+              <PackagePlus className="size-4 mr-2" /> Importar Stock Inicial
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Importar stock inicial desde Excel</TooltipContent>
+        </Tooltip>
+      )}
+
       {isCommercial === CM_COMERCIAL_ID && (
         <>
           <Tooltip>
@@ -250,6 +298,12 @@ export default function ModelsVnActions({
       <ModelsVnMatchExcelDialog
         open={matchExcelOpen}
         onClose={() => setMatchExcelOpen(false)}
+      />
+
+      <ModelsVnImportInitialStockDialog
+        open={importInitialStockOpen}
+        onClose={() => setImportInitialStockOpen(false)}
+        onSuccess={onImportSuccess}
       />
 
       <ModelVnDynamicsSheet
