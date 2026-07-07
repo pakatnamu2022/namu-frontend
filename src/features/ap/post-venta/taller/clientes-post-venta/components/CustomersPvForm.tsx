@@ -606,9 +606,6 @@ export const CustomersPvForm = ({
                 }))}
                 control={form.control}
                 strictFilter={true}
-                disabled={
-                  shouldDisableMainFields && !isRucNatural && isJuridica
-                }
               />
 
               <div className="col-span-1 md:col-span-2">
