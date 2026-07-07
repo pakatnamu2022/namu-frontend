@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import {
   getModelsVnProps,
+  ImportInitialStockModelsVnResponse,
   ImportModelsVnResponse,
   ModelVnSyncAllResponse,
   ModelVnSyncLogsResponse,
@@ -179,6 +180,36 @@ export async function matchExcelModelsVn(file: File): Promise<void> {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+export async function downloadInitialStockTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`/ap/configuration/modelsVn/initial-stock/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "modelos_vn_stock_inicial_template.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function importInitialStockModelsVn(
+  file: File
+): Promise<ImportInitialStockModelsVnResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<ImportInitialStockModelsVnResponse>(
+    `${ENDPOINT}/import-initial-stock`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
 }
 
 export async function getModelVnSyncLogs(
