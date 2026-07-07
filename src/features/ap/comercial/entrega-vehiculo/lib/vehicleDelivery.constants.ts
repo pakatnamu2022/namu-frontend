@@ -19,3 +19,5 @@ export const VEHICLE_DELIVERY: ModelComplete<VehiclesDeliveryResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
+
+export const ROUTE_GUIA_SALIDA = `${ABSOLUTE_ROUTE}/guia-salida`;
