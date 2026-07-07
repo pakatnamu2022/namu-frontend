@@ -180,26 +180,40 @@ export const orderQuotationColumns = ({
     },
   },
   {
-    accessorKey: "chief_approval_by",
-    header: "Aprob. Jefe",
-    cell: ({ getValue }) => {
-      const value = getValue() as string | null;
+    id: "approvals",
+    header: "Aprobado por",
+    cell: ({ row }) => {
+      const approvals = [
+        {
+          label: "Jefe",
+          name: row.original.chief_approval_by_name,
+        },
+        {
+          label: "Gerente",
+          name: row.original.manager_approval_by_name,
+        },
+      ].filter((approval) => !!approval.name);
+
+      if (approvals.length === 0) {
+        return <span className="text-muted-foreground">-</span>;
+      }
+
       return (
-        <Badge variant="outline" color={value ? "green" : "red"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "manager_approval_by",
-    header: "Aprob. Gerente",
-    cell: ({ getValue }) => {
-      const value = getValue() as string | null;
-      return (
-        <Badge variant="outline" color={value ? "green" : "red"}>
-          {value ? "Sí" : "No"}
-        </Badge>
+        <div className="flex flex-col gap-1.5 min-w-0">
+          {approvals.map((approval) => (
+            <div
+              key={approval.label}
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-xs"
+            >
+              <Badge variant="outline" color="blue" className="shrink-0">
+                {approval.label}
+              </Badge>
+              <span className="truncate font-medium text-foreground">
+                {approval.name}
+              </span>
+            </div>
+          ))}
+        </div>
       );
     },
   },
