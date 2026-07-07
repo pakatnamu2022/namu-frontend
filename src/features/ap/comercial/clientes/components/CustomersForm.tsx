@@ -483,7 +483,15 @@ export const CustomersForm = ({
         form.setValue("maternal_surname", "", { shouldValidate: true });
       }
     }
-  }, [validationData, validationError, form, dniData, rucData, ceData, isJuridica]);
+  }, [
+    validationData,
+    validationError,
+    form,
+    dniData,
+    rucData,
+    ceData,
+    isJuridica,
+  ]);
 
   // UseEffect específico para conyuge:
   useEffect(() => {
@@ -573,7 +581,13 @@ export const CustomersForm = ({
         value: firstDistrict.id.toString(),
       });
     }
-  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo, ubigeoToSearch]);
+  }, [
+    districtByUbigeo,
+    form,
+    isFirstLoad,
+    isLoadingDistrictByUbigeo,
+    ubigeoToSearch,
+  ]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {
@@ -960,11 +974,7 @@ export const CustomersForm = ({
               name="direction"
               label="Dirección"
               placeholder="Ingrese dirección"
-              disabled={
-                directionWatch !== "NO DEFINIDO" &&
-                ((shouldDisableMainFields && !isRucNatural && isJuridica) ||
-                  mode === "update")
-              }
+              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
             />
           </div>
 
