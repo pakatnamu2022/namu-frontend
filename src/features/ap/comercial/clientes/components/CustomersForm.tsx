@@ -618,8 +618,6 @@ export const CustomersForm = ({
     form,
   ]);
 
-  const directionWatch = form.watch("direction");
-
   // AQUÍ VAN LAS VARIABLES DE ESTADO DINÁMICAS
   const shouldDisableMainFields = Boolean(
     validationData?.success && validationData.data,
@@ -974,7 +972,6 @@ export const CustomersForm = ({
               name="direction"
               label="Dirección"
               placeholder="Ingrese dirección"
-              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
             />
           </div>
 
