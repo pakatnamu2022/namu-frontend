@@ -20,13 +20,22 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export default function ComparativaMensual() {
-    // Período 1 (siempre activo)
-    const [year1, setYear1] = useState<number>(2024);
-    const [month1, setMonth1] = useState<number>(3);
+    const hoy = new Date();
+    //periodo 01:
+    const [year1, setYear1] = useState<number>(hoy.getFullYear());
+    const [month1, setMonth1] = useState<number>(hoy.getMonth() + 1);
 
-    // Período 2 (puede desactivarse)
-    const [year2, setYear2] = useState<number>(2024);
-    const [month2, setMonth2] = useState<number>(2);
+    //periodo 02: mes anterior por defecto
+    const [year2, setYear2] = useState<number>(hoy.getFullYear());
+    const [month2, setMonth2] = useState<number>(() => {
+        const mes = hoy.getMonth();
+        if (mes === 0) {
+            return 12;
+        }
+        return mes;
+    })
+
+
     const [compararPersonalizado, setCompararPersonalizado] = useState<boolean>(false);
 
     // Validación de fechas futuras
