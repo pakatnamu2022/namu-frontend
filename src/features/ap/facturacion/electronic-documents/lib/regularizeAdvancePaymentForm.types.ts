@@ -6,9 +6,9 @@ import { ElectronicDocumentItemSchema } from "./electronicDocument.schema";
 // (RegularizeAdvancePaymentSchema) solo usa un subset de esos campos.
 export interface RegularizeAdvancePaymentFormValues {
   sunat_concept_document_type_id: string;
+  sede_id: string;
   serie: string;
-  numero?: string;
-  area_id: string;
+  numero: number;
 
   origin_entity_type: "ApOrderQuotations" | "ApWorkOrder" | "";
   origin_entity_id?: string;

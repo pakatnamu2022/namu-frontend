@@ -21,9 +21,9 @@ export const RegularizeAdvancePaymentItemSchema = z.object({
 // POST /api/ap/facturacion/electronic-documents/regularize-advance-payment
 export const RegularizeAdvancePaymentSchema = z.object({
   sunat_concept_document_type_id: requiredStringId("Tipo de documento requerido"),
-  series_id: requiredStringId("Serie requerida"),
-  numero: z.string().optional(),
-  area_id: requiredStringId("Área requerida"),
+  sede_id: requiredStringId("Sede requerida"),
+  serie: z.string().min(1, "Serie requerida").max(4, "Máximo 4 caracteres"),
+  numero: z.number({ error: "Número requerido" }).int("Número inválido").min(1, "El número debe ser mayor a 0"),
 
   client_id: requiredStringId("Cliente requerido"),
 
