@@ -218,18 +218,28 @@ export function PurchaseRequestQuoteSummary({
   const discountTotal = discountRows.reduce((sum, r) => sum + rowAmount(r), 0);
   const paidAccTotal = paidAccessories.reduce((s, a) => s + a.total, 0);
 
+  // El flete es la única fila de "Otros" que se resta a nivel neto (después de 1.18).
+  // Cualquier otra fila que se agregue se trata como un obsequio: costo bruto,
+  // sumado junto con billedCost/giftTotal antes de dividir entre 1.18.
+  const fleteRows = othersRows.filter((r) => r.isLocked);
+  const extraCostRows = othersRows.filter((r) => !r.isLocked);
+  const extraCostsTotal = extraCostRows.reduce((sum, row) => {
+    const amt = row.type === "FIJO" ? row.value : (totals.salePrice * row.value) / 100;
+    return sum + amt;
+  }, 0);
+
   // Margen real:
   //   Ingresos del cliente  = precio venta - descuentos al cliente + accesorios cobrados
   //   Ingresos de la marca  = bonos de marca
-  //   Costos                = costo de compra + obsequios
+  //   Costos                = costo de compra + obsequios + otros costos (no flete)
   const hasMarginData = withVinWatch && billedCost > 0 && totals.salePrice > 0;
   const clientRevenue = totals.salePrice - discountTotal + paidAccTotal;
   const totalIncome = clientRevenue + bonusTotal;
-  const vehicleCosts = billedCost + giftTotal;
+  const vehicleCosts = billedCost + giftTotal + extraCostsTotal;
   const grossDiff = totalIncome - vehicleCosts;
   const netDiff = grossDiff / 1.18;
   const netSalePrice = totals.salePrice / 1.18;
-  const othersNetTotal = othersRows.reduce((sum, row) => {
+  const othersNetTotal = fleteRows.reduce((sum, row) => {
     const amt = row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
     return sum + amt;
   }, 0);
@@ -595,6 +605,21 @@ export function PurchaseRequestQuoteSummary({
                 </div>
               ))}
 
+              {/* Otros costos internos (no flete): se tratan como obsequio */}
+              {extraCostRows.map((row) => {
+                const amt = row.type === "FIJO" ? row.value : (totals.salePrice * row.value) / 100;
+                return (
+                  <div key={row.id} className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground truncate max-w-[210px]">
+                      {row.description || "Costo interno"}
+                    </span>
+                    <span className="font-medium text-red-600">
+                      − {vehicleCurrency.symbol} {fmt(amt)}
+                    </span>
+                  </div>
+                );
+              })}
+
               {vehicleCosts !== billedCost && (
                 <>
                   <Separator className="my-1.5" />
@@ -617,7 +642,7 @@ export function PurchaseRequestQuoteSummary({
                 <span className="text-muted-foreground">(Ingresos − Costos) ÷ 1.18</span>
                 <span className="font-medium">{vehicleCurrency.symbol} {fmt(netDiff)}</span>
               </div>
-              {othersRows.map((row) => {
+              {fleteRows.map((row) => {
                 const amt = row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
                 return (
                   <div key={row.id} className="flex justify-between items-center text-sm">
