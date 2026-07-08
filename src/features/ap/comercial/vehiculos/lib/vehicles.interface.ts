@@ -74,6 +74,7 @@ export interface VehicleResourceWithCosts {
   warehouse_physical: string;
   billed_cost: string;
   freight_cost: string;
+  warehouse:string;
 }
 
 export interface VehicleRequest {

@@ -925,6 +925,7 @@ export const PurchaseRequestQuoteForm = ({
                   options={vehiclesVn.map((item) => ({
                     label: item.vin + " | " + item.family,
                     value: item.id.toString(),
+                    description: item.model + " | " + item.warehouse,
                   }))}
                   control={form.control}
                   strictFilter={true}
