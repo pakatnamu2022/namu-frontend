@@ -2,6 +2,7 @@ import { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interfac
 import {
   useShipmentsReceptionsById,
   useReceptionChecklistById,
+  useQueryShippingGuideFromNubefact,
 } from "../lib/shipmentsReceptions.hook";
 import { SheetShipmentDetailsDialog as SharedDialog } from "@/features/ap/comercial/shared/components/SheetShipmentDetailsDialog";
 
@@ -22,6 +23,7 @@ export function SheetShipmentDetailsDialog({
     useShipmentsReceptionsById(shipmentId);
   const { data: receptionData, isLoading: isLoadingChecklist } =
     useReceptionChecklistById(shipmentId);
+  const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
 
   return (
     <SharedDialog
@@ -31,6 +33,8 @@ export function SheetShipmentDetailsDialog({
       shipment={shipment}
       receptionData={receptionData}
       isLoading={isLoadingShipment || isLoadingChecklist}
+      onQueryFromNubefact={(id) => queryFromNubefactMutation.mutate(id)}
+      isQueryingFromNubefact={queryFromNubefactMutation.isPending}
     />
   );
 }
