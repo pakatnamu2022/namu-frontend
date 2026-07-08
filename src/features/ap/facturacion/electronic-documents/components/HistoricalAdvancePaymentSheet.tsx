@@ -22,7 +22,6 @@ import {
 import { registerHistoricalAdvancePayment } from "../lib/electronicDocument.actions";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import {
   usePurchaseRequestQuote,
   usePurchaseRequestQuoteById,
@@ -32,8 +31,6 @@ import {
   useCustomers,
   useCustomersById,
 } from "@/features/ap/comercial/clientes/lib/customers.hook";
-import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
-import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface HistoricalAdvancePaymentSheetProps {
@@ -45,17 +42,14 @@ interface HistoricalAdvancePaymentSheetProps {
 const defaultValues: HistoricalAdvancePaymentSchemaType = {
   purchase_request_quote_id: "",
   sunat_concept_document_type_id: "",
-  series_id: "",
+  serie: "",
+  numero: 0,
   area_id: AREA_COMERCIAL.toString(),
   client_id: "",
   fecha_de_emision: "",
   sunat_concept_currency_id: "",
   total: 0,
-  descripcion: "",
-  account_plan_id: "",
-  sunat_concept_igv_type_id: "",
   observaciones: "",
-  condiciones_de_pago: "",
 };
 
 export default function HistoricalAdvancePaymentSheet({
@@ -76,7 +70,6 @@ export default function HistoricalAdvancePaymentSheet({
   }, [open]);
 
   const purchaseRequestQuoteId = form.watch("purchase_request_quote_id");
-  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
 
   const { data: quotation } = usePurchaseRequestQuoteById(
     purchaseRequestQuoteId ? Number(purchaseRequestQuoteId) : 0,
@@ -95,21 +88,6 @@ export default function HistoricalAdvancePaymentSheet({
   });
   const { data: currencyTypes = [] } = useAllSunatConcepts({
     type: [SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY],
-  });
-  const { data: igvTypes = [] } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE],
-  });
-
-  const { data: authorizedSeries = [] } = useAuthorizedSeries({
-    type_receipt_id: documentTypes.find(
-      (dt) => dt.id.toString() === selectedDocumentType,
-    )?.tribute_code,
-    sede_id: quotation?.sede_id,
-  });
-
-  const { data: accountPlans = [] } = useAllAccountingAccountPlan({
-    type: ACP_TYPE_SALE,
-    enable_commercial: 1,
   });
 
   const registerMutation = useMutation({
@@ -167,9 +145,10 @@ export default function HistoricalAdvancePaymentSheet({
             title="Anticipo Histórico"
             icon={History}
             color="amber"
-            cols={{ sm: 1, md: 2 }}
+            cols={{ sm: 1, md: 3 }}
           >
-            <div className="md:col-span-2">
+            {/* Referencia: cotización y cliente */}
+            <div className="md:col-span-3">
               <FormSelectAsync
                 control={form.control}
                 name="purchase_request_quote_id"
@@ -188,7 +167,7 @@ export default function HistoricalAdvancePaymentSheet({
               />
             </div>
 
-            <div className="md:col-span-2">
+            <div className="md:col-span-3">
               <FormSelectAsync
                 control={form.control}
                 name="client_id"
@@ -204,6 +183,7 @@ export default function HistoricalAdvancePaymentSheet({
               />
             </div>
 
+            {/* Identificación del comprobante */}
             <FormSelect
               control={form.control}
               name="sunat_concept_document_type_id"
@@ -215,16 +195,20 @@ export default function HistoricalAdvancePaymentSheet({
               placeholder="Seleccionar tipo"
             />
 
-            <FormSelect
+            <FormInput
               control={form.control}
-              name="series_id"
-              options={authorizedSeries.map((series) => ({
-                value: series.id.toString(),
-                label: `${series.series} - ${series.sede || ""}`,
-              }))}
+              name="serie"
               label="Serie *"
-              description="Series autorizadas para su usuario"
-              placeholder="Seleccionar serie"
+              placeholder="Ej: F001"
+            />
+
+            <FormInput
+              control={form.control}
+              name="numero"
+              label="Número *"
+              type="number"
+              min="1"
+              placeholder="Ej: 123"
             />
 
             <DatePickerFormField
@@ -236,6 +220,7 @@ export default function HistoricalAdvancePaymentSheet({
               disabledRange={{ after: new Date() }}
             />
 
+            {/* Datos financieros */}
             <FormSelect
               control={form.control}
               name="sunat_concept_currency_id"
@@ -258,53 +243,13 @@ export default function HistoricalAdvancePaymentSheet({
               description="Monto total del anticipo, con IGV incluido"
             />
 
-            <FormSelect
-              control={form.control}
-              name="account_plan_id"
-              options={accountPlans.map((plan) => ({
-                value: plan.id.toString(),
-                label: `${plan.account} - ${plan.description}`,
-              }))}
-              label="Plan Contable"
-              placeholder="Seleccionar plan contable"
-            />
-
-            <FormSelect
-              control={form.control}
-              name="sunat_concept_igv_type_id"
-              options={igvTypes.map((type) => ({
-                value: type.id.toString(),
-                label: type.description,
-              }))}
-              label="Tipo de IGV"
-              placeholder="Seleccionar tipo de IGV"
-            />
-
-            <div className="md:col-span-2">
-              <FormTextArea
-                control={form.control}
-                name="descripcion"
-                label="Descripción *"
-                placeholder="Descripción del anticipo"
-              />
-            </div>
-
-            <div className="md:col-span-2">
+            {/* Notas */}
+            <div className="md:col-span-3">
               <FormTextArea
                 control={form.control}
                 name="observaciones"
                 label="Observaciones"
                 placeholder="Observaciones adicionales..."
-                optional
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <FormInput
-                control={form.control}
-                name="condiciones_de_pago"
-                label="Condiciones de Pago"
-                placeholder="Ej: Contado, Transferencia..."
                 optional
               />
             </div>
