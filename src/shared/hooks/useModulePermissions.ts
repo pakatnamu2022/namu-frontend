@@ -250,8 +250,8 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite revertir descuentos aplicados a cotizaciones",
   },
   {
-    value: "removeLabor",
-    label: "Eliminar Mano de Obra",
+    value: "removeSparePartLabor",
+    label: "Eliminar Mano de Obra Cotización",
     icon: "Trash2",
     description: "Permite eliminar detalles de mano de obra de una cotización",
   },
@@ -260,6 +260,30 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     label: "Ver Externo",
     icon: "Eye",
     description: "Permite ver información de manera externa",
+  },
+  {
+    value: "removeSparePartQuote",
+    label: "Eliminar Repuesto Cotización",
+    icon: "Trash2",
+    description: "Permite eliminar repuestos de una cotización",
+  },
+  {
+    value: "regularizationAdvances",
+    label: "Regularización de Anticipos",
+    icon: "RefreshCw",
+    description: "Permite regularizar anticipos de clientes",
+  },
+  {
+    value: "invoiceOtherSales",
+    label: "Facturar Otras Ventas",
+    icon: "FileText",
+    description: "Permite facturar otras ventas de clientes",
+  },
+  {
+    value: "changeAdvisor",
+    label: "Cambiar Asesor",
+    icon: "UserCheck",
+    description: "Permite cambiar el asesor asignado a una orden de trabajo",
   },
 ];
 
@@ -336,7 +360,11 @@ export function useModulePermissions(moduleCode: string) {
     canCompletePlannedWork: hasModulePermission("completePlannedWork"),
     canGroup: hasModulePermission("group"),
     canReverseDiscount: hasModulePermission("reverseDiscount"),
-    canRemoveLabor: hasModulePermission("removeLabor"),
+    canRemoveSparePartLabor: hasModulePermission("removeSparePartLabor"),
     canViewExternal: hasModulePermission("viewExternal"),
+    canRemoveSparePartQuote: hasModulePermission("removeSparePartQuote"),
+    canRegularizationAdvances: hasModulePermission("regularizationAdvances"),
+    canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
+    canChangeAdvisor: hasModulePermission("changeAdvisor"),
   };
 }

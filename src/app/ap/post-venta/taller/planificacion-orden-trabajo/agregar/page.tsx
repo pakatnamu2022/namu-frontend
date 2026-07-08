@@ -11,17 +11,32 @@ import { ArrowLeft } from "lucide-react";
 import {
   useCreateWorkOrderPlanning,
   useGetWorkOrderPlanning,
+  useUpdateWorkOrderPlanning,
+  useDeleteWorkOrderPlanning,
 } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { WorkerTimeline } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerTimeline";
+import { WorkOrderPlanningResource } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORK_ORDER_PLANNING } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.constants";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
+import { EditPlanningModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/EditPlanningModal";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function CreatePlanningPage() {
   const navigate = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [estimatedHours, setEstimatedHours] = useState(1);
+  const [selectedPlanning, setSelectedPlanning] =
+    useState<WorkOrderPlanningResource | null>(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const selectedSedeId = localStorage.getItem("planningPage_selectedSedeId");
 
   const getInitialDate = (): Date => {
@@ -39,11 +54,50 @@ export default function CreatePlanningPage() {
 
   const [selectedDate] = useState<Date>(getInitialDate);
 
-  const { ROUTE } = WORK_ORDER_PLANNING;
+  const { ROUTE, MODEL } = WORK_ORDER_PLANNING;
+  const permissions = useModulePermissions(ROUTE);
   const { data, refetch } = useGetWorkOrderPlanning();
   const createMutation = useCreateWorkOrderPlanning();
+  const updateMutation = useUpdateWorkOrderPlanning();
+  const deleteMutation = useDeleteWorkOrderPlanning();
 
   const plannings = data?.data || [];
+
+  const handleEditPlanning = (planning: WorkOrderPlanningResource) => {
+    setSelectedPlanning(planning);
+    setOpenEditDialog(true);
+  };
+
+  const handleDeletePlanning = (id: number) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteId === null) return;
+
+    try {
+      await deleteMutation.mutateAsync(deleteId);
+      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
+      setDeleteId(null);
+      await refetch();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
+    }
+  };
+
+  const handleUpdatePlanning = async (id: number, data: any) => {
+    try {
+      await updateMutation.mutateAsync({ id, data });
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      setOpenEditDialog(false);
+      setSelectedPlanning(null);
+      await refetch();
+    } catch (error: any) {
+      const mjsError = error?.response?.data?.message || "Error desconocido";
+      errorToast(mjsError);
+    }
+  };
 
   const handleTimeSelect = async (
     startDatetime: Date,
@@ -112,6 +166,9 @@ export default function CreatePlanningPage() {
         <WorkerTimeline
           selectedDate={selectedDate}
           data={plannings}
+          onEdit={handleEditPlanning}
+          onDelete={handleDeletePlanning}
+          permissions={permissions}
           selectionMode={true}
           estimatedHours={estimatedHours}
           onTimeSelect={handleTimeSelect}
@@ -121,6 +178,24 @@ export default function CreatePlanningPage() {
           onRefresh={refetch}
         />
       </div>
+
+      {/* Modal de edición */}
+      <EditPlanningModal
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        planning={selectedPlanning}
+        onSubmit={handleUpdatePlanning}
+        isSubmitting={updateMutation.isPending}
+      />
+
+      {/* Dialog de confirmación de eliminación */}
+      {deleteId !== null && (
+        <SimpleDeleteDialog
+          open={true}
+          onOpenChange={(open) => !open && setDeleteId(null)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
     </FormWrapper>
   );
 }

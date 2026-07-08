@@ -239,10 +239,14 @@ function ProductDetailItem({
                 <FormControl>
                   <Input
                     type="number"
-                    min="1"
+                    min="0.01"
+                    step="0.01"
                     placeholder="Cant."
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === "" ? undefined : Number(value));
+                    }}
                     className="h-9"
                     disabled={isDetailsDisabled}
                   />
@@ -594,9 +598,13 @@ function ProductDetailItem({
                 <FormControl>
                   <Input
                     type="number"
-                    min="1"
+                    min="0.01"
+                    step="0.01"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === "" ? undefined : Number(value));
+                    }}
                     className="h-9"
                     disabled={isDetailsDisabled}
                   />

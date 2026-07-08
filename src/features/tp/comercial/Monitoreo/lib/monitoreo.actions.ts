@@ -118,6 +118,30 @@ export async function getLocationByDriverId(driverId: number): Promise<DriverLoc
     }
 }
 
+/*
+    - obtener historial de ubicaciones de un conductor
+    - @param driverId - id del conductor
+    - @param hours - cantidad de horas hacia atras (por defecto es 2)
+    - @param limit - limite de registros (por defecto 1000)
+*/
+
+export async function getLocationHistory(
+    driverId: number,
+    hours: number = 2,
+    limit: number = 1000,
+): Promise<DriverLocation[]> {
+    const response = await api.get<{ success: boolean; data: DriverLocation[] }>(
+        `${ENDPOINT}/locations/history/${driverId}`,
+        {
+            params: {
+                hours,
+                limit,
+            },
+        }
+    );
+    return response.data.data;
+}
+
 // ============================================================
 // CONFIGURACIONES
 // ============================================================

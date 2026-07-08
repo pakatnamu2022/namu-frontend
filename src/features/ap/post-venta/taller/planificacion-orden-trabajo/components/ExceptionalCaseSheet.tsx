@@ -28,7 +28,7 @@ import {
   ExceptionalCaseFormValues,
 } from "../lib/workOrderPlanning.schema";
 import { WORK_SCHEDULE } from "../lib/workOrderPlanning.constants";
-import { Loader, Package, ListChecks } from "lucide-react";
+import { Loader, Package } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -313,10 +313,6 @@ export function ExceptionalCaseSheet({
           {/* Lista de Descripciones */}
           {selectedWorkOrder && activeGroup !== null && (
             <div className="space-y-1.5 p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-                <ListChecks className="h-4 w-4" />
-                Seleccionar Descripción de Trabajo
-              </Label>
               <div className="space-y-1 max-h-56 overflow-y-auto">
                 {filteredItems.length > 0 ? (
                   filteredItems.map((item: any) => (

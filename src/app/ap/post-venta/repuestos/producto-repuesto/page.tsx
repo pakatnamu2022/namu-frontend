@@ -106,7 +106,8 @@ export default function ProductRepuestoPage() {
         isLoading={isLoading}
         columns={productColumns({
           onStatusChange: handleToggleStatus,
-          onUpdate: () => {},
+          onUpdate: (id: number) =>
+            router(`${ABSOLUTE_ROUTE}/actualizar/${id}`),
           onDelete: setDeleteId,
           onView: handleView,
           onAssignWarehouse: handleAssignWarehouse,

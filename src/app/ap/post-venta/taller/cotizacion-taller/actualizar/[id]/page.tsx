@@ -74,6 +74,7 @@ export default function UpdateOrderQuotationPage() {
       currency_id: data.currency_id ? String(data.currency_id) : "",
       is_requested_by_management:
         Boolean(data.is_requested_by_management) || false,
+      mileage: data.mileage ? Number(data.mileage) : undefined,
     };
   }
 

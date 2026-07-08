@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, ZoomControl } from "react-leaflet";
 import L from "leaflet";
-import { Crosshair, Maximize2 } from "lucide-react";
+import { Crosshair, History, Maximize2, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DriverStatus, MapEffectsProps, MapViewProps } from "../lib/monitoreo.interface";
 import "leaflet/dist/leaflet.css";
@@ -215,7 +215,7 @@ function MapToolbar() {
     );
 }
 
-const DriverPopup = React.memo(({ driver }: {
+const DriverPopup = React.memo(({ driver, onShowHistory }: {
     driver: any;
     onShowHistory: (id: string) => void;
 }) => {
@@ -241,7 +241,7 @@ const DriverPopup = React.memo(({ driver }: {
                     </div>
                 )}
             </div>
-            {/* {driver.last_location?.google_maps_url && (
+            {driver.last_location?.google_maps_url && (
                 <div className="flex gap-2 pt-1">
                     <Button size="sm" variant="outline" asChild className="flex-1">
                         <a href={driver.last_location.google_maps_url} target="_blank" rel="noreferrer">
@@ -257,7 +257,7 @@ const DriverPopup = React.memo(({ driver }: {
                         <History className="mr-1 h-3 w-3" /> Historial
                     </Button>
                 </div>
-            )} */}
+            )}
         </div>
     );
 });

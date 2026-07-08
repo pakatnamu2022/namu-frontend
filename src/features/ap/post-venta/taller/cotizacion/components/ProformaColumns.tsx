@@ -57,44 +57,57 @@ export const orderQuotationColumns = ({
   {
     accessorKey: "quotation_number",
     header: "Número de Cotización",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      return value && <CopyCell className="font-semibold" value={value} />;
+      const plate = row.original.vehicle?.plate;
+      return (
+        <div className="flex flex-col gap-0.5">
+          {value && <CopyCell className="font-semibold" value={value} />}
+          {plate && (
+            <CopyCell
+              className="text-muted-foreground"
+              size="xs"
+              value={plate}
+            />
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const formatDate = (date: string | null | undefined) => {
+        if (!date) return "-";
+        try {
+          return format(new Date(date), "dd/MM/yyyy", { locale: es });
+        } catch {
+          return date;
+        }
+      };
+
+      return (
+        <div className="flex flex-col gap-0.5 text-sm">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Apertura:
+            </span>
+            <span>{formatDate(row.original.quotation_date)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Vencimiento:
+            </span>
+            <span>{formatDate(row.original.expiration_date)}</span>
+          </div>
+        </div>
+      );
     },
   },
   {
     accessorKey: "client.full_name",
     header: "Cliente",
-  },
-  {
-    accessorKey: "quotation_date",
-    header: "Fecha de Cotización",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
-  },
-  {
-    accessorKey: "expiration_date",
-    header: "Fecha de Vencimiento",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
-  },
-  {
-    accessorKey: "vehicle.plate",
-    header: "Placa",
   },
   {
     accessorKey: "type_currency.name",
@@ -167,26 +180,40 @@ export const orderQuotationColumns = ({
     },
   },
   {
-    accessorKey: "chief_approval_by",
-    header: "Aprob. Jefe",
-    cell: ({ getValue }) => {
-      const value = getValue() as string | null;
+    id: "approvals",
+    header: "Aprobado por",
+    cell: ({ row }) => {
+      const approvals = [
+        {
+          label: "Jefe",
+          name: row.original.chief_approval_by_name,
+        },
+        {
+          label: "Gerente",
+          name: row.original.manager_approval_by_name,
+        },
+      ].filter((approval) => !!approval.name);
+
+      if (approvals.length === 0) {
+        return <span className="text-muted-foreground">-</span>;
+      }
+
       return (
-        <Badge variant="outline" color={value ? "green" : "red"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "manager_approval_by",
-    header: "Aprob. Gerente",
-    cell: ({ getValue }) => {
-      const value = getValue() as string | null;
-      return (
-        <Badge variant="outline" color={value ? "green" : "red"}>
-          {value ? "Sí" : "No"}
-        </Badge>
+        <div className="flex flex-col gap-1.5 min-w-0">
+          {approvals.map((approval) => (
+            <div
+              key={approval.label}
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/50 px-2 py-1 text-xs"
+            >
+              <Badge variant="outline" color="blue" className="shrink-0">
+                {approval.label}
+              </Badge>
+              <span className="truncate font-medium text-foreground">
+                {approval.name}
+              </span>
+            </div>
+          ))}
+        </div>
       );
     },
   },

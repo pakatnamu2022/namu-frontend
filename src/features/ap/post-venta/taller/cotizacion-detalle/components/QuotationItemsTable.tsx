@@ -38,15 +38,23 @@ interface QuotationItemsTableProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canRemoveLabor: boolean;
+    canRemoveSparePartQuote?: boolean;
+    canRemoveSparePartLabor: boolean;
     canReverseDiscount?: boolean;
   };
+  /** Tipo de ítem de la tabla: determina qué permiso habilita el botón de eliminar */
+  itemType: "PART" | "LABOR";
   isApproving: boolean;
   isRejecting: boolean;
   isReverting?: boolean;
   onDiscountUpdate: (
     detail: OrderQuotationDetailsResource,
     newPct: number,
+  ) => Promise<void>;
+  /** Si se provee, habilita la edición inline del precio unitario */
+  onPriceUpdate?: (
+    detail: OrderQuotationDetailsResource,
+    newPrice: number,
   ) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onOpenCreate: (
@@ -239,10 +247,12 @@ export function QuotationItemsTable({
   discountRequests,
   globalRequest,
   permissions,
+  itemType,
   isApproving,
   isRejecting,
   isReverting,
   onDiscountUpdate,
+  onPriceUpdate,
   onDelete,
   onOpenCreate,
   onOpenEdit,
@@ -256,6 +266,11 @@ export function QuotationItemsTable({
   getQuantity,
   getPrice,
 }: QuotationItemsTableProps) {
+  const canRemove =
+    itemType === "PART"
+      ? !!permissions.canRemoveSparePartQuote
+      : permissions.canRemoveSparePartLabor;
+
   const getPartialRequest = (detailId: number) =>
     discountRequests.find(
       (r) =>
@@ -326,7 +341,19 @@ export function QuotationItemsTable({
                   </td>
 
                   <td className="px-3 py-2.5 text-center align-middle font-medium">
-                    {getPrice(detail)}
+                    {onPriceUpdate ? (
+                      <EditableCell
+                        id={detail.id}
+                        value={detail.unit_price}
+                        min={0}
+                        widthClass="w-20"
+                        onUpdate={(_id, val) =>
+                          onPriceUpdate(detail, Number(val))
+                        }
+                      />
+                    ) : (
+                      getPrice(detail)
+                    )}
                   </td>
 
                   <td className="px-3 py-2.5 text-center align-middle">
@@ -391,7 +418,7 @@ export function QuotationItemsTable({
                         )
                       )}
 
-                      {permissions.canRemoveLabor && (
+                      {canRemove && (
                         <Button
                           variant="ghost"
                           color="red"
@@ -428,7 +455,7 @@ export function QuotationItemsTable({
               {/* Fila superior: nombre + botón eliminar */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">{renderName(detail)}</div>
-                {permissions.canRemoveLabor && (
+                {canRemove && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -448,7 +475,19 @@ export function QuotationItemsTable({
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground">Precio:</span>
-                  <span className="font-medium">{getPrice(detail)}</span>
+                  {onPriceUpdate ? (
+                    <EditableCell
+                      id={detail.id}
+                      value={detail.unit_price}
+                      min={0}
+                      widthClass="w-20"
+                      onUpdate={(_id, val) =>
+                        onPriceUpdate(detail, Number(val))
+                      }
+                    />
+                  ) : (
+                    <span className="font-medium">{getPrice(detail)}</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground">Desc.:</span>

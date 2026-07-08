@@ -57,6 +57,7 @@ export default function AddOrderQuotationPage() {
           observations: "",
           sede_id: "",
           currency_id: CURRENCY_TYPE_IDS.SOLES,
+          mileage: undefined,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

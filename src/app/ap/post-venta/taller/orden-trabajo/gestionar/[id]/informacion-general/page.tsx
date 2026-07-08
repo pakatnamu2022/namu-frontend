@@ -19,11 +19,13 @@ import {
   CheckCircle2,
   AlertCircle,
   CircleDollarSign,
+  RefreshCw,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   findWorkOrderById,
   changeCurrency,
+  recalculateTotals,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import { WORK_ORDER_STATUS_COLORS } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import InvoiceList from "@/features/ap/facturacion/electronic-documents/components/InvoiceList.tsx";
@@ -91,6 +93,21 @@ export default function GeneralInformationPage() {
       shouldDirty: false,
     });
   }, [workOrder?.currency_id, currencyForm]);
+
+  // Mutation to recalculate totals
+  const { mutate: handleRecalculateTotals, isPending: isRecalculating } =
+    useMutation({
+      mutationFn: () => recalculateTotals(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["workOrder", id] });
+        successToast("Montos recalculados correctamente");
+      },
+      onError: (error: any) => {
+        errorToast(
+          error?.response?.data?.message || "Error al recalcular los montos",
+        );
+      },
+    });
 
   // Fetch appointment data if exists
   const { data: appointment, isLoading: isLoadingAppointment } = useQuery({
@@ -186,25 +203,25 @@ export default function GeneralInformationPage() {
             <div>
               <p className="text-sm text-gray-600">Modelo</p>
               <p className="font-semibold">
-                {workOrder.vehicle.model.version || "N/A"}
+                {workOrder.vehicle?.model?.version || "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Marca</p>
               <p className="font-semibold">
-                {workOrder.vehicle.model.brand || "N/A"}
+                {workOrder.vehicle?.model?.brand || "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Propietario</p>
               <p className="font-semibold">
-                {workOrder.vehicle.owner?.full_name || "N/A"}
+                {workOrder.vehicle?.owner?.full_name || "N/A"}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Num. Doc. Propietario</p>
               <p className="font-semibold">
-                {workOrder.vehicle.owner?.num_doc || "N/A"}
+                {workOrder.vehicle?.owner?.num_doc || "N/A"}
               </p>
             </div>
           </div>
@@ -671,13 +688,26 @@ export default function GeneralInformationPage() {
                 <Wrench className="h-5 w-5 text-gray-500" />
                 Mano de Obra y Repuestos
               </h3>
-              {String(workOrder.type_currency?.id) ===
-                CURRENCY_TYPE_IDS.DOLLARS && (
-                <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
-                  <span className="font-medium">Tipo de cambio:</span>
-                  <span>S/ {workOrder.exchange_rate?.toFixed(2)}</span>
-                </div>
-              )}
+              <div className="flex flex-wrap items-center gap-3">
+                {String(workOrder.type_currency?.id) ===
+                  CURRENCY_TYPE_IDS.DOLLARS && (
+                  <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
+                    <span className="font-medium">Tipo de cambio:</span>
+                    <span>S/ {workOrder.exchange_rate?.toFixed(2)}</span>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRecalculateTotals()}
+                  disabled={isRecalculating}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 mr-2 ${isRecalculating ? "animate-spin" : ""}`}
+                  />
+                  Recalcular Montos
+                </Button>
+              </div>
             </div>
 
             {/* Mano de Obra */}
@@ -705,6 +735,9 @@ export default function GeneralInformationPage() {
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Cto. Total
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Neto
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Cto. Neto + IGV
@@ -742,6 +775,13 @@ export default function GeneralInformationPage() {
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             {formatMoney(
+                              labour.net_amount,
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {formatMoney(
                               labour.net_amount + labour.tax_amount,
                               2,
                               workOrder.type_currency?.symbol || "S/",
@@ -762,6 +802,15 @@ export default function GeneralInformationPage() {
                           {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.labours
                             .reduce((acc, l) => acc + l.total_cost, 0)
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.labours
+                            .reduce((acc, l) => acc + l.net_amount, 0)
                             .toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -825,6 +874,9 @@ export default function GeneralInformationPage() {
                           Cto. Total
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Neto
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Cto. Neto + IGV
                         </th>
                       </tr>
@@ -869,6 +921,13 @@ export default function GeneralInformationPage() {
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             {formatMoney(
+                              Number(part.net_amount),
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {formatMoney(
                               part.net_amount + part.tax_amount,
                               2,
                               workOrder.type_currency?.symbol || "S/",
@@ -889,6 +948,15 @@ export default function GeneralInformationPage() {
                           {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.parts
                             .reduce((acc, p) => acc + p.total_cost, 0)
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.parts
+                            .reduce((acc, p) => acc + p.net_amount, 0)
                             .toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,

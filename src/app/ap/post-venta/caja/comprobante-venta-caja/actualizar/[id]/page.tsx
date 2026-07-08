@@ -776,6 +776,7 @@ function EditOtherSalesPage({
         igvTypes={igvTypes}
         creditNoteTypes={creditNoteTypes}
         debitNoteTypes={debitNoteTypes}
+        isCommercial={false}
       />
     </PageWrapper>
   );
@@ -900,8 +901,12 @@ function EditMassiveInvoicePage({
     mutationFn: (data: ElectronicDocumentSchemaType) =>
       updateElectronicDocument(documentId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["electronic-documents", documentId] });
-      queryClient.invalidateQueries({ queryKey: ["electronic-documents", documentId, "work-orders"] });
+      queryClient.invalidateQueries({
+        queryKey: ["electronic-documents", documentId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["electronic-documents", documentId, "work-orders"],
+      });
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       onSuccess();
     },

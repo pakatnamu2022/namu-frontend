@@ -35,7 +35,7 @@ import { usePlateValidation } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
-import ModelsVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnModal";
+import ModelsVnPvAutomaticModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnPvAutomaticModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
@@ -71,7 +71,7 @@ export const VehiclePVForm = ({
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [issuccessfulResponse, setIsSuccessfulResponse] = useState(false);
-  const form = useForm({
+  const form = useForm<any>({
     resolver: zodResolver(
       mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate,
     ),
@@ -94,7 +94,7 @@ export const VehiclePVForm = ({
   );
 
   // Watch para plate
-  const plateWatch = form.watch("plate");
+  const plateWatch = form.watch("plate") as string | undefined;
   const [originalPlate] = useState(defaultValues.plate ?? "");
   const plateChanged = mode === "update" ? plateWatch !== originalPlate : true;
 
@@ -108,6 +108,11 @@ export const VehiclePVForm = ({
   );
 
   useEffect(() => {
+    if (mode === "update" && !plateWatch) {
+      setIsSuccessfulResponse(false);
+      return;
+    }
+
     if (!plateChanged) return;
 
     if (plateData?.success && plateData.data) {
@@ -116,11 +121,13 @@ export const VehiclePVForm = ({
       form.setValue("engine_number", plateInfo.engine_number?.trim() ?? "");
       setIsSuccessfulResponse(true);
     } else {
-      form.setValue("vin", "");
-      form.setValue("engine_number", "");
+      if (mode === "create" || plateWatch) {
+        form.setValue("vin", "");
+        form.setValue("engine_number", "");
+      }
       setIsSuccessfulResponse(false);
     }
-  }, [plateData, form, plateChanged]);
+  }, [plateData, form, plateChanged, mode, plateWatch]);
 
   // Auto-seleccionar almacén cuando cambie la sede o cuando lleguen los almacenes
   useEffect(() => {
@@ -201,7 +208,6 @@ export const VehiclePVForm = ({
                       className="h-8 md:h-9 text-xs md:text-sm"
                       placeholder="Número de Placa"
                       {...field}
-                      maxLength={8}
                     />
                     <ValidationIndicator
                       show={!!plateWatch}
@@ -269,7 +275,7 @@ export const VehiclePVForm = ({
             useQueryHook={useModelsVn}
             mapOptionFn={(item: ModelsVnResource) => ({
               value: item.id.toString(),
-              label: `${item.code} - ${item.version}`,
+              label: `${item.brand} - ${item.version}`,
             })}
             perPage={10}
             debounceMs={500}
@@ -277,7 +283,7 @@ export const VehiclePVForm = ({
               vehicleData?.model
                 ? {
                     value: vehicleData.model.id.toString(),
-                    label: `${vehicleData.model.code} - ${vehicleData.model.version}`,
+                    label: `${vehicleData.model.brand} - ${vehicleData.model.version}`,
                   }
                 : undefined
             }
@@ -436,7 +442,7 @@ export const VehiclePVForm = ({
         mode="create"
       />
 
-      <ModelsVnModal
+      <ModelsVnPvAutomaticModal
         open={isModelModalOpen}
         onClose={() => {
           setIsModelModalOpen(false);
@@ -445,7 +451,6 @@ export const VehiclePVForm = ({
           });
         }}
         title="Agregar Nuevo Modelo VN"
-        mode="create"
       />
 
       <CustomerModal

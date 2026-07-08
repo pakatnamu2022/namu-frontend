@@ -48,6 +48,7 @@ interface Props {
     canCreateDebitNote: boolean;
     canMigrate?: boolean;
   };
+  isCommercial?: boolean;
 }
 
 export const electronicDocumentColumns = ({
@@ -60,6 +61,7 @@ export const electronicDocumentColumns = ({
   onCancelConsolidated,
   onSyncAccountingStatus,
   permissions,
+  isCommercial = false,
 }: Props): ElectronicDocumentColumn[] => {
   // Determinar la ruta según el módulo
 
@@ -362,6 +364,38 @@ export const electronicDocumentColumns = ({
         return <Badge variant="outline">{value}</Badge>;
       },
     },
+    ...(!isCommercial
+      ? [
+          {
+            accessorKey: "related_document_number",
+            header: "Doc. Relacionado",
+            cell: ({
+              row,
+            }: {
+              row: { original: ElectronicDocumentResource };
+            }) => {
+              const number = row.original.related_document_number;
+              const type = row.original.related_document_type;
+
+              if (!number || !type) {
+                return <span className="text-xs text-muted-foreground">-</span>;
+              }
+
+              return (
+                <div className="flex flex-col gap-1">
+                  <CopyCell size="sm" font="mono" value={number} />
+                  <Badge
+                    variant="outline"
+                    color={type === "Cotización" ? "blue" : "orange"}
+                  >
+                    {type}
+                  </Badge>
+                </div>
+              );
+            },
+          } as ElectronicDocumentColumn,
+        ]
+      : []),
     {
       accessorKey: "internal_note",
       header: "Comentario",

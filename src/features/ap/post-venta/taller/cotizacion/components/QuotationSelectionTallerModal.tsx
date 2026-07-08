@@ -6,6 +6,7 @@ import { OrderQuotationResource } from "../lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
+import SearchInput from "@/shared/components/SearchInput";
 import { QuotationSelectionTable } from "./QuotationSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -31,6 +32,7 @@ export const QuotationSelectionTallerModal = ({
 }: QuotationSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
+  const [search, setSearch] = useState("");
   const currentDate = new Date();
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     getFirstDayOfMonth(currentDate),
@@ -53,7 +55,7 @@ export const QuotationSelectionTallerModal = ({
     {
       page,
       per_page,
-      is_take: 1,
+      search,
       sede_id: sedeId,
       quotation_date:
         dateFrom && dateTo
@@ -158,6 +160,12 @@ export const QuotationSelectionTallerModal = ({
       <div className="space-y-4">
         {/* Filtros */}
         <div className="flex items-center gap-2 flex-wrap">
+          <SearchInput
+            label="Buscar Cotización"
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar cotización..."
+          />
           <DatePicker
             value={dateFrom}
             onChange={setDateFrom}

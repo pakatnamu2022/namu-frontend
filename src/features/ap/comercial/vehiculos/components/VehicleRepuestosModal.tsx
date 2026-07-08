@@ -24,13 +24,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader, MapPin } from "lucide-react";
+import { Loader, MapPin, Plus } from "lucide-react";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { usePlateValidation } from "@/shared/hooks/useDocumentValidation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
+import {
+  useAllModelsVn,
+  useModelsVn,
+} from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
+import ModelsVnPvAutomaticModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnPvAutomaticModal";
+import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { BRAND_ID } from "@/features/ap/configuraciones/vehiculos/grupos-marcas/lib/brandGroup.constants";
 
 const vehicleRepuestosSchema = z.object({
   sede_id: z.string().min(1, "La sede es requerida"),
@@ -43,6 +54,8 @@ const vehicleRepuestosSchema = z.object({
     ),
   vin: z.string().min(1, "El VIN es requerido").max(20),
   engine_number: z.string().min(1, "El número de motor es requerido"),
+  brand_id: z.string().min(1, "La marca es requerida"),
+  ap_models_vn_id: z.string().min(1, "El modelo es requerido"),
 });
 
 type VehicleRepuestosSchema = z.infer<typeof vehicleRepuestosSchema>;
@@ -66,6 +79,9 @@ export default function VehicleRepuestosModal({
   const { MODEL, ICON } = VEHICLES_RP;
   const [isSuccessfulResponse, setIsSuccessfulResponse] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+
+  const defaultBrandId = String(BRAND_ID.VARIOS);
 
   const form = useForm<VehicleRepuestosSchema>({
     resolver: zodResolver(vehicleRepuestosSchema),
@@ -74,9 +90,35 @@ export default function VehicleRepuestosModal({
       plate: "",
       vin: "",
       engine_number: "",
+      brand_id: defaultBrandId,
+      ap_models_vn_id: "",
     },
     mode: "onChange",
   });
+
+  const { data: brands = [], isLoading: isLoadingBrands } = useAllBrands();
+  const brandWatch = form.watch("brand_id");
+
+  const { data: defaultBrandModels = [] } = useAllModelsVn({
+    family$brand_id: defaultBrandId,
+  });
+
+  // Al abrir el modal, preselecciona la marca "Varios" y su único/primer modelo disponible
+  useEffect(() => {
+    if (!open) return;
+    if (form.getValues("brand_id")) return;
+    form.setValue("brand_id", defaultBrandId, { shouldValidate: true });
+  }, [open, defaultBrandId, form]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (brandWatch !== defaultBrandId) return;
+    if (form.getValues("ap_models_vn_id")) return;
+    if (defaultBrandModels.length === 0) return;
+    form.setValue("ap_models_vn_id", defaultBrandModels[0].id.toString(), {
+      shouldValidate: true,
+    });
+  }, [open, brandWatch, defaultBrandId, defaultBrandModels, form]);
 
   const plateWatch = form.watch("plate");
 
@@ -116,6 +158,14 @@ export default function VehicleRepuestosModal({
     }
   }, [sedeId, form]);
 
+  const previousBrandId = useRef(brandWatch);
+
+  useEffect(() => {
+    if (brandWatch === previousBrandId.current) return;
+    previousBrandId.current = brandWatch;
+    form.setValue("ap_models_vn_id", "", { shouldValidate: false });
+  }, [brandWatch, form]);
+
   const { mutate: createVehicle, isPending: isCreating } = useMutation({
     mutationFn: storeReplacement,
     onSuccess: (newVehicle) => {
@@ -126,6 +176,8 @@ export default function VehicleRepuestosModal({
         plate: "",
         vin: "",
         engine_number: "",
+        brand_id: defaultBrandId,
+        ap_models_vn_id: "",
       });
       setIsSuccessfulResponse(false);
       onClose(newVehicle);
@@ -154,6 +206,8 @@ export default function VehicleRepuestosModal({
       plate: "",
       vin: "",
       engine_number: "",
+      brand_id: defaultBrandId,
+      ap_models_vn_id: "",
     });
     setIsSuccessfulResponse(false);
     onClose();
@@ -243,6 +297,51 @@ export default function VehicleRepuestosModal({
               }
               required
             />
+
+            <FormSelect
+              name="brand_id"
+              label="Marca"
+              placeholder="Selecciona una marca"
+              options={brands.map((brand) => ({
+                label: brand.description,
+                value: brand.id.toString(),
+              }))}
+              control={form.control}
+              disabled={isLoadingBrands}
+              required
+            />
+
+            <FormSelectAsync
+              name="ap_models_vn_id"
+              label="Modelo"
+              placeholder={
+                !brandWatch
+                  ? "Primero selecciona una marca"
+                  : "Seleccionar modelo"
+              }
+              control={form.control}
+              useQueryHook={useModelsVn}
+              mapOptionFn={(item: ModelsVnResource) => ({
+                value: item.id.toString(),
+                label: `${item.code} - ${item.version}`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              additionalParams={{ family$brand_id: brandWatch }}
+              disabled={!brandWatch}
+              required
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => setIsModelModalOpen(true)}
+                tooltip="Agregar nuevo modelo"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </FormSelectAsync>
           </div>
 
           <div className="flex gap-4 w-full justify-end pt-2">
@@ -261,6 +360,17 @@ export default function VehicleRepuestosModal({
           </div>
         </form>
       </Form>
+
+      <ModelsVnPvAutomaticModal
+        open={isModelModalOpen}
+        onClose={() => {
+          setIsModelModalOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: [MODELS_VN.QUERY_KEY],
+          });
+        }}
+        title="Agregar Nuevo Modelo VN"
+      />
     </GeneralModal>
   );
 }

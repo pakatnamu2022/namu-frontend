@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { PLANNING_TYPE_LABELS } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.constants";
 import { ElapsedTimer } from "../../planificacion-orden-trabajo/components/ElapsedTimer";
 import { formatDateTime, formatHours } from "@/core/core.function";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface AssignedWorkColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
@@ -62,6 +63,26 @@ export const assignedWorkColumns = ({
         </span>
       </div>
     ),
+  },
+  {
+    id: "plate_mileage",
+    header: "Placa",
+    cell: ({ row }) => {
+      const plate = row.original.vehicle_plate;
+      const mileage = row.original.mileage;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <CopyCell className="font-semibold" value={plate} />
+          <span className="text-xs text-muted-foreground">
+            {mileage ? `${mileage} km` : "-"}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "vehicle_vin",
+    header: "VIN",
   },
   {
     accessorKey: "worker_name",

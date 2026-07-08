@@ -2,7 +2,8 @@ import { DriverTableProps } from "../lib/monitoreo.interface";
 import { DriverRow } from "./DriverRow";
 import { AlertCircle } from "lucide-react";
 
-export function DriverTable({ drivers, isLoading, onViewOnMap, onRefresh }: DriverTableProps) {
+
+export function DriverTable({ drivers, isLoading, onViewOnMap, onRefresh, onShowHistory }: DriverTableProps) {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
@@ -50,7 +51,8 @@ export function DriverTable({ drivers, isLoading, onViewOnMap, onRefresh }: Driv
                             key={driver.id}
                             driver={driver}
                             onViewOnMap={onViewOnMap}
-                            onRefresh={onRefresh} />
+                            onRefresh={onRefresh}
+                            onShowHistory={onShowHistory} />
                     ))}
                 </tbody>
             </table>

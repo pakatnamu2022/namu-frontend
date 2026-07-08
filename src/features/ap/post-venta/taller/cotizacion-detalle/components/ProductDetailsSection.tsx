@@ -98,7 +98,8 @@ interface ProductDetailsSectionProps {
     canApprove: boolean;
     canReject: boolean;
     canRequest: boolean;
-    canRemoveLabor: boolean;
+    canRemoveSparePartQuote: boolean;
+    canRemoveSparePartLabor: boolean;
     canCreateSpare: boolean;
     canReverseDiscount?: boolean;
   };
@@ -215,11 +216,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doApprove, isPending: isApproving } = useMutation({
     mutationFn: approveDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -230,11 +232,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doReject, isPending: isRejecting } = useMutation({
     mutationFn: rejectDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Solicitud rechazada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -245,11 +248,12 @@ export default function ProductDetailsSection({
 
   const { mutate: doRevert, isPending: isReverting } = useMutation({
     mutationFn: revertDiscountRequestOrderQuotation,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast("Aprobación revertida correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
+      await onRefresh();
     },
     onError: (error: any) => {
       const message =
@@ -309,6 +313,32 @@ export default function ProductDetailsSection({
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";
       errorToast(msg || "Error al actualizar el descuento");
+    }
+  };
+
+  const handlePriceUpdate = async (
+    detail: OrderQuotationDetailsResource,
+    newPrice: number,
+  ) => {
+    try {
+      await updateOrderQuotationDetails(detail.id, {
+        order_quotation_id: detail.order_quotation_id,
+        item_type: detail.item_type,
+        description: detail.description,
+        quantity: detail.quantity,
+        unit_measure: detail.unit_measure,
+        retail_price_external: detail.retail_price_external,
+        freight_commission: detail.freight_commission,
+        exchange_rate: detail.exchange_rate,
+        unit_price: newPrice,
+        discount_percentage: detail.discount_percentage,
+        observations: detail.observations ?? undefined,
+      });
+      successToast("Precio actualizado correctamente");
+      await onRefresh();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar el precio");
     }
   };
 
@@ -501,13 +531,21 @@ export default function ProductDetailsSection({
   );
   const hasMultipleItems = productDetails.length > 1;
 
-  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
-  const hasPartialRequests = discountRequests.some(
+  // Las solicitudes revertidas (reverted_by_id != null) se tratan como descartadas,
+  // permitiendo volver a solicitar el descuento.
+  const activeDiscountRequests = discountRequests.filter(
+    (r) => r.reverted_by_id == null,
+  );
+
+  const globalRequest = activeDiscountRequests.find(
+    (r) => r.type === TYPE_GLOBAL,
+  );
+  const hasPartialRequests = activeDiscountRequests.some(
     (r) => r.type === TYPE_PARTIAL,
   );
 
   // Calcular descuento máximo permitido (para formulario y modal)
-  const globalApprovedRequest = discountRequests.find(
+  const globalApprovedRequest = activeDiscountRequests.find(
     (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
   );
   const maxDiscountAllowed = globalApprovedRequest
@@ -1084,13 +1122,15 @@ export default function ProductDetailsSection({
           emptyMessage="No hay items de repuestos"
           formatCurrency={formatCurrency}
           maxDiscountAllowed={maxDiscountAllowed}
-          discountRequests={discountRequests}
+          discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
+          itemType="PART"
           isApproving={isApproving}
           isRejecting={isRejecting}
           isReverting={isReverting}
           onDiscountUpdate={handleDiscountUpdate}
+          onPriceUpdate={handlePriceUpdate}
           onDelete={onDelete}
           onOpenCreate={handleOpenCreate}
           onOpenEdit={handleOpenEdit}

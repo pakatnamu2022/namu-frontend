@@ -66,6 +66,8 @@ export default function WorkOrderBillingForm({
     () => workOrder.vouchers?.active ?? [],
     [workOrder.vouchers?.active],
   );
+  const plate = workOrder.vehicle_plate;
+  const number_work_order = workOrder.correlative;
 
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
@@ -224,8 +226,47 @@ export default function WorkOrderBillingForm({
       };
 
       form.setValue("items", [anticipoItem], { shouldValidate: false });
+    } else if (workOrder.items_invoice && workOrder.items_invoice.length > 0) {
+      // MODO VENTA NORMAL: items ya calculados por el backend (fuente de verdad)
+      const invoiceItems: ElectronicDocumentItemSchema[] =
+        workOrder.items_invoice.map((item) => {
+          // El backend manda el ítem de anticipo en negativo para que el
+          // invoice_preview sume fácil, pero el endpoint de guardado espera
+          // los montos en positivo (la resta la indica el flag anticipo_regularizacion).
+          const sign = item.anticipo_regularizacion
+            ? Math.abs
+            : (n: number) => n;
+
+          return {
+            reference_document_id:
+              item.reference_document_id != null
+                ? item.reference_document_id.toString()
+                : undefined,
+            unidad_de_medida: item.unidad_de_medida,
+            codigo: item.codigo ?? undefined,
+            descripcion: item.descripcion,
+            cantidad: item.cantidad,
+            valor_unitario: sign(item.valor_unitario),
+            precio_unitario: sign(item.precio_unitario),
+            descuento: item.descuento ?? undefined,
+            subtotal: sign(item.subtotal),
+            sunat_concept_igv_type_id: item.sunat_concept_igv_type_id,
+            igv: sign(item.igv),
+            total: sign(item.total),
+            account_plan_id: item.account_plan_id.toString(),
+            product_id:
+              item.product_id != null ? item.product_id.toString() : undefined,
+            anticipo_regularizacion: item.anticipo_regularizacion || undefined,
+            anticipo_documento_serie:
+              item.anticipo_documento_serie ?? undefined,
+            anticipo_documento_numero:
+              item.anticipo_documento_numero ?? undefined,
+          };
+        });
+
+      form.setValue("items", invoiceItems, { shouldValidate: false });
     } else {
-      // MODO VENTA NORMAL: Crear items individuales
+      // FALLBACK: sin items_invoice del backend, calcular en el frontend
       const invoiceItems: ElectronicDocumentItemSchema[] = [];
 
       // Función auxiliar para redondear a 2 decimales
@@ -233,11 +274,22 @@ export default function WorkOrderBillingForm({
 
       // Agregar items de mano de obra
       labours.forEach((labour) => {
-        const valor_unitario = parseFloat(labour.hourly_rate || "0");
+        const precio_base = parseFloat(labour.hourly_rate || "0");
+        const descuento_pct = parseFloat(
+          labour.discount_percentage?.toString() || "0",
+        );
         const cantidad = labour.time_spent_decimal;
-        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
-        const subtotal = valor_unitario * cantidad;
-        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+        const valor_unitario_sin_dcto = precio_base;
+        const monto_descuento =
+          descuento_pct > 0
+            ? round2(valor_unitario_sin_dcto * cantidad * (descuento_pct / 100))
+            : undefined;
+        const valor_unitario = round2(precio_base * (1 - descuento_pct / 100));
+        const precio_unitario = round2(
+          precio_base * (1 + porcentaje_de_igv / 100),
+        );
+        const subtotal = round2(valor_unitario * cantidad);
+        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
 
         invoiceItems.push({
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -245,11 +297,12 @@ export default function WorkOrderBillingForm({
           codigo: labour.id.toString(),
           descripcion: labour.description,
           cantidad: cantidad,
-          valor_unitario: round2(valor_unitario),
-          precio_unitario: round2(precio_unitario),
-          subtotal: round2(subtotal),
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
+          descuento: monto_descuento,
+          subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
-          igv: round2(igvAmount),
+          igv: igvAmount,
           total: round2(subtotal + igvAmount),
         });
       });
@@ -347,6 +400,7 @@ export default function WorkOrderBillingForm({
     selectedGroupNumber,
     isInvalidWithQuote,
     workOrder.final_amount,
+    workOrder.items_invoice,
     form,
     isEdit,
   ]);
@@ -357,6 +411,18 @@ export default function WorkOrderBillingForm({
 
   // Calcular totales
   const totales = useMemo(() => {
+    // Si el backend ya calculó el desglose para esta orden (venta normal, no edición,
+    // no anticipo consolidado), usarlo directo como fuente de verdad.
+    if (
+      !isEdit &&
+      !isAdvancePayment &&
+      workOrder.items_invoice &&
+      workOrder.items_invoice.length > 0 &&
+      workOrder.invoice_preview
+    ) {
+      return workOrder.invoice_preview;
+    }
+
     // Función auxiliar para redondear a 2 decimales
     const round2 = (num: number) => Math.round(num * 100) / 100;
 
@@ -429,7 +495,15 @@ export default function WorkOrderBillingForm({
       total_anticipo,
       total,
     };
-  }, [items, igvTypes, porcentaje_de_igv]);
+  }, [
+    items,
+    igvTypes,
+    porcentaje_de_igv,
+    isEdit,
+    isAdvancePayment,
+    workOrder.items_invoice,
+    workOrder.invoice_preview,
+  ]);
 
   // Efecto para forzar condificiones de pago a CONTADO cuando es Anticipo
   useEffect(() => {
@@ -467,13 +541,9 @@ export default function WorkOrderBillingForm({
           <div className="lg:col-span-2 space-y-6">
             {/* Información Financiera de la Orden de Trabajo */}
             <WorkOrderFinancialInfo
-              labours={labours}
-              parts={parts}
               advances={advances}
               currencySymbol={currencySymbol}
-              porcentaje_de_igv={porcentaje_de_igv}
-              isInvalidWithQuote={isInvalidWithQuote}
-              finalAmount={workOrder.final_amount}
+              paymentSummary={workOrder.payment_summary}
             />
             {/* Información del Documento */}
             <InvoiceDocumentInfoSection
@@ -509,6 +579,7 @@ export default function WorkOrderBillingForm({
               isEdit={isEdit}
               existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
+              defaultMessage={`${number_work_order} - Placa: ${plate}`}
             />
           </div>
 
@@ -528,8 +599,7 @@ export default function WorkOrderBillingForm({
             porcentaje_de_igv={porcentaje_de_igv}
             isAdvancePayment={isAdvancePayment}
             advancePayments={advances}
-            labours={labours}
-            parts={parts}
+            remainingBalance={workOrder.payment_summary?.remaining_balance ?? 0}
             isInvalidWithQuote={isInvalidWithQuote}
             isInvoiced={workOrder.is_invoiced}
           />

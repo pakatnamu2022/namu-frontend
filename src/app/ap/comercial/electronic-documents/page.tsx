@@ -186,6 +186,7 @@ export default function ElectronicDocumentsPage() {
           onMigrate: (id) => migrateMutation.mutate(id),
           onSyncAccountingStatus: (id) =>
             syncAccountingStatusMutation.mutate(id),
+          isCommercial: true,
           permissions: {
             canUpdate,
             canAnnul,

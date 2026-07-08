@@ -333,6 +333,7 @@ import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx";
 import AddGeneralSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros/page.tsx";
+import AddRegularizeAdvancePaymentCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo/page.tsx";
 import AddCreditNoteCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/page.tsx";
 import UpdateCreditNoteCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx";
 import AddDebitNoteCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/[id]/debit-note/page.tsx";
@@ -1713,6 +1714,10 @@ function App() {
               <Route
                 path="caja/comprobante-venta-caja/agregar-otros"
                 element={<AddGeneralSalesReceiptsCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/agregar-regularizacion-anticipo"
+                element={<AddRegularizeAdvancePaymentCajaPage />}
               />
               {/* Credit Note */}
               <Route

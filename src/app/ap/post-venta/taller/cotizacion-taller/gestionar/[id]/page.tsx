@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Car, User, FileText } from "lucide-react";
+import { ArrowLeft, Car, User, FileText, RefreshCw } from "lucide-react";
 import VehicleWorkOrderHistory from "@/features/ap/comercial/vehiculos/components/VehicleWorkOrderHistory";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
@@ -17,6 +17,7 @@ import { IGV } from "@/core/core.constants.ts";
 import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
 import { ORDER_QUOTATION_DETAILS } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants.ts";
 import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import { recalculateOrderQuotationTotals } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.actions";
 import {
   getAllOrderQuotationDetails,
   deleteOrderQuotationDetails,
@@ -40,6 +41,7 @@ export default function ManageQuotationPage() {
   const quotationId = Number(params.id);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
   const [quotation, setQuotation] = useState<OrderQuotationResource | null>(
     null,
   );
@@ -95,6 +97,22 @@ export default function ManageQuotationPage() {
       console.error(error);
     } finally {
       setIsLoadingDetails(false);
+    }
+  };
+
+  const handleRecalculateTotals = async () => {
+    try {
+      setIsRecalculating(true);
+      await recalculateOrderQuotationTotals(quotationId);
+      successToast("Montos recalculados correctamente");
+      await loadData(false);
+      await loadDetails();
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message || "Error al recalcular los montos",
+      );
+    } finally {
+      setIsRecalculating(false);
     }
   };
 
@@ -168,13 +186,27 @@ export default function ManageQuotationPage() {
       <section className="overflow-hidden rounded-3xl border border-border bg-linear-to-br from-primary/5 via-background to-background">
         <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)]">
           <div className="border-b border-border/80 bg-primary/5 p-6 md:p-7 lg:border-b-0 lg:border-r lg:border-border/80">
-            <div className="flex items-center gap-2">
-              <div className="size-8 rounded-full bg-background/80 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-full bg-background/80 flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+                <h3 className="text-base md:text-lg font-semibold text-foreground">
+                  Datos de Cotización
+                </h3>
               </div>
-              <h3 className="text-base md:text-lg font-semibold text-foreground">
-                Datos de Cotización
-              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isRecalculating}
+                onClick={handleRecalculateTotals}
+              >
+                <RefreshCw
+                  className={`h-4 w-4 mr-2 ${isRecalculating ? "animate-spin" : ""}`}
+                />
+                Recalcular Montos
+              </Button>
             </div>
 
             <div className="mt-5 space-y-1.5">

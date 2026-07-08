@@ -10,6 +10,7 @@ import {
   WorkOrderPartAssignmentsResponse,
   ConfirmPartsDeliveryRequest,
   WorkOrderPartDeliveryResource,
+  AssignPartToTechnicianBulkRequest,
 } from "./workOrderParts.interface";
 import { WORKER_ORDER_PARTS } from "./workOrderParts.constants";
 
@@ -128,4 +129,36 @@ export async function unassignPartFromTechnician(
     `${ENDPOINT}/${deliveryId}/unassign`,
   );
   return data;
+}
+
+export async function assignPartToTechnicianBulk(
+  payload: AssignPartToTechnicianBulkRequest,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/assign-bulk`,
+    payload,
+  );
+  return data;
+}
+
+export async function downloadWorkOrderPartsReportPdf(
+  workOrderId: number,
+): Promise<void> {
+  const response = await api.get(
+    `${ENDPOINT}/work-order/${workOrderId}/report-pdf`,
+    { responseType: "blob" },
+  );
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `reporte-repuestos-ot-${workOrderId}.pdf`);
+
+  document.body.appendChild(link);
+  link.click();
+
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }
