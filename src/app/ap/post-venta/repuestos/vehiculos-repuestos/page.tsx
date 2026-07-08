@@ -23,7 +23,6 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
-import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclesRepuestoPage() {
@@ -44,8 +43,9 @@ export default function VehiclesRepuestoPage() {
     page,
     search,
     per_page,
-    type_operation_id: CM_POSTVENTA_ID,
-    ap_vehicle_status_id: ap_vehicle_status_id.length ? ap_vehicle_status_id : undefined,
+    ap_vehicle_status_id: ap_vehicle_status_id.length
+      ? ap_vehicle_status_id
+      : undefined,
   });
 
   const handleDelete = async () => {
@@ -86,7 +86,12 @@ export default function VehiclesRepuestoPage() {
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}
       >
-        <VehicleOptions search={search} setSearch={setSearch} ap_vehicle_status_id={ap_vehicle_status_id} set_ap_vehicle_status_id={setApVehicleStatusId} />
+        <VehicleOptions
+          search={search}
+          setSearch={setSearch}
+          ap_vehicle_status_id={ap_vehicle_status_id}
+          set_ap_vehicle_status_id={setApVehicleStatusId}
+        />
       </VehicleTable>
 
       {deleteId !== null && (
