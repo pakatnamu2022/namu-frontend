@@ -181,3 +181,30 @@ export interface ModelVnSyncAllResponse {
   dispatched: number;
   message: string;
 }
+
+export interface ImportInitialStockModelsVnRow {
+  row: number;
+  vin: string;
+  code?: string;
+  sitio?: string;
+  status: string;
+  warehouse_id?: number;
+  warehouse_name?: string;
+  warehouse_code?: string;
+  final_status?: string;
+  movements?: string[];
+  po_number?: string;
+  total?: number;
+  subtotal?: number;
+  igv?: number;
+  emission_date?: string;
+  exchange_rate?: string;
+  error?: string;
+}
+
+export interface ImportInitialStockModelsVnResponse {
+  preview: boolean;
+  created: number;
+  errors: number;
+  rows: ImportInitialStockModelsVnRow[];
+}

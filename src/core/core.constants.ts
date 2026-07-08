@@ -24,6 +24,8 @@ export const MONTHS: MonthOption[] = [
 ];
 
 export const DEFAULT_PER_PAGE = 10;
+export const DEFAULT_MEDIUM_PER_PAGE = 25;
+export const DEFAULT_LARGE_PER_PAGE = 50;
 
 export const FILTER_YEAR_START = 2025;
 

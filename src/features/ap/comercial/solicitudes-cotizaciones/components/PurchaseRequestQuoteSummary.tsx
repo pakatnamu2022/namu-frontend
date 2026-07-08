@@ -29,6 +29,7 @@ import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/co
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import { useState } from "react";
 import { warningToast } from "@/core/core.function";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface BonusDiscountRow {
   id: string;
@@ -163,7 +164,7 @@ export function PurchaseRequestQuoteSummary({
   const usdId = currencyTypes.find((c) => c.code === "USD")?.id ?? 1;
 
   const accCurrencyId = (acc: ApprovedAccesoriesResource) =>
-    acc.type_operation_id === 794 ? usdId : solesId;
+    acc.type_operation_id === CM_COMERCIAL_ID ? usdId : solesId;
 
   const convertToVehicleCurrency = (amount: number, fromId: number) => {
     if (fromId === totals.vehicleCurrencyId) return amount;

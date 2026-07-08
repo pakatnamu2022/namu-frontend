@@ -12,6 +12,7 @@ import {
   updateInvoiceTo,
   updatePickupPerson,
   UpdatePickupPersonData,
+  changeAdvisor,
 } from "../../lib/workOrder.actions";
 import WorkOrderItemForm from "../../../orden-trabajo-item/components/WorkOrderItemForm";
 import { deleteWorkOrderItem } from "../../../orden-trabajo-item/lib/workOrderItem.actions";
@@ -38,6 +39,13 @@ import { Form } from "@/components/ui/form";
 import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { EMPRESA_AP } from "@/core/core.constants";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 const pickupPersonSchema = z.object({
   num_doc_pickup: z
@@ -106,6 +114,40 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
       errorToast(message);
     },
   });
+
+  // Formulario mínimo solo para el FormSelect de "Asesor"
+  const advisorForm = useForm<{ advisor_id: string }>({
+    defaultValues: { advisor_id: "" },
+  });
+
+  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
+    cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
+    status_id: STATUS_WORKER.ACTIVE,
+    sede_id: workOrder?.sede_id || undefined,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
+
+  // Mutación para cambiar el asesor
+  const advisorMutation = useMutation({
+    mutationFn: (advisorId: number) => changeAdvisor(workOrderId, advisorId),
+    onSuccess: () => {
+      successToast("Asesor actualizado");
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    },
+    onError: (error: any) => {
+      advisorForm.setValue("advisor_id", String(workOrder?.advisor_id ?? ""), {
+        shouldDirty: false,
+      });
+      const message =
+        error?.response?.data?.message || "Error al actualizar el asesor";
+      errorToast(message);
+    },
+  });
+
+  // Si ya existe advisor_id desde el backend, precargar el select
+  useEffect(() => {
+    advisorForm.setValue("advisor_id", String(workOrder?.advisor_id ?? ""));
+  }, [workOrder?.advisor_id, advisorForm]);
 
   // Formulario para persona que recoge el vehículo
   const pickupForm = useForm<z.infer<typeof pickupPersonSchema>>({
@@ -544,6 +586,50 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
             </div>
           </form>
         </Form>
+      </div>
+
+      {/* Sección: Asesor */}
+      <div className="border-t pt-6">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">Asesor</h4>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Selecciona el asesor responsable de esta orden
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FormProvider {...advisorForm}>
+            <FormSelect
+              name="advisor_id"
+              label="Asesor"
+              placeholder="Seleccionar asesor"
+              control={advisorForm.control}
+              options={asesores.map((worker) => ({
+                value: String(worker.id),
+                label: worker.name,
+              }))}
+              isLoadingOptions={isLoadingAsesores}
+              disabled={advisorMutation.isPending}
+              onValueChange={(value) => {
+                const parsedAdvisorId = Number(value);
+
+                if (
+                  !parsedAdvisorId ||
+                  parsedAdvisorId === Number(workOrder?.advisor_id)
+                ) {
+                  return;
+                }
+
+                advisorMutation.mutate(parsedAdvisorId);
+              }}
+            />
+          </FormProvider>
+        </div>
       </div>
 
       {/* Empty State */}

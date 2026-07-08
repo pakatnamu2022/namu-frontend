@@ -333,6 +333,7 @@ import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx";
 import AddGeneralSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros/page.tsx";
+import AddRegularizeAdvancePaymentCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo/page.tsx";
 import AddCreditNoteCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/page.tsx";
 import UpdateCreditNoteCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx";
 import AddDebitNoteCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/[id]/debit-note/page.tsx";
@@ -477,6 +478,7 @@ import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/cont
 import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
 import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
 import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
+import ExitGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -787,6 +789,10 @@ function App() {
               <Route
                 path="entrega-vehiculo/agregar"
                 element={<AddVehicleDeliveryPage />}
+              />
+              <Route
+                path="entrega-vehiculo/guia-salida"
+                element={<ExitGuidePage />}
               />
               <Route
                 path="entrega-vehiculo/guia-remision/:id"
@@ -1709,6 +1715,10 @@ function App() {
                 path="caja/comprobante-venta-caja/agregar-otros"
                 element={<AddGeneralSalesReceiptsCajaPage />}
               />
+              <Route
+                path="caja/comprobante-venta-caja/agregar-regularizacion-anticipo"
+                element={<AddRegularizeAdvancePaymentCajaPage />}
+              />
               {/* Credit Note */}
               <Route
                 path="caja/comprobante-venta-caja/:id/credit-note"
@@ -2191,10 +2201,7 @@ function App() {
             >
               <Route index element={<TICsModulePage />} />
               <Route path="auditoria" element={<AuditLogsPage />} />
-              <Route
-                path="sesiones-activas"
-                element={<ActiveSessionsPage />}
-              />
+              <Route path="sesiones-activas" element={<ActiveSessionsPage />} />
               {RouterCrud(
                 "equipos",
                 <EquipmentPage />,
@@ -2217,7 +2224,10 @@ function App() {
                 element={<TelephonePlanPage />}
               />
               <Route path="asignaciones" element={<AssignmentsPage />} />
-              <Route path="gestion-manuales" element={<GestionManualesPage />} />
+              <Route
+                path="gestion-manuales"
+                element={<GestionManualesPage />}
+              />
               {RouterCrud(
                 "proyectos",
                 <ScrumProjectPage />,
@@ -2299,10 +2309,7 @@ function App() {
                 path=":submodule"
                 element={<CompanyModuleSubmodulePage />}
               />
-              <Route
-                path=":submodule/manuales"
-                element={<ManualesPage />}
-              />
+              <Route path=":submodule/manuales" element={<ManualesPage />} />
             </Route>
           </Route>
 

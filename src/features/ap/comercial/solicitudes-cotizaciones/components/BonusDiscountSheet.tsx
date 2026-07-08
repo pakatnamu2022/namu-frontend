@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
@@ -9,7 +10,11 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { BonusDiscountRow } from "./BonusDiscountTable";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { Form } from "@/components/ui/form";
 import { Option } from "@/core/core.interface";
+
+const DEDUCCION_7_FACTOR = 0.93;
 
 const BONO_FINANCIERO_ID = "862";
 const BONO_MARCA_ID = "861";
@@ -65,12 +70,21 @@ export function BonusDiscountSheet({
   });
   const [previousConceptId, setPreviousConceptId] = useState("");
 
+  const deduccionForm = useForm<{ isDeduced: boolean }>({
+    defaultValues: { isDeduced: false },
+  });
+  const isDeduced = deduccionForm.watch("isDeduced");
+  const valorEfectivo = isDeduced
+    ? Math.round(form.valor * DEDUCCION_7_FACTOR * 100) / 100
+    : form.valor;
+
   useEffect(() => {
     if (open) {
       const initial = initialValues ?? EMPTY_FORM;
       setForm(initial);
       setPreviousConceptId(initial.concept_id);
       setErrors({ concept_id: false, descripcion: false, valor: false });
+      deduccionForm.reset({ isDeduced: false });
     }
   }, [open]);
 
@@ -89,6 +103,7 @@ export function BonusDiscountSheet({
   const handleClose = () => {
     setForm(EMPTY_FORM);
     setErrors({ concept_id: false, descripcion: false, valor: false });
+    deduccionForm.reset({ isDeduced: false });
     onClose();
   };
 
@@ -101,7 +116,7 @@ export function BonusDiscountSheet({
     setErrors(newErrors);
     if (newErrors.concept_id || newErrors.descripcion || newErrors.valor)
       return;
-    onSubmit(form);
+    onSubmit({ ...form, valor: valorEfectivo });
     handleClose();
   };
 
@@ -206,6 +221,18 @@ export function BonusDiscountSheet({
           />
         </div>
 
+        {!form.isNegative && (
+          <Form {...deduccionForm}>
+            <FormSwitch
+              control={deduccionForm.control}
+              name="isDeduced"
+              text="Deducir 7%"
+              textDescription="El monto ingresado se guardará neto, reducido en 7% (x0.93)"
+              autoHeight
+            />
+          </Form>
+        )}
+
         {form.valor > 0 && (
           <Alert variant="info">
             <Info className="h-4 w-4" />
@@ -229,13 +256,13 @@ export function BonusDiscountSheet({
                     {form.isNegative ? "- " : ""}
                     {currencySymbol}{" "}
                     {form.isPercentage
-                      ? ((costoReferencia * form.valor) / 100).toLocaleString(
-                          "es-PE",
-                          {
-                            minimumFractionDigits: 2,
-                          },
-                        )
-                      : form.valor.toLocaleString("es-PE", {
+                      ? (
+                          (costoReferencia * valorEfectivo) /
+                          100
+                        ).toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })
+                      : valorEfectivo.toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                         })}
                   </p>

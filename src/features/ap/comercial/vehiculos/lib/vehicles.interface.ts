@@ -50,6 +50,7 @@ export interface VehicleResource {
   sede_warehouse_id?: number;
   sede_warehouse_physical_id?: number;
   supplier_id?: number | null;
+  mileage?: number | null;
 }
 
 export interface VehicleResourceWithCosts {
@@ -199,6 +200,12 @@ export interface VinMatchResponse {
   matched: VinMatchedItem[];
   not_found: string[];
   found_different_status: VinFoundDifferentStatus[];
+}
+
+export interface UpdateVehiclesByVinResponse {
+  updated: number;
+  rows_processed: number;
+  errors: string[];
 }
 
 export interface VehiclePurchaseOrderData {

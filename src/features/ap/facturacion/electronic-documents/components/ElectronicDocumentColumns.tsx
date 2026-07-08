@@ -39,13 +39,16 @@ interface Props {
   onPreCancel?: (id: number) => Promise<boolean>;
   onMigrate?: (id: number) => void;
   onCancelConsolidated?: (id: number) => void;
+  onSyncAccountingStatus?: (id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
     canAnnul: boolean;
     canCreateCreditNote: boolean;
     canCreateDebitNote: boolean;
+    canMigrate?: boolean;
   };
+  isCommercial?: boolean;
 }
 
 export const electronicDocumentColumns = ({
@@ -56,7 +59,9 @@ export const electronicDocumentColumns = ({
   onPreCancel,
   onMigrate,
   onCancelConsolidated,
+  onSyncAccountingStatus,
   permissions,
+  isCommercial = false,
 }: Props): ElectronicDocumentColumn[] => {
   // Determinar la ruta según el módulo
 
@@ -359,6 +364,38 @@ export const electronicDocumentColumns = ({
         return <Badge variant="outline">{value}</Badge>;
       },
     },
+    ...(!isCommercial
+      ? [
+          {
+            accessorKey: "related_document_number",
+            header: "Doc. Relacionado",
+            cell: ({
+              row,
+            }: {
+              row: { original: ElectronicDocumentResource };
+            }) => {
+              const number = row.original.related_document_number;
+              const type = row.original.related_document_type;
+
+              if (!number || !type) {
+                return <span className="text-xs text-muted-foreground">-</span>;
+              }
+
+              return (
+                <div className="flex flex-col gap-1">
+                  <CopyCell size="sm" font="mono" value={number} />
+                  <Badge
+                    variant="outline"
+                    color={type === "Cotización" ? "blue" : "orange"}
+                  >
+                    {type}
+                  </Badge>
+                </div>
+              );
+            },
+          } as ElectronicDocumentColumn,
+        ]
+      : []),
     {
       accessorKey: "internal_note",
       header: "Comentario",
@@ -374,6 +411,11 @@ export const electronicDocumentColumns = ({
         const canMigrate =
           onMigrate && document.migration_status !== "completed";
         //  &&          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
+
+        const canSyncAccountingStatus =
+          !!onSyncAccountingStatus &&
+          !!permissions.canMigrate &&
+          document.migration_status === "completed";
 
         const canSendToSunat =
           document.status === "draft" && onSendToSunat && permissions.canSend;
@@ -519,6 +561,28 @@ export const electronicDocumentColumns = ({
                     tooltip="Migrar"
                     icon={ArrowRightLeft}
                     canRender={canMigrate}
+                    color="indigo"
+                  />
+                }
+              />
+            )}
+
+            {/* Sincronizar contabilización */}
+            {canSyncAccountingStatus && (
+              <ConfirmationDialog
+                title="Confirmar sincronización"
+                description="¿Está seguro de que desea sincronizar el estado contable de este documento? Esto puede afectar inventario y órdenes de trabajo/cotización relacionadas."
+                onConfirm={() =>
+                  onSyncAccountingStatus && onSyncAccountingStatus(document.id)
+                }
+                icon="info"
+                confirmText="Sí, sincronizar"
+                cancelText="No, cancelar"
+                trigger={
+                  <ButtonAction
+                    tooltip="Sincronizar Contabilización"
+                    icon={BookCheck}
+                    canRender={canSyncAccountingStatus}
                     color="indigo"
                   />
                 }

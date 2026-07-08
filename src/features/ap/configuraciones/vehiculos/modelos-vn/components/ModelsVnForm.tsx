@@ -12,7 +12,6 @@ import {
 } from "../lib/modelsVn.schema";
 import { ClipboardMinus } from "lucide-react";
 import { Settings } from "lucide-react";
-import { CircleDollarSign } from "lucide-react";
 import { useAllBrands } from "../../marcas/lib/brands.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllFamilies } from "../../familias/lib/families.hook";
@@ -23,7 +22,6 @@ import { useAllBodyType } from "../../tipos-carroceria/lib/bodyType.hook";
 import { useAllTractionType } from "../../tipos-traccion/lib/tractionType.hook";
 import { useAllGearShiftType } from "../../transmision-vehiculo/lib/gearShiftType.hook";
 import { useEffect, useRef } from "react";
-import { calculateIGV } from "@/core/core.function";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -51,6 +49,30 @@ export const ModelsVnForm = ({
       mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any),
     ),
     defaultValues: {
+      distributor_price: 0,
+      transport_cost: 0,
+      other_amounts: 0,
+      purchase_discount: 0,
+      igv_amount: 0,
+      total_purchase_excl_igv: 0,
+      total_purchase_incl_igv: 0,
+      sale_price: 0,
+      margin: 0,
+      power: 0,
+      wheelbase: 0,
+      axles_number: 0,
+      width: 0,
+      length: 0,
+      height: 0,
+      seats_number: 0,
+      doors_number: 0,
+      net_weight: 0,
+      gross_weight: 0,
+      payload: 0,
+      displacement: 0,
+      cylinders_number: 0,
+      passengers_number: 0,
+      wheels_number: 0,
       ...defaultValues,
       type_operation_id: String(CM_COMERCIAL_ID),
     },
@@ -58,7 +80,6 @@ export const ModelsVnForm = ({
   });
   const codigoOriginalRef = useRef(defaultValues.code);
   const marcaSeleccionada = form.watch("brand_id");
-  const precioDistribuidor = form.watch("distributor_price");
   const familiaSeleccionada = form.watch("family_id");
   const yearModelo = form.watch("model_year");
   const typeOperationId = form.watch("type_operation_id");
@@ -149,32 +170,6 @@ export const ModelsVnForm = ({
       }
     }
   }, [marcaSeleccionada, form, mode]);
-
-  useEffect(() => {
-    const distribuidor = Number(precioDistribuidor);
-    const valueWithIgv =
-      !isNaN(distribuidor) && distribuidor > 0
-        ? calculateIGV(distribuidor, false)
-        : { total: 0, base: 0, igv: 0 };
-
-    const campos = {
-      total_purchase_incl_igv: valueWithIgv.total,
-      total_purchase_excl_igv: valueWithIgv.base,
-      igv_amount: valueWithIgv.igv,
-    };
-
-    (Object.entries(campos) as [keyof typeof campos, number][]).forEach(
-      ([campo, valor]) => {
-        const current = Number(form.getValues(campo));
-        if (current !== valor) {
-          form.setValue(campo, valor, {
-            shouldValidate: false,
-            shouldDirty: true,
-          });
-        }
-      },
-    );
-  }, [precioDistribuidor, form]);
 
   const isLoading =
     isLoadingArticleClasses ||
@@ -279,6 +274,69 @@ export const ModelsVnForm = ({
               type="number"
               disabled={mode === "update"}
             />
+            <FormInput
+              name="version"
+              label="Versión"
+              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
+              control={form.control}
+              readOnly={mode === "update" || isLoadingbrands}
+              uppercase
+            />
+            <FormSelect
+              name="fuel_id"
+              label="Tipo Combustible"
+              placeholder="Selecciona un Tipo"
+              options={fuelTypes.map((fuelType) => ({
+                label: fuelType.description,
+                value: fuelType.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="vehicle_type_id"
+              label="Tipo Vehículo"
+              placeholder="Seleccionar Tipo"
+              options={typesVehicles.map((typeVehicle) => ({
+                label: typeVehicle.description,
+                value: typeVehicle.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="body_type_id"
+              label="Tipo Carrocería"
+              placeholder="Seleccionar Tipo"
+              options={bodyTypes.map((bodyType) => ({
+                label: bodyType.description,
+                value: bodyType.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="traction_type_id"
+              label="Tipo Tracción"
+              placeholder="Seleccionar Tipo"
+              options={tractionTypes.map((tractionType) => ({
+                label: tractionType.description,
+                value: tractionType.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
+            <FormSelect
+              name="transmission_id"
+              label="Tipo Transmisión"
+              placeholder="Seleccionar Tipo"
+              options={vehicleTransmissions.map((vehicleTransmission) => ({
+                label: vehicleTransmission.description,
+                value: vehicleTransmission.id.toString(),
+              }))}
+              control={form.control}
+              disabled={mode === "update"}
+            />
             <FormSelect
               name="class_id"
               label="Clase Artículo"
@@ -289,6 +347,18 @@ export const ModelsVnForm = ({
               }))}
               control={form.control}
               disabled={mode === "update"}
+            />
+            <FormSelect
+              name="currency_type_id"
+              label="Tipo Moneda"
+              placeholder="Seleccionar Tipo"
+              options={currencyTypes.map((currencyType) => ({
+                label: currencyType.name,
+                value: currencyType.id.toString(),
+              }))}
+              control={form.control}
+              selectOnFocus
+              withLenghOne
             />
           </GroupFormSection>
 
@@ -303,26 +373,6 @@ export const ModelsVnForm = ({
             }}
             gap="gap-3"
           >
-            <FormInput
-              name="version"
-              label="Versión"
-              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
-              control={form.control}
-              readOnly={mode === "update" || isLoadingbrands}
-              uppercase
-            />
-
-            <FormSelect
-              name="fuel_id"
-              label="Tipo Combustible"
-              placeholder="Selecciona un Tipo"
-              options={fuelTypes.map((fuelType) => ({
-                label: fuelType.description,
-                value: fuelType.id.toString(),
-              }))}
-              control={form.control}
-            />
-
             <FormInput
               name="power"
               label="Potencia"
@@ -341,48 +391,6 @@ export const ModelsVnForm = ({
               name="axles_number"
               label="Núm. Ejes"
               placeholder="Ej: 0"
-              control={form.control}
-            />
-
-            <FormSelect
-              name="vehicle_type_id"
-              label="Tipo Vehículo"
-              placeholder="Seleccionar Tipo"
-              options={typesVehicles.map((typeVehicle) => ({
-                label: typeVehicle.description,
-                value: typeVehicle.id.toString(),
-              }))}
-              control={form.control}
-            />
-
-            <FormSelect
-              name="body_type_id"
-              label="Tipo Carrocería"
-              placeholder="Seleccionar Tipo"
-              options={bodyTypes.map((bodyType) => ({
-                label: bodyType.description,
-                value: bodyType.id.toString(),
-              }))}
-              control={form.control}
-            />
-            <FormSelect
-              name="traction_type_id"
-              label="Tipo Tracción"
-              placeholder="Seleccionar Tipo"
-              options={tractionTypes.map((tractionType) => ({
-                label: tractionType.description,
-                value: tractionType.id.toString(),
-              }))}
-              control={form.control}
-            />
-            <FormSelect
-              name="transmission_id"
-              label="Tipo Transmisión"
-              placeholder="Seleccionar Tipo"
-              options={vehicleTransmissions.map((vehicleTransmission) => ({
-                label: vehicleTransmission.description,
-                value: vehicleTransmission.id.toString(),
-              }))}
               control={form.control}
             />
 
@@ -469,106 +477,6 @@ export const ModelsVnForm = ({
             <FormInput
               name="wheels_number"
               label="Núm. Ruedas"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              type="number"
-            />
-          </GroupFormSection>
-
-          {/* Sección: Precio Distribuidor */}
-          <GroupFormSection
-            title="Precio Distribuidor"
-            icon={CircleDollarSign}
-            color="gray"
-            cols={{
-              xl: 4,
-              "2xl": 5,
-            }}
-            gap="gap-3"
-          >
-            <FormSelect
-              name="currency_type_id"
-              label="Tipo Moneda"
-              placeholder="Seleccionar Tipo"
-              options={currencyTypes.map((currencyType) => ({
-                label: currencyType.name,
-                value: currencyType.id.toString(),
-              }))}
-              control={form.control}
-              selectOnFocus
-              withLenghOne
-            />
-
-            <FormInput
-              name="distributor_price"
-              label="Precio Distribuidor"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              type="number"
-            />
-
-            <FormInput
-              name="transport_cost"
-              label="Costo Transporte"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              type="number"
-            />
-
-            <FormInput
-              name="other_amounts"
-              label="Otros Importes"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              type="number"
-            />
-
-            <FormInput
-              name="purchase_discount"
-              label="% Dsc. de Compra"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              type="number"
-            />
-
-            <FormInput
-              name="igv_amount"
-              label="Importe IGV"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              className="bg-accent"
-              readOnly
-            />
-
-            <FormInput
-              name="total_purchase_excl_igv"
-              label="Total Compra sin IGV"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              className="bg-accent"
-              readOnly
-            />
-
-            <FormInput
-              name="total_purchase_incl_igv"
-              label="Total Compra con IGV"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              className="bg-accent"
-              readOnly
-            />
-
-            <FormInput
-              name="sale_price"
-              label="Precio Venta"
-              placeholder="Ej: 0.00"
-              control={form.control}
-              type="number"
-            />
-
-            <FormInput
-              name="margin"
-              label="% Margen"
               placeholder="Ej: 0.00"
               control={form.control}
               type="number"

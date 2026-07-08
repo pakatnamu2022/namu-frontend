@@ -249,6 +249,26 @@ export async function changeCurrency(
   return response.data;
 }
 
+export async function changeAdvisor(
+  id: number,
+  advisorId: number,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/change-advisor`,
+    { advisor_id: advisorId },
+  );
+  return response.data;
+}
+
+export async function recalculateTotals(
+  id: number,
+): Promise<WorkOrderResource> {
+  const response = await api.post<WorkOrderResource>(
+    `${ENDPOINT}/${id}/recalculate-totals`,
+  );
+  return response.data;
+}
+
 export async function sendToFinished(id: number): Promise<WorkOrderResource> {
   const response = await api.patch<WorkOrderResource>(
     `${ENDPOINT}/${id}/send-finished`,

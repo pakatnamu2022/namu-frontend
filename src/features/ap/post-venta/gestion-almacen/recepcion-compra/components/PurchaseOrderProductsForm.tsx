@@ -42,7 +42,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts"
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { useState } from "react";
 import { api } from "@/core/api.ts";
-import { format, addDays, parseISO } from "date-fns";
+import { format, addDays } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
@@ -84,15 +84,23 @@ export const PurchaseOrderProductsForm = ({
 
         if (orderDetail) {
           const itemTotal =
-            Math.round(
-              Number(item.quantity || 0) *
-                Number(orderDetail.unit_price || 0) *
-                100,
-            ) / 100;
+            orderDetail.total !== undefined && orderDetail.total !== null
+              ? Math.round(Number(orderDetail.total) * 100) / 100
+              : Math.round(
+                  Number(item.quantity || 0) *
+                    Number(orderDetail.unit_price || 0) *
+                    100,
+                ) / 100;
+
+          const quantity = Number(item.quantity || 0);
+          const unitPrice =
+            quantity > 0
+              ? Math.round((itemTotal / quantity) * 10000) / 10000
+              : Number(orderDetail.unit_price || 0);
 
           return {
             ...item,
-            unit_price: Number(orderDetail.unit_price || 0),
+            unit_price: unitPrice,
             item_total: itemTotal,
           };
         }
@@ -368,14 +376,14 @@ export const PurchaseOrderProductsForm = ({
               placeholder="Selecciona una fecha"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
-              disabledRange={
-                receptionData?.reception_date
-                  ? [
-                      { before: parseISO(receptionData.reception_date) },
-                      { after: new Date() },
-                    ]
-                  : { after: new Date() }
-              }
+              disabledRange={[
+                {
+                  before: receptionData?.supplier_order?.order_date
+                    ? new Date(receptionData.supplier_order.order_date)
+                    : new Date(new Date().getFullYear(), 6, 1),
+                },
+                { after: new Date() },
+              ]}
             />
 
             <DatePickerFormField
@@ -666,7 +674,7 @@ export const PurchaseOrderProductsForm = ({
                           </TableCell>
                           <TableCell className="align-middle p-1.5 text-end">
                             <div className="text-sm font-medium bg-muted/50 px-3 py-2 rounded-md">
-                              {unitPrice.toFixed(4).replace(/\.?0+$/, "")}
+                              {unitPrice.toFixed(6).replace(/\.?0+$/, "")}
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5">

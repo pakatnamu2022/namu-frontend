@@ -243,15 +243,14 @@ export function FormSelect({
       render={({ field }) => {
         const selected = options.find((opt) => opt.value === field.value);
 
-        // Auto-select if only one option is available
-        // eslint-disable-next-line react-hooks/rules-of-hooks
+        // Auto-select if only one option is available and options are present
         useEffect(() => {
           if (
             selectOnFocus &&
             withLenghOne &&
             !field.value &&
             !disabled &&
-            options.length < 0
+            options.length > 0
           ) {
             field.onChange(options[0].value);
           }
@@ -289,7 +288,7 @@ export function FormSelect({
             disabled={disabled}
             onClick={readOnly ? (e) => e.preventDefault() : undefined}
             className={cn(
-              "w-full justify-between flex",
+              "flex flex-1 min-w-0 justify-between",
               !field.value && "text-muted-foreground",
               field.value && "bg-muted",
               readOnly && "cursor-default pointer-events-none",
@@ -333,9 +332,12 @@ export function FormSelect({
                   </FormLabel>
                 )}
 
-            <div className="flex gap-2 items-center">
+            <div className="flex w-full gap-2 items-start min-w-0">
               {isMobile ? (
-                <Drawer open={readOnly ? false : open} onOpenChange={readOnly ? undefined : setOpen}>
+                <Drawer
+                  open={readOnly ? false : open}
+                  onOpenChange={readOnly ? undefined : setOpen}
+                >
                   <DrawerTrigger asChild>
                     <FormControl>{triggerButton}</FormControl>
                   </DrawerTrigger>
@@ -352,7 +354,10 @@ export function FormSelect({
                   </DrawerContent>
                 </Drawer>
               ) : (
-                <Popover open={readOnly ? false : open} onOpenChange={readOnly ? undefined : setOpen}>
+                <Popover
+                  open={readOnly ? false : open}
+                  onOpenChange={readOnly ? undefined : setOpen}
+                >
                   <PopoverTrigger asChild>
                     <FormControl>{triggerButton}</FormControl>
                   </PopoverTrigger>
@@ -368,7 +373,7 @@ export function FormSelect({
                   </PopoverContent>
                 </Popover>
               )}
-              {children}
+              <div className="shrink-0">{children}</div>
             </div>
             {description && (
               <FormDescription className="text-xs text-muted-foreground mb-0!">

@@ -16,6 +16,9 @@ import {
   Paperclip,
   Unlink,
   Ban,
+  User,
+  UserRoundCheck,
+  Receipt,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -40,6 +43,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { successToast, errorToast, formatDateTime } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Badge } from "@/components/ui/badge";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export default function ManageWorkOrderPage() {
   const params = useParams();
@@ -284,6 +288,125 @@ export default function ManageWorkOrderPage() {
                 <span className="hidden sm:inline">Información General</span>
                 <span className="sm:hidden">Info. Gen.</span>
               </Button>
+            </div>
+
+            {/* Información de propietario, contacto, recojo y facturación */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <User className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Propietario
+                  </p>
+                  <CopyCell
+                    className="text-sm font-medium truncate"
+                    value={workOrder.vehicle?.owner?.full_name || "—"}
+                  />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                    {workOrder.vehicle?.owner?.num_doc && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.vehicle.owner.num_doc}
+                        label={`DNI: ${workOrder.vehicle.owner.num_doc}`}
+                      />
+                    )}
+                    {workOrder.vehicle?.owner?.phone && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.vehicle.owner.phone}
+                        label={workOrder.vehicle.owner.phone}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <ClipboardCheck className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Entregó el vehículo
+                  </p>
+                  <CopyCell
+                    className="text-sm font-medium truncate"
+                    value={workOrder.full_contact_name || ""}
+                  />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                    {workOrder.num_doc_contact && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.num_doc_contact}
+                        label={`DNI: ${workOrder.num_doc_contact}`}
+                      />
+                    )}
+                    {workOrder.phone_contact && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.phone_contact}
+                        label={workOrder.phone_contact}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <UserRoundCheck className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Recogerá el vehículo
+                  </p>
+                  <CopyCell
+                    className="text-sm font-medium truncate"
+                    value={workOrder.full_pickup_name || "—"}
+                  />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                    {workOrder.num_doc_pickup && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.num_doc_pickup}
+                        label={`DNI: ${workOrder.num_doc_pickup}`}
+                      />
+                    )}
+                    {workOrder.phone_pickup && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.phone_pickup}
+                        label={workOrder.phone_pickup}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
+                <Receipt className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
+                    Se factura a
+                  </p>
+                  <CopyCell
+                    className="text-sm font-medium truncate"
+                    value={workOrder.invoice_to_client?.full_name || "—"}
+                  />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                    {workOrder.invoice_to_client?.num_doc && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.invoice_to_client.num_doc}
+                        label={`DNI: ${workOrder.invoice_to_client.num_doc}`}
+                      />
+                    )}
+                    {workOrder.invoice_to_client?.phone && (
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.invoice_to_client.phone}
+                        label={workOrder.invoice_to_client.phone}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </Card>

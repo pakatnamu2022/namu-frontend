@@ -11,6 +11,7 @@ import {
   VehicleClientDebtInfo,
   VehiclePurchaseOrderData,
   VinMatchResponse,
+  UpdateVehiclesByVinResponse,
 } from "./vehicles.interface";
 
 const { ENDPOINT } = VEHICLES;
@@ -95,6 +96,19 @@ export async function matchVins(file: File): Promise<VinMatchResponse> {
   formData.append("file", file);
   const { data } = await api.post<VinMatchResponse>(
     `${ENDPOINT}/match-vins`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
+}
+
+export async function updateVehiclesByVin(
+  file: File
+): Promise<UpdateVehiclesByVinResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<UpdateVehiclesByVinResponse>(
+    `${ENDPOINT}/update-by-vin`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );

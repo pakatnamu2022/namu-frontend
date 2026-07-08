@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from "axios";
 import {
   getModelsVnProps,
+  ImportInitialStockModelsVnResponse,
   ImportModelsVnResponse,
   ModelVnSyncAllResponse,
   ModelVnSyncLogsResponse,
@@ -60,6 +61,14 @@ export async function findModelsVnById(id: number): Promise<ModelsVnResource> {
 
 export async function storeModelsVn(data: any): Promise<ModelsVnResource> {
   const response = await api.post<ModelsVnResource>(ENDPOINT, data);
+  return response.data;
+}
+
+export async function storeAutomaticModelsVn(data: any): Promise<ModelsVnResource> {
+  const response = await api.post<ModelsVnResource>(
+    `${ENDPOINT}/store-automatic`,
+    data
+  );
   return response.data;
 }
 
@@ -136,6 +145,73 @@ export async function verifyModelsVn(
   return data;
 }
 
+export async function downloadMatchExcelTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/match-excel/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "plantilla_match_modelos_vn.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function matchExcelModelsVn(file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post(`${ENDPOINT}/match-excel`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = file.name.replace(/\.(xlsx|xls)$/i, "_match.xlsx");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadInitialStockTemplateModelsVn(): Promise<void> {
+  const response = await api.get(`/ap/configuration/modelsVn/initial-stock/template`, {
+    responseType: "blob",
+  });
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "modelos_vn_stock_inicial_template.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export async function importInitialStockModelsVn(
+  file: File
+): Promise<ImportInitialStockModelsVnResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<ImportInitialStockModelsVnResponse>(
+    `${ENDPOINT}/import-initial-stock`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
+}
+
 export async function getModelVnSyncLogs(
   params?: Record<string, any>
 ): Promise<ModelVnSyncLogsResponse> {
@@ -155,6 +231,37 @@ export async function syncModelVn(id: number): Promise<ModelVnSyncResponse> {
 export async function syncAllModelsVn(): Promise<ModelVnSyncAllResponse> {
   const { data } = await api.post<ModelVnSyncAllResponse>(`${ENDPOINT}/sync-all`);
   return data;
+}
+
+export async function exportModelsVn(
+  params: Record<string, any> = {}
+): Promise<void> {
+  const isPDF = params.format === "pdf";
+
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      ...(isPDF && { format: "pdf" }),
+    },
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export`, config);
+
+  const mimeType = isPDF
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const extension = isPDF ? "pdf" : "xlsx";
+
+  const blob = new Blob([response.data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `modelos_vn.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 export async function getModelVnDynamicsPayload(

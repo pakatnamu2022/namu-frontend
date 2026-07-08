@@ -16,6 +16,7 @@ import { storeApprovedAccesories } from "@/features/ap/post-venta/repuestos/acce
 import { ApprovedAccesoriesSchema } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.schema.ts";
 import { ApprovedAccesoriesForm } from "@/features/ap/post-venta/repuestos/accesorios-homologados/components/ApprovedAccessoriesForm.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddApprovedAccesoriesPage() {
   const router = useNavigate();
@@ -50,7 +51,7 @@ export default function AddApprovedAccesoriesPage() {
       <ApprovedAccesoriesForm
         defaultValues={{
           code: "",
-          type_operation_id: 794,
+          type_operation_id: CM_COMERCIAL_ID,
           description: "",
           price: 0,
           body_type_id: "",

@@ -950,7 +950,6 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
-                is_received: 0,
               }}
               disabled={!watchSedeTransmitterId || !watchArticleClassId}
               onValueChange={handleVehicleChange}
@@ -998,7 +997,7 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
-                is_received: 0,
+                is_received: vehiclesIsReceived,
               }}
               disabled={
                 (watchIssuerType !== "PROVEEDOR" && !watchSedeTransmitterId) ||

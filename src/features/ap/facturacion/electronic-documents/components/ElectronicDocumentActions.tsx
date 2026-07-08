@@ -36,6 +36,7 @@ interface ElectronicDocumentActionsProps {
   isLoading: boolean;
   permissions: {
     canCreate: boolean;
+    canGenerate: boolean;
   };
 }
 
@@ -101,19 +102,22 @@ export default function ElectronicDocumentActions({
           Actualizar
         </Button>
 
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => syncAccountingMutation.mutate()}
-          disabled={syncAccountingMutation.isPending}
-        >
-          <BookCheck
-            className={cn("size-4 mr-2", {
-              "animate-pulse": syncAccountingMutation.isPending,
-            })}
-          />
-          Contabilizaciones
-        </Button>
+        {permissions.canGenerate && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => syncAccountingMutation.mutate()}
+            disabled={syncAccountingMutation.isPending}
+            tooltip="Generar jobs sincronización"
+          > 
+            <BookCheck
+              className={cn("size-4 mr-2", {
+                "animate-pulse": syncAccountingMutation.isPending,
+              })}
+            />
+            Contabilizaciones
+          </Button>
+        )}
 
         <ConfirmationDialog
           trigger={

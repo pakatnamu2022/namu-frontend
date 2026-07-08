@@ -3,13 +3,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { Loader } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ClipboardMinus } from "lucide-react";
 import { useAllBrands } from "../../marcas/lib/brands.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllFamilies } from "../../familias/lib/families.hook";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
@@ -19,6 +19,9 @@ import {
 } from "../lib/modelsVnPv.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { CLASS_ARTICLE_ID } from "../../../maestros-general/clase-articulo/lib/classArticle.constants";
+import BrandsModal from "../../marcas/components/BrandsModal";
+import { BrandsResource } from "../../marcas/lib/brands.interface";
+import FamiliesModal from "../../familias/components/FamiliesModal";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnPvSchema>;
@@ -49,6 +52,8 @@ export const ModelsVnPvForm = ({
     },
     mode: "onChange",
   });
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
   const marcaSeleccionada = form.watch("brand_id");
   const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands();
   const { data: families = [], isLoading: isLoadingFamilies } = useAllFamilies({
@@ -126,7 +131,18 @@ export const ModelsVnPvForm = ({
                 value: brand.id.toString(),
               }))}
               control={form.control}
-            />
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => setIsBrandModalOpen(true)}
+                tooltip="Agregar nueva marca"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </FormSelect>
             <FormSelect
               name="family_id"
               label="Familia"
@@ -138,7 +154,23 @@ export const ModelsVnPvForm = ({
               options={getFamilyOptions()}
               control={form.control}
               disabled={!marcaSeleccionada || isLoadingFamilies}
-            />
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => setIsFamilyModalOpen(true)}
+                disabled={!marcaSeleccionada}
+                tooltip={
+                  !marcaSeleccionada
+                    ? "Primero seleccione una marca"
+                    : "Agregar nueva familia"
+                }
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </FormSelect>
             <FormInput
               name="version"
               label="Versión"
@@ -164,6 +196,30 @@ export const ModelsVnPvForm = ({
           </Button>
         </div>
       </form>
+
+      <BrandsModal
+        open={isBrandModalOpen}
+        onClose={() => setIsBrandModalOpen(false)}
+        onSuccess={(newBrand: BrandsResource) => {
+          form.setValue("brand_id", newBrand.id.toString(), {
+            shouldValidate: true,
+          });
+        }}
+        title="Agregar Nueva Marca"
+      />
+
+      <FamiliesModal
+        open={isFamilyModalOpen}
+        onClose={() => setIsFamilyModalOpen(false)}
+        onSuccess={(newFamily) => {
+          form.setValue("family_id", newFamily.id.toString(), {
+            shouldValidate: true,
+          });
+        }}
+        title="Agregar Nueva Familia"
+        mode="create"
+        defaultBrandId={marcaSeleccionada}
+      />
     </Form>
   );
 };

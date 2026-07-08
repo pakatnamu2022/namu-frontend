@@ -3,13 +3,22 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import VehicleMovements from "./VehicleMovements";
 import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
 import ChangeLocationModal from "./ChangeLocationModal";
-import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
+import {
+  MODELS_VN,
+  MODELS_VN_POSTVENTA,
+} from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
 
@@ -131,17 +140,30 @@ export const vehicleColumns = ({
         ap_vehicle_status_id,
         warehouse_id,
         warehouse_name,
+        model,
       } = row.original;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const router = useNavigate();
+      const { ROUTE_UPDATE } =
+        type_operation_id === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
 
       return (
         <div className="flex items-center gap-2">
+          {/* View Model */}
+          <ButtonAction
+            icon={Eye}
+            tooltip="Ver Modelo"
+            onClick={() => router(`${ROUTE_UPDATE}/${model.id}`)}
+            canRender={!!model?.id}
+          />
+
           {/* Movements */}
           {permissions.canViewHistory && (
             <VehicleMovements movements={movements || []} />
           )}
 
           {/* Change Location */}
-          {(permissions.canChangeLocation ?? true) &&
+          {permissions.canChangeLocation &&
             ap_vehicle_status_id === VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO && (
               <ChangeLocationModal
                 vehicleId={id}

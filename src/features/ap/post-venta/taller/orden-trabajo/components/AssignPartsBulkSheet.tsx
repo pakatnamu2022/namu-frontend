@@ -71,16 +71,14 @@ export function AssignPartsBulkSheet({
     defaultValues: { delivered_to: "" },
   });
 
-  const { data: planningWorkers = [], isLoading: isLoadingWorkers } = useQuery(
-    {
-      queryKey: ["workOrderPlanning", "all", workOrderId],
-      queryFn: () =>
-        getAllWorkOrderPlanning({
-          params: { work_order_id: workOrderId, all: true },
-        }),
-      enabled: open,
-    },
-  );
+  const { data: planningWorkers = [], isLoading: isLoadingWorkers } = useQuery({
+    queryKey: ["workOrderPlanning", "all", workOrderId],
+    queryFn: () =>
+      getAllWorkOrderPlanning({
+        params: { work_order_id: workOrderId, all: true },
+      }),
+    enabled: open,
+  });
 
   const mutation = useMutation({
     mutationFn: (values: BulkAssignFormValues) =>
@@ -128,7 +126,9 @@ export function AssignPartsBulkSheet({
   };
 
   const handleQuantityChange = (id: number, value: string) => {
-    setQuantities((prev) => ({ ...prev, [id]: value }));
+    if (/^\d*\.?\d{0,6}$/.test(value)) {
+      setQuantities((prev) => ({ ...prev, [id]: value }));
+    }
   };
 
   const handleSubmit = (values: BulkAssignFormValues) => {
@@ -232,6 +232,7 @@ export function AssignPartsBulkSheet({
                           inputMode="decimal"
                           min={0}
                           max={part.quantity_used}
+                          step="0.000001"
                           className="h-8 text-center"
                           disabled={!selectedIds.includes(part.id)}
                           value={quantities[part.id] ?? ""}
@@ -259,7 +260,8 @@ export function AssignPartsBulkSheet({
                 ) : (
                   <>
                     <PackageCheck className="h-4 w-4 mr-2" />
-                    Asignar {selectedIds.length > 0 && `(${selectedIds.length})`}
+                    Asignar{" "}
+                    {selectedIds.length > 0 && `(${selectedIds.length})`}
                   </>
                 )}
               </Button>

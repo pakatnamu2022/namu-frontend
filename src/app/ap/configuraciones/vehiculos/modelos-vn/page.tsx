@@ -50,6 +50,7 @@ export default function ModelsVnPage() {
     search,
     per_page,
     family$brand_id: brandId,
+    type_operation_id: CM_COMERCIAL_ID,
   });
 
   const { data: brands = [] } = useAllBrands();
@@ -97,6 +98,7 @@ export default function ModelsVnPage() {
           permissions={permissions}
           isCommercial={CM_COMERCIAL_ID}
           onImportSuccess={refetch}
+          filters={{ search, family$brand_id: brandId }}
         />
       </HeaderTableWrapper>
       <ModelsVnTable

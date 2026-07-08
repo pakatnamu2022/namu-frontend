@@ -23,6 +23,7 @@ import {
   useShipmentsReceptions,
   useMarkAsReceived,
   useCancelShippingGuide,
+  useSyncShippingGuideWithDynamics,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import ShipmentsReceptionsTable from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsTable";
 import { ShipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
@@ -77,6 +78,7 @@ export default function ShipmentsReceptionsPage() {
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
+  const syncWithDynamicsMutation = useSyncShippingGuideWithDynamics();
   const permissions = useModulePermissions(ROUTE);
   const migrateMutation = useMutation({
     mutationFn: dispatchShippingGuideMigration,
@@ -211,6 +213,7 @@ export default function ShipmentsReceptionsPage() {
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
           onGeneratePDI: setGeneratePDIVehicleId,
           onGenerateInstAccessories: setGenerateInstAccessoriesVehicleId,
           permissions,
