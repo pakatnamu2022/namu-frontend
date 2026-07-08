@@ -5,6 +5,7 @@ import {
   BookCheck,
   FilePlus,
   Files,
+  History,
   Plus,
   RefreshCw,
   Send,
@@ -30,6 +31,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { MigrationAllResponse } from "../lib/electronicDocument.interface";
 import { useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import HistoricalAdvancePaymentSheet from "./HistoricalAdvancePaymentSheet";
 
 interface ElectronicDocumentActionsProps {
   onRefresh: () => void;
@@ -50,6 +52,7 @@ export default function ElectronicDocumentActions({
 
   const [migrationResult, setMigrationResult] =
     useState<MigrationAllResponse | null>(null);
+  const [historicalAdvanceOpen, setHistoricalAdvanceOpen] = useState(false);
 
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllElectronicDocuments,
@@ -94,6 +97,11 @@ export default function ElectronicDocumentActions({
           ))}
         </ul>
       </GeneralSheet>
+      <HistoricalAdvancePaymentSheet
+        open={historicalAdvanceOpen}
+        onClose={() => setHistoricalAdvanceOpen(false)}
+        onSuccess={onRefresh}
+      />
       <ActionsWrapper>
         <Button size="sm" variant="outline" onClick={onRefresh}>
           <RefreshCw
@@ -157,6 +165,10 @@ export default function ElectronicDocumentActions({
               <DropdownMenuItem onClick={() => router(`${ROUTE_ADD}-otros`)}>
                 <Files className="size-4 mr-2" />
                 Otras Ventas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setHistoricalAdvanceOpen(true)}>
+                <History className="size-4 mr-2" />
+                Anticipo Histórico
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
