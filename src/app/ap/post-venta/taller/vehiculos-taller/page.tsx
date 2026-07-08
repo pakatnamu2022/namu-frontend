@@ -23,7 +23,6 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook.ts";
-import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclesPostVentaPage() {
@@ -41,7 +40,6 @@ export default function VehiclesPostVentaPage() {
     page,
     search,
     per_page,
-    type_operation_id: CM_POSTVENTA_ID,
     ap_vehicle_status_id: ap_vehicle_status_id.length
       ? ap_vehicle_status_id
       : undefined,
