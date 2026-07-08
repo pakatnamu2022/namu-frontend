@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BookCheck, Files, RefreshCw } from "lucide-react";
+import { BookCheck, Files, HandCoins, RefreshCw } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { cn } from "@/lib/utils";
 import { errorToast, successToast } from "@/core/core.function";
@@ -10,12 +10,14 @@ import { syncAccountingStatus } from "@/features/ap/facturacion/electronic-docum
 
 interface SalesReceiptsActionsProps {
   onOtherSalesClick?: () => void;
+  onRegularizeAdvancePaymentClick?: () => void;
   onRefresh: () => void;
   isLoading: boolean;
 }
 
 export default function SalesReceiptsActions({
   onOtherSalesClick,
+  onRegularizeAdvancePaymentClick,
   onRefresh,
   isLoading,
 }: SalesReceiptsActionsProps) {
@@ -56,6 +58,15 @@ export default function SalesReceiptsActions({
       <Button size="sm" variant="default" onClick={onOtherSalesClick}>
         <Files className="size-4 mr-2" />
         Otras Ventas
+      </Button>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={onRegularizeAdvancePaymentClick}
+      >
+        <HandCoins className="size-4 mr-2" />
+        Regularización de Anticipos
       </Button>
     </ActionsWrapper>
   );

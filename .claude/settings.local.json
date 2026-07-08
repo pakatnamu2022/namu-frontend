@@ -35,9 +35,13 @@
       "Bash(powershell -Command \"Remove-Item -Recurse -Force ''d:\\\\front\\\\namu-frontend\\\\src\\\\app\\\\ap\\\\comercial\\\\control-unidades\\\\consignacion''\")",
       "Bash(Remove-Item -Recurse -Force \"c:\\\\laragon\\\\www\\\\namu-frontend\\\\src\\\\features\\\\dp\\\\comercial\\\\cuentas-por-cobrar\")",
       "Bash(Remove-Item -Recurse -Force \"c:\\\\laragon\\\\www\\\\namu-frontend\\\\src\\\\app\\\\dp\\\\comercial\\\\cuentas-por-cobrar\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(mkdir -p \"c:/Users/Equipo-66/Desktop/Proyecto Pakatnamu/namu-frontend/src/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo\")"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "c:\\Users\\Equipo-66\\Desktop\\Proyecto Pakatnamu\\namu-frontend\\src\\app\\ap\\post-venta\\caja\\comprobante-venta-caja"
+    ]
   }
 }

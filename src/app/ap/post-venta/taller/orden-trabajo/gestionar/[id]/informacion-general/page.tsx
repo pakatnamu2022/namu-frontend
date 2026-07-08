@@ -737,6 +737,9 @@ export default function GeneralInformationPage() {
                           Cto. Total
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Neto
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Cto. Neto + IGV
                         </th>
                       </tr>
@@ -772,6 +775,13 @@ export default function GeneralInformationPage() {
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             {formatMoney(
+                              labour.net_amount,
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {formatMoney(
                               labour.net_amount + labour.tax_amount,
                               2,
                               workOrder.type_currency?.symbol || "S/",
@@ -792,6 +802,15 @@ export default function GeneralInformationPage() {
                           {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.labours
                             .reduce((acc, l) => acc + l.total_cost, 0)
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.labours
+                            .reduce((acc, l) => acc + l.net_amount, 0)
                             .toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -855,6 +874,9 @@ export default function GeneralInformationPage() {
                           Cto. Total
                         </th>
                         <th className="text-right py-2 px-3 text-gray-600 font-medium">
+                          Cto. Neto
+                        </th>
+                        <th className="text-right py-2 px-3 text-gray-600 font-medium">
                           Cto. Neto + IGV
                         </th>
                       </tr>
@@ -899,6 +921,13 @@ export default function GeneralInformationPage() {
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
                             {formatMoney(
+                              Number(part.net_amount),
+                              2,
+                              workOrder.type_currency?.symbol || "S/",
+                            )}
+                          </td>
+                          <td className="py-2 px-3 text-right font-semibold text-green-700">
+                            {formatMoney(
                               part.net_amount + part.tax_amount,
                               2,
                               workOrder.type_currency?.symbol || "S/",
@@ -919,6 +948,15 @@ export default function GeneralInformationPage() {
                           {workOrder.type_currency?.symbol || "S/"}{" "}
                           {workOrder.parts
                             .reduce((acc, p) => acc + p.total_cost, 0)
+                            .toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                        </td>
+                        <td className="py-2 px-3 text-right font-bold text-green-700">
+                          {workOrder.type_currency?.symbol || "S/"}{" "}
+                          {workOrder.parts
+                            .reduce((acc, p) => acc + p.net_amount, 0)
                             .toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
