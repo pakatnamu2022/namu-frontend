@@ -64,7 +64,7 @@ export default function HistoricalAdvancePaymentSheet({
   onSuccess,
 }: HistoricalAdvancePaymentSheetProps) {
   const form = useForm<HistoricalAdvancePaymentSchemaType>({
-    resolver: zodResolver(HistoricalAdvancePaymentSchema),
+    resolver: zodResolver(HistoricalAdvancePaymentSchema) as any,
     defaultValues,
   });
 

@@ -21,6 +21,7 @@ import {
   BookCheck,
   BookX,
   CloudUpload,
+  BatteryPlus,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
@@ -39,6 +40,7 @@ import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { CopyCell } from "@/shared/components/CopyCell";
+import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
 
 export type ShipmentsReceptionsColumnsType =
   ColumnDef<ShipmentsReceptionsResource>;
@@ -189,12 +191,12 @@ export const ShipmentsReceptionsColumns = ({
   },
   {
     accessorKey: "entities",
-    header: "",
+    header: "Entidades",
     cell: ({ row }) => {
       const transmitter = row.original.transmitter_name;
       const receiver = row.original.receiver_name;
       return (
-        <div className="flex flex-col gap-1 text-xs">
+        <div className="flex flex-col gap-1 text-xs max-w-52">
           <div>
             <span className="font-semibold">Remitente: </span>
             <span title={transmitter}>{transmitter}</span>
@@ -237,7 +239,7 @@ export const ShipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const reason = row.getValue("transfer_reason_description") as string;
       return (
-        <span className="text-sm" title={reason}>
+        <span className="text-xs text-wrap line-clamp-2" title={reason}>
           {reason}
         </span>
       );
@@ -478,6 +480,13 @@ export const ShipmentsReceptionsColumns = ({
     },
   },
   {
+    accessorKey: "migration_status",
+    header: "Migración",
+    cell: ({ getValue }) => {
+      return <MigrationStatusBadge migration_status={getValue() as string} />;
+    },
+  },
+  {
     accessorKey: "is_accounted",
     header: "Contabilización",
     cell: ({ row }) => {
@@ -586,11 +595,24 @@ export const ShipmentsReceptionsColumns = ({
         permissions.canMigrate;
 
       const canCancel =
-        isGuiaRemision && isAlreadyReceived && status && permissions.canAnnul;
+        isGuiaRemision &&
+        isAlreadyReceived &&
+        status &&
+        permissions.canAnnul &&
+        row.original.migration_status === "completed" &&
+        row.original.is_accounted === true;
 
-      const canGeneratePDI = !!ap_vehicle_id && permissions.canGenerate;
+      const canGeneratePDI =
+        !!ap_vehicle_id &&
+        permissions.canGenerate &&
+        row.original.migration_status === "completed" &&
+        row.original.is_accounted === true;
 
-      const canGenerateAccessories = !!ap_vehicle_id && permissions.canGenerate;
+      const canGenerateAccessories =
+        !!ap_vehicle_id &&
+        permissions.canGenerate &&
+        row.original.migration_status === "completed" &&
+        row.original.is_accounted === true;
 
       return (
         <div className="flex items-center gap-2">
@@ -606,12 +628,14 @@ export const ShipmentsReceptionsColumns = ({
           <ButtonAction
             icon={Send}
             tooltip="Enviar a Nubefact"
+            color="blue"
             onClick={() => onSendToNubefact(id)}
             canRender={canSendToNubefact}
           />
 
           <ButtonAction
             icon={RefreshCw}
+            color="blue"
             tooltip="Consultar estado en SUNAT"
             onClick={() => onQueryFromNubefact(id)}
             canRender={canConsult}
@@ -621,11 +645,13 @@ export const ShipmentsReceptionsColumns = ({
             icon={PackageCheck}
             tooltip="Marcar como recibido"
             onClick={() => onMarkAsReceived(id)}
-            canRender={canMarkAsReceived}
+            // TODO: Habilitar cuando se implemente la funcionalidad de recepción
+            canRender={canMarkAsReceived && false}
           />
 
           <ButtonAction
             icon={CarFront}
+            color="green"
             tooltip="Recepcionar"
             onClick={() => router(`${ABSOLUTE_ROUTE}/checklist/${id}`)}
             canRender={canReceive}
@@ -643,6 +669,7 @@ export const ShipmentsReceptionsColumns = ({
           <ButtonAction
             icon={ArrowRightLeft}
             tooltip="Migrar"
+            color="purple"
             onClick={() => onMigrate && onMigrate(id)}
             canRender={canMigrate}
           />
@@ -656,7 +683,7 @@ export const ShipmentsReceptionsColumns = ({
           />
 
           <ButtonAction
-            icon={BookCheck}
+            icon={BatteryPlus}
             tooltip="Generar OT de PDI"
             onClick={() =>
               ap_vehicle_id && onGeneratePDI(Number(ap_vehicle_id))
