@@ -15,24 +15,26 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { FileCheck } from "lucide-react";
 import { RegularizeAdvancePaymentFormValues } from "../lib/regularizeAdvancePaymentForm.types";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/series/lib/assignSalesSeries.interface";
 import {
   useCustomers,
   useCustomersById,
 } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
-import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
-import { useNextCorrelativeElectronicDocument } from "../lib/electronicDocument.hook";
 import { ItemsSection } from "./sections/ItemsSection";
 import {
   useOrderQuotations,
   useOrderQuotationById,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
-import { useGetWorkOrder, useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
+import {
+  useGetWorkOrder,
+  useFindWorkOrderById,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
 import { PAYMENT_CONDITIONS } from "../lib/electronicDocument.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 
 interface RegularizeAdvancePaymentFormProps {
   form: UseFormReturn<RegularizeAdvancePaymentFormValues>;
@@ -63,8 +65,6 @@ export function RegularizeAdvancePaymentForm({
   const originType = form.watch("origin_entity_type");
   const orderQuotationId = form.watch("order_quotation_id");
   const workOrderId = form.watch("work_order_id");
-  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
-  const series = form.watch("serie");
   const medioDePago = form.watch("condiciones_de_pago");
   const items = form.watch("items") || [];
 
@@ -78,24 +78,7 @@ export function RegularizeAdvancePaymentForm({
         ? "$"
         : "";
 
-  const { data: authorizedSeries = [] } = useAuthorizedSeries({
-    type_receipt_id: documentTypes.find(
-      (dt) => dt.id.toString() === selectedDocumentType,
-    )?.tribute_code,
-  });
-
-  const { data: nextNumber } = useNextCorrelativeElectronicDocument(
-    selectedDocumentType ? Number(selectedDocumentType) : 0,
-    series ? Number(series) : 0,
-  );
-
-  useEffect(() => {
-    const currentNumber = form.getValues("numero");
-    const newNumber = nextNumber?.number || "";
-    if (currentNumber !== newNumber) {
-      form.setValue("numero", newNumber);
-    }
-  }, [nextNumber, form]);
+  const { data: sedes = [] } = useAllSedes({ empresa_id: EMPRESA_AP.id });
 
   const { data: checkbooks = [] } = useAllApBank({
     currency_id: selectedCurrency?.currency_type,
@@ -146,7 +129,9 @@ export function RegularizeAdvancePaymentForm({
     });
 
     const round2 = (n: number) => Math.round(n * 100) / 100;
-    const total = round2(total_gravada + total_inafecta + total_exonerada + total_igv);
+    const total = round2(
+      total_gravada + total_inafecta + total_exonerada + total_igv,
+    );
     return {
       total_gravada: round2(total_gravada),
       total_inafecta: round2(total_inafecta),
@@ -183,7 +168,7 @@ export function RegularizeAdvancePaymentForm({
           <div className="lg:col-span-2 space-y-6">
             {/* Origen: Cotización de Orden u Orden de Trabajo */}
             <GroupFormSection
-              title="Asociar Origen (Opcional)"
+              title="Asociar Origen"
               icon={Link2}
               color="secondary"
               cols={{ sm: 1, md: 2 }}
@@ -192,7 +177,10 @@ export function RegularizeAdvancePaymentForm({
                 control={form.control}
                 name="origin_entity_type"
                 options={[
-                  { value: "ApOrderQuotations", label: "Cotización de Orden" },
+                  {
+                    value: "ApOrderQuotations",
+                    label: "Cotización de Repuestos",
+                  },
                   { value: "ApWorkOrder", label: "Orden de Trabajo" },
                 ]}
                 label="Tipo de Origen"
@@ -204,13 +192,13 @@ export function RegularizeAdvancePaymentForm({
               {originType === "ApOrderQuotations" && (
                 <FormSelectAsync
                   name="order_quotation_id"
-                  label="Cotización de Orden"
+                  label="Cotización de Repuestos"
                   placeholder="Buscar cotización"
                   control={form.control}
                   useQueryHook={useOrderQuotations}
                   mapOptionFn={(quotation: OrderQuotationResource) => ({
                     value: quotation.id.toString(),
-                    label: `COT-${quotation.quotation_number} - ${quotation.client?.full_name || "Sin cliente"}`,
+                    label: `${quotation.quotation_number} - ${quotation.client?.full_name || "Sin cliente"}`,
                   })}
                   useFindByIdHook={useOrderQuotationById}
                   description="Cotización a la que se asociará el anticipo"
@@ -233,7 +221,7 @@ export function RegularizeAdvancePaymentForm({
                   useQueryHook={useWorkOrderQuery}
                   mapOptionFn={(workOrder: WorkOrderResource) => ({
                     value: workOrder.id.toString(),
-                    label: `OT-${workOrder.correlative} - ${workOrder.invoice_to_client?.full_name || "Sin cliente"}`,
+                    label: `${workOrder.correlative} - ${workOrder.invoice_to_client?.full_name || "Sin cliente"}`,
                   })}
                   useFindByIdHook={useFindWorkOrderById}
                   description="Orden de trabajo a la que se asociará el anticipo"
@@ -309,39 +297,36 @@ export function RegularizeAdvancePaymentForm({
                 label="Fecha de Emisión *"
                 placeholder="Seleccione fecha"
                 description="Seleccione la fecha de emisión del documento"
-                disabledRange={{
-                  before: new Date(
-                    new Date().getFullYear(),
-                    new Date().getMonth(),
-                    1,
-                  ),
-                  after: new Date(),
-                }}
               />
 
               <FormSelect
                 control={form.control}
+                name="sede_id"
+                options={sedes.map((sede) => ({
+                  value: sede.id.toString(),
+                  label: sede.description,
+                }))}
+                label="Sede *"
+                description="Seleccione la sede"
+                placeholder="Seleccionar sede"
+              />
+
+              <FormInput
+                control={form.control}
                 name="serie"
-                options={authorizedSeries.map(
-                  (series: AssignSalesSeriesResource) => ({
-                    value: series.id.toString(),
-                    label: `${series.series} - ${series.sede || ""}`,
-                  }),
-                )}
                 label="Serie *"
-                description="Series autorizadas para su usuario"
-                placeholder="Seleccionar serie"
+                placeholder="Ej: F001"
+                maxLength={4}
+                description="Ingrese la serie del comprobante"
               />
 
               <FormInput
                 control={form.control}
                 name="numero"
-                label="Número"
+                label="Número *"
                 type="number"
-                placeholder="Auto-generado"
-                readOnly
-                optional
-                description="Se genera automáticamente"
+                placeholder="Ingrese el número"
+                description="Ingrese el número del comprobante"
               />
             </GroupFormSection>
 
@@ -351,7 +336,7 @@ export function RegularizeAdvancePaymentForm({
               igvTypes={igvTypes}
               currencySymbol={currencySymbol}
               porcentaje_de_igv={selectedCustomer?.tax_class_type_igv || 18}
-              isAdvancePayment={false}
+              isAdvancePayment={true}
               isFromQuotation={false}
               useQuotation={false}
               isDetraction={false}
@@ -430,11 +415,8 @@ export function RegularizeAdvancePaymentForm({
               </div>
 
               <p className="text-xs text-muted-foreground">
-                {series
-                  ? authorizedSeries.find((s) => s.id === Number(series))
-                      ?.series
-                  : "****"}
-                -{form.watch("numero") || "########"}
+                {form.watch("serie") || "****"}-
+                {form.watch("numero") || "########"}
               </p>
 
               <div className="space-y-3 border pt-2 rounded-lg">

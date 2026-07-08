@@ -23,7 +23,6 @@ import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper.tsx";
-import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 export default function AddRegularizeAdvancePaymentCajaPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
@@ -67,9 +66,9 @@ export default function AddRegularizeAdvancePaymentCajaPage() {
     resolver: zodResolver(RegularizeAdvancePaymentSchema as any),
     defaultValues: {
       sunat_concept_document_type_id: "",
+      sede_id: "",
       serie: "",
-      numero: "",
-      area_id: AREA_POSTVENTA.toString(),
+      numero: 0,
       origin_entity_type: "",
       order_quotation_id: "",
       work_order_id: "",
@@ -89,8 +88,9 @@ export default function AddRegularizeAdvancePaymentCajaPage() {
     mutationFn: (data: RegularizeAdvancePaymentFormValues) => {
       const payload: RegularizeAdvancePaymentSchema = {
         sunat_concept_document_type_id: data.sunat_concept_document_type_id,
-        series_id: data.serie,
-        area_id: data.area_id,
+        sede_id: data.sede_id,
+        serie: data.serie,
+        numero: data.numero,
         client_id: data.client_id,
         fecha_de_emision: data.fecha_de_emision,
         fecha_de_vencimiento: data.fecha_de_vencimiento,
