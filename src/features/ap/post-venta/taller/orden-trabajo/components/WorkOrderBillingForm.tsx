@@ -66,6 +66,8 @@ export default function WorkOrderBillingForm({
     () => workOrder.vouchers?.active ?? [],
     [workOrder.vouchers?.active],
   );
+  const plate = workOrder.vehicle_plate;
+  const number_work_order = workOrder.correlative;
 
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
@@ -577,6 +579,7 @@ export default function WorkOrderBillingForm({
               isEdit={isEdit}
               existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
+              defaultMessage={`${number_work_order} - Placa: ${plate}`}
             />
           </div>
 

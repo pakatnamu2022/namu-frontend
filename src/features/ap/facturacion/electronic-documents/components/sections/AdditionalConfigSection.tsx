@@ -26,6 +26,7 @@ interface AdditionalConfigSectionProps {
   isEdit?: boolean;
   existingFileUrl?: string;
   isAdvancePayment?: boolean;
+  defaultMessage?: string;
 }
 
 export function AdditionalConfigSection({
@@ -39,6 +40,7 @@ export function AdditionalConfigSection({
   isEdit = false,
   existingFileUrl = "",
   isAdvancePayment = false,
+  defaultMessage = "",
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
@@ -169,6 +171,9 @@ export function AdditionalConfigSection({
       form.watch("medio_de_pago")?.toUpperCase() || "",
     );
   });
+
+  // Seteamos el mensaje por defecto en observaciones si no hay uno ya establecido
+  form.setValue("observaciones", defaultMessage);
 
   return (
     <GroupFormSection
