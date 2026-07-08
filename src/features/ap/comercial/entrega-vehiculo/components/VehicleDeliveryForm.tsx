@@ -258,13 +258,6 @@ export const VehicleDeliveryForm = ({
               placeholder="Selecciona la fecha y hora de entrega"
               minDate={new Date()}
             />
-            <DateTimePickerForm
-              control={form.control}
-              name="wash_date"
-              label="Fecha y Hora de Lavado"
-              placeholder="Selecciona la fecha y hora de lavado"
-              minDate={new Date()}
-            />
           </div>
         </div>
 

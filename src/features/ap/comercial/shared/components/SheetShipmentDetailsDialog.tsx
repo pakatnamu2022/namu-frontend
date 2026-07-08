@@ -18,6 +18,8 @@ import {
   Download,
   QrCode,
   FileCode,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
@@ -105,6 +107,8 @@ interface SheetShipmentDetailsDialogProps {
   shipment: ShipmentDetailResource | undefined;
   receptionData: ShipmentReceptionData | undefined;
   isLoading: boolean;
+  onQueryFromNubefact?: (id: number) => void;
+  isQueryingFromNubefact?: boolean;
 }
 
 const documentTypeConfig = {
@@ -143,6 +147,8 @@ export function SheetShipmentDetailsDialog({
   shipment,
   receptionData,
   isLoading,
+  onQueryFromNubefact,
+  isQueryingFromNubefact,
 }: SheetShipmentDetailsDialogProps) {
   const sheetTitle = documentNumber
     ? `Detalle de Guía - ${documentNumber}`
@@ -198,13 +204,31 @@ export function SheetShipmentDetailsDialog({
             {sunatConfig && SunatIcon && (
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">Estado SUNAT</p>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <SunatIcon className={`h-4 w-4 ${sunatConfig.className}`} />
                   <span
                     className={`text-sm font-medium ${sunatConfig.className}`}
                   >
                     {sunatConfig.label}
                   </span>
+                  {onQueryFromNubefact &&
+                    shipment.requires_sunat &&
+                    shipment.is_sunat_registered && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7"
+                        disabled={isQueryingFromNubefact}
+                        onClick={() => onQueryFromNubefact(shipment.id)}
+                      >
+                        {isQueryingFromNubefact ? (
+                          <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        ) : (
+                          <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                        )}
+                        Consultar
+                      </Button>
+                    )}
                 </div>
               </div>
             )}
