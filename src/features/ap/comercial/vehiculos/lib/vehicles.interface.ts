@@ -208,6 +208,12 @@ export interface UpdateVehiclesByVinResponse {
   errors: string[];
 }
 
+export interface UpdatePurchaseOrderByVinResponse {
+  updated: number;
+  rows_processed: number;
+  errors: string[];
+}
+
 export interface VehiclePurchaseOrderData {
   vehicle: VehicleResource;
   purchase_order: {
