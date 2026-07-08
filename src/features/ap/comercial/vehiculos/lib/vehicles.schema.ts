@@ -8,12 +8,7 @@ import { z } from "zod";
 export const vehicleSchemaCreate = z
   .object({
     sede_id: requiredStringId("La sede es requerida"),
-    plate: z
-      .string()
-      .length(6, "La placa debe tener exactamente 6 caracteres")
-      .refine((value) => value.trim() !== "", {
-        message: "Placa es requerida",
-      }),
+    plate: z.string().optional(),
     vin: requiredText("El VIN es requerido", 17, 20),
     year: requiredNumber("El año es requerido", 1886),
     year_delivery: requiredNumber("El año de entrega es requerido", 1886),
@@ -42,13 +37,7 @@ export const vehicleSchemaCreate = z
 export const vehicleSchemaUpdate = z
   .object({
     sede_id: requiredStringId("La sede es requerida").optional(),
-    plate: z
-      .string()
-      .length(6, "La placa debe tener exactamente 6 caracteres")
-      .refine((value) => value.trim() !== "", {
-        message: "Placa es requerida",
-      })
-      .optional(),
+    plate: z.string().optional(),
     vin: requiredText("El VIN es requerido", 17, 17).optional(),
     year: requiredNumber("El año es requerido", 1886).optional(),
     year_delivery: requiredNumber(

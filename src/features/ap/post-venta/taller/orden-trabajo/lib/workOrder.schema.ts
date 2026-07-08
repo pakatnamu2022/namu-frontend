@@ -1,4 +1,5 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
+import { SERVICE_PDI_ID } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 import { z } from "zod";
 
 const workOrderItemSchema = z.object({
@@ -25,12 +26,15 @@ const workOrderSchemaBase = z.object({
     .min(1, "Debe agregar al menos un trabajo"),
   num_doc_contact: z
     .string()
-    .min(1, "Número de documento es requerido")
-    .regex(/^[0-9]{8}$/, "El documento debe tener exactamente 8 dígitos"),
+    .regex(/^[0-9]{8}$/, "El documento debe tener exactamente 8 dígitos")
+    .optional()
+    .or(z.literal("")),
   full_contact_name: z.string().optional(),
   phone_contact: z
     .string()
-    .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos"),
+    .regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos")
+    .optional()
+    .or(z.literal("")),
   num_doc_pickup: z
     .string()
     .regex(/^[0-9]{8}$/, "El documento debe tener exactamente 8 dígitos")
@@ -89,6 +93,36 @@ const appointmentRefine = (data: {
   return true;
 };
 
+const isInternalVnPlanning = (items?: { type_planning_id?: string }[]) =>
+  !!items?.length &&
+  items.every((item) => item.type_planning_id === SERVICE_PDI_ID.toString());
+
+const contactRefine = (
+  data: {
+    items?: { type_planning_id?: string }[];
+    num_doc_contact?: string;
+    phone_contact?: string;
+  },
+  ctx: z.RefinementCtx,
+) => {
+  if (isInternalVnPlanning(data.items)) return;
+
+  if (!data.num_doc_contact) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Número de documento es requerido",
+      path: ["num_doc_contact"],
+    });
+  }
+  if (!data.phone_contact) {
+    ctx.addIssue({
+      code: "custom",
+      message: "El teléfono es requerido",
+      path: ["phone_contact"],
+    });
+  }
+};
+
 const inspectionRefine = (data: {
   has_inspection?: boolean;
   vehicle_inspection_id?: string;
@@ -128,6 +162,7 @@ const estimatedDeliveryLeadTimeRefine = (
 export const workOrderSchemaCreate = workOrderSchemaBase
   .superRefine(recallRefine)
   .superRefine(estimatedDeliveryLeadTimeRefine)
+  .superRefine(contactRefine)
   .refine(appointmentRefine, {
     message:
       "Cita de planificación es requerida cuando 'Tiene cita' está activo",
@@ -145,6 +180,7 @@ export const workOrderSchemaUpdate = workOrderSchemaBase
   })
   .partial()
   .superRefine(recallRefine)
+  .superRefine(contactRefine)
   .refine(appointmentRefine, {
     message:
       "Cita de planificación es requerida cuando 'Tiene cita' está activo",

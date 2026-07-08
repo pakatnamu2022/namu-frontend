@@ -213,8 +213,8 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "created_by_name",
-    header: "Creado Por",
+    accessorKey: "advisor_name",
+    header: "Asesor",
   },
   {
     accessorKey: "delivery_by_name",

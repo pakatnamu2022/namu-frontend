@@ -34,6 +34,7 @@ export const DERCO_WARRANTY_ID = 9;
 export const ODEBRECHT_MAINTENANCE_ID = 13;
 export const INTERNAL_VN_ID = 8;
 export const DIAGNOSIS_ID = 2;
+export const SERVICE_PDI_ID = 6;
 
 export const OT_UNBILLED_IDS = [
   INTERNAL_WORKSHOP_ID,

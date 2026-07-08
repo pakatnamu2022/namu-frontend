@@ -203,6 +203,7 @@ export default function SalesReceiptsCajaPage() {
           }
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
+          permissions={permissions}
         />
       </HeaderTableWrapper>
 
