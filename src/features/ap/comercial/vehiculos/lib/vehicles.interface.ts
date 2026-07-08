@@ -74,6 +74,7 @@ export interface VehicleResourceWithCosts {
   warehouse_physical: string;
   billed_cost: string;
   freight_cost: string;
+  warehouse:string;
 }
 
 export interface VehicleRequest {
@@ -203,6 +204,12 @@ export interface VinMatchResponse {
 }
 
 export interface UpdateVehiclesByVinResponse {
+  updated: number;
+  rows_processed: number;
+  errors: string[];
+}
+
+export interface UpdatePurchaseOrderByVinResponse {
   updated: number;
   rows_processed: number;
   errors: string[];

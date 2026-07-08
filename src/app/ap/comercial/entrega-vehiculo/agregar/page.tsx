@@ -15,7 +15,7 @@ import { VEHICLE_DELIVERY } from "@/features/ap/comercial/entrega-vehiculo/lib/v
 import { storeVehicleDelivery } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { VehicleDeliverySchema } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.schema";
 import { VehicleDeliveryForm } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryForm";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddVehicleDeliveryPage() {
@@ -36,14 +36,14 @@ export default function AddVehicleDeliveryPage() {
   });
 
   const handleSubmit = (data: VehicleDeliverySchema) => {
-    // Format dates before sending
+    // Format dates before sending; wash_date defaults to one day before the scheduled delivery
     const formattedData = {
       ...data,
       scheduled_delivery_date: format(
         data.scheduled_delivery_date,
         "yyyy-MM-dd"
       ),
-      wash_date: format(data.wash_date, "yyyy-MM-dd"),
+      wash_date: format(subDays(data.scheduled_delivery_date, 1), "yyyy-MM-dd"),
     };
     mutate(formattedData);
   };
@@ -62,7 +62,6 @@ export default function AddVehicleDeliveryPage() {
         defaultValues={{
           vehicle_id: "",
           scheduled_delivery_date: new Date(),
-          wash_date: new Date(),
           observations: "",
         }}
         onSubmit={handleSubmit}

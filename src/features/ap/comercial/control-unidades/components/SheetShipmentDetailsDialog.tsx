@@ -2,6 +2,7 @@ import { ControlUnitsResource } from "../lib/controlUnits.interface";
 import {
   useControlUnitsById,
   useReceptionChecklistById,
+  useQueryControlUnitsFromNubefact,
 } from "../lib/controlUnits.hook";
 import { SheetShipmentDetailsDialog as SharedDialog } from "@/features/ap/comercial/shared/components/SheetShipmentDetailsDialog";
 
@@ -22,6 +23,7 @@ export function SheetShipmentDetailsDialog({
     useControlUnitsById(shipmentId);
   const { data: receptionData, isLoading: isLoadingChecklist } =
     useReceptionChecklistById(shipmentId);
+  const queryFromNubefactMutation = useQueryControlUnitsFromNubefact();
 
   return (
     <SharedDialog
@@ -31,6 +33,8 @@ export function SheetShipmentDetailsDialog({
       shipment={shipment}
       receptionData={receptionData}
       isLoading={isLoadingShipment || isLoadingChecklist}
+      onQueryFromNubefact={(id) => queryFromNubefactMutation.mutate(id)}
+      isQueryingFromNubefact={queryFromNubefactMutation.isPending}
     />
   );
 }

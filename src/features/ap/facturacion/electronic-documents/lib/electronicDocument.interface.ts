@@ -8,6 +8,12 @@ import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/c
 import { AreaType } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
 
+export interface RegisterHistoricalAdvancePaymentResponse {
+  success: boolean;
+  message: string;
+  data: ElectronicDocumentResource;
+}
+
 export interface ExchangeRateResource {
   id: number;
   date: string;

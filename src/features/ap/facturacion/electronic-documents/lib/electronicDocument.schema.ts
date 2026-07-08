@@ -419,6 +419,32 @@ export const DebitNoteSchema = z.object({
     .min(1, "Debe actualizar al menos un item"),
 });
 
+// Schema para Anticipo Histórico (facturas antiguas, no emitidas por Nubefact)
+export const HistoricalAdvancePaymentSchema = z.object({
+  purchase_request_quote_id: requiredStringId("Cotización requerida"),
+  sunat_concept_document_type_id: requiredStringId(
+    "Tipo de documento requerido",
+  ),
+  series_id: requiredStringId("Serie requerida"),
+  area_id: requiredStringId("Área requerida"),
+  client_id: requiredStringId("Cliente requerido"),
+  fecha_de_emision: requiredDate("Fecha de emisión requerida"),
+  sunat_concept_currency_id: requiredStringId("Moneda requerida"),
+  total: z.coerce.number().gt(0, "El total del anticipo debe ser mayor a 0"),
+  descripcion: z
+    .string()
+    .min(1, "La descripción del anticipo es obligatoria")
+    .max(500, "Máximo 500 caracteres"),
+  account_plan_id: optionalStringId("Plan contable inválido"),
+  sunat_concept_igv_type_id: optionalStringId("Tipo de IGV inválido"),
+  observaciones: z.string().optional(),
+  condiciones_de_pago: z.string().optional(),
+});
+
+export type HistoricalAdvancePaymentSchema = z.infer<
+  typeof HistoricalAdvancePaymentSchema
+>;
+
 export type ElectronicDocumentSchema = z.infer<typeof ElectronicDocumentSchema>;
 export type ElectronicDocumentItemSchema = z.infer<
   typeof ElectronicDocumentItemSchema
