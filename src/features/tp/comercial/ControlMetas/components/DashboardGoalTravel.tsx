@@ -12,12 +12,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, Users, Truck } from "lucide-react";
+import { Calendar, Users, Truck, TrendingUp } from "lucide-react";
 import {
     useDashboardGoalTravelControl,
     useAvailableYearsGoalTravel,
 } from "../lib/GoalTravelControl.hook";
 import { MONTHS } from "../lib/GoalTravelControl.constants";
+import { cn } from "@/lib/utils";
 export default function DashboardGoalTravel() {
     const [year, setYear] = useState<number>(new Date().getFullYear());
     const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
@@ -35,6 +36,14 @@ export default function DashboardGoalTravel() {
         if (percentage >= 100) return "bg-green-500";
         if (percentage >= 80) return "bg-yellow-500";
         return "bg-red-500";
+    };
+    const formatCurrency = (value: number) => {
+        return new Intl.NumberFormat('es-PE', {
+            style: 'currency',
+            currency: 'PEN',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
     };
 
     if (isLoading || loadingYears) {
@@ -115,69 +124,89 @@ export default function DashboardGoalTravel() {
             {/* Resumen General */}
             {data.resumen && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                Producción Total
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
-                                S/. {Number(data.resumen.produccion_total)?.toFixed(2) || "0.00"}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                <Badge variant="outline">
-                                    Meta: S/. {Number(data.meta.total)?.toFixed(2) || "0.00"}
-                                </Badge>
-                                <Badge className={getStatusColor(data.resumen.porcentaje_cumplimiento || 0)}>
-                                    {Number(data.resumen.porcentaje_cumplimiento) || 0}%
-                                </Badge>
-                            </div>
-                            <Progress
-                                value={Math.min(Number(data.resumen.porcentaje_cumplimiento) || 0, 100)}
-                                className="mt-2"
-                                indicatorClassName={getProgressColor(Number(data.resumen.porcentaje_cumplimiento) || 0)}
-                            />
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                Viajes Realizados
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{data.resumen.total_viajes || 0}</div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                <Users className="h-4 w-4 inline mr-1" />
-                                Conductores Activos
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{data.resumen.conductores_activos || 0}</div>
-                            <div className="text-sm text-muted-foreground">
-                                Meta: {data.meta.total_unidades || 0} unidades
+                    {/* Producción Total */}
+                    <Card className="border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-muted-foreground">Producción Total</p>
+                                    <p className="text-2xl font-bold mt-1">
+                                        {formatCurrency(Number(data.resumen.produccion_total)) || "0.00"}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                        <Badge variant="outline" className="text-xs">
+                                            Meta: {formatCurrency(Number(data.meta.total)) || "0.00"}
+                                        </Badge>
+                                        <Badge className={cn("text-xs", getStatusColor(data.resumen.porcentaje_cumplimiento || 0))}>
+                                            {Number(data.resumen.porcentaje_cumplimiento) || 0}%
+                                        </Badge>
+                                    </div>
+                                    <Progress
+                                        value={Math.min(Number(data.resumen.porcentaje_cumplimiento) || 0, 100)}
+                                        className="mt-2 h-1.5"
+                                        indicatorClassName={getProgressColor(Number(data.resumen.porcentaje_cumplimiento) || 0)}
+                                    />
+                                </div>
+                                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 ml-3">
+                                    <TrendingUp className="h-6 w-6 text-blue-500" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                <Truck className="h-4 w-4 inline mr-1" />
-                                Vehículos Activos
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{data.resumen.vehiculos_activos || 0}</div>
-                            <div className="text-sm text-muted-foreground">
-                                Meta: {data.meta.total_unidades || 0} vehículos
+                    {/* Viajes Realizados */}
+                    <Card className="border-l-4 border-l-green-500 shadow-sm hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-muted-foreground">Viajes Realizados</p>
+                                    <p className="text-2xl font-bold mt-1">{data.resumen.total_viajes || 0}</p>
+                                </div>
+                                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                                    <Calendar className="h-6 w-6 text-green-500" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Conductores Activos */}
+                    <Card className="border-l-4 border-l-purple-500 shadow-sm hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-muted-foreground">
+                                        <Users className="h-4 w-4 inline mr-1" />
+                                        Conductores Activos
+                                    </p>
+                                    <p className="text-2xl font-bold mt-1">{data.resumen.conductores_activos || 0}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        Meta: {data.meta.total_unidades || 0} unidades
+                                    </p>
+                                </div>
+                                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <Users className="h-6 w-6 text-purple-500" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Vehículos Activos */}
+                    <Card className="border-l-4 border-l-amber-500 shadow-sm hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-muted-foreground">
+                                        <Truck className="h-4 w-4 inline mr-1" />
+                                        Vehículos Activos
+                                    </p>
+                                    <p className="text-2xl font-bold mt-1">{data.resumen.vehiculos_activos || 0}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        Meta: {data.meta.total_unidades || 0} vehículos
+                                    </p>
+                                </div>
+                                <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center">
+                                    <Truck className="h-6 w-6 text-amber-500" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -211,10 +240,10 @@ export default function DashboardGoalTravel() {
                                         <td className="py-2 font-medium">{conductor.conductor}</td>
                                         <td className="text-center py-2">{conductor.total_viajes}</td>
                                         <td className="text-right py-2">
-                                            S/. {Number(conductor.produccion_real).toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(conductor.produccion_real)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2">
-                                            S/. {Number(conductor.meta_conductor).toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(conductor.meta_conductor)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2 font-semibold">
                                             {conductor.porcentaje_cumplimiento || 0}%
@@ -270,10 +299,10 @@ export default function DashboardGoalTravel() {
                                         <td className="py-2 font-medium">{vehiculo.vehiculo}</td>
                                         <td className="text-center py-2">{vehiculo.total_viajes}</td>
                                         <td className="text-right py-2">
-                                            S/. {Number(vehiculo.produccion_real)?.toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(vehiculo.produccion_real)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2">
-                                            S/. {Number(vehiculo.meta_vehiculo)?.toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(vehiculo.meta_vehiculo)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2 font-semibold">
                                             {vehiculo.porcentaje_cumplimiento || 0}%

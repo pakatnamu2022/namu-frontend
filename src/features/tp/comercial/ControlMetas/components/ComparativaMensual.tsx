@@ -20,13 +20,22 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export default function ComparativaMensual() {
-    // Período 1 (siempre activo)
-    const [year1, setYear1] = useState<number>(2024);
-    const [month1, setMonth1] = useState<number>(3);
+    const hoy = new Date();
+    //periodo 01:
+    const [year1, setYear1] = useState<number>(hoy.getFullYear());
+    const [month1, setMonth1] = useState<number>(hoy.getMonth() + 1);
 
-    // Período 2 (puede desactivarse)
-    const [year2, setYear2] = useState<number>(2024);
-    const [month2, setMonth2] = useState<number>(2);
+    //periodo 02: mes anterior por defecto
+    const [year2, setYear2] = useState<number>(hoy.getFullYear());
+    const [month2, setMonth2] = useState<number>(() => {
+        const mes = hoy.getMonth();
+        if (mes === 0) {
+            return 12;
+        }
+        return mes;
+    })
+
+
     const [compararPersonalizado, setCompararPersonalizado] = useState<boolean>(false);
 
     // Validación de fechas futuras
@@ -45,6 +54,15 @@ export default function ComparativaMensual() {
     useEffect(() => {
         validarFechas();
     }, [year1, month1, year2, month2, compararPersonalizado]);
+
+    const formatCurrency = (value: number) => {
+        return new Intl.NumberFormat('es-PE', {
+            style: 'currency',
+            currency: 'PEN',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    };
 
     const validarFechas = () => {
         const ahora = new Date();
@@ -317,7 +335,7 @@ export default function ComparativaMensual() {
                     <CardContent>
                         <div className="text-2xl font-bold">{data.resumen.actual.viajes} viajes</div>
                         <div className="text-lg font-semibold text-green-600">
-                            S/. {data.resumen.actual.produccion.toFixed(2)}
+                            {formatCurrency(data.resumen.actual.produccion)}
                         </div>
                     </CardContent>
                 </Card>
@@ -330,7 +348,7 @@ export default function ComparativaMensual() {
                     <CardContent>
                         <div className="text-2xl font-bold">{data.resumen.anterior.viajes} viajes</div>
                         <div className="text-lg font-semibold text-blue-600">
-                            S/. {data.resumen.anterior.produccion.toFixed(2)}
+                            {formatCurrency(data.resumen.anterior.produccion)}
                         </div>
                     </CardContent>
                 </Card>
@@ -361,7 +379,7 @@ export default function ComparativaMensual() {
                             <span className="text-sm text-muted-foreground">Producción</span>
                             <div className="flex items-center gap-2">
                                 <span className={`text-xl font-bold ${varProduccion >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {varProduccion >= 0 ? '+' : ''}S/. {varProduccion.toFixed(2)}
+                                    {varProduccion >= 0 ? '+' : ''} {formatCurrency(varProduccion)}
                                 </span>
                                 <Badge variant={varProduccion >= 0 ? 'outline' : 'default'}>
                                     {pctProduccion >= 0 ? '+' : ''}{pctProduccion.toFixed(1)}%
@@ -400,8 +418,8 @@ export default function ComparativaMensual() {
                             {data.clientes.map((cliente, index) => {
                                 const viajesActual = data.viajes_actual[index] || 0;
                                 const viajesAnterior = data.viajes_anterior[index] || 0;
-                                const prodActual = data.produccion_actual[index] || 0;
-                                const prodAnterior = data.produccion_anterior[index] || 0;
+                                const prodActual = formatCurrency(data.produccion_actual[index]) || 0;
+                                const prodAnterior = formatCurrency(data.produccion_anterior[index]) || 0;
                                 const pctActual = data.participacion_actual[index] || 0;
                                 const pctAnterior = data.participacion_anterior[index] || 0;
 
@@ -417,14 +435,14 @@ export default function ComparativaMensual() {
                                             <div className="flex gap-4 text-xs text-muted-foreground">
                                                 <span className="flex items-center gap-1">
                                                     <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                                    {viajesActual} v (S/. {prodActual.toFixed(0)})
+                                                    {viajesActual} v ({prodActual})
                                                     <span className="text-[10px] bg-blue-100 text-blue-700 px-1 rounded">
                                                         {pctActual}%
                                                     </span>
                                                 </span>
                                                 <span className="flex items-center gap-1">
                                                     <span className={cn("w-2 h-2 rounded-full", compararPersonalizado ? "bg-orange-400" : "bg-purple-500")}></span>
-                                                    {viajesAnterior} v (S/. {prodAnterior.toFixed(0)})
+                                                    {viajesAnterior} v ({prodAnterior})
                                                     <span className="text-[10px] bg-orange-100 text-orange-700 px-1 rounded">
                                                         {pctAnterior}%
                                                     </span>
@@ -435,12 +453,12 @@ export default function ComparativaMensual() {
                                             <div
                                                 className="bg-blue-500 h-full rounded-l transition-all duration-500 hover:opacity-80"
                                                 style={{ width: `${porcentajeActual}%` }}
-                                                title={`${cliente} (Actual): ${viajesActual} viajes, S/. ${prodActual.toFixed(2)}`}
+                                                title={`${cliente} (Actual): ${viajesActual} viajes, ${prodActual}`}
                                             />
                                             <div
                                                 className={cn("h-full rounded-r transition-all duration-500 hover:opacity-80", compararPersonalizado ? "bg-orange-400" : "bg-purple-500")}
                                                 style={{ width: `${porcentajeAnterior}%` }}
-                                                title={`${cliente} (Anterior): ${viajesAnterior} viajes, S/. ${prodAnterior.toFixed(2)}`}
+                                                title={`${cliente} (Anterior): ${viajesAnterior} viajes,  ${prodAnterior}`}
                                             />
                                         </div>
                                     </div>
@@ -483,8 +501,8 @@ export default function ComparativaMensual() {
                                 {data.clientes.map((cliente, index) => {
                                     const vAct = data.viajes_actual[index] || 0;
                                     const vAnt = data.viajes_anterior[index] || 0;
-                                    const pAct = data.produccion_actual[index] || 0;
-                                    const pAnt = data.produccion_anterior[index] || 0;
+                                    const pAct = formatCurrency(data.produccion_actual[index]) || 0;
+                                    const pAnt = formatCurrency(data.produccion_anterior[index]) || 0;
                                     const diffV = vAct - vAnt;
                                     const pctV = vAnt > 0 ? (diffV / vAnt) * 100 : 0;
 
@@ -493,8 +511,8 @@ export default function ComparativaMensual() {
                                             <td className="py-2 font-medium">{cliente}</td>
                                             <td className="text-center">{vAct}</td>
                                             <td className="text-center">{vAnt}</td>
-                                            <td className="text-center">S/. {pAct.toFixed(2)}</td>
-                                            <td className="text-center">S/. {pAnt.toFixed(2)}</td>
+                                            <td className="text-center">{pAct}</td>
+                                            <td className="text-center">{pAnt}</td>
                                             <td className={`text-center font-medium ${diffV > 0 ? 'text-green-600' : diffV < 0 ? 'text-red-600' : ''}`}>
                                                 {diffV !== 0 ? `${diffV > 0 ? '+' : ''}${diffV} (${pctV > 0 ? '+' : ''}${pctV.toFixed(1)}%)` : '-'}
                                             </td>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, AlertCircle, Users, DollarSign, Calendar, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertCircle, Users, DollarSign, Calendar, CheckCircle, AlertTriangle, XCircle, RefreshCw, Target, Undo2, ChevronLeft } from "lucide-react";
 import {
     Bar,
     XAxis,
@@ -22,13 +22,26 @@ import {
 } from "recharts";
 import { useAnalisisEstrategico } from "../lib/GoalTravelControl.hook";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 // Colores para el gráfico de Pareto
 const COLORS = ["#3b82f6", "#60a5fa", "#93bbfc", "#bfdbfe", "#dbeafe", "#e5e7eb", "#f3f4f6"];
 
 export default function AnalisisEstrategico() {
-    const { data, isLoading, error } = useAnalisisEstrategico();
+    const hoy = new Date();
+    const [fechaInicio, setFechaInicio] = useState<string>(
+        new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1).toISOString().split('T')[0]
+    );
+    const [fechaFin, setFechaFin] = useState<string>(
+        new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0]
+    );
+    const [errorValidacion, setErrorValidacion] = useState<string | null>(null);
+    const [tipoError, setTipoError] = useState<"future" | "rango" | "orden" | null>(null);
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+    const { data, isLoading, error, refetch } = useAnalisisEstrategico(fechaInicio, fechaFin);
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('es-PE', {
@@ -39,9 +52,168 @@ export default function AnalisisEstrategico() {
         }).format(value);
     };
 
+    const validarFechas = () => {
+        if (!fechaInicio || !fechaFin) {
+            setErrorValidacion("Ambas fechas son requeridas.");
+            setTipoError(null);
+            return false;
+        }
+        const inicio = new Date(fechaInicio);
+        const fin = new Date(fechaFin);
+        const hoyDate = new Date();
+        hoyDate.setHours(0, 0, 0, 0);
+
+        if (inicio > fin) {
+            setErrorValidacion("La fecha inicial no puede ser mayor que la fecha final.");
+            setTipoError("orden");
+            return false;
+        }
+        if (fin > hoyDate) {
+            setErrorValidacion("La fecha final no puede ser una fecha futura.");
+            setTipoError("future");
+            return false;
+        }
+        const diffMonths = (fin.getFullYear() - inicio.getFullYear()) * 12 + (fin.getMonth() - inicio.getMonth());
+        if (diffMonths > 24) {
+            setErrorValidacion("El rango máximo permitido es de 24 meses.");
+            setTipoError("rango");
+            return false;
+        }
+        setErrorValidacion(null);
+        setTipoError(null);
+        return true;
+    };
+
+    useEffect(() => {
+        if (fechaInicio && fechaFin) {
+            validarFechas();
+        }
+    }, [fechaInicio, fechaFin]);
+
+    const handleAplicar = () => {
+        if (validarFechas()) {
+            refetch();
+        }
+    };
+
+    const ajustarRango = () => {
+        if (!fechaFin) return;
+        const fin = new Date(fechaFin);
+        const inicio = new Date(fin);
+        inicio.setMonth(fin.getMonth() - 23);
+        setFechaInicio(inicio.toISOString().split('T')[0]);
+        setTimeout(() => {
+            validarFechas();
+            refetch();
+        }, 100);
+    };
+    const retrocederMes = () => {
+        if (!fechaFin) return;
+        const fin = new Date(fechaFin);
+        fin.setMonth(fin.getMonth() - 1);
+        setFechaFin(fin.toISOString().split('T')[0]);
+        const inicio = new Date(fechaInicio);
+        if (inicio > fin) {
+            setFechaInicio(fin.toISOString().split('T')[0]);
+        }
+        setTimeout(() => {
+            validarFechas();
+            refetch();
+        }, 100);
+    };
+    const resetFechas = () => {
+        const hoyDate = new Date();
+        setFechaFin(new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1).toISOString().split('T')[0]);
+        setFechaInicio(new Date(hoyDate.getFullYear(), hoyDate.getMonth() - 5, 1).toISOString().split('T')[0]);
+        setTimeout(() => {
+            setErrorValidacion(null);
+            setTipoError(null);
+            refetch();
+        }, 100);
+    };
+
+    if (errorValidacion) {
+        return (
+            <Card className="border-red-200 bg-red-50">
+                <CardContent className="py-8">
+                    <div className="flex flex-col items-center text-center">
+                        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+                        <p className="text-lg font-medium text-red-700">{errorValidacion}</p>
+                        <p className="text-sm text-red-500/70 mt-1">Ajusta el rango de fechas para continuar.</p>
+
+                        <div className="flex flex-wrap gap-3 mt-6 justify-center">
+                            {tipoError === "rango" && (
+                                <Button
+                                    variant="outline"
+                                    className="border-red-300 hover:bg-red-50"
+                                    onClick={ajustarRango}
+                                >
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Ajustar a 24 meses
+                                </Button>
+                            )}
+
+                            {tipoError === "future" && (
+                                <>
+                                    <Button
+                                        variant="outline"
+                                        className="border-red-300 hover:bg-red-50"
+                                        onClick={retrocederMes}
+                                    >
+                                        <ChevronLeft className="h-4 w-4 mr-2" />
+                                        Retroceder un mes
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="border-red-300 hover:bg-red-50"
+                                        onClick={resetFechas}
+                                    >
+                                        <Undo2 className="h-4 w-4 mr-2" />
+                                        Usar período por defecto
+                                    </Button>
+                                </>
+                            )}
+
+                            {tipoError === "orden" && (
+                                <Button
+                                    variant="outline"
+                                    className="border-red-300 hover:bg-red-50"
+                                    onClick={() => {
+                                        const temp = fechaInicio;
+                                        setFechaInicio(fechaFin);
+                                        setFechaFin(temp);
+                                        setTimeout(() => {
+                                            validarFechas();
+                                            refetch();
+                                        }, 100);
+                                    }}
+                                >
+                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    Intercambiar fechas
+                                </Button>
+                            )}
+
+                            {tipoError !== "rango" && (
+                                <Button
+                                    variant="outline"
+                                    className="border-red-300 hover:bg-red-50"
+                                    onClick={resetFechas}
+                                >
+                                    <Undo2 className="h-4 w-4 mr-2" />
+                                    Restablecer
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
     if (isLoading) {
         return (
             <div className="space-y-6">
+                <Skeleton className="h-12 w-full" />
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {[...Array(4)].map((_, i) => (
                         <Skeleton key={i} className="h-32 w-full" />
@@ -73,7 +245,7 @@ export default function AnalisisEstrategico() {
         return (
             <Card>
                 <CardContent className="text-center py-12 text-muted-foreground">
-                    <p>No hay datos disponibles</p>
+                    <p>No hay datos disponibles para el período seleccionado</p>
                 </CardContent>
             </Card>
         );
@@ -98,8 +270,89 @@ export default function AnalisisEstrategico() {
         return <XCircle className="h-6 w-6 text-red-500" />;
     };
 
+
     return (
         <div className="space-y-6">
+            {/* Filtro de rango de fechas */}
+            <Card>
+                <CardHeader>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-wrap items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium">Período de análisis:</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Label htmlFor="fechaInicio" className="text-sm">Desde:</Label>
+                                <Input
+                                    id="fechaInicio"
+                                    type="date"
+                                    value={fechaInicio}
+                                    onChange={(e) => setFechaInicio(e.target.value)}
+                                    className="w-40"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Label htmlFor="fechaFin" className="text-sm">Hasta:</Label>
+                                <Input
+                                    id="fechaFin"
+                                    type="date"
+                                    value={fechaFin}
+                                    onChange={(e) => setFechaFin(e.target.value)}
+                                    className="w-40"
+                                />
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleAplicar}
+                                className="gap-2"
+                            >
+                                <RefreshCw className="h-4 w-4" />
+                                Aplicar
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
+                                (Máximo 24 meses)
+                            </span>
+                            <div className="flex items-center gap-1 ml-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={retrocederMes}
+                                    className="h-8 w-8 p-0"
+                                    title="Retroceder un mes"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={resetFechas}
+                                    className="h-8 px-2 text-xs"
+                                    title="Restablecer a últimos 6 meses"
+                                >
+                                    <Undo2 className="h-3 w-3 mr-1" />
+                                    Reset
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 text-sm bg-muted/30 p-2 rounded-lg">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">Período analizado:</span>
+                            <span className="text-foreground">
+                                {data.tendencia.length > 0
+                                    ? `${data.tendencia[0]?.periodo || '—'} → ${data.tendencia[data.tendencia.length - 1]?.periodo || '—'}`
+                                    : '—'
+                                }
+                            </span>
+                            <Badge variant="outline" className="ml-2 text-xs">
+                                {data.tendencia.length} meses
+                            </Badge>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
             {/* Tarjetas de resumen */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card>
@@ -114,32 +367,17 @@ export default function AnalisisEstrategico() {
                             {formatCurrency(Number(proyeccion.acumulado.toFixed(2)))}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                            Día {proyeccion.dias_transcurridos} de {proyeccion.dias_totales}
+                            {data.tendencia.length > 0
+                                ? `Último mes: ${data.tendencia[data.tendencia.length - 1]?.periodo || '-'}`
+                                : 'Sin datos'
+                            }
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <Target className="h-4 w-4" />
-                            Proyección de Cierre
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatCurrency(Number(proyeccion.proyeccion.toFixed(2)))}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            Meta: {formatCurrency(Number(proyeccion.meta.toFixed(2)))}
-                        </div>
-                    </CardContent>
-                </Card> */}
-
                 <Card className={cn("border-l-4", getStatusColor(proyeccion.cumplimiento))}>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4" />
+                            <Target className="h-4 w-4" />
                             Cumplimiento Proyectado
                         </CardTitle>
                     </CardHeader>
@@ -155,22 +393,8 @@ export default function AnalisisEstrategico() {
                                     ? "Cerca de meta"
                                     : "Requiere atención"}
                         </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            Mes Actual
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {new Date().toLocaleString('es-ES', { month: 'long', year: 'numeric' })}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {tendencia.length > 0 ? tendencia[tendencia.length - 1]?.periodo : '-'}
+                        <div className="text-xs text-muted-foreground/70 mt-1">
+                            Proyectado para {proyeccion.periodo}
                         </div>
                     </CardContent>
                 </Card>
@@ -181,10 +405,16 @@ export default function AnalisisEstrategico() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-blue-500" />
-                        Tendencia de Producción (Últimos 6 meses)
+                        Tendencia de Producción
                     </CardTitle>
                     <div className="text-sm text-muted-foreground">
                         Meta vs Real · Línea muestra % de cumplimiento
+                    </div>
+                    <div className="text-xs text-muted-foreground/70">
+                        Período: {tendencia.length > 0
+                            ? `${tendencia[0]?.periodo || '—'} → ${tendencia[tendencia.length - 1]?.periodo || '—'}`
+                            : 'Sin datos'
+                        }
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -225,11 +455,14 @@ export default function AnalisisEstrategico() {
                             <TrendingUp className="h-5 w-5" />
                             Top 5 Clientes en Crecimiento
                         </CardTitle>
+                        <div className="text-xs text-muted-foreground">
+                            Comparando últimos dos meses del período
+                        </div>
                     </CardHeader>
                     <CardContent>
                         {top_crecimiento.length === 0 ? (
                             <div className="text-center py-6 text-muted-foreground">
-                                No hay clientes con crecimiento este mes
+                                No hay clientes con crecimiento en el período
                             </div>
                         ) : (
                             <ul className="space-y-3">
@@ -261,11 +494,14 @@ export default function AnalisisEstrategico() {
                             <TrendingDown className="h-5 w-5" />
                             Top 5 Clientes en Decrecimiento
                         </CardTitle>
+                        <div className="text-xs text-muted-foreground">
+                            Comparando últimos dos meses del período
+                        </div>
                     </CardHeader>
                     <CardContent>
                         {top_decrecimiento.length === 0 ? (
                             <div className="text-center py-6 text-muted-foreground">
-                                No hay clientes con decrecimiento este mes
+                                No hay clientes con decrecimiento en el período
                             </div>
                         ) : (
                             <ul className="space-y-3">
@@ -277,12 +513,90 @@ export default function AnalisisEstrategico() {
                                         </div>
                                         <div className="flex items-center gap-4 text-sm">
                                             <span className="text-muted-foreground">
-                                                S/. {formatCurrency(Number(item.anterior.toFixed(2)))} → S/. {formatCurrency(Number(item.actual.toFixed(2)))}
+                                                {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
                                             </span>
                                             <Badge variant="outline" className="text-red-600 border-red-300">
                                                 {item.variacion}%
                                             </Badge>
                                         </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            { /* CLIENTES NUEVOS E INACTIVOS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Clientes Nuevos */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-blue-700">
+                            <Users className="h-5 w-5" />
+                            Nuevos Clientes
+                            <Badge variant="outline" className="ml-2 text-blue-600 border-blue-300">
+                                {data.clientes_nuevos?.length || 0}
+                            </Badge>
+                        </CardTitle>
+                        <div className="text-xs text-muted-foreground">
+                            Clientes que aparecen en {data.tendencia[data.tendencia.length - 1]?.periodo || 'el último mes'}
+                            pero no en el mes anterior
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {!data.clientes_nuevos || data.clientes_nuevos.length === 0 ? (
+                            <div className="text-center py-6 text-muted-foreground">
+                                No hay clientes nuevos en este período
+                            </div>
+                        ) : (
+                            <ul className="space-y-3">
+                                {data.clientes_nuevos.map((item, index) => (
+                                    <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                            <span className="font-medium">{item.cliente}</span>
+                                        </div>
+                                        <Badge variant="outline" className="text-blue-600 border-blue-300">
+                                            +{formatCurrency(Number(item.produccion.toFixed(2)))}
+                                        </Badge>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Clientes Inactivos */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-gray-700">
+                            <Users className="h-5 w-5" />
+                            Clientes Inactivos
+                            <Badge variant="outline" className="ml-2 text-gray-600 border-gray-300">
+                                {data.clientes_inactivos?.length || 0}
+                            </Badge>
+                        </CardTitle>
+                        <div className="text-xs text-muted-foreground">
+                            Clientes que aparecieron en el mes anterior pero no en {data.tendencia[data.tendencia.length - 1]?.periodo || 'el último mes'}
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {!data.clientes_inactivos || data.clientes_inactivos.length === 0 ? (
+                            <div className="text-center py-6 text-muted-foreground">
+                                No hay clientes inactivos en este período
+                            </div>
+                        ) : (
+                            <ul className="space-y-3">
+                                {data.clientes_inactivos.map((item, index) => (
+                                    <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                            <span className="font-medium">{item.cliente}</span>
+                                        </div>
+                                        <Badge variant="outline" className="text-gray-600 border-gray-300">
+                                            -{formatCurrency(Number(item.produccion.toFixed(2)))}
+                                        </Badge>
                                     </li>
                                 ))}
                             </ul>
@@ -299,7 +613,13 @@ export default function AnalisisEstrategico() {
                         Distribución de Producción por Cliente (Pareto)
                     </CardTitle>
                     <div className="text-sm text-muted-foreground">
-                        Muestra el % de participación de cada cliente en la producción total
+                        Muestra el % de participación de cada cliente en la producción total del período
+                    </div>
+                    <div className="text-xs text-muted-foreground/70">
+                        Período: {tendencia.length > 0
+                            ? `${tendencia[0]?.periodo || '—'} → ${tendencia[tendencia.length - 1]?.periodo || '—'}`
+                            : 'Sin datos'
+                        }
                     </div>
                 </CardHeader>
                 <CardContent>

@@ -174,6 +174,20 @@ export interface ClienteVariacion {
   diferencia: number;
   variacion: number;
 }
+export interface ClienteNuevoInactivo {
+  cliente_id: number;
+  cliente: string;
+  produccion: number;
+}
+export interface AnalisisEstrategicoResponse {
+  tendencia: TendenciaMes[];
+  top_crecimiento: ClienteVariacion[];
+  top_decrecimiento: ClienteVariacion[];
+  clientes_nuevos: ClienteNuevoInactivo[];
+  clientes_inactivos: ClienteNuevoInactivo[];
+  proyeccion: ProyeccionCierre;
+  distribucion: DistribucionCliente[];
+}
 
 export interface ProyeccionCierre {
   acumulado: number;
@@ -183,6 +197,7 @@ export interface ProyeccionCierre {
   cumplimiento: number;
   dias_transcurridos: number;
   dias_totales: number;
+  periodo: string;
 }
 
 export interface DistribucionCliente {

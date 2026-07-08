@@ -211,6 +211,12 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   )
   .refine(
     (data) => {
+      if (
+        data.transfer_reason_id ===
+        SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+      ) {
+        return true;
+      }
       if (data.transmitter_origin_id && data.receiver_destination_id) {
         return data.transmitter_origin_id !== data.receiver_destination_id;
       }

@@ -235,10 +235,18 @@ export async function updateGoalTravel(
   return response.data;
 }
 
-export async function getAnalisisEstrategico(): Promise<AnalisisEstrategicoResponse> {
+export async function getAnalisisEstrategico({
+  params,
+}: getGoalTravelControlProps): Promise<AnalisisEstrategicoResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
   try {
     const response = await api.get<AnalisisEstrategicoResponse>(
-      ENDPOINT + "/analisis-estrategico"
+      ENDPOINT + "/analisis-estrategico",
+      config
     );
     return response.data;
   } catch (error: any) {
