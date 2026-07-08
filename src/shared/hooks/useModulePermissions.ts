@@ -177,6 +177,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite generar documentos o procesos automáticamente",
   },
   {
+    value: "checklist",
+    label: "Checklist",
+    icon: "CheckSquare",
+    description: "Permite acceder a la lista de verificación de procesos",
+  },
+  {
     value: "createSpare",
     label: "Crear Repuesto",
     icon: "Plus",
