@@ -666,10 +666,7 @@ export const ShipmentsReceptionsForm = ({
     if (item?.model?.net_weight !== undefined) {
       form.setValue("total_weight", String(item.model.net_weight));
     }
-    const isTrasladoSede =
-      watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE;
-
-    if (!isTrasladoSede && item?.supplier_id) {
+    if (watchIssuerType === "PROVEEDOR" && item?.supplier_id) {
       const supplier = suppliers.find((s) => s.id === item.supplier_id);
       if (supplier) {
         form.setValue("transmitter_origin_id", supplier.id.toString(), {
