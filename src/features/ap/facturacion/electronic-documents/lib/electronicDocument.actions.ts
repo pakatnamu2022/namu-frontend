@@ -6,6 +6,7 @@ import {
   CreditNoteSchema,
   DebitNoteSchema,
 } from "./electronicDocument.schema";
+import { RegularizeAdvancePaymentSchema } from "./regularizeAdvancePayment.schema";
 import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
 import {
   ElectronicDocumentResource,
@@ -106,6 +107,16 @@ export async function storeElectronicDocument(
     {
       headers: { "Content-Type": "multipart/form-data" },
     },
+  );
+  return response.data;
+}
+
+export async function regularizeAdvancePayment(
+  data: RegularizeAdvancePaymentSchema,
+): Promise<ElectronicDocumentResource> {
+  const response = await api.post<ElectronicDocumentResource>(
+    `${ENDPOINT}/regularize-advance-payment`,
+    data,
   );
   return response.data;
 }
