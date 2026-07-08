@@ -10,10 +10,7 @@ import { ButtonAction } from "@/shared/components/ButtonAction";
 import VehicleMovements from "./VehicleMovements";
 import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
 import ChangeLocationModal from "./ChangeLocationModal";
-import {
-  CM_COMERCIAL_ID,
-  CM_POSTVENTA_ID,
-} from "@/features/ap/ap-master/lib/apMaster.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import {
   MODELS_VN,
@@ -175,13 +172,12 @@ export const vehicleColumns = ({
             )}
 
           {/* Work Order History */}
-          {permissions.canMaintenance &&
-            type_operation_id === CM_POSTVENTA_ID && (
-              <VehicleWorkOrderHistory vehicleId={id} vehiclePlate={plate} />
-            )}
+          {permissions.canMaintenance && (
+            <VehicleWorkOrderHistory vehicleId={id} vehiclePlate={plate} />
+          )}
 
           {/* Edit */}
-          {permissions.canUpdate && type_operation_id === CM_POSTVENTA_ID && (
+          {permissions.canUpdate && (
             <Button
               variant="outline"
               size="icon"
@@ -194,7 +190,7 @@ export const vehicleColumns = ({
           )}
 
           {/* Delete */}
-          {permissions.canDelete && type_operation_id === CM_POSTVENTA_ID && (
+          {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete!(id)} />
           )}
         </div>
