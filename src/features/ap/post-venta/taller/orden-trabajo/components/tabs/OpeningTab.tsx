@@ -46,6 +46,7 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 const pickupPersonSchema = z.object({
   num_doc_pickup: z
@@ -73,7 +74,8 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { MODEL } = WORKER_ORDER_ITEM;
+  const { MODEL, ROUTE } = WORKER_ORDER_ITEM;
+  const permissions = useModulePermissions(ROUTE);
 
   // Consultar la orden de trabajo con sus items
   const { data: workOrder, isLoading } = useQuery({
@@ -589,48 +591,50 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
       </div>
 
       {/* Sección: Asesor */}
-      <div className="border-t pt-6">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-            <User className="h-4 w-4 text-primary" />
+      {permissions.canChangeAdvisor && (
+        <div className="border-t pt-6">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+              <User className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h4 className="text-base font-semibold text-gray-900">Asesor</h4>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Selecciona el asesor responsable de esta orden
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="text-base font-semibold text-gray-900">Asesor</h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Selecciona el asesor responsable de esta orden
-            </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <FormProvider {...advisorForm}>
+              <FormSelect
+                name="advisor_id"
+                label="Asesor"
+                placeholder="Seleccionar asesor"
+                control={advisorForm.control}
+                options={asesores.map((worker) => ({
+                  value: String(worker.id),
+                  label: worker.name,
+                }))}
+                isLoadingOptions={isLoadingAsesores}
+                disabled={advisorMutation.isPending}
+                onValueChange={(value) => {
+                  const parsedAdvisorId = Number(value);
+
+                  if (
+                    !parsedAdvisorId ||
+                    parsedAdvisorId === Number(workOrder?.advisor_id)
+                  ) {
+                    return;
+                  }
+
+                  advisorMutation.mutate(parsedAdvisorId);
+                }}
+              />
+            </FormProvider>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FormProvider {...advisorForm}>
-            <FormSelect
-              name="advisor_id"
-              label="Asesor"
-              placeholder="Seleccionar asesor"
-              control={advisorForm.control}
-              options={asesores.map((worker) => ({
-                value: String(worker.id),
-                label: worker.name,
-              }))}
-              isLoadingOptions={isLoadingAsesores}
-              disabled={advisorMutation.isPending}
-              onValueChange={(value) => {
-                const parsedAdvisorId = Number(value);
-
-                if (
-                  !parsedAdvisorId ||
-                  parsedAdvisorId === Number(workOrder?.advisor_id)
-                ) {
-                  return;
-                }
-
-                advisorMutation.mutate(parsedAdvisorId);
-              }}
-            />
-          </FormProvider>
-        </div>
-      </div>
+      )}
 
       {/* Empty State */}
       {items.length === 0 && (

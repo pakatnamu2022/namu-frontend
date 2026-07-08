@@ -59,7 +59,7 @@ export default function UpdateVehiclePVPage() {
       vin: data.vin,
       year: data.year,
       year_delivery: data.year_delivery,
-      plate: data.plate,
+      plate: String(data.plate || ""),
       engine_number: data.engine_number,
       ap_models_vn_id: String(data.ap_models_vn_id),
       vehicle_color_id: String(data.vehicle_color_id),

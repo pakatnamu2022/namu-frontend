@@ -71,7 +71,7 @@ export const VehiclePVForm = ({
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [issuccessfulResponse, setIsSuccessfulResponse] = useState(false);
-  const form = useForm({
+  const form = useForm<any>({
     resolver: zodResolver(
       mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate,
     ),
@@ -94,7 +94,7 @@ export const VehiclePVForm = ({
   );
 
   // Watch para plate
-  const plateWatch = form.watch("plate");
+  const plateWatch = form.watch("plate") as string | undefined;
   const [originalPlate] = useState(defaultValues.plate ?? "");
   const plateChanged = mode === "update" ? plateWatch !== originalPlate : true;
 
@@ -108,6 +108,11 @@ export const VehiclePVForm = ({
   );
 
   useEffect(() => {
+    if (mode === "update" && !plateWatch) {
+      setIsSuccessfulResponse(false);
+      return;
+    }
+
     if (!plateChanged) return;
 
     if (plateData?.success && plateData.data) {
@@ -116,11 +121,13 @@ export const VehiclePVForm = ({
       form.setValue("engine_number", plateInfo.engine_number?.trim() ?? "");
       setIsSuccessfulResponse(true);
     } else {
-      form.setValue("vin", "");
-      form.setValue("engine_number", "");
+      if (mode === "create" || plateWatch) {
+        form.setValue("vin", "");
+        form.setValue("engine_number", "");
+      }
       setIsSuccessfulResponse(false);
     }
-  }, [plateData, form, plateChanged]);
+  }, [plateData, form, plateChanged, mode, plateWatch]);
 
   // Auto-seleccionar almacén cuando cambie la sede o cuando lleguen los almacenes
   useEffect(() => {
@@ -201,7 +208,6 @@ export const VehiclePVForm = ({
                       className="h-8 md:h-9 text-xs md:text-sm"
                       placeholder="Número de Placa"
                       {...field}
-                      maxLength={8}
                     />
                     <ValidationIndicator
                       show={!!plateWatch}

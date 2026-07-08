@@ -261,6 +261,24 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Trash2",
     description: "Permite eliminar repuestos de una cotización",
   },
+  {
+    value: "regularizationAdvances",
+    label: "Regularización de Anticipos",
+    icon: "RefreshCw",
+    description: "Permite regularizar anticipos de clientes",
+  },
+  {
+    value: "invoiceOtherSales",
+    label: "Facturar Otras Ventas",
+    icon: "FileText",
+    description: "Permite facturar otras ventas de clientes",
+  },
+  {
+    value: "changeAdvisor",
+    label: "Cambiar Asesor",
+    icon: "UserCheck",
+    description: "Permite cambiar el asesor asignado a una orden de trabajo",
+  },
 ];
 
 /**
@@ -339,5 +357,8 @@ export function useModulePermissions(moduleCode: string) {
     canRemoveSparePartLabor: hasModulePermission("removeSparePartLabor"),
     canViewExternal: hasModulePermission("viewExternal"),
     canRemoveSparePartQuote: hasModulePermission("removeSparePartQuote"),
+    canRegularizationAdvances: hasModulePermission("regularizationAdvances"),
+    canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
+    canChangeAdvisor: hasModulePermission("changeAdvisor"),
   };
 }

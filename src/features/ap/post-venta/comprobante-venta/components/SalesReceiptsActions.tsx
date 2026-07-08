@@ -13,6 +13,10 @@ interface SalesReceiptsActionsProps {
   onRegularizeAdvancePaymentClick?: () => void;
   onRefresh: () => void;
   isLoading: boolean;
+  permissions?: {
+    canRegularizationAdvances: boolean;
+    canInvoiceOtherSales: boolean;
+  };
 }
 
 export default function SalesReceiptsActions({
@@ -20,6 +24,7 @@ export default function SalesReceiptsActions({
   onRegularizeAdvancePaymentClick,
   onRefresh,
   isLoading,
+  permissions,
 }: SalesReceiptsActionsProps) {
   const syncAccountingMutation = useMutation({
     mutationFn: syncAccountingStatus,
@@ -55,19 +60,23 @@ export default function SalesReceiptsActions({
         Contabilizaciones
       </Button>
 
-      <Button size="sm" variant="default" onClick={onOtherSalesClick}>
-        <Files className="size-4 mr-2" />
-        Otras Ventas
-      </Button>
+      {permissions?.canInvoiceOtherSales && (
+        <Button size="sm" variant="default" onClick={onOtherSalesClick}>
+          <Files className="size-4 mr-2" />
+          Otras Ventas
+        </Button>
+      )}
 
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={onRegularizeAdvancePaymentClick}
-      >
-        <HandCoins className="size-4 mr-2" />
-        Regularización de Anticipos
-      </Button>
+      {permissions?.canRegularizationAdvances && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onRegularizeAdvancePaymentClick}
+        >
+          <HandCoins className="size-4 mr-2" />
+          Regularización de Anticipos
+        </Button>
+      )}
     </ActionsWrapper>
   );
 }
