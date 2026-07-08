@@ -171,6 +171,7 @@ export default function ElectronicDocumentsPage() {
           permissions={{
             canCreate: permissions.canCreate || false,
             canGenerate: canGenerate,
+            canManage: permissions.canManage || false,
           }}
         />
       </HeaderTableWrapper>

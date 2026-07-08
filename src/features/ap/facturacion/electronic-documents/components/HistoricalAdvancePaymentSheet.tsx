@@ -136,7 +136,7 @@ export default function HistoricalAdvancePaymentSheet({
       title="Registrar Anticipo Histórico"
       subtitle="Registra una factura antigua de anticipo no emitida por Nubefact, solo como referencia contable."
       icon="History"
-      size="lg"
+      size="5xl"
       childrenFooter={
         <div className="flex gap-2 w-full">
           <Button
@@ -182,6 +182,9 @@ export default function HistoricalAdvancePaymentSheet({
                 description="Cotización a la que pertenece el anticipo histórico"
                 placeholder="Seleccionar cotización"
                 useFindByIdHook={usePurchaseRequestQuoteById}
+                additionalParams={{
+                  is_approved: 1,
+                }}
               />
             </div>
 

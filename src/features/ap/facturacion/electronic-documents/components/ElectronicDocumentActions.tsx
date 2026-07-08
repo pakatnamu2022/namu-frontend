@@ -39,6 +39,7 @@ interface ElectronicDocumentActionsProps {
   permissions: {
     canCreate: boolean;
     canGenerate: boolean;
+    canManage: boolean;
   };
 }
 
@@ -102,6 +103,7 @@ export default function ElectronicDocumentActions({
         onClose={() => setHistoricalAdvanceOpen(false)}
         onSuccess={onRefresh}
       />
+
       <ActionsWrapper>
         <Button size="sm" variant="outline" onClick={onRefresh}>
           <RefreshCw
@@ -117,7 +119,7 @@ export default function ElectronicDocumentActions({
             onClick={() => syncAccountingMutation.mutate()}
             disabled={syncAccountingMutation.isPending}
             tooltip="Generar jobs sincronización"
-          > 
+          >
             <BookCheck
               className={cn("size-4 mr-2", {
                 "animate-pulse": syncAccountingMutation.isPending,
@@ -166,10 +168,15 @@ export default function ElectronicDocumentActions({
                 <Files className="size-4 mr-2" />
                 Otras Ventas
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setHistoricalAdvanceOpen(true)}>
-                <History className="size-4 mr-2" />
-                Anticipo Histórico
-              </DropdownMenuItem>
+
+              {permissions.canManage && (
+                <DropdownMenuItem
+                  onClick={() => setHistoricalAdvanceOpen(true)}
+                >
+                  <History className="size-4 mr-2" />
+                  Anticipo Histórico
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
