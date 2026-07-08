@@ -37,6 +37,14 @@ export default function DashboardGoalTravel() {
         if (percentage >= 80) return "bg-yellow-500";
         return "bg-red-500";
     };
+    const formatCurrency = (value: number) => {
+        return new Intl.NumberFormat('es-PE', {
+            style: 'currency',
+            currency: 'PEN',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    };
 
     if (isLoading || loadingYears) {
         return (
@@ -123,11 +131,11 @@ export default function DashboardGoalTravel() {
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-muted-foreground">Producción Total</p>
                                     <p className="text-2xl font-bold mt-1">
-                                        S/. {Number(data.resumen.produccion_total)?.toFixed(2) || "0.00"}
+                                        {formatCurrency(Number(data.resumen.produccion_total)) || "0.00"}
                                     </p>
                                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                                         <Badge variant="outline" className="text-xs">
-                                            Meta: S/. {Number(data.meta.total)?.toFixed(2) || "0.00"}
+                                            Meta: {formatCurrency(Number(data.meta.total)) || "0.00"}
                                         </Badge>
                                         <Badge className={cn("text-xs", getStatusColor(data.resumen.porcentaje_cumplimiento || 0))}>
                                             {Number(data.resumen.porcentaje_cumplimiento) || 0}%
@@ -232,10 +240,10 @@ export default function DashboardGoalTravel() {
                                         <td className="py-2 font-medium">{conductor.conductor}</td>
                                         <td className="text-center py-2">{conductor.total_viajes}</td>
                                         <td className="text-right py-2">
-                                            S/. {Number(conductor.produccion_real).toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(conductor.produccion_real)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2">
-                                            S/. {Number(conductor.meta_conductor).toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(conductor.meta_conductor)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2 font-semibold">
                                             {conductor.porcentaje_cumplimiento || 0}%
@@ -291,10 +299,10 @@ export default function DashboardGoalTravel() {
                                         <td className="py-2 font-medium">{vehiculo.vehiculo}</td>
                                         <td className="text-center py-2">{vehiculo.total_viajes}</td>
                                         <td className="text-right py-2">
-                                            S/. {Number(vehiculo.produccion_real)?.toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(vehiculo.produccion_real)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2">
-                                            S/. {Number(vehiculo.meta_vehiculo)?.toFixed(2) || "0.00"}
+                                            {formatCurrency(Number(vehiculo.meta_vehiculo)) || "0.00"}
                                         </td>
                                         <td className="text-right py-2 font-semibold">
                                             {vehiculo.porcentaje_cumplimiento || 0}%
