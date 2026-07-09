@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { ArrowRightLeft, History, Pencil } from "lucide-react";
+import { ArrowRightLeft, History, Lock, Pencil } from "lucide-react";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { formatDateTime, formatMoney } from "@/core/core.function";
 import { STOCK_STATUS_CONFIG } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
@@ -13,12 +13,14 @@ interface Props {
   onUpdateStockMinMax: (row: InventoryResource) => void;
   onMovements: (id: number, warehouse_id: number) => void;
   onPurchaseHistory: (id: number, warehouse_id: number) => void;
+  onReservedStock: (id: number, warehouse_id: number) => void;
 }
 
 export const inventoryColumns = ({
   onUpdateStockMinMax,
   onMovements,
   onPurchaseHistory,
+  onReservedStock,
 }: Props): InventoryColumns[] => [
   {
     accessorKey: "product.code",
@@ -160,6 +162,7 @@ export const inventoryColumns = ({
     cell: ({ row }) => {
       const productId = row.original.product_id;
       const warehouseId = row.original.warehouse_id;
+      const hasReservedStock = (row.original.reserved_quantity || 0) > 0;
 
       return (
         <div className="flex gap-1">
@@ -192,6 +195,17 @@ export const inventoryColumns = ({
           >
             <History className="size-5" />
           </Button>
+          {hasReservedStock && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Ver Stock Reservado"
+              onClick={() => onReservedStock?.(productId, warehouseId)}
+            >
+              <Lock className="size-5" />
+            </Button>
+          )}
         </div>
       );
     },

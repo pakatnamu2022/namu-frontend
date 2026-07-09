@@ -54,6 +54,17 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
+// Parsea "YYYY-MM-DD" como fecha local (evita el corrimiento de día que
+// produce `new Date("YYYY-MM-DD")`, el cual interpreta el string como UTC).
+function parseLocalDate(value: string): Date {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (match) {
+    const [, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+  return new Date(value);
+}
+
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
   onSubmit: (data: any) => void;
@@ -225,7 +236,7 @@ export const PurchaseOrderProductsForm = ({
       rawDate instanceof Date
         ? rawDate
         : rawDate
-          ? new Date(rawDate as string)
+          ? parseLocalDate(rawDate as string)
           : null;
 
     if (
@@ -273,7 +284,7 @@ export const PurchaseOrderProductsForm = ({
       rawDate instanceof Date
         ? rawDate
         : rawDate
-          ? new Date(rawDate as string)
+          ? parseLocalDate(rawDate as string)
           : null;
 
     if (emissionDate instanceof Date && !isNaN(emissionDate.getTime())) {
@@ -379,7 +390,7 @@ export const PurchaseOrderProductsForm = ({
               disabledRange={[
                 {
                   before: receptionData?.supplier_order?.order_date
-                    ? new Date(receptionData.supplier_order.order_date)
+                    ? parseLocalDate(receptionData.supplier_order.order_date)
                     : new Date(new Date().getFullYear(), 6, 1),
                 },
                 { after: new Date() },

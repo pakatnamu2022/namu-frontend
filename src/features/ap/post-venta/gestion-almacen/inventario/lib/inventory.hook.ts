@@ -8,12 +8,15 @@ import {
   updateInventoryStockMinMax,
   getPriceCalculationDetails,
   getStockMovementHistory,
+  getReservedStockReport,
 } from "./inventory.actions.ts";
 import {
   CompareDynamicsResponse,
   InventoryResponse,
   PriceCalculationDetailsResponse,
   StockMovementHistoryResponse,
+  getReservedStockReportProps,
+  ReservedStockReportResponse,
 } from "./inventory.interface.ts";
 import {
   InventoryMovementResponse,
@@ -109,6 +112,18 @@ export const useStockMovementHistory = (
     queryFn: () => getStockMovementHistory(productId, warehouseId),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? false,
+  });
+};
+
+export const useReservedStockReport = (
+  params?: getReservedStockReportProps,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<ReservedStockReportResponse>({
+    queryKey: ["reserved-stock-report", params],
+    queryFn: () => getReservedStockReport(params),
+    refetchOnWindowFocus: false,
+    enabled: options?.enabled ?? true,
   });
 };
 
