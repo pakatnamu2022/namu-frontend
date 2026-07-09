@@ -50,6 +50,7 @@ export default function ExitGuidePage() {
         defaultValues={{
           ap_class_article_id: "",
           sede_id: "",
+          client_id: "",
           vehicle_id: "",
           advisor_id: "",
           scheduled_delivery_date: "",

@@ -93,7 +93,9 @@ export default function HistoricalAdvancePaymentSheet({
   const registerMutation = useMutation({
     mutationFn: registerHistoricalAdvancePayment,
     onSuccess: (response) => {
-      successToast(response.message || "Anticipo histórico registrado correctamente");
+      successToast(
+        response.message || "Anticipo histórico registrado correctamente",
+      );
       onSuccess();
       onClose();
     },
@@ -137,10 +139,7 @@ export default function HistoricalAdvancePaymentSheet({
       }
     >
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <GroupFormSection
             title="Anticipo Histórico"
             icon={History}
