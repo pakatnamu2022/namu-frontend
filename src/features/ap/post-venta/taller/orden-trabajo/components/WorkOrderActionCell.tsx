@@ -131,9 +131,7 @@ export function WorkOrderActionCell({
     status_id == String(STATUS_WORK_ORDER.TERMINADO);
 
   const isVisibleDelivery =
-    isInvoicedEnd &&
-    !isDelivery &&
-    firstItemPlanning?.type_document !== "INTERNA";
+    !isDelivery && firstItemPlanning?.type_document !== "INTERNA";
 
   const isVisiblePdfDelivery =
     (isDelivery || isClosed) && firstItemPlanning?.type_document !== "INTERNA";
