@@ -471,6 +471,9 @@ export function WorkerTimeline({
     return Math.round((diff / 60) * 60) / 60;
   };
 
+  // % de ancho real de mañana/almuerzo/tarde, según WORK_SCHEDULE (no valores fijos)
+  const timelineSegments = getTimelineSegments();
+
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
@@ -1386,13 +1389,16 @@ export function WorkerTimeline({
                   {/* Área de mañana */}
                   <div
                     className="absolute left-0 top-0 bottom-0 bg-gray-100"
-                    style={{ width: "50%" }}
+                    style={{ width: `${timelineSegments.morning}%` }}
                   ></div>
 
                   {/* Separador almuerzo */}
                   <div
                     className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
-                    style={{ left: "50%", width: "10%" }}
+                    style={{
+                      left: `${timelineSegments.morning}%`,
+                      width: `${timelineSegments.lunch}%`,
+                    }}
                   >
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
                       ALMUERZO
@@ -1402,7 +1408,10 @@ export function WorkerTimeline({
                   {/* Área de tarde */}
                   <div
                     className="absolute top-0 bottom-0 bg-gray-100"
-                    style={{ left: "60%", width: "40%" }}
+                    style={{
+                      left: `${timelineSegments.lunchEnd}%`,
+                      width: `${timelineSegments.afternoon}%`,
+                    }}
                   ></div>
 
                   {/* Zona de horas pasadas (solo si es hoy) */}
