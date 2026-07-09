@@ -32,6 +32,7 @@ import { MigrationAllResponse } from "../lib/electronicDocument.interface";
 import { useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import HistoricalAdvancePaymentSheet from "./HistoricalAdvancePaymentSheet";
+import HistoricalFinalSaleSheet from "./HistoricalFinalSaleSheet";
 
 interface ElectronicDocumentActionsProps {
   onRefresh: () => void;
@@ -54,6 +55,8 @@ export default function ElectronicDocumentActions({
   const [migrationResult, setMigrationResult] =
     useState<MigrationAllResponse | null>(null);
   const [historicalAdvanceOpen, setHistoricalAdvanceOpen] = useState(false);
+  const [historicalFinalSaleOpen, setHistoricalFinalSaleOpen] =
+    useState(false);
 
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllElectronicDocuments,
@@ -101,6 +104,11 @@ export default function ElectronicDocumentActions({
       <HistoricalAdvancePaymentSheet
         open={historicalAdvanceOpen}
         onClose={() => setHistoricalAdvanceOpen(false)}
+        onSuccess={onRefresh}
+      />
+      <HistoricalFinalSaleSheet
+        open={historicalFinalSaleOpen}
+        onClose={() => setHistoricalFinalSaleOpen(false)}
         onSuccess={onRefresh}
       />
 
@@ -175,6 +183,15 @@ export default function ElectronicDocumentActions({
                 >
                   <History className="size-4 mr-2" />
                   Anticipo Histórico
+                </DropdownMenuItem>
+              )}
+
+              {permissions.canManage && (
+                <DropdownMenuItem
+                  onClick={() => setHistoricalFinalSaleOpen(true)}
+                >
+                  <History className="size-4 mr-2" />
+                  Venta Final Histórica
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

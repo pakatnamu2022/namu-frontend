@@ -14,6 +14,12 @@ export interface RegisterHistoricalAdvancePaymentResponse {
   data: ElectronicDocumentResource;
 }
 
+export interface RegisterHistoricalFinalSaleResponse {
+  success: boolean;
+  message: string;
+  data: ElectronicDocumentResource;
+}
+
 export interface ExchangeRateResource {
   id: number;
   date: string;
