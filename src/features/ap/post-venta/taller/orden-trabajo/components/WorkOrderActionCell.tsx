@@ -39,6 +39,7 @@ interface WorkOrderActionCellProps {
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
   onCancel: (id: number) => void;
+  onDelivery?: (id: number) => void;
 }
 
 export function WorkOrderActionCell({
@@ -50,6 +51,7 @@ export function WorkOrderActionCell({
   onManage,
   onInspect,
   onCancel,
+  onDelivery,
 }: WorkOrderActionCellProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
@@ -69,6 +71,7 @@ export function WorkOrderActionCell({
   const isClosed = status_id == String(STATUS_WORK_ORDER.CERRADO);
   const isOpen = status_id == String(STATUS_WORK_ORDER.APERTURADO);
   const isCancelled = status_id == String(STATUS_WORK_ORDER.ANULADO);
+  const isInvoicedEnd = status_id == String(STATUS_WORK_ORDER.TERMINADO);
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
@@ -127,10 +130,12 @@ export function WorkOrderActionCell({
     status_id == String(STATUS_WORK_ORDER.TERMINADO);
 
   const isVisibleDelivery =
-    isClosed && !isDelivery && firstItemPlanning?.type_document !== "INTERNA";
+    isInvoicedEnd &&
+    !isDelivery &&
+    firstItemPlanning?.type_document !== "INTERNA";
 
   const isVisiblePdfDelivery =
-    isClosed && firstItemPlanning?.type_document !== "INTERNA";
+    (isDelivery || isClosed) && firstItemPlanning?.type_document !== "INTERNA";
 
   const isVisibleGenerateInternalNote =
     !isClosed && firstItemPlanning?.type_document === "INTERNA";
@@ -292,6 +297,7 @@ export function WorkOrderActionCell({
         open={isDeliveryOpen}
         onClose={() => setIsDeliveryOpen(false)}
         workOrderId={id}
+        onSuccess={() => onDelivery?.(id)}
       />
 
       <CancelWorkOrderModal
