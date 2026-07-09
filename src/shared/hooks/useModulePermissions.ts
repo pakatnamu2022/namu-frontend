@@ -286,6 +286,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description: "Permite cambiar el asesor asignado a una orden de trabajo",
   },
   {
+    value: "changeLocation",
+    label: "Cambiar Ubicación",
+    icon: "MapPin",
+    description: "Permite cambiar la ubicación de un vehículo o registro",
+  },
+  {
     value: "generateInternalNote",
     label: "Generar Nota Interna",
     icon: "FilePlus",
@@ -373,5 +379,6 @@ export function useModulePermissions(moduleCode: string) {
     canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
     canGenerateInternalNote: hasModulePermission("generateInternalNote"),
+    canChangeLocation: hasModulePermission("changeLocation"),
   };
 }
