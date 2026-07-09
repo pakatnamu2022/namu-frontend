@@ -10,6 +10,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { TimePickerForm } from "@/shared/components/TimePickerForm";
@@ -33,6 +34,7 @@ const deliverySchema = z
     time_start: z.string().regex(/^\d{2}:\d{2}$/, "Formato inválido (HH:mm)"),
     time_end: z.string().regex(/^\d{2}:\d{2}$/, "Formato inválido (HH:mm)"),
     signature_delivery: z.string().min(1, "La firma del cliente es requerida"),
+    notes_delivery: z.string().optional(),
   })
   .refine((v) => v.time_start < v.time_end, {
     message: "La hora fin debe ser mayor a la hora inicio",
@@ -64,6 +66,7 @@ export function WorkOrderDeliverySheet({
       time_start: "08:00",
       time_end: "10:00",
       signature_delivery: "",
+      notes_delivery: "",
     },
   });
 
@@ -99,6 +102,9 @@ export function WorkOrderDeliverySheet({
         formData.append(`follow_ups[${index}][time_end]`, values.time_end);
       });
       formData.append("signature_delivery", values.signature_delivery);
+      if (values.notes_delivery) {
+        formData.append("notes_delivery", values.notes_delivery);
+      }
 
       await generateDelivery(workOrderId, formData);
       successToast("Entrega generada exitosamente");
@@ -190,6 +196,23 @@ export function WorkOrderDeliverySheet({
                     onChange={field.onChange}
                     disabled={form.formState.isSubmitting}
                     required
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="notes_delivery"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea
+                    placeholder="Notas de entrega (opcional)"
+                    disabled={form.formState.isSubmitting}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
