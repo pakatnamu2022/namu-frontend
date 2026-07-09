@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, PackagePlus, FileText, Pencil } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Package,
+  PackagePlus,
+  FileText,
+  Pencil,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -719,7 +726,6 @@ export default function PurchaseRequestTallerForm({
                                   size="icon"
                                   className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
                                   onClick={() => handleRemoveProduct(index)}
-                                  disabled={!!selectedQuotationId}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -755,7 +761,6 @@ export default function PurchaseRequestTallerForm({
                                   size="icon"
                                   className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
                                   onClick={() => handleRemoveProduct(index)}
-                                  disabled={!!selectedQuotationId}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
