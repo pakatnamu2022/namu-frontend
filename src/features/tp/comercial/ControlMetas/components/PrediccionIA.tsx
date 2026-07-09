@@ -1,19 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Brain,
-    TrendingUp,
-    TrendingDown,
     AlertCircle,
     CheckCircle,
-    Clock,
     Sparkles,
     Zap,
     Target,
@@ -27,16 +23,10 @@ import {
     Settings2,
     ChevronDown,
     ChevronUp,
-    Shield,
-    Layers,
-    Award,
-    PieChart,
-    Globe,
     Briefcase
 } from "lucide-react";
 import {
     ComposedChart,
-    Line,
     Bar,
     XAxis,
     YAxis,
