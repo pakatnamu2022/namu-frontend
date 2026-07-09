@@ -280,7 +280,7 @@ export function DeliveryChecklistSection({
 
       {/* Items — filas interactivas */}
       {items.length > 0 && (
-        <ScrollArea className="max-h-[420px] pr-3">
+        <ScrollArea className="max-h-[420px] pr-3 overflow-auto">
         <div className="space-y-1.5">
           {items.map((item, index) => {
             const sourceBadge = SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
