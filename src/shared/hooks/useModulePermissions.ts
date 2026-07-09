@@ -285,6 +285,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "UserCheck",
     description: "Permite cambiar el asesor asignado a una orden de trabajo",
   },
+  {
+    value: "changeLocation",
+    label: "Cambiar Ubicación",
+    icon: "MapPin",
+    description: "Permite cambiar la ubicación de un vehículo o registro",
+  },
 ];
 
 /**
@@ -366,5 +372,6 @@ export function useModulePermissions(moduleCode: string) {
     canRegularizationAdvances: hasModulePermission("regularizationAdvances"),
     canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
+    canChangeLocation: hasModulePermission("changeLocation"),
   };
 }

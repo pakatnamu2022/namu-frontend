@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { FileOutput, Plus, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { ROUTE_GUIA_SALIDA, VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
+import {
+  ROUTE_GUIA_SALIDA,
+  VEHICLE_DELIVERY,
+} from "../lib/vehicleDelivery.constants";
 import { useMutation } from "@tanstack/react-query";
 import { dispatchAllShippingGuides } from "../lib/vehicleDelivery.actions";
 import { toast } from "sonner";
@@ -14,6 +17,7 @@ interface Props {
   permissions: {
     canCreate: boolean;
     canMigrate: boolean;
+    canManage: boolean;
   };
   isFetching?: boolean;
   onRefresh: () => void;
@@ -26,7 +30,7 @@ export default function VehicleDeliveryActions({
 }: Props) {
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
 
-  const { canCreate, canMigrate } = permissions;
+  const { canCreate, canMigrate, canManage } = permissions;
 
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllShippingGuides,
@@ -61,7 +65,7 @@ export default function VehicleDeliveryActions({
           Migrar Todo
         </Button>
       )}
-      {canCreate && (
+      {canManage && (
         <Link to={ROUTE_GUIA_SALIDA}>
           <Button size="sm" variant="outline" className="ml-auto">
             <FileOutput className="size-4 mr-2" /> Guía de Salida
