@@ -291,6 +291,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "MapPin",
     description: "Permite cambiar la ubicación de un vehículo o registro",
   },
+  {
+    value: "generateInternalNote",
+    label: "Generar Nota Interna",
+    icon: "FilePlus",
+    description: "Permite generar una nota interna para una orden de trabajo",
+  },
 ];
 
 /**
@@ -372,6 +378,5 @@ export function useModulePermissions(moduleCode: string) {
     canRegularizationAdvances: hasModulePermission("regularizationAdvances"),
     canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
-    canChangeLocation: hasModulePermission("changeLocation"),
   };
 }
