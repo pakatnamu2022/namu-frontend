@@ -77,7 +77,7 @@ export default function ReservedStockDetailsSheet({
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold text-sm">
-                    OT {reservation.work_order_correlative}
+                    {reservation.work_order_correlative}
                   </p>
                   <Badge variant="outline">
                     {Number(reservation.quantity_reserved || 0).toFixed(2)} u.
