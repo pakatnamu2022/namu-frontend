@@ -31,6 +31,36 @@ import { SummarySection } from "./sections/SummarySection";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import ModelVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelVnModal";
+import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { useQueryClient } from "@tanstack/react-query";
+
+// Construye la descripción SUNAT del item de venta de vehículo a partir del
+// vehículo (y su modelo) devuelto por la cotización. Se reutiliza tanto al
+// generar el item inicial como al refrescar/editar el modelo desde el
+// documento electrónico.
+function buildVehicleSaleDescription(vehicle?: VehicleResource | null) {
+  return `VENTA DE VEHICULO
+AÑO MODELO: ${vehicle?.year || ""}
+COLOR: ${vehicle?.vehicle_color || ""}
+MOTOR: ${vehicle?.engine_number || ""}
+MARCA: ${vehicle?.model?.brand || ""}
+CARROCERIA: ${vehicle?.model?.body_type || ""}
+NUM. EJES: ${vehicle?.model?.axles_number || ""}
+MODELO: ${vehicle?.model?.version || ""}
+NUM. ASIENTOS: ${vehicle?.model?.seats_number || ""}
+CAP. PASAJEROS: ${vehicle?.model?.passengers_number || ""}
+VIN: ${vehicle?.vin || ""}
+CARGA UTIL: ${vehicle?.model?.payload || ""}
+COMBUSTIBLE: ${vehicle?.engine_type || ""}
+ALTO: ${vehicle?.model?.height || ``}
+LARGO: ${vehicle?.model?.length || ``}
+ANCHO: ${vehicle?.model?.width || ``}
+NUM. DE CILINDROS: ${vehicle?.model?.cylinders_number || ``}
+CILINDRADA: ${vehicle?.model?.displacement || ``}
+`;
+}
 
 interface ElectronicDocumentFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -81,8 +111,19 @@ export function ElectronicDocumentForm({
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
 
   // Fetch la cotización seleccionada
-  const { data: quotation, isLoading: isLoadingQuotation } =
-    usePurchaseRequestQuoteById(selectedQuotationId || 0);
+  const {
+    data: quotation,
+    isLoading: isLoadingQuotation,
+    refetch: refetchQuotation,
+  } = usePurchaseRequestQuoteById(selectedQuotationId || 0);
+
+  const queryClient = useQueryClient();
+  // Modal para ver/editar el modelo del vehículo directamente desde la venta final,
+  // sin salir del documento electrónico
+  const [isVehicleModelModalOpen, setIsVehicleModelModalOpen] =
+    useState(false);
+  const [isRefreshingVehicleModel, setIsRefreshingVehicleModel] =
+    useState(false);
 
   // Obtener anticipos previos de la cotización
   const vehicleId = quotation?.ap_vehicle_id || null;
@@ -338,26 +379,7 @@ export function ElectronicDocumentForm({
           unidadDeMedida = "ZZ"; // Unidad no definida, ya que es un anticipo
         } else {
           // Si es venta total, usar formato detallado SUNAT
-          const vehicle = quotation.ap_vehicle;
-          descripcion = `VENTA DE VEHICULO
-AÑO MODELO: ${vehicle?.year || ""}
-COLOR: ${vehicle?.vehicle_color || ""}
-MOTOR: ${vehicle?.engine_number || ""}
-MARCA: ${vehicle?.model?.brand || ""}
-CARROCERIA: ${vehicle?.model?.body_type || ""}
-NUM. EJES: ${vehicle?.model?.axles_number || ""}
-MODELO: ${vehicle?.model?.version || ""}
-NUM. ASIENTOS: ${vehicle?.model?.seats_number || ""}
-CAP. PASAJEROS: ${vehicle?.model?.passengers_number || ""}
-VIN: ${vehicle?.vin || ""}
-CARGA UTIL: ${vehicle?.model?.payload || ""}
-COMBUSTIBLE: ${vehicle?.engine_type || ""}
-ALTO: ${vehicle?.model?.height || ``}
-LARGO: ${vehicle?.model?.length || ``}
-ANCHO: ${vehicle?.model?.width || ``}
-NUM. DE CILINDROS: ${vehicle?.model?.cylinders_number || ``}
-CILINDRADA: ${vehicle?.model?.displacement || ``}
-`;
+          descripcion = buildVehicleSaleDescription(quotation.ap_vehicle);
         }
 
         const vehicleItem: ElectronicDocumentItemSchema = {
@@ -415,11 +437,31 @@ CILINDRADA: ${vehicle?.model?.displacement || ``}
     if (isLoadingAdvancePayments) return; // esperar a que termine la carga
     if (!advancePayments || advancePayments.length === 0) return;
     const processedKey = `${quotation.id}:total`;
-    // Si ya procesamos anticipos para esta cotización en modo 'total', salimos
-    if (processedAdvancePaymentsForQuotationKey.current === processedKey)
-      return; // ya procesado
 
-    const advanceItems: ElectronicDocumentItemSchema[] = advancePayments.map(
+    // Evitar duplicar líneas de anticipo: puede que este efecto se vuelva a
+    // disparar (p. ej. al hacer refetch de la cotización desde el modal de
+    // modelo del vehículo, que crea una nueva referencia de `quotation` sin
+    // cambiar sus datos) aunque los anticipos ya estén agregados como items.
+    // Nos basamos en los items actuales (no solo en el ref) para decidir
+    // cuáles anticipos realmente faltan agregar.
+    const currentItems = form.getValues("items") || [];
+    const existingAdvanceIds = new Set(
+      currentItems
+        .filter((item) => item.anticipo_regularizacion)
+        .map((item) => item.reference_document_id),
+    );
+    const missingAdvancePayments = advancePayments.filter(
+      (advance) => !existingAdvanceIds.has(advance.id.toString()),
+    );
+
+    if (missingAdvancePayments.length === 0) {
+      // Ya están todos agregados: solo actualizar el ref para evitar
+      // volver a entrar innecesariamente en próximos renders.
+      processedAdvancePaymentsForQuotationKey.current = processedKey;
+      return;
+    }
+
+    const advanceItems: ElectronicDocumentItemSchema[] = missingAdvancePayments.map(
       (advance) => {
         const advanceTotal = Number(advance.total) || 0;
         const cantidad = 1;
@@ -453,7 +495,6 @@ CILINDRADA: ${vehicle?.model?.displacement || ``}
       },
     );
 
-    const currentItems = form.getValues("items") || [];
     form.setValue("items", [...currentItems, ...advanceItems]);
 
     // Marcar como procesado para esta cotización en modo 'total'
@@ -646,6 +687,46 @@ CILINDRADA: ${vehicle?.model?.displacement || ``}
         ? "$"
         : "";
 
+  // Solo tiene sentido ver/editar el modelo del vehículo cuando es una venta
+  // final (no anticipo) proveniente de una cotización con vehículo asignado
+  const vehicleModel = quotation?.ap_vehicle?.model;
+  const showVehicleModelActions =
+    !!selectedQuotationId && hasVehicle && !isAdvancePayment && !!vehicleModel;
+
+  // Actualiza la descripción del item de venta del vehículo con los datos
+  // (frescos) del vehículo/modelo, sin tocar precios ni el resto del item
+  const syncVehicleItemDescription = (vehicle?: VehicleResource | null) => {
+    if (!vehicle) return;
+    const currentItems = form.getValues("items") || [];
+    const idx = currentItems.findIndex(
+      (item) =>
+        !item.anticipo_regularizacion &&
+        item.codigo === vehicle.id?.toString(),
+    );
+    if (idx === -1) return;
+    form.setValue(
+      `items.${idx}.descripcion`,
+      buildVehicleSaleDescription(vehicle),
+      { shouldValidate: true },
+    );
+  };
+
+  const handleRefreshVehicleModel = async () => {
+    setIsRefreshingVehicleModel(true);
+    try {
+      const { data: freshQuotation } = await refetchQuotation();
+      syncVehicleItemDescription(freshQuotation?.ap_vehicle);
+    } finally {
+      setIsRefreshingVehicleModel(false);
+    }
+  };
+
+  const handleVehicleModelModalSuccess = async () => {
+    queryClient.invalidateQueries({ queryKey: [MODELS_VN.QUERY_KEY] });
+    const { data: freshQuotation } = await refetchQuotation();
+    syncVehicleItemDescription(freshQuotation?.ap_vehicle);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -701,6 +782,10 @@ CILINDRADA: ${vehicle?.model?.displacement || ``}
               useQuotation={useQuotation}
               isDetraction={isDetraction}
               minRetentionPrice={minRetentionPrice}
+              showVehicleModelActions={showVehicleModelActions}
+              onOpenVehicleModel={() => setIsVehicleModelModalOpen(true)}
+              onRefreshVehicleModel={handleRefreshVehicleModel}
+              isRefreshingVehicleModel={isRefreshingVehicleModel}
             />
 
             {/* Configuración Adicional */}
@@ -742,6 +827,55 @@ CILINDRADA: ${vehicle?.model?.displacement || ``}
 
         {/* <Button onClick={() => form.trigger()}>Trigger Form</Button> */}
       </form>
+
+      {showVehicleModelActions && vehicleModel && (
+        <ModelVnModal
+          open={isVehicleModelModalOpen}
+          onClose={() => setIsVehicleModelModalOpen(false)}
+          mode="update"
+          modelId={vehicleModel.id}
+          defaultValues={{
+            code: vehicleModel.code,
+            version: vehicleModel.version,
+            power: vehicleModel.power,
+            model_year: String(vehicleModel.model_year),
+            wheelbase: vehicleModel.wheelbase,
+            axles_number: vehicleModel.axles_number,
+            width: vehicleModel.width,
+            length: vehicleModel.length,
+            height: vehicleModel.height,
+            seats_number: Number(vehicleModel.seats_number),
+            doors_number: Number(vehicleModel.doors_number),
+            net_weight: vehicleModel.net_weight,
+            gross_weight: vehicleModel.gross_weight,
+            payload: vehicleModel.payload,
+            displacement: vehicleModel.displacement,
+            cylinders_number: Number(vehicleModel.cylinders_number),
+            passengers_number: Number(vehicleModel.passengers_number),
+            wheels_number: Number(vehicleModel.wheels_number),
+            distributor_price: vehicleModel.distributor_price,
+            transport_cost: vehicleModel.transport_cost,
+            other_amounts: vehicleModel.other_amounts,
+            purchase_discount: vehicleModel.purchase_discount,
+            igv_amount: vehicleModel.igv_amount,
+            total_purchase_excl_igv: vehicleModel.total_purchase_excl_igv,
+            total_purchase_incl_igv: vehicleModel.total_purchase_incl_igv,
+            sale_price: vehicleModel.sale_price,
+            margin: vehicleModel.margin,
+            brand_id: String(vehicleModel.brand_id),
+            family_id: String(vehicleModel.family_id),
+            class_id: String(vehicleModel.class_id),
+            fuel_id: String(vehicleModel.fuel_id),
+            vehicle_type_id: String(vehicleModel.vehicle_type_id),
+            body_type_id: String(vehicleModel.body_type_id),
+            traction_type_id: String(vehicleModel.traction_type_id),
+            transmission_id: String(vehicleModel.transmission_id),
+            currency_type_id: String(vehicleModel.currency_type_id),
+            type_operation_id: String(vehicleModel.type_operation_id),
+          }}
+          onSuccess={handleVehicleModelModalSuccess}
+        />
+      )}
     </Form>
   );
 }
