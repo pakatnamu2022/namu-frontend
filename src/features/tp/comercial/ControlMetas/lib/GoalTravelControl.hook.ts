@@ -6,10 +6,11 @@ import {
   DashboardGoalTravelControlResponse,
   GoalTravelControlResponse,
   GoalTravelQueryParams,
+  PrediccionIAResponse,
   RankingConductor,
   ViajesNoFacturadosResponse,
 } from "./GoalTravelControl.interface";
-import { findGoalTravelById, getAlertsGoalTravel, getAnalisisEstrategico, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
+import { findGoalTravelById, getAlertsGoalTravel, getAnalisisEstrategico, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getPrediccionIA, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
 
 export const useGoalTravelControl = (params?: GoalTravelQueryParams) => {
   return useQuery<GoalTravelControlResponse>({
@@ -105,5 +106,26 @@ export const useAnalisisEstrategico = (fechaInicio?: string, fechaFin?: string) 
     enabled: !!fechaInicio && !!fechaFin,
   });
 };
+
+export const usePrediccionIA = (
+  mesesHistoricos: number = 12,
+  factorConfianza: number = 1.0,
+  enabled: boolean = false
+) => {
+  return useQuery<PrediccionIAResponse>({
+    queryKey: ["prediccion-ia", mesesHistoricos, factorConfianza],
+    queryFn: () => getPrediccionIA({
+      params: {
+        meses_historicos: mesesHistoricos,
+        factor_confianza: factorConfianza
+      }
+    }),
+    refetchOnWindowFocus: false,
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+
 
 

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, AlertCircle, Users, DollarSign, Calendar, CheckCircle, AlertTriangle, XCircle, RefreshCw, Target, Undo2, ChevronLeft } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertCircle, Users, DollarSign, Calendar, RefreshCw, Undo2, ChevronLeft } from "lucide-react";
 import {
     Bar,
     XAxis,
@@ -21,25 +21,30 @@ import {
     Sector,
 } from "recharts";
 import { useAnalisisEstrategico } from "../lib/GoalTravelControl.hook";
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PrediccionIA } from "./PrediccionIA";
 
 // Colores para el gráfico de Pareto
 const COLORS = ["#3b82f6", "#60a5fa", "#93bbfc", "#bfdbfe", "#dbeafe", "#e5e7eb", "#f3f4f6"];
 
 export default function AnalisisEstrategico() {
     const hoy = new Date();
-    const [fechaInicio, setFechaInicio] = useState<string>(
+    const [fechaInicioInput, setFechaInicioInput] = useState<string>(
         new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1).toISOString().split('T')[0]
     );
-    const [fechaFin, setFechaFin] = useState<string>(
+    const [fechaFinInput, setFechaFinInput] = useState<string>(
         new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0]
     );
+    const [fechaInicio, setFechaInicio] = useState<string>(fechaInicioInput);
+    const [fechaFin, setFechaFin] = useState<string>(fechaFinInput);
+
     const [errorValidacion, setErrorValidacion] = useState<string | null>(null);
     const [tipoError, setTipoError] = useState<"future" | "rango" | "orden" | null>(null);
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const [modalAbierto, setModalAbierto] = useState<boolean>(false);
 
     const { data, isLoading, error, refetch } = useAnalisisEstrategico(fechaInicio, fechaFin);
 
@@ -52,163 +57,106 @@ export default function AnalisisEstrategico() {
         }).format(value);
     };
 
+
     const validarFechas = () => {
-        if (!fechaInicio || !fechaFin) {
+        if (!fechaInicioInput || !fechaFinInput) {
             setErrorValidacion("Ambas fechas son requeridas.");
             setTipoError(null);
+            setModalAbierto(true);
             return false;
         }
-        const inicio = new Date(fechaInicio);
-        const fin = new Date(fechaFin);
+        const inicio = new Date(fechaInicioInput);
+        const fin = new Date(fechaFinInput);
         const hoyDate = new Date();
         hoyDate.setHours(0, 0, 0, 0);
 
         if (inicio > fin) {
             setErrorValidacion("La fecha inicial no puede ser mayor que la fecha final.");
             setTipoError("orden");
+            setModalAbierto(true);
             return false;
         }
         if (fin > hoyDate) {
             setErrorValidacion("La fecha final no puede ser una fecha futura.");
             setTipoError("future");
+            setModalAbierto(true);
             return false;
         }
         const diffMonths = (fin.getFullYear() - inicio.getFullYear()) * 12 + (fin.getMonth() - inicio.getMonth());
         if (diffMonths > 24) {
             setErrorValidacion("El rango máximo permitido es de 24 meses.");
             setTipoError("rango");
+            setModalAbierto(true);
             return false;
         }
         setErrorValidacion(null);
         setTipoError(null);
+        setModalAbierto(false);
         return true;
     };
 
-    useEffect(() => {
-        if (fechaInicio && fechaFin) {
-            validarFechas();
-        }
-    }, [fechaInicio, fechaFin]);
-
     const handleAplicar = () => {
         if (validarFechas()) {
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
             refetch();
         }
     };
 
     const ajustarRango = () => {
-        if (!fechaFin) return;
-        const fin = new Date(fechaFin);
+        if (!fechaFinInput) return;
+        const fin = new Date(fechaFinInput);
         const inicio = new Date(fin);
         inicio.setMonth(fin.getMonth() - 23);
-        setFechaInicio(inicio.toISOString().split('T')[0]);
+        setFechaInicioInput(inicio.toISOString().split('T')[0]);
+        setModalAbierto(true);
         setTimeout(() => {
-            validarFechas();
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
             refetch();
         }, 100);
     };
     const retrocederMes = () => {
-        if (!fechaFin) return;
-        const fin = new Date(fechaFin);
+        if (!fechaFinInput) return;
+        const fin = new Date(fechaFinInput);
         fin.setMonth(fin.getMonth() - 1);
-        setFechaFin(fin.toISOString().split('T')[0]);
-        const inicio = new Date(fechaInicio);
+        setFechaFinInput(fin.toISOString().split('T')[0]);
+        const inicio = new Date(fechaInicioInput);
         if (inicio > fin) {
-            setFechaInicio(fin.toISOString().split('T')[0]);
+            setFechaInicioInput(fin.toISOString().split('T')[0]);
         }
+        setModalAbierto(false);
         setTimeout(() => {
-            validarFechas();
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
             refetch();
         }, 100);
     };
     const resetFechas = () => {
         const hoyDate = new Date();
-        setFechaFin(new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1).toISOString().split('T')[0]);
-        setFechaInicio(new Date(hoyDate.getFullYear(), hoyDate.getMonth() - 5, 1).toISOString().split('T')[0]);
+        const nuevoFin = new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1).toISOString().split('T')[0];
+        const nuevoInicio = new Date(hoyDate.getFullYear(), hoyDate.getMonth() - 5, 1).toISOString().split('T')[0];
+        setFechaInicioInput(nuevoInicio);
+        setFechaFinInput(nuevoFin);
+        setModalAbierto(false);
         setTimeout(() => {
-            setErrorValidacion(null);
-            setTipoError(null);
+            setFechaInicio(nuevoInicio);
+            setFechaFin(nuevoFin);
             refetch();
         }, 100);
     };
 
-    if (errorValidacion) {
-        return (
-            <Card className="border-red-200 bg-red-50">
-                <CardContent className="py-8">
-                    <div className="flex flex-col items-center text-center">
-                        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-                        <p className="text-lg font-medium text-red-700">{errorValidacion}</p>
-                        <p className="text-sm text-red-500/70 mt-1">Ajusta el rango de fechas para continuar.</p>
-
-                        <div className="flex flex-wrap gap-3 mt-6 justify-center">
-                            {tipoError === "rango" && (
-                                <Button
-                                    variant="outline"
-                                    className="border-red-300 hover:bg-red-50"
-                                    onClick={ajustarRango}
-                                >
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    Ajustar a 24 meses
-                                </Button>
-                            )}
-
-                            {tipoError === "future" && (
-                                <>
-                                    <Button
-                                        variant="outline"
-                                        className="border-red-300 hover:bg-red-50"
-                                        onClick={retrocederMes}
-                                    >
-                                        <ChevronLeft className="h-4 w-4 mr-2" />
-                                        Retroceder un mes
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="border-red-300 hover:bg-red-50"
-                                        onClick={resetFechas}
-                                    >
-                                        <Undo2 className="h-4 w-4 mr-2" />
-                                        Usar período por defecto
-                                    </Button>
-                                </>
-                            )}
-
-                            {tipoError === "orden" && (
-                                <Button
-                                    variant="outline"
-                                    className="border-red-300 hover:bg-red-50"
-                                    onClick={() => {
-                                        const temp = fechaInicio;
-                                        setFechaInicio(fechaFin);
-                                        setFechaFin(temp);
-                                        setTimeout(() => {
-                                            validarFechas();
-                                            refetch();
-                                        }, 100);
-                                    }}
-                                >
-                                    <RefreshCw className="h-4 w-4 mr-2" />
-                                    Intercambiar fechas
-                                </Button>
-                            )}
-
-                            {tipoError !== "rango" && (
-                                <Button
-                                    variant="outline"
-                                    className="border-red-300 hover:bg-red-50"
-                                    onClick={resetFechas}
-                                >
-                                    <Undo2 className="h-4 w-4 mr-2" />
-                                    Restablecer
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
+    const intercambiarFechas = () => {
+        const temp = fechaInicioInput;
+        setFechaInicioInput(fechaFinInput);
+        setFechaFinInput(temp);
+        setModalAbierto(false);
+        setTimeout(() => {
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
+            refetch();
+        }, 100);
+    };
 
     if (isLoading) {
         return (
@@ -253,26 +201,59 @@ export default function AnalisisEstrategico() {
 
     const { tendencia, top_crecimiento, top_decrecimiento, proyeccion, distribucion } = data;
 
-    // Estado del semáforo según cumplimiento proyectado
-    const getStatusColor = (porcentaje: number) => {
-        if (porcentaje >= 90) return "text-green-600 bg-green-100 border-green-300";
-        if (porcentaje >= 70) return "text-yellow-600 bg-yellow-100 border-yellow-300";
-        return "text-red-600 bg-red-100 border-red-300";
-    };
-
-    const StatusIcon = ({ porcentaje }: { porcentaje: number }) => {
-        if (porcentaje >= 90) {
-            return <CheckCircle className="h-6 w-6 text-green-500" />;
-        }
-        if (porcentaje >= 70) {
-            return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
-        }
-        return <XCircle className="h-6 w-6 text-red-500" />;
-    };
-
-
     return (
         <div className="space-y-6">
+            {/* Modal de error */}
+            <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-red-600">
+                            <AlertCircle className="h-5 w-5" />
+                            Error en el período seleccionado
+                        </DialogTitle>
+                        <DialogDescription className="text-red-500/80 pt-2">
+                            {errorValidacion}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {tipoError === "rango" && (
+                            <Button variant="outline" size="sm" onClick={ajustarRango} className="gap-1">
+                                <Calendar className="h-4 w-4" />
+                                Ajustar a 24 meses
+                            </Button>
+                        )}
+                        {tipoError === "future" && (
+                            <>
+                                <Button variant="outline" size="sm" onClick={retrocederMes} className="gap-1">
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Retroceder un mes
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={resetFechas} className="gap-1">
+                                    <Undo2 className="h-4 w-4" />
+                                    Restablecer
+                                </Button>
+                            </>
+                        )}
+                        {tipoError === "orden" && (
+                            <Button variant="outline" size="sm" onClick={intercambiarFechas} className="gap-1">
+                                <RefreshCw className="h-4 w-4" />
+                                Intercambiar fechas
+                            </Button>
+                        )}
+                        {tipoError !== "rango" && (
+                            <Button variant="outline" size="sm" onClick={resetFechas} className="gap-1">
+                                <Undo2 className="h-4 w-4" />
+                                Restablecer
+                            </Button>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setModalAbierto(false)}>
+                            Cerrar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             {/* Filtro de rango de fechas */}
             <Card>
                 <CardHeader>
@@ -287,8 +268,8 @@ export default function AnalisisEstrategico() {
                                 <Input
                                     id="fechaInicio"
                                     type="date"
-                                    value={fechaInicio}
-                                    onChange={(e) => setFechaInicio(e.target.value)}
+                                    value={fechaInicioInput}
+                                    onChange={(e) => setFechaInicioInput(e.target.value)}
                                     className="w-40"
                                 />
                             </div>
@@ -297,8 +278,8 @@ export default function AnalisisEstrategico() {
                                 <Input
                                     id="fechaFin"
                                     type="date"
-                                    value={fechaFin}
-                                    onChange={(e) => setFechaFin(e.target.value)}
+                                    value={fechaFinInput}
+                                    onChange={(e) => setFechaFinInput(e.target.value)}
                                     className="w-40"
                                 />
                             </div>
@@ -374,31 +355,9 @@ export default function AnalisisEstrategico() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className={cn("border-l-4", getStatusColor(proyeccion.cumplimiento))}>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <Target className="h-4 w-4" />
-                            Cumplimiento Proyectado
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl font-bold">{proyeccion.cumplimiento}%</span>
-                            <StatusIcon porcentaje={proyeccion.cumplimiento} />
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {proyeccion.cumplimiento >= 90
-                                ? "En buen camino"
-                                : proyeccion.cumplimiento >= 70
-                                    ? "Cerca de meta"
-                                    : "Requiere atención"}
-                        </div>
-                        <div className="text-xs text-muted-foreground/70 mt-1">
-                            Proyectado para {proyeccion.periodo}
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
+            {/*Componente de prediccion con IA */}
+            <PrediccionIA />
 
             {/* Gráfico de tendencia */}
             <Card>

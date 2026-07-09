@@ -122,6 +122,7 @@ import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
 import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
 import GPTicsLayout from "./app/gp/tics/layout";
 import TPComercialLayout from "./app/tp/comercial-tp/layout";
+import TPConfiguracionesLayout from "./app/tp/configuraciones/layout";
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
@@ -479,6 +480,8 @@ import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
 import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
 import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 import ExitGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx";
+import ControlTipoVehiculoPage from "./app/tp/configuraciones/control-tipo-vehiculo/page.tsx";
+import ControlVehiculoPage from "./app/tp/configuraciones/control-vehiculo/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -909,6 +912,7 @@ function App() {
             {/* ======================================================== */}
             {/* AP - CONFIGURACIONES */}
             {/* ======================================================== */}
+
             <Route
               path="/ap/configuraciones"
               element={
@@ -2265,6 +2269,24 @@ function App() {
                 element={<ControlVehicleAssignmentPage />}
               />
               <Route path="monitoreo" element={<MonitoreoPage />} />
+            </Route>
+            {/* ======================================================== */}
+            {/* TP - CONFIGURACIONES */}
+            {/* ======================================================== */}
+            <Route
+              path="/tp/configuraciones"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <TPConfiguracionesLayout>
+                    <Outlet />
+                  </TPConfiguracionesLayout>
+
+                </Suspense>
+              }
+            >
+              <Route path="control-tipo-vehiculo" element={<ControlTipoVehiculoPage />} />
+              <Route path="control-vehiculo" element={<ControlVehiculoPage />} />
+
             </Route>
 
             {/* ======================================================== */}
