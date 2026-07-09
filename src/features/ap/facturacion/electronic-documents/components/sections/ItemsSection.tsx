@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { Info, Package, Plus } from "lucide-react";
+import { Eye, Info, Package, Plus, RefreshCw } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +36,12 @@ interface ItemsSectionProps {
   minRetentionPrice?: number;
   allowEditLastItemDescription?: boolean;
   isCommercial?: boolean;
+  // Acciones para ver/editar o refrescar el modelo del vehículo de la venta
+  // final directamente desde aquí, sin salir del documento electrónico
+  showVehicleModelActions?: boolean;
+  onOpenVehicleModel?: () => void;
+  onRefreshVehicleModel?: () => void;
+  isRefreshingVehicleModel?: boolean;
 }
 
 export function ItemsSection({
@@ -52,6 +58,10 @@ export function ItemsSection({
   minRetentionPrice,
   allowEditLastItemDescription = false,
   isCommercial = true,
+  showVehicleModelActions = false,
+  onOpenVehicleModel,
+  onRefreshVehicleModel,
+  isRefreshingVehicleModel = false,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
     is_detraction: isDetraction ? 1 : 0,
@@ -367,6 +377,35 @@ export function ItemsSection({
         gap="gap-1"
       >
         <div className="flex items-end justify-between gap-4">
+          {showVehicleModelActions && (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={onOpenVehicleModel}
+                title="Ver o editar el modelo del vehículo"
+              >
+                <Eye className="size-4" />
+                Ver/Editar Modelo
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={onRefreshVehicleModel}
+                disabled={isRefreshingVehicleModel}
+                title="Refrescar los datos del modelo en este item"
+              >
+                <RefreshCw
+                  className={`size-4 ${isRefreshingVehicleModel ? "animate-spin" : ""}`}
+                />
+                Refrescar Datos
+              </Button>
+            </div>
+          )}
           {isAdvancePayment && (
             <Alert className="text-sm p-2 w-fit">
               <AlertTitle className="flex items-center gap-2">
