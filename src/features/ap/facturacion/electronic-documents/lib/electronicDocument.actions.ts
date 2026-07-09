@@ -6,6 +6,7 @@ import {
   CreditNoteSchema,
   DebitNoteSchema,
   HistoricalAdvancePaymentSchema,
+  HistoricalFinalSaleSchema,
 } from "./electronicDocument.schema";
 import { RegularizeAdvancePaymentSchema } from "./regularizeAdvancePayment.schema";
 import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
@@ -19,6 +20,7 @@ import {
   ExchangeRateResource,
   InvoiceWithWorkOrdersResponse,
   RegisterHistoricalAdvancePaymentResponse,
+  RegisterHistoricalFinalSaleResponse,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
@@ -433,6 +435,17 @@ export async function registerHistoricalAdvancePayment(
   const { data: response } =
     await api.post<RegisterHistoricalAdvancePaymentResponse>(
       `${ENDPOINT}/register-historical-advance`,
+      data,
+    );
+  return response;
+}
+
+export async function registerHistoricalFinalSale(
+  data: HistoricalFinalSaleSchema,
+): Promise<RegisterHistoricalFinalSaleResponse> {
+  const { data: response } =
+    await api.post<RegisterHistoricalFinalSaleResponse>(
+      `${ENDPOINT}/register-historical-final-sale`,
       data,
     );
   return response;

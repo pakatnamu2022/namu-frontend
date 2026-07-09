@@ -442,6 +442,34 @@ export type HistoricalAdvancePaymentSchema = z.infer<
   typeof HistoricalAdvancePaymentSchema
 >;
 
+// Schema para Venta Final Histórica (facturas antiguas de venta de vehículo, no emitidas por Nubefact)
+export const HistoricalFinalSaleSchema = z.object({
+  vin: z.string().min(1, "VIN requerido"),
+  client_id: requiredStringId("Cliente requerido"),
+  sunat_concept_document_type_id: requiredStringId(
+    "Tipo de documento requerido",
+  ),
+  serie: z
+    .string()
+    .min(1, "Serie requerida")
+    .max(20, "Máximo 20 caracteres"),
+  numero: z.coerce.number().int().min(1, "Número requerido"),
+  area_id: requiredStringId("Área requerida"),
+  sede_id: requiredStringId("Sede requerida"),
+  sunat_concept_currency_id: requiredStringId("Moneda requerida"),
+  doc_type_currency_id: requiredStringId("Moneda de facturación requerida"),
+  type_currency_id: requiredStringId("Moneda de la cotización requerida"),
+  total: z.coerce.number().gt(0, "El total de la venta debe ser mayor a 0"),
+  descripcion: z
+    .string()
+    .min(1, "Descripción requerida")
+    .max(500, "Máximo 500 caracteres"),
+});
+
+export type HistoricalFinalSaleSchema = z.infer<
+  typeof HistoricalFinalSaleSchema
+>;
+
 export type ElectronicDocumentSchema = z.infer<typeof ElectronicDocumentSchema>;
 export type ElectronicDocumentItemSchema = z.infer<
   typeof ElectronicDocumentItemSchema
