@@ -72,7 +72,6 @@ export function WorkOrderActionCell({
   const isClosed = status_id == String(STATUS_WORK_ORDER.CERRADO);
   const isOpen = status_id == String(STATUS_WORK_ORDER.APERTURADO);
   const isCancelled = status_id == String(STATUS_WORK_ORDER.ANULADO);
-  const isInvoicedEnd = status_id == String(STATUS_WORK_ORDER.TERMINADO);
   const isDelivery = is_delivery;
   const firstItemPlanning = items?.[0]?.type_planning;
 
