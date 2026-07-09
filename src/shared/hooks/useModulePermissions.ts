@@ -285,6 +285,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "UserCheck",
     description: "Permite cambiar el asesor asignado a una orden de trabajo",
   },
+  {
+    value: "generateInternalNote",
+    label: "Generar Nota Interna",
+    icon: "FilePlus",
+    description: "Permite generar una nota interna para una orden de trabajo",
+  },
 ];
 
 /**
@@ -366,5 +372,6 @@ export function useModulePermissions(moduleCode: string) {
     canRegularizationAdvances: hasModulePermission("regularizationAdvances"),
     canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
+    canGenerateInternalNote: hasModulePermission("generateInternalNote"),
   };
 }
