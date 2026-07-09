@@ -18,6 +18,8 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { useStockInicialAvailableVehicles } from "../lib/exitGuide.hook";
 import { ExitGuideSchema, exitGuideSchema } from "../lib/exitGuide.schema";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 interface ExitGuideFormProps {
   defaultValues: Partial<ExitGuideSchema>;
@@ -133,6 +135,19 @@ export const ExitGuideForm = ({
               label: item.name,
               value: item.id.toString(),
             })}
+          />
+          <FormSelectAsync
+            name="client_id"
+            label="Cliente"
+            placeholder="Selecciona un cliente"
+            control={form.control}
+            useQueryHook={useCustomers}
+            mapOptionFn={(item: CustomersResource) => ({
+              label: `${item.full_name} - ${item.num_doc}`,
+              value: item.id.toString(),
+            })}
+            perPage={10}
+            debounceMs={500}
           />
           <DatePickerFormField
             control={form.control}

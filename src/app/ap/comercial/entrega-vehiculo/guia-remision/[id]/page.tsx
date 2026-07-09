@@ -13,6 +13,7 @@ import { useDeliveryChecklist } from "@/features/ap/comercial/entrega-vehiculo/l
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -204,6 +205,7 @@ export default function ShippingGuidePage(): JSX.Element {
 
               {/* Items del checklist */}
               {items.length > 0 && (
+                <ScrollArea className="max-h-[360px] pr-3">
                 <div className="space-y-1.5 pt-1">
                   {items.map((item, index) => {
                     const sourceBadge = SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
@@ -247,6 +249,7 @@ export default function ShippingGuidePage(): JSX.Element {
                     );
                   })}
                 </div>
+                </ScrollArea>
               )}
 
               {/* Confirmado por */}
