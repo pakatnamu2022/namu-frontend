@@ -378,5 +378,7 @@ export function useModulePermissions(moduleCode: string) {
     canRegularizationAdvances: hasModulePermission("regularizationAdvances"),
     canInvoiceOtherSales: hasModulePermission("invoiceOtherSales"),
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
+    canGenerateInternalNote: hasModulePermission("generateInternalNote"),
+    canChangeLocation: hasModulePermission("changeLocation"),
   };
 }
