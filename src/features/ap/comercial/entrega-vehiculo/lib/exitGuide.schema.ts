@@ -4,6 +4,7 @@ import { z } from "zod";
 export const exitGuideSchema = z.object({
   ap_class_article_id: requiredStringId("La clase de artículo es requerida"),
   sede_id: requiredStringId("Selecciona una Sede"),
+  client_id: requiredStringId("El cliente es requerido"),
   vehicle_id: z.string().min(1, "El vehículo es requerido"),
   advisor_id: z.string().min(1, "El asesor es requerido"),
   scheduled_delivery_date: z

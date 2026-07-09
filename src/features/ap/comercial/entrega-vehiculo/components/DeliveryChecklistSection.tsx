@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import {
   ChecklistItemDialog,
@@ -279,6 +280,7 @@ export function DeliveryChecklistSection({
 
       {/* Items — filas interactivas */}
       {items.length > 0 && (
+        <ScrollArea className="max-h-[420px] pr-3">
         <div className="space-y-1.5">
           {items.map((item, index) => {
             const sourceBadge = SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
@@ -370,6 +372,7 @@ export function DeliveryChecklistSection({
             );
           })}
         </div>
+        </ScrollArea>
       )}
 
       {/* Action buttons */}

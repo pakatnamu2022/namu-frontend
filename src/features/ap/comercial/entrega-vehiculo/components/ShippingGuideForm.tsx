@@ -280,7 +280,20 @@ export const ShippingGuideForm = ({
               name="plate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Placa del Vehículo <span className="text-muted-foreground font-normal">(Opcional)</span></FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Placa del Vehículo</FormLabel>
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="h-auto p-0 text-xs"
+                      disabled={isDisabled}
+                      onClick={() =>
+                        field.onChange("AAAAAA")
+                      }
+                    >
+                      No tiene placa
+                    </Button>
+                  </div>
                   <FormControl>
                     <InputOTP
                       maxLength={6}
