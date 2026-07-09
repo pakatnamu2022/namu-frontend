@@ -20,7 +20,9 @@ import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import {
   dispatchSyncCreditNote,
   dispatchSyncInvoice,
+  dispatchVehiclePurchaseOrderMigration,
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
+import { useMutation } from "@tanstack/react-query";
 
 export default function PurchaseOrderWarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -78,6 +80,15 @@ export default function PurchaseOrderWarehousePage() {
       });
   };
 
+  const migrateMutation = useMutation({
+    mutationFn: dispatchVehiclePurchaseOrderMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -102,6 +113,7 @@ export default function PurchaseOrderWarehousePage() {
           onRequestCreditNote: handleRequestCreditNote,
           typeOperationId: CM_POSTVENTA_ID,
           resendRoute: ABSOLUTE_ROUTE,
+          onMigrate: (id) => migrateMutation.mutate(id),
         })}
         data={data?.data || []}
       >
