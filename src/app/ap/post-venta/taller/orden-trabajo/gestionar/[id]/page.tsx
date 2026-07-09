@@ -469,7 +469,10 @@ export default function ManageWorkOrderPage() {
               </TabsContent>
 
               <TabsContent value="opening" className="space-y-4">
-                <OpeningTab workOrderId={workOrder.id} />
+                <OpeningTab
+                  workOrderId={workOrder.id}
+                  permissions={permissions}
+                />
               </TabsContent>
 
               <TabsContent value="operators" className="space-y-4">

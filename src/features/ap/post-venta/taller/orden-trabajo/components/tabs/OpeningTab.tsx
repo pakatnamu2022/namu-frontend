@@ -46,7 +46,6 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 const pickupPersonSchema = z.object({
   num_doc_pickup: z
@@ -62,9 +61,15 @@ const pickupPersonSchema = z.object({
 
 interface OpeningTabProps {
   workOrderId: number;
+  permissions: {
+    canChangeAdvisor: boolean;
+  };
 }
 
-export default function OpeningTab({ workOrderId }: OpeningTabProps) {
+export default function OpeningTab({
+  workOrderId,
+  permissions,
+}: OpeningTabProps) {
   const isTablet = useIsTablet();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<WorkOrderItemResource | null>(
@@ -74,8 +79,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { MODEL, ROUTE } = WORKER_ORDER_ITEM;
-  const permissions = useModulePermissions(ROUTE);
+  const { MODEL } = WORKER_ORDER_ITEM;
 
   // Consultar la orden de trabajo con sus items
   const { data: workOrder, isLoading } = useQuery({

@@ -18,7 +18,10 @@ import {
   findWorkOrderById,
   updateWorkOrder,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import { WORKER_ORDER_RECEPCION } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import {
+  WORKER_ORDER,
+  WORKER_ORDER_RECEPCION,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
@@ -39,6 +42,7 @@ export default function ManageWorkOrderPage() {
 
   const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER_RECEPCION;
   const permissions = useModulePermissions(ROUTE);
+  const permissionsWorkOrder = useModulePermissions(WORKER_ORDER.ROUTE);
 
   // Determinar el tab inicial según los permisos
   const initialTab = permissions.canOtOptions
@@ -186,7 +190,10 @@ export default function ManageWorkOrderPage() {
               </TabsContent>
 
               <TabsContent value="opening" className="space-y-4">
-                <OpeningTab workOrderId={workOrder.id} />
+                <OpeningTab
+                  workOrderId={workOrder.id}
+                  permissions={permissionsWorkOrder}
+                />
               </TabsContent>
 
               <TabsContent value="operators" className="space-y-4">

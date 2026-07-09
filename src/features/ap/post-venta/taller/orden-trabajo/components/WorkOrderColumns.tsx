@@ -24,6 +24,7 @@ interface Props {
     canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canGenerateInternalNote: boolean;
   };
 }
 

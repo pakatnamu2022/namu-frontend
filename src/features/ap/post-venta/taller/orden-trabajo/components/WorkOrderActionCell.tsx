@@ -32,6 +32,7 @@ interface WorkOrderActionCellProps {
     canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canGenerateInternalNote: boolean;
   };
   onInternalNote: (id: number) => void;
   onDelete: (id: number) => void;
@@ -138,7 +139,9 @@ export function WorkOrderActionCell({
     (isDelivery || isClosed) && firstItemPlanning?.type_document !== "INTERNA";
 
   const isVisibleGenerateInternalNote =
-    !isClosed && firstItemPlanning?.type_document === "INTERNA";
+    permissions.canGenerateInternalNote &&
+    !isClosed &&
+    firstItemPlanning?.type_document === "INTERNA";
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
