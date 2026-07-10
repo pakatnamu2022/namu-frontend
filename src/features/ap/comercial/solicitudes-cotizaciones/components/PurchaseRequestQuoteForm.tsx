@@ -3,7 +3,10 @@ import {
   purchaseRequestQuoteSchemaCreate,
   purchaseRequestQuoteSchemaUpdate,
 } from "../lib/purchaseRequestQuote.schema";
-import { localDatePlusDays } from "@/core/core.function";
+import {
+  localDatePlusDays,
+  getTodayPeruDateString,
+} from "@/core/core.function";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -552,7 +555,7 @@ export const PurchaseRequestQuoteForm = ({
   }, [currencyTypes, mode]);
 
   // Tipo de cambio oficial (SBS) para USD
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayPeruDateString();
   const usdCurrencyId = currencyTypes.find((c) => c.code === "USD")?.id ?? null;
   const { data: usdExchangeRateData } = useExchangeRateByDateAndCurrency(
     usdCurrencyId,
