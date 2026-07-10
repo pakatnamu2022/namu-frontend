@@ -33,6 +33,7 @@ interface ScheduledDeliveryPickerProps<T extends FieldValues> {
   description?: string;
   disabled?: boolean;
   minDate?: Date;
+  autoSelectFirstAvailable?: boolean;
 }
 
 const buildDateTimeString = (date: Date, time: string) => {
@@ -51,6 +52,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
   description,
   disabled = false,
   minDate,
+  autoSelectFirstAvailable = false,
 }: ScheduledDeliveryPickerProps<T>) {
   const {
     field,
@@ -74,12 +76,36 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     if (selectedDate) setCalendarDay(selectedDate);
   }, [field.value]);
 
+  React.useEffect(() => {
+    if (!autoSelectFirstAvailable || field.value || calendarDay) return;
+    setCalendarDay(
+      minDate ??
+        (() => {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0);
+          return tomorrow;
+        })(),
+    );
+  }, [autoSelectFirstAvailable]);
+
   const calendarDayStr = calendarDay
     ? format(calendarDay, "yyyy-MM-dd")
     : undefined;
 
   const { data: slotsResponse, isFetching: isLoadingSlots } =
     useAvailableDeliverySlots(calendarDayStr);
+
+  const daySlots = slotsResponse?.slots ?? [];
+
+  React.useEffect(() => {
+    if (!autoSelectFirstAvailable || field.value || !calendarDay) return;
+    if (isLoadingSlots) return;
+    const firstAvailable = daySlots.find((slot) => slot.available);
+    if (firstAvailable) {
+      field.onChange(buildDateTimeString(calendarDay, firstAvailable.time));
+    }
+  }, [autoSelectFirstAvailable, calendarDay, isLoadingSlots, daySlots]);
 
   const handleDaySelect = (day: Date | undefined) => {
     if (!day) return;
@@ -97,8 +123,6 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     if (minDate) matchers.push({ before: minDate });
     return matchers;
   };
-
-  const daySlots = slotsResponse?.slots ?? [];
 
   return (
     <FormItem className="flex flex-col justify-between">

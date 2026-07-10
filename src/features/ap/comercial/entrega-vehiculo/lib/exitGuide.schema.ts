@@ -1,4 +1,5 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
+import { scheduledDeliveryDate } from "./vehicleDelivery.schema";
 import { z } from "zod";
 
 export const exitGuideSchema = z.object({
@@ -7,9 +8,7 @@ export const exitGuideSchema = z.object({
   client_id: requiredStringId("El cliente es requerido"),
   vehicle_id: z.string().min(1, "El vehículo es requerido"),
   advisor_id: z.string().min(1, "El asesor es requerido"),
-  scheduled_delivery_date: z
-    .string()
-    .min(1, "La fecha de entrega programada es requerida"),
+  scheduled_delivery_date: scheduledDeliveryDate,
   observations: z.string().optional(),
 });
 

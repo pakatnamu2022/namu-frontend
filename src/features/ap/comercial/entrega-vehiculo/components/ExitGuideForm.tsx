@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { ScheduledDeliveryPicker } from "./ScheduledDeliveryPicker";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { EMPRESA_AP } from "@/core/core.constants";
@@ -34,7 +34,7 @@ export const ExitGuideForm = ({
   isSubmitting = false,
   onCancel,
 }: ExitGuideFormProps) => {
-  const form = useForm<ExitGuideSchema>({
+  const form = useForm({
     resolver: zodResolver(exitGuideSchema),
     defaultValues,
     mode: "onChange",
@@ -149,11 +149,19 @@ export const ExitGuideForm = ({
             perPage={10}
             debounceMs={500}
           />
-          <DatePickerFormField
+          <ScheduledDeliveryPicker
             control={form.control}
             name="scheduled_delivery_date"
-            label="Fecha de Entrega Programada"
-            placeholder="Selecciona la fecha de entrega"
+            label="Fecha y Hora de Entrega Programada"
+            placeholder="Selecciona la fecha y hora de entrega"
+            description="Lun-Vie: 9, 10, 11, 12, 15, 16 y 17h · Sáb: 10, 11 y 12h"
+            minDate={(() => {
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              tomorrow.setHours(0, 0, 0, 0);
+              return tomorrow;
+            })()}
+            autoSelectFirstAvailable
           />
         </div>
 

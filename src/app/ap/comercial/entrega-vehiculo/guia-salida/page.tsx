@@ -15,6 +15,7 @@ import { useStoreStockInicialDelivery } from "@/features/ap/comercial/entrega-ve
 import { ExitGuideForm } from "@/features/ap/comercial/entrega-vehiculo/components/ExitGuideForm";
 import { ExitGuideSchema } from "@/features/ap/comercial/entrega-vehiculo/lib/exitGuide.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { format } from "date-fns";
 
 export default function ExitGuidePage() {
   const router = useNavigate();
@@ -24,7 +25,14 @@ export default function ExitGuidePage() {
   const { mutate, isPending } = useStoreStockInicialDelivery();
 
   const handleSubmit = (data: ExitGuideSchema) => {
-    mutate(data, {
+    const formattedData = {
+      ...data,
+      scheduled_delivery_date: format(
+        data.scheduled_delivery_date,
+        "yyyy-MM-dd HH:mm:ss",
+      ),
+    };
+    mutate(formattedData, {
       onSuccess: () => {
         successToast(SUCCESS_MESSAGE(MODEL, "create"));
         router(ABSOLUTE_ROUTE);
@@ -53,7 +61,6 @@ export default function ExitGuidePage() {
           client_id: "",
           vehicle_id: "",
           advisor_id: "",
-          scheduled_delivery_date: "",
           observations: "",
         }}
         onSubmit={handleSubmit}
