@@ -53,10 +53,15 @@ export const WorkOrderQuotationSelectionModal = ({
     }
   }, [dateFrom, dateTo]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, dateFrom, dateTo]);
+
   const { data, isLoading } = useOrderQuotations({
     page,
     per_page,
     is_take: 0,
+    search: search || undefined,
     vehicle_id: vehicleId,
     area_id: AREA_TALLER.toString(),
     quotation_date:

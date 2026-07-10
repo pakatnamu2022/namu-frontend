@@ -173,7 +173,13 @@ export function AdditionalConfigSection({
   });
 
   // Seteamos el mensaje por defecto en observaciones si no hay uno ya establecido
-  form.setValue("observaciones", defaultMessage);
+  useEffect(() => {
+    if (isEdit) return;
+    if (!form.getValues("observaciones") && defaultMessage) {
+      form.setValue("observaciones", defaultMessage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultMessage, isEdit]);
 
   return (
     <GroupFormSection
