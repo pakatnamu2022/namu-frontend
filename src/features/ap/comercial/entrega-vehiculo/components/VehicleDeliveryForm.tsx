@@ -241,6 +241,7 @@ export const VehicleDeliveryForm = ({
                 has_delivery_guide: 0,
                 has_vehicle_delivery: 0,
                 is_paid: 1,
+                is_received: 1,
                 ap_vehicle_status_id: [
                   VEHICLE_STATUS_ID.VEHICULO_FACTURADO_FINAL,
                 ],
