@@ -108,21 +108,21 @@ export const PLANNING_STATUS_COLORS: Record<
     color: "blue",
   },
   in_progress: {
-    bg: "bg-yellow-100",
-    text: "text-yellow-800",
-    border: "border-yellow-300",
-    color: "yellow",
-  },
-  completed: {
     bg: "bg-green-100",
     text: "text-green-800",
-    border: "border-green-300",
+    border: "border-green-400",
     color: "green",
+  },
+  completed: {
+    bg: "bg-gray-900",
+    text: "text-white",
+    border: "border-gray-900",
+    color: "gray",
   },
   canceled: {
     bg: "bg-red-100",
     text: "text-red-800",
-    border: "border-red-300",
+    border: "border-red-400",
     color: "red",
   },
   pending: {

@@ -72,6 +72,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/VehicleRepuestosModal";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
 import {
   ITEM_TYPE_PRODUCT,
   onSelectSupplyType,
@@ -104,6 +105,8 @@ function ProductDetailItem({
   isDetailsDisabled = false,
   showStock,
   onToggleStock,
+  sedeId,
+  campaignDiscountValue,
 }: {
   index: number;
   form: any;
@@ -118,6 +121,8 @@ function ProductDetailItem({
   showStock: boolean;
   onToggleStock: () => void;
   selectedVehicle: VehicleResource | null;
+  sedeId?: string;
+  campaignDiscountValue?: number;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -178,6 +183,29 @@ function ProductDetailItem({
   }, [productData, index, form]);
 
   const hasStock = !!(currentProductStock && productId);
+
+  // Stock disponible en la sede seleccionada de la cotización
+  const hasStockInSede = !!currentProductStock?.warehouses.some(
+    (warehouse) =>
+      warehouse.sede_id === Number(sedeId) && warehouse.available_quantity > 0,
+  );
+
+  const isCampaignDiscountLocked =
+    hasStockInSede && campaignDiscountValue !== undefined;
+
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en la sede
+  useEffect(() => {
+    if (!isCampaignDiscountLocked) return;
+    const currentDiscount = form.getValues(
+      `details.${index}.discount_percentage`,
+    );
+    if (currentDiscount !== campaignDiscountValue) {
+      form.setValue(
+        `details.${index}.discount_percentage`,
+        campaignDiscountValue,
+      );
+    }
+  }, [isCampaignDiscountLocked, campaignDiscountValue, index, form]);
 
   return (
     <div className="border rounded-lg bg-white transition-colors">
@@ -332,18 +360,26 @@ function ProductDetailItem({
                       field.onChange(val);
                     }}
                     className={
-                      approvedDiscount !== undefined
-                        ? "h-9 border-green-400"
-                        : "h-9"
+                      isCampaignDiscountLocked
+                        ? "h-9 border-orange-400 bg-orange-50"
+                        : approvedDiscount !== undefined
+                          ? "h-9 border-green-400"
+                          : "h-9"
                     }
-                    disabled={isDetailsDisabled}
+                    disabled={isDetailsDisabled || isCampaignDiscountLocked}
                   />
                 </FormControl>
-                <p className="text-[10px] font-medium mt-0.5 text-green-600">
-                  Máx.{" "}
-                  {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
-                  {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
-                </p>
+                {isCampaignDiscountLocked ? (
+                  <p className="text-[10px] font-medium mt-0.5 text-orange-600">
+                    Descuento por campaña aplicado
+                  </p>
+                ) : (
+                  <p className="text-[10px] font-medium mt-0.5 text-green-600">
+                    Máx.{" "}
+                    {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
+                    {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
+                  </p>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -684,18 +720,26 @@ function ProductDetailItem({
                       field.onChange(val);
                     }}
                     className={
-                      approvedDiscount !== undefined
-                        ? "h-9 border-green-400"
-                        : "h-9"
+                      isCampaignDiscountLocked
+                        ? "h-9 border-orange-400 bg-orange-50"
+                        : approvedDiscount !== undefined
+                          ? "h-9 border-green-400"
+                          : "h-9"
                     }
-                    disabled={isDetailsDisabled}
+                    disabled={isDetailsDisabled || isCampaignDiscountLocked}
                   />
                 </FormControl>
-                <p className="text-[10px] font-medium mt-0.5 text-green-600">
-                  Máx.{" "}
-                  {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
-                  {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
-                </p>
+                {isCampaignDiscountLocked ? (
+                  <p className="text-[10px] font-medium mt-0.5 text-orange-600">
+                    Descuento por campaña aplicado
+                  </p>
+                ) : (
+                  <p className="text-[10px] font-medium mt-0.5 text-green-600">
+                    Máx.{" "}
+                    {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
+                    {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
+                  </p>
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -841,6 +885,15 @@ export default function ProformaMesonForm({
   const { data: currencyTypes = [] } = useAllCurrencyTypes({
     enable_after_sales: STATUS_ACTIVE,
   });
+
+  const { data: activeCampaign } = useActiveCampaign({
+    area_id: AREA_MESON,
+  });
+  const campaignDiscountValue =
+    activeCampaign && activeCampaign.discount_type === "percentage"
+      ? Number(activeCampaign.discount_value)
+      : undefined;
+  const sedeId = form.watch("sede_id");
 
   const { data: vehicleById } = useVehicleById(Number(vehicleId) || 0);
 
@@ -1413,6 +1466,8 @@ export default function ProformaMesonForm({
                       }))
                     }
                     selectedVehicle={selectedVehicle}
+                    sedeId={sedeId}
+                    campaignDiscountValue={campaignDiscountValue}
                   />
                 );
               })}

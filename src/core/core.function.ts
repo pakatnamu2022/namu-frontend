@@ -3,6 +3,7 @@ import { ACTIONS, ACTIONS_NAMES, IGV } from "./core.constants";
 import type { Action, ModelInterface } from "./core.interface";
 import { format, parseISO, isValid, parse } from "date-fns";
 import { es } from "date-fns/locale";
+import { formatInTimeZone } from "date-fns-tz";
 
 export const getErrorMessage = (error: any): string | undefined => {
   return error?.response?.data?.error || error?.message;
@@ -207,6 +208,12 @@ export const getTodayLocalDateString = () => {
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+// Fecha actual en formato YYYY-MM-DD fija a la zona horaria de Perú (UTC-5),
+// independiente de la zona horaria del navegador del usuario.
+export const getTodayPeruDateString = () => {
+  return formatInTimeZone(new Date(), "America/Lima", "yyyy-MM-dd");
 };
 
 /**
