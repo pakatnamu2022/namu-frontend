@@ -157,6 +157,9 @@ import AssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/ser
 import AddAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/series/agregar/page.tsx";
 import UpdateAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/series/actualizar/[id]/page.tsx";
 import BankPage from "./app/ap/configuraciones/maestros-general/bancos/page.tsx";
+import CampaignPage from "./app/ap/configuraciones/maestros-general/campanas/page.tsx";
+import AddCampaignPage from "./app/ap/configuraciones/maestros-general/campanas/agregar/page.tsx";
+import UpdateCampaignPage from "./app/ap/configuraciones/maestros-general/campanas/actualizar/[id]/page.tsx";
 import ApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/page.tsx";
 import AddApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/agregar/page.tsx";
 import UpdateApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/actualizar/[id]/page.tsx";
@@ -968,6 +971,18 @@ function App() {
                 element={<UpdateAssignSalesSeriesPage />}
               />
               <Route path="maestros-general/bancos" element={<BankPage />} />
+              <Route
+                path="maestros-general/campanas"
+                element={<CampaignPage />}
+              />
+              <Route
+                path="maestros-general/campanas/agregar"
+                element={<AddCampaignPage />}
+              />
+              <Route
+                path="maestros-general/campanas/actualizar/:id"
+                element={<UpdateCampaignPage />}
+              />
               <Route
                 path="maestros-general/chequeras"
                 element={<ApBankPage />}
