@@ -119,7 +119,8 @@ export interface ProductStock {
   total_available_quantity: number;
 }
 
-interface WarehouseStock {
+export interface WarehouseStock {
+  sede_id: number;
   warehouse_id: number;
   warehouse_name: string;
   quantity: number;
