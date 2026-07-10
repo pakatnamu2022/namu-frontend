@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, Eye } from "lucide-react";
+import { Pencil, Box } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -53,6 +53,34 @@ export const vehicleColumns = ({
     },
   },
   {
+    accessorKey: "sede_name_warehouse",
+    header: "Sede",
+  },
+  {
+    accessorKey: "engine_number",
+    header: "# Motor",
+  },
+  {
+    accessorKey: "model.code",
+    header: "# Modelo",
+  },
+  {
+    accessorKey: "model.family",
+    header: "Familia",
+  },
+  {
+    accessorKey: "model.version",
+    header: "Modelo",
+  },
+  {
+    accessorKey: "vehicle_color",
+    header: "Color",
+  },
+  {
+    accessorKey: "engine_type",
+    header: "Tipo Motor",
+  },
+  {
     accessorKey: "vehicle_status",
     header: "Estado Vehículo",
     cell: ({ row }) => {
@@ -73,24 +101,8 @@ export const vehicleColumns = ({
     },
   },
   {
-    accessorKey: "plate",
-    header: "Placa",
-  },
-  {
     accessorKey: "model.brand",
     header: "Marca",
-  },
-  {
-    accessorKey: "model.family",
-    header: "Familia",
-  },
-  {
-    accessorKey: "model.version",
-    header: "Modelo",
-  },
-  {
-    accessorKey: "model.code",
-    header: "# Modelo",
   },
   {
     accessorKey: "year",
@@ -101,28 +113,16 @@ export const vehicleColumns = ({
     header: "Año de Entrega",
   },
   {
-    accessorKey: "engine_number",
-    header: "# Motor",
-  },
-  {
-    accessorKey: "vehicle_color",
-    header: "Color",
-  },
-  {
-    accessorKey: "sede_name_warehouse",
-    header: "Sede",
-  },
-  {
-    accessorKey: "engine_type",
-    header: "Tipo Motor",
-  },
-  {
     accessorKey: "warehouse_physical",
     header: "Almacén Físico",
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return value ? value : <span className="text-muted-foreground">-</span>;
     },
+  },
+  {
+    accessorKey: "plate",
+    header: "Placa",
   },
   {
     id: "actions",
@@ -148,7 +148,7 @@ export const vehicleColumns = ({
         <div className="flex items-center gap-2">
           {/* View Model */}
           <ButtonAction
-            icon={Eye}
+            icon={Box}
             tooltip="Ver Modelo"
             onClick={() => router(`${ROUTE_UPDATE}/${model.id}`)}
             canRender={!!model?.id}
@@ -177,7 +177,7 @@ export const vehicleColumns = ({
           )}
 
           {/* Edit */}
-          {permissions.canUpdate && (
+          {permissions.canUpdate && onUpdate && (
             <Button
               variant="outline"
               size="icon"
