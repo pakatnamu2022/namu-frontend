@@ -1,5 +1,6 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { ShipmentsReceptionsResource } from "../../envios-recepciones/lib/shipmentsReceptions.interface";
+import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 
 export interface VehiclesDeliveryResponse {
   data: VehiclesDeliveryResource[];
@@ -14,6 +15,7 @@ export type ChecklistStatus = "draft" | "confirmed" | "completed";
 export interface VehiclesDeliveryResource {
   id: number;
   vehicle_id: number;
+  vehicle: VehicleResource;
   vin?: string;
   scheduled_delivery_date: string | Date;
   real_delivery_date?: string | null;
@@ -33,6 +35,17 @@ export interface VehiclesDeliveryResource {
   sent_at?: string | null;
   checklist_status?: ChecklistStatus | null;
   shipping_guide?: ShipmentsReceptionsResource | null;
+}
+
+export interface AvailableDeliverySlot {
+  time: string;
+  datetime: string;
+  available: boolean;
+}
+
+export interface AvailableDeliverySlotsResponse {
+  date: string;
+  slots: AvailableDeliverySlot[];
 }
 
 export interface VehiclesDeliveryRequest {

@@ -366,8 +366,11 @@ export const PurchaseRequestQuoteForm = ({
       // Solo actualizar si el modelo realmente cambió
       if (previousModelVnRef.current !== modelVnWatch) {
         previousModelVnRef.current = modelVnWatch;
-        // Siempre actualizar el precio, incluso si es 0
-        form.setValue("sale_price", originalPrice.toString());
+        // Solo actualizar el precio si actualmente no hay precio o es 0
+        const currentSalePrice = parseFloat(form.getValues("sale_price") || "0");
+        if (!currentSalePrice) {
+          form.setValue("sale_price", originalPrice.toString());
+        }
       }
     }
   }, [modelVnWatch, originalPrice, isInitialLoad, withVinWatch]);
@@ -397,9 +400,14 @@ export const PurchaseRequestQuoteForm = ({
             (model) => model.id === Number(selectedVehicle.ap_models_vn_id),
           );
           if (modelOfSelectedVehicle && mode === "create") {
-            // Siempre actualizar el precio, incluso si es 0
-            const newPrice = modelOfSelectedVehicle.sale_price || 0;
-            form.setValue("sale_price", newPrice.toString());
+            // Solo actualizar el precio si actualmente no hay precio o es 0
+            const currentSalePrice = parseFloat(
+              form.getValues("sale_price") || "0",
+            );
+            if (!currentSalePrice) {
+              const newPrice = modelOfSelectedVehicle.sale_price || 0;
+              form.setValue("sale_price", newPrice.toString());
+            }
           }
         }
       }

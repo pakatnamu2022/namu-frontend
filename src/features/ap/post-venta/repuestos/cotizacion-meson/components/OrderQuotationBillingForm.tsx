@@ -753,6 +753,7 @@ export function OrderQuotationBillingForm({
               isEdit={isEdit}
               existingFileUrl={existingFileUrl}
               isAdvancePayment={isAdvancePayment}
+              defaultMessage={`${quotation.quotation_number} - Placa: ${quotation.vehicle?.plate ?? ""}`}
             />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}

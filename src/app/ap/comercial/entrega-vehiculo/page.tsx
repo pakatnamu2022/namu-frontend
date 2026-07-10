@@ -76,7 +76,7 @@ export default function VehicleDeliveryPage() {
     page,
     search,
     per_page,
-    real_delivery_date: [formattedDateFrom, formattedDateTo],
+    scheduled_delivery_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
   });
 
