@@ -34,7 +34,7 @@ export const ExitGuideForm = ({
   isSubmitting = false,
   onCancel,
 }: ExitGuideFormProps) => {
-  const form = useForm({
+  const form = useForm<ExitGuideSchema>({
     resolver: zodResolver(exitGuideSchema),
     defaultValues,
     mode: "onChange",
