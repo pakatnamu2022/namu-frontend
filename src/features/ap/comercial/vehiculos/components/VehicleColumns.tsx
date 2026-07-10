@@ -57,6 +57,10 @@ export const vehicleColumns = ({
     header: "Sede",
   },
   {
+    accessorKey: "warehouse_name",
+    header: "Almacén",
+  },
+  {
     accessorKey: "engine_number",
     header: "# Motor",
   },
