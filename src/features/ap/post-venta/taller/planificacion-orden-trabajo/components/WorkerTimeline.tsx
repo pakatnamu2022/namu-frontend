@@ -174,7 +174,7 @@ function TimeInputPopover({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-56 space-y-3"
+        className="w-56 space-y-3 p-2"
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
@@ -1990,11 +1990,7 @@ export function WorkerTimeline({
 
                       return (
                         <button
-                          className={`absolute -top-9 z-50 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-lg whitespace-nowrap ${
-                            canConfirm
-                              ? "bg-primary text-white cursor-pointer animate-pulse hover:animate-none"
-                              : "bg-slate-300 text-slate-500 cursor-not-allowed"
-                          }`}
+                          className="absolute -top-9 z-50 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-lg whitespace-nowrap bg-primary text-white cursor-pointer"
                           style={{ left: `${confirmCenterPos}%` }}
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={(e) => {
