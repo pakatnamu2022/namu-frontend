@@ -145,12 +145,17 @@ export function ElectronicDocumentForm({
   const isDetraction = form.watch("detraccion") || false;
   const fechaDeEmision = form.watch("fecha_de_emision");
 
+  // Mapeo de sede para consulta de series autorizadas:
+  // la sede 16 no tiene series propias, usa las de la sede 14
+  const mappedSedeId =
+    quotation?.sede_id === 16 ? 14 : quotation?.sede_id;
+
   // Consultar series autorizadas
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
-    sede_id: quotation?.sede_id,
+    sede_id: mappedSedeId,
   });
 
   // Calcular porcentaje de IGV desde el cliente seleccionado
