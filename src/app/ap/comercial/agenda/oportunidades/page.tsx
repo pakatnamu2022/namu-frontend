@@ -658,6 +658,7 @@ export default function OpportunitiesKanbanPage() {
           onCancel={() => setExternalModalOpen(false)}
           canViewAdvisors={canViewAdvisors}
           loggedWorkerId={loggedUser?.partner_id}
+          advisorOptional
         />
       </GeneralModal>
     </>
