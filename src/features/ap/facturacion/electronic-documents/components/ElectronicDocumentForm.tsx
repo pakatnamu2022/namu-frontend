@@ -678,7 +678,10 @@ export function ElectronicDocumentForm({
     }
     // No actualizar en modo edición
     const currentNumber = form.getValues("numero");
-    const newNumber = nextNumber?.number || "";
+    const newNumber =
+      nextNumber?.number !== undefined && nextNumber?.number !== null
+        ? String(nextNumber.number)
+        : "";
     if (currentNumber !== newNumber) {
       form.setValue("numero", newNumber);
     }

@@ -224,7 +224,7 @@ export function DocumentInfoSection({
         control={form.control}
         name="numero"
         label="Número"
-        type="number"
+        type="text"
         placeholder="Auto-generado"
         readOnly
         optional
