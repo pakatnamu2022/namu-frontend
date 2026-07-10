@@ -37,6 +37,7 @@ const getDescriptionOptions = (conceptId: string): string[] | null => {
       "PLAN NORTE",
       "BONO ADICIONAL (DERCO)",
       "BONO B2B",
+      "BONO DIFEERENCIA DE PRECIO",
     ];
   return null;
 };
