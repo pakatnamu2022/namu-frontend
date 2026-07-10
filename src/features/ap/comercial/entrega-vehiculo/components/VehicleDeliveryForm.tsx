@@ -43,7 +43,6 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
