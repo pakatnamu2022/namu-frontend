@@ -18,7 +18,7 @@ const isFromTomorrowOnward = (date: Date) => {
   return date >= tomorrow;
 };
 
-const scheduledDeliveryDate = z.coerce
+export const scheduledDeliveryDate = z.coerce
   .date({
     error: "La fecha de entrega programada es requerida",
   })

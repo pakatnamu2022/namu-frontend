@@ -17,6 +17,7 @@ import {
   MapPin,
   Package,
   QrCode,
+  Tag,
   Truck,
   XCircle,
 } from "lucide-react";
@@ -93,6 +94,8 @@ export function VehicleDeliveryDetailsSheet({
   };
 
   const guide = vehicleDelivery?.shipping_guide;
+  const vehicle = vehicleDelivery?.vehicle;
+  const model = vehicle?.model;
 
   return (
     <GeneralSheet
@@ -260,6 +263,206 @@ export function VehicleDeliveryDetailsSheet({
                 )}
               </div>
             </div>
+
+            {vehicle && (
+              <>
+                <Separator />
+
+                {/* Información del Vehículo (Ficha) */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Car className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold">Ficha del Vehículo</h3>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
+                    <div>
+                      <p className="text-xs text-muted-foreground">VIN</p>
+                      <p className="text-sm font-semibold">
+                        {vehicle.vin || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Placa</p>
+                      <p className="text-sm font-medium">
+                        {vehicle.plate || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Estado</p>
+                      <Badge
+                        variant="outline"
+                        className="mt-1"
+                        style={{ color: vehicle.status_color }}
+                      >
+                        {vehicle.vehicle_status || "-"}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Año</p>
+                      <p className="text-sm font-medium">
+                        {vehicle.year || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Año de Entrega
+                      </p>
+                      <p className="text-sm font-medium">
+                        {vehicle.year_delivery || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        N° de Motor
+                      </p>
+                      <p className="text-sm font-medium">
+                        {vehicle.engine_number || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Color</p>
+                      <p className="text-sm font-medium">
+                        {vehicle.vehicle_color || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Tipo de Motor
+                      </p>
+                      <p className="text-sm font-medium">
+                        {vehicle.engine_type || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Kilometraje
+                      </p>
+                      <p className="text-sm font-medium">
+                        {vehicle.mileage ?? "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Almacén Físico
+                      </p>
+                      <p className="text-sm font-medium">
+                        {vehicle.warehouse_physical_name || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {model && (
+                  <>
+                    <Separator />
+
+                    {/* Información del Modelo */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold">Información del Modelo</h3>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
+                        <div>
+                          <p className="text-xs text-muted-foreground">Marca</p>
+                          <p className="text-sm font-semibold">
+                            {model.brand || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Familia
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.family || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Versión
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.version || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Código
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.code || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Año Modelo
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.model_year || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Clase
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.class || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Combustible
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.fuel || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Carrocería
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.body_type || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Transmisión
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.transmission || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Tracción
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.traction_type || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            N° Asientos
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.seats_number || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            N° Puertas
+                          </p>
+                          <p className="text-sm font-medium">
+                            {model.doors_number || "-"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
 
             {guide && (
               <>

@@ -269,6 +269,7 @@ export const VehicleDeliveryForm = ({
                 tomorrow.setHours(0, 0, 0, 0);
                 return tomorrow;
               })()}
+              autoSelectFirstAvailable={mode === "create"}
             />
           </div>
         </div>

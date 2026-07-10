@@ -41,7 +41,7 @@ export default function AddVehicleDeliveryPage() {
       ...data,
       scheduled_delivery_date: format(
         data.scheduled_delivery_date,
-        "yyyy-MM-dd"
+        "yyyy-MM-dd HH:mm:ss"
       ),
       wash_date: format(subDays(data.scheduled_delivery_date, 1), "yyyy-MM-dd"),
     };
@@ -61,7 +61,6 @@ export default function AddVehicleDeliveryPage() {
       <VehicleDeliveryForm
         defaultValues={{
           vehicle_id: "",
-          scheduled_delivery_date: new Date(),
           observations: "",
         }}
         onSubmit={handleSubmit}
