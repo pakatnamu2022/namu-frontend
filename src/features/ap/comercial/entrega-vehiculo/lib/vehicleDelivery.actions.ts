@@ -1,6 +1,7 @@
 import { api } from "@/core/api";
 import type { AxiosRequestConfig } from "axios";
 import {
+  AvailableDeliverySlotsResponse,
   getVehiclesDeliveryProps,
   VehiclesDeliveryResource,
   VehiclesDeliveryResponse,
@@ -114,4 +115,14 @@ export async function dispatchShippingGuideMigration(id: number): Promise<void> 
 
 export async function syncAccountingEntry(id: number): Promise<void> {
   await api.post(`${ENDPOINT}/${id}/sync-accounting-entry`);
+}
+
+export async function getAvailableDeliverySlots(
+  date: string
+): Promise<AvailableDeliverySlotsResponse> {
+  const { data } = await api.get<AvailableDeliverySlotsResponse>(
+    `${ENDPOINT}/available-slots`,
+    { params: { date } }
+  );
+  return data;
 }

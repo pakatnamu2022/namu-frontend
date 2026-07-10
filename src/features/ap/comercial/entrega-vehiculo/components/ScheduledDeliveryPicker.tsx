@@ -14,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, Loader } from "lucide-react";
 import {
   FormControl,
   FormDescription,
@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Matcher } from "react-day-picker";
-import { getDeliverySlotsForDay } from "../lib/vehicleDelivery.constants";
+import { useAvailableDeliverySlots } from "../lib/vehicleDelivery.hook";
 
 interface ScheduledDeliveryPickerProps<T extends FieldValues> {
   control: Control<T>;
@@ -74,18 +74,12 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     if (selectedDate) setCalendarDay(selectedDate);
   }, [field.value]);
 
-  const isSlotPast = (day: Date, time: string) => {
-    const now = new Date();
-    const isToday =
-      day.getFullYear() === now.getFullYear() &&
-      day.getMonth() === now.getMonth() &&
-      day.getDate() === now.getDate();
-    if (!isToday) return false;
-    const [hours, minutes] = time.split(":").map(Number);
-    const slot = new Date(day);
-    slot.setHours(hours, minutes, 0, 0);
-    return slot < now;
-  };
+  const calendarDayStr = calendarDay
+    ? format(calendarDay, "yyyy-MM-dd")
+    : undefined;
+
+  const { data: slotsResponse, isFetching: isLoadingSlots } =
+    useAvailableDeliverySlots(calendarDayStr);
 
   const handleDaySelect = (day: Date | undefined) => {
     if (!day) return;
@@ -104,7 +98,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     return matchers;
   };
 
-  const daySlots = calendarDay ? getDeliverySlotsForDay(calendarDay) : [];
+  const daySlots = slotsResponse?.slots ?? [];
 
   return (
     <FormItem className="flex flex-col justify-between">
@@ -153,25 +147,29 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
                       <p className="text-xs text-muted-foreground px-2 py-4 text-center">
                         Selecciona un día
                       </p>
+                    ) : isLoadingSlots ? (
+                      <div className="flex items-center justify-center gap-2 px-2 py-4 text-xs text-muted-foreground">
+                        <Loader className="h-3.5 w-3.5 animate-spin" />
+                        Cargando…
+                      </div>
                     ) : daySlots.length === 0 ? (
                       <p className="text-xs text-muted-foreground px-2 py-4 text-center">
-                        Sin atención los domingos
+                        Sin horarios disponibles
                       </p>
                     ) : (
-                      daySlots.map((time) => {
-                        const past = isSlotPast(calendarDay, time);
-                        const isSelected = selectedTime === time;
+                      daySlots.map((slot) => {
+                        const isSelected = selectedTime === slot.time;
                         return (
                           <Button
-                            key={time}
+                            key={slot.time}
                             type="button"
                             size="sm"
                             variant={isSelected ? "default" : "ghost"}
-                            disabled={past}
+                            disabled={!slot.available}
                             className="justify-center"
-                            onClick={() => handleSlotSelect(time)}
+                            onClick={() => handleSlotSelect(slot.time)}
                           >
-                            {time}
+                            {slot.time}
                           </Button>
                         );
                       })
