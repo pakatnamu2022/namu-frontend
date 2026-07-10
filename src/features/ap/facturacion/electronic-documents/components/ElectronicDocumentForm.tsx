@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toLocalDateString } from "@/core/core.function";
 import {
   ElectronicDocumentSchema,
   ElectronicDocumentItemSchema,
@@ -645,9 +646,7 @@ export function ElectronicDocumentForm({
 
   // Tipo de cambio: siempre consultar para la moneda seleccionada y la fecha de emisión
   const fechaDeEmisionStr = fechaDeEmision
-    ? fechaDeEmision instanceof Date
-      ? fechaDeEmision.toISOString().split("T")[0]
-      : String(fechaDeEmision).split("T")[0]
+    ? toLocalDateString(fechaDeEmision)
     : "";
   const { data: exchangeRate } = useExchangeRateByDateAndCurrency(
     selectedCurrency?.currency_type ?? null,
