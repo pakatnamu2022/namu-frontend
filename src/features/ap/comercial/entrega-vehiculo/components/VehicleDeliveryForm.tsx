@@ -43,6 +43,7 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
@@ -241,9 +242,8 @@ export const VehicleDeliveryForm = ({
                 has_vehicle_delivery: 0,
                 is_paid: 1,
                 is_received: 1,
-                // ap_vehicle_status_id: [
-                //   VEHICLE_STATUS_ID.VEHICULO_FACTURADO_FINAL,
-                // ],
+                vehicleMovements$new_status_id:
+                  VEHICLE_STATUS_ID.VEHICULO_FACTURADO_FINAL,
               }}
               mapOptionFn={(item) => ({
                 label: item.vin,
