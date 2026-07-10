@@ -2,8 +2,8 @@
 
 import {
   StoreVisitsSchema,
-  storeVisitsSchemaCreate,
-  storeVisitsSchemaUpdate,
+  getStoreVisitsSchemaCreate,
+  getStoreVisitsSchemaUpdate,
 } from "../lib/storeVisits.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,6 +55,7 @@ interface StoreVisitsFormProps {
   disableIncomeSector?: boolean;
   canViewAdvisors?: boolean;
   loggedWorkerId?: number;
+  advisorOptional?: boolean;
 }
 
 export const StoreVisitsForm = ({
@@ -67,12 +68,16 @@ export const StoreVisitsForm = ({
   disableIncomeSector = false,
   canViewAdvisors = true,
   loggedWorkerId,
+  advisorOptional = false,
 }: StoreVisitsFormProps) => {
   const { ABSOLUTE_ROUTE } = STORE_VISITS;
   const resolvedType = lockedType ?? TIPO_LEADS.VISITA;
+  const requireAdvisor = !advisorOptional;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate,
+      mode === "create"
+        ? getStoreVisitsSchemaCreate(requireAdvisor)
+        : getStoreVisitsSchemaUpdate(requireAdvisor),
     ),
     defaultValues: {
       ...defaultValues,
@@ -259,12 +264,23 @@ export const StoreVisitsForm = ({
     validationData?.success && validationData.data,
   );
 
+  const handleSubmit = (data: any) => {
+    const worker_id =
+      advisorOptional && !data.worker_id && loggedWorkerId
+        ? loggedWorkerId.toString()
+        : data.worker_id;
+    onSubmit({ ...data, worker_id });
+  };
+
   if (isLoadingSedes || isLoadingTypesDocument || isLoadingIncomeSector)
     return <FormSkeleton />;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 w-full"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect
             name="income_sector_id"
@@ -315,7 +331,7 @@ export const StoreVisitsForm = ({
           {canViewAdvisors ? (
             <FormSelect
               name="worker_id"
-              label="Asesor"
+              label={advisorOptional ? "Asesor (opcional)" : "Asesor"}
               placeholder="Selecciona asesor"
               options={workers.map((item) => ({
                 label: item.name,
