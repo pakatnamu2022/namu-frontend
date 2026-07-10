@@ -35,6 +35,17 @@ export interface VehiclesDeliveryResource {
   shipping_guide?: ShipmentsReceptionsResource | null;
 }
 
+export interface AvailableDeliverySlot {
+  time: string;
+  datetime: string;
+  available: boolean;
+}
+
+export interface AvailableDeliverySlotsResponse {
+  date: string;
+  slots: AvailableDeliverySlot[];
+}
+
 export interface VehiclesDeliveryRequest {
   advisor_id: string;
   vehicle_id: string;

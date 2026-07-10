@@ -9,6 +9,7 @@ import {
   queryVehicleDeliveryFromNubefact,
   getNextShippingGuideDocumentNumber,
   syncAccountingEntry,
+  getAvailableDeliverySlots,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast } from "@/core/core.function";
@@ -141,6 +142,15 @@ export const useSyncAccountingEntry = () => {
         "Error al sincronizar el asiento contable";
       errorToast(msg);
     },
+  });
+};
+
+export const useAvailableDeliverySlots = (date?: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, "available-slots", date],
+    queryFn: () => getAvailableDeliverySlots(date!),
+    enabled: !!date,
+    refetchOnWindowFocus: false,
   });
 };
 
