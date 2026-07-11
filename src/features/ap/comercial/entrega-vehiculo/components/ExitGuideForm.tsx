@@ -64,6 +64,10 @@ export const ExitGuideForm = ({
       watchSedeId ? Number(watchSedeId) : undefined,
     );
 
+  const shopId = mySedes.find(
+    (item) => item.sede_id.toString() === watchSedeId,
+  )?.shop_id;
+
   useEffect(() => {
     const currentVehicleId = form.getValues("vehicle_id");
     if (currentVehicleId && !isLoadingVehicles) {
@@ -162,6 +166,7 @@ export const ExitGuideForm = ({
               return tomorrow;
             })()}
             autoSelectFirstAvailable
+            shopId={shopId}
           />
         </div>
 
