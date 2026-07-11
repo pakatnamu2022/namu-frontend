@@ -2,6 +2,7 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -40,6 +41,7 @@ import {
 
 export default function WorkOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { user } = useAuthStore();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -78,6 +80,16 @@ export default function WorkOrderPage() {
     sede_id: sedeId || undefined,
     sede$empresa_id: EMPRESA_AP.id,
   });
+
+  // Si el partner_id del usuario coincide con algún asesor, pre-seleccionar y bloquear el select
+  const matchedAdvisor = asesores.find((a) => a.id === user?.partner_id);
+  const isAdvisorLocked = !!matchedAdvisor;
+
+  useEffect(() => {
+    if (isAdvisorLocked && matchedAdvisor) {
+      setAdvisorId(matchedAdvisor.id.toString());
+    }
+  }, [isAdvisorLocked, matchedAdvisor]);
 
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
