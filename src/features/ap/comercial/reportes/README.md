@@ -2,21 +2,30 @@
 
 Sistema flexible y reutilizable para generar reportes en el módulo comercial con soporte para múltiples formatos (Excel, PDF) y filtros configurables.
 
+> El motor de reportes (componentes, hooks, actions, tipos) es **compartido entre todos los módulos de AP** y vive en [`src/shared/lib/reports`](../../../../shared/lib/reports) / [`src/shared/components/reports`](../../../../shared/components/reports). Este módulo solo aporta su propia configuración (`reports.constants.ts`). El mismo patrón lo usa `post-venta/reportes`; ver ese README para el detalle de cómo agregar reportes nuevos.
+
 ## Estructura
 
 ```
 reportes/
-├── components/
-│   ├── ReportCard.tsx          # Tarjeta individual de reporte
-│   └── ReportFilters.tsx       # Formulario de filtros dinámico
 ├── lib/
-│   ├── reports.actions.ts      # Acciones para descargar reportes
-│   ├── reports.constants.ts    # Configuración de reportes
-│   ├── reports.hook.ts         # Hooks de React Query
-│   ├── reports.interface.ts    # Interfaces TypeScript
-│   └── reports.schema.ts       # Esquemas de validación Zod
-├── index.ts                    # Exportaciones públicas
+│   └── reports.constants.ts    # Configuración de reportes de Comercial (COMMERCIAL_REPORTS)
+├── index.ts                    # Exportaciones públicas (re-exporta el motor compartido)
 └── README.md                   # Esta documentación
+```
+
+El motor compartido vive en:
+```
+shared/
+├── components/reports/
+│   ├── ReportCard.tsx           # Tarjeta individual de reporte
+│   ├── ReportFilters.tsx        # Formulario de filtros dinámico
+│   └── ReportsGrid.tsx          # Grid + estado vacío, listo para usar en cualquier page.tsx
+└── lib/reports/
+    ├── reports.actions.ts       # Acciones para descargar reportes
+    ├── reports.hook.ts          # Hooks de React Query
+    ├── reports.interface.ts     # Interfaces TypeScript (ReportConfig, ReportField, ...)
+    └── reports.schema.ts        # Esquemas de validación Zod
 ```
 
 ## Características

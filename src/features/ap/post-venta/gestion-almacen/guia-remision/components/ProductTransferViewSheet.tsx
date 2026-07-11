@@ -16,11 +16,13 @@ import {
   User,
   Building2,
   CreditCard,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductTransferDetailResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { findProductTransferById } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
+import { useQueryShippingGuideFromNubefact } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
 import { InfoSection } from "@/shared/components/InfoSection";
 import { CopyCell } from "@/shared/components/CopyCell";
 import {
@@ -105,6 +107,13 @@ export function ProductTransferViewSheet({
     queryFn: () => findProductTransferById(transferId),
     enabled: !!transferId && open,
   });
+
+  const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
+
+  const handleQueryFromNubefact = () => {
+    if (!transferData?.reference_id) return;
+    queryFromNubefactMutation.mutate(transferData.reference_id);
+  };
 
   return (
     <GeneralSheet
@@ -317,10 +326,26 @@ export function ProductTransferViewSheet({
               {transferData.reference.requires_sunat && (
                 <>
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <FileCheck className="size-5" />
-                      SUNAT - Estado / Documentos
-                    </h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <FileCheck className="size-5" />
+                        SUNAT - Estado / Documentos
+                      </h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={handleQueryFromNubefact}
+                        disabled={queryFromNubefactMutation.isPending}
+                      >
+                        {queryFromNubefactMutation.isPending ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="size-4" />
+                        )}
+                        Consultar estado en SUNAT
+                      </Button>
+                    </div>
                     <div className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">

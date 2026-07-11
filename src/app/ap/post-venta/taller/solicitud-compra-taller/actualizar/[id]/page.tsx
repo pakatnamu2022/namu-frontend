@@ -20,7 +20,7 @@ import {
 } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions.ts";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema.ts";
 import { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface.ts";
-import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm.tsx";
+import PurchaseRequestTallerForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTallerForm.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 
 export default function UpdatePurchaseRequestPVPage() {
@@ -101,7 +101,7 @@ export default function UpdatePurchaseRequestPVPage() {
         mode="edit"
         icon={currentView.icon}
       />
-      <PurchaseRequestForm
+      <PurchaseRequestTallerForm
         defaultValues={mapPurchaseRequestToForm(purchaseRequest)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

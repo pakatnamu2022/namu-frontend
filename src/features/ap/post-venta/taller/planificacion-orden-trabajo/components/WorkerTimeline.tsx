@@ -16,6 +16,7 @@ import {
 import {
   WORK_SCHEDULE,
   minutesToTimelinePosition,
+  getTimelineSegments,
 } from "../lib/workOrderPlanning.constants";
 import { format, parseISO, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
@@ -113,6 +114,116 @@ interface WorkerTimelineProps {
   sedeId?: string;
   onRefresh?: () => void;
   readOnly?: boolean;
+}
+
+// Popover para fijar la hora de inicio o de fin del bloque escribiendo hora y minuto,
+// como alternativa a arrastrar el handle (útil cuando el handle es difícil de tomar con el mouse).
+function TimeInputPopover({
+  mode,
+  referenceTime,
+  editableTime,
+  onApply,
+}: {
+  mode: "start" | "end";
+  /** La hora que NO se edita: fin (si mode="start") o inicio (si mode="end"). Solo informativa. */
+  referenceTime: Date;
+  /** La hora que se edita: inicio (si mode="start") o fin (si mode="end"). */
+  editableTime: Date;
+  onApply: (totalMinutes: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [hours, setHours] = useState(editableTime.getHours());
+  const [minutes, setMinutes] = useState(editableTime.getMinutes());
+
+  useEffect(() => {
+    if (open) {
+      setHours(editableTime.getHours());
+      setMinutes(editableTime.getMinutes());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const handleApply = () => {
+    const clampedHours = Math.min(23, Math.max(0, hours));
+    const clampedMinutes = Math.min(59, Math.max(0, minutes));
+    const totalMinutes = clampedHours * 60 + clampedMinutes;
+    onApply(mode === "end" && totalMinutes === 0 ? 24 * 60 : totalMinutes);
+    setOpen(false);
+  };
+
+  const isStart = mode === "start";
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "absolute -top-3 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-primary bg-white text-primary shadow hover:bg-primary hover:text-white cursor-pointer",
+            isStart ? "-left-3" : "-right-3",
+          )}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          title={
+            isStart
+              ? "Ingresar hora de inicio manualmente"
+              : "Ingresar hora de fin manualmente"
+          }
+        >
+          <Clock className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-56 space-y-3 p-2"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">
+            {isStart ? "Fin" : "Inicio"}: {format(referenceTime, "HH:mm")}
+          </Label>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs">
+            {isStart ? "Hora de inicio" : "Hora de fin"}
+          </Label>
+          <div className="flex items-center gap-1">
+            <Input
+              type="number"
+              min={0}
+              max={23}
+              value={hours}
+              onChange={(e) => setHours(Number(e.target.value))}
+              className="h-8 w-16 text-center"
+            />
+            <span className="text-muted-foreground">:</span>
+            <Input
+              type="number"
+              min={0}
+              max={59}
+              step={5}
+              value={minutes}
+              onChange={(e) => setMinutes(Number(e.target.value))}
+              className="h-8 w-16 text-center"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 pt-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setOpen(false)}
+          >
+            Cancelar
+          </Button>
+          <Button type="button" size="sm" onClick={handleApply}>
+            Aplicar
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 export function WorkerTimeline({
@@ -342,6 +453,27 @@ export function WorkerTimeline({
     return result;
   };
 
+  // Inversa de addWorkHours: dado inicio y fin (hh:mm elegidos por el usuario),
+  // calcula las horas efectivas de trabajo descontando el almuerzo si el rango lo cruza.
+  const calculateWorkHoursBetween = (
+    start: Date,
+    endMinutes: number,
+  ): number => {
+    const startMinutes = start.getHours() * 60 + start.getMinutes();
+    let diff = endMinutes - startMinutes;
+    if (diff <= 0) return 0;
+
+    if (startMinutes < LUNCH_START && endMinutes > LUNCH_START) {
+      const lunchOverlapEnd = Math.min(endMinutes, WORK_SCHEDULE.LUNCH_END);
+      diff -= Math.max(0, lunchOverlapEnd - LUNCH_START);
+    }
+
+    return Math.round((diff / 60) * 60) / 60;
+  };
+
+  // % de ancho real de mañana/almuerzo/tarde, según WORK_SCHEDULE (no valores fijos)
+  const timelineSegments = getTimelineSegments();
+
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
@@ -395,20 +527,21 @@ export function WorkerTimeline({
   // Convertir posición del timeline (0-100%) a hora
   const positionToTime = (position: number): Date | null => {
     let targetMinutes: number;
+    const { morning, lunchEnd } = getTimelineSegments();
 
-    // Mañana: 0%-50%
-    if (position <= 50) {
-      const morningProgress = position / 50;
+    // Mañana: 0%-morning%
+    if (position <= morning) {
+      const morningProgress = position / morning;
       targetMinutes =
         MORNING_START + morningProgress * (MORNING_END - MORNING_START);
     }
-    // Almuerzo: 50%-60% (no seleccionable)
-    else if (position > 50 && position < 60) {
+    // Almuerzo: morning%-lunchEnd% (no seleccionable)
+    else if (position > morning && position < lunchEnd) {
       return null;
     }
-    // Tarde: 60%-100%
+    // Tarde: lunchEnd%-100%
     else {
-      const afternoonProgress = (position - 60) / 40;
+      const afternoonProgress = (position - lunchEnd) / (100 - lunchEnd);
       targetMinutes =
         AFTERNOON_START + afternoonProgress * (AFTERNOON_END - AFTERNOON_START);
     }
@@ -514,15 +647,13 @@ export function WorkerTimeline({
     });
   };
 
-  // Calcula cuántas horas se derraman al día siguiente (overflow)
+  // Calcula cuántas horas se derraman al día siguiente (cuando el bloque cruza medianoche)
   const getOverflowHours = (startTime: Date, hours: number): number => {
     const endTime = addWorkHours(startTime, hours);
-    const endTotalMin = endTime.getHours() * 60 + endTime.getMinutes();
-    // Si la hora de fin es menor que la de inicio en minutos absolutos,
-    // significa que pasó la medianoche (edge case extremo), lo ignoramos.
-    // Solo nos interesa si supera AFTERNOON_END (18:00)
-    if (endTotalMin > AFTERNOON_END) {
-      return (endTotalMin - AFTERNOON_END) / 60;
+    if (!isSameDay(endTime, startTime)) {
+      const midnight = new Date(startTime);
+      midnight.setHours(24, 0, 0, 0);
+      return (endTime.getTime() - midnight.getTime()) / (1000 * 60 * 60);
     }
     return 0;
   };
@@ -557,7 +688,7 @@ export function WorkerTimeline({
     const lastEnd = getLastBlockEnd(workerPlannings);
 
     if (lastEnd) {
-      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      // Si el último bloque ya termina a las 24:00 o después, la barra está llena
       const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
       if (lastEndTotalMin >= AFTERNOON_END) return;
 
@@ -635,8 +766,7 @@ export function WorkerTimeline({
       const deltaX = ev.clientX - dragStartXRef.current;
       const deltaFraction = deltaX / rect.width;
 
-      // Convertir fracción de timeline a horas (el timeline total = 8 horas laborales aprox)
-      // Mañana: 0-50% = 5h  |  Almuerzo: 50-60% = skip  |  Tarde: 60-100% = 3.6h
+      // Convertir fracción de timeline a horas (el timeline total = mañana + tarde, sin almuerzo)
       const totalWorkHours =
         (WORK_SCHEDULE.MORNING_END -
           WORK_SCHEDULE.MORNING_START +
@@ -672,6 +802,24 @@ export function WorkerTimeline({
     window.addEventListener("mouseup", onMouseUp);
   };
 
+  // Aplica una nueva hora de inicio escrita a mano, manteniendo fija la hora de fin actual
+  // (recalcula la duración, igual que arrastrar el borde izquierdo del bloque).
+  const handleStartTimeApply = (startMinutes: number) => {
+    if (!selectedTime) return;
+    const currentEnd = addWorkHours(selectedTime.time, estimatedHours);
+    const newStart = new Date(selectedTime.time);
+    newStart.setHours(Math.floor(startMinutes / 60), startMinutes % 60, 0, 0);
+
+    const newHours = calculateWorkHoursBetween(
+      newStart,
+      currentEnd.getHours() * 60 + currentEnd.getMinutes(),
+    );
+    if (newHours <= 0) return;
+
+    setSelectedTime({ time: newStart, workerId: selectedTime.workerId });
+    onEstimatedHoursChange?.(newHours);
+  };
+
   const handleTimelineHover = (
     event: React.MouseEvent<HTMLDivElement>,
     workerId: number,
@@ -686,7 +834,7 @@ export function WorkerTimeline({
     const lastEnd = getLastBlockEnd(workerPlannings);
 
     if (lastEnd) {
-      // Si el último bloque ya termina en 18:00 o después, la barra está llena
+      // Si el último bloque ya termina a las 24:00 o después, la barra está llena
       const lastEndTotalMin = lastEnd.getHours() * 60 + lastEnd.getMinutes();
       if (lastEndTotalMin >= AFTERNOON_END) {
         setHoveredSlot(null);
@@ -826,17 +974,20 @@ export function WorkerTimeline({
   }, [selectedDate]);
 
   const timeMarkers = [
+    { time: "0:00", position: timeToPosition(0, 0) },
+    { time: "2:00", position: timeToPosition(2, 0) },
+    { time: "4:00", position: timeToPosition(4, 0) },
+    { time: "6:00", position: timeToPosition(6, 0) },
     { time: "8:00", position: timeToPosition(8, 0) },
-    { time: "9:00", position: timeToPosition(9, 0) },
     { time: "10:00", position: timeToPosition(10, 0) },
-    { time: "11:00", position: timeToPosition(11, 0) },
     { time: "12:00", position: timeToPosition(12, 0) },
     { time: "13:00", position: timeToPosition(13, 0) },
     { time: "14:24", position: timeToPosition(14, 24) },
-    { time: "15:00", position: timeToPosition(15, 0) },
     { time: "16:00", position: timeToPosition(16, 0) },
-    { time: "17:00", position: timeToPosition(17, 0) },
     { time: "18:00", position: timeToPosition(18, 0) },
+    { time: "20:00", position: timeToPosition(20, 0) },
+    { time: "22:00", position: timeToPosition(22, 0) },
+    { time: "24:00", position: timeToPosition(24, 0) },
   ];
 
   const timelineContent = (
@@ -1148,6 +1299,7 @@ export function WorkerTimeline({
             estimatedHours,
           );
           if (overflowHours <= 0) return null;
+          const endTime = addWorkHours(selectedTime.time, estimatedHours);
           const overflowMins = Math.round(overflowHours * 60);
           const overflowLabel =
             overflowMins % 60 === 0
@@ -1159,8 +1311,9 @@ export function WorkerTimeline({
             <Alert className="border-orange-300 bg-orange-50">
               <Clock className="h-4 w-4 text-orange-600" />
               <AlertDescription className="text-orange-700 font-medium">
-                El horario excede las 18:00. <strong>{overflowLabel}</strong>{" "}
-                continuará al día siguiente desde las 08:00.
+                El horario cruza la medianoche. <strong>{overflowLabel}</strong>{" "}
+                continuará el {format(endTime, "dd/MM/yyyy")} desde las 00:00
+                hasta las {format(endTime, "HH:mm")}.
               </AlertDescription>
             </Alert>
           );
@@ -1236,13 +1389,16 @@ export function WorkerTimeline({
                   {/* Área de mañana */}
                   <div
                     className="absolute left-0 top-0 bottom-0 bg-gray-100"
-                    style={{ width: "50%" }}
+                    style={{ width: `${timelineSegments.morning}%` }}
                   ></div>
 
                   {/* Separador almuerzo */}
                   <div
                     className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
-                    style={{ left: "50%", width: "10%" }}
+                    style={{
+                      left: `${timelineSegments.morning}%`,
+                      width: `${timelineSegments.lunch}%`,
+                    }}
                   >
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
                       ALMUERZO
@@ -1252,7 +1408,10 @@ export function WorkerTimeline({
                   {/* Área de tarde */}
                   <div
                     className="absolute top-0 bottom-0 bg-gray-100"
-                    style={{ left: "60%", width: "40%" }}
+                    style={{
+                      left: `${timelineSegments.lunchEnd}%`,
+                      width: `${timelineSegments.afternoon}%`,
+                    }}
                   ></div>
 
                   {/* Zona de horas pasadas (solo si es hoy) */}
@@ -1612,6 +1771,12 @@ export function WorkerTimeline({
                                 <MoveHorizontal className="h-3 w-3" />
                                 Mover
                               </button>
+                              <TimeInputPopover
+                                mode="start"
+                                referenceTime={endTime}
+                                editableTime={selectedTime.time}
+                                onApply={handleStartTimeApply}
+                              />
                             </div>
                             {/* Segmento tarde */}
                             <div
@@ -1648,37 +1813,46 @@ export function WorkerTimeline({
                               >
                                 <div className="w-1 h-6 bg-primary rounded-full" />
                               </div>
+                              <TimeInputPopover
+                                mode="end"
+                                referenceTime={selectedTime.time}
+                                editableTime={endTime}
+                                onApply={(endMinutes) => {
+                                  const hours = calculateWorkHoursBetween(
+                                    selectedTime.time,
+                                    endMinutes,
+                                  );
+                                  if (hours > 0)
+                                    onEstimatedHoursChange?.(hours);
+                                }}
+                              />
                             </div>
                           </>
                         );
                       }
 
-                      // Caso overflow: parte dentro del día (azul) + parte fuera (naranja hasta el borde)
+                      // Caso overflow: parte dentro del día (azul) + parte del día siguiente (naranja hasta el borde)
                       const overflowHours = getOverflowHours(
                         selectedTime.time,
                         estimatedHours,
                       );
                       const hasOverflow = overflowHours > 0;
-
-                      // endPos clampado al 100% del timeline (18:00)
                       const clampedEndPos = Math.min(endPos, 100);
-                      // posición de las 18:00 en el timeline
-                      const afternoonEndPos = timeToPosition(18, 0);
 
                       if (hasOverflow) {
                         return (
                           <>
-                            {/* Segmento dentro del horario (azul) */}
+                            {/* Segmento dentro del día (azul) */}
                             <div
                               className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
                               style={{
                                 left: `${startPos}%`,
-                                width: `${afternoonEndPos - startPos}%`,
+                                width: `${100 - startPos}%`,
                               }}
                             >
                               <div className="flex items-center justify-center h-full pointer-events-none">
                                 <span className="text-xs font-bold text-black">
-                                  {format(selectedTime.time, "HH:mm")} - 18:00
+                                  {format(selectedTime.time, "HH:mm")} - 24:00
                                 </span>
                               </div>
                               {/* Botón mover */}
@@ -1694,24 +1868,15 @@ export function WorkerTimeline({
                                 <MoveHorizontal className="h-3 w-3" />
                                 Mover
                               </button>
-                            </div>
-                            {/* Segmento overflow (naranja, hasta el borde del timeline) */}
-                            <div
-                              className="absolute top-0 h-full bg-orange-400 opacity-60 border-2 border-orange-600 border-dashed z-30"
-                              style={{
-                                left: `${afternoonEndPos}%`,
-                                width: `${clampedEndPos - afternoonEndPos}%`,
-                                cursor: "ew-resize",
-                              }}
-                            >
-                              <div className="flex items-center justify-center h-full pointer-events-none">
-                                <span className="text-[10px] font-bold text-orange-900 whitespace-nowrap">
-                                  +{Math.round(overflowHours * 60)}min →
-                                </span>
-                              </div>
+                              <TimeInputPopover
+                                mode="start"
+                                referenceTime={endTime}
+                                editableTime={selectedTime.time}
+                                onApply={handleStartTimeApply}
+                              />
                               {/* Handle de resize */}
                               <div
-                                className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-orange-500/30"
+                                className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
                                 onMouseDown={(e) => {
                                   const timelineEl = e.currentTarget.closest(
                                     ".timeline-row",
@@ -1720,8 +1885,21 @@ export function WorkerTimeline({
                                     handleResizeStart(e, timelineEl);
                                 }}
                               >
-                                <div className="w-1 h-6 bg-orange-600 rounded-full pointer-events-none" />
+                                <div className="w-1 h-6 bg-primary rounded-full" />
                               </div>
+                              <TimeInputPopover
+                                mode="end"
+                                referenceTime={selectedTime.time}
+                                editableTime={endTime}
+                                onApply={(endMinutes) => {
+                                  const hours = calculateWorkHoursBetween(
+                                    selectedTime.time,
+                                    endMinutes,
+                                  );
+                                  if (hours > 0)
+                                    onEstimatedHoursChange?.(hours);
+                                }}
+                              />
                             </div>
                           </>
                         );
@@ -1732,7 +1910,7 @@ export function WorkerTimeline({
                           className="absolute top-0 h-full bg-blue-500 opacity-50 border-2 border-primary z-30"
                           style={{
                             left: `${startPos}%`,
-                            width: `${endPos - startPos}%`,
+                            width: `${clampedEndPos - startPos}%`,
                           }}
                         >
                           <div className="flex items-center justify-center gap-2 h-full pointer-events-none">
@@ -1754,6 +1932,12 @@ export function WorkerTimeline({
                             <MoveHorizontal className="h-3 w-3" />
                             Mover
                           </button>
+                          <TimeInputPopover
+                            mode="start"
+                            referenceTime={endTime}
+                            editableTime={selectedTime.time}
+                            onApply={handleStartTimeApply}
+                          />
                           {/* Handle de resize */}
                           <div
                             className="absolute right-0 top-0 h-full w-3 cursor-ew-resize z-40 flex items-center justify-center hover:bg-primary/30"
@@ -1766,6 +1950,18 @@ export function WorkerTimeline({
                           >
                             <div className="w-1 h-6 bg-primary rounded-full pointer-events-none" />
                           </div>
+                          <TimeInputPopover
+                            mode="end"
+                            referenceTime={selectedTime.time}
+                            editableTime={endTime}
+                            onApply={(endMinutes) => {
+                              const hours = calculateWorkHoursBetween(
+                                selectedTime.time,
+                                endMinutes,
+                              );
+                              if (hours > 0) onEstimatedHoursChange?.(hours);
+                            }}
+                          />
                         </div>
                       );
                     })()}
@@ -1794,11 +1990,7 @@ export function WorkerTimeline({
 
                       return (
                         <button
-                          className={`absolute -top-9 z-50 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-lg whitespace-nowrap ${
-                            canConfirm
-                              ? "bg-primary text-white cursor-pointer animate-pulse hover:animate-none"
-                              : "bg-slate-300 text-slate-500 cursor-not-allowed"
-                          }`}
+                          className="absolute -top-9 z-50 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-lg whitespace-nowrap bg-primary text-white cursor-pointer"
                           style={{ left: `${confirmCenterPos}%` }}
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={(e) => {

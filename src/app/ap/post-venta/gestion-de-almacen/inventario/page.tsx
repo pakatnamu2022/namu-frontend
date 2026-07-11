@@ -20,6 +20,7 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import type { SortingState } from "@tanstack/react-table";
 import InventoryStockMinMaxModal from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryStockMinMaxModal";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
+import ReservedStockDetailsSheet from "@/features/ap/post-venta/gestion-almacen/inventario/components/ReservedStockDetailsSheet";
 
 export default function InventoryPage() {
   const router = useNavigate();
@@ -30,6 +31,10 @@ export default function InventoryPage() {
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [stockMinMaxSelected, setStockMinMaxSelected] =
     useState<InventoryResource | null>(null);
+  const [reservedStockSelected, setReservedStockSelected] = useState<{
+    productId: number;
+    warehouseId: number;
+  } | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
   const permissions = useModulePermissions(ROUTE);
@@ -116,6 +121,11 @@ export default function InventoryPage() {
             router(`${ABSOLUTE_ROUTE}/movimientos/${id}/${warehouse_id}`),
           onPurchaseHistory: (id, warehouse_id) =>
             router(`${ABSOLUTE_ROUTE}/historico-compras/${id}/${warehouse_id}`),
+          onReservedStock: (id, warehouse_id) =>
+            setReservedStockSelected({
+              productId: id,
+              warehouseId: warehouse_id,
+            }),
         })}
         data={data?.data || []}
         sorting={sorting}
@@ -139,6 +149,15 @@ export default function InventoryPage() {
           onClose={() => {
             setStockMinMaxSelected(null);
           }}
+        />
+      )}
+
+      {reservedStockSelected !== null && (
+        <ReservedStockDetailsSheet
+          open={true}
+          onClose={() => setReservedStockSelected(null)}
+          productId={reservedStockSelected.productId}
+          warehouseId={reservedStockSelected.warehouseId}
         />
       )}
 

@@ -122,6 +122,7 @@ import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
 import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
 import GPTicsLayout from "./app/gp/tics/layout";
 import TPComercialLayout from "./app/tp/comercial-tp/layout";
+import TPConfiguracionesLayout from "./app/tp/configuraciones/layout";
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
@@ -346,6 +347,7 @@ import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caj
 import DirectInvoicePage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx";
 import BillWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/facturar/[id]/page.tsx";
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
+import ReportesPostVentaPage from "./app/ap/post-venta/reportes/page.tsx";
 import AdoptionDashboardPage from "./app/gp/gestion-del-sistema/adoption-dashboard/page";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -482,6 +484,8 @@ import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
 import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
 import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 import ExitGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx";
+import ControlTipoVehiculoPage from "./app/tp/configuraciones/control-tipo-vehiculo/page.tsx";
+import ControlVehiculoPage from "./app/tp/configuraciones/control-vehiculo/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -912,6 +916,7 @@ function App() {
             {/* ======================================================== */}
             {/* AP - CONFIGURACIONES */}
             {/* ======================================================== */}
+
             <Route
               path="/ap/configuraciones"
               element={
@@ -1773,6 +1778,9 @@ function App() {
                 path="caja/orden-trabajo-taller-caja/facturar/:id"
                 element={<BillWorkOrderCajaPage />}
               />
+
+              {/* Reportes */}
+              <Route path="reportes" element={<ReportesPostVentaPage />} />
             </Route>
 
             {/* ======================================================== */}
@@ -2280,6 +2288,24 @@ function App() {
                 element={<ControlVehicleAssignmentPage />}
               />
               <Route path="monitoreo" element={<MonitoreoPage />} />
+            </Route>
+            {/* ======================================================== */}
+            {/* TP - CONFIGURACIONES */}
+            {/* ======================================================== */}
+            <Route
+              path="/tp/configuraciones"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <TPConfiguracionesLayout>
+                    <Outlet />
+                  </TPConfiguracionesLayout>
+
+                </Suspense>
+              }
+            >
+              <Route path="control-tipo-vehiculo" element={<ControlTipoVehiculoPage />} />
+              <Route path="control-vehiculo" element={<ControlVehiculoPage />} />
+
             </Route>
 
             {/* ======================================================== */}

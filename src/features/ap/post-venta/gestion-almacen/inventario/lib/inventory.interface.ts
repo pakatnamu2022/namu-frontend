@@ -299,3 +299,59 @@ export interface StockMovementHistoryResponse {
   history: StockMovementHistoryItem[];
   generated_at: string;
 }
+
+// ─── Reserved Stock Report ────────────────────────────────────────────────────
+
+export interface ReservedStockReportReservationOT {
+  work_order_id: number;
+  work_order_correlative: string;
+  work_order_status_id: number;
+  work_order_status: string;
+  sede_name: string;
+  quantity_reserved: string;
+  reserved_at: string;
+  reserved_by_user_id: number;
+  reserved_by_user_name: string;
+}
+
+export interface ReservedStockReportReservationRP {
+  quotation_id: number;
+  quotation_number: string;
+  quotation_status: string;
+  sede_name: string;
+  quantity_reserved: string;
+  reserved_at: string;
+  reserved_by_user_id: number;
+  reserved_by_user_name: string;
+}
+
+export interface ReservedStockReportItem {
+  product_id: number;
+  product_code: string;
+  product_dyn_code: string;
+  product_name: string;
+  warehouse_id: number;
+  warehouse_name: string | null;
+  total_reserved_quantity: string;
+  physical_stock: string;
+  available_quantity: string;
+  reservations_ot: ReservedStockReportReservationOT[];
+  reservations_rp: ReservedStockReportReservationRP[];
+}
+
+export interface ReservedStockReportSummary {
+  total_products_with_reservations: number;
+  total_reserved_quantity: number;
+  total_work_orders: number;
+}
+
+export interface ReservedStockReportResponse {
+  success: boolean;
+  data: ReservedStockReportItem[];
+  summary: ReservedStockReportSummary;
+}
+
+export interface getReservedStockReportProps {
+  warehouse_id?: number | string;
+  product_id?: number | string;
+}

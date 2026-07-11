@@ -15,8 +15,8 @@ import {
   ReportField,
   ReportFilterValues,
   ReportFormat,
-} from "../lib/reports.interface";
-import { useSelectOptions } from "../lib/reports.hook";
+} from "@/shared/lib/reports/reports.interface";
+import { useSelectOptions } from "@/shared/lib/reports/reports.hook";
 import { useState } from "react";
 
 interface ReportFiltersProps {
@@ -102,6 +102,21 @@ export function ReportFilters({
       }
       return acc;
     }, {} as Record<string, any>);
+
+    // Para daterange con rangeParamName, combinar from/to en un único array
+    fields.forEach((field) => {
+      if (field.type === "daterange" && field.rangeParamName && field.nameFrom && field.nameTo) {
+        const from = cleanedValues[field.nameFrom];
+        const to = cleanedValues[field.nameTo];
+
+        delete cleanedValues[field.nameFrom];
+        delete cleanedValues[field.nameTo];
+
+        if (from !== undefined || to !== undefined) {
+          cleanedValues[field.rangeParamName] = [from, to];
+        }
+      }
+    });
 
     // Agregar el formato seleccionado del estado
     cleanedValues.format = format;

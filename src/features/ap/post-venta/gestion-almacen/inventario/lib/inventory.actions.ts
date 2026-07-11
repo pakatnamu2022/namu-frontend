@@ -9,6 +9,8 @@ import {
   InventoryResource,
   PriceCalculationDetailsResponse,
   StockMovementHistoryResponse,
+  getReservedStockReportProps,
+  ReservedStockReportResponse,
 } from "./inventory.interface.ts";
 import {
   getInventoryKardexProps,
@@ -267,3 +269,13 @@ export async function rebuildCostHistory(
     warehouse_id: warehouseId,
   });
 }
+
+export const getReservedStockReport = async (
+  params?: getReservedStockReportProps,
+): Promise<ReservedStockReportResponse> => {
+  const { data } = await api.get<ReservedStockReportResponse>(
+    `/ap/postVenta/productWarehouseStock/reserved-stock-report`,
+    { params },
+  );
+  return data;
+};
