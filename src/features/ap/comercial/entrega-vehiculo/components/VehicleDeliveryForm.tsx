@@ -158,6 +158,10 @@ export const VehicleDeliveryForm = ({
 
   const watchSedeId = form.watch("sede_id");
 
+  const shopId = mySedes.find(
+    (item) => item.sede_id.toString() === watchSedeId,
+  )?.shop_id;
+
   const selectedVehicleId = form.watch("vehicle_id");
 
   const { data: debtInfo, isLoading: isLoadingDebtInfo } =
@@ -269,6 +273,7 @@ export const VehicleDeliveryForm = ({
                 return tomorrow;
               })()}
               autoSelectFirstAvailable={mode === "create"}
+              shopId={shopId}
             />
           </div>
         </div>

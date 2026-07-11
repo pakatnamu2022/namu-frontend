@@ -13,6 +13,7 @@ export interface WarehouseResource {
   article_class_id: number;
   article_class: string;
   sede_id: number;
+  shop_id?: number;
   sede: string;
   type_operation_id: number;
   type_operation: string;

@@ -1,6 +1,11 @@
 import { api } from "@/core/api";
 import type { AxiosRequestConfig } from "axios";
-import { getSedesProps, SedeResource, SedeResponse } from "./sede.interface";
+import {
+  getSedesProps,
+  MyShopResource,
+  SedeResource,
+  SedeResponse,
+} from "./sede.interface";
 import { SEDE } from "@/features/gp/maestro-general/sede/lib/sede.constants";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { ShopSedeResource } from "@/features/ap/configuraciones/ventas/tiendas/lib/shop.interface";
@@ -55,6 +60,21 @@ export async function getAllAvailableLocationsShop(
   };
   const { data } = await api.get<ShopSedeResource[]>(
     `${ENDPOINT}/availableLocationsShop`,
+    config
+  );
+  return data;
+}
+
+export async function getMyShops(
+  params: Record<string, any> = {}
+): Promise<MyShopResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<MyShopResource[]>(
+    `${ENDPOINT}/my-shops`,
     config
   );
   return data;

@@ -37,3 +37,11 @@ export interface SedeResource {
 export interface getSedesProps {
   params?: Record<string, any>;
 }
+
+export interface MyShopResource {
+  id: number;
+  code: string | null;
+  description: string;
+  type: string;
+  status: number;
+}
