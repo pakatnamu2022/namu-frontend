@@ -214,5 +214,37 @@ export interface AnalisisEstrategicoResponse {
   proyeccion: ProyeccionCierre;
   distribucion: DistribucionCliente[];
 }
+export interface PrediccionIAResponse {
+  success: boolean;
+  message?: string;
+  datos_historicos: Array<{
+    mes: number;
+    periodo: string;
+    produccion: number;
+    year: number;
+    month: number;
+  }>;
+  prediccion: {
+    produccion_estimada: number;
+    meta_mes_actual: number;
+    cumplimiento_proyectado: number;
+    precision: number;
+    nivel_confianza: 'alto' | 'medio' | 'bajo';
+    meses_analizados: number;
+    factor_confianza: number;
+    tendencia: 'creciente' | 'decreciente';
+    variacion_mensual: number;
+    r2: number;
+    metodo_principal?: string;
+    prediccion_exponencial?: number;
+  };
+  recomendaciones: string[];
+  grafico: Array<{
+    periodo: string;
+    real: number | null;
+    tendencia: number;
+    es_prediccion: boolean;
+  }>;
+}
 
 
