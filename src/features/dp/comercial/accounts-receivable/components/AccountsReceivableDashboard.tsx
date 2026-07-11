@@ -363,6 +363,7 @@ export default function AccountsReceivableDashboard({
 
       {/* Filters */}
       <AccountsReceivableTreeFilter
+      company={company}
         filters={dashFilters}
         onFiltersChange={handleFiltersChange}
         onReset={handleReset}
