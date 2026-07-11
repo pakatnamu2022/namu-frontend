@@ -14,6 +14,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   canUpdate: boolean;
+  showComments?: boolean;
 }
 
 export default function AccountsReceivableSheet({
@@ -21,6 +22,7 @@ export default function AccountsReceivableSheet({
   open,
   onClose,
   canUpdate,
+  showComments = true,
 }: Props) {
   const { data: account, isLoading } = useAccountReceivableById(selectedId);
 
@@ -40,9 +42,19 @@ export default function AccountsReceivableSheet({
       isLoading={isLoading}
     >
       {account && (
-        <div className="grid grid-cols-3 gap-0 h-full">
+        <div
+          className={cn(
+            "grid gap-0 h-full",
+            showComments ? "grid-cols-3" : "grid-cols-1",
+          )}
+        >
           {/* Left — compact detail */}
-          <div className="overflow-y-auto pr-4 border-r border-border/40 space-y-3 pb-2 cols-span-1">
+          <div
+            className={cn(
+              "overflow-y-auto space-y-3 pb-2",
+              showComments && "pr-4 border-r border-border/40 col-span-1",
+            )}
+          >
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <Badge variant="outline" className={cn("border", statusColor)}>
                 {account.overdue_status}
@@ -55,13 +67,15 @@ export default function AccountsReceivableSheet({
           </div>
 
           {/* Right — comments full height */}
-          <div className="pl-4 flex flex-col h-full min-h-0 overflow-hidden col-span-2">
-            <AccountsReceivableComments
-              selectedId={account.id}
-              canUpdate={canUpdate}
-              initialComments={account.comments ?? []}
-            />
-          </div>
+          {showComments && (
+            <div className="pl-4 flex flex-col h-full min-h-0 overflow-hidden col-span-2">
+              <AccountsReceivableComments
+                selectedId={account.id}
+                canUpdate={canUpdate}
+                initialComments={account.comments ?? []}
+              />
+            </div>
+          )}
         </div>
       )}
     </GeneralSheet>

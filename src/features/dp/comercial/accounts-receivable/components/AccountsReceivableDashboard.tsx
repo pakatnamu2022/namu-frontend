@@ -45,7 +45,6 @@ import { ACCOUNTS_RECEIVABLE } from "../lib/accountsReceivable.constants";
 import type { DashboardChart, DashboardFilters, AccountsReceivableFilters } from "../lib/accountsReceivable.interface";
 import AccountsReceivableTreeFilter from "./AccountsReceivableTreeFilter";
 
-const COMPANY_STORAGE_KEY = "ar-dashboard-company";
 const PIE_COLORS = [
   "var(--chart-1)",
   "var(--chart-2)",
@@ -81,16 +80,6 @@ function formatSyncedAt(raw: string): string {
     });
   } catch {
     return raw;
-  }
-}
-
-function getStoredCompany(): string {
-  try {
-    return (
-      localStorage.getItem(COMPANY_STORAGE_KEY) ?? ACCOUNTS_RECEIVABLE.COMPANY
-    );
-  } catch {
-    return ACCOUNTS_RECEIVABLE.COMPANY;
   }
 }
 
@@ -224,16 +213,29 @@ function AgingBar({ chart }: { chart: DashboardChart }) {
   );
 }
 
+interface AccountsReceivableDashboardProps {
+  company?: string;
+  areaId?: number;
+  title?: string;
+  subtitle?: string;
+  listRoute?: string;
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
-export default function AccountsReceivableDashboard() {
-  const [company] = useState<string>(getStoredCompany);
+export default function AccountsReceivableDashboard({
+  company = ACCOUNTS_RECEIVABLE.COMPANY,
+  areaId,
+  title = "Dashboard — Cuentas por Cobrar",
+  subtitle = "Depósito Pakatnamu",
+  listRoute = "/dp/comercial/cuentas-por-cobrar",
+}: AccountsReceivableDashboardProps) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [dashFilters, setDashFilters] = useState<DashboardFilters>({});
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError, refetch } =
-    useAccountsReceivableDashboard(company, dashFilters);
+    useAccountsReceivableDashboard(company, dashFilters, areaId);
 
   const handleFiltersChange = (partial: Partial<AccountsReceivableFilters>) =>
     setDashFilters((prev) => ({
@@ -247,7 +249,7 @@ export default function AccountsReceivableDashboard() {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await syncAccountsReceivable();
+      await syncAccountsReceivable(company, areaId);
       await queryClient.invalidateQueries({
         queryKey: [ACCOUNTS_RECEIVABLE.QUERY_KEY, "dashboard"],
       });
@@ -265,7 +267,7 @@ export default function AccountsReceivableDashboard() {
   const handleSendReports = async () => {
     setIsSending(true);
     try {
-      const res = await sendDueReports(company);
+      const res = await sendDueReports(company, areaId);
       successToast("Reportes enviados.", res.message);
     } catch {
       errorToast("No se pudo enviar los reportes.");
@@ -310,11 +312,7 @@ export default function AccountsReceivableDashboard() {
 
       {/* Header */}
       <HeaderTableWrapper>
-        <TitleComponent
-          title="Dashboard — Cuentas por Cobrar"
-          subtitle="Depósito Pakatnamu"
-          icon="BarChart2"
-        >
+        <TitleComponent title={title} subtitle={subtitle} icon="BarChart2">
           {syncedAt && !isLoading && (
             <span className="hidden md:flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="size-3" />
@@ -324,7 +322,7 @@ export default function AccountsReceivableDashboard() {
         </TitleComponent>
 
         <div className="flex items-center gap-2">
-          <Link to="/dp/comercial/cuentas-por-cobrar">
+          <Link to={listRoute}>
             <Button
               variant="ghost"
               size="sm"
