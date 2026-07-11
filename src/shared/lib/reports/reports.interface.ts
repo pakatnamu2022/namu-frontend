@@ -1,6 +1,12 @@
 export type ReportFormat = "excel" | "pdf";
 
-export type ReportFieldType = "date" | "daterange" | "select" | "multiselect" | "text" | "number";
+export type ReportFieldType =
+  | "date"
+  | "daterange"
+  | "select"
+  | "multiselect"
+  | "text"
+  | "number";
 
 export interface ReportFieldOption {
   label: string;
@@ -33,6 +39,9 @@ export interface ReportField {
   // Para daterange
   nameFrom?: string;
   nameTo?: string;
+  // Si se indica, el rango se envía como un único parámetro `[from, to]` con este nombre
+  // en lugar de los dos parámetros nameFrom/nameTo por separado
+  rangeParamName?: string;
 }
 
 export interface ReportConfig {
