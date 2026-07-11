@@ -117,12 +117,24 @@ export async function syncAccountingEntry(id: number): Promise<void> {
   await api.post(`${ENDPOINT}/${id}/sync-accounting-entry`);
 }
 
+export async function rescheduleVehicleDelivery(
+  id: number,
+  data: { scheduled_delivery_date: string; observations?: string }
+): Promise<VehiclesDeliveryResource> {
+  const response = await api.post<VehiclesDeliveryResource>(
+    `${ENDPOINT}/${id}/reschedule`,
+    data
+  );
+  return response.data;
+}
+
 export async function getAvailableDeliverySlots(
-  date: string
+  date: string,
+  shopId?: number
 ): Promise<AvailableDeliverySlotsResponse> {
   const { data } = await api.get<AvailableDeliverySlotsResponse>(
     `${ENDPOINT}/available-slots`,
-    { params: { date } }
+    { params: { date, shop_id: shopId } }
   );
   return data;
 }

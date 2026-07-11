@@ -7,6 +7,7 @@ import {
   DashboardGoalTravelControlResponse,
   GoalTravelControlResource,
   GoalTravelControlResponse,
+  PrediccionIAResponse,
   RankingConductor,
   ViajesNoFacturadosResponse,
   getGoalTravelControlProps,
@@ -261,4 +262,33 @@ export async function getAnalisisEstrategico({
     }
   }
 }
+export async function getPrediccionIA({
+  params,
+}: getGoalTravelControlProps): Promise<PrediccionIAResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  try {
+    const response = await api.get<PrediccionIAResponse>(
+      ENDPOINT + "/prediccion-ia",
+      config
+    );
+    console.log("datos", response.data);
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
+
 

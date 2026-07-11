@@ -85,6 +85,14 @@ export function DeliveryChecklistSection({
     useState<DeliveryChecklistItemResource | null>(null);
   const [editItemForm, setEditItemForm] = useState<ChecklistItemFormState>(emptyItemForm);
 
+  // Toggle de ítems: cada ítem lleva su propio estado optimista/pending,
+  // así el usuario puede seguir marcando el siguiente mientras el anterior
+  // todavía se está enviando al backend (sin bloquear toda la lista).
+  const [pendingItemIds, setPendingItemIds] = useState<Set<number>>(new Set());
+  const [optimisticConfirmed, setOptimisticConfirmed] = useState<
+    Record<number, boolean>
+  >({});
+
   // Initialize observations from fetched data
   if (checklist && !observationsInitialized) {
     setObservations(checklist.observations ?? "");
@@ -129,13 +137,39 @@ export function DeliveryChecklistSection({
   };
 
   const handleToggleConfirmed = (item: DeliveryChecklistItemResource) => {
-    if (!checklist.id || !item.id) return;
-    updateItemMutation.mutate({
-      checklistId: checklist.id,
-      itemId: item.id,
-      vehicleDeliveryId,
-      data: { is_confirmed: !item.is_confirmed },
-    });
+    if (!checklist.id || !item.id || pendingItemIds.has(item.id)) return;
+    const checklistId = checklist.id;
+    const itemId = item.id;
+    const currentValue = optimisticConfirmed[itemId] ?? item.is_confirmed;
+    const nextValue = !currentValue;
+
+    setOptimisticConfirmed((prev) => ({ ...prev, [itemId]: nextValue }));
+    setPendingItemIds((prev) => new Set(prev).add(itemId));
+
+    updateItemMutation.mutate(
+      {
+        checklistId,
+        itemId,
+        vehicleDeliveryId,
+        data: { is_confirmed: nextValue },
+      },
+      {
+        onError: () => {
+          setOptimisticConfirmed((prev) => {
+            const next = { ...prev };
+            delete next[itemId];
+            return next;
+          });
+        },
+        onSettled: () => {
+          setPendingItemIds((prev) => {
+            const next = new Set(prev);
+            next.delete(itemId);
+            return next;
+          });
+        },
+      },
+    );
   };
 
   const handleOpenEdit = (item: DeliveryChecklistItemResource) => {
@@ -280,78 +314,70 @@ export function DeliveryChecklistSection({
 
       {/* Items — filas interactivas */}
       {items.length > 0 && (
-        <ScrollArea className="max-h-[420px] pr-3 overflow-auto">
-        <div className="space-y-1.5">
+        <ScrollArea className="max-h-[60vh] sm:max-h-[420px] pr-2 sm:pr-3 overflow-auto">
+        <div className="space-y-1">
           {items.map((item, index) => {
             const sourceBadge = SOURCE_BADGE[item.source] ?? SOURCE_BADGE.manual;
+            const isConfirmedValue =
+              item.id !== null
+                ? optimisticConfirmed[item.id] ?? item.is_confirmed
+                : item.is_confirmed;
+            const isItemPending = item.id !== null && pendingItemIds.has(item.id);
+            const canToggle = isDraft && item.id !== null;
+
             return (
               <div
                 key={item.id ?? `suggested-${index}`}
+                onClick={canToggle ? () => handleToggleConfirmed(item) : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors",
-                  item.is_confirmed
+                  "flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border transition-colors",
+                  canToggle && "cursor-pointer active:scale-[0.99]",
+                  isConfirmedValue
                     ? "bg-green-50/60 border-green-200 dark:bg-green-950/20 dark:border-green-800"
                     : "bg-background border-border"
                 )}
               >
-                {/* Número */}
-                <span className="text-xs text-muted-foreground w-5 shrink-0 text-center">
-                  {index + 1}
+                {/* Toggle / estado */}
+                <span className="shrink-0 flex items-center justify-center size-6 sm:size-5">
+                  {isItemPending ? (
+                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                  ) : isConfirmedValue ? (
+                    <CheckCircle2 className="size-5 sm:size-4 text-green-600" />
+                  ) : (
+                    <Circle className="size-5 sm:size-4 text-muted-foreground" />
+                  )}
                 </span>
 
-                {/* Badge origen */}
-                <Badge color={sourceBadge.color} className="text-xs shrink-0 whitespace-nowrap">
-                  {sourceBadge.label}
-                </Badge>
-
-                {/* Descripción + cantidad/unidad + observaciones */}
+                {/* Cantidad | Descripción + observaciones */}
                 <div className="flex-1 min-w-0">
-                  <p className={cn(
-                    "text-sm font-medium truncate",
-                    item.is_confirmed && "text-green-800 dark:text-green-300"
-                  )}>
-                    {item.description}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.quantity}{item.unit ? ` ${item.unit}` : ""}
-                    {item.observations ? ` · ${item.observations}` : ""}
-                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                    <p className={cn(
+                      "text-sm font-medium truncate",
+                      isConfirmedValue && "text-green-800 dark:text-green-300"
+                    )}>
+                      <span className="text-muted-foreground font-normal">
+                        {item.quantity}{item.unit ? ` ${item.unit}` : ""}
+                      </span>
+                      <span className="mx-1 text-muted-foreground">|</span>
+                      {item.description}
+                    </p>
+                    <Badge color={sourceBadge.color} className="text-[10px] shrink-0 whitespace-nowrap hidden sm:inline-flex">
+                      {sourceBadge.label}
+                    </Badge>
+                  </div>
+                  {item.observations && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {item.observations}
+                    </p>
+                  )}
                 </div>
-
-                {/* Botón toggle conforme */}
-                {isDraft && item.id !== null ? (
-                  <Button
-                    size="sm"
-                    variant={item.is_confirmed ? "default" : "outline"}
-                    className={cn(
-                      "shrink-0 gap-1.5 text-xs h-7 px-2.5",
-                      item.is_confirmed && "bg-green-600 hover:bg-green-700 border-green-600 text-white"
-                    )}
-                    onClick={() => handleToggleConfirmed(item)}
-                    disabled={updateItemMutation.isPending}
-                  >
-                    {item.is_confirmed ? (
-                      <><CheckCircle2 className="size-3.5" /> Conforme</>
-                    ) : (
-                      <><Circle className="size-3.5" /> Pendiente</>
-                    )}
-                  </Button>
-                ) : (
-                  <span className={cn(
-                    "flex items-center gap-1 text-xs shrink-0 font-medium",
-                    item.is_confirmed ? "text-green-600" : "text-muted-foreground"
-                  )}>
-                    {item.is_confirmed ? (
-                      <><CheckCircle2 className="size-3.5" /> Conforme</>
-                    ) : (
-                      <><Circle className="size-3.5" /> Pendiente</>
-                    )}
-                  </span>
-                )}
 
                 {/* Editar / Eliminar */}
                 {isDraft && (
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div
+                    className="flex items-center gap-0.5 sm:gap-1 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       variant="ghost"
                       size="icon"
@@ -376,9 +402,9 @@ export function DeliveryChecklistSection({
       )}
 
       {/* Action buttons */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
         {!hasChecklist && items.length > 0 && (
-          <Button onClick={handleCreate} disabled={createMutation.isPending}>
+          <Button onClick={handleCreate} disabled={createMutation.isPending} className="w-full sm:w-auto">
             {createMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
@@ -389,37 +415,42 @@ export function DeliveryChecklistSection({
 
         {isDraft && (
           <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAddItemOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Agregar ítem
-            </Button>
-
-            {confirmedCount < totalCount && totalCount > 0 && (
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleConfirmAll}
-                disabled={confirmAllMutation.isPending}
+                onClick={() => setAddItemOpen(true)}
+                className="flex-1 sm:flex-none"
               >
-                {confirmAllMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                )}
-                Confirmar todos
+                <Plus className="mr-2 h-4 w-4" />
+                Agregar ítem
               </Button>
-            )}
 
-            <div className="ml-auto">
+              {confirmedCount < totalCount && totalCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleConfirmAll}
+                  disabled={confirmAllMutation.isPending}
+                  className="flex-1 sm:flex-none"
+                >
+                  {confirmAllMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                  )}
+                  Confirmar todos
+                </Button>
+              )}
+            </div>
+
+            <div className="sm:ml-auto">
               <ConfirmationDialog
                 trigger={
                   <Button
                     size="sm"
                     disabled={items.length === 0 || confirmMutation.isPending}
+                    className="w-full sm:w-auto"
                   >
                     {confirmMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -440,12 +471,13 @@ export function DeliveryChecklistSection({
         )}
 
         {isConfirmed && (
-          <div className="ml-auto">
+          <div className="sm:ml-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={handleDownloadPdf}
               disabled={downloadPdfMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {downloadPdfMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

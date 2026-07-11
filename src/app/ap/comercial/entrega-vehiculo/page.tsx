@@ -21,7 +21,9 @@ import {
   useSendVehicleDeliveryToNubefact,
   useQueryVehicleDeliveryFromNubefact,
   useSyncAccountingEntry,
+  useRescheduleVehicleDelivery,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
+import { RescheduleDeliveryModal } from "@/features/ap/comercial/entrega-vehiculo/components/RescheduleDeliveryModal";
 import {
   deleteVehicleDelivery,
   dispatchShippingGuideMigration,
@@ -51,13 +53,17 @@ export default function VehicleDeliveryPage() {
 
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehiclesDeliveryResource | null>(null);
+  const [rescheduleDelivery, setRescheduleDelivery] =
+    useState<VehiclesDeliveryResource | null>(null);
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendVehicleDeliveryToNubefact();
   const queryFromNubefactMutation = useQueryVehicleDeliveryFromNubefact();
+  const rescheduleMutation = useRescheduleVehicleDelivery();
   const migrateMutation = useMutation({
     mutationFn: dispatchShippingGuideMigration,
     onSuccess: () => successToast("Migración despachada correctamente"),
@@ -70,7 +76,7 @@ export default function VehicleDeliveryPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, sedeId]);
 
   const { data, isLoading, refetch, isFetching } = useVehicleDelivery({
     page,
@@ -78,6 +84,7 @@ export default function VehicleDeliveryPage() {
     per_page,
     scheduled_delivery_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
+    "sede$shop_id": sedeId !== "all" ? sedeId : undefined,
   });
 
   const handleDelete = async () => {
@@ -102,6 +109,16 @@ export default function VehicleDeliveryPage() {
         setSendToNubefactId(null);
       },
     });
+  };
+
+  const handleReschedule = (
+    id: number,
+    data: { scheduled_delivery_date: string; observations?: string },
+  ) => {
+    rescheduleMutation.mutate(
+      { id, data },
+      { onSuccess: () => setRescheduleDelivery(null) },
+    );
   };
 
   const handleQueryFromNubefact = (id: number) => {
@@ -139,6 +156,7 @@ export default function VehicleDeliveryPage() {
           onViewDetails: setSelectedVehicle,
           onMigrate: (id) => migrateMutation.mutate(id),
           onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
+          onReschedule: setRescheduleDelivery,
           permissions,
         })}
         data={data?.data || []}
@@ -152,6 +170,8 @@ export default function VehicleDeliveryPage() {
             setDateFrom(from);
             setDateTo(to);
           }}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </VehicleDeliveryTable>
 
@@ -176,6 +196,14 @@ export default function VehicleDeliveryPage() {
           isLoading={sendToNubefactMutation.isPending}
         />
       )}
+
+      <RescheduleDeliveryModal
+        open={!!rescheduleDelivery}
+        onOpenChange={(open) => !open && setRescheduleDelivery(null)}
+        delivery={rescheduleDelivery}
+        onSubmit={handleReschedule}
+        isSubmitting={rescheduleMutation.isPending}
+      />
 
       {deleteId !== null && (
         <SimpleDeleteDialog

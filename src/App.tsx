@@ -122,6 +122,7 @@ import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
 import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
 import GPTicsLayout from "./app/gp/tics/layout";
 import TPComercialLayout from "./app/tp/comercial-tp/layout";
+import TPConfiguracionesLayout from "./app/tp/configuraciones/layout";
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
@@ -414,6 +415,8 @@ import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/mae
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 import AccountsReceivablePage from "./app/dp/comercial/accounts-receivable/page.tsx";
 import AccountsReceivableDashboardPage from "./app/dp/comercial/accounts-receivable/dashboard/page.tsx";
+import AccountsReceivableApPage from "./app/ap/comercial/accounts-receivable/page.tsx";
+import AccountsReceivableDashboardApPage from "./app/ap/comercial/accounts-receivable/dashboard/page.tsx";
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 import ManualesPage from "./features/manuales/components/ManualesPage";
 
@@ -483,6 +486,8 @@ import MonitoreoPage from "./app/tp/comercial-tp/monitoreo/page.tsx";
 import { LocationTracker } from "./features/tp/comercial/Monitoreo/LocationTracker.tsx";
 import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/components/DeviceInactiveAlert.tsx";
 import ExitGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx";
+import ControlTipoVehiculoPage from "./app/tp/configuraciones/control-tipo-vehiculo/page.tsx";
+import ControlVehiculoPage from "./app/tp/configuraciones/control-vehiculo/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -908,11 +913,22 @@ function App() {
 
               {/* Reportes */}
               <Route path="reportes" element={<ReportesComercialPage />} />
+
+              {/* Cuentas por Cobrar */}
+              <Route
+                path="cuentas-por-cobrar-ap"
+                element={<AccountsReceivableApPage />}
+              />
+              <Route
+                path="cuentas-por-cobrar-ap/dashboard"
+                element={<AccountsReceivableDashboardApPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
             {/* AP - CONFIGURACIONES */}
             {/* ======================================================== */}
+
             <Route
               path="/ap/configuraciones"
               element={
@@ -2284,6 +2300,24 @@ function App() {
                 element={<ControlVehicleAssignmentPage />}
               />
               <Route path="monitoreo" element={<MonitoreoPage />} />
+            </Route>
+            {/* ======================================================== */}
+            {/* TP - CONFIGURACIONES */}
+            {/* ======================================================== */}
+            <Route
+              path="/tp/configuraciones"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <TPConfiguracionesLayout>
+                    <Outlet />
+                  </TPConfiguracionesLayout>
+
+                </Suspense>
+              }
+            >
+              <Route path="control-tipo-vehiculo" element={<ControlTipoVehiculoPage />} />
+              <Route path="control-vehiculo" element={<ControlVehiculoPage />} />
+
             </Route>
 
             {/* ======================================================== */}

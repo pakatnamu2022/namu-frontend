@@ -1,10 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, AlertCircle, Users, DollarSign, Calendar, CheckCircle, AlertTriangle, XCircle, RefreshCw, Target, Undo2, ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    TrendingUp,
+    TrendingDown,
+    AlertCircle,
+    Users,
+    Calendar,
+    RefreshCw,
+    Undo2,
+    ChevronLeft,
+    LayoutDashboard,
+    PieChart,
+    Brain,
+    Download,
+    Share2
+} from "lucide-react";
 import {
     Bar,
     XAxis,
@@ -15,31 +32,78 @@ import {
     ResponsiveContainer,
     Line,
     ComposedChart,
-    PieChart,
+    PieChart as RePieChart,
     Pie,
     Cell,
     Sector,
 } from "recharts";
 import { useAnalisisEstrategico } from "../lib/GoalTravelControl.hook";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PrediccionIA } from "./PrediccionIA";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 // Colores para el gráfico de Pareto
 const COLORS = ["#3b82f6", "#60a5fa", "#93bbfc", "#bfdbfe", "#dbeafe", "#e5e7eb", "#f3f4f6"];
 
+// Definición de secciones
+type SeccionAnalisis = 'resumen' | 'tendencia' | 'clientes' | 'distribucion' | 'prediccion';
+
+interface Seccion {
+    id: SeccionAnalisis;
+    label: string;
+    icon: React.ReactNode;
+    descripcion: string;
+}
+
+const SECCIONES: Seccion[] = [
+    {
+        id: 'resumen',
+        label: 'Resumen',
+        icon: <LayoutDashboard className="h-4 w-4" />,
+        descripcion: 'Vista general del período'
+    },
+    {
+        id: 'tendencia',
+        label: 'Tendencia',
+        icon: <TrendingUp className="h-4 w-4" />,
+        descripcion: 'Evolución de producción'
+    },
+    {
+        id: 'clientes',
+        label: 'Clientes',
+        icon: <Users className="h-4 w-4" />,
+        descripcion: 'Análisis de clientes'
+    },
+    {
+        id: 'distribucion',
+        label: 'Distribución',
+        icon: <PieChart className="h-4 w-4" />,
+        descripcion: 'Pareto por cliente'
+    },
+    {
+        id: 'prediccion',
+        label: 'Predicción IA',
+        icon: <Brain className="h-4 w-4" />,
+        descripcion: 'Modelo predictivo'
+    }
+];
+
 export default function AnalisisEstrategico() {
     const hoy = new Date();
-    const [fechaInicio, setFechaInicio] = useState<string>(
+    const [fechaInicioInput, setFechaInicioInput] = useState<string>(
         new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1).toISOString().split('T')[0]
     );
-    const [fechaFin, setFechaFin] = useState<string>(
+    const [fechaFinInput, setFechaFinInput] = useState<string>(
         new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0]
     );
+    const [fechaInicio, setFechaInicio] = useState<string>(fechaInicioInput);
+    const [fechaFin, setFechaFin] = useState<string>(fechaFinInput);
+    const [seccionActiva, setSeccionActiva] = useState<SeccionAnalisis>('resumen');
+
     const [errorValidacion, setErrorValidacion] = useState<string | null>(null);
     const [tipoError, setTipoError] = useState<"future" | "rango" | "orden" | null>(null);
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const [modalAbierto, setModalAbierto] = useState<boolean>(false);
 
     const { data, isLoading, error, refetch } = useAnalisisEstrategico(fechaInicio, fechaFin);
 
@@ -53,172 +117,546 @@ export default function AnalisisEstrategico() {
     };
 
     const validarFechas = () => {
-        if (!fechaInicio || !fechaFin) {
+        if (!fechaInicioInput || !fechaFinInput) {
             setErrorValidacion("Ambas fechas son requeridas.");
             setTipoError(null);
+            setModalAbierto(true);
             return false;
         }
-        const inicio = new Date(fechaInicio);
-        const fin = new Date(fechaFin);
+        const inicio = new Date(fechaInicioInput);
+        const fin = new Date(fechaFinInput);
         const hoyDate = new Date();
         hoyDate.setHours(0, 0, 0, 0);
 
         if (inicio > fin) {
             setErrorValidacion("La fecha inicial no puede ser mayor que la fecha final.");
             setTipoError("orden");
+            setModalAbierto(true);
             return false;
         }
         if (fin > hoyDate) {
             setErrorValidacion("La fecha final no puede ser una fecha futura.");
             setTipoError("future");
+            setModalAbierto(true);
             return false;
         }
         const diffMonths = (fin.getFullYear() - inicio.getFullYear()) * 12 + (fin.getMonth() - inicio.getMonth());
         if (diffMonths > 24) {
             setErrorValidacion("El rango máximo permitido es de 24 meses.");
             setTipoError("rango");
+            setModalAbierto(true);
             return false;
         }
         setErrorValidacion(null);
         setTipoError(null);
+        setModalAbierto(false);
         return true;
     };
 
-    useEffect(() => {
-        if (fechaInicio && fechaFin) {
-            validarFechas();
-        }
-    }, [fechaInicio, fechaFin]);
-
     const handleAplicar = () => {
         if (validarFechas()) {
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
             refetch();
         }
     };
 
     const ajustarRango = () => {
-        if (!fechaFin) return;
-        const fin = new Date(fechaFin);
+        if (!fechaFinInput) return;
+        const fin = new Date(fechaFinInput);
         const inicio = new Date(fin);
         inicio.setMonth(fin.getMonth() - 23);
-        setFechaInicio(inicio.toISOString().split('T')[0]);
+        setFechaInicioInput(inicio.toISOString().split('T')[0]);
+        setModalAbierto(true);
         setTimeout(() => {
-            validarFechas();
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
             refetch();
         }, 100);
     };
+
     const retrocederMes = () => {
-        if (!fechaFin) return;
-        const fin = new Date(fechaFin);
+        if (!fechaFinInput) return;
+        const fin = new Date(fechaFinInput);
         fin.setMonth(fin.getMonth() - 1);
-        setFechaFin(fin.toISOString().split('T')[0]);
-        const inicio = new Date(fechaInicio);
+        setFechaFinInput(fin.toISOString().split('T')[0]);
+        const inicio = new Date(fechaInicioInput);
         if (inicio > fin) {
-            setFechaInicio(fin.toISOString().split('T')[0]);
+            setFechaInicioInput(fin.toISOString().split('T')[0]);
         }
+        setModalAbierto(false);
         setTimeout(() => {
-            validarFechas();
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
             refetch();
         }, 100);
     };
+
     const resetFechas = () => {
         const hoyDate = new Date();
-        setFechaFin(new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1).toISOString().split('T')[0]);
-        setFechaInicio(new Date(hoyDate.getFullYear(), hoyDate.getMonth() - 5, 1).toISOString().split('T')[0]);
+        const nuevoFin = new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1).toISOString().split('T')[0];
+        const nuevoInicio = new Date(hoyDate.getFullYear(), hoyDate.getMonth() - 5, 1).toISOString().split('T')[0];
+        setFechaInicioInput(nuevoInicio);
+        setFechaFinInput(nuevoFin);
+        setModalAbierto(false);
         setTimeout(() => {
-            setErrorValidacion(null);
-            setTipoError(null);
+            setFechaInicio(nuevoInicio);
+            setFechaFin(nuevoFin);
             refetch();
         }, 100);
     };
 
-    if (errorValidacion) {
-        return (
-            <Card className="border-red-200 bg-red-50">
-                <CardContent className="py-8">
-                    <div className="flex flex-col items-center text-center">
-                        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-                        <p className="text-lg font-medium text-red-700">{errorValidacion}</p>
-                        <p className="text-sm text-red-500/70 mt-1">Ajusta el rango de fechas para continuar.</p>
+    const intercambiarFechas = () => {
+        const temp = fechaInicioInput;
+        setFechaInicioInput(fechaFinInput);
+        setFechaFinInput(temp);
+        setModalAbierto(false);
+        setTimeout(() => {
+            setFechaInicio(fechaInicioInput);
+            setFechaFin(fechaFinInput);
+            refetch();
+        }, 100);
+    };
 
-                        <div className="flex flex-wrap gap-3 mt-6 justify-center">
-                            {tipoError === "rango" && (
-                                <Button
-                                    variant="outline"
-                                    className="border-red-300 hover:bg-red-50"
-                                    onClick={ajustarRango}
-                                >
-                                    <Calendar className="h-4 w-4 mr-2" />
-                                    Ajustar a 24 meses
-                                </Button>
-                            )}
+    // Renderizar contenido según sección activa
+    const renderContenido = () => {
+        if (!data) return null;
 
-                            {tipoError === "future" && (
-                                <>
-                                    <Button
-                                        variant="outline"
-                                        className="border-red-300 hover:bg-red-50"
-                                        onClick={retrocederMes}
-                                    >
-                                        <ChevronLeft className="h-4 w-4 mr-2" />
-                                        Retroceder un mes
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="border-red-300 hover:bg-red-50"
-                                        onClick={resetFechas}
-                                    >
-                                        <Undo2 className="h-4 w-4 mr-2" />
-                                        Usar período por defecto
-                                    </Button>
-                                </>
-                            )}
+        const { tendencia, top_crecimiento, top_decrecimiento, distribucion } = data;
 
-                            {tipoError === "orden" && (
-                                <Button
-                                    variant="outline"
-                                    className="border-red-300 hover:bg-red-50"
-                                    onClick={() => {
-                                        const temp = fechaInicio;
-                                        setFechaInicio(fechaFin);
-                                        setFechaFin(temp);
-                                        setTimeout(() => {
-                                            validarFechas();
-                                            refetch();
-                                        }, 100);
-                                    }}
-                                >
-                                    <RefreshCw className="h-4 w-4 mr-2" />
-                                    Intercambiar fechas
-                                </Button>
-                            )}
+        switch (seccionActiva) {
+            case 'resumen':
+                return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Tarjeta de resumen general */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium">Resumen del Período</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Meses analizados</span>
+                                        <span className="font-medium">{tendencia.length}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Clientes activos</span>
+                                        <span className="font-medium">{distribucion.length}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Producción total</span>
+                                        <span className="font-medium">
+                                            {formatCurrency(distribucion.reduce((acc, item) => acc + item.produccion, 0))}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Clientes en crecimiento</span>
+                                        <span className="font-medium text-green-600">{top_crecimiento.length}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Clientes en decrecimiento</span>
+                                        <span className="font-medium text-red-600">{top_decrecimiento.length}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                            {tipoError !== "rango" && (
-                                <Button
-                                    variant="outline"
-                                    className="border-red-300 hover:bg-red-50"
-                                    onClick={resetFechas}
-                                >
-                                    <Undo2 className="h-4 w-4 mr-2" />
-                                    Restablecer
-                                </Button>
-                            )}
-                        </div>
+                        {/* Tarjeta de métricas rápidas */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium">Indicadores Clave</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-muted-foreground">Mejor mes</span>
+                                        <span className="font-medium">
+                                            {tendencia.reduce((max, item) => item.real > max.real ? item : max, tendencia[0])?.periodo || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-muted-foreground">Peor mes</span>
+                                        <span className="font-medium">
+                                            {tendencia.reduce((min, item) => item.real < min.real ? item : min, tendencia[0])?.periodo || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Promedio mensual</span>
+                                        <span className="font-medium">
+                                            {formatCurrency(tendencia.reduce((acc, item) => acc + item.real, 0) / (tendencia.length || 1))}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Mayor crecimiento</span>
+                                        <span className="font-medium text-green-600">
+                                            {top_crecimiento[0]?.cliente || '-'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-sm text-muted-foreground">Mayor decrecimiento</span>
+                                        <span className="font-medium text-red-600">
+                                            {top_decrecimiento[0]?.cliente || '-'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
-                </CardContent>
-            </Card>
-        );
-    }
+                );
+
+            case 'tendencia':
+                return (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <TrendingUp className="h-5 w-5 text-blue-500" />
+                                Tendencia de Producción
+                            </CardTitle>
+                            <div className="text-sm text-muted-foreground">
+                                Meta vs Real · Línea muestra % de cumplimiento
+                            </div>
+                            <div className="text-xs text-muted-foreground/70">
+                                Período: {tendencia.length > 0
+                                    ? `${tendencia[0]?.periodo || '—'} → ${tendencia[tendencia.length - 1]?.periodo || '—'}`
+                                    : 'Sin datos'
+                                }
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <ResponsiveContainer width="100%" height={350}>
+                                <ComposedChart data={tendencia}>
+                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                                    <XAxis dataKey="periodo" />
+                                    <YAxis yAxisId="left" />
+                                    <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
+                                    <Tooltip
+                                        formatter={(value, name) => {
+                                            if (name === '% Cumplimiento') return `${value}%`;
+                                            return `${formatCurrency(Number(value))}`;
+                                        }}
+                                    />
+                                    <Legend />
+                                    <Bar yAxisId="left" dataKey="meta" fill="#93c5fd" name="Meta" />
+                                    <Bar yAxisId="left" dataKey="real" fill="#3b82f6" name="Real" />
+                                    <Line
+                                        yAxisId="right"
+                                        type="monotone"
+                                        dataKey="cumplimiento"
+                                        stroke="#f59e0b"
+                                        strokeWidth={2}
+                                        name="% Cumplimiento"
+                                    />
+                                </ComposedChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                );
+
+            case 'clientes':
+                return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Top crecimiento */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-green-700">
+                                    <TrendingUp className="h-5 w-5" />
+                                    Top 5 Clientes en Crecimiento
+                                </CardTitle>
+                                <div className="text-xs text-muted-foreground">
+                                    Comparando últimos dos meses del período
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {top_crecimiento.length === 0 ? (
+                                    <div className="text-center py-6 text-muted-foreground">
+                                        No hay clientes con crecimiento en el período
+                                    </div>
+                                ) : (
+                                    <ul className="space-y-3">
+                                        {top_crecimiento.map((item, index) => (
+                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                                    <span className="font-medium">{item.cliente}</span>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm">
+                                                    <span className="text-muted-foreground">
+                                                        {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
+                                                    </span>
+                                                    <Badge variant="outline" className="text-green-600 border-green-300">
+                                                        +{item.variacion}%
+                                                    </Badge>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Top decrecimiento */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-red-700">
+                                    <TrendingDown className="h-5 w-5" />
+                                    Top 5 Clientes en Decrecimiento
+                                </CardTitle>
+                                <div className="text-xs text-muted-foreground">
+                                    Comparando últimos dos meses del período
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {top_decrecimiento.length === 0 ? (
+                                    <div className="text-center py-6 text-muted-foreground">
+                                        No hay clientes con decrecimiento en el período
+                                    </div>
+                                ) : (
+                                    <ul className="space-y-3">
+                                        {top_decrecimiento.map((item, index) => (
+                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                                    <span className="font-medium">{item.cliente}</span>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm">
+                                                    <span className="text-muted-foreground">
+                                                        {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
+                                                    </span>
+                                                    <Badge variant="outline" className="text-red-600 border-red-300">
+                                                        {item.variacion}%
+                                                    </Badge>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Nuevos clientes */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-blue-700">
+                                    <Users className="h-5 w-5" />
+                                    Nuevos Clientes
+                                    <Badge variant="outline" className="ml-2 text-blue-600 border-blue-300">
+                                        {data.clientes_nuevos?.length || 0}
+                                    </Badge>
+                                </CardTitle>
+                                <div className="text-xs text-muted-foreground">
+                                    Clientes que aparecen en el último mes pero no en el anterior
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {!data.clientes_nuevos || data.clientes_nuevos.length === 0 ? (
+                                    <div className="text-center py-6 text-muted-foreground">
+                                        No hay clientes nuevos en este período
+                                    </div>
+                                ) : (
+                                    <ul className="space-y-3">
+                                        {data.clientes_nuevos.map((item, index) => (
+                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                                    <span className="font-medium">{item.cliente}</span>
+                                                </div>
+                                                <Badge variant="outline" className="text-blue-600 border-blue-300">
+                                                    +{formatCurrency(Number(item.produccion.toFixed(2)))}
+                                                </Badge>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Inactivos */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-gray-700">
+                                    <Users className="h-5 w-5" />
+                                    Clientes Inactivos
+                                    <Badge variant="outline" className="ml-2 text-gray-600 border-gray-300">
+                                        {data.clientes_inactivos?.length || 0}
+                                    </Badge>
+                                </CardTitle>
+                                <div className="text-xs text-muted-foreground">
+                                    Clientes que aparecieron en el mes anterior pero no en el último
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {!data.clientes_inactivos || data.clientes_inactivos.length === 0 ? (
+                                    <div className="text-center py-6 text-muted-foreground">
+                                        No hay clientes inactivos en este período
+                                    </div>
+                                ) : (
+                                    <ul className="space-y-3">
+                                        {data.clientes_inactivos.map((item, index) => (
+                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                                    <span className="font-medium">{item.cliente}</span>
+                                                </div>
+                                                <Badge variant="outline" className="text-gray-600 border-gray-300">
+                                                    -{formatCurrency(Number(item.produccion.toFixed(2)))}
+                                                </Badge>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                );
+
+            case 'distribucion':
+                return (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <PieChart className="h-5 w-5 text-purple-500" />
+                                Distribución de Producción por Cliente (Pareto)
+                            </CardTitle>
+                            <div className="text-sm text-muted-foreground">
+                                Muestra el % de participación de cada cliente en la producción total del período
+                            </div>
+                            <div className="text-xs text-muted-foreground/70">
+                                Período: {tendencia.length > 0
+                                    ? `${tendencia[0]?.periodo || '—'} → ${tendencia[tendencia.length - 1]?.periodo || '—'}`
+                                    : 'Sin datos'
+                                }
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            {distribucion.length === 0 ? (
+                                <div className="text-center py-6 text-muted-foreground">
+                                    No hay datos de distribución
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <ResponsiveContainer width="100%" height={350}>
+                                        <RePieChart>
+                                            <Pie
+                                                data={distribucion}
+                                                dataKey="porcentaje"
+                                                nameKey="cliente"
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius={110}
+                                                innerRadius={65}
+                                                paddingAngle={2}
+                                                activeIndex={activeIndex ?? undefined}
+                                                activeShape={(props: any) => {
+                                                    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+                                                    return (
+                                                        <g>
+                                                            <Sector
+                                                                cx={cx}
+                                                                cy={cy}
+                                                                innerRadius={innerRadius}
+                                                                outerRadius={outerRadius + 10}
+                                                                startAngle={startAngle}
+                                                                endAngle={endAngle}
+                                                                fill={fill}
+                                                            />
+                                                            <text
+                                                                x={cx}
+                                                                y={cy - 20}
+                                                                textAnchor="middle"
+                                                                className="text-xs font-medium fill-foreground"
+                                                            >
+                                                                {payload.cliente}
+                                                            </text>
+                                                            <text
+                                                                x={cx}
+                                                                y={cy + 10}
+                                                                textAnchor="middle"
+                                                                className="text-sm font-bold fill-foreground"
+                                                            >
+                                                                {payload.porcentaje}%
+                                                            </text>
+                                                            <text
+                                                                x={cx}
+                                                                y={cy + 30}
+                                                                textAnchor="middle"
+                                                                className="text-xs fill-muted-foreground"
+                                                            >
+                                                                {formatCurrency(Number(payload.produccion.toFixed(2)))}
+                                                            </text>
+                                                        </g>
+                                                    );
+                                                }}
+                                                onMouseEnter={(_, index) => setActiveIndex(index)}
+                                                onMouseLeave={() => setActiveIndex(null)}
+                                            >
+                                                {distribucion.map((_entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                formatter={(value, name) => [`${value}%`, name]}
+                                            />
+                                        </RePieChart>
+                                    </ResponsiveContainer>
+
+                                    <div className="overflow-auto max-h-[350px]">
+                                        <table className="w-full text-sm">
+                                            <thead>
+                                                <tr className="border-b">
+                                                    <th className="text-left py-2 font-medium">Cliente</th>
+                                                    <th className="text-right py-2 font-medium">Producción</th>
+                                                    <th className="text-right py-2 font-medium">%</th>
+                                                    <th className="text-right py-2 font-medium">Acumulado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {distribucion.map((item, index) => (
+                                                    <tr key={index} className="border-b hover:bg-muted/50">
+                                                        <td className="py-2">{item.cliente}</td>
+                                                        <td className="text-right">{formatCurrency(Number(item.produccion.toFixed(2)))}</td>
+                                                        <td className="text-right">
+                                                            <Badge variant="outline" className="text-xs">
+                                                                {item.porcentaje}%
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="text-right text-muted-foreground">
+                                                            {item.acumulado !== undefined ? `${item.acumulado}%` : '-'}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                );
+
+            case 'prediccion':
+                return (
+                    <PrediccionIA
+                        onPrediccionGenerada={(data) => {
+                            console.log('Predicción generada:', data);
+                        }}
+                    />
+                );
+
+            default:
+                return null;
+        }
+    };
 
     if (isLoading) {
         return (
             <div className="space-y-6">
-                <Skeleton className="h-12 w-full" />
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[...Array(4)].map((_, i) => (
-                        <Skeleton key={i} className="h-32 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    {[...Array(5)].map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-full" />
                     ))}
                 </div>
+                <Skeleton className="h-12 w-full" />
                 <Skeleton className="h-80 w-full" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Skeleton className="h-64 w-full" />
@@ -251,28 +689,61 @@ export default function AnalisisEstrategico() {
         );
     }
 
-    const { tendencia, top_crecimiento, top_decrecimiento, proyeccion, distribucion } = data;
-
-    // Estado del semáforo según cumplimiento proyectado
-    const getStatusColor = (porcentaje: number) => {
-        if (porcentaje >= 90) return "text-green-600 bg-green-100 border-green-300";
-        if (porcentaje >= 70) return "text-yellow-600 bg-yellow-100 border-yellow-300";
-        return "text-red-600 bg-red-100 border-red-300";
-    };
-
-    const StatusIcon = ({ porcentaje }: { porcentaje: number }) => {
-        if (porcentaje >= 90) {
-            return <CheckCircle className="h-6 w-6 text-green-500" />;
-        }
-        if (porcentaje >= 70) {
-            return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
-        }
-        return <XCircle className="h-6 w-6 text-red-500" />;
-    };
-
-
     return (
         <div className="space-y-6">
+            {/* Modal de error */}
+            <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-red-600">
+                            <AlertCircle className="h-5 w-5" />
+                            Error en el período seleccionado
+                        </DialogTitle>
+                        <DialogDescription className="text-red-500/80 pt-2">
+                            {errorValidacion}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {tipoError === "rango" && (
+                            <Button variant="outline" size="sm" onClick={ajustarRango} className="gap-1">
+                                <Calendar className="h-4 w-4" />
+                                Ajustar a 24 meses
+                            </Button>
+                        )}
+                        {tipoError === "future" && (
+                            <>
+                                <Button variant="outline" size="sm" onClick={retrocederMes} className="gap-1">
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Retroceder un mes
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={resetFechas} className="gap-1">
+                                    <Undo2 className="h-4 w-4" />
+                                    Restablecer
+                                </Button>
+                            </>
+                        )}
+                        {tipoError === "orden" && (
+                            <Button variant="outline" size="sm" onClick={intercambiarFechas} className="gap-1">
+                                <RefreshCw className="h-4 w-4" />
+                                Intercambiar fechas
+                            </Button>
+                        )}
+                        {tipoError !== "rango" && (
+                            <Button variant="outline" size="sm" onClick={resetFechas} className="gap-1">
+                                <Undo2 className="h-4 w-4" />
+                                Restablecer
+                            </Button>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setModalAbierto(false)}>
+                            Cerrar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Filtro de rango de fechas */}
             {/* Filtro de rango de fechas */}
             <Card>
                 <CardHeader>
@@ -287,8 +758,8 @@ export default function AnalisisEstrategico() {
                                 <Input
                                     id="fechaInicio"
                                     type="date"
-                                    value={fechaInicio}
-                                    onChange={(e) => setFechaInicio(e.target.value)}
+                                    value={fechaInicioInput}
+                                    onChange={(e) => setFechaInicioInput(e.target.value)}
                                     className="w-40"
                                 />
                             </div>
@@ -297,8 +768,8 @@ export default function AnalisisEstrategico() {
                                 <Input
                                     id="fechaFin"
                                     type="date"
-                                    value={fechaFin}
-                                    onChange={(e) => setFechaFin(e.target.value)}
+                                    value={fechaFinInput}
+                                    onChange={(e) => setFechaFinInput(e.target.value)}
                                     className="w-40"
                                 />
                             </div>
@@ -353,380 +824,57 @@ export default function AnalisisEstrategico() {
                 </CardHeader>
             </Card>
 
-            {/* Tarjetas de resumen */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <DollarSign className="h-4 w-4" />
-                            Producción Acumulada
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {formatCurrency(Number(proyeccion.acumulado.toFixed(2)))}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {data.tendencia.length > 0
-                                ? `Último mes: ${data.tendencia[data.tendencia.length - 1]?.periodo || '-'}`
-                                : 'Sin datos'
-                            }
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className={cn("border-l-4", getStatusColor(proyeccion.cumplimiento))}>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <Target className="h-4 w-4" />
-                            Cumplimiento Proyectado
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl font-bold">{proyeccion.cumplimiento}%</span>
-                            <StatusIcon porcentaje={proyeccion.cumplimiento} />
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                            {proyeccion.cumplimiento >= 90
-                                ? "En buen camino"
-                                : proyeccion.cumplimiento >= 70
-                                    ? "Cerca de meta"
-                                    : "Requiere atención"}
-                        </div>
-                        <div className="text-xs text-muted-foreground/70 mt-1">
-                            Proyectado para {proyeccion.periodo}
-                        </div>
-                    </CardContent>
-                </Card>
+            {/* Barra de navegación - Navbar de herramientas */}
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-100/80 rounded-lg border border-slate-200/60">
+                    {SECCIONES.map((seccion) => (
+                        <Button
+                            key={seccion.id}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSeccionActiva(seccion.id)}
+                            className={cn(
+                                "gap-1.5 h-8 px-3 text-sm font-medium",
+                                "hover:bg-white/80 hover:text-slate-800",
+                                "transition-all duration-200",
+                                seccionActiva === seccion.id
+                                    ? "bg-white text-slate-800 shadow-sm border border-slate-200/60"
+                                    : "text-slate-500"
+                            )}
+                        >
+                            {seccion.icon}
+                            {seccion.label}
+                        </Button>
+                    ))}
+                    <div className="flex-1" />
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5 h-8 px-2 text-xs text-slate-400 hover:text-slate-600"
+                    >
+                        <Download className="h-3.5 w-3.5" />
+                        Exportar
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5 h-8 px-2 text-xs text-slate-400 hover:text-slate-600"
+                    >
+                        <Share2 className="h-3.5 w-3.5" />
+                        Compartir
+                    </Button>
+                </div>
+
+                {/* Descripción de la sección activa */}
+                <div className="flex items-center gap-2 px-1">
+                    <span className="text-xs text-muted-foreground">
+                        {SECCIONES.find(s => s.id === seccionActiva)?.descripcion}
+                    </span>
+                </div>
             </div>
 
-            {/* Gráfico de tendencia */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-blue-500" />
-                        Tendencia de Producción
-                    </CardTitle>
-                    <div className="text-sm text-muted-foreground">
-                        Meta vs Real · Línea muestra % de cumplimiento
-                    </div>
-                    <div className="text-xs text-muted-foreground/70">
-                        Período: {tendencia.length > 0
-                            ? `${tendencia[0]?.periodo || '—'} → ${tendencia[tendencia.length - 1]?.periodo || '—'}`
-                            : 'Sin datos'
-                        }
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <ComposedChart data={tendencia}>
-                            <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                            <XAxis dataKey="periodo" />
-                            <YAxis yAxisId="left" />
-                            <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
-                            <Tooltip
-                                formatter={(value, name) => {
-                                    if (name === '% Cumplimiento') return `${value}%`;
-                                    return `${formatCurrency(Number(value))}`;
-                                }}
-                            />
-                            <Legend />
-                            <Bar yAxisId="left" dataKey="meta" fill="#93c5fd" name="Meta" />
-                            <Bar yAxisId="left" dataKey="real" fill="#3b82f6" name="Real" />
-                            <Line
-                                yAxisId="right"
-                                type="monotone"
-                                dataKey="cumplimiento"
-                                stroke="#f59e0b"
-                                strokeWidth={2}
-                                name="% Cumplimiento"
-                            />
-                        </ComposedChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
-
-            {/* Top clientes y Distribución */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Top crecimiento */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-green-700">
-                            <TrendingUp className="h-5 w-5" />
-                            Top 5 Clientes en Crecimiento
-                        </CardTitle>
-                        <div className="text-xs text-muted-foreground">
-                            Comparando últimos dos meses del período
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {top_crecimiento.length === 0 ? (
-                            <div className="text-center py-6 text-muted-foreground">
-                                No hay clientes con crecimiento en el período
-                            </div>
-                        ) : (
-                            <ul className="space-y-3">
-                                {top_crecimiento.map((item, index) => (
-                                    <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                            <span className="font-medium">{item.cliente}</span>
-                                        </div>
-                                        <div className="flex items-center gap-4 text-sm">
-                                            <span className="text-muted-foreground">
-                                                {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
-                                            </span>
-                                            <Badge variant="outline" className="text-green-600 border-green-300">
-                                                +{item.variacion}%
-                                            </Badge>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* Top decrecimiento */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-red-700">
-                            <TrendingDown className="h-5 w-5" />
-                            Top 5 Clientes en Decrecimiento
-                        </CardTitle>
-                        <div className="text-xs text-muted-foreground">
-                            Comparando últimos dos meses del período
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {top_decrecimiento.length === 0 ? (
-                            <div className="text-center py-6 text-muted-foreground">
-                                No hay clientes con decrecimiento en el período
-                            </div>
-                        ) : (
-                            <ul className="space-y-3">
-                                {top_decrecimiento.map((item, index) => (
-                                    <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                            <span className="font-medium">{item.cliente}</span>
-                                        </div>
-                                        <div className="flex items-center gap-4 text-sm">
-                                            <span className="text-muted-foreground">
-                                                {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
-                                            </span>
-                                            <Badge variant="outline" className="text-red-600 border-red-300">
-                                                {item.variacion}%
-                                            </Badge>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-
-            { /* CLIENTES NUEVOS E INACTIVOS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Clientes Nuevos */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-blue-700">
-                            <Users className="h-5 w-5" />
-                            Nuevos Clientes
-                            <Badge variant="outline" className="ml-2 text-blue-600 border-blue-300">
-                                {data.clientes_nuevos?.length || 0}
-                            </Badge>
-                        </CardTitle>
-                        <div className="text-xs text-muted-foreground">
-                            Clientes que aparecen en {data.tendencia[data.tendencia.length - 1]?.periodo || 'el último mes'}
-                            pero no en el mes anterior
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {!data.clientes_nuevos || data.clientes_nuevos.length === 0 ? (
-                            <div className="text-center py-6 text-muted-foreground">
-                                No hay clientes nuevos en este período
-                            </div>
-                        ) : (
-                            <ul className="space-y-3">
-                                {data.clientes_nuevos.map((item, index) => (
-                                    <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                            <span className="font-medium">{item.cliente}</span>
-                                        </div>
-                                        <Badge variant="outline" className="text-blue-600 border-blue-300">
-                                            +{formatCurrency(Number(item.produccion.toFixed(2)))}
-                                        </Badge>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* Clientes Inactivos */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-gray-700">
-                            <Users className="h-5 w-5" />
-                            Clientes Inactivos
-                            <Badge variant="outline" className="ml-2 text-gray-600 border-gray-300">
-                                {data.clientes_inactivos?.length || 0}
-                            </Badge>
-                        </CardTitle>
-                        <div className="text-xs text-muted-foreground">
-                            Clientes que aparecieron en el mes anterior pero no en {data.tendencia[data.tendencia.length - 1]?.periodo || 'el último mes'}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        {!data.clientes_inactivos || data.clientes_inactivos.length === 0 ? (
-                            <div className="text-center py-6 text-muted-foreground">
-                                No hay clientes inactivos en este período
-                            </div>
-                        ) : (
-                            <ul className="space-y-3">
-                                {data.clientes_inactivos.map((item, index) => (
-                                    <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                            <span className="font-medium">{item.cliente}</span>
-                                        </div>
-                                        <Badge variant="outline" className="text-gray-600 border-gray-300">
-                                            -{formatCurrency(Number(item.produccion.toFixed(2)))}
-                                        </Badge>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Distribución por cliente (Pareto) */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-purple-500" />
-                        Distribución de Producción por Cliente (Pareto)
-                    </CardTitle>
-                    <div className="text-sm text-muted-foreground">
-                        Muestra el % de participación de cada cliente en la producción total del período
-                    </div>
-                    <div className="text-xs text-muted-foreground/70">
-                        Período: {tendencia.length > 0
-                            ? `${tendencia[0]?.periodo || '—'} → ${tendencia[tendencia.length - 1]?.periodo || '—'}`
-                            : 'Sin datos'
-                        }
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {distribucion.length === 0 ? (
-                        <div className="text-center py-6 text-muted-foreground">
-                            No hay datos de distribución
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <PieChart>
-                                    <Pie
-                                        data={distribucion}
-                                        dataKey="porcentaje"
-                                        nameKey="cliente"
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={100}
-                                        innerRadius={60}
-                                        paddingAngle={2}
-                                        activeIndex={activeIndex ?? undefined}
-                                        activeShape={(props: any) => {
-                                            const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
-                                            return (
-                                                <g>
-                                                    <Sector
-                                                        cx={cx}
-                                                        cy={cy}
-                                                        innerRadius={innerRadius}
-                                                        outerRadius={outerRadius + 10}
-                                                        startAngle={startAngle}
-                                                        endAngle={endAngle}
-                                                        fill={fill}
-                                                    />
-                                                    <text
-                                                        x={cx}
-                                                        y={cy - 20}
-                                                        textAnchor="middle"
-                                                        className="text-xs font-medium fill-foreground"
-                                                    >
-                                                        {payload.cliente}
-                                                    </text>
-                                                    <text
-                                                        x={cx}
-                                                        y={cy + 10}
-                                                        textAnchor="middle"
-                                                        className="text-sm font-bold fill-foreground"
-                                                    >
-                                                        {payload.porcentaje}%
-                                                    </text>
-                                                    <text
-                                                        x={cx}
-                                                        y={cy + 30}
-                                                        textAnchor="middle"
-                                                        className="text-xs fill-muted-foreground"
-                                                    >
-                                                        {formatCurrency(Number(payload.produccion.toFixed(2)))}
-                                                    </text>
-                                                </g>
-                                            );
-                                        }}
-                                        onMouseEnter={(_, index) => setActiveIndex(index)}
-                                        onMouseLeave={() => setActiveIndex(null)}
-                                    >
-                                        {distribucion.map((_entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        formatter={(value, name) => [`${value}%`, name]}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-
-                            {/* Tabla de distribución */}
-                            <div className="overflow-auto max-h-[300px]">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b">
-                                            <th className="text-left py-2 font-medium">Cliente</th>
-                                            <th className="text-right py-2 font-medium">Producción</th>
-                                            <th className="text-right py-2 font-medium">%</th>
-                                            <th className="text-right py-2 font-medium">Acumulado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {distribucion.map((item, index) => (
-                                            <tr key={index} className="border-b hover:bg-muted/50">
-                                                <td className="py-2">{item.cliente}</td>
-                                                <td className="text-right">{formatCurrency(Number(item.produccion.toFixed(2)))}</td>
-                                                <td className="text-right">
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {item.porcentaje}%
-                                                    </Badge>
-                                                </td>
-                                                <td className="text-right text-muted-foreground">
-                                                    {item.acumulado !== undefined ? `${item.acumulado}%` : '-'}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            {/* Contenido según sección activa */}
+            {renderContenido()}
         </div>
     );
 }

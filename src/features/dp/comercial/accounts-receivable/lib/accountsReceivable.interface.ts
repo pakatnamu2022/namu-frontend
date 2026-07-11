@@ -116,6 +116,7 @@ export interface AccountsReceivableFilters {
   sede_id?: number[] | null;
   due_year?: number[] | null;
   company?: string;
+  area_id?: number;
   currency?: string;
   overdue_status?: string[];
   seller?: string;

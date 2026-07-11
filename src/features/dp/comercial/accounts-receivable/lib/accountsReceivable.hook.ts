@@ -6,7 +6,10 @@ import {
   getFilterTree,
   getAccountsReceivableDashboard,
 } from "./accountsReceivable.actions";
-import type { AccountsReceivableFilters, DashboardFilters } from "./accountsReceivable.interface";
+import type {
+  AccountsReceivableFilters,
+  DashboardFilters,
+} from "./accountsReceivable.interface";
 
 const { QUERY_KEY } = ACCOUNTS_RECEIVABLE;
 
@@ -26,17 +29,21 @@ export const useAccountReceivableById = (id: number | null) => {
   });
 };
 
-export const useAccountsReceivableDashboard = (company: string, filters?: DashboardFilters) => {
+export const useAccountsReceivableDashboard = (
+  company: string,
+  filters?: DashboardFilters,
+  areaId?: number,
+) => {
   return useQuery({
-    queryKey: [QUERY_KEY, "dashboard", company, filters],
-    queryFn: () => getAccountsReceivableDashboard(company, filters),
+    queryKey: [QUERY_KEY, "dashboard", company, areaId, filters],
+    queryFn: () => getAccountsReceivableDashboard(company, filters, areaId),
   });
 };
 
-export const useFilterTree = () => {
+export const useFilterTree = (company: string = "deposito") => {
   return useQuery({
     queryKey: [QUERY_KEY, "filterTree"],
-    queryFn: getFilterTree,
+    queryFn: () => getFilterTree(company),
     staleTime: 5 * 60 * 1000,
   });
 };
