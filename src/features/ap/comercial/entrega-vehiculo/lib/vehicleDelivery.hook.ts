@@ -145,10 +145,10 @@ export const useSyncAccountingEntry = () => {
   });
 };
 
-export const useAvailableDeliverySlots = (date?: string) => {
+export const useAvailableDeliverySlots = (date?: string, shopId?: number) => {
   return useQuery({
-    queryKey: [QUERY_KEY, "available-slots", date],
-    queryFn: () => getAvailableDeliverySlots(date!),
+    queryKey: [QUERY_KEY, "available-slots", date, shopId],
+    queryFn: () => getAvailableDeliverySlots(date!, shopId),
     enabled: !!date,
     refetchOnWindowFocus: false,
   });

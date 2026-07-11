@@ -34,6 +34,7 @@ interface ScheduledDeliveryPickerProps<T extends FieldValues> {
   disabled?: boolean;
   minDate?: Date;
   autoSelectFirstAvailable?: boolean;
+  shopId?: number;
 }
 
 const buildDateTimeString = (date: Date, time: string) => {
@@ -53,6 +54,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
   disabled = false,
   minDate,
   autoSelectFirstAvailable = false,
+  shopId,
 }: ScheduledDeliveryPickerProps<T>) {
   const {
     field,
@@ -94,7 +96,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     : undefined;
 
   const { data: slotsResponse, isFetching: isLoadingSlots } =
-    useAvailableDeliverySlots(calendarDayStr);
+    useAvailableDeliverySlots(calendarDayStr, shopId);
 
   const daySlots = slotsResponse?.slots ?? [];
 

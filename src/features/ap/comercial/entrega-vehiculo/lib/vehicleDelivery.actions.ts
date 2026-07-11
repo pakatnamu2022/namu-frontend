@@ -118,11 +118,12 @@ export async function syncAccountingEntry(id: number): Promise<void> {
 }
 
 export async function getAvailableDeliverySlots(
-  date: string
+  date: string,
+  shopId?: number
 ): Promise<AvailableDeliverySlotsResponse> {
   const { data } = await api.get<AvailableDeliverySlotsResponse>(
     `${ENDPOINT}/available-slots`,
-    { params: { date } }
+    { params: { date, shop_id: shopId } }
   );
   return data;
 }
