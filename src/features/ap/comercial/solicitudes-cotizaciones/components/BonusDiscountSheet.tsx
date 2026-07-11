@@ -38,6 +38,9 @@ const getDescriptionOptions = (conceptId: string): string[] | null => {
       "BONO ADICIONAL (DERCO)",
       "BONO B2B",
       "BONO DIFEERENCIA DE PRECIO",
+      "BONO CANALES DIGITALES",
+      "BONO PROMOCIONES",
+      "BONO PLAN TRADE",
     ];
   return null;
 };
