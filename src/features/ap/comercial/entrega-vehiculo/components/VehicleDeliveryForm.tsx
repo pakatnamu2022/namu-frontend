@@ -29,7 +29,7 @@ import {
   X,
   ZoomIn,
 } from "lucide-react";
-import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
+import { ScheduledDeliveryPicker } from "./ScheduledDeliveryPicker";
 import { FormSelect } from "@/shared/components/FormSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { EMPRESA_AP } from "@/core/core.constants";
@@ -43,6 +43,7 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 
 // ── Primitives ──────────────────────────────────────────────────────────────
 
@@ -240,6 +241,9 @@ export const VehicleDeliveryForm = ({
                 has_delivery_guide: 0,
                 has_vehicle_delivery: 0,
                 is_paid: 1,
+                is_received: 1,
+                vehicleMovements$new_status_id:
+                  VEHICLE_STATUS_ID.VEHICULO_FACTURADO_FINAL,
               }}
               mapOptionFn={(item) => ({
                 label: item.vin,
@@ -252,12 +256,19 @@ export const VehicleDeliveryForm = ({
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <DateTimePickerForm
+            <ScheduledDeliveryPicker
               control={form.control}
               name="scheduled_delivery_date"
               label="Fecha y Hora de Entrega Programada"
               placeholder="Selecciona la fecha y hora de entrega"
-              minDate={new Date()}
+              description="Lun-Vie: 9, 10, 11, 12, 15, 16 y 17h · Sáb: 10, 11 y 12h"
+              minDate={(() => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                return tomorrow;
+              })()}
+              autoSelectFirstAvailable={mode === "create"}
             />
           </div>
         </div>

@@ -328,38 +328,39 @@ export const StoreVisitsForm = ({
             }
           />
 
-          {canViewAdvisors ? (
-            <FormSelect
-              name="worker_id"
-              label={advisorOptional ? "Asesor (opcional)" : "Asesor"}
-              placeholder="Selecciona asesor"
-              options={workers.map((item) => ({
-                label: item.name,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={isLoadingWorkers}
-            />
-          ) : (
-            <FormSelect
-              name="worker_id"
-              label="Asesor"
-              placeholder="Asesor asignado"
-              options={
-                workerConfig?.worker
-                  ? [
-                      {
-                        label: workerConfig.worker.nombre_completo,
-                        value: workerConfig.worker.id.toString(),
-                      },
-                    ]
-                  : []
-              }
-              control={form.control}
-              disabled
-            />
-          )}
+          {!advisorOptional &&
+            (canViewAdvisors ? (
+              <FormSelect
+                name="worker_id"
+                label="Asesor"
+                placeholder="Selecciona asesor"
+                options={workers.map((item) => ({
+                  label: item.name,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+                disabled={isLoadingWorkers}
+              />
+            ) : (
+              <FormSelect
+                name="worker_id"
+                label="Asesor"
+                placeholder="Asesor asignado"
+                options={
+                  workerConfig?.worker
+                    ? [
+                        {
+                          label: workerConfig.worker.nombre_completo,
+                          value: workerConfig.worker.id.toString(),
+                        },
+                      ]
+                    : []
+                }
+                control={form.control}
+                disabled
+              />
+            ))}
 
           <FormSelect
             name="document_type_id"

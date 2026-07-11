@@ -150,9 +150,7 @@ export default function DeliveryChecklistPage(): JSX.Element {
           <DeliveryChecklistSection
             vehicleDeliveryId={id}
             hideHeader
-            onChecklistConfirmed={() =>
-              router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)
-            }
+            onChecklistConfirmed={() => router(ABSOLUTE_ROUTE)}
           />
         </div>
       </div>
