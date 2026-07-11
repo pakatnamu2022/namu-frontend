@@ -5,9 +5,10 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, Mail } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { ScheduledDeliveryPicker } from "./ScheduledDeliveryPicker";
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -42,6 +43,7 @@ export const ExitGuideForm = ({
 
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchSedeId = form.watch("sede_id");
+  const watchIsExtraordinary = form.watch("is_extraordinary");
 
   const { data: articleClass = [], isLoading: isLoadingArticleClass } =
     useAllClassArticle({
@@ -160,14 +162,35 @@ export const ExitGuideForm = ({
             placeholder="Selecciona la fecha y hora de entrega"
             description="Lun-Vie: 9, 10, 11, 12, 15, 16 y 17h · Sáb: 10, 11 y 12h"
             minDate={(() => {
-              const tomorrow = new Date();
-              tomorrow.setDate(tomorrow.getDate() + 1);
-              tomorrow.setHours(0, 0, 0, 0);
-              return tomorrow;
+              const min = new Date();
+              if (!watchIsExtraordinary) {
+                min.setDate(min.getDate() + 1);
+              }
+              min.setHours(0, 0, 0, 0);
+              return min;
             })()}
             autoSelectFirstAvailable
             shopId={shopId}
+            allowUnavailableSlots={!!watchIsExtraordinary}
           />
+        </div>
+
+        <div className="space-y-2">
+          <FormSwitch
+            control={form.control}
+            name="is_extraordinary"
+            text="Entrega extraordinaria"
+            textDescription="Permite programar la entrega en un horario ya tomado."
+          />
+          {watchIsExtraordinary && (
+            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50">
+              <Mail className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-800 leading-relaxed">
+                Esta entrega requiere aprobación. Se enviará un email de
+                confirmación al responsable.
+              </p>
+            </div>
+          )}
         </div>
 
         <FormTextArea
