@@ -10,6 +10,7 @@ import {
   getNextShippingGuideDocumentNumber,
   syncAccountingEntry,
   getAvailableDeliverySlots,
+  rescheduleVehicleDelivery,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast } from "@/core/core.function";
@@ -40,6 +41,30 @@ export const useUpdateVehicleDelivery = () => {
       updateVehicleDelivery(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useRescheduleVehicleDelivery = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: { scheduled_delivery_date: string; observations?: string };
+    }) => rescheduleVehicleDelivery(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Entrega reprogramada correctamente");
+    },
+    onError: (error: any) => {
+      const msg =
+        error?.response?.data?.message ||
+        "Error al reprogramar la entrega";
+      errorToast(msg);
     },
   });
 };

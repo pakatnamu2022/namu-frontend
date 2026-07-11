@@ -21,7 +21,9 @@ import {
   useSendVehicleDeliveryToNubefact,
   useQueryVehicleDeliveryFromNubefact,
   useSyncAccountingEntry,
+  useRescheduleVehicleDelivery,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
+import { RescheduleDeliveryModal } from "@/features/ap/comercial/entrega-vehiculo/components/RescheduleDeliveryModal";
 import {
   deleteVehicleDelivery,
   dispatchShippingGuideMigration,
@@ -56,9 +58,12 @@ export default function VehicleDeliveryPage() {
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehiclesDeliveryResource | null>(null);
+  const [rescheduleDelivery, setRescheduleDelivery] =
+    useState<VehiclesDeliveryResource | null>(null);
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendVehicleDeliveryToNubefact();
   const queryFromNubefactMutation = useQueryVehicleDeliveryFromNubefact();
+  const rescheduleMutation = useRescheduleVehicleDelivery();
   const migrateMutation = useMutation({
     mutationFn: dispatchShippingGuideMigration,
     onSuccess: () => successToast("Migración despachada correctamente"),
@@ -106,6 +111,16 @@ export default function VehicleDeliveryPage() {
     });
   };
 
+  const handleReschedule = (
+    id: number,
+    data: { scheduled_delivery_date: string; observations?: string },
+  ) => {
+    rescheduleMutation.mutate(
+      { id, data },
+      { onSuccess: () => setRescheduleDelivery(null) },
+    );
+  };
+
   const handleQueryFromNubefact = (id: number) => {
     queryFromNubefactMutation.mutate(id, {
       onSettled: () => {
@@ -141,6 +156,7 @@ export default function VehicleDeliveryPage() {
           onViewDetails: setSelectedVehicle,
           onMigrate: (id) => migrateMutation.mutate(id),
           onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
+          onReschedule: setRescheduleDelivery,
           permissions,
         })}
         data={data?.data || []}
@@ -180,6 +196,14 @@ export default function VehicleDeliveryPage() {
           isLoading={sendToNubefactMutation.isPending}
         />
       )}
+
+      <RescheduleDeliveryModal
+        open={!!rescheduleDelivery}
+        onOpenChange={(open) => !open && setRescheduleDelivery(null)}
+        delivery={rescheduleDelivery}
+        onSubmit={handleReschedule}
+        isSubmitting={rescheduleMutation.isPending}
+      />
 
       {deleteId !== null && (
         <SimpleDeleteDialog

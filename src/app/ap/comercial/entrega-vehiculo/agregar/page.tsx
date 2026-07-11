@@ -62,6 +62,7 @@ export default function AddVehicleDeliveryPage() {
         defaultValues={{
           vehicle_id: "",
           observations: "",
+          is_extraordinary: false,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

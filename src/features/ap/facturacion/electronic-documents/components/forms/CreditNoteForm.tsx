@@ -80,11 +80,6 @@ export function CreditNoteForm({
     type_operation_id,
   });
 
-  const originalSeriesPrefix = originalDocument.serie?.charAt(0).toUpperCase();
-  const matchingSeries = authorizedSeries.filter(
-    (serie) => serie.series?.charAt(0).toUpperCase() === originalSeriesPrefix,
-  );
-
   const { data: allAccountingPlans = [] } = useAllAccountingAccountPlan({
     status: 1,
     type: ACP_TYPE_CREDIT_NOTE,
@@ -241,11 +236,11 @@ export function CreditNoteForm({
                 control={form.control}
                 label="Serie"
                 placeholder="Seleccione la serie"
-                options={matchingSeries.map((serie) => ({
+                options={authorizedSeries.map((serie) => ({
                   value: serie.id.toString(),
                   label: serie.series,
                 }))}
-                description={`Seleccione la serie autorizada para notas de crédito (debe iniciar con "${originalSeriesPrefix}")`}
+                description="Seleccione la serie autorizada para notas de crédito"
               />
 
               <DatePickerFormField
