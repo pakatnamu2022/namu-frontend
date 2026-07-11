@@ -35,6 +35,7 @@ interface Props {
   asesores?: WorkerResource[];
   advisorId?: string;
   setAdvisorId?: (value: string) => void;
+  isAdvisorLocked?: boolean;
   typesPlanning?: TypesPlanningResource[];
   typePlanningId?: string;
   setTypePlanningId?: (value: string) => void;
@@ -61,6 +62,7 @@ export default function WorkOrderOptions({
   asesores = [],
   advisorId,
   setAdvisorId,
+  isAdvisorLocked = false,
   typesPlanning = [],
   typePlanningId,
   setTypePlanningId,
@@ -101,6 +103,7 @@ export default function WorkOrderOptions({
           placeholder="Filtrar por asesor de servicio"
           className="min-w-72"
           classNameOption="text-xs"
+          disabled={isAdvisorLocked}
         />
       )}
       {typesPlanning && setTypePlanningId && (
