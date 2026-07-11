@@ -46,11 +46,13 @@ function formatAmount(value: string | number | null | undefined): string {
 interface ColumnsOptions {
   onRowClick: (row: AccountReceivable) => void;
   canGroup?: boolean;
+  showComments?: boolean;
 }
 
 export function getAccountsReceivableColumns({
   onRowClick,
   canGroup,
+  showComments = true,
 }: ColumnsOptions): ColumnDef<AccountReceivable>[] {
   const selectColumn: ColumnDef<AccountReceivable> = {
     id: "select",
@@ -211,23 +213,27 @@ export function getAccountsReceivableColumns({
         </span>
       ),
     },
-    {
-      id: "actions",
-      header: "Comentarios",
-      cell: ({ row }) => {
-        const count = row.original.comments_count ?? 0;
-        return (
-          <Button
-            size="sm"
-            variant="outline"
-            color="blue"
-            onClick={() => onRowClick(row.original)}
-          >
-            <MessageSquare />
-            <span>{count}</span>
-          </Button>
-        );
-      },
-    },
+    ...(showComments
+      ? [
+          {
+            id: "actions",
+            header: "Comentarios",
+            cell: ({ row }) => {
+              const count = row.original.comments_count ?? 0;
+              return (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  color="blue"
+                  onClick={() => onRowClick(row.original)}
+                >
+                  <MessageSquare />
+                  <span>{count}</span>
+                </Button>
+              );
+            },
+          } as ColumnDef<AccountReceivable>,
+        ]
+      : []),
   ];
 }

@@ -415,6 +415,8 @@ import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/mae
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 import AccountsReceivablePage from "./app/dp/comercial/accounts-receivable/page.tsx";
 import AccountsReceivableDashboardPage from "./app/dp/comercial/accounts-receivable/dashboard/page.tsx";
+import AccountsReceivableApPage from "./app/ap/comercial/accounts-receivable/page.tsx";
+import AccountsReceivableDashboardApPage from "./app/ap/comercial/accounts-receivable/dashboard/page.tsx";
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 import ManualesPage from "./features/manuales/components/ManualesPage";
 
@@ -911,6 +913,16 @@ function App() {
 
               {/* Reportes */}
               <Route path="reportes" element={<ReportesComercialPage />} />
+
+              {/* Cuentas por Cobrar */}
+              <Route
+                path="cuentas-por-cobrar-ap"
+                element={<AccountsReceivableApPage />}
+              />
+              <Route
+                path="cuentas-por-cobrar-ap/dashboard"
+                element={<AccountsReceivableDashboardApPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

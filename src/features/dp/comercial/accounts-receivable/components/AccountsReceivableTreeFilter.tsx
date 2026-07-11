@@ -7,17 +7,19 @@ import { useFilterTree } from "../lib/accountsReceivable.hook";
 import type { AccountsReceivableFilters } from "../lib/accountsReceivable.interface";
 
 interface Props {
+  company: string;
   filters: AccountsReceivableFilters;
   onFiltersChange: (filters: Partial<AccountsReceivableFilters>) => void;
   onReset: () => void;
 }
 
 export default function AccountsReceivableTreeFilter({
+  company = "deposito",
   filters,
   onFiltersChange,
   onReset,
 }: Props) {
-  const { data: tree = [], isLoading } = useFilterTree();
+  const { data: tree = [], isLoading } = useFilterTree(company);
 
   const selectedSedeIds = filters.sede_id ?? [];
   const selectedStatuses = filters.overdue_status ?? [];
@@ -98,7 +100,10 @@ export default function AccountsReceivableTreeFilter({
     <div className="flex flex-col gap-2 w-full">
       {/* Fila 1 — Sede + Estado */}
       <div className="flex items-end gap-0 flex-wrap">
-        <Level label="Sede" onClear={selectedSedeIds.length ? onReset : undefined}>
+        <Level
+          label="Sede"
+          onClear={selectedSedeIds.length ? onReset : undefined}
+        >
           <AnimatePresence mode="popLayout">
             {tree.map((sede, i) => (
               <Chip
