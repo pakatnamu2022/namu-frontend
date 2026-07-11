@@ -302,9 +302,22 @@ export interface StockMovementHistoryResponse {
 
 // ─── Reserved Stock Report ────────────────────────────────────────────────────
 
-export interface ReservedStockReportReservation {
+export interface ReservedStockReportReservationOT {
   work_order_id: number;
   work_order_correlative: string;
+  work_order_status_id: number;
+  work_order_status: string;
+  sede_name: string;
+  quantity_reserved: string;
+  reserved_at: string;
+  reserved_by_user_id: number;
+  reserved_by_user_name: string;
+}
+
+export interface ReservedStockReportReservationRP {
+  quotation_id: number;
+  quotation_number: string;
+  quotation_status: string;
   sede_name: string;
   quantity_reserved: string;
   reserved_at: string;
@@ -322,7 +335,8 @@ export interface ReservedStockReportItem {
   total_reserved_quantity: string;
   physical_stock: string;
   available_quantity: string;
-  reservations: ReservedStockReportReservation[];
+  reservations_ot: ReservedStockReportReservationOT[];
+  reservations_rp: ReservedStockReportReservationRP[];
 }
 
 export interface ReservedStockReportSummary {

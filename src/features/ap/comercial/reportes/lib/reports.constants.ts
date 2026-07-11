@@ -1,5 +1,5 @@
 import { ModelComplete } from "@/core/core.interface";
-import { ReportConfig } from "./reports.interface";
+import { ReportConfig } from "@/shared/lib/reports/reports.interface";
 import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
