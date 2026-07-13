@@ -128,6 +128,8 @@ export function OtherSalesForm({
     fechaDeEmisionStr,
   );
 
+  const isDetraction = form.watch("detraccion") || false;
+
   // Solo aplica cuando no es useQuotation y tiene detracción activa
   const isUSD = selectedCurrency?.iso_code === "USD";
   const exchangeRateMissing = isUSD && !exchangeRate?.rate;
@@ -262,6 +264,7 @@ export function OtherSalesForm({
               currencySymbol={currencySymbol}
               porcentaje_de_igv={porcentaje_de_igv}
               isCommercial={isCommercial}
+              isDetraction={isDetraction}
             />
             {/* Configuración Adicional */}
             <AdditionalConfigSection
