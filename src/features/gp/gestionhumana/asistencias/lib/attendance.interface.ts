@@ -50,6 +50,7 @@ export interface AttendanceFiltersProps {
   emp_code?: string;
   person_id?: number | null;
   mark_type?: MarkType | "";
+  sede_id?: number | string;
   per_page?: number;
   page?: number;
 }

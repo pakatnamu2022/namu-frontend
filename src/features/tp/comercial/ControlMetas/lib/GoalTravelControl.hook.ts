@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   AlertasCumplimiento,
   AnalisisEstrategicoResponse,
@@ -10,7 +10,8 @@ import {
   RankingConductor,
   ViajesNoFacturadosResponse,
 } from "./GoalTravelControl.interface";
-import { findGoalTravelById, getAlertsGoalTravel, getAnalisisEstrategico, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getPrediccionIA, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
+import { exportComparativaClientes, findGoalTravelById, getAlertsGoalTravel, getAnalisisEstrategico, getAvailableYearsGoalTravel, getComparativaMensual, getDashboardGoalTravel, getGoalTravel, getPrediccionIA, getRankingGoalTravel, getViajesNoFacturados } from "./GoalTravelControl.actions";
+import { errorToast } from "@/core/core.function";
 
 export const useGoalTravelControl = (params?: GoalTravelQueryParams) => {
   return useQuery<GoalTravelControlResponse>({
@@ -125,6 +126,52 @@ export const usePrediccionIA = (
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const useExportComparativaClientes = (
+  year1?: number,
+  month1?: number,
+  year2?: number,
+  month2?: number
+) => {
+  return useMutation({
+    mutationFn: () => {
+      if (!year1 || !month1) {
+        throw new Error('El período principal es requerido');
+      }
+
+      const params: any = {
+        year1,
+        month1
+      };
+
+      if (year2 !== undefined && year2 !== null) {
+        params.year2 = year2;
+      }
+      if (month2 !== undefined && month2 !== null) {
+        params.month2 = month2;
+      }
+
+      return exportComparativaClientes({ params });
+
+    },
+    onSuccess: (data: Blob) => {
+
+
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      const filename = `comparativa_clientes_${year1}-${month1}_vs_${year2}-${month2}.xlsx`;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+    onError: (error: any) => {
+      errorToast(error.response?.data?.message ?? 'Error al exportar el reporte');
+    },
+  });
+}
 
 
 
