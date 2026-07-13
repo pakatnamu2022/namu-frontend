@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -26,9 +26,13 @@ interface Props {
   onConfirm: () => void;
 }
 
-const evaluatorTypeLabel = (type: number) =>
-  EVALUATOR_TYPES.find((item) => item.value === String(type))?.label ??
-  `Tipo ${type}`;
+const evaluatorTypeLabel = (type: number): ReactNode => {
+  const label = EVALUATOR_TYPES.find(
+    (item) => item.value === String(type),
+  )?.label;
+  if (label === undefined) return `Tipo ${type}`;
+  return typeof label === "function" ? label() : label;
+};
 
 export function CompetencesSyncPreviewModal({
   open,
@@ -173,7 +177,7 @@ export function CompetencesSyncPreviewModal({
                 <h3 className="font-semibold">
                   Personas Afectadas ({previewData.personas.length})
                 </h3>
-                <ScrollArea className="h-[320px]">
+                <ScrollArea className="h-80">
                   <div className="space-y-3 pr-3">
                     {previewData.personas.map((persona) => (
                       <div
