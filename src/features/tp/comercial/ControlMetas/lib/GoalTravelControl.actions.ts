@@ -290,5 +290,35 @@ export async function getPrediccionIA({
   }
 }
 
+export async function exportComparativaClientes({
+  params,
+}: getGoalTravelControlProps): Promise<Blob> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+    responseType: 'blob',
+  };
+
+  try {
+    const response = await api.get<Blob>(
+      ENDPOINT + "/export-comparativa-clientes",
+      config
+    );
+    return response.data;
+
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(
+        `Server Error: ${error.response.data.message || "Unknown error"}`
+      );
+    } else if (error.request) {
+      throw new Error("Network Error: No response from server");
+    } else {
+      throw new Error(`Request Error: ${error.message}`);
+    }
+  }
+}
+
 
 

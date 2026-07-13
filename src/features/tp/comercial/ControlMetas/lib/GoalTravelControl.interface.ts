@@ -58,6 +58,7 @@ export interface ViajesNoFacturadosResponse {
     fecha_limite: string;
   };
 }
+
 export interface DashboardMeta {
   id: number;
   fecha: string;
@@ -73,6 +74,7 @@ export interface DashboardGoalTravelControlResponse {
   vehiculos: VehiculoCumplimiento[];
   resumen: ResumenCumplimiento | null;
 }
+
 export interface ConductorCumplimiento {
   conductor_id: number;
   conductor: string;
@@ -81,6 +83,7 @@ export interface ConductorCumplimiento {
   meta_conductor: number;
   porcentaje_cumplimiento: number;
 }
+
 export interface VehiculoCumplimiento {
   vehiculo_id: number;
   vehiculo: string;
@@ -98,6 +101,7 @@ export interface ResumenCumplimiento {
   meta_total: number;
   porcentaje_cumplimiento: number;
 }
+
 export interface RankingConductor {
   periodo: string;
   position: number;
@@ -109,10 +113,12 @@ export interface RankingConductor {
   promedio_por_viaje: number;
   vehiculos_usados: number;
 }
+
 export interface AlertasCumplimiento {
   conductores: AlertaConductor[];
   vehiculos: AlertaVehiculo[];
 }
+
 export interface AlertaConductor {
   conductor_id: number;
   conductor: string;
@@ -130,7 +136,6 @@ export interface AlertaVehiculo {
   meta: number;
   porcentaje: number;
 }
-
 
 export interface GoalTravelControlResource {
   id: number;
@@ -159,6 +164,11 @@ export interface GoalTravelQueryParams extends GoalTravelSearchFilters {
   page?: number;
   per_page?: number;
 }
+
+// ============================================================
+// INTERFACES PARA ANÁLISIS ESTRATÉGICO
+// ============================================================
+
 export interface TendenciaMes {
   periodo: string;
   meta: number;
@@ -166,27 +176,76 @@ export interface TendenciaMes {
   cumplimiento: number;
 }
 
-export interface ClienteVariacion {
+export interface ClienteMensual {
+  periodo: string;
+  year: number;
+  month: number;
+  produccion: number;
+  viajes: number;
+}
+
+export interface ClienteTendencia {
+  tipo: 'creciente_fuerte' | 'creciente' | 'estable' | 'decreciente' | 'decreciente_fuerte' | 'insuficiente';
+  descripcion: string;
+  cambios_positivos: number;
+  cambios_negativos: number;
+  variacion_total_periodo: number;
+  porcentaje_total: number;
+  mes_maximo: ClienteMensual | null;
+  mes_minimo: ClienteMensual | null;
+}
+
+export interface MesDecrecimiento {
+  periodo: string;
+  year: number;
+  month: number;
+  decrementos: number;
+  clientes_afectados: string[];
+}
+
+export interface ClienteVariacionMejorado {
   cliente_id: number;
   cliente: string;
+  ruc?: string;
   actual: number;
   anterior: number;
   diferencia: number;
   variacion: number;
+  viajes_actual: number;
+  viajes_anterior: number;
+  promedio_viaje_actual: number;
+  promedio_viaje_anterior: number;
+  tendencia: ClienteTendencia;
+  categoria: string;
+  mes_maximo: ClienteMensual | null;
+  mes_minimo: ClienteMensual | null;
 }
-export interface ClienteNuevoInactivo {
+
+export interface ClienteNuevoInactivoMejorado {
   cliente_id: number;
   cliente: string;
-  produccion: number;
+  ruc?: string;
+  produccion: number;        // Para nuevos: es la producción actual
+  produccion_actual: number; // Para compatibilidad con el frontend
+  produccion_anterior: number; // Para compatibilidad con el frontend
+  viajes?: number;
 }
-export interface AnalisisEstrategicoResponse {
-  tendencia: TendenciaMes[];
-  top_crecimiento: ClienteVariacion[];
-  top_decrecimiento: ClienteVariacion[];
-  clientes_nuevos: ClienteNuevoInactivo[];
-  clientes_inactivos: ClienteNuevoInactivo[];
-  proyeccion: ProyeccionCierre;
-  distribucion: DistribucionCliente[];
+
+export interface ResumenClientes {
+  total_clientes_actual: number;
+  total_clientes_anterior: number;
+  clientes_con_crecimiento: number;
+  clientes_con_decrecimiento: number;
+  clientes_nuevos: number;
+  clientes_inactivos: number;
+  total_produccion_actual: number;
+  total_produccion_anterior: number;
+  variacion_total: number;
+  porcentaje_variacion: number;
+  periodo_actual: string;
+  periodo_anterior: string;
+  mejor_mes: { periodo: string; total: number } | null;
+  peor_mes: { periodo: string; total: number } | null;
 }
 
 export interface ProyeccionCierre {
@@ -207,13 +266,22 @@ export interface DistribucionCliente {
   acumulado?: number;
 }
 
+// ============================================================
+// ANALISIS ESTRATEGICO RESPONSE - UNICA DEFINICION
+// ============================================================
 export interface AnalisisEstrategicoResponse {
   tendencia: TendenciaMes[];
-  top_crecimiento: ClienteVariacion[];
-  top_decrecimiento: ClienteVariacion[];
+  top_crecimiento: ClienteVariacionMejorado[];
+  top_decrecimiento: ClienteVariacionMejorado[];
+  clientes_nuevos: ClienteNuevoInactivoMejorado[];
+  clientes_inactivos: ClienteNuevoInactivoMejorado[];
+  top_meses_decrecimiento: MesDecrecimiento[];
   proyeccion: ProyeccionCierre;
   distribucion: DistribucionCliente[];
+  resumen?: ResumenClientes;
+  analisis_gerencial?: AnalisisGerencial; // NUEVO
 }
+
 export interface PrediccionIAResponse {
   success: boolean;
   message?: string;
@@ -246,5 +314,96 @@ export interface PrediccionIAResponse {
     es_prediccion: boolean;
   }>;
 }
+
+export interface MesEstacionalidad {
+  year: number;
+  month: number;
+  periodo: string;
+  clientes_activos: number;
+  total_viajes: number;
+  produccion_total: number;
+  promedio_viaje: number;
+  produccion_por_cliente: number;
+}
+
+export interface ConcentracionClientes {
+  total_clientes: number;
+  clientes_80_20: number;
+  porcentaje_top1: number;
+  porcentaje_top5: number;
+  porcentaje_top10: number;
+  promedio_por_cliente: number;
+  desviacion_estandar: number;
+}
+
+export interface TendenciaMensual {
+  year: number;
+  month: number;
+  periodo: string;
+  produccion: number;
+  produccion_anterior: number | null;
+  variacion_mensual: number | null;
+}
+
+export interface ClienteVolatil {
+  cliente_id: number;
+  cliente: string;
+  produccion_promedio: number;
+  volatilidad: number;
+  coeficiente_variacion: number;
+  meses_activos: number;
+}
+
+export interface ClienteRecuperado {
+  cliente_id: number;
+  cliente: string;
+  total_meses_activos: number;
+  veces_recuperado: number;
+  promedio_meses_ausente: number;
+}
+
+export interface TopPerformer {
+  cliente_id: number;
+  cliente: string;
+  mejor_mes: string;
+  produccion: number;  // <-- CAMBIADO: antes era 'produccion_mejor_mes'
+  year: number;
+  month: number;
+}
+
+export interface TendenciaGeneral {
+  tipo: 'crecimiento_acelerado' | 'crecimiento_sostenido' | 'decrecimiento_acelerado' | 'decrecimiento_sostenido' | 'estable' | 'insuficiente';
+  descripcion: string;
+  meses_crecientes: number;
+  meses_decrecientes: number;
+  promedio_variacion: number;
+  variacion_total: number;
+  porcentaje_total: number;
+  total_meses: number;
+}
+
+export interface ResumenEjecutivo {
+  total_clientes: number;
+  clientes_80_20: number;
+  porcentaje_top5: number;
+  porcentaje_top10: number;
+  promedio_por_cliente: number;
+  desviacion_estandar: number;
+  total_meses_analizados: number;
+  mejor_mes: MesEstacionalidad | null;
+  peor_mes: MesEstacionalidad | null;
+  tendencia_general: TendenciaGeneral;
+}
+
+export interface AnalisisGerencial {
+  estacionalidad: MesEstacionalidad[];
+  concentracion: ConcentracionClientes | null;
+  tendencia_mensual: TendenciaMensual[];
+  clientes_volatiles: ClienteVolatil[];
+  clientes_recuperados: ClienteRecuperado[];
+  top_performers: TopPerformer[];
+  resumen_ejecutivo: ResumenEjecutivo;
+}
+
 
 
