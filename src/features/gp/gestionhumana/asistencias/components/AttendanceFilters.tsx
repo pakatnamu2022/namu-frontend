@@ -1,7 +1,9 @@
+import { useMemo } from "react";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import DatePicker from "@/shared/components/DatePicker";
 import SearchInput from "@/shared/components/SearchInput";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { MARK_TYPE_OPTIONS } from "../lib/attendance.constants";
 import type { AttendanceFiltersProps } from "../lib/attendance.interface";
 
@@ -36,6 +38,17 @@ export default function AttendanceFilters({
   setDateTo,
   onFiltersChange,
 }: Props) {
+  const { data: sedes = [] } = useAllSedes();
+
+  const sedeOptions = useMemo(
+    () =>
+      sedes.map((sede) => ({
+        value: String(sede.id),
+        label: sede.abreviatura,
+      })),
+    [sedes],
+  );
+
   return (
     <FilterWrapper>
       <SearchInput
@@ -77,6 +90,12 @@ export default function AttendanceFilters({
           })
         }
         placeholder="Tipo"
+      />
+      <SearchableSelect
+        options={sedeOptions}
+        value={filters.sede_id ? String(filters.sede_id) : ""}
+        onChange={(v) => onFiltersChange({ sede_id: v || undefined })}
+        placeholder="Sede"
       />
     </FilterWrapper>
   );
