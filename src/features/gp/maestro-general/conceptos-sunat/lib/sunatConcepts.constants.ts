@@ -54,3 +54,8 @@ export const SUNAT_TRANSACTIONS_ID = {
   ANTICIPOS: 36,
   SUJETA_DETRACCION: 129,
 };
+
+export const SUNAT_CURRENCY_ID = {
+  SOLES: 86,
+  DOLARES: 87,
+};
