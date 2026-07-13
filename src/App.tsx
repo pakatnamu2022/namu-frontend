@@ -130,6 +130,7 @@ import TPConfiguracionesLayout from "./app/tp/configuraciones/layout";
 import LoginPage from "./app/page";
 import NotFoundPage from "./app/not-found";
 import ConfirmacionCotizacionPage from "./app/confirmacion-cotizacion/[token]/page";
+import EntregaExtraordinariaConfirmacionPage from "./app/entregas-extraordinarias/confirmacion/page";
 import ForgotPasswordPage from "./app/forgot-password/page";
 import ResetPasswordPage from "./app/reset-password/page";
 import TwoFactorVerifyPage from "./app/2fa-verify/page";
@@ -553,6 +554,10 @@ function App() {
           <Route
             path="/confirmacion-cotizacion/:token"
             element={<ConfirmacionCotizacionPage />}
+          />
+          <Route
+            path="/entregas-extraordinarias/confirmacion"
+            element={<EntregaExtraordinariaConfirmacionPage />}
           />
 
           {/* ============================================================ */}
