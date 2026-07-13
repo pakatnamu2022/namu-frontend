@@ -27,6 +27,7 @@ export function ReportCard({ report }: ReportCardProps) {
     downloadReport({
       endpoint: report.endpoint,
       params,
+      fileName: report.fileName,
     });
   };
 
