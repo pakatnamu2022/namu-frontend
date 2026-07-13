@@ -56,7 +56,9 @@ export function ReportFilters({
           : z.coerce.number().optional();
       } else if (field.type === "multiselect") {
         schemaFields[field.name] = field.required
-          ? z.array(z.number()).min(1, { message: `${field.label} es requerido` })
+          ? z
+              .array(z.number())
+              .min(1, { message: `${field.label} es requerido` })
           : z.array(z.number()).optional();
       } else {
         schemaFields[field.name] = field.required
@@ -91,21 +93,29 @@ export function ReportFilters({
 
   const handleSubmit = (values: FormSchema) => {
     // Limpiar valores vacíos o undefined antes de enviar
-    const cleanedValues = Object.entries(values).reduce((acc, [key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        // Para fechas, convertir a string ISO
-        if (value instanceof Date) {
-          acc[key] = value.toISOString().split("T")[0];
-        } else {
-          acc[key] = value;
+    const cleanedValues = Object.entries(values).reduce(
+      (acc, [key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Para fechas, convertir a string ISO
+          if (value instanceof Date) {
+            acc[key] = value.toISOString().split("T")[0];
+          } else {
+            acc[key] = value;
+          }
         }
-      }
-      return acc;
-    }, {} as Record<string, any>);
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
 
     // Para daterange con rangeParamName, combinar from/to en un único array
     fields.forEach((field) => {
-      if (field.type === "daterange" && field.rangeParamName && field.nameFrom && field.nameTo) {
+      if (
+        field.type === "daterange" &&
+        field.rangeParamName &&
+        field.nameFrom &&
+        field.nameTo
+      ) {
         const from = cleanedValues[field.nameFrom];
         const to = cleanedValues[field.nameTo];
 
@@ -292,7 +302,9 @@ function MultiSelectField({ field, control }: DynamicFieldProps) {
       control={control}
       required={field.required}
       disabled={isLoading}
-      getDisplayValue={field.getDisplayValue || ((item) => item.name || String(item.id))}
+      getDisplayValue={
+        field.getDisplayValue || ((item) => item.name || String(item.id))
+      }
       getSecondaryText={field.getSecondaryText}
     />
   );

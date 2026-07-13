@@ -3,6 +3,7 @@ import { api } from "@/core/api";
 export const downloadReport = async (
   endpoint: string,
   params: Record<string, any>,
+  fileName?: string,
 ) => {
   const response = await api.post(endpoint, params, {
     responseType: "blob",
@@ -27,7 +28,8 @@ export const downloadReport = async (
   } else {
     // Generar nombre basado en el formato
     const extension = params.format === "pdf" ? "pdf" : "xlsx";
-    filename = `reporte_${new Date().getTime()}.${extension}`;
+    const baseName = fileName || "reporte";
+    filename = `${baseName}_${new Date().getTime()}.${extension}`;
   }
 
   link.setAttribute("download", filename);

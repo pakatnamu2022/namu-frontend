@@ -11,6 +11,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
       "Exporta el reporte de órdenes de trabajo del taller, filtrando por estado y rango de fechas.",
     icon: "Wrench",
     endpoint: "/ap/postVenta/reports/work-orders/export",
+    fileName: "reporte_orden_trabajo",
     fields: [
       {
         name: "status_id",
@@ -46,6 +47,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
       "Exporta el reporte de salidas de inventario filtrando por rango de fechas.",
     icon: "PackageSearch",
     endpoint: "/ap/postVenta/reports/inventory-outputs/export",
+    fileName: "reporte_salida_inventario",
     fields: [
       {
         name: "date_range",
@@ -54,6 +56,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         required: false,
         nameFrom: "date_from",
         nameTo: "date_to",
+        rangeParamName: "invoice_date",
       },
     ],
     defaultParams: {},
