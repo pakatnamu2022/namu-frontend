@@ -15,6 +15,8 @@ import { HierarchicalCategoryResource } from "../../categorias-jerarquicas/lib/h
 import {
   DestroyManyPersonCompetenceDetailResponse,
   EvaluationPersonCompetenceDetailGroupedResponse,
+  CompetencesSyncPreviewResponse,
+  CompetencesSyncResponse,
 } from "./evaluationPersonCompetenceDetail.interface";
 
 const { ENDPOINT } = EVALUATION;
@@ -224,6 +226,31 @@ export async function getEvaluationCompetenceDetailsGrouped(
   const { data } = await api.get<EvaluationPersonCompetenceDetailGroupedResponse>(
     `${ENDPOINT}/${id}/competences`,
     config
+  );
+  return data;
+}
+
+export async function getCompetencesSyncPreview(
+  id: number,
+  person_id?: number
+): Promise<CompetencesSyncPreviewResponse> {
+  const config: AxiosRequestConfig = {
+    params: person_id ? { person_id } : undefined,
+  };
+  const { data } = await api.get<CompetencesSyncPreviewResponse>(
+    `${ENDPOINT}/${id}/competences/sync-preview`,
+    config
+  );
+  return data;
+}
+
+export async function syncCompetences(
+  id: number,
+  person_id?: number
+): Promise<CompetencesSyncResponse> {
+  const { data } = await api.post<CompetencesSyncResponse>(
+    `${ENDPOINT}/${id}/competences/sync`,
+    person_id ? { person_id } : {}
   );
   return data;
 }

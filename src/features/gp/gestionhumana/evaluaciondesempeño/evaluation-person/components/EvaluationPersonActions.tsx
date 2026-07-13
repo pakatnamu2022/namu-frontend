@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import RegenerateEvaluationSheet from "./RegenerateEvaluationSheet";
+import CompetencesSyncButton from "./CompetencesSyncButton";
 import { LayoutDashboard, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
+import {
+  EVALUATION,
+  EVALUATION_OBJECTIVE,
+} from "../../evaluaciones/lib/evaluation.constans";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
 import EvaluationEligibleWorkersSheet from "../../evaluaciones/components/EvaluationEligibleWorkersSheet";
 
@@ -17,8 +21,11 @@ interface RegenerateEvaluationParams {
 
 interface Props {
   idEvaluation?: number;
+  typeEvaluation?: number;
   handleRegenerate: (params: RegenerateEvaluationParams) => void;
   loadingRegenerate: boolean;
+  handleSyncCompetences: () => void;
+  loadingSyncCompetences: boolean;
 }
 
 const { ABSOLUTE_ROUTE } = EVALUATION;
@@ -26,10 +33,16 @@ const { ABSOLUTE_ROUTE: EVALUATION_PERSON_ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
 export default function EvaluationPersonActions({
   idEvaluation,
+  typeEvaluation,
   handleRegenerate,
   loadingRegenerate,
+  handleSyncCompetences,
+  loadingSyncCompetences,
 }: Props) {
   const [openEligibleWorkers, setOpenEligibleWorkers] = useState(false);
+  const isNotObjectiveEvaluation =
+    typeEvaluation !== undefined &&
+    String(typeEvaluation) !== EVALUATION_OBJECTIVE.ID;
 
   return (
     <div className="flex items-center gap-2 w-full md:justify-end">
@@ -54,6 +67,15 @@ export default function EvaluationPersonActions({
           Ver Competencias
         </Button>
       </Link>
+
+      {isNotObjectiveEvaluation && (
+        <CompetencesSyncButton
+          evaluationId={idEvaluation!}
+          onSync={handleSyncCompetences}
+          loading={loadingSyncCompetences}
+        />
+      )}
+
       <RegenerateEvaluationSheet
         evaluationId={idEvaluation!}
         onRegenerate={handleRegenerate}
