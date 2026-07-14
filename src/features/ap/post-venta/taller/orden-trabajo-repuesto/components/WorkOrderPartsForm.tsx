@@ -14,6 +14,8 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormInput } from "@/shared/components/FormInput";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+
 interface WorkOrderPartsFormProps {
   workOrderId: number;
   groupNumber: number;
@@ -21,6 +23,8 @@ interface WorkOrderPartsFormProps {
   warehouseName: string;
   sedeName?: string;
   currencySymbol?: string;
+  currencyId?: number;
+  exchangeRate?: number;
   onSuccess: () => void;
   onCancel: () => void;
   maxDiscountPercentage: number;
@@ -51,13 +55,17 @@ export default function WorkOrderPartsForm({
   warehouseName,
   sedeName,
   currencySymbol = "S/",
+  currencyId,
+  exchangeRate,
   onSuccess,
   onCancel,
   maxDiscountPercentage,
 }: WorkOrderPartsFormProps) {
   const queryClient = useQueryClient();
 
+  const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
   const [minSalePrice, setMinSalePrice] = useState(0);
+  const [salePriceSoles, setSalePriceSoles] = useState(0);
 
   const form = useForm<AddPartFormValues>({
     resolver: zodResolver(createPartFormSchema(maxDiscountPercentage)),
@@ -75,11 +83,17 @@ export default function WorkOrderPartsForm({
 
   const handleInventoryChange = (_value: string, item?: InventoryResource) => {
     if (item) {
-      const price = parseFloat(item.sale_price);
+      const priceSoles = parseFloat(item.sale_price);
+      const price =
+        isInDollars && exchangeRate
+          ? Math.round((priceSoles / exchangeRate) * 100) / 100
+          : priceSoles;
       setMinSalePrice(price);
+      setSalePriceSoles(priceSoles);
       form.setValue("unit_price", price, { shouldValidate: true });
     } else {
       setMinSalePrice(0);
+      setSalePriceSoles(0);
       form.setValue("unit_price", 0, { shouldValidate: true });
     }
   };
@@ -193,6 +207,12 @@ export default function WorkOrderPartsForm({
               step="0.01"
               control={form.control}
             />
+            {isInDollars && exchangeRate && (
+              <p className="text-[10px] text-muted-foreground">
+                Convertido con tipo de cambio S/. {exchangeRate.toFixed(4)}{" "}
+                (S/. {salePriceSoles.toFixed(2)})
+              </p>
+            )}
             {isPriceBelowMin && (
               <p className="text-xs font-medium text-destructive">
                 El precio no puede ser menor a {minSalePrice}

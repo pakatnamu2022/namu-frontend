@@ -25,6 +25,7 @@ import {
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
 import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
   ITEM_TYPE_LABOR,
@@ -68,6 +69,7 @@ interface LaborDetailsSectionProps {
   onRefresh: () => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   currencySymbol: string;
+  currencyId: number;
   exchangeRate: number;
   discountRequests: DiscountRequestOrderQuotationResource[];
   permissions: {
@@ -89,6 +91,7 @@ export default function LaborDetailsSection({
   onRefresh,
   onDelete,
   currencySymbol,
+  currencyId,
   exchangeRate,
   discountRequests,
   permissions,
@@ -356,10 +359,15 @@ export default function LaborDetailsSection({
               <FormInput
                 control={form.control}
                 name="unit_price"
-                label="Precio/Hora (S/.)"
+                label="Tarifa/Hora (S/.)"
                 placeholder="Ej: Horas"
                 className="h-9 text-xs"
                 type="number"
+                description={
+                  currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS)
+                    ? "Ingresa la tarifa en soles, el sistema la convertirá automáticamente"
+                    : undefined
+                }
               />
             </div>
 
