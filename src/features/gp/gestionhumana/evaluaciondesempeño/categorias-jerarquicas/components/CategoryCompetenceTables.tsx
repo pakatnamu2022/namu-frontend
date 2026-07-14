@@ -27,10 +27,10 @@ export const CategoryCompetenceTable = ({
       {competences.map((competence) => (
         <div
           key={competence.id}
-          className="flex flex-col gap-2 rounded-lg bg-muted/40 p-3 shadow-sm"
+          className="flex flex-col gap-2 rounded-lg bg-muted/40 p-3"
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-primary">
+            <p className="text-sm font-semibold text-primary dark:text-primary-foreground">
               {competence.competence.nombre}
             </p>
             <div className="flex items-center gap-2 shrink-0">
