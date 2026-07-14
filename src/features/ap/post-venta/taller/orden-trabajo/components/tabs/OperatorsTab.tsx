@@ -181,9 +181,8 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
               Sin trabajadores asignados
             </h3>
             <p className="text-sm text-gray-500 max-w-md">
-              Aún no se han asignado trabajadores a ningún grupo de esta orden
-              de trabajo. Dirígete a la pestaña de planificación para asignar
-              operarios.
+              Aún no se han asignado trabajadores a esta orden de trabajo.
+              Dirígete a la pestaña de planificación para asignar operarios.
             </p>
           </div>
         </Card>

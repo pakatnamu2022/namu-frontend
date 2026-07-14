@@ -445,6 +445,7 @@ export default function ManageQuotationPage() {
         onRefresh={loadDetails}
         onDelete={handleDelete}
         currencySymbol={quotation.type_currency.symbol}
+        currencyId={quotation.currency_id}
         exchangeRate={quotation.exchange_rate}
         discountRequests={discountRequests.filter(
           (r) => r.item_type === "LABOR",

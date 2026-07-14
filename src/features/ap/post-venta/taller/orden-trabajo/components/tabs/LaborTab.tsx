@@ -512,10 +512,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
             onSuccess={handleSuccess}
             onCancel={() => setShowForm(false)}
             workOrderItems={items}
-            currencySymbol={
-              associatedQuotation?.type_currency?.symbol ||
-              workOrder?.type_currency?.symbol ||
-              "S/"
+            currencyId={
+              associatedQuotation?.type_currency?.id ||
+              workOrder?.type_currency?.id
             }
             costManHours={workOrder?.cost_man_hours || 0}
             maxDiscountPercentage={maxDiscountPercentage}
@@ -530,10 +529,10 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
           <div className="text-center">
             <Wrench className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay mano de obra en el Grupo {selectedGroupNumber}
+              No hay mano de obra
             </h3>
             <p className="text-sm text-gray-600">
-              Aún no se han agregado mano de obra para este grupo.
+              Aún no se han agregado mano de obra.
             </p>
           </div>
         </Card>

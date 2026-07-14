@@ -487,6 +487,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               workOrder?.type_currency?.symbol ||
               "S/"
             }
+            currencyId={
+              associatedQuotation?.type_currency?.id ||
+              workOrder?.type_currency?.id
+            }
+            exchangeRate={
+              associatedQuotation?.exchange_rate || workOrder?.exchange_rate
+            }
             onSuccess={() => setShowAddForm(false)}
             onCancel={() => setShowAddForm(false)}
             maxDiscountPercentage={maxDiscountPercentage}
@@ -574,8 +581,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     ) : (
                       <>
                         <Plus className="h-4 w-4" />
-                        Insertar al Grupo {selectedGroupNumber} (
-                        {selectedProductIds.length})
+                        Insertar ({selectedProductIds.length})
                       </>
                     )}
                   </Button>
@@ -694,10 +700,10 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           <div className="text-center">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay repuestos en el Grupo {selectedGroupNumber}
+              No hay repuestos
             </h3>
             <p className="text-sm text-gray-600">
-              Aún no se han agregado repuestos para este grupo
+              Aún no se han agregado repuestos.
             </p>
           </div>
         </Card>
