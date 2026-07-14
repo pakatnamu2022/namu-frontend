@@ -1,66 +1,41 @@
-import { Package, TrendingUp, Truck } from "lucide-react";
-import {
-  BrandReportSection,
-  DailyDeliverySummary,
-} from "../lib/daily-delivery.interface";
+import { Car, Truck, TrendingUp } from "lucide-react";
+import { DailyDeliverySummary } from "../lib/daily-delivery.interface";
 
 interface DailySummaryCardsProps {
   summary: DailyDeliverySummary;
-  brandReport: BrandReportSection[];
 }
+
+const CATEGORY_STYLES: Record<string, { icon: typeof Car; color: string }> = {
+  "VEHICULOS NUEVO": { icon: Car, color: "bg-blue-500" },
+  "CAMIONES NUEVO": { icon: Truck, color: "bg-emerald-500" },
+  TRADICIONALES: { icon: Car, color: "bg-blue-500" },
+  CHINAS: { icon: Car, color: "bg-orange-500" },
+  CAMIONES: { icon: Truck, color: "bg-emerald-500" },
+};
+
+const DEFAULT_STYLE = { icon: Car, color: "bg-slate-500" };
+
+const titleCase = (value: string) =>
+  value
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
 export default function DailySummaryCards({
   summary,
-  brandReport,
 }: DailySummaryCardsProps) {
-  // Obtener totales por grupo de marca desde brand_report
-  const getBrandGroupTotals = (groupName: string) => {
-    const section = brandReport.find(
-      (s) => s.title.toUpperCase() === groupName.toUpperCase()
-    );
-    return {
-      entregas: section?.total_entregas ?? 0,
-      facturadas: section?.total_facturadas ?? 0,
-    };
-  };
-
-  const brandTotals = {
-    TRADICIONAL: getBrandGroupTotals("TRADICIONAL"),
-    CHINA: getBrandGroupTotals("CHINA"),
-    INCHCAPE: getBrandGroupTotals("INCHCAPE"),
-  };
+  const categoryCards = Object.entries(summary)
+    .filter(([key]) => key !== "TOTAL")
+    .map(([key, data]) => ({
+      title: titleCase(key),
+      icon: CATEGORY_STYLES[key]?.icon ?? DEFAULT_STYLE.icon,
+      color: CATEGORY_STYLES[key]?.color ?? DEFAULT_STYLE.color,
+      data,
+    }));
 
   const cards = [
-    {
-      title: "Tradicional",
-      icon: Package,
-      color: "bg-blue-500",
-      data: {
-        entregas: brandTotals.TRADICIONAL.entregas,
-        facturadas: brandTotals.TRADICIONAL.facturadas,
-        reporteria_dealer_portal: null,
-      },
-    },
-    {
-      title: "China",
-      icon: Truck,
-      color: "bg-emerald-500",
-      data: {
-        entregas: brandTotals.CHINA.entregas,
-        facturadas: brandTotals.CHINA.facturadas,
-        reporteria_dealer_portal: null,
-      },
-    },
-    {
-      title: "Inchcape",
-      icon: Truck,
-      color: "bg-amber-500",
-      data: {
-        entregas: brandTotals.INCHCAPE.entregas,
-        facturadas: brandTotals.INCHCAPE.facturadas,
-        reporteria_dealer_portal: null,
-      },
-    },
+    ...categoryCards,
     {
       title: "Total General",
       icon: TrendingUp,
@@ -68,15 +43,6 @@ export default function DailySummaryCards({
       data: summary.TOTAL,
     },
   ];
-
-  // const formatCurrency = (value: number) => {
-  //   return new Intl.NumberFormat("es-PE", {
-  //     style: "currency",
-  //     currency: "PEN",
-  //     minimumFractionDigits: 0,
-  //     maximumFractionDigits: 0,
-  //   }).format(value);
-  // };
 
   return (
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">

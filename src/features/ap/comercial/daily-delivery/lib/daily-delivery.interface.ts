@@ -6,12 +6,13 @@ export interface DailyDeliverySummaryItem {
 
 export interface DailyDeliverySummary {
   TOTAL: DailyDeliverySummaryItem;
+  [category: string]: DailyDeliverySummaryItem;
 }
 
 export interface DailyDeliveryHierarchyNode {
-  id: number;
+  id: number | null;
   name: string;
-  level: "gerente" | "jefe" | "asesor";
+  level: "gerente" | "jefe" | "asesor" | "grupo" | "sin_asesor";
   brand_group?: string;
   article_class?: string;
   brands?: string[] | null;
@@ -60,6 +61,37 @@ export interface AvancePorSede {
   brands: AvancePorSedeBrand[];
 }
 
+export interface PurchasesByBrandSede {
+  sede_id: number;
+  sede_name: string;
+  compras: number;
+}
+
+export interface PurchasesByBrand {
+  brand_id: number;
+  brand_name: string;
+  total_compras: number;
+  sedes: PurchasesByBrandSede[];
+}
+
+export interface PurchasesBySedeBrand {
+  brand_id: number;
+  brand_name: string;
+  compras: number;
+}
+
+export interface PurchasesBySede {
+  sede_id: number;
+  sede_name: string;
+  total_compras: number;
+  brands: PurchasesBySedeBrand[];
+}
+
+export interface PurchasesReport {
+  by_brand: PurchasesByBrand[];
+  by_sede: PurchasesBySede[];
+}
+
 export interface DailyDeliveryResponse {
   fecha_inicio: string;
   fecha_fin: string;
@@ -72,4 +104,5 @@ export interface DailyDeliveryResponse {
   hierarchy: DailyDeliveryHierarchyNode[];
   brand_report: BrandReportSection[];
   avance_por_sede: AvancePorSede[];
+  purchases_report: PurchasesReport;
 }

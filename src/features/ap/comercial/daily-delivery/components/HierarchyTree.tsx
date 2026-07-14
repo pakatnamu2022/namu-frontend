@@ -6,6 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DailyDeliveryHierarchyNode } from "../lib/daily-delivery.interface";
 
+const DEFAULT_POSITION_STYLE = {
+  label: "",
+  className: "bg-slate-100 text-slate-700 border-slate-200",
+  textColor: "text-slate-700",
+  fontSize: "text-sm",
+  fontWeight: "font-medium",
+};
+
 interface HierarchyTreeProps {
   hierarchy: DailyDeliveryHierarchyNode[];
 }
@@ -17,8 +25,8 @@ interface HierarchyNodeProps {
 }
 
 interface ExpandContextType {
-  expandedNodes: Set<number>;
-  toggleNode: (id: number) => void;
+  expandedNodes: Set<number | null>;
+  toggleNode: (id: number | null) => void;
 }
 
 const ExpandContext = createContext<ExpandContextType>({
@@ -26,7 +34,16 @@ const ExpandContext = createContext<ExpandContextType>({
   toggleNode: () => {},
 });
 
-const POSITION_STYLES = {
+const POSITION_STYLES: Record<
+  string,
+  {
+    label: string;
+    className: string;
+    textColor: string;
+    fontSize: string;
+    fontWeight: string;
+  }
+> = {
   gerente: {
     label: "Gerente",
     className: "bg-indigo-100 text-indigo-700 border-indigo-200",
@@ -40,11 +57,25 @@ const POSITION_STYLES = {
     textColor: "text-blue-700",
     fontSize: "text-sm",
     fontWeight: "font-semibold",
-  },  
+  },
   asesor: {
     label: "Asesor",
     className: "bg-green-100 text-green-700 border-green-200",
     textColor: "text-slate-700",
+    fontSize: "text-sm",
+    fontWeight: "font-medium",
+  },
+  grupo: {
+    label: "Grupo",
+    className: "bg-amber-100 text-amber-700 border-amber-200",
+    textColor: "text-amber-700",
+    fontSize: "text-sm",
+    fontWeight: "font-medium",
+  },
+  sin_asesor: {
+    label: "Sin asesor",
+    className: "bg-slate-100 text-slate-600 border-slate-200",
+    textColor: "text-slate-600",
     fontSize: "text-sm",
     fontWeight: "font-medium",
   },
@@ -55,6 +86,7 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
   const hasChildren = node.children && node.children.length > 0;
   const isExpanded = expandedNodes.has(node.id);
   const isManager = node.level === "gerente";
+  const positionStyle = POSITION_STYLES[node.level] ?? DEFAULT_POSITION_STYLE;
 
   return (
     <div>
@@ -76,9 +108,7 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
           </div>
 
           <span
-            className={`truncate ${POSITION_STYLES[node.level].textColor} ${
-              POSITION_STYLES[node.level].fontSize
-            } ${POSITION_STYLES[node.level].fontWeight}`}
+            className={`truncate ${positionStyle.textColor} ${positionStyle.fontSize} ${positionStyle.fontWeight}`}
           >
             {node.name}
           </span>
@@ -106,11 +136,9 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
         <div className="flex items-center">
           <Badge
             variant="outline"
-            className={`text-[10px] font-medium px-2 py-0.5 ${
-              POSITION_STYLES[node.level].className
-            }`}
+            className={`text-[10px] font-medium px-2 py-0.5 ${positionStyle.className}`}
           >
-            {POSITION_STYLES[node.level].label}
+            {positionStyle.label}
           </Badge>
         </div>
 
@@ -161,9 +189,9 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
 }
 
 export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
-  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => {
+  const [expandedNodes, setExpandedNodes] = useState<Set<number | null>>(() => {
     // Inicialmente expandir todos los nodos
-    const allIds = new Set<number>();
+    const allIds = new Set<number | null>();
     const collectIds = (nodes: DailyDeliveryHierarchyNode[]) => {
       nodes.forEach((node) => {
         allIds.add(node.id);
@@ -177,7 +205,7 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
   });
 
   const allNodeIds = useMemo(() => {
-    const ids = new Set<number>();
+    const ids = new Set<number | null>();
     const collectIds = (nodes: DailyDeliveryHierarchyNode[]) => {
       nodes.forEach((node) => {
         ids.add(node.id);
@@ -190,7 +218,7 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
     return ids;
   }, [hierarchy]);
 
-  const toggleNode = (id: number) => {
+  const toggleNode = (id: number | null) => {
     setExpandedNodes((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
