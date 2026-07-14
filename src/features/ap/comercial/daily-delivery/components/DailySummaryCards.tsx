@@ -8,6 +8,9 @@ interface DailySummaryCardsProps {
 const CATEGORY_STYLES: Record<string, { icon: typeof Car; color: string }> = {
   "VEHICULOS NUEVO": { icon: Car, color: "bg-blue-500" },
   "CAMIONES NUEVO": { icon: Truck, color: "bg-emerald-500" },
+  TRADICIONALES: { icon: Car, color: "bg-blue-500" },
+  CHINAS: { icon: Car, color: "bg-orange-500" },
+  CAMIONES: { icon: Truck, color: "bg-emerald-500" },
 };
 
 const DEFAULT_STYLE = { icon: Car, color: "bg-slate-500" };

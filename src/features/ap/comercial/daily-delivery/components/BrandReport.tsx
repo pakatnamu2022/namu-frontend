@@ -198,6 +198,12 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
                 </div>
 
                 {/* Items organizados - Solo mostrar si la sección está expandida */}
+                {isSectionExpanded && organized.length === 0 && (
+                  <div className="ml-4 py-3 px-3 text-xs text-muted-foreground">
+                    Sin detalle por sede/marca disponible para esta sección.
+                  </div>
+                )}
+
                 {isSectionExpanded && organized.map((entry, entryIndex) => {
                   // Sede con sus marcas
                   const sedeKey = `${sectionIndex}-${entryIndex}`;

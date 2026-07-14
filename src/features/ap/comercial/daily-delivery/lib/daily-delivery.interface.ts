@@ -10,9 +10,9 @@ export interface DailyDeliverySummary {
 }
 
 export interface DailyDeliveryHierarchyNode {
-  id: number;
+  id: number | null;
   name: string;
-  level: "gerente" | "jefe" | "asesor";
+  level: "gerente" | "jefe" | "asesor" | "grupo" | "sin_asesor";
   brand_group?: string;
   article_class?: string;
   brands?: string[] | null;

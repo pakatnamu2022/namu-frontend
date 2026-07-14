@@ -72,9 +72,7 @@ export default function DailyDeliveryDashboard() {
           title="Dashboard de Entregas"
           subtitle="Resumen de entregas y facturación del día"
           icon="LayoutDashboard"
-        />
-
-        <div className="flex items-center gap-2">
+        >
           <ExportButtons
             onExcelDownload={handleExport}
             disableExcel={isExporting || isLoading}
@@ -88,9 +86,9 @@ export default function DailyDeliveryDashboard() {
             onDateChange={handleDateChange}
             placeholder="Seleccionar rango"
             dateFormat="d MMM yyyy"
-            className="h-8 text-xs"
+            className="w-auto"
           />
-        </div>
+        </TitleComponent>
       </div>
 
       {isLoading ? (
