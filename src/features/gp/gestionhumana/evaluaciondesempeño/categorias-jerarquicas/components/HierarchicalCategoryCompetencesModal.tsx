@@ -194,7 +194,7 @@ export function HierarchicalCategoryCompetenceModal({
       icon="BookmarkCheck"
       open={open}
       onClose={() => setOpen(false)}
-      size="4xl"
+      size="5xl"
       childrenFooter={
         <div className="w-full flex justify-end gap-2 mt-4">
           <Button variant="outline" onClick={() => setOpen(false)}>
