@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import { FileOutput, Plus, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 import {
   ROUTE_GUIA_SALIDA,
   VEHICLE_DELIVERY,
 } from "../lib/vehicleDelivery.constants";
 import { useMutation } from "@tanstack/react-query";
-import { dispatchAllShippingGuides } from "../lib/vehicleDelivery.actions";
+import {
+  dispatchAllShippingGuides,
+  exportVehicleDelivery,
+} from "../lib/vehicleDelivery.actions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -21,12 +25,14 @@ interface Props {
   };
   isFetching?: boolean;
   onRefresh: () => void;
+  filters?: Record<string, any>;
 }
 
 export default function VehicleDeliveryActions({
   permissions,
   isFetching,
   onRefresh,
+  filters,
 }: Props) {
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
 
@@ -65,6 +71,10 @@ export default function VehicleDeliveryActions({
           Migrar Todo
         </Button>
       )}
+      <ExportButtons
+        onExcelDownload={() => exportVehicleDelivery("excel", filters)}
+        onPdfDownload={() => exportVehicleDelivery("pdf", filters)}
+      />
       {canManage && (
         <Link to={ROUTE_GUIA_SALIDA}>
           <Button size="sm" variant="outline" className="ml-auto">

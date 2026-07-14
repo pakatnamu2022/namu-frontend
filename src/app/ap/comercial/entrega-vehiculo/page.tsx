@@ -145,6 +145,12 @@ export default function VehicleDeliveryPage() {
           permissions={permissions}
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
+          filters={{
+            search,
+            scheduled_delivery_date: [formattedDateFrom, formattedDateTo],
+            area_id: AREA_COMERCIAL,
+            "sede$shop_id": sedeId !== "all" ? sedeId : undefined,
+          }}
         />
       </HeaderTableWrapper>
       <VehicleDeliveryTable
