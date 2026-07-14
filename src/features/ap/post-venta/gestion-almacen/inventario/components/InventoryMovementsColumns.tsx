@@ -89,6 +89,9 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
             <span className="text-xs text-gray-500">
               {movement.movement_number_dyn || "-"}
             </span>
+            <span className="text-xs text-gray-500">
+              {movement.notes || "-"}
+            </span>
           </div>
         );
       }
