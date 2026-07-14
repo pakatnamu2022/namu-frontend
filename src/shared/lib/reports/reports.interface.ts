@@ -6,7 +6,8 @@ export type ReportFieldType =
   | "select"
   | "multiselect"
   | "text"
-  | "number";
+  | "number"
+  | "toggle";
 
 export interface ReportFieldOption {
   label: string;
@@ -57,6 +58,8 @@ export interface ReportConfig {
   // Nombre base del archivo al descargar (sin extensión), usado si el backend
   // no envía un nombre en el header Content-Disposition
   fileName?: string;
+  // Formatos de exportación disponibles para este reporte. Por defecto: ["excel", "pdf"]
+  availableFormats?: ReportFormat[];
 }
 
 export interface ReportFilterValues {
