@@ -62,7 +62,7 @@ export const WorkOrderQuotationSelectionModal = ({
   const { data, isLoading } = useOrderQuotations({
     page,
     per_page,
-    is_take: 0,
+    is_take_ot: 0,
     search: search || undefined,
     vehicle_id: vehicleId,
     area_id: AREA_TALLER.toString(),
