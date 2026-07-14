@@ -17,12 +17,12 @@ export const CategoryCompetencePersonList = ({
   handleUpdateWeightCell,
 }: Props) => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col divide-y divide-border">
       {data && data.length > 0 ? (
         data.map((child: CategoryCompetencePersonResponse) => (
           <div
             key={String(child.worker.name)}
-            className="flex flex-col justify-between gap-3"
+            className="flex flex-col gap-3 py-4 first:pt-0"
           >
             <div className="flex items-center gap-3">
               <Avatar>
@@ -40,16 +40,14 @@ export const CategoryCompetencePersonList = ({
                 </p>
               </div>
             </div>
-            <div className="pl-12 w-full">
-              <div className="overflow-x-auto w-full">
-                <CategoryCompetenceTable
-                  competences={child.competences}
-                  handleSwitchChange={handleSwitchChange}
-                  isPending={isPending}
-                  handleUpdateGoalCell={handleUpdateGoalCell}
-                  handleUpdateWeightCell={handleUpdateWeightCell}
-                />
-              </div>
+            <div className="w-full overflow-x-auto">
+              <CategoryCompetenceTable
+                competences={child.competences}
+                handleSwitchChange={handleSwitchChange}
+                isPending={isPending}
+                handleUpdateGoalCell={handleUpdateGoalCell}
+                handleUpdateWeightCell={handleUpdateWeightCell}
+              />
             </div>
           </div>
         ))
