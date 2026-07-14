@@ -356,7 +356,7 @@ export default function LaborDetailsSection({
               <FormInput
                 control={form.control}
                 name="unit_price"
-                label="Precio/Hora"
+                label="Precio/Hora (S/.)"
                 placeholder="Ej: Horas"
                 className="h-9 text-xs"
                 type="number"

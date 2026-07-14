@@ -14,6 +14,7 @@ import {
   SUCCESS_MESSAGE,
 } from "@/core/core.function.ts";
 import { IGV } from "@/core/core.constants.ts";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
 import { ORDER_QUOTATION_DETAILS } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants.ts";
 import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
@@ -225,6 +226,11 @@ export default function ManageQuotationPage() {
               <p className="text-base font-medium text-foreground">
                 {quotation.type_currency.name || "N/A"}
               </p>
+              {String(quotation.currency_id) === CURRENCY_TYPE_IDS.DOLLARS && (
+                <p className="text-sm text-muted-foreground">
+                  T.C.: {quotation.exchange_rate}
+                </p>
+              )}
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-4">
