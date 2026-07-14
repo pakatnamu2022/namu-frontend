@@ -82,3 +82,19 @@ export interface WeightsPreviewResponse {
   needs_update_count: number;
   needs_update: WeightsPreviewPerson[];
 }
+
+export interface RemoveObjectivePreviewPerson {
+  person_id: number;
+  person_name: string;
+  category_id?: number;
+  category?: string;
+  remaining_objectives_after_removal: number;
+  will_be_removed_from_cycle: boolean;
+}
+
+export interface RemoveObjectivePreviewResponse {
+  cycle_id: number;
+  objective_id: number;
+  total_affected: number;
+  persons: RemoveObjectivePreviewPerson[];
+}

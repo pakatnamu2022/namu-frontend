@@ -10,6 +10,7 @@ import {
 import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
+import PurchasesReport from "./PurchasesReport";
 import AvancePorSede from "./AvancePorSede";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -106,10 +107,7 @@ export default function DailyDeliveryDashboard() {
         </div>
       ) : data ? (
         <>
-          <DailySummaryCards
-            summary={data.summary}
-            brandReport={data.brand_report}
-          />
+          <DailySummaryCards summary={data.summary} />
 
           <Tabs
             value={activeTab}
@@ -119,11 +117,12 @@ export default function DailyDeliveryDashboard() {
             <TabsList
               className={cn(
                 "grid w-full max-w-2xl",
-                canViewBranches ? "grid-cols-3" : "grid-cols-2",
+                canViewBranches ? "grid-cols-4" : "grid-cols-3",
               )}
             >
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
+              <TabsTrigger value="purchases">Por Compras</TabsTrigger>
               {canViewBranches && (
                 <TabsTrigger value="avance">Avance por Sede</TabsTrigger>
               )}
@@ -135,6 +134,10 @@ export default function DailyDeliveryDashboard() {
 
             <TabsContent value="brands" className="mt-4">
               <BrandReport brandReport={data.brand_report} />
+            </TabsContent>
+
+            <TabsContent value="purchases" className="mt-4">
+              <PurchasesReport purchasesReport={data.purchases_report} />
             </TabsContent>
 
             <TabsContent value="avance" className="mt-4">

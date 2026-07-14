@@ -180,6 +180,11 @@ export default function CyclePersonDetailPage() {
           id={idCycle}
           hasDetails={(data?.meta?.total ?? 0) > 0}
           onAssign={() => setOpenAssign(true)}
+          objectiveId={objectiveId}
+          onObjectiveRemoved={async () => {
+            await refetch();
+            setObjectiveId(null);
+          }}
         />
       </HeaderTableWrapper>
       <CyclePersonDetailTable
