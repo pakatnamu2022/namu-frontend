@@ -13,6 +13,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     icon: "Wrench",
     endpoint: "/ap/postVenta/reports/work-orders/export",
     fileName: "reporte_orden_trabajo",
+    availableFormats: ["excel"],
     fields: [
       {
         name: "status_id",
@@ -36,6 +37,17 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameFrom: "date_from",
         nameTo: "date_to",
         rangeParamName: "opening_date",
+      },
+      {
+        name: "amounts_in_soles",
+        label: "Moneda",
+        type: "toggle",
+        required: false,
+        options: [
+          { label: "Soles", value: "1" },
+          { label: "Dólares", value: "0" },
+        ],
+        defaultValue: "1",
       },
     ],
     defaultParams: {},
