@@ -80,6 +80,8 @@ import {
 } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
+import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ProductDetailsSectionProps {
   quotationId: number;
@@ -124,6 +126,13 @@ export default function ProductDetailsSection({
   const { user, general } = useAuthStore();
   const freightCommissionMultiplier = 1 + (general?.freight_commission ?? 0.05);
 
+  const { data: activeCampaign } = useActiveCampaign({ area_id: AREA_TALLER });
+  const campaignDiscountValue =
+    activeCampaign && activeCampaign.discount_type === "percentage"
+      ? Number(activeCampaign.discount_value)
+      : undefined;
+  const [apHasStock, setApHasStock] = useState(false);
+
   // AP mode
   const maxDiscountPercentage =
     user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
@@ -154,12 +163,26 @@ export default function ProductDetailsSection({
       setApMinSalePrice(price);
       apForm.setValue("ap_unit_price", price);
       apForm.setValue("ap_description", item.product?.name || "");
+      setApHasStock(item.available_quantity > 0);
     } else {
       setApMinSalePrice(0);
       apForm.setValue("ap_unit_price", 0);
       apForm.setValue("ap_description", "");
+      setApHasStock(false);
     }
   };
+
+  const isApCampaignDiscountLocked =
+    apHasStock && campaignDiscountValue !== undefined;
+
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  useEffect(() => {
+    if (!isApCampaignDiscountLocked) return;
+    const currentDiscount = apForm.getValues("ap_discount");
+    if (currentDiscount !== campaignDiscountValue) {
+      apForm.setValue("ap_discount", campaignDiscountValue as number);
+    }
+  }, [isApCampaignDiscountLocked, campaignDiscountValue, apForm]);
 
   const handleApSubmit = apForm.handleSubmit(async (data) => {
     if (apIsPriceBelowMin) return;
@@ -460,6 +483,27 @@ export default function ProductDetailsSection({
     fetchExchangeRate();
   }, [quotationDate, form]);
 
+  const hasStockInWarehouse = (() => {
+    const currentProductStock = stockData?.data?.find(
+      (s) => s.product_id === Number(selectedProductId),
+    );
+    return !!currentProductStock?.warehouses?.some(
+      (w) => w.warehouse_id === warehouseId && w.available_quantity > 0,
+    );
+  })();
+
+  const isCampaignDiscountLocked =
+    hasStockInWarehouse && campaignDiscountValue !== undefined;
+
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  useEffect(() => {
+    if (!isCampaignDiscountLocked) return;
+    const currentDiscount = form.getValues("discount_percentage");
+    if (currentDiscount !== campaignDiscountValue) {
+      form.setValue("discount_percentage", campaignDiscountValue as number);
+    }
+  }, [isCampaignDiscountLocked, campaignDiscountValue, form]);
+
   const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
 
   useEffect(() => {
@@ -702,23 +746,36 @@ export default function ProductDetailsSection({
                 control={apForm.control}
               />
 
-              <FormInput
-                name="ap_discount"
-                label={`Descuento (% máx: ${maxDiscountPercentage})`}
-                type="number"
-                placeholder="0.0"
-                step="0.01"
-                min={0}
-                max={maxDiscountPercentage}
-                control={apForm.control}
-                onChange={(e) => {
-                  const val = parseFloat(e.target.value) || 0;
-                  apForm.setValue(
-                    "ap_discount",
-                    Math.min(val, maxDiscountPercentage),
-                  );
-                }}
-              />
+              <div className="space-y-1">
+                <FormInput
+                  name="ap_discount"
+                  label={`Descuento (% máx: ${maxDiscountPercentage})`}
+                  type="number"
+                  placeholder="0.0"
+                  step="0.01"
+                  min={0}
+                  max={maxDiscountPercentage}
+                  control={apForm.control}
+                  disabled={isApCampaignDiscountLocked}
+                  className={
+                    isApCampaignDiscountLocked
+                      ? "border-orange-400 bg-orange-50"
+                      : undefined
+                  }
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    apForm.setValue(
+                      "ap_discount",
+                      Math.min(val, maxDiscountPercentage),
+                    );
+                  }}
+                />
+                {isApCampaignDiscountLocked && (
+                  <p className="text-[10px] font-medium text-orange-600">
+                    Descuento por campaña aplicado
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -896,8 +953,13 @@ export default function ProductDetailsSection({
                 type="number"
                 min={0}
                 max={maxDiscountAllowed}
+                disabled={isCampaignDiscountLocked}
                 className={
-                  globalApprovedRequest ? "border-green-400" : undefined
+                  isCampaignDiscountLocked
+                    ? "border-orange-400 bg-orange-50"
+                    : globalApprovedRequest
+                      ? "border-green-400"
+                      : undefined
                 }
                 onChange={(e) => {
                   const val = e.target.value ? Number(e.target.value) : 0;
@@ -908,10 +970,16 @@ export default function ProductDetailsSection({
                   }
                 }}
               />
-              <p className="text-[10px] font-medium text-green-600">
-                Máx. {globalApprovedRequest ? "aprobado" : "permitido"}:{" "}
-                {maxDiscountAllowed.toFixed(2)}%
-              </p>
+              {isCampaignDiscountLocked ? (
+                <p className="text-[10px] font-medium text-orange-600">
+                  Descuento por campaña aplicado
+                </p>
+              ) : (
+                <p className="text-[10px] font-medium text-green-600">
+                  Máx. {globalApprovedRequest ? "aprobado" : "permitido"}:{" "}
+                  {maxDiscountAllowed.toFixed(2)}%
+                </p>
+              )}
             </div>
 
             <div>

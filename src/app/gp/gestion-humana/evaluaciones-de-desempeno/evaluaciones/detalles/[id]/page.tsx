@@ -6,7 +6,8 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import { errorToast, successToast } from "@/core/core.function";
+import { errorToast, loadingToast, successToast } from "@/core/core.function";
+import { toast } from "sonner";
 import { DeleteEvaluationPersonDialog } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/DeleteEvaluationPersonDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -28,7 +29,10 @@ import {
   useLeadersStatus,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
-import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
+import {
+  regenerateEvaluation,
+  syncCompetences,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import {
   deleteEvaluationPerson,
   regenerateEvaluationPerson,
@@ -58,6 +62,7 @@ export default function EvaluationDetailPage() {
   );
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [loadingRegenerate, setLoadingRegenerate] = useState(false);
+  const [loadingSyncCompetences, setLoadingSyncCompetences] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("persons");
 
   // Leaders pagination states
@@ -146,6 +151,26 @@ export default function EvaluationDetailPage() {
     }
   };
 
+  const handleSyncCompetences = async () => {
+    setLoadingSyncCompetences(true);
+    const toastId = loadingToast("Sincronizando competencias...");
+    try {
+      const result = await syncCompetences(idEvaluation);
+      toast.dismiss(toastId);
+      successToast(
+        `Competencias sincronizadas: ${result.registros_agregados} agregadas, ${result.registros_eliminados} eliminadas.`,
+      );
+      await refetch();
+    } catch (error: any) {
+      toast.dismiss(toastId);
+      errorToast(
+        error.response?.data?.message ?? "Error al sincronizar competencias.",
+      );
+    } finally {
+      setLoadingSyncCompetences(false);
+    }
+  };
+
   const handleRegenerateOne = async (
     person_id: number,
     evaluation_id: number,
@@ -187,8 +212,11 @@ export default function EvaluationDetailPage() {
 
         <EvaluationPersonActions
           idEvaluation={idEvaluation}
+          typeEvaluation={evaluation?.typeEvaluation}
           loadingRegenerate={loadingRegenerate}
           handleRegenerate={handleRegenerate}
+          loadingSyncCompetences={loadingSyncCompetences}
+          handleSyncCompetences={handleSyncCompetences}
         />
       </HeaderTableWrapper>
 
