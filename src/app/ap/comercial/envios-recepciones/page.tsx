@@ -95,7 +95,6 @@ export default function ShipmentsReceptionsPage() {
     per_page,
     issue_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
-    send_dynamics: 1,
     transfer_reason_id: [
       SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
       SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
