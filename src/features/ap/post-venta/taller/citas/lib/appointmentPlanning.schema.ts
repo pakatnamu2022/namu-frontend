@@ -49,6 +49,7 @@ export const appointmentPlanningSchemaCreate = z.object({
   sede_id: requiredStringId("Sede es requerida"),
   type_planning_id: requiredStringId("Tipo de planificación es requerido"),
   ap_vehicle_id: requiredStringId("Vehículo es requerido"),
+  advisor_id: z.string().optional(),
 });
 
 export const appointmentPlanningSchemaUpdate =

@@ -34,6 +34,11 @@ import {
   useVehicles,
   useVehicleById,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import AppointmentTimeSlotPicker from "./AppointmentTimeSlotPicker";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -61,6 +66,9 @@ interface AppointmentPlanningFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   appointmentPlanningData?: AppointmentPlanningResource;
+  permissions?: {
+    canChangeAdvisor: boolean;
+  };
 }
 
 export const AppointmentPlanningForm = ({
@@ -69,6 +77,7 @@ export const AppointmentPlanningForm = ({
   isSubmitting = false,
   mode = "create",
   appointmentPlanningData,
+  permissions,
 }: AppointmentPlanningFormProps) => {
   const router = useNavigate();
   const [showAppointmentTimePicker, setShowAppointmentTimePicker] =
@@ -109,6 +118,18 @@ export const AppointmentPlanningForm = ({
     company: EMPRESA_AP.id,
     has_workshop: true,
   });
+
+  const watchSedeId = form.watch("sede_id");
+
+  const { data: asesores = [] } = useAllWorkers(
+    {
+      cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
+      status_id: STATUS_WORKER.ACTIVE,
+      sede_id: watchSedeId || undefined,
+      sede$empresa_id: EMPRESA_AP.id,
+    },
+    !!permissions?.canChangeAdvisor,
+  );
 
   useEffect(() => {
     if (sedes.length > 0 && !defaultValues.sede_id) {
@@ -698,6 +719,22 @@ export const AppointmentPlanningForm = ({
               rows={4}
             />
           </div>
+
+          {permissions?.canChangeAdvisor && (
+            <div className="mt-6">
+              <FormSelect
+                name="advisor_id"
+                label="Asesor Asignado"
+                placeholder="Seleccione asesor (opcional)"
+                options={asesores.map((item) => ({
+                  label: item.name,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
+            </div>
+          )}
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end">

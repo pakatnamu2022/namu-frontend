@@ -25,6 +25,7 @@ import {
 } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.interface";
 import { AppointmentPlanningForm } from "@/features/ap/post-venta/taller/citas/components/AppointmentPlanningForm";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function UpdateAppointmentPlanningPage() {
   const { id } = useParams();
@@ -32,6 +33,7 @@ export default function UpdateAppointmentPlanningPage() {
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = APPOINTMENT_PLANNING;
+  const permissions = useModulePermissions(ROUTE);
 
   const { data: appointmentPlanning, isLoading: loadingAppointmentPlanning } =
     useQuery({
@@ -82,6 +84,7 @@ export default function UpdateAppointmentPlanningPage() {
       type_planning_id: String(data.type_planning_id),
       ap_vehicle_id: String(data.ap_vehicle_id),
       sede_id: String(data.sede_id),
+      advisor_id: data.advisor_id ? String(data.advisor_id) : "",
     };
   }
 
@@ -106,6 +109,7 @@ export default function UpdateAppointmentPlanningPage() {
         isSubmitting={isPending}
         mode="update"
         appointmentPlanningData={appointmentPlanning}
+        permissions={permissions}
       />
     </FormWrapper>
   );

@@ -61,6 +61,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     icon: "PackageSearch",
     endpoint: "/ap/postVenta/reports/inventory-outputs/export",
     fileName: "reporte_salida_inventario",
+    availableFormats: ["excel"],
     fields: [
       {
         name: "date_range",
@@ -83,6 +84,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     icon: "FileText",
     endpoint: "/ap/postVenta/reports/invoicing/export",
     fileName: "reporte_facturacion",
+    availableFormats: ["excel"],
     fields: [
       {
         name: "date_range",
@@ -105,6 +107,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     icon: "FileText",
     endpoint: "/ap/postVenta/reports/electronic-documents/export",
     fileName: "reporte_documentos_electronicos",
+    availableFormats: ["excel"],
     fields: [
       {
         name: "date_range",

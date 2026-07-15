@@ -120,6 +120,10 @@ export const appointmentPlanningColumns = ({
     header: "Descripción",
   },
   {
+    accessorKey: "advisor_name",
+    header: "Asesor",
+  },
+  {
     accessorKey: "created_by_name",
     header: "Creado Por",
   },
