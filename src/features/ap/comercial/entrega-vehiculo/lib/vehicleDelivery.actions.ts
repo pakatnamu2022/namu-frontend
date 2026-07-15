@@ -2,6 +2,7 @@ import { api } from "@/core/api";
 import type { AxiosRequestConfig } from "axios";
 import {
   AvailableDeliverySlotsResponse,
+  DiagnoseVinResponse,
   getVehiclesDeliveryProps,
   VehiclesDeliveryResource,
   VehiclesDeliveryResponse,
@@ -148,6 +149,17 @@ export async function exportVehicleDelivery(
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
+}
+
+export async function diagnoseVehicleDeliveryVin(
+  vin: string,
+  sedeId?: number
+): Promise<DiagnoseVinResponse> {
+  const { data } = await api.get<DiagnoseVinResponse>(
+    `${ENDPOINT}/diagnose-vin`,
+    { params: { vin, sede_id: sedeId } }
+  );
+  return data;
 }
 
 export async function getAvailableDeliverySlots(

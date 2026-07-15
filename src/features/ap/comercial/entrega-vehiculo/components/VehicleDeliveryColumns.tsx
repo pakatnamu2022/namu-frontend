@@ -224,7 +224,10 @@ export const vehicleDeliveryColumns = ({
       const { is_extraordinary, extraordinary_approved } = row.original;
       if (!is_extraordinary)
         return <span className="text-muted-foreground text-xs">—</span>;
-      if (extraordinary_approved === null || extraordinary_approved === undefined) {
+      if (
+        extraordinary_approved === null ||
+        extraordinary_approved === undefined
+      ) {
         return (
           <Badge color="amber" icon={Hourglass} className="w-fit">
             Pendiente de aprobación

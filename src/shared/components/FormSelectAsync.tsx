@@ -75,6 +75,7 @@ interface FormSelectAsyncProps {
   allowClear?: boolean;
   preloadId?: string; // Pagina automáticamente hasta encontrar la opción con este value
   useFindByIdHook?: (id: any) => { data?: any; isLoading: boolean }; // Hook para cargar un recurso por ID sin paginar
+  renderEmpty?: (search: string) => React.ReactNode; // Contenido custom cuando no hay resultados
 }
 
 export function FormSelectAsync({
@@ -102,6 +103,7 @@ export function FormSelectAsync({
   allowClear = true,
   preloadId,
   useFindByIdHook,
+  renderEmpty,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -415,7 +417,9 @@ export function FormSelectAsync({
                         ) : (
                           <>
                             <CommandEmpty className="py-4 text-center text-sm">
-                              No hay resultados.
+                              {renderEmpty
+                                ? renderEmpty(debouncedSearch)
+                                : "No hay resultados."}
                             </CommandEmpty>
                             {allOptions.map((option) => (
                               <CommandItem

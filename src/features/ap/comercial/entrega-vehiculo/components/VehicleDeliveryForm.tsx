@@ -28,9 +28,10 @@ import {
   FileText,
   X,
   ZoomIn,
-  Mail,
+  ScanSearch,
 } from "lucide-react";
 import { ScheduledDeliveryPicker } from "./ScheduledDeliveryPicker";
+import { DiagnoseVinModal } from "./DiagnoseVinModal";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -140,6 +141,7 @@ export const VehicleDeliveryForm = ({
     url: string;
     label: string;
   } | null>(null);
+  const [diagnoseVin, setDiagnoseVin] = useState<string | null>(null);
   const watchArticleClassId = form.watch("ap_class_article_id");
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } =
@@ -160,9 +162,10 @@ export const VehicleDeliveryForm = ({
 
   const watchSedeId = form.watch("sede_id");
 
-  const shopId = mySedes.find(
+  const selectedSede = mySedes.find(
     (item) => item.sede_id.toString() === watchSedeId,
-  )?.shop_id;
+  );
+  const shopId = selectedSede?.shop_id;
 
   const watchIsExtraordinary = form.watch("is_extraordinary");
 
@@ -201,6 +204,13 @@ export const VehicleDeliveryForm = ({
   return (
     <Form {...form}>
       <PhotoModal img={modalImg} onClose={() => setModalImg(null)} />
+      <DiagnoseVinModal
+        open={diagnoseVin !== null}
+        onClose={() => setDiagnoseVin(null)}
+        initialVin={diagnoseVin ?? ""}
+        sedeId={watchSedeId ? Number(watchSedeId) : undefined}
+        sedeLabel={selectedSede?.description}
+      />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         {/* ── Selección ─────────────────────────────────────────────── */}
         <div className="space-y-3">
@@ -261,9 +271,56 @@ export const VehicleDeliveryForm = ({
               })}
               control={form.control}
               disabled={isSupplier ? false : !watchSedeId}
+              renderEmpty={(search) =>
+                search.trim() ? (
+                  <div className="flex flex-col items-center gap-2 py-1">
+                    <p className="text-muted-foreground">
+                      No se encontró el VIN «{search.trim().toUpperCase()}» en
+                      los vehículos disponibles.
+                    </p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={() => setDiagnoseVin(search.trim())}
+                    >
+                      <ScanSearch className="mr-1.5 h-3.5 w-3.5" />
+                      Diagnosticar este VIN
+                    </Button>
+                  </div>
+                ) : (
+                  "No hay resultados."
+                )
+              }
             />
           </div>
+
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setDiagnoseVin("")}
+            >
+              <ScanSearch className="mr-1.5 h-3.5 w-3.5" />
+              ¿No aparece un vehículo? Diagnosticar VIN
+            </Button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {mode === "create" && !isSupplier && (
+              <div className="space-y-2">
+                <FormSwitch
+                  control={form.control}
+                  name="is_extraordinary"
+                  label="Entrega extraordinaria"
+                  text="Permite programar la entrega en un horario ya tomado."
+                  description="Esta opción requiere aprobación y enviará un email de confirmación al responsable."
+                />
+              </div>
+            )}
             <ScheduledDeliveryPicker
               control={form.control}
               name="scheduled_delivery_date"
@@ -280,29 +337,11 @@ export const VehicleDeliveryForm = ({
               })()}
               autoSelectFirstAvailable={mode === "create"}
               shopId={shopId}
-              allowUnavailableSlots={mode === "create" && !!watchIsExtraordinary}
+              allowUnavailableSlots={
+                mode === "create" && !!watchIsExtraordinary
+              }
             />
           </div>
-
-          {mode === "create" && !isSupplier && (
-            <div className="space-y-2">
-              <FormSwitch
-                control={form.control}
-                name="is_extraordinary"
-                text="Entrega extraordinaria"
-                textDescription="Permite programar la entrega en un horario ya tomado."
-              />
-              {watchIsExtraordinary && (
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50">
-                  <Mail className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-800 leading-relaxed">
-                    Esta entrega requiere aprobación. Se enviará un email de
-                    confirmación al responsable.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* ── Panel de vehículo ──────────────────────────────────────── */}
