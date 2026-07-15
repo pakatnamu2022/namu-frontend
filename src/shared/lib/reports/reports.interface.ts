@@ -53,6 +53,9 @@ export interface ReportConfig {
   icon?: string;
   endpoint: string;
   fields: ReportField[];
+  // Nombre de la sección/subtítulo bajo la cual se agrupa este reporte en el grid
+  // (ej. "DERCO", "TALLER"). Si no se indica, el reporte se muestra sin agrupar.
+  section?: string;
   // Parámetros adicionales que siempre se envían
   defaultParams?: Record<string, any>;
   // Nombre base del archivo al descargar (sin extensión), usado si el backend
