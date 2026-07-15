@@ -258,7 +258,7 @@ export const VehicleDeliveryForm = ({
                 warehouse$article_class_id: watchArticleClassId,
                 has_delivery_guide: 0,
                 has_vehicle_delivery: 0,
-                is_paid: 1,
+                // is_paid: 1,
                 is_received: 1,
                 vehicleMovements$new_status_id:
                   VEHICLE_STATUS_ID.VEHICULO_FACTURADO_FINAL,
