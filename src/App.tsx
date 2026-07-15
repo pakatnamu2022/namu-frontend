@@ -347,6 +347,7 @@ import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caj
 import DirectInvoicePage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx";
 import BillWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/facturar/[id]/page.tsx";
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
+import ReportesPostVentaPage from "./app/ap/post-venta/reportes/page.tsx";
 import AdoptionDashboardPage from "./app/gp/gestion-del-sistema/adoption-dashboard/page";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -414,6 +415,8 @@ import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/mae
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 import AccountsReceivablePage from "./app/dp/comercial/accounts-receivable/page.tsx";
 import AccountsReceivableDashboardPage from "./app/dp/comercial/accounts-receivable/dashboard/page.tsx";
+import AccountsReceivableApPage from "./app/ap/comercial/accounts-receivable/page.tsx";
+import AccountsReceivableDashboardApPage from "./app/ap/comercial/accounts-receivable/dashboard/page.tsx";
 import DPComercialLayout from "./app/dp/comercial/layout.tsx";
 import ManualesPage from "./features/manuales/components/ManualesPage";
 
@@ -910,6 +913,16 @@ function App() {
 
               {/* Reportes */}
               <Route path="reportes" element={<ReportesComercialPage />} />
+
+              {/* Cuentas por Cobrar */}
+              <Route
+                path="cuentas-por-cobrar-ap"
+                element={<AccountsReceivableApPage />}
+              />
+              <Route
+                path="cuentas-por-cobrar-ap/dashboard"
+                element={<AccountsReceivableDashboardApPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -1777,6 +1790,9 @@ function App() {
                 path="caja/orden-trabajo-taller-caja/facturar/:id"
                 element={<BillWorkOrderCajaPage />}
               />
+
+              {/* Reportes */}
+              <Route path="reportes" element={<ReportesPostVentaPage />} />
             </Route>
 
             {/* ======================================================== */}

@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { SedeResource, SedeResponse } from "./sede.interface";
+import { MyShopResource, SedeResource, SedeResponse } from "./sede.interface";
 import {
   getAllAvailableLocationsShop,
   getAllSede,
   getMySede,
+  getMyShops,
   getSede,
 } from "./sede.actions";
 import { ShopSedeResource } from "@/features/ap/configuraciones/ventas/tiendas/lib/shop.interface";
@@ -26,6 +27,13 @@ export const useMySedes = (params?: Record<string, any>) => {
   return useQuery<SedeResource[]>({
     queryKey: ["mySedes", params],
     queryFn: () => getMySede({ params }),
+  });
+};
+
+export const useMyShops = (params?: Record<string, any>) => {
+  return useQuery<MyShopResource[]>({
+    queryKey: ["myShops", params],
+    queryFn: () => getMyShops(params),
   });
 };
 

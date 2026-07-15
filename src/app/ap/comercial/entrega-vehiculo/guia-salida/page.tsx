@@ -62,6 +62,7 @@ export default function ExitGuidePage() {
           vehicle_id: "",
           advisor_id: "",
           observations: "",
+          is_extraordinary: false,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

@@ -7,10 +7,12 @@ export const useDownloadReport = () => {
     mutationFn: ({
       endpoint,
       params,
+      fileName,
     }: {
       endpoint: string;
       params: Record<string, any>;
-    }) => downloadReport(endpoint, params),
+      fileName?: string;
+    }) => downloadReport(endpoint, params, fileName),
     onSuccess: () => {
       successToast("El reporte se ha descargado correctamente");
     },

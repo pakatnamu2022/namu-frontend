@@ -34,6 +34,9 @@ interface ScheduledDeliveryPickerProps<T extends FieldValues> {
   disabled?: boolean;
   minDate?: Date;
   autoSelectFirstAvailable?: boolean;
+  shopId?: number;
+  /** Cuando es true, permite seleccionar horarios ya tomados (entrega extraordinaria). */
+  allowUnavailableSlots?: boolean;
 }
 
 const buildDateTimeString = (date: Date, time: string) => {
@@ -53,6 +56,8 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
   disabled = false,
   minDate,
   autoSelectFirstAvailable = false,
+  shopId,
+  allowUnavailableSlots = false,
 }: ScheduledDeliveryPickerProps<T>) {
   const {
     field,
@@ -94,7 +99,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     : undefined;
 
   const { data: slotsResponse, isFetching: isLoadingSlots } =
-    useAvailableDeliverySlots(calendarDayStr);
+    useAvailableDeliverySlots(calendarDayStr, shopId);
 
   const daySlots = slotsResponse?.slots ?? [];
 
@@ -183,17 +188,30 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
                     ) : (
                       daySlots.map((slot) => {
                         const isSelected = selectedTime === slot.time;
+                        const isBlocked =
+                          !slot.available && !allowUnavailableSlots;
                         return (
                           <Button
                             key={slot.time}
                             type="button"
                             size="sm"
                             variant={isSelected ? "default" : "ghost"}
-                            disabled={!slot.available}
-                            className="justify-center"
+                            disabled={isBlocked}
+                            className={cn(
+                              "justify-center",
+                              !slot.available &&
+                                allowUnavailableSlots &&
+                                !isSelected &&
+                                "text-amber-600 dark:text-amber-400",
+                            )}
                             onClick={() => handleSlotSelect(slot.time)}
                           >
                             {slot.time}
+                            {!slot.available && allowUnavailableSlots && (
+                              <span className="ml-1 text-[10px] opacity-70">
+                                (tomado)
+                              </span>
+                            )}
                           </Button>
                         );
                       })

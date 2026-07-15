@@ -35,6 +35,11 @@ export interface VehiclesDeliveryResource {
   sent_at?: string | null;
   checklist_status?: ChecklistStatus | null;
   shipping_guide?: ShipmentsReceptionsResource | null;
+  is_extraordinary?: boolean;
+  extraordinary_approved?: boolean | null;
+  extraordinary_approved_at?: string | null;
+  extraordinary_sent_by?: number | null;
+  rescheduled_by?: number | null;
 }
 
 export interface AvailableDeliverySlot {

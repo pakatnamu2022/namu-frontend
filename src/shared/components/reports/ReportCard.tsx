@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ReportConfig, ReportFilterValues } from "../lib/reports.interface";
+import { ReportConfig, ReportFilterValues } from "@/shared/lib/reports/reports.interface";
 import { ReportFilters } from "./ReportFilters";
-import { useDownloadReport } from "../lib/reports.hook";
+import { useDownloadReport } from "@/shared/lib/reports/reports.hook";
 import { FileBarChart } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export function ReportCard({ report }: ReportCardProps) {
     downloadReport({
       endpoint: report.endpoint,
       params,
+      fileName: report.fileName,
     });
   };
 

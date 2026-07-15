@@ -26,6 +26,10 @@ import {
   User,
   Car,
   LucideIcon,
+  CalendarClock,
+  Hourglass,
+  ShieldCheck,
+  ShieldX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +47,7 @@ interface Props {
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
   onMigrate?: (id: number) => void;
   onSyncAccountingEntry?: (id: number) => void;
+  onReschedule?: (vehicle: VehiclesDeliveryResource) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -72,6 +77,7 @@ export const vehicleDeliveryColumns = ({
   onViewDetails,
   onMigrate,
   onSyncAccountingEntry,
+  onReschedule,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
   {
@@ -207,6 +213,34 @@ export const vehicleDeliveryColumns = ({
       return (
         <Badge color={color} icon={icon} className="capitalize w-fit">
           {label}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "is_extraordinary",
+    header: "Extraordinaria",
+    cell: ({ row }) => {
+      const { is_extraordinary, extraordinary_approved } = row.original;
+      if (!is_extraordinary)
+        return <span className="text-muted-foreground text-xs">—</span>;
+      if (extraordinary_approved === null || extraordinary_approved === undefined) {
+        return (
+          <Badge color="amber" icon={Hourglass} className="w-fit">
+            Pendiente de aprobación
+          </Badge>
+        );
+      }
+      if (extraordinary_approved) {
+        return (
+          <Badge color="green" icon={ShieldCheck} className="w-fit">
+            Extraordinaria aprobada
+          </Badge>
+        );
+      }
+      return (
+        <Badge color="red" icon={ShieldX} className="w-fit">
+          Extraordinaria rechazada
         </Badge>
       );
     },
@@ -393,8 +427,26 @@ export const vehicleDeliveryColumns = ({
 
       const canDelete = !shipping_guide_id && permissions.canDelete;
 
+      const canReschedule =
+        !!onReschedule &&
+        status_delivery !== "completed" &&
+        !shipping_guide_id &&
+        permissions.canUpdate;
+
       return (
         <div className="flex items-center gap-2">
+          {canReschedule && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Reprogramar entrega"
+              onClick={() => onReschedule!(row.original)}
+            >
+              <CalendarClock className="size-4" />
+            </Button>
+          )}
+
           {canView && (
             <Button
               variant="outline"

@@ -6,6 +6,13 @@ export const ACCOUNTS_RECEIVABLE = {
   COMPANY: "deposito",
 } as const;
 
+export const ACCOUNTS_RECEIVABLE_AP = {
+  COMPANY: "automotores",
+  AREA_ID: 826,
+  PERMISSION_MODULE: "cuentas-por-cobrar-ap",
+  ABSOLUTE_ROUTE: "/ap/comercial/cuentas-por-cobrar-ap",
+} as const;
+
 export const OVERDUE_STATUS_COLORS: Record<string, string> = {
   Vencido: "bg-red-100 text-red-700 border-red-200",
   "Por Vencer": "bg-yellow-100 text-yellow-700 border-yellow-200",
