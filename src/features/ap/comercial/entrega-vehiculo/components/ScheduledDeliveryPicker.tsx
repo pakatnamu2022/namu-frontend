@@ -223,7 +223,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
           </PopoverContent>
         </Popover>
       </FormControl>
-      {description && <FormDescription>{description}</FormDescription>}
+      {description && <FormDescription className="text-xs">{description}</FormDescription>}
       <FormMessage>{error?.message}</FormMessage>
     </FormItem>
   );

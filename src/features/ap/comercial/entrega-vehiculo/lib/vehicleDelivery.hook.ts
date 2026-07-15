@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { VehiclesDeliveryResponse } from "./vehicleDelivery.interface";
+import { DiagnoseVinResponse, VehiclesDeliveryResponse } from "./vehicleDelivery.interface";
 import {
   findVehicleDeliveryById,
   getVehiclesDelivery,
@@ -11,6 +11,7 @@ import {
   syncAccountingEntry,
   getAvailableDeliverySlots,
   rescheduleVehicleDelivery,
+  diagnoseVehicleDeliveryVin,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast } from "@/core/core.function";
@@ -176,6 +177,23 @@ export const useAvailableDeliverySlots = (date?: string, shopId?: number) => {
     queryFn: () => getAvailableDeliverySlots(date!, shopId),
     enabled: !!date,
     refetchOnWindowFocus: false,
+  });
+};
+
+// Hook para diagnosticar por qué un VIN no aparece en la lista de entregas
+export const useDiagnoseVehicleDeliveryVin = () => {
+  return useMutation<DiagnoseVinResponse, any, { vin: string; sedeId?: number }>({
+    mutationFn: ({ vin, sedeId }) => diagnoseVehicleDeliveryVin(vin, sedeId),
+    onSuccess: (response) => {
+      if (response.success === false) {
+        errorToast(response.message || "No se pudo diagnosticar el VIN");
+      }
+    },
+    onError: (error: any) => {
+      const msg =
+        error?.response?.data?.message || "Error al diagnosticar el VIN";
+      errorToast(msg);
+    },
   });
 };
 
