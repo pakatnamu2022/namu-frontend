@@ -354,16 +354,130 @@ export default function AnalisisEstrategico() {
 
             case 'clientes':
                 return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Top crecimiento */}
+                    <div className="space-y-6">
+                        {/* RESUMEN EJECUTIVO */}
+                        {data.resumen && (
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-200">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-blue-600 font-medium">Total Clientes</p>
+                                                <p className="text-2xl font-bold">{data.resumen.total_clientes_actual || 0}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Vs {data.resumen.total_clientes_anterior || 0} ({data.resumen.periodo_anterior})
+                                                </p>
+                                            </div>
+                                            <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <Users className="h-6 w-6 text-blue-500" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="bg-gradient-to-br from-green-50 to-white border-green-200">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-green-600 font-medium">En Crecimiento</p>
+                                                <p className="text-2xl font-bold text-green-600">{data.resumen.clientes_con_crecimiento || 0}</p>
+                                                <p className="text-xs text-green-600">
+                                                    {data.resumen.porcentaje_variacion > 0 ? `+${data.resumen.porcentaje_variacion}%` : '0%'} producción
+                                                </p>
+                                            </div>
+                                            <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                                                <TrendingUp className="h-6 w-6 text-green-500" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="bg-gradient-to-br from-red-50 to-white border-red-200">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-red-600 font-medium">En Decrecimiento</p>
+                                                <p className="text-2xl font-bold text-red-600">{data.resumen.clientes_con_decrecimiento || 0}</p>
+                                                <p className="text-xs text-red-600">
+                                                    {data.resumen.porcentaje_variacion < 0 ? `${data.resumen.porcentaje_variacion}%` : '0%'}
+                                                </p>
+                                            </div>
+                                            <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                                                <TrendingDown className="h-6 w-6 text-red-500" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="bg-gradient-to-br from-purple-50 to-white border-purple-200">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm text-purple-600 font-medium">Nuevos / Inactivos</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xl font-bold text-blue-600">{data.resumen.clientes_nuevos || 0}</span>
+                                                    <span className="text-muted-foreground">/</span>
+                                                    <span className="text-xl font-bold text-gray-600">{data.resumen.clientes_inactivos || 0}</span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">{data.resumen.periodo_actual}</p>
+                                            </div>
+                                            <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                                <Calendar className="h-6 w-6 text-purple-500" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        )}
+
+                        {/* INDICADORES ADICIONALES */}
+                        {data.resumen && (data.resumen.mejor_mes || data.resumen.peor_mes) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {data.resumen.mejor_mes && (
+                                    <Card className="border-l-4 border-l-green-500">
+                                        <CardContent className="p-3">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground">🏆 Mejor Mes</p>
+                                                    <p className="text-sm font-semibold">{data.resumen.mejor_mes.periodo}</p>
+                                                </div>
+                                                <Badge variant="outline" className="text-green-600">
+                                                    {formatCurrency(data.resumen.mejor_mes.total)}
+                                                </Badge>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                                {data.resumen.peor_mes && (
+                                    <Card className="border-l-4 border-l-red-500">
+                                        <CardContent className="p-3">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground">⚠️ Peor Mes</p>
+                                                    <p className="text-sm font-semibold">{data.resumen.peor_mes.periodo}</p>
+                                                </div>
+                                                <Badge variant="outline" className="text-red-600">
+                                                    {formatCurrency(data.resumen.peor_mes.total)}
+                                                </Badge>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+                        )}
+
+                        {/* TOP 10 CRECIMIENTO */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-green-700">
                                     <TrendingUp className="h-5 w-5" />
-                                    Top 5 Clientes en Crecimiento
+                                    Top 10 Clientes en Crecimiento
+                                    <Badge variant="outline" className="ml-2 text-green-600 border-green-300">
+                                        {data.top_crecimiento.length} clientes
+                                    </Badge>
                                 </CardTitle>
                                 <div className="text-xs text-muted-foreground">
-                                    Comparando últimos dos meses del período
+                                    Comparando {data.resumen?.periodo_actual || 'período actual'} vs {data.resumen?.periodo_anterior || 'período anterior'}
                                 </div>
                             </CardHeader>
                             <CardContent>
@@ -372,37 +486,60 @@ export default function AnalisisEstrategico() {
                                         No hay clientes con crecimiento en el período
                                     </div>
                                 ) : (
-                                    <ul className="space-y-3">
-                                        {top_crecimiento.map((item, index) => (
-                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                                    <span className="font-medium">{item.cliente}</span>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-sm">
-                                                    <span className="text-muted-foreground">
-                                                        {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
+                                    <div className="space-y-3">
+                                        {top_crecimiento.slice(0, 10).map((item, index) => (
+                                            <div key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 border-b border-muted/30">
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <span className="text-sm font-medium text-muted-foreground w-8 text-center">
+                                                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                                                     </span>
-                                                    <Badge variant="outline" className="text-green-600 border-green-300">
-                                                        +{item.variacion}%
-                                                    </Badge>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="font-medium truncate">{item.cliente}</p>
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                            {item.ruc && <span>RUC: {item.ruc}</span>}
+                                                            {item.categoria && (
+                                                                <Badge variant="outline" className="text-[10px]">
+                                                                    {item.categoria === 'alto_crecimiento' ? '🚀 Alto' : '📈 Creciendo'}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </li>
+                                                <div className="flex items-center gap-4 text-sm flex-shrink-0">
+                                                    <span className="text-muted-foreground hidden sm:inline">
+                                                        {formatCurrency(item.anterior)} → {formatCurrency(item.actual)}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="text-green-600 border-green-300">
+                                                            +{item.variacion}%
+                                                        </Badge>
+                                                        {item.tendencia?.tipo === 'creciente_fuerte' && (
+                                                            <span className="text-green-600 text-sm">↑↑</span>
+                                                        )}
+                                                        {item.tendencia?.tipo === 'creciente' && (
+                                                            <span className="text-green-500 text-sm">↑</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
 
-                        {/* Top decrecimiento */}
+                        {/* TOP 10 DECRECIMIENTO */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-red-700">
                                     <TrendingDown className="h-5 w-5" />
-                                    Top 5 Clientes en Decrecimiento
+                                    Top 10 Clientes en Decrecimiento
+                                    <Badge variant="outline" className="ml-2 text-red-600 border-red-300">
+                                        {data.top_decrecimiento.length} clientes
+                                    </Badge>
                                 </CardTitle>
                                 <div className="text-xs text-muted-foreground">
-                                    Comparando últimos dos meses del período
+                                    Comparando {data.resumen?.periodo_actual || 'período actual'} vs {data.resumen?.periodo_anterior || 'período anterior'}
                                 </div>
                             </CardHeader>
                             <CardContent>
@@ -411,101 +548,194 @@ export default function AnalisisEstrategico() {
                                         No hay clientes con decrecimiento en el período
                                     </div>
                                 ) : (
-                                    <ul className="space-y-3">
-                                        {top_decrecimiento.map((item, index) => (
-                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                                    <span className="font-medium">{item.cliente}</span>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-sm">
-                                                    <span className="text-muted-foreground">
-                                                        {formatCurrency(Number(item.anterior.toFixed(2)))} → {formatCurrency(Number(item.actual.toFixed(2)))}
+                                    <div className="space-y-3">
+                                        {top_decrecimiento.slice(0, 10).map((item, index) => (
+                                            <div key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 border-b border-muted/30">
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <span className="text-sm font-medium text-muted-foreground w-8 text-center">
+                                                        #{index + 1}
                                                     </span>
-                                                    <Badge variant="outline" className="text-red-600 border-red-300">
-                                                        {item.variacion}%
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="font-medium truncate">{item.cliente}</p>
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                            {item.ruc && <span>RUC: {item.ruc}</span>}
+                                                            {item.categoria && (
+                                                                <Badge variant="outline" className="text-[10px] text-red-600 border-red-200">
+                                                                    {item.categoria === 'alto_decrecimiento' ? '⚠️ Crítico' : '📉 Decreciendo'}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm flex-shrink-0">
+                                                    <span className="text-muted-foreground hidden sm:inline">
+                                                        {formatCurrency(item.anterior)} → {formatCurrency(item.actual)}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="text-red-600 border-red-300">
+                                                            {item.variacion}%
+                                                        </Badge>
+                                                        {item.tendencia?.tipo === 'decreciente_fuerte' && (
+                                                            <span className="text-red-600 text-sm">↓↓</span>
+                                                        )}
+                                                        {item.tendencia?.tipo === 'decreciente' && (
+                                                            <span className="text-red-500 text-sm">↓</span>
+                                                        )}
+                                                        <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-blue-600">
+                                                            Ver detalle
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* TOP MESES CON MÁS DECRECIMIENTO */}
+                        {data.top_meses_decrecimiento && data.top_meses_decrecimiento.length > 0 && (
+                            <Card className="border-orange-200 bg-orange-50/30">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-orange-700">
+                                        <Calendar className="h-5 w-5" />
+                                        Meses con Mayor Decrecimiento
+                                        <Badge variant="outline" className="ml-2 text-orange-600 border-orange-300">
+                                            {data.top_meses_decrecimiento.length} meses
+                                        </Badge>
+                                    </CardTitle>
+                                    <div className="text-xs text-muted-foreground">
+                                        Muestra los meses donde más clientes tuvieron caídas en su producción
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        {data.top_meses_decrecimiento.map((mes, index) => (
+                                            <div key={index} className="bg-white p-3 rounded-lg border shadow-sm">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-medium">{mes.periodo}</span>
+                                                    <Badge variant="outline" className="text-red-600 border-red-200">
+                                                        -{formatCurrency(mes.decrementos)}
                                                     </Badge>
                                                 </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Nuevos clientes */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-blue-700">
-                                    <Users className="h-5 w-5" />
-                                    Nuevos Clientes
-                                    <Badge variant="outline" className="ml-2 text-blue-600 border-blue-300">
-                                        {data.clientes_nuevos?.length || 0}
-                                    </Badge>
-                                </CardTitle>
-                                <div className="text-xs text-muted-foreground">
-                                    Clientes que aparecen en el último mes pero no en el anterior
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {!data.clientes_nuevos || data.clientes_nuevos.length === 0 ? (
-                                    <div className="text-center py-6 text-muted-foreground">
-                                        No hay clientes nuevos en este período
-                                    </div>
-                                ) : (
-                                    <ul className="space-y-3">
-                                        {data.clientes_nuevos.map((item, index) => (
-                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                                    <span className="font-medium">{item.cliente}</span>
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    {mes.clientes_afectados?.length || 0} clientes afectados
+                                                </p>
+                                                <div className="mt-1 flex flex-wrap gap-1">
+                                                    {(mes.clientes_afectados || []).slice(0, 3).map((cliente, idx) => (
+                                                        <span key={idx} className="text-xs bg-muted/50 px-1.5 py-0.5 rounded truncate max-w-[80px]">
+                                                            {cliente}
+                                                        </span>
+                                                    ))}
+                                                    {(mes.clientes_afectados?.length || 0) > 3 && (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            +{mes.clientes_afectados.length - 3} más
+                                                        </span>
+                                                    )}
                                                 </div>
-                                                <Badge variant="outline" className="text-blue-600 border-blue-300">
-                                                    +{formatCurrency(Number(item.produccion.toFixed(2)))}
-                                                </Badge>
-                                            </li>
+                                            </div>
                                         ))}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Inactivos */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-gray-700">
-                                    <Users className="h-5 w-5" />
-                                    Clientes Inactivos
-                                    <Badge variant="outline" className="ml-2 text-gray-600 border-gray-300">
-                                        {data.clientes_inactivos?.length || 0}
-                                    </Badge>
-                                </CardTitle>
-                                <div className="text-xs text-muted-foreground">
-                                    Clientes que aparecieron en el mes anterior pero no en el último
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {!data.clientes_inactivos || data.clientes_inactivos.length === 0 ? (
-                                    <div className="text-center py-6 text-muted-foreground">
-                                        No hay clientes inactivos en este período
                                     </div>
-                                ) : (
-                                    <ul className="space-y-3">
-                                        {data.clientes_inactivos.map((item, index) => (
-                                            <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
-                                                    <span className="font-medium">{item.cliente}</span>
-                                                </div>
-                                                <Badge variant="outline" className="text-gray-600 border-gray-300">
-                                                    -{formatCurrency(Number(item.produccion.toFixed(2)))}
-                                                </Badge>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* NUEVOS E INACTIVOS */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Nuevos Clientes */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-blue-700">
+                                        <Users className="h-5 w-5" />
+                                        Nuevos Clientes
+                                        <Badge variant="outline" className="ml-2 text-blue-600 border-blue-300">
+                                            {data.clientes_nuevos?.length || 0}
+                                        </Badge>
+                                    </CardTitle>
+                                    <div className="text-xs text-muted-foreground">
+                                        Clientes que aparecen en {data.resumen?.periodo_actual || 'período actual'} pero no en {data.resumen?.periodo_anterior || 'período anterior'}
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    {!data.clientes_nuevos || data.clientes_nuevos.length === 0 ? (
+                                        <div className="text-center py-6 text-muted-foreground">
+                                            No hay clientes nuevos en este período
+                                        </div>
+                                    ) : (
+                                        <ul className="space-y-3">
+                                            {data.clientes_nuevos.slice(0, 5).map((item, index) => (
+                                                <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 border">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                                        <div>
+                                                            <span className="font-medium">{item.cliente}</span>
+                                                            {item.ruc && (
+                                                                <div className="text-xs text-muted-foreground">RUC: {item.ruc}</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm text-muted-foreground">
+                                                            {formatCurrency(item.produccion_actual)}
+                                                        </span>
+                                                        <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">
+                                                            Nuevo
+                                                        </Badge>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Clientes Inactivos */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-gray-700">
+                                        <Users className="h-5 w-5" />
+                                        Clientes Inactivos
+                                        <Badge variant="outline" className="ml-2 text-gray-600 border-gray-300">
+                                            {data.clientes_inactivos?.length || 0}
+                                        </Badge>
+                                    </CardTitle>
+                                    <div className="text-xs text-muted-foreground">
+                                        Clientes que aparecieron en {data.resumen?.periodo_anterior || 'período anterior'} pero no en {data.resumen?.periodo_actual || 'período actual'}
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    {!data.clientes_inactivos || data.clientes_inactivos.length === 0 ? (
+                                        <div className="text-center py-6 text-muted-foreground">
+                                            No hay clientes inactivos en este período
+                                        </div>
+                                    ) : (
+                                        <ul className="space-y-3">
+                                            {data.clientes_inactivos.slice(0, 5).map((item, index) => (
+                                                <li key={item.cliente_id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 border border-gray-200">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-sm font-medium text-muted-foreground w-6">#{index + 1}</span>
+                                                        <div>
+                                                            <span className="font-medium">{item.cliente}</span>
+                                                            {item.ruc && (
+                                                                <div className="text-xs text-muted-foreground">RUC: {item.ruc}</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm text-muted-foreground">
+                                                            {formatCurrency(item.produccion_anterior)}
+                                                        </span>
+                                                        <Badge variant="outline" className="text-gray-600 border-gray-300 text-xs">
+                                                            Inactivo
+                                                        </Badge>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 );
 
@@ -641,7 +871,6 @@ export default function AnalisisEstrategico() {
                         }}
                     />
                 );
-
             default:
                 return null;
         }

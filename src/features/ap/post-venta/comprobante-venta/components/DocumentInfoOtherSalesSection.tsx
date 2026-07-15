@@ -103,6 +103,17 @@ export function DocumentInfoOtherSalesSection({
     }
   }, [selectedCustomer, filteredDocumentTypes, form]);
 
+  // La detracción no aplica a Boleta: forzar y bloquear el switch
+  const selectedDocumentTypeId = form.watch("sunat_concept_document_type_id");
+  const isBoleta =
+    Number(selectedDocumentTypeId) === SUNAT_TYPE_INVOICES_ID.BOLETA;
+
+  useEffect(() => {
+    if (isBoleta && form.getValues("detraccion")) {
+      form.setValue("detraccion", false);
+    }
+  }, [isBoleta, form]);
+
   return (
     <GroupFormSection
       title="Información del Documento"
@@ -172,7 +183,12 @@ export function DocumentInfoOtherSalesSection({
         name="detraccion"
         label="Detracción"
         text="Aplicar Detracción"
-        description="Se aplicará el 12% de detracción al documento"
+        disabled={isBoleta}
+        description={
+          isBoleta
+            ? "La detracción no aplica para Boleta"
+            : "Se aplicará el 12% de detracción al documento"
+        }
       />
 
       <FormSelect

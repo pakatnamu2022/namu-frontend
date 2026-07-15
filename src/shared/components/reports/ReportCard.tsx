@@ -27,6 +27,7 @@ export function ReportCard({ report }: ReportCardProps) {
     downloadReport({
       endpoint: report.endpoint,
       params,
+      fileName: report.fileName,
     });
   };
 
@@ -81,6 +82,7 @@ export function ReportCard({ report }: ReportCardProps) {
           fields={report.fields}
           onSubmit={handleDownload}
           isLoading={isPending}
+          availableFormats={report.availableFormats}
         />
       </GeneralSheet>
     </>

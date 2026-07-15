@@ -35,7 +35,7 @@ export const CancelWorkOrderModal = ({
 }: CancelWorkOrderModalProps) => {
   const queryClient = useQueryClient();
   const { data: reasons = [], isLoading: loadingReasons } =
-    useAllReasonDiscardingTaller();
+    useAllReasonDiscardingTaller(undefined, { enabled: open });
 
   const form = useForm<CancelWorkOrderSchema>({
     resolver: zodResolver(cancelWorkOrderSchema),

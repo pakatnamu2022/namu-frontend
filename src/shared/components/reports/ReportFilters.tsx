@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useController } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
@@ -11,6 +11,8 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import { Loader2, Download, FileSpreadsheet, FileText } from "lucide-react";
+import { FormLabel } from "@/components/ui/form";
+import { cn } from "@/lib/utils";
 import {
   ReportField,
   ReportFilterValues,
@@ -23,14 +25,16 @@ interface ReportFiltersProps {
   fields: ReportField[];
   onSubmit: (values: ReportFilterValues) => void;
   isLoading?: boolean;
+  availableFormats?: ReportFormat[];
 }
 
 export function ReportFilters({
   fields,
   onSubmit,
   isLoading,
+  availableFormats = ["excel", "pdf"],
 }: ReportFiltersProps) {
-  const [format, setFormat] = useState<ReportFormat>("excel");
+  const [format, setFormat] = useState<ReportFormat>(availableFormats[0]);
   // Construir el schema dinámicamente basado en los campos
   const buildSchema = () => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
@@ -56,7 +60,9 @@ export function ReportFilters({
           : z.coerce.number().optional();
       } else if (field.type === "multiselect") {
         schemaFields[field.name] = field.required
-          ? z.array(z.number()).min(1, { message: `${field.label} es requerido` })
+          ? z
+              .array(z.number())
+              .min(1, { message: `${field.label} es requerido` })
           : z.array(z.number()).optional();
       } else {
         schemaFields[field.name] = field.required
@@ -91,21 +97,29 @@ export function ReportFilters({
 
   const handleSubmit = (values: FormSchema) => {
     // Limpiar valores vacíos o undefined antes de enviar
-    const cleanedValues = Object.entries(values).reduce((acc, [key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        // Para fechas, convertir a string ISO
-        if (value instanceof Date) {
-          acc[key] = value.toISOString().split("T")[0];
-        } else {
-          acc[key] = value;
+    const cleanedValues = Object.entries(values).reduce(
+      (acc, [key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Para fechas, convertir a string ISO
+          if (value instanceof Date) {
+            acc[key] = value.toISOString().split("T")[0];
+          } else {
+            acc[key] = value;
+          }
         }
-      }
-      return acc;
-    }, {} as Record<string, any>);
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
 
     // Para daterange con rangeParamName, combinar from/to en un único array
     fields.forEach((field) => {
-      if (field.type === "daterange" && field.rangeParamName && field.nameFrom && field.nameTo) {
+      if (
+        field.type === "daterange" &&
+        field.rangeParamName &&
+        field.nameFrom &&
+        field.nameTo
+      ) {
         const from = cleanedValues[field.nameFrom];
         const to = cleanedValues[field.nameTo];
 
@@ -142,28 +156,36 @@ export function ReportFilters({
 
         {/* Selector de formato y botón de descarga */}
         <div className="flex items-center justify-between">
-          <div className="inline-flex rounded-md shadow-sm" role="group">
-            <Button
-              type="button"
-              variant={format === "excel" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFormat("excel")}
-              className="rounded-r-none"
-            >
-              <FileSpreadsheet className="h-4 w-4" />
-              <span className="ml-2">Excel</span>
-            </Button>
-            <Button
-              type="button"
-              variant={format === "pdf" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFormat("pdf")}
-              className="rounded-l-none border-l-0"
-            >
-              <FileText className="h-4 w-4" />
-              <span className="ml-2">PDF</span>
-            </Button>
-          </div>
+          {availableFormats.length > 1 ? (
+            <div className="inline-flex rounded-md shadow-sm" role="group">
+              {availableFormats.includes("excel") && (
+                <Button
+                  type="button"
+                  variant={format === "excel" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFormat("excel")}
+                  className="rounded-r-none"
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  <span className="ml-2">Excel</span>
+                </Button>
+              )}
+              {availableFormats.includes("pdf") && (
+                <Button
+                  type="button"
+                  variant={format === "pdf" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFormat("pdf")}
+                  className="rounded-l-none border-l-0"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="ml-2">PDF</span>
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div />
+          )}
 
           <Button size={"sm"} type="submit" disabled={isLoading}>
             {isLoading ? (
@@ -193,6 +215,9 @@ function DynamicField({ field, control }: DynamicFieldProps) {
   switch (field.type) {
     case "select":
       return <SelectField field={field} control={control} />;
+
+    case "toggle":
+      return <ToggleField field={field} control={control} />;
 
     case "multiselect":
       return <MultiSelectField field={field} control={control} />;
@@ -271,6 +296,48 @@ function SelectField({ field, control }: DynamicFieldProps) {
   );
 }
 
+function ToggleField({ field, control }: DynamicFieldProps) {
+  const {
+    field: { value, onChange },
+  } = useController({
+    name: field.name,
+    control,
+    defaultValue: field.defaultValue,
+  });
+
+  const options = field.options || [];
+
+  return (
+    <div className="flex flex-col gap-1">
+      {field.label && (
+        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none dark:text-muted-foreground">
+          {field.label}
+        </FormLabel>
+      )}
+      <div className="inline-flex rounded-md shadow-sm w-fit" role="group">
+        {options.map((option, index) => (
+          <Button
+            key={option.value}
+            type="button"
+            variant={value === option.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => onChange(option.value)}
+            className={cn(
+              index === 0 && "rounded-r-none",
+              index === options.length - 1 && "rounded-l-none border-l-0",
+              index > 0 &&
+                index < options.length - 1 &&
+                "rounded-none border-l-0",
+            )}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function MultiSelectField({ field, control }: DynamicFieldProps) {
   // Si el campo tiene un endpoint, cargar las opciones dinámicamente
   const { data, isLoading } = useSelectOptions(field.endpoint);
@@ -292,7 +359,9 @@ function MultiSelectField({ field, control }: DynamicFieldProps) {
       control={control}
       required={field.required}
       disabled={isLoading}
-      getDisplayValue={field.getDisplayValue || ((item) => item.name || String(item.id))}
+      getDisplayValue={
+        field.getDisplayValue || ((item) => item.name || String(item.id))
+      }
       getSecondaryText={field.getSecondaryText}
     />
   );

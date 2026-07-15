@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import {
   ReasonDiscardingTallerResource,
   ReasonDiscardingTallerResponse,
@@ -20,11 +20,15 @@ export const useReasonDiscardingTaller = (params?: Record<string, any>) => {
   });
 };
 
-export const useAllReasonDiscardingTaller = (params?: Record<string, any>) => {
+export const useAllReasonDiscardingTaller = (
+  params?: Record<string, any>,
+  options?: Partial<UseQueryOptions<ReasonDiscardingTallerResource[]>>,
+) => {
   return useQuery<ReasonDiscardingTallerResource[]>({
     queryKey: [QUERY_KEY],
     queryFn: () => getAllReasonDiscardingTaller({ params }),
     refetchOnWindowFocus: false,
+    ...options,
   });
 };
 

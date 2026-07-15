@@ -83,6 +83,8 @@ import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/in
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
+const SUPPLY_TYPE_STOCK = "STOCK";
+
 interface ProductDetailsSectionProps {
   quotationId: number;
   quotationDate: string;
@@ -125,6 +127,9 @@ export default function ProductDetailsSection({
   const queryClient = useQueryClient();
   const { user, general } = useAuthStore();
   const freightCommissionMultiplier = 1 + (general?.freight_commission ?? 0.05);
+  const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
 
   const { data: activeCampaign } = useActiveCampaign({ area_id: AREA_TALLER });
   const campaignDiscountValue =
@@ -137,6 +142,7 @@ export default function ProductDetailsSection({
   const maxDiscountPercentage =
     user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
   const [apMinSalePrice, setApMinSalePrice] = useState(0);
+  const [apSalePriceSoles, setApSalePriceSoles] = useState(0);
   const [isApSaving, setIsApSaving] = useState(false);
 
   const apForm = useForm({
@@ -152,6 +158,7 @@ export default function ProductDetailsSection({
 
   const apUnitPrice = apForm.watch("ap_unit_price");
   const apProductId = apForm.watch("ap_product_id");
+  const apSupplyType = apForm.watch("ap_supply_type");
   const apIsPriceBelowMin = apMinSalePrice > 0 && apUnitPrice < apMinSalePrice;
 
   const handleApInventoryChange = (
@@ -159,13 +166,19 @@ export default function ProductDetailsSection({
     item?: InventoryResource,
   ) => {
     if (item) {
-      const price = parseFloat(item.sale_price);
+      const priceSoles = parseFloat(item.sale_price);
+      const price =
+        isInDollars && exchangeRate
+          ? Math.round((priceSoles / exchangeRate) * 100) / 100
+          : priceSoles;
       setApMinSalePrice(price);
+      setApSalePriceSoles(priceSoles);
       apForm.setValue("ap_unit_price", price);
       apForm.setValue("ap_description", item.product?.name || "");
       setApHasStock(item.available_quantity > 0);
     } else {
       setApMinSalePrice(0);
+      setApSalePriceSoles(0);
       apForm.setValue("ap_unit_price", 0);
       apForm.setValue("ap_description", "");
       setApHasStock(false);
@@ -173,7 +186,9 @@ export default function ProductDetailsSection({
   };
 
   const isApCampaignDiscountLocked =
-    apHasStock && campaignDiscountValue !== undefined;
+    apHasStock &&
+    apSupplyType === SUPPLY_TYPE_STOCK &&
+    campaignDiscountValue !== undefined;
 
   // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
   useEffect(() => {
@@ -183,6 +198,13 @@ export default function ProductDetailsSection({
       apForm.setValue("ap_discount", campaignDiscountValue as number);
     }
   }, [isApCampaignDiscountLocked, campaignDiscountValue, apForm]);
+
+  // Si el tipo de abastecimiento deja de ser Stock, se limpia el descuento aplicado
+  useEffect(() => {
+    if (apSupplyType !== SUPPLY_TYPE_STOCK) {
+      apForm.setValue("ap_discount", 0);
+    }
+  }, [apSupplyType, apForm]);
 
   const handleApSubmit = apForm.handleSubmit(async (data) => {
     if (apIsPriceBelowMin) return;
@@ -366,8 +388,6 @@ export default function ProductDetailsSection({
   };
 
   const [externalPriceText, setExternalPriceText] = useState("");
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
     null,
@@ -396,6 +416,7 @@ export default function ProductDetailsSection({
   const selectedProductId = form.watch("product_id");
   const retailPriceExternal = form.watch("retail_price_external");
   const comisionFlete = form.watch("freight_commission");
+  const supplyType = form.watch("supply_type");
 
   const { data: productData } = useProductById(Number(selectedProductId) || 0);
 
@@ -493,7 +514,9 @@ export default function ProductDetailsSection({
   })();
 
   const isCampaignDiscountLocked =
-    hasStockInWarehouse && campaignDiscountValue !== undefined;
+    hasStockInWarehouse &&
+    supplyType === SUPPLY_TYPE_STOCK &&
+    campaignDiscountValue !== undefined;
 
   // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
   useEffect(() => {
@@ -504,7 +527,12 @@ export default function ProductDetailsSection({
     }
   }, [isCampaignDiscountLocked, campaignDiscountValue, form]);
 
-  const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
+  // Si el tipo de abastecimiento deja de ser Stock, se limpia el descuento aplicado
+  useEffect(() => {
+    if (supplyType !== SUPPLY_TYPE_STOCK) {
+      form.setValue("discount_percentage", 0);
+    }
+  }, [supplyType, form]);
 
   useEffect(() => {
     const retail = Number(retailPriceExternal) || 0;
@@ -685,48 +713,59 @@ export default function ProductDetailsSection({
         <div className="space-y-4 mt-4">
           <Form {...apForm}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <FormSelectAsync
-                name="ap_product_id"
-                label="Producto"
-                placeholder="Buscar producto en el almacén..."
-                control={apForm.control}
-                useQueryHook={useInventory}
-                additionalParams={{
-                  warehouse_id: warehouseId?.toString() ?? "",
-                }}
-                mapOptionFn={(inventory: InventoryResource) => ({
-                  label: () => (
-                    <div className="flex items-center justify-between gap-2 w-full">
-                      <span className="font-medium truncate">
-                        {inventory.product.code} - {inventory.product.name}
-                      </span>
-                      <span
-                        className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                          inventory.available_quantity > 0
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        Stock: {inventory.available_quantity}
-                      </span>
-                    </div>
-                  ),
-                  value: inventory.product_id.toString(),
-                })}
-                perPage={10}
-                debounceMs={500}
-                onValueChange={handleApInventoryChange}
-              />
+              <div className="flex flex-col">
+                <FormSelectAsync
+                  name="ap_product_id"
+                  label="Repuesto"
+                  placeholder="Buscar producto en el almacén..."
+                  control={apForm.control}
+                  useQueryHook={useInventory}
+                  additionalParams={{
+                    warehouse_id: warehouseId?.toString() ?? "",
+                  }}
+                  mapOptionFn={(inventory: InventoryResource) => ({
+                    label: () => (
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <span className="font-medium truncate">
+                          {inventory.product.code} - {inventory.product.name}
+                        </span>
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                            inventory.available_quantity > 0
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          Stock: {inventory.available_quantity}
+                        </span>
+                      </div>
+                    ),
+                    value: inventory.product_id.toString(),
+                  })}
+                  perPage={10}
+                  debounceMs={500}
+                  onValueChange={handleApInventoryChange}
+                />
+
+                {/* Espacio reservado */}
+                <div className="h-4" />
+              </div>
 
               <div className="flex flex-col gap-1">
                 <FormInput
                   name="ap_unit_price"
-                  label={`Precio Unitario (${currencySymbol})`}
+                  label={`Precio Venta Público (${currencySymbol})`}
                   type="number"
                   placeholder="0.0"
                   step="0.01"
                   control={apForm.control}
                 />
+                {isInDollars && exchangeRate && (
+                  <p className="text-[10px] text-muted-foreground">
+                    Convertido con tipo de cambio S/. {exchangeRate.toFixed(4)}{" "}
+                    (S/. {apSalePriceSoles.toFixed(2)})
+                  </p>
+                )}
                 {apIsPriceBelowMin && (
                   <p className="text-xs font-medium text-destructive">
                     El precio no puede ser menor a {apMinSalePrice}
@@ -735,7 +774,7 @@ export default function ProductDetailsSection({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               <FormInput
                 name="ap_quantity"
                 label="Cantidad"

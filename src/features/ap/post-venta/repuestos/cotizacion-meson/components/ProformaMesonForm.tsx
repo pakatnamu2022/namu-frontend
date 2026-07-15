@@ -190,22 +190,40 @@ function ProductDetailItem({
       warehouse.sede_id === Number(sedeId) && warehouse.available_quantity > 0,
   );
 
-  const isCampaignDiscountLocked =
-    hasStockInSede && campaignDiscountValue !== undefined;
+  const supplyType = form.watch(`details.${index}.supply_type`);
 
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en la sede
+  const isCampaignDiscountLocked =
+    hasStockInSede &&
+    campaignDiscountValue !== undefined &&
+    supplyType === "STOCK";
+
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto se abastece por STOCK,
+  // y limpiarlo si deja de ser STOCK teniendo un descuento de campaña disponible
   useEffect(() => {
-    if (!isCampaignDiscountLocked) return;
     const currentDiscount = form.getValues(
       `details.${index}.discount_percentage`,
     );
-    if (currentDiscount !== campaignDiscountValue) {
-      form.setValue(
-        `details.${index}.discount_percentage`,
-        campaignDiscountValue,
-      );
+    if (isCampaignDiscountLocked) {
+      if (currentDiscount !== campaignDiscountValue) {
+        form.setValue(
+          `details.${index}.discount_percentage`,
+          campaignDiscountValue,
+        );
+      }
+    } else if (
+      hasStockInSede &&
+      campaignDiscountValue !== undefined &&
+      currentDiscount === campaignDiscountValue
+    ) {
+      form.setValue(`details.${index}.discount_percentage`, 0);
     }
-  }, [isCampaignDiscountLocked, campaignDiscountValue, index, form]);
+  }, [
+    isCampaignDiscountLocked,
+    hasStockInSede,
+    campaignDiscountValue,
+    index,
+    form,
+  ]);
 
   return (
     <div className="border rounded-lg bg-white transition-colors">

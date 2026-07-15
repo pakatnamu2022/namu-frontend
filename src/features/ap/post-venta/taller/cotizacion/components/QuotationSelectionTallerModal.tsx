@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   errorToast,
+  formatMoney,
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
@@ -137,12 +138,13 @@ export const QuotationSelectionTallerModal = ({
     {
       accessorKey: "total_amount",
       header: "Monto Total",
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
         const value = getValue() as number;
+        const symbol = row.original?.type_currency?.symbol || "S/";
         return (
           <div className="flex items-center gap-1.5 text-sm">
             <span className="font-semibold text-green-700">
-              S/ {value.toFixed(2)}
+              {formatMoney(value, 2, symbol)}
             </span>
           </div>
         );
