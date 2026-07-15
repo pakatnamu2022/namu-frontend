@@ -215,6 +215,11 @@ export const ShipmentsReceptionsForm = ({
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
   const watchTransferModalityId = form.watch("transfer_modality_id");
+  // OTROS (sin consignación): el destino es un tercero externo, se
+  // selecciona manualmente en lugar de forzarse a nuestra empresa.
+  const isOtrosDestinoLibre =
+    watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
+    !isConsignment;
   const isPrivateTransport =
     watchTransferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
   const isPublicTransport =
@@ -529,19 +534,22 @@ export const ShipmentsReceptionsForm = ({
       const currentTransmitterOriginId = form.getValues(
         "transmitter_origin_id",
       );
-      const currentReceiverDestinationId = form.getValues(
-        "receiver_destination_id",
-      );
 
       if (currentTransmitterOriginId !== AUTOMOTORES_PAKATNAMU_ID) {
         form.setValue("transmitter_origin_id", AUTOMOTORES_PAKATNAMU_ID, {
           shouldValidate: true,
         });
       }
-      if (currentReceiverDestinationId !== AUTOMOTORES_PAKATNAMU_ID) {
-        form.setValue("receiver_destination_id", AUTOMOTORES_PAKATNAMU_ID, {
-          shouldValidate: true,
-        });
+
+      if (!isOtrosDestinoLibre) {
+        const currentReceiverDestinationId = form.getValues(
+          "receiver_destination_id",
+        );
+        if (currentReceiverDestinationId !== AUTOMOTORES_PAKATNAMU_ID) {
+          form.setValue("receiver_destination_id", AUTOMOTORES_PAKATNAMU_ID, {
+            shouldValidate: true,
+          });
+        }
       }
 
       if (watchDocumentSeriesId) {
@@ -551,22 +559,31 @@ export const ShipmentsReceptionsForm = ({
         if (selectedSeries && selectedSeries.sede_id) {
           const sedeId = selectedSeries.sede_id.toString();
           const currentSedeTransmitter = form.getValues("sede_transmitter_id");
-          const currentSedeReceiver = form.getValues("sede_receiver_id");
 
           if (currentSedeTransmitter !== sedeId) {
             form.setValue("sede_transmitter_id", sedeId, {
               shouldValidate: true,
             });
           }
-          if (currentSedeReceiver !== sedeId) {
-            form.setValue("sede_receiver_id", sedeId, {
-              shouldValidate: true,
-            });
+
+          if (!isOtrosDestinoLibre) {
+            const currentSedeReceiver = form.getValues("sede_receiver_id");
+            if (currentSedeReceiver !== sedeId) {
+              form.setValue("sede_receiver_id", sedeId, {
+                shouldValidate: true,
+              });
+            }
           }
         }
       }
     }
-  }, [watchDocumentSeriesId, watchIssuerType, series.length]);
+  }, [
+    watchDocumentSeriesId,
+    watchIssuerType,
+    series.length,
+    watchTransferReasonId,
+    isConsignment,
+  ]);
 
   // UseEffect para manejar el motivo de traslado entre sedes
   useEffect(() => {
@@ -722,13 +739,12 @@ export const ShipmentsReceptionsForm = ({
               shouldValidate: false,
             });
           }
-        } else if (currentSedeReceiver) {
-          // Envíos/Recepciones (OTROS): limpiar sede destino
-          form.setValue("sede_receiver_id", "", { shouldValidate: false });
         }
+        // Envíos/Recepciones (OTROS, sin consignación): la sede destino
+        // se selecciona manualmente, no se limpia automáticamente.
       }
     }
-  }, [watchTransferReasonId, watchSedeTransmitterId]);
+  }, [watchTransferReasonId, watchSedeTransmitterId, isConsignment]);
 
   if (
     isLoadingCustomers ||
@@ -843,9 +859,12 @@ export const ShipmentsReceptionsForm = ({
             disabled={!watchArticleClassId || isLoadingMySedes}
           />
 
-          {watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
-            watchTransferReasonId !==
-              SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA && (
+          {watchTransferReasonId !==
+            SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA &&
+            !(
+              watchTransferReasonId ===
+                SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS && isConsignment
+            ) && (
               <FormSelect
                 key={`sede-receiver-${watchTransferReasonId}-${sedesIsReceived}`}
                 name="sede_receiver_id"
@@ -1219,7 +1238,8 @@ export const ShipmentsReceptionsForm = ({
                 label={() => (
                   <div className="flex items-center gap-2 relative">
                     <FormLabel>Ubicación Destino</FormLabel>
-                    {selectedCustomer && !watchDocumentSeriesId && (
+                    {selectedCustomer &&
+                      (!watchDocumentSeriesId || isOtrosDestinoLibre) && (
                       <button
                         type="button"
                         onClick={() => setIsDestinationModalOpen(true)}
@@ -1239,7 +1259,7 @@ export const ShipmentsReceptionsForm = ({
                 control={form.control}
                 strictFilter={true}
                 disabled={
-                  !!watchDocumentSeriesId ||
+                  (!!watchDocumentSeriesId && !isOtrosDestinoLibre) ||
                   watchTransferReasonId ===
                     SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
                 }
