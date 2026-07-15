@@ -87,3 +87,32 @@ export interface DeliveryChecklistResource {
   confirmed_by_name?: string | null;
   items: DeliveryChecklistItemResource[];
 }
+
+export type DiagnoseVinCheckStatus = "pass" | "fail" | "warning";
+
+export interface DiagnoseVinCheck {
+  step: string;
+  status: DiagnoseVinCheckStatus;
+  message: string;
+  action?: string | null;
+}
+
+export interface DiagnoseVinVehicle {
+  id: number;
+  vin: string;
+  status: string;
+  warehouse: string;
+  sede: string;
+}
+
+export interface DiagnoseVinData {
+  can_generate_delivery: boolean;
+  vehicle?: DiagnoseVinVehicle | null;
+  checks: DiagnoseVinCheck[];
+}
+
+// El endpoint devuelve el diagnóstico directamente (sin envolver en { data }).
+// Cuando el VIN no existe, en su lugar responde { success: false, message }.
+export type DiagnoseVinResponse =
+  | (DiagnoseVinData & { success?: true })
+  | { success: false; message: string };
