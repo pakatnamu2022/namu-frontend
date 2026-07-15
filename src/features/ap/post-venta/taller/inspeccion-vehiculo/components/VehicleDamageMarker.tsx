@@ -26,6 +26,7 @@ import {
 import { VehicleInspectionDamageSchema } from "../lib/vehicleInspection.schema";
 import { X, Upload, Trash2, Camera } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { compressImageFile } from "@/shared/lib/image";
 
 interface VehicleDamageMarkerProps {
   damages: VehicleInspectionDamageSchema[];
@@ -43,6 +44,7 @@ export default function VehicleDamageMarker({
     useState<VehicleInspectionDamageSchema | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [photoError, setPhotoError] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,20 +103,27 @@ export default function VehicleDamageMarker({
     onChange(newDamages);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && selectedDamage) {
-      // Crear previsualización local inmediatamente
-      const localPreviewUrl = URL.createObjectURL(file);
+    // Limpiar el input antes del await: el SyntheticEvent se recicla tras ceder el hilo
+    e.target.value = "";
+    if (!file || !selectedDamage) return;
+
+    setIsCompressing(true);
+    try {
+      const processedFile = await compressImageFile(file);
+      const localPreviewUrl = URL.createObjectURL(processedFile);
       setPreviewUrl(localPreviewUrl);
 
       // Guardar el archivo en el estado del daño para enviarlo al final
       setSelectedDamage({
         ...selectedDamage,
         photo_url: localPreviewUrl,
-        photo_file: file,
+        photo_file: processedFile,
       });
       setPhotoError(false);
+    } finally {
+      setIsCompressing(false);
     }
   };
 
@@ -406,14 +415,18 @@ export default function VehicleDamageMarker({
                       capture={isMobile ? "environment" : undefined}
                       className="hidden"
                       onChange={handleFileChange}
+                      disabled={isCompressing}
                     />
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full"
+                      disabled={isCompressing}
                     >
-                      {isMobile ? (
+                      {isCompressing ? (
+                        "Optimizando imagen..."
+                      ) : isMobile ? (
                         <>
                           <Camera className="h-4 w-4 mr-2" />
                           Tomar Foto
