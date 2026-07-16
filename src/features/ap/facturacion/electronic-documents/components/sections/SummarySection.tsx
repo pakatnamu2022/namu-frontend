@@ -294,6 +294,19 @@ export function SummarySection({
                 </span>
               </div>
             )}
+            {totales.total_gratuita > 0 && (
+              <div className="flex justify-between items-center text-sm px-2">
+                <span className="text-muted-foreground font-mono uppercase">
+                  Op. Gratuita
+                </span>
+                <span className="font-medium">
+                  {currencySymbol}{" "}
+                  {totales.total_gratuita.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between items-center text-sm px-2">
               <span className="text-muted-foreground font-mono uppercase">
                 IGV ({porcentaje_de_igv}%)

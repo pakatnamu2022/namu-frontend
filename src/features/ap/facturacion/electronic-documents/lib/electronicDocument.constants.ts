@@ -116,6 +116,26 @@ export const NUBEFACT_CODES = {
   GRATUITA: "17",
 };
 
+// Categoría de total en la que debe sumar un item según su code_nubefact.
+// Fuente única de verdad para el cálculo de totales (gravada/exonerada/inafecta/gratuita).
+// Escalable: para soportar un nuevo tratamiento (ej. otro código de gratuita),
+// basta con agregarlo aquí sin tocar la lógica de sumatoria.
+export type IgvCategory = "gravada" | "exonerada" | "inafecta" | "gratuita";
+
+export function getIgvCategory(codeNubefact?: string): IgvCategory | null {
+  if (!codeNubefact) return null;
+  if (codeNubefact === NUBEFACT_CODES.GRAVADA_ONEROSA) return "gravada";
+  if (codeNubefact === NUBEFACT_CODES.EXONERADA_ONEROSA) return "exonerada";
+  if (codeNubefact === NUBEFACT_CODES.INAFECTA_ONEROSA) return "inafecta";
+  if (codeNubefact === NUBEFACT_CODES.GRATUITA) return "gratuita";
+  return null;
+}
+
+// Solo el tratamiento "gravada" cobra IGV; el resto (inafecta/exonerada/gratuita) va con igv=0.
+export function igvTypeChargesIgv(codeNubefact?: string): boolean {
+  return codeNubefact === NUBEFACT_CODES.GRAVADA_ONEROSA;
+}
+
 export const PAYMENT_CONDITIONS = [
   { label: "CONTADO", value: "contado" },
   { label: "CREDITO", value: "credito" },
