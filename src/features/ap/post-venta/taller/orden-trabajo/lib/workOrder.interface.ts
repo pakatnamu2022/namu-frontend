@@ -55,6 +55,8 @@ export interface WorkOrderResource {
   discount_amount: number;
   tax_amount: number;
   final_amount: number;
+  deductible_amount: number;
+  deductible_id: number | null;
   is_delivery: boolean;
   num_doc_contact: string;
   full_contact_name: string;
@@ -141,6 +143,11 @@ export interface WorkOrderRequest {
   sede_id: string;
   estimated_delivery_time: string | Date;
   observations: string;
+}
+
+export interface StoreWorkOrderDeductibleRequest {
+  work_order_id: number;
+  electronic_document_id: number;
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {

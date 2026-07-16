@@ -95,7 +95,7 @@ export default function SalesReceiptsActions({
             {permissions?.canInvoiceOtherSales && (
               <DropdownMenuItem onClick={onHistoricalFinalSaleWithAdvanceClick}>
                 <History className="size-4 mr-2" />
-                Factura con Anticipo Histórica de OT
+                Comprobante con Anticipo Histórico OT
               </DropdownMenuItem>
             )}
 

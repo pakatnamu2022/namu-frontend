@@ -20,10 +20,14 @@ import { ELECTRONIC_DOCUMENT } from "./electronicDocument.constants";
 
 const { QUERY_KEY } = ELECTRONIC_DOCUMENT;
 
-export const useElectronicDocuments = (params?: Record<string, any>) => {
+export const useElectronicDocuments = (
+  params?: Record<string, any>,
+  enabled = true,
+) => {
   return useQuery<ElectronicDocumentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getElectronicDocuments(params),
+    enabled,
   });
 };
 

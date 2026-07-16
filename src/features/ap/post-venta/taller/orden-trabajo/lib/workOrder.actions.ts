@@ -8,6 +8,7 @@ import {
   WorkOrderRequest,
   VehicleWorkOrderHistoryResponse,
   GenerateWorkOrderResponse,
+  StoreWorkOrderDeductibleRequest,
 } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
 
@@ -156,6 +157,25 @@ export async function getVehicleWorkOrderHistory(
     `${ENDPOINT}/vehicle/${vehicleId}/history`,
   );
   return data;
+}
+
+export async function storeWorkOrderDeductible(
+  data: StoreWorkOrderDeductibleRequest,
+): Promise<WorkOrderResource> {
+  const response = await api.post<WorkOrderResource>(
+    `${ENDPOINT}/deductible`,
+    data,
+  );
+  return response.data;
+}
+
+export async function deleteWorkOrderDeductible(
+  deductibleId: number,
+): Promise<WorkOrderResource> {
+  const response = await api.delete<WorkOrderResource>(
+    `${ENDPOINT}/deductible/${deductibleId}`,
+  );
+  return response.data;
 }
 
 export async function unlinkQuotation(id: number): Promise<WorkOrderResource> {

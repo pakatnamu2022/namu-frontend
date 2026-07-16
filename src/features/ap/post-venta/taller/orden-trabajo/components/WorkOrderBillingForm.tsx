@@ -409,6 +409,13 @@ export default function WorkOrderBillingForm({
   const watchedItems = form.watch("items");
   const items = useMemo(() => watchedItems || [], [watchedItems]);
 
+  // Deducible asociado a la OT: se envía como descuento global del comprobante.
+  // Solo aplica a la venta final (no tiene sentido restarlo de un anticipo parcial).
+  const deductibleAmount =
+    !isAdvancePayment && workOrder.deductible_amount > 0
+      ? workOrder.deductible_amount
+      : 0;
+
   // Calcular totales
   const totales = useMemo(() => {
     // Si el backend ya calculó el desglose para esta orden (venta normal, no edición,
@@ -420,7 +427,13 @@ export default function WorkOrderBillingForm({
       workOrder.items_invoice.length > 0 &&
       workOrder.invoice_preview
     ) {
-      return workOrder.invoice_preview;
+      const preview = workOrder.invoice_preview;
+      return deductibleAmount > 0
+        ? {
+            ...preview,
+            total: Math.round((preview.total - deductibleAmount) * 100) / 100,
+          }
+        : preview;
     }
 
     // Función auxiliar para redondear a 2 decimales
@@ -471,7 +484,10 @@ export default function WorkOrderBillingForm({
     const t_anticipo = round2(raw_total_anticipo);
 
     // Total final: suma de totales con IGV menos anticipo (todos ya exactos y redondeados)
-    const total = round2(t_gravada + t_inafecta + t_exonerada - t_anticipo);
+    // y menos el deducible asociado a la OT (descuento global del comprobante).
+    const total = round2(
+      t_gravada + t_inafecta + t_exonerada - t_anticipo - deductibleAmount,
+    );
 
     // Subtotales para desglose en el resumen (sin IGV)
     const total_anticipo = round2(raw_sub_anticipo);
@@ -501,6 +517,7 @@ export default function WorkOrderBillingForm({
     porcentaje_de_igv,
     isEdit,
     isAdvancePayment,
+    deductibleAmount,
     workOrder.items_invoice,
     workOrder.invoice_preview,
   ]);
@@ -531,7 +548,10 @@ export default function WorkOrderBillingForm({
       shouldValidate: false,
     });
     form.setValue("total", totales.total, { shouldValidate: false });
-  }, [totales, form]);
+    form.setValue("descuento_global", deductibleAmount || undefined, {
+      shouldValidate: false,
+    });
+  }, [totales, deductibleAmount, form]);
 
   return (
     <Form {...form}>
@@ -602,6 +622,7 @@ export default function WorkOrderBillingForm({
             remainingBalance={workOrder.payment_summary?.remaining_balance ?? 0}
             isInvalidWithQuote={isInvalidWithQuote}
             isInvoiced={workOrder.is_invoiced}
+            deductibleAmount={deductibleAmount}
           />
         </div>
       </form>
