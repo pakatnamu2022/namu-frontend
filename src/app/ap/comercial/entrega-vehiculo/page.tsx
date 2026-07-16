@@ -54,6 +54,7 @@ export default function VehicleDeliveryPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("all");
+  const [statusDelivery, setStatusDelivery] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] =
@@ -76,7 +77,7 @@ export default function VehicleDeliveryPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, sedeId]);
+  }, [search, per_page, sedeId, statusDelivery, dateFrom, dateTo]);
 
   const { data, isLoading, refetch, isFetching } = useVehicleDelivery({
     page,
@@ -84,7 +85,8 @@ export default function VehicleDeliveryPage() {
     per_page,
     scheduled_delivery_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
-    "sede$shop_id": sedeId !== "all" ? sedeId : undefined,
+    sede$shop_id: sedeId !== "all" ? sedeId : undefined,
+    status_delivery: statusDelivery !== "all" ? statusDelivery : undefined,
   });
 
   const handleDelete = async () => {
@@ -149,7 +151,8 @@ export default function VehicleDeliveryPage() {
             search,
             scheduled_delivery_date: [formattedDateFrom, formattedDateTo],
             area_id: AREA_COMERCIAL,
-            "sede$shop_id": sedeId !== "all" ? sedeId : undefined,
+            sede$shop_id: sedeId !== "all" ? sedeId : undefined,
+            status_delivery: statusDelivery !== "all" ? statusDelivery : undefined,
           }}
         />
       </HeaderTableWrapper>
@@ -178,6 +181,8 @@ export default function VehicleDeliveryPage() {
           }}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          statusDelivery={statusDelivery}
+          setStatusDelivery={setStatusDelivery}
         />
       </VehicleDeliveryTable>
 

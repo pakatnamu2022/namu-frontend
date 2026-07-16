@@ -213,7 +213,8 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     (data) => {
       if (
         data.transfer_reason_id ===
-        SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE ||
+        data.transfer_reason_id === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS
       ) {
         return true;
       }

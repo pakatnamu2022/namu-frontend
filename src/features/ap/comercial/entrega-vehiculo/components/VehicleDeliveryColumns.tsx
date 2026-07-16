@@ -36,6 +36,7 @@ import { useNavigate } from "react-router-dom";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
+import { getTodayPeruDateString } from "@/core/core.function";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -387,6 +388,12 @@ export const vehicleDeliveryColumns = ({
         status_delivery,
         is_accounted,
       } = row.original;
+
+      const isToday =
+        format(row.original.scheduled_delivery_date, "yyyy-MM-dd", {
+          locale: es,
+        }) == getTodayPeruDateString();
+
       const migrationStatus = row.original.shipping_guide?.migration_status;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
@@ -403,13 +410,15 @@ export const vehicleDeliveryColumns = ({
        */
       const canView = permissions.canView;
 
-      const canOpenChecklist = permissions.canChecklist;
+      const canOpenChecklist =
+        permissions.canChecklist && isToday && !isChecklistConfirmed;
 
       const canDownloadChecklistPDF =
         isChecklistConfirmed && permissions.canGenerate;
 
       const canGenerateGuiaRemision =
         isChecklistConfirmed &&
+        isToday &&
         (!sent_at || aceptada_por_sunat !== true) &&
         permissions.canGenerate;
 
