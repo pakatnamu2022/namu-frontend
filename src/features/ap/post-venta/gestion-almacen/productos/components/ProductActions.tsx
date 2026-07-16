@@ -6,6 +6,7 @@ import ExportButtons from "@/shared/components/ExportButtons.tsx";
 import {
   PRODUCT,
   PRODUCT_REPUESTOS,
+  PRODUCT_TALLER,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
 import { exportProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
 
@@ -13,7 +14,7 @@ interface ProductActionsProps {
   permissions: {
     canCreate: boolean;
   };
-  module: "ALMACEN" | "REPUESTOS";
+  module: "ALMACEN" | "REPUESTOS" | "TALLER";
   search?: string;
 }
 
@@ -22,7 +23,12 @@ export default function ProductActions({
   module,
   search,
 }: ProductActionsProps) {
-  const { ROUTE_ADD } = module === "ALMACEN" ? PRODUCT : PRODUCT_REPUESTOS;
+  const { ROUTE_ADD } =
+    module === "ALMACEN"
+      ? PRODUCT
+      : module === "REPUESTOS"
+        ? PRODUCT_REPUESTOS
+        : PRODUCT_TALLER;
 
   return (
     <ActionsWrapper>

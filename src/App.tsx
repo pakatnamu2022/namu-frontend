@@ -322,6 +322,10 @@ import UpdateCustomerPvEstablishmentPage from "@/app/ap/post-venta/taller/client
 import VehiclesPostVentaPage from "./app/ap/post-venta/taller/vehiculos-taller/page.tsx";
 import AddVehiclePVPage from "@/app/ap/post-venta/taller/vehiculos-taller/agregar/page.tsx";
 import UpdateVehiclePVPage from "@/app/ap/post-venta/taller/vehiculos-taller/actualizar/[id]/page.tsx";
+import ProductTallerPage from "./app/ap/post-venta/taller/producto-taller/page.tsx";
+import AddProductTallerPage from "./app/ap/post-venta/taller/producto-taller/agregar/page.tsx";
+import UpdateProductTallerPage from "./app/ap/post-venta/taller/producto-taller/actualizar/[id]/page.tsx";
+import AssignWarehouseTallerPage from "./app/ap/post-venta/taller/producto-taller/asignar-almacen/[id]/page.tsx";
 import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
@@ -1689,6 +1693,22 @@ function App() {
               <Route
                 path="taller/vehiculos-taller/actualizar/:id"
                 element={<UpdateVehiclePVPage />}
+              />
+              <Route
+                path="taller/producto-taller"
+                element={<ProductTallerPage />}
+              />
+              <Route
+                path="taller/producto-taller/agregar"
+                element={<AddProductTallerPage />}
+              />
+              <Route
+                path="taller/producto-taller/actualizar/:id"
+                element={<UpdateProductTallerPage />}
+              />
+              <Route
+                path="taller/producto-taller/asignar-almacen/:id"
+                element={<AssignWarehouseTallerPage />}
               />
               <Route
                 path="taller/cotizacion/gestionar/:id"
