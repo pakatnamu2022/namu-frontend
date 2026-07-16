@@ -421,7 +421,6 @@ export const electronicDocumentColumns = ({
           document.status === "draft" && onSendToSunat && permissions.canSend;
         const canEdit = document.status === "draft" && permissions.canUpdate;
         const canAnnul =
-          document.status === "accepted" &&
           document.aceptada_por_sunat &&
           !document.anulado &&
           onAnnul &&
