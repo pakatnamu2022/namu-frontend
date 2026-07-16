@@ -10,7 +10,10 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { SummarySection } from "@/features/ap/facturacion/electronic-documents/components/sections/SummarySection";
-import { DEFAULT_IGV_PERCENTAGE } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import {
+  DEFAULT_IGV_PERCENTAGE,
+  getIgvCategory,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import {
   useNextCorrelativeElectronicDocument,
   useExchangeRateByDateAndCurrency,
@@ -52,6 +55,11 @@ export function OtherSalesForm({
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
   >(undefined);
+
+  // Modo de IGV del comprobante: Normal (gravado) o Inafecto a IGV.
+  // Se bloquea una vez que ya hay items agregados, para no dejar items inconsistentes.
+  const [igvMode, setIgvMode] = useState<"normal" | "inafecta">("normal");
+  const itemsCount = form.watch("items")?.length || 0;
 
   // Sincronizar sunat_concept_transaction_type_id con is_advance_payment
   const isAdvancePayment = form.watch("is_advance_payment");
@@ -181,18 +189,16 @@ export function OtherSalesForm({
         return;
       }
 
-      if (igvType?.code_nubefact === "1") {
+      const category = getIgvCategory(igvType?.code_nubefact);
+      if (category === "gravada") {
         raw_total_gravada += item.total;
         raw_sub_gravada += item.subtotal;
         raw_igv += item.igv;
-      } else if (igvType?.code_nubefact === "20") {
+      } else if (category === "exonerada") {
         raw_total_exonerada += item.subtotal;
-      } else if (igvType?.code_nubefact === "30") {
+      } else if (category === "inafecta") {
         raw_total_inafecta += item.subtotal;
-      } else if (
-        igvType?.code_nubefact?.startsWith("1") ||
-        igvType?.code_nubefact?.startsWith("2")
-      ) {
+      } else if (category === "gratuita") {
         raw_total_gratuita += item.subtotal;
       }
     });
@@ -256,6 +262,9 @@ export function OtherSalesForm({
               isAdvancePayment={false}
               currencyTypes={currencyTypes}
               onCustomerChange={setSelectedCustomer}
+              igvMode={igvMode}
+              onIgvModeChange={setIgvMode}
+              igvModeLocked={itemsCount > 0}
             />
             {/* Agregar Items */}
             <ItemsSection
@@ -265,6 +274,7 @@ export function OtherSalesForm({
               porcentaje_de_igv={porcentaje_de_igv}
               isCommercial={isCommercial}
               isDetraction={isDetraction}
+              igvMode={igvMode}
             />
             {/* Configuración Adicional */}
             <AdditionalConfigSection
