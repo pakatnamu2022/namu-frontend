@@ -322,6 +322,10 @@ import UpdateCustomerPvEstablishmentPage from "@/app/ap/post-venta/taller/client
 import VehiclesPostVentaPage from "./app/ap/post-venta/taller/vehiculos-taller/page.tsx";
 import AddVehiclePVPage from "@/app/ap/post-venta/taller/vehiculos-taller/agregar/page.tsx";
 import UpdateVehiclePVPage from "@/app/ap/post-venta/taller/vehiculos-taller/actualizar/[id]/page.tsx";
+import ProductTallerPage from "./app/ap/post-venta/taller/producto-taller/page.tsx";
+import AddProductTallerPage from "./app/ap/post-venta/taller/producto-taller/agregar/page.tsx";
+import UpdateProductTallerPage from "./app/ap/post-venta/taller/producto-taller/actualizar/[id]/page.tsx";
+import AssignWarehouseTallerPage from "./app/ap/post-venta/taller/producto-taller/asignar-almacen/[id]/page.tsx";
 import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
@@ -338,6 +342,7 @@ import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/actualizar/[id]/page.tsx";
 import AddGeneralSalesReceiptsCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros/page.tsx";
+import AddHistoricalFinalSaleWithAdvanceCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-otros-historico/page.tsx";
 import AddRegularizeAdvancePaymentCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo/page.tsx";
 import AddCreditNoteCajaPage from "./app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/page.tsx";
 import UpdateCreditNoteCajaPage from "@/app/ap/post-venta/caja/comprobante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx";
@@ -1690,6 +1695,22 @@ function App() {
                 element={<UpdateVehiclePVPage />}
               />
               <Route
+                path="taller/producto-taller"
+                element={<ProductTallerPage />}
+              />
+              <Route
+                path="taller/producto-taller/agregar"
+                element={<AddProductTallerPage />}
+              />
+              <Route
+                path="taller/producto-taller/actualizar/:id"
+                element={<UpdateProductTallerPage />}
+              />
+              <Route
+                path="taller/producto-taller/asignar-almacen/:id"
+                element={<AssignWarehouseTallerPage />}
+              />
+              <Route
                 path="taller/cotizacion/gestionar/:id"
                 element={<OrderQuotationPage />}
               />
@@ -1751,6 +1772,10 @@ function App() {
               <Route
                 path="caja/comprobante-venta-caja/agregar-otros"
                 element={<AddGeneralSalesReceiptsCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/agregar-otros-historico"
+                element={<AddHistoricalFinalSaleWithAdvanceCajaPage />}
               />
               <Route
                 path="caja/comprobante-venta-caja/agregar-regularizacion-anticipo"

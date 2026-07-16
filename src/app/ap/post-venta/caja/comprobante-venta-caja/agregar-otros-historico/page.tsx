@@ -1,0 +1,184 @@
+"use client";
+
+import { useNavigate, useLocation } from "react-router-dom";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function.ts";
+import { registerHistoricalFinalSaleWithAdvance } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
+import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { useMemo } from "react";
+import PageWrapper from "@/shared/components/PageWrapper.tsx";
+import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
+import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm.tsx";
+
+export default function AddHistoricalFinalSaleWithAdvanceCajaPage() {
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
+  const router = useNavigate();
+  const location = useLocation();
+  const sedeId: string | undefined = location.state?.sedeId || undefined;
+  const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
+
+  // Fetch all SunatConcepts in a single query
+  const { data: sunatConcepts = [], isLoading: isLoadingSunatConcepts } =
+    useAllSunatConcepts({
+      type: [
+        SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
+        SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT,
+        SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+        SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
+      ],
+    });
+
+  // Filter concepts by type locally
+  const documentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const identityDocumentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT,
+      ),
+    [sunatConcepts],
+  );
+
+  const currencyTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+      ),
+    [sunatConcepts],
+  );
+
+  const igvTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const creditNoteTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const transactionTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const debitNoteTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
+      ),
+    [sunatConcepts],
+  );
+
+  const form = useForm<ElectronicDocumentSchema>({
+    resolver: zodResolver(ElectronicDocumentSchema as any),
+    defaultValues: {
+      serie: "",
+      numero: "",
+      sunat_concept_document_type_id: "",
+      sunat_concept_transaction_type_id: "",
+      area_id: AREA_POSTVENTA.toString(),
+      client_id: "",
+      fecha_de_emision: new Date().toISOString().split("T")[0],
+      total: 0,
+      items: [],
+      enviar_automaticamente_a_la_sunat: false,
+      enviar_automaticamente_al_cliente: false,
+      detraccion: false,
+      is_advance_payment: false,
+      sunat_concept_currency_id: "",
+      operation_number: "",
+      bank_id: "",
+      condiciones_de_pago: "CONTADO",
+      medio_de_pago: "",
+      ap_vehicle_id: "",
+    },
+    mode: "onChange",
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: registerHistoricalFinalSaleWithAdvance,
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      router(ABSOLUTE_ROUTE);
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "create", msg));
+    },
+  });
+
+  const handleSubmit = (data: ElectronicDocumentSchema) => {
+    mutate(data);
+  };
+
+  if (isLoadingModule) return <FormSkeleton />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+
+  if (isLoadingSunatConcepts) {
+    return <FormSkeleton />;
+  }
+
+  return (
+    <PageWrapper>
+      <TitleFormComponent
+        title={currentView.descripcion}
+        mode="create"
+        icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
+      />
+      <OtherSalesForm
+        form={form}
+        onSubmit={handleSubmit}
+        isPending={isPending}
+        isEdit={false}
+        documentTypes={documentTypes || []}
+        transactionTypes={transactionTypes || []}
+        identityDocumentTypes={identityDocumentTypes || []}
+        currencyTypes={currencyTypes || []}
+        igvTypes={igvTypes || []}
+        creditNoteTypes={creditNoteTypes || []}
+        debitNoteTypes={debitNoteTypes || []}
+        isCommercial={false}
+        sedeId={sedeId}
+      />
+    </PageWrapper>
+  );
+}

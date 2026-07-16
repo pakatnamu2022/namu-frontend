@@ -191,6 +191,28 @@ export async function storeOtherSalesDocument(
   return response.data;
 }
 
+export async function registerHistoricalFinalSaleWithAdvance(
+  data: ElectronicDocumentSchema,
+): Promise<ElectronicDocumentResource> {
+  const { orden_compra_servicio_file, ...rest } = data;
+  const formData = new FormData();
+
+  Object.entries(rest).forEach(([key, value]) => {
+    appendToFormData(formData, key, value);
+  });
+
+  if (orden_compra_servicio_file instanceof File) {
+    formData.append("orden_compra_servicio_file", orden_compra_servicio_file);
+  }
+
+  const response = await api.post<ElectronicDocumentResource>(
+    `${ENDPOINT}/register-historical-final-sale-with-advance`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data;
+}
+
 export async function updateElectronicDocument(
   id: number,
   data: ElectronicDocumentSchema,

@@ -57,3 +57,22 @@ export const PRODUCT_REPUESTOS: ModelComplete<ProductResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE_REPUESTOS}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_REPUESTOS}/actualizar`,
 };
+
+// PRODUCTOS PARA TALLER
+const ROUTE_TALLER = "producto-taller";
+const ABSOLUTE_ROUTE_TALLER = "/ap/post-venta/taller/producto-taller";
+
+export const PRODUCT_TALLER: ModelComplete<ProductResource> = {
+  MODEL: {
+    name: "Producto Taller",
+    plural: "Productos Taller",
+    gender: false,
+  },
+  ICON: "Package",
+  ENDPOINT: "/ap/postVenta/products",
+  QUERY_KEY: "products",
+  ROUTE: ROUTE_TALLER,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_TALLER,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_TALLER}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TALLER}/actualizar`,
+};

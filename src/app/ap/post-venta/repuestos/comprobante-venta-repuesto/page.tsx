@@ -29,9 +29,11 @@ import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/com
 import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useNavigate } from "react-router-dom";
 
 export default function SalesReceiptsRepuestoPage() {
-  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_REPUESTOS;
+  const router = useNavigate();
+  const { ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = ELECTRONIC_DOCUMENT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -155,8 +157,17 @@ export default function SalesReceiptsRepuestoPage() {
           icon={currentView.icon}
         />
         <SalesReceiptsActions
+          onOtherSalesClick={() =>
+            router(`${ROUTE_ADD}-otros`, { state: { sedeId } })
+          }
+          onRegularizeAdvancePaymentClick={() =>
+            router(`${ROUTE_ADD}-regularizacion-anticipo`, {
+              state: { sedeId },
+            })
+          }
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
+          permissions={permissions}
         />
       </HeaderTableWrapper>
 

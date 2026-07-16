@@ -64,7 +64,7 @@ export function ItemsSection({
   isRefreshingVehicleModel = false,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
-    is_detraction: isDetraction ? 1 : 0,
+    ...(isAdvancePayment ? {} : { is_detraction: isDetraction ? 1 : 0 }),
     type: ACP_TYPE_SALE,
     ...(isCommercial ? { enable_commercial: 1 } : { enable_after_sales: 1 }),
   });

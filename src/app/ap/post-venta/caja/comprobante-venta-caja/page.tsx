@@ -196,6 +196,9 @@ export default function SalesReceiptsCajaPage() {
           onOtherSalesClick={() =>
             router(`${ROUTE_ADD}-otros`, { state: { sedeId } })
           }
+          onHistoricalFinalSaleWithAdvanceClick={() =>
+            router(`${ROUTE_ADD}-otros-historico`, { state: { sedeId } })
+          }
           onRegularizeAdvancePaymentClick={() =>
             router(`${ROUTE_ADD}-regularizacion-anticipo`, {
               state: { sedeId },
