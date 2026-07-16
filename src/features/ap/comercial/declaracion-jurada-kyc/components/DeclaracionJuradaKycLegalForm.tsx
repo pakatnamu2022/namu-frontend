@@ -32,7 +32,10 @@ import {
   usePurchaseRequestQuoteById,
 } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
-import { useDistricts } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
+import {
+  useDistricts,
+  useDistrictById,
+} from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { DistrictResource } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.interface";
 import {
   declaracionJuradaKycLegalSchema,
@@ -642,6 +645,7 @@ export default function DeclaracionJuradaKycLegalForm({
               placeholder="Buscar ubigeo..."
               control={form.control}
               useQueryHook={useDistricts}
+              useFindByIdHook={useDistrictById}
               mapOptionFn={(item: DistrictResource) => ({
                 value: String(item.id),
                 label: `${item.name} - ${item.province} - ${item.department}`,
