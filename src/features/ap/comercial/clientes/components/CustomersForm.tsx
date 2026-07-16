@@ -27,7 +27,10 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import { useAllTypeGender } from "@/features/ap/configuraciones/maestros-general/tipos-sexo/lib/typesGender.hook";
 import { useAllMaritalStatus } from "@/features/ap/configuraciones/maestros-general/estado-civil/lib/maritalStatus.hook";
-import { useDistricts } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
+import {
+  useDistricts,
+  useDistrictById,
+} from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
 import { useAllPersonSegment } from "@/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
 import { useAllTaxClassTypes } from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
@@ -942,13 +945,13 @@ export const CustomersForm = ({
               placeholder="Selecciona ubigeo"
               control={form.control}
               useQueryHook={useDistricts}
+              useFindByIdHook={useDistrictById}
               mapOptionFn={(item) => ({
                 label: item.name + " - " + item.province + " - " + item.ubigeo,
                 value: item.id.toString(),
               })}
               perPage={10}
               debounceMs={500}
-              disabled={!!districtDefaultOption && mode !== "update"}
               defaultOption={districtDefaultOption}
             />
           </div>
