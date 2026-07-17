@@ -6,15 +6,8 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import {
   DEFAULT_PER_PAGE,
@@ -244,40 +237,18 @@ export default function PurchaseRequestQuotePage() {
       )}
 
       {unassignVehicleId !== null && (
-        <Dialog
+        <ConfirmationDialog
+          trigger={<span className="hidden" />}
+          title="¿Está seguro de desvincular este vehículo?"
+          description="Esta acción desvinculará el vehículo de la cotización. Podrá asignar otro vehículo posteriormente si lo desea."
+          confirmText="Sí, desvincular"
+          cancelText="Cancelar"
+          onConfirm={handleUnassignVehicle}
+          variant="destructive"
+          icon="warning"
           open={true}
           onOpenChange={(open) => !open && setUnassignVehicleId(null)}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <div className="flex items-center gap-3">
-                <div className="rounded-full p-2 bg-amber-100">
-                  <AlertTriangle className="h-5 w-5 text-amber-500" />
-                </div>
-                <div>
-                  <DialogTitle className="text-left">
-                    ¿Está seguro de desvincular este vehículo?
-                  </DialogTitle>
-                </div>
-              </div>
-            </DialogHeader>
-            <DialogDescription className="text-left mt-2">
-              Esta acción desvinculará el vehículo de la cotización. Podrá
-              asignar otro vehículo posteriormente si lo desea.
-            </DialogDescription>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button
-                variant="outline"
-                onClick={() => setUnassignVehicleId(null)}
-              >
-                Cancelar
-              </Button>
-              <Button variant="destructive" onClick={handleUnassignVehicle}>
-                Sí, desvincular
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        />
       )}
 
       <DataTablePagination
