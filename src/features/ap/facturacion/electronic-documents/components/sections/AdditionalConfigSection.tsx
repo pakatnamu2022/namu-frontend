@@ -88,12 +88,16 @@ export function AdditionalConfigSection({
   const fechaVencimientoPreview = creditDaysValue
     ? calcFechaVencimiento(creditDaysValue)
     : null;
+  // Total observado para recalcular el importe de la cuota si el total
+  // llega o cambia después de haber seleccionado crédito (p. ej. items
+  // que se cargan de forma asíncrona en facturación consolidada).
+  const totalValue = form.watch("total");
   useEffect(() => {
-    if (creditDaysValue) {
+    if (isCredito && creditDaysValue) {
       handleCreditDaysChange(creditDaysValue);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditDaysValue]);
+  }, [creditDaysValue, isCredito, totalValue]);
 
   function handleCreditDaysChange(days: string) {
     const numDays = Number(days);
