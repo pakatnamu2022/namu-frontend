@@ -1,6 +1,5 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "@/shared/lib/reports/reports.interface";
-import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
   getFirstDayOfMonth,
