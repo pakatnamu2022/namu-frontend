@@ -8,6 +8,14 @@ import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-ge
 import { type WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import RadioButton from "@/shared/components/RadioButton";
 import FilterWrapper from "@/shared/components/FilterWrapper";
+import { FilterMultiSelect } from "@/shared/components/FilterMultiSelect";
+import { WORK_ORDER_STATUS_GROUP } from "../lib/workOrder.constants";
+
+const STATUS_GROUP_OPTIONS = [
+  { label: "OTs Abiertas", value: WORK_ORDER_STATUS_GROUP.ABIERTAS },
+  { label: "OTs Cerradas", value: WORK_ORDER_STATUS_GROUP.CERRADAS },
+  { label: "OTs Anuladas", value: WORK_ORDER_STATUS_GROUP.ANULADAS },
+];
 
 const STATUS_OPTIONS = [
   { label: "Todos", value: "all" },
@@ -45,6 +53,8 @@ interface Props {
   allowClearTypePlanning?: boolean;
   dateField?: "opening_date" | "estimated_delivery_date";
   setDateField?: (value: "opening_date" | "estimated_delivery_date") => void;
+  statusGroups?: string[];
+  setStatusGroups?: (value: string[]) => void;
 }
 
 export default function WorkOrderOptions({
@@ -72,6 +82,8 @@ export default function WorkOrderOptions({
   allowClearTypePlanning = true,
   dateField,
   setDateField,
+  statusGroups,
+  setStatusGroups,
 }: Props) {
   return (
     <FilterWrapper>
@@ -165,6 +177,15 @@ export default function WorkOrderOptions({
           className="min-w-48"
           classNameOption="text-xs"
           allowClear={false}
+        />
+      )}
+      {setStatusGroups && (
+        <FilterMultiSelect
+          options={STATUS_GROUP_OPTIONS}
+          value={statusGroups || []}
+          onChange={setStatusGroups}
+          placeholder="OTs Abiertas / Cerradas"
+          className="min-w-48"
         />
       )}
     </FilterWrapper>

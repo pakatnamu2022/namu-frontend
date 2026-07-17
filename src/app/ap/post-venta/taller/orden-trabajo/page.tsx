@@ -17,7 +17,12 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import {
+  WORKER_ORDER,
+  WORK_ORDER_STATUS_GROUP,
+  WORK_ORDER_STATUS_GROUP_IDS,
+  type WorkOrderStatusGroup,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import {
   deleteWorkOrder,
@@ -48,6 +53,9 @@ export default function WorkOrderPage() {
   const [sedeId, setSedeId] = useState<string>("");
   const [advisorId, setAdvisorId] = useState<string>("");
   const [typePlanningId, setTypePlanningId] = useState<string>("");
+  const [statusGroups, setStatusGroups] = useState<string[]>([
+    WORK_ORDER_STATUS_GROUP.ABIERTAS,
+  ]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [internalNoteId, setInternalNoteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = WORKER_ORDER;
@@ -102,6 +110,10 @@ export default function WorkOrderPage() {
     }
   }, [dateFrom, dateTo, mySedes, sedeId]);
 
+  const statusIds = statusGroups.flatMap(
+    (group) => WORK_ORDER_STATUS_GROUP_IDS[group as WorkOrderStatusGroup],
+  );
+
   const { data, isLoading, refetch } = useGetWorkOrder({
     params: {
       page,
@@ -114,6 +126,7 @@ export default function WorkOrderPage() {
       sede_id: sedeId || undefined,
       advisor_id: advisorId || undefined,
       items$typePlanning$id: typePlanningId || undefined,
+      status_id: statusIds.length > 0 ? statusIds : undefined,
     },
     enabled: !!sedeId,
   });
@@ -183,6 +196,7 @@ export default function WorkOrderPage() {
             sede_id: sedeId || undefined,
             advisor_id: advisorId || undefined,
             items$typePlanning$id: typePlanningId || undefined,
+            status_id: statusIds.length > 0 ? statusIds : undefined,
           }}
         />
       </HeaderTableWrapper>
@@ -217,6 +231,8 @@ export default function WorkOrderPage() {
           typesPlanning={typesPlanning}
           typePlanningId={typePlanningId}
           setTypePlanningId={setTypePlanningId}
+          statusGroups={statusGroups}
+          setStatusGroups={setStatusGroups}
         />
       </WorkOrderTable>
 
