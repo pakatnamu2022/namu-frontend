@@ -268,7 +268,7 @@ export const ShippingGuideForm = ({
                       disabled={isDisabled}
                       onClick={() =>
                         field.onChange(
-                          vehicleDelivery?.vin?.substring(0, 6).toUpperCase() ??
+                          vehicleDelivery?.vin?.slice(-6).toUpperCase() ??
                             "AAAAAA",
                         )
                       }
