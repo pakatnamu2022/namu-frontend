@@ -33,7 +33,6 @@ import {
 } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
 import { useAllPersonSegment } from "@/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
-import { useAllTaxClassTypes } from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
 import {
   useCeValidation,
   useDniValidation,
@@ -113,6 +112,7 @@ export const CustomersForm = ({
       ...defaultValues,
       company_id: EMPRESA_AP.id,
       type: defaultValues?.type || TYPE_BUSINESS_PARTNERS.CLIENTE,
+      tax_class_type_id: BUSINESS_PARTNERS.TYPE_TAX_CLASS_DEFAULT_ID,
       ...(leadData?.document_type_id && {
         document_type_id: leadData.document_type_id,
         type_person_id: getTypePersonFromDocument(leadData.document_type_id),
@@ -156,10 +156,6 @@ export const CustomersForm = ({
   } = useAllMaritalStatus();
   const { data: personSegment = [], isLoading: isLoadingPersonSegment } =
     useAllPersonSegment();
-  const { data: taxClassType = [], isLoading: isLoadingTaxClassType } =
-    useAllTaxClassTypes({
-      type: TYPE_BUSINESS_PARTNERS.CLIENTE,
-    });
   const { data: economicActivity = [], isLoading: isLoadingEconomicActivity } =
     useAllEconomicActivity();
 
@@ -660,7 +656,6 @@ export const CustomersForm = ({
     isLoadingTypeMaritalStatus ||
     isLoadingTypesPerson ||
     isLoadingPersonSegment ||
-    isLoadingTaxClassType ||
     isLoadingEconomicActivity;
 
   if (isLoading) return <FormSkeleton />;
@@ -956,18 +951,7 @@ export const CustomersForm = ({
             />
           </div>
 
-          <FormSelect
-            name="tax_class_type_id"
-            label="Clase de Impuesto"
-            placeholder="Selecciona clase"
-            options={taxClassType.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={mode === "update"}
-          />
+          <input type="hidden" {...form.register("tax_class_type_id")} />
 
           <div className="col-span-1 md:col-span-2 lg:col-span-3">
             <FormInput
