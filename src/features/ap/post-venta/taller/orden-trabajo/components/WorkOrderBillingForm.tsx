@@ -428,12 +428,7 @@ export default function WorkOrderBillingForm({
       workOrder.invoice_preview
     ) {
       const preview = workOrder.invoice_preview;
-      return deductibleAmount > 0
-        ? {
-            ...preview,
-            total: Math.round((preview.total - deductibleAmount) * 100) / 100,
-          }
-        : preview;
+      return preview;
     }
 
     // Función auxiliar para redondear a 2 decimales
@@ -483,11 +478,9 @@ export default function WorkOrderBillingForm({
     const t_gratuita = round2(raw_total_gratuita);
     const t_anticipo = round2(raw_total_anticipo);
 
-    // Total final: suma de totales con IGV menos anticipo (todos ya exactos y redondeados)
-    // y menos el deducible asociado a la OT (descuento global del comprobante).
-    const total = round2(
-      t_gravada + t_inafecta + t_exonerada - t_anticipo - deductibleAmount,
-    );
+    // Total final: suma de totales con IGV menos anticipo (todos ya exactos y redondeados).
+    // El deducible (descuento global) se informa por separado pero NO resta del total enviado.
+    const total = round2(t_gravada + t_inafecta + t_exonerada - t_anticipo);
 
     // Subtotales para desglose en el resumen (sin IGV)
     const total_anticipo = round2(raw_sub_anticipo);
@@ -517,7 +510,6 @@ export default function WorkOrderBillingForm({
     porcentaje_de_igv,
     isEdit,
     isAdvancePayment,
-    deductibleAmount,
     workOrder.items_invoice,
     workOrder.invoice_preview,
   ]);

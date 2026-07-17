@@ -15,6 +15,13 @@ export interface WorkOrderResponse {
   meta: Meta;
 }
 
+export interface WorkOrderDeductibleResource {
+  id: number;
+  full_number: string;
+  cliente_denominacion: string;
+  cliente_numero_de_documento: string;
+}
+
 export interface WorkOrderResource {
   id: number;
   correlative: string;
@@ -56,7 +63,7 @@ export interface WorkOrderResource {
   tax_amount: number;
   final_amount: number;
   deductible_amount: number;
-  deductible_id: number | null;
+  deductible: WorkOrderDeductibleResource | null;
   is_delivery: boolean;
   num_doc_contact: string;
   full_contact_name: string;

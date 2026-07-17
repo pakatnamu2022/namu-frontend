@@ -10,10 +10,11 @@ import {
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import { WorkOrderDeductibleSheet } from "./WorkOrderDeductibleSheet";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
+import { WorkOrderDeductibleResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
 
 interface WorkOrderDeductibleActionProps {
   workOrderId: number;
-  deductibleId: number | null;
+  deductible: WorkOrderDeductibleResource | null;
   sedeId?: string | number;
   currencyId?: string | number;
   currencySymbol?: string;
@@ -23,7 +24,7 @@ interface WorkOrderDeductibleActionProps {
 
 export const WorkOrderDeductibleAction = ({
   workOrderId,
-  deductibleId,
+  deductible,
   sedeId,
   currencyId,
   currencySymbol = "S/",
@@ -32,7 +33,7 @@ export const WorkOrderDeductibleAction = ({
 }: WorkOrderDeductibleActionProps) => {
   const queryClient = useQueryClient();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const hasDeductible = deductibleAmount > 0 && !!deductibleId;
+  const hasDeductible = deductibleAmount > 0 && !!deductible;
 
   const invalidateWorkOrder = () =>
     queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
@@ -56,7 +57,7 @@ export const WorkOrderDeductibleAction = ({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => deleteWorkOrderDeductible(deductibleId!),
+    mutationFn: () => deleteWorkOrderDeductible(deductible!.id),
     onSuccess: () => {
       successToast("Deducible eliminado exitosamente");
       invalidateWorkOrder();
@@ -83,6 +84,12 @@ export const WorkOrderDeductibleAction = ({
                 <ShieldCheck className="h-3 w-3" />
                 {formatMoney(deductibleAmount, 2, currencySymbol)}
               </span>
+              {deductible && (
+                <span className="text-[11px] text-gray-500 whitespace-nowrap">
+                  {deductible.full_number} · {deductible.cliente_denominacion} (
+                  {deductible.cliente_numero_de_documento})
+                </span>
+              )}
             </div>
             <ConfirmationDialog
               trigger={
@@ -97,7 +104,11 @@ export const WorkOrderDeductibleAction = ({
                 </Button>
               }
               title="¿Quitar el deducible?"
-              description="Se eliminará la asociación del comprobante como deducible de esta orden de trabajo. Podrás asociar otro comprobante después."
+              description={
+                deductible
+                  ? `Se eliminará la asociación del comprobante ${deductible.full_number} (${deductible.cliente_denominacion}) como deducible de esta orden de trabajo. Podrás asociar otro comprobante después.`
+                  : "Se eliminará la asociación del comprobante como deducible de esta orden de trabajo. Podrás asociar otro comprobante después."
+              }
               confirmText="Sí, quitar"
               cancelText="Cancelar"
               variant="destructive"

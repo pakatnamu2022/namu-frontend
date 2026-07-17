@@ -437,7 +437,7 @@ export default function ManageWorkOrderPage() {
               {!isCancelled && (
                 <WorkOrderDeductibleAction
                   workOrderId={workOrder.id}
-                  deductibleId={workOrder.deductible_id}
+                  deductible={workOrder.deductible}
                   sedeId={workOrder.sede_id}
                   currencyId={workOrder.type_currency?.id}
                   currencySymbol={workOrder.type_currency?.symbol}
