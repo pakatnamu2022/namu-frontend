@@ -9,6 +9,7 @@ import {
   VehicleWorkOrderHistoryResponse,
   GenerateWorkOrderResponse,
   StoreWorkOrderDeductibleRequest,
+  WorkOrderDigitalFileResource,
 } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
 
@@ -352,4 +353,27 @@ export async function updateWorkOrderItems(
     data,
   );
   return response.data;
+}
+
+export async function getWorkOrderDocuments(
+  id: number,
+): Promise<WorkOrderDigitalFileResource[]> {
+  const { data } = await api.get<WorkOrderDigitalFileResource[]>(
+    `${ENDPOINT}/${id}/documents`,
+  );
+  return data;
+}
+
+export async function uploadWorkOrderDocuments(
+  id: number,
+  files: File[],
+): Promise<WorkOrderDigitalFileResource[]> {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("files[]", file));
+  const { data } = await api.post<WorkOrderDigitalFileResource[]>(
+    `${ENDPOINT}/${id}/documents`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
 }

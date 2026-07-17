@@ -320,3 +320,13 @@ export interface WorkOrderDocumentsTreeResource {
   cancelled: CancelledDocument[];
   active: ActiveDocument[];
 }
+
+// Archivo adjunto a la orden de trabajo (tabla gp_digital_files)
+export interface WorkOrderDigitalFileResource {
+  id: number;
+  name: string;
+  description: string | null;
+  url: string;
+  mimeType: string;
+  created_at: string;
+}
