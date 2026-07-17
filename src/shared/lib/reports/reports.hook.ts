@@ -8,11 +8,13 @@ export const useDownloadReport = () => {
       endpoint,
       params,
       fileName,
+      method,
     }: {
       endpoint: string;
       params: Record<string, any>;
       fileName?: string;
-    }) => downloadReport(endpoint, params, fileName),
+      method?: "get" | "post";
+    }) => downloadReport(endpoint, params, fileName, method),
     onSuccess: () => {
       successToast("El reporte se ha descargado correctamente");
     },
