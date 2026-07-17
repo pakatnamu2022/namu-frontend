@@ -147,6 +147,7 @@ export interface ReceptionInspectionResource {
   photo_back_url?: string | null;
   photo_left_url?: string | null;
   photo_right_url?: string | null;
+  photo_vin_url?: string | null;
   general_observations?: string | null;
   inspected_by: number;
   inspected_by_name: string;
@@ -198,6 +199,7 @@ export interface ReceptionChecklistRequest {
   photo_back?: File | null;
   photo_left?: File | null;
   photo_right?: File | null;
+  photo_vin?: File | null;
   items_receiving: Record<string, string>;
   damages?: ReceptionChecklistDamageRequest[];
   has_pdi: boolean;
