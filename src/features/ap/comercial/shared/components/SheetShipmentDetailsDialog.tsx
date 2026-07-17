@@ -89,6 +89,7 @@ export interface ShipmentReceptionData {
     photo_back_url?: string | null;
     photo_left_url?: string | null;
     photo_right_url?: string | null;
+    photo_vin_url?: string | null;
     general_observations?: string | null;
     damages: {
       id: number;
@@ -601,7 +602,8 @@ export function SheetShipmentDetailsDialog({
                 {(inspection.photo_front_url ||
                   inspection.photo_back_url ||
                   inspection.photo_left_url ||
-                  inspection.photo_right_url) && (
+                  inspection.photo_right_url ||
+                  inspection.photo_vin_url) && (
                   <div className="space-y-2">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       Fotos del vehículo
@@ -623,6 +625,10 @@ export function SheetShipmentDetailsDialog({
                         {
                           label: "Derecho",
                           url: inspection.photo_right_url,
+                        },
+                        {
+                          label: "VIN",
+                          url: inspection.photo_vin_url,
                         },
                       ]
                         .filter((p) => p.url)

@@ -275,6 +275,7 @@ export const receptionChecklistSchemaUpdate = z.object({
   photo_right: z.instanceof(File, {
     message: "La foto lateral derecha es obligatoria",
   }),
+  photo_vin: z.instanceof(File).optional(),
   general_observations: z.string().max(1000).optional(),
   items_receiving: z.record(z.string(), z.string()),
   damages: z.array(receptionChecklistDamageSchema).default([]),
