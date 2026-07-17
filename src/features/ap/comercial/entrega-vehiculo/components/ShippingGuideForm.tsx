@@ -21,13 +21,7 @@ import { useEffect, useRef } from "react";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
-import { FormSelect } from "@/shared/components/FormSelect";
-import {
-  SUNAT_CONCEPTS_TYPE,
-  SUNAT_CONCEPTS_ID,
-} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormInput } from "@/shared/components/FormInput";
 import {
@@ -39,6 +33,7 @@ import {
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
+import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
 
 interface ShippingGuideFormProps {
   defaultValues?: Partial<ShippingGuideSchema>;
@@ -46,6 +41,7 @@ interface ShippingGuideFormProps {
   isSubmitting?: boolean;
   isDisabled?: boolean;
   onCancel?: () => void;
+  vehicleDelivery: VehiclesDeliveryResource;
 }
 
 export const ShippingGuideForm = ({
@@ -54,11 +50,14 @@ export const ShippingGuideForm = ({
   isSubmitting = false,
   isDisabled = false,
   onCancel,
+  vehicleDelivery,
 }: ShippingGuideFormProps) => {
   const form = useForm<ShippingGuideSchema>({
     resolver: zodResolver(shippingGuideSchema) as any,
     defaultValues: {
-      transfer_modality_id: defaultValues?.transfer_modality_id || "",
+      transfer_modality_id:
+        defaultValues?.transfer_modality_id ||
+        SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE,
       driver_doc: defaultValues?.driver_doc || "",
       license: defaultValues?.license || "",
       driver_name: defaultValues?.driver_name || "",
@@ -75,7 +74,9 @@ export const ShippingGuideForm = ({
   useEffect(() => {
     if (defaultValues) {
       form.reset({
-        transfer_modality_id: defaultValues.transfer_modality_id || "",
+        transfer_modality_id:
+          defaultValues.transfer_modality_id ||
+          SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE,
         driver_doc: defaultValues.driver_doc || "",
         license: defaultValues.license || "",
         driver_name: defaultValues.driver_name || "",
@@ -123,13 +124,6 @@ export const ShippingGuideForm = ({
     isLoading: isConductorDniLoading,
     error: conductorDniError,
   } = useLicenseValidation(conductorDni, shouldValidateDriver);
-
-  const {
-    data: typeTransportation = [],
-    isLoading: isLoadingTypeTransportation,
-  } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION],
-  });
 
   useEffect(() => {
     if (isPublicTransport) {
@@ -181,10 +175,6 @@ export const ShippingGuideForm = ({
     conductorDniData?.success && conductorDniData.data,
   );
 
-  if (isLoadingTypeTransportation) {
-    return <FormSkeleton />;
-  }
-
   return (
     <Form {...form}>
       <form
@@ -198,17 +188,6 @@ export const ShippingGuideForm = ({
           cols={{ sm: 1 }}
           gap="gap-4"
         >
-          <FormSelect
-            name="transfer_modality_id"
-            label="Modalidad de Traslado"
-            placeholder="Selecciona tipo de transporte"
-            options={typeTransportation.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
           <FormField
             control={form.control}
             name="notes"
@@ -288,10 +267,13 @@ export const ShippingGuideForm = ({
                       className="h-auto p-0 text-xs"
                       disabled={isDisabled}
                       onClick={() =>
-                        field.onChange("AAAAAA")
+                        field.onChange(
+                          vehicleDelivery?.vin?.slice(-6).toUpperCase() ??
+                            "AAAAAA",
+                        )
                       }
                     >
-                      No tiene placa
+                      Completar con VIN
                     </Button>
                   </div>
                   <FormControl>

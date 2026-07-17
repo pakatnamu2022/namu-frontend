@@ -28,6 +28,7 @@ export function ReportCard({ report }: ReportCardProps) {
       endpoint: report.endpoint,
       params,
       fileName: report.fileName,
+      method: report.method,
     });
   };
 

@@ -4,10 +4,12 @@ export const downloadReport = async (
   endpoint: string,
   params: Record<string, any>,
   fileName?: string,
+  method: "get" | "post" = "post",
 ) => {
-  const response = await api.post(endpoint, params, {
-    responseType: "blob",
-  });
+  const response =
+    method === "get"
+      ? await api.get(endpoint, { params, responseType: "blob" })
+      : await api.post(endpoint, params, { responseType: "blob" });
 
   // Crear un enlace temporal para descargar el archivo
   const url = window.URL.createObjectURL(new Blob([response.data]));

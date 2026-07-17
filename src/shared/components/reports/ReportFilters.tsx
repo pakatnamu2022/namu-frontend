@@ -82,7 +82,14 @@ export function ReportFilters({
     const defaults: Record<string, any> = {};
 
     fields.forEach((field) => {
-      if (field.defaultValue !== undefined) {
+      if (field.type === "daterange") {
+        if (field.nameFrom && field.defaultValueFrom !== undefined) {
+          defaults[field.nameFrom] = field.defaultValueFrom;
+        }
+        if (field.nameTo && field.defaultValueTo !== undefined) {
+          defaults[field.nameTo] = field.defaultValueTo;
+        }
+      } else if (field.defaultValue !== undefined) {
         defaults[field.name] = field.defaultValue;
       }
     });
