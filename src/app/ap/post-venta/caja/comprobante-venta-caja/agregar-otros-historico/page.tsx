@@ -22,7 +22,7 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper.tsx";
 import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
-import { OtherSalesForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesForm.tsx";
+import { OtherSalesNoDetractionForm } from "@/features/ap/post-venta/comprobante-venta/components/OtherSalesNoDetractionForm.tsx";
 
 export default function AddHistoricalFinalSaleWithAdvanceCajaPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
@@ -164,7 +164,7 @@ export default function AddHistoricalFinalSaleWithAdvanceCajaPage() {
         icon={currentView.icon}
         backRoute={ABSOLUTE_ROUTE}
       />
-      <OtherSalesForm
+      <OtherSalesNoDetractionForm
         form={form}
         onSubmit={handleSubmit}
         isPending={isPending}

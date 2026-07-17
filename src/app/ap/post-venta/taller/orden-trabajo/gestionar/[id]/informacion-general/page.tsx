@@ -989,7 +989,9 @@ export default function GeneralInformationPage() {
                 <h4 className="text-sm font-semibold text-gray-700 mb-3">
                   Resumen
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div
+                  className={`grid grid-cols-1 sm:grid-cols-3 gap-3 ${workOrder.deductible_amount > 0 ? "lg:grid-cols-4" : ""}`}
+                >
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <p className="text-xs text-gray-500 mb-1">
                       Total Mano de Obra
@@ -1024,6 +1026,20 @@ export default function GeneralInformationPage() {
                         })}
                     </p>
                   </div>
+                  {workOrder.deductible_amount > 0 && (
+                    <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                      <p className="text-xs text-indigo-600 mb-1">
+                        Descuento Global (Deducible)
+                      </p>
+                      <p className="text-base font-bold text-indigo-700">
+                        −{workOrder.type_currency?.symbol || "S/"}{" "}
+                        {workOrder.deductible_amount.toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                  )}
                   <div className="bg-primary/10 p-3 rounded-lg border-2 border-primary">
                     <p className="text-xs text-gray-500 mb-1">Total General</p>
                     <p className="text-lg font-bold text-primary">

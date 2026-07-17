@@ -36,6 +36,8 @@ interface ItemsSectionProps {
   showActions?: boolean;
   useQuotation?: boolean;
   isDetraction?: boolean;
+  // Si es false, no se filtra el plan de cuenta contable por detracción (se listan todos).
+  filterByDetraction?: boolean;
   minRetentionPrice?: number;
   allowEditLastItemDescription?: boolean;
   isCommercial?: boolean;
@@ -61,6 +63,7 @@ export function ItemsSection({
   showActions = true,
   useQuotation = false,
   isDetraction = false,
+  filterByDetraction = true,
   minRetentionPrice,
   allowEditLastItemDescription = false,
   isCommercial = true,
@@ -71,7 +74,9 @@ export function ItemsSection({
   igvMode = "normal",
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
-    ...(isAdvancePayment ? {} : { is_detraction: isDetraction ? 1 : 0 }),
+    ...(isAdvancePayment || !filterByDetraction
+      ? {}
+      : { is_detraction: isDetraction ? 1 : 0 }),
     type: ACP_TYPE_SALE,
     ...(isCommercial ? { enable_commercial: 1 } : { enable_after_sales: 1 }),
   });

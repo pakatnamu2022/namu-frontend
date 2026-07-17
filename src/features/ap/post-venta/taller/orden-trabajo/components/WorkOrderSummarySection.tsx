@@ -38,6 +38,7 @@ interface WorkOrderSummarySectionProps {
   remainingBalance: number;
   isInvalidWithQuote?: boolean;
   isInvoiced?: boolean;
+  deductibleAmount?: number;
 }
 
 export function WorkOrderSummarySection({
@@ -57,6 +58,7 @@ export function WorkOrderSummarySection({
   remainingBalance,
   isInvalidWithQuote = false,
   isInvoiced = false,
+  deductibleAmount = 0,
 }: WorkOrderSummarySectionProps) {
   //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
@@ -295,6 +297,20 @@ export function WorkOrderSummarySection({
                 })}
               </span>
             </div>
+
+            {deductibleAmount > 0 && (
+              <div className="flex justify-between items-center text-sm p-2 rounded bg-indigo-50 border border-indigo-200">
+                <span className="text-indigo-700 font-medium">
+                  Descuento Global (Deducible)
+                </span>
+                <span className="font-semibold text-indigo-700">
+                  −{currencySymbol}{" "}
+                  {deductibleAmount.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
 
             <Separator className="bg-primary/20" />
 
