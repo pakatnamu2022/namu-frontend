@@ -1,32 +1,46 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "@/shared/lib/reports/reports.interface";
 import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
-import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  getFirstDayOfMonth,
+  getTodayLocalDateString,
+  toLocalDateString,
+} from "@/core/core.function";
 
 export const COMMERCIAL_REPORTS: ReportConfig[] = [
   {
-    id: "vehicle-sales",
-    title: "Reporte de Ventas de Vehículos",
+    id: "vehicle-billing",
+    title: "Reporte de Facturación de Vehículos",
     type: "Ventas",
     description:
       "Exporta el reporte de ventas de vehículos, según su estado, que pueden ser los estados: Vendido, En Proceso, Cancelado, etc. ",
     icon: "TrendingUp",
-    endpoint: "/ap/commercial/vehicles/export/sales",
+    endpoint: "/ap/commercial/vehicles/export/billing",
     fields: [
       {
-        name: "ap_vehicle_status_id",
-        label: "Estado de Vehículo",
-        type: "multiselect",
+        name: "fecha_de_emision",
+        label: "Fecha de Emisión",
+        type: "daterange",
         required: false,
-        placeholder: "Seleccionar estados",
-        multiSelectOptions: Object.entries(VEHICLE_STATUS_ID).map(
-          ([key, value]) => ({
-            id: value,
-            name: key.replace(/_/g, " "),
-          }),
-        ),
-        getDisplayValue: (item) => item.name,
-        defaultValue: [6],
+        nameFrom: "fecha_de_emision_from",
+        nameTo: "fecha_de_emision_to",
+        rangeParamName: "fecha_de_emision",
+        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
+        defaultValueTo: getTodayLocalDateString(),
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.abreviatura,
+            value: String(item.id),
+          })),
       },
     ],
     defaultParams: {},
@@ -36,51 +50,84 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     title: "Reporte de Entregas de Vehículos",
     type: "Entregas",
     description:
-      "Exporta el reporte de entregas de vehículos por modelo, almacén y tipo de operación.",
+      "Exporta el reporte de entregas de vehículos, filtrando por estado de entrega, rango de fecha programada y sede.",
     icon: "Truck",
-    endpoint: "/ap/commercial/vehicles/export/delivery",
+    endpoint: "/ap/commercial/vehiclesDelivery/export",
+    method: "get",
     fields: [
       {
-        name: "ap_models_vn_id",
-        label: "Modelo de Vehículo",
+        name: "status_delivery",
+        label: "Estado de Entrega",
         type: "select",
         required: false,
-        placeholder: "Seleccionar modelo",
-        endpoint: "/ap/configuration/modelsVn",
-        optionsMapper: (data) =>
-          (data?.data ?? []).map((item: any) => ({
-            label: item.version,
-            value: String(item.id),
-          })),
+        placeholder: "Seleccionar estado",
+        defaultValue: "delivered",
+        options: [
+          { label: "Todos", value: "all" },
+          { label: "Pendientes", value: "pending" },
+          { label: "Entregados", value: "delivered" },
+        ],
       },
       {
-        name: "warehouse_id",
-        label: "Almacén",
+        name: "scheduled_delivery_date",
+        label: "Fecha de Entrega Programada",
+        type: "daterange",
+        required: false,
+        nameFrom: "scheduled_delivery_date_from",
+        nameTo: "scheduled_delivery_date_to",
+        rangeParamName: "scheduled_delivery_date",
+      },
+      {
+        name: "sede$shop_id",
+        label: "Sede",
         type: "select",
         required: false,
-        placeholder: "Seleccionar almacén",
-        endpoint: "/ap/configuration/warehouse",
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my-shops",
         optionsMapper: (data) =>
-          (data?.data ?? []).map((item: any) => ({
+          (data ?? []).map((item: any) => ({
             label: item.description,
             value: String(item.id),
           })),
       },
-      {
-        name: "type_operation_id",
-        label: "Tipo de Operación",
-        type: "select",
-        required: false,
-        placeholder: "Seleccionar tipo de operación",
-        options: [
-          { label: "Comercial", value: String(CM_COMERCIAL_ID) },
-          { label: "Post Venta", value: String(CM_POSTVENTA_ID) },
-        ],
-      },
     ],
     defaultParams: {
-      has_vehicle_delivery: true,
+      area_id: AREA_COMERCIAL,
     },
+  },
+  {
+    id: "vehicle-inventory",
+    title: "Reporte de Inventario de Vehículos",
+    type: "Inventario",
+    description:
+      "Exporta el reporte de inventario de vehículos en estado Vehículo en Travesía, En Curso e Inventario VN, con días vencidos desde la emisión de la OC.",
+    icon: "Warehouse",
+    endpoint: "/ap/commercial/vehicles/export/inventory",
+    fields: [
+      {
+        name: "emission_date",
+        label: "Fecha de Emisión",
+        type: "daterange",
+        required: false,
+        nameFrom: "emission_date_from",
+        nameTo: "emission_date_to",
+        rangeParamName: "emission_date",
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.abreviatura,
+            value: String(item.id),
+          })),
+      },
+    ],
+    defaultParams: {},
   },
 ];
 

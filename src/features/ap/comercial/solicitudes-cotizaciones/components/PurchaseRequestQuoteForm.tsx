@@ -747,6 +747,7 @@ export const PurchaseRequestQuoteForm = ({
       description: row.description,
       type: row.type,
       value: row.value,
+      is_locked: row.isLocked,
     }));
 
     const finalData = {
