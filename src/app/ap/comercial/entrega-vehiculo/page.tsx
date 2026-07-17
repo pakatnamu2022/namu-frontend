@@ -191,6 +191,8 @@ export default function VehicleDeliveryPage() {
         open={!!selectedVehicle}
         onOpenChange={(open) => !open && setSelectedVehicle(null)}
         vehicleDelivery={selectedVehicle}
+        onQueryFromNubefact={handleQueryFromNubefact}
+        isQueryingFromNubefact={queryFromNubefactMutation.isPending}
       />
 
       {sendToNubefactId !== null && (

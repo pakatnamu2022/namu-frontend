@@ -14,9 +14,11 @@ import {
   FileCheck,
   FileCode,
   FileText,
+  Loader2,
   MapPin,
   Package,
   QrCode,
+  RefreshCw,
   Tag,
   Truck,
   XCircle,
@@ -29,6 +31,8 @@ interface VehicleDeliveryDetailsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicleDelivery: VehiclesDeliveryResource | null;
+  onQueryFromNubefact?: (id: number) => void;
+  isQueryingFromNubefact?: boolean;
 }
 
 const sunatStatusConfig = {
@@ -53,6 +57,8 @@ export function VehicleDeliveryDetailsSheet({
   open,
   onOpenChange,
   vehicleDelivery: initialVehicle,
+  onQueryFromNubefact,
+  isQueryingFromNubefact,
 }: VehicleDeliveryDetailsSheetProps) {
   const vehicleId = initialVehicle?.id || 0;
 
@@ -124,7 +130,7 @@ export function VehicleDeliveryDetailsSheet({
               {sunatConfig && SunatIcon && (
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">Estado SUNAT</p>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <SunatIcon
                       className={`h-4 w-4 ${sunatConfig.className}`}
                     />
@@ -133,6 +139,26 @@ export function VehicleDeliveryDetailsSheet({
                     >
                       {sunatConfig.label}
                     </span>
+                    {onQueryFromNubefact &&
+                      guide?.requires_sunat &&
+                      guide.is_sunat_registered && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7"
+                          disabled={isQueryingFromNubefact}
+                          onClick={() =>
+                            onQueryFromNubefact(vehicleDelivery.id)
+                          }
+                        >
+                          {isQueryingFromNubefact ? (
+                            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                          )}
+                          Consultar
+                        </Button>
+                      )}
                   </div>
                 </div>
               )}
