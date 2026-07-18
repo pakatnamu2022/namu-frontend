@@ -144,7 +144,7 @@ export const ShipmentsReceptionsColumns = ({
       return (
         <div className="flex flex-col items-start w-fit">
           <span className="font-mono text-sm font-semibold">
-            <span> {number}</span>
+            {number ? <CopyCell value={number} /> : "-"}
           </span>
           <span className="text-xs">
             {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
