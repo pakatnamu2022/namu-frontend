@@ -163,7 +163,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
 ];
 
 export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
-  ROUTE: "/ap/post-venta/reportes",
+  ROUTE: "/ap/post-venta/indicadores-reportes/reportes",
   MODEL: {
     name: "Reportes de Post Venta",
     gender: false,
@@ -173,7 +173,7 @@ export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
   ENDPOINT: "/ap/postVenta/reports",
   ICON: "BarChart",
   QUERY_KEY: "post-venta-reports",
-  ROUTE_ADD: "/ap/post-venta/reportes/nuevo",
-  ROUTE_UPDATE: "/ap/post-venta/reportes/editar",
-  ABSOLUTE_ROUTE: "/ap/post-venta/reportes",
+  ROUTE_ADD: "/ap/post-venta/indicadores-reportes/reportes/nuevo",
+  ROUTE_UPDATE: "/ap/post-venta/indicadores-reportes/reportes/editar",
+  ABSOLUTE_ROUTE: "/ap/post-venta/indicadores-reportes/reportes",
 };
