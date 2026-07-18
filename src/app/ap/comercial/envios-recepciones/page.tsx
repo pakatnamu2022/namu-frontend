@@ -107,6 +107,7 @@ export default function ShipmentsReceptionsPage() {
           SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
         ],
     document_type: "GUIA_REMISION",
+    is_consignment: 0,
   });
 
   const handleDelete = async () => {
