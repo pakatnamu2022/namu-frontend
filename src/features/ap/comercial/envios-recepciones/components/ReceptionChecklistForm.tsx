@@ -322,7 +322,7 @@ export const ReceptionChecklistForm = ({
               title="Fotos del estado del vehículo (Obligatorio)"
               icon={Camera}
               color="orange"
-              cols={{ sm: 4 }}
+              cols={{ sm: 5 }}
             >
               <FormField
                 control={form.control}
@@ -386,6 +386,24 @@ export const ReceptionChecklistForm = ({
                     <FormControl>
                       <FileUploadWithCamera
                         label="Lateral Der."
+                        accept="image/*"
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="photo_vin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FileUploadWithCamera
+                        label="VIN"
                         accept="image/*"
                         value={field.value}
                         onChange={(file) => field.onChange(file)}
