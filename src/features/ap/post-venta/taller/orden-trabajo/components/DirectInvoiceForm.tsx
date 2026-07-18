@@ -617,7 +617,7 @@ export default function DirectInvoiceForm({
                 <Separator className="bg-muted-foreground/20" />
 
                 {/* Botones */}
-                <div className="space-y-2 pt-4 flex gap-4">
+                <div className="space-y-2 pt-4 flex gap-4 flex-col">
                   <ConfirmationDialog
                     trigger={
                       <Button

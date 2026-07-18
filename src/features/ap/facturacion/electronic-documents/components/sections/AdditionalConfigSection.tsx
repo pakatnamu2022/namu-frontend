@@ -1,5 +1,5 @@
 import { UseFormReturn } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ExternalLink, FileText, Settings } from "lucide-react";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -88,12 +88,30 @@ export function AdditionalConfigSection({
   const fechaVencimientoPreview = creditDaysValue
     ? calcFechaVencimiento(creditDaysValue)
     : null;
+  // Total observado para recalcular el importe de la cuota si el total legítimamente
+  // cambia estando ya en modo crédito (p. ej. items que se cargan de forma asíncrona
+  // en facturación consolidada, o el ajuste anticipo→venta en modo edición).
+  const totalValue = form.watch("total");
+  // En modo edición, las cuotas reales (posiblemente varias, con fechas/importes
+  // propios) vienen del documento vía `form.reset`, que puede ocurrir en un render
+  // posterior al montaje (ver EditMassiveInvoicePage). Usamos la misma señal que el
+  // efecto anterior (medioDePagoInitialized) para detectar que ese reset ya llegó:
+  // el render en que eso pasa solo debe "registrarse", no recalcular — de lo
+  // contrario se pisarían las cuotas reales con una cuota única derivada de
+  // credit_days.
+  const editDataLoaded = useRef(!isEdit);
   useEffect(() => {
-    if (creditDaysValue) {
+    if (isEdit && !editDataLoaded.current) {
+      if (medioDePagoInitialized) {
+        editDataLoaded.current = true;
+      }
+      return;
+    }
+    if (isCredito && creditDaysValue) {
       handleCreditDaysChange(creditDaysValue);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditDaysValue]);
+  }, [creditDaysValue, isCredito, totalValue, medioDePagoInitialized]);
 
   function handleCreditDaysChange(days: string) {
     const numDays = Number(days);
