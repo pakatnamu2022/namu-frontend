@@ -1,6 +1,5 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "@/shared/lib/reports/reports.interface";
-import { STATUS_WORK_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { SUNAT_CURRENCY_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export const POST_VENTA_REPORTS: ReportConfig[] = [
@@ -16,20 +15,6 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     fileName: "reporte_orden_trabajo",
     availableFormats: ["excel"],
     fields: [
-      {
-        name: "status_id",
-        label: "Estado",
-        type: "multiselect",
-        required: false,
-        placeholder: "Seleccionar estados",
-        multiSelectOptions: Object.entries(STATUS_WORK_ORDER).map(
-          ([key, value]) => ({
-            id: value,
-            name: key.replace(/_/g, " "),
-          }),
-        ),
-        getDisplayValue: (item) => item.name,
-      },
       {
         name: "date_range",
         label: "Rango de Fechas",
