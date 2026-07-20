@@ -65,6 +65,7 @@ export default function WorkOrderLabourForm({
         description: item.type_planning.description,
       })),
       { label: "Materiales", value: "Materiales", description: "" },
+      { label: "Deducible", value: "Deducible", description: "" },
     ];
   }, [workOrderItems]);
 
