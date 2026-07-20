@@ -353,7 +353,8 @@ import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caj
 import DirectInvoicePage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/factura-directa/page.tsx";
 import BillWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/facturar/[id]/page.tsx";
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
-import ReportesPostVentaPage from "./app/ap/post-venta/reportes/page.tsx";
+import IndicadoresReportesPage from "./app/ap/post-venta/indicadores-y-reportes/page.tsx";
+import ReportesPostVentaPage from "./app/ap/post-venta/indicadores-y-reportes/reportes/page.tsx";
 import AdoptionDashboardPage from "./app/gp/gestion-del-sistema/adoption-dashboard/page";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -1821,8 +1822,15 @@ function App() {
                 element={<BillWorkOrderCajaPage />}
               />
 
-              {/* Reportes */}
-              <Route path="reportes" element={<ReportesPostVentaPage />} />
+              {/* Indicadores y Reportes */}
+              <Route
+                path="indicadores-y-reportes"
+                element={<IndicadoresReportesPage />}
+              />
+              <Route
+                path="indicadores-y-reportes/reportes"
+                element={<ReportesPostVentaPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -2341,13 +2349,17 @@ function App() {
                   <TPConfiguracionesLayout>
                     <Outlet />
                   </TPConfiguracionesLayout>
-
                 </Suspense>
               }
             >
-              <Route path="control-tipo-vehiculo" element={<ControlTipoVehiculoPage />} />
-              <Route path="control-vehiculo" element={<ControlVehiculoPage />} />
-
+              <Route
+                path="control-tipo-vehiculo"
+                element={<ControlTipoVehiculoPage />}
+              />
+              <Route
+                path="control-vehiculo"
+                element={<ControlVehiculoPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
