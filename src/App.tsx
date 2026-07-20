@@ -1824,11 +1824,11 @@ function App() {
 
               {/* Indicadores y Reportes */}
               <Route
-                path="indicadores-reportes"
+                path="indicadores-y-reportes"
                 element={<IndicadoresReportesPage />}
               />
               <Route
-                path="indicadores-reportes/reportes"
+                path="indicadores-y-reportes/reportes"
                 element={<ReportesPostVentaPage />}
               />
             </Route>
@@ -2349,13 +2349,17 @@ function App() {
                   <TPConfiguracionesLayout>
                     <Outlet />
                   </TPConfiguracionesLayout>
-
                 </Suspense>
               }
             >
-              <Route path="control-tipo-vehiculo" element={<ControlTipoVehiculoPage />} />
-              <Route path="control-vehiculo" element={<ControlVehiculoPage />} />
-
+              <Route
+                path="control-tipo-vehiculo"
+                element={<ControlTipoVehiculoPage />}
+              />
+              <Route
+                path="control-vehiculo"
+                element={<ControlVehiculoPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
