@@ -37,6 +37,7 @@ import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { getTodayPeruDateString } from "@/core/core.function";
+import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -359,6 +360,16 @@ export const vehicleDeliveryColumns = ({
     },
   },
   {
+    id: "migration_status",
+    header: "Estado Migración",
+    cell: ({ row }) => {
+      const migrationStatus = row.original.shipping_guide?.migration_status;
+      if (!migrationStatus)
+        return <span className="text-muted-foreground text-xs">—</span>;
+      return <MigrationStatusBadge migration_status={migrationStatus} />;
+    },
+  },
+  {
     accessorKey: "observations",
     header: "Observaciones",
     cell: ({ getValue }) => {
@@ -435,7 +446,7 @@ export const vehicleDeliveryColumns = ({
         permissions.canMigrate;
 
       const canViewHistory =
-        !!shipping_guide_id && isMigrated && permissions.canViewHistory;
+        !!shipping_guide_id && permissions.canViewHistory;
 
       const canDelete = !shipping_guide_id && permissions.canDelete;
 
