@@ -14,13 +14,14 @@ import {
 import { FormInput } from "@/shared/components/FormInput";
 import { FormCombobox } from "@/shared/components/FormCombobox";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 interface WorkOrderLabourFormProps {
   workOrderId: number;
   groupNumber: number;
   onSuccess: () => void;
   onCancel: () => void;
   workOrderItems?: WorkOrderItemResource[];
-  currencySymbol?: string;
+  currencyId?: number;
   costManHours: number;
   maxDiscountPercentage: number;
 }
@@ -31,7 +32,7 @@ export default function WorkOrderLabourForm({
   onSuccess,
   onCancel,
   workOrderItems = [],
-  currencySymbol = "S/",
+  currencyId,
   costManHours,
   maxDiscountPercentage,
 }: WorkOrderLabourFormProps) {
@@ -105,7 +106,7 @@ export default function WorkOrderLabourForm({
           allowCreate={true}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
           <FormInput
             name="time_spent"
             label="Horas"
@@ -115,9 +116,14 @@ export default function WorkOrderLabourForm({
 
           <FormInput
             name="hourly_rate"
-            label={`Tarifa/Hora (${currencySymbol})`}
+            label={`Tarifa/Hora (S/.)`}
             placeholder="Ej: 50.00"
             control={form.control}
+            description={
+              currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS)
+                ? "Ingresa la tarifa en soles, el sistema la convertirá automáticamente"
+                : undefined
+            }
           />
 
           <FormInput

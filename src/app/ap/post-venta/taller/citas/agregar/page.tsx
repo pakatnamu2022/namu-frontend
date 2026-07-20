@@ -15,11 +15,13 @@ import { storeAppointmentPlanning } from "@/features/ap/post-venta/taller/citas/
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AppointmentPlanningForm } from "@/features/ap/post-venta/taller/citas/components/AppointmentPlanningForm";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function AddAppointmentPlanningPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = APPOINTMENT_PLANNING;
+  const permissions = useModulePermissions(ROUTE);
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeAppointmentPlanning,
@@ -62,10 +64,12 @@ export default function AddAppointmentPlanningPage() {
           type_planning_id: "",
           ap_vehicle_id: "",
           sede_id: "",
+          advisor_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        permissions={permissions}
       />
     </FormWrapper>
   );

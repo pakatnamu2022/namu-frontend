@@ -3,6 +3,7 @@ import {
   CycleResource,
   CycleResponse,
   WeightsPreviewResponse,
+  RemoveObjectivePreviewResponse,
 } from "./cycle.interface";
 import {
   findCycleById,
@@ -14,7 +15,9 @@ import {
   getCycleWeightsPreview,
   getPersonsInCycle,
   getPositionsInCycle,
+  getRemoveObjectivePreview,
   regenerateCycleWeights,
+  removeObjectiveFromCycle,
 } from "./cycle.actions";
 
 export const useCycles = (params?: Record<string, any>) => {
@@ -102,6 +105,38 @@ export const useRegenerateCycleWeights = () => {
       queryClient.invalidateQueries({
         queryKey: ["cycle", cycleId, "weights-preview"],
       });
+    },
+  });
+};
+
+export const useRemoveObjectivePreview = (
+  cycleId: number,
+  objectiveId: number | null,
+  enabled = false,
+) => {
+  return useQuery<RemoveObjectivePreviewResponse>({
+    queryKey: ["cycle", cycleId, "objective", objectiveId, "remove-preview"],
+    queryFn: () => getRemoveObjectivePreview(cycleId, objectiveId as number),
+    refetchOnWindowFocus: false,
+    enabled: enabled && !!objectiveId,
+  });
+};
+
+export const useRemoveObjectiveFromCycle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      cycleId,
+      objectiveId,
+      personIds,
+    }: {
+      cycleId: number;
+      objectiveId: number;
+      personIds?: number[];
+    }) => removeObjectiveFromCycle(cycleId, objectiveId, personIds),
+    onSuccess: (_, { cycleId }) => {
+      queryClient.invalidateQueries({ queryKey: ["cycle", cycleId] });
     },
   });
 };

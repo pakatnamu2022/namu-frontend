@@ -1,6 +1,7 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "@/shared/lib/reports/reports.interface";
 import { STATUS_WORK_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { SUNAT_CURRENCY_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export const POST_VENTA_REPORTS: ReportConfig[] = [
   {
@@ -12,6 +13,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     icon: "Wrench",
     endpoint: "/ap/postVenta/reports/work-orders/export",
     fileName: "reporte_orden_trabajo",
+    availableFormats: ["excel"],
     fields: [
       {
         name: "status_id",
@@ -36,6 +38,17 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameTo: "date_to",
         rangeParamName: "opening_date",
       },
+      {
+        name: "amounts_in_soles",
+        label: "Moneda",
+        type: "toggle",
+        required: false,
+        options: [
+          { label: "Soles", value: "1" },
+          { label: "Dólares", value: "0" },
+        ],
+        defaultValue: "1",
+      },
     ],
     defaultParams: {},
   },
@@ -48,6 +61,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     icon: "PackageSearch",
     endpoint: "/ap/postVenta/reports/inventory-outputs/export",
     fileName: "reporte_salida_inventario",
+    availableFormats: ["excel"],
     fields: [
       {
         name: "date_range",
@@ -57,6 +71,65 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
         nameFrom: "date_from",
         nameTo: "date_to",
         rangeParamName: "invoice_date",
+      },
+    ],
+    defaultParams: {},
+  },
+  {
+    id: "invoicing",
+    title: "Reporte de Facturación",
+    type: "Facturación",
+    description:
+      "Exporta el reporte de facturación filtrando por rango de fechas.",
+    icon: "FileText",
+    endpoint: "/ap/postVenta/reports/invoicing/export",
+    fileName: "reporte_facturacion",
+    availableFormats: ["excel"],
+    fields: [
+      {
+        name: "date_range",
+        label: "Rango de Fechas",
+        type: "daterange",
+        required: false,
+        nameFrom: "date_from",
+        nameTo: "date_to",
+        rangeParamName: "fecha_emision",
+      },
+    ],
+    defaultParams: {},
+  },
+  {
+    id: "electronic-documents",
+    title: "Reporte de Documentos Electrónicos",
+    type: "Facturación",
+    description:
+      "Exporta el reporte de documentos electrónicos filtrando por rango de fechas y moneda.",
+    icon: "FileText",
+    endpoint: "/ap/postVenta/reports/electronic-documents/export",
+    fileName: "reporte_documentos_electronicos",
+    availableFormats: ["excel"],
+    fields: [
+      {
+        name: "date_range",
+        label: "Rango de Fechas",
+        type: "daterange",
+        required: false,
+        nameFrom: "date_from",
+        nameTo: "date_to",
+        rangeParamName: "fecha_emision",
+      },
+      {
+        name: "sunat_concept_currency_id",
+        label: "Moneda",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar moneda",
+        options: [
+          { label: "Ambos", value: "" },
+          { label: "Soles", value: String(SUNAT_CURRENCY_ID.SOLES) },
+          { label: "Dólares", value: String(SUNAT_CURRENCY_ID.DOLARES) },
+        ],
+        defaultValue: String(SUNAT_CURRENCY_ID.SOLES),
       },
     ],
     defaultParams: {},

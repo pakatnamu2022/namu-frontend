@@ -6,6 +6,7 @@ import {
   CycleResource,
   CycleResponse,
   WeightsPreviewResponse,
+  RemoveObjectivePreviewResponse,
 } from "./cycle.interface";
 import {
   CyclePersonDetailResource,
@@ -178,6 +179,28 @@ export async function regenerateCycleWeights(
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
     `${ENDPOINT}/${cycleId}/weights/regenerate`,
+  );
+  return data;
+}
+
+export async function getRemoveObjectivePreview(
+  cycleId: number,
+  objectiveId: number,
+): Promise<RemoveObjectivePreviewResponse> {
+  const { data } = await api.get<RemoveObjectivePreviewResponse>(
+    `${ENDPOINT}/${cycleId}/objectives/${objectiveId}/remove/preview`,
+  );
+  return data;
+}
+
+export async function removeObjectiveFromCycle(
+  cycleId: number,
+  objectiveId: number,
+  personIds?: number[],
+): Promise<GeneralResponse> {
+  const { data } = await api.delete<GeneralResponse>(
+    `${ENDPOINT}/${cycleId}/objectives/${objectiveId}/remove`,
+    personIds && personIds.length ? { data: { person_ids: personIds } } : undefined,
   );
   return data;
 }

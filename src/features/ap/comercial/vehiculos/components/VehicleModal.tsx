@@ -225,6 +225,7 @@ export default function VehicleModal({
               mapOptionFn={(item: ModelsVnResource) => ({
                 value: item.id.toString(),
                 label: `${item.code} - ${item.version}`,
+                descripcion: item.body_type,
               })}
               additionalParams={{
                 class_id: classArticleId ?? CLASS_ARTICLE_ID.M_VEH_NUE,

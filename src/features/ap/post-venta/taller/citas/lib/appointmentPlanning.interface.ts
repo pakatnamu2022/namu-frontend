@@ -43,6 +43,7 @@ export interface AppointmentPlanningRequest {
   type_operation_appointment_id: string;
   type_planning_id: string;
   ap_vehicle_id: string;
+  advisor_id?: string;
 }
 
 export interface getAppointmentPlanningProps {
