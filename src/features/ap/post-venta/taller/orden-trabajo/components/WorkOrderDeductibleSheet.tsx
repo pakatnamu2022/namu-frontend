@@ -17,6 +17,7 @@ interface WorkOrderDeductibleSheetProps {
   currencyId?: string | number;
   onSelectDocument: (document: ElectronicDocumentResource) => void;
   isSubmitting?: boolean;
+  plate: string;
 }
 
 // Traduce el id de moneda de la OT (CURRENCY_TYPE_IDS) al id SUNAT usado por los comprobantes (SUNAT_CURRENCY_ID)
@@ -38,6 +39,7 @@ export const WorkOrderDeductibleSheet = ({
   currencyId,
   onSelectDocument,
   isSubmitting,
+  plate,
 }: WorkOrderDeductibleSheetProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -51,6 +53,7 @@ export const WorkOrderDeductibleSheet = ({
       seriesModel$sede_id: sedeId ? Number(sedeId) : undefined,
       sunat_concept_currency_id: toSunatCurrencyId(currencyId),
       status: "accepted",
+      workOrder$vehicle_plate: plate,
     },
     open,
   );

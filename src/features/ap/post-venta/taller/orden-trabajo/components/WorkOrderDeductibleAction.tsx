@@ -14,6 +14,7 @@ import { WorkOrderDeductibleResource } from "@/features/ap/post-venta/taller/ord
 
 interface WorkOrderDeductibleActionProps {
   workOrderId: number;
+  plate: string;
   deductible: WorkOrderDeductibleResource | null;
   sedeId?: string | number;
   currencyId?: string | number;
@@ -24,6 +25,7 @@ interface WorkOrderDeductibleActionProps {
 
 export const WorkOrderDeductibleAction = ({
   workOrderId,
+  plate,
   deductible,
   sedeId,
   currencyId,
@@ -138,6 +140,7 @@ export const WorkOrderDeductibleAction = ({
         currencyId={currencyId}
         onSelectDocument={handleSelectDocument}
         isSubmitting={storeMutation.isPending}
+        plate={plate}
       />
     </>
   );
