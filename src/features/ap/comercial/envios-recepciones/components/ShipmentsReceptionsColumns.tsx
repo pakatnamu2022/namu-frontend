@@ -337,6 +337,7 @@ export const ShipmentsReceptionsColumns = ({
     },
     header: () => (
       <div className="flex items-center gap-1.5">
+        <Info className="size-3.5 text-muted-foreground" />
         <span>Enviado SUNAT</span>
         <Badge
           variant="ghost"
@@ -372,6 +373,7 @@ export const ShipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const sentAt = row.getValue("sent_at") as string | null;
       const aceptadaPorSunat = row.original.aceptada_por_sunat;
+      const isAnnulled = row.original.is_annulled;
       const WAITING_TIME_HOURS = 5;
 
       if (sentAt) {
@@ -385,13 +387,13 @@ export const ShipmentsReceptionsColumns = ({
         let label: string;
         let icon: LucideIcon;
 
-        if (aceptadaPorSunat === true) {
+        if (aceptadaPorSunat === true && !isAnnulled) {
           variant = "green";
           label = "Aceptado";
           icon = CheckCircle2;
         } else if (
-          aceptadaPorSunat === false &&
-          hoursDiff > WAITING_TIME_HOURS
+          (aceptadaPorSunat === false && hoursDiff > WAITING_TIME_HOURS) ||
+          isAnnulled
         ) {
           variant = "destructive";
           label = "Rechazado";
