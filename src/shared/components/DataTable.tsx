@@ -4,6 +4,7 @@ import {
   type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type SortingState,
@@ -130,6 +131,7 @@ export function DataTable<TData, TValue>({
     initialColumnVisibility ?? {},
   );
   const [internalRowSelection, setInternalRowSelection] = useState({});
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -163,20 +165,21 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       ...(rowSelection !== undefined && { rowSelection }),
       ...(rowSelection === undefined && { rowSelection: internalRowSelection }),
-      ...(sorting !== undefined && { sorting }),
+      sorting: sorting !== undefined ? sorting : internalSorting,
       pagination: {
         pageIndex: 0,
         pageSize: 10,
       },
     },
     getCoreRowModel: getCoreRowModel(),
+    ...(!manualSorting && { getSortedRowModel: getSortedRowModel() }),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     ...(onRowSelectionChange && { onRowSelectionChange }),
     ...(onRowSelectionChange === undefined && {
       onRowSelectionChange: setInternalRowSelection,
     }),
-    ...(onSortingChange && { onSortingChange }),
+    onSortingChange: onSortingChange ?? setInternalSorting,
   });
 
   const isActionsCol = (id: string) =>

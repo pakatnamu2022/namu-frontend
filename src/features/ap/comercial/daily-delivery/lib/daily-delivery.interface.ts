@@ -39,26 +39,38 @@ export interface BrandReportSection {
   items: BrandReportItem[];
 }
 
-export interface AvancePorSedeBrand {
-  brand_id: number;
-  brand_name: string;
-  level: "brand";
-  objetivo_ap_entregas: number;
-  resultado_entrega: number;
-  cumplimiento_entrega: number;
-  objetivos_reporte_inchcape: number;
-  reporte_dealer_portal: number | null;
-  cumplimiento_reporte: number | null;
-  objetivos_compra_inchcape: number;
-  avance_compra: number;
-  cumplimiento_compra: number;
+export interface CurrentInventoryItem {
+  estado: string;
+  fecha_emision: string | null;
+  importe_inicial: string | null;
+  numero_factura: string | null;
+  marca: string;
+  modelo: string;
+  color: string;
+  anio_modelo: string;
+  combustible: string;
+  vin: string;
+  serie_motor: string;
+  sede: string;
+  almacen: string;
+  dias_en_stock: number | null;
+  solicitud_id: number | null;
+  solicitud: string | null;
+  cliente: string | null;
+  asesor: string | null;
 }
 
-export interface AvancePorSede {
-  sede_id: number;
-  sede_name: string;
-  level: "sede";
-  brands: AvancePorSedeBrand[];
+export interface CurrentInventorySummaryItem {
+  estado: string;
+  total: number;
+  color: string;
+}
+
+export type CurrentInventorySummary = CurrentInventorySummaryItem[];
+
+export interface CurrentInventory {
+  summary: CurrentInventorySummary;
+  items: CurrentInventoryItem[];
 }
 
 export interface PurchasesByBrandSede {
@@ -103,6 +115,6 @@ export interface DailyDeliveryResponse {
   advisors: any[];
   hierarchy: DailyDeliveryHierarchyNode[];
   brand_report: BrandReportSection[];
-  avance_por_sede: AvancePorSede[];
   purchases_report: PurchasesReport;
+  current_inventory: CurrentInventory;
 }
