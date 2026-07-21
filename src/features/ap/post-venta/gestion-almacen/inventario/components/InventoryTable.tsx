@@ -32,9 +32,9 @@ export default function InventoryTable({
         onSortingChange={onSortingChange}
         manualSorting={manualSorting}
         initialColumnVisibility={{
+          available_quantity: true,
+          reserved_quantity: true,
           quantity: true,
-          available_quantity: false,
-          reserved_quantity: false,
           quantity_in_transit: false,
           quantity_pending_credit_note: false,
           minimum_stock: false,
