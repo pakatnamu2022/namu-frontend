@@ -11,6 +11,7 @@ import {
 import { WorkOrderDeductibleSheet } from "./WorkOrderDeductibleSheet";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { WorkOrderDeductibleResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
+import { WORKER_ORDER_LABOUR } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.constants";
 
 interface WorkOrderDeductibleActionProps {
   workOrderId: number;
@@ -37,8 +38,15 @@ export const WorkOrderDeductibleAction = ({
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const hasDeductible = deductibleAmount > 0 && !!deductible;
 
-  const invalidateWorkOrder = () =>
+  const invalidateWorkOrder = () => {
     queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    // El backend puede insertar/eliminar un item de mano de obra al
+    // asociar/quitar el deducible: si la pestaña de mano de obra está
+    // montada se refresca sola; si no, solo queda marcada como stale.
+    queryClient.invalidateQueries({
+      queryKey: [WORKER_ORDER_LABOUR.QUERY_KEY],
+    });
+  };
 
   const storeMutation = useMutation({
     mutationFn: (electronicDocumentId: number) =>

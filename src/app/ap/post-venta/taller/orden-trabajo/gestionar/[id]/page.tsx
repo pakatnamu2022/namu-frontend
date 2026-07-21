@@ -419,19 +419,42 @@ export default function ManageWorkOrderPage() {
 
             {/* Monto total y deducible */}
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-muted bg-muted/20 p-2.5">
-              <div className="flex items-center gap-2">
-                <Receipt className="h-4 w-4 shrink-0 text-primary" />
-                <div className="leading-tight">
-                  <p className="text-[11px] font-semibold text-gray-500 uppercase">
-                    Monto Total
-                  </p>
-                  <span className="text-sm font-semibold whitespace-nowrap">
-                    {formatMoney(
-                      workOrder.final_amount,
-                      2,
-                      workOrder.type_currency?.symbol || "S/",
-                    )}
-                  </span>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                {[
+                  { label: "M. Obra", value: workOrder.total_labor_cost },
+                  { label: "Repuestos", value: workOrder.total_parts_cost },
+                  { label: "IGV", value: workOrder.tax_amount },
+                ].map(({ label, value }) => (
+                  <div key={label} className="leading-tight">
+                    <p className="text-[10px] font-medium text-gray-500 uppercase">
+                      {label}
+                    </p>
+                    <span className="text-xs font-medium text-gray-700 whitespace-nowrap dark:text-gray-300">
+                      {formatMoney(
+                        value,
+                        2,
+                        workOrder.type_currency?.symbol || "S/",
+                      )}
+                    </span>
+                  </div>
+                ))}
+
+                <div className="h-8 w-px bg-border" />
+
+                <div className="flex items-center gap-2">
+                  <Receipt className="h-4 w-4 shrink-0 text-primary" />
+                  <div className="leading-tight">
+                    <p className="text-[10px] font-semibold text-gray-500 uppercase">
+                      Monto Total
+                    </p>
+                    <span className="text-sm font-semibold whitespace-nowrap">
+                      {formatMoney(
+                        workOrder.final_amount,
+                        2,
+                        workOrder.type_currency?.symbol || "S/",
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
               {!isCancelled && (
