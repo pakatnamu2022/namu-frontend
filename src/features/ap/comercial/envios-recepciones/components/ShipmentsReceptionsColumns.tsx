@@ -317,6 +317,15 @@ export const ShipmentsReceptionsColumns = ({
     header: "Recepción",
     cell: ({ row }) => {
       const isReceived = row.getValue("is_received") as boolean;
+      const isAnnulled = row.original.is_annulled || !row.original.status;
+
+      if (isAnnulled) {
+        return (
+          <Badge color="gray" icon={Ban}>
+            Anulado
+          </Badge>
+        );
+      }
 
       return isReceived ? (
         <Badge color="green" icon={CheckCircle2}>
@@ -337,6 +346,7 @@ export const ShipmentsReceptionsColumns = ({
     },
     header: () => (
       <div className="flex items-center gap-1.5">
+        <Info className="size-3.5 text-muted-foreground" />
         <span>Enviado SUNAT</span>
         <Badge
           variant="ghost"
@@ -372,6 +382,7 @@ export const ShipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const sentAt = row.getValue("sent_at") as string | null;
       const aceptadaPorSunat = row.original.aceptada_por_sunat;
+      const isAnnulled = row.original.is_annulled;
       const WAITING_TIME_HOURS = 5;
 
       if (sentAt) {
@@ -385,13 +396,13 @@ export const ShipmentsReceptionsColumns = ({
         let label: string;
         let icon: LucideIcon;
 
-        if (aceptadaPorSunat === true) {
+        if (aceptadaPorSunat === true && !isAnnulled) {
           variant = "green";
           label = "Aceptado";
           icon = CheckCircle2;
         } else if (
-          aceptadaPorSunat === false &&
-          hoursDiff > WAITING_TIME_HOURS
+          (aceptadaPorSunat === false && hoursDiff > WAITING_TIME_HOURS) ||
+          isAnnulled
         ) {
           variant = "destructive";
           label = "Rechazado";
@@ -482,7 +493,17 @@ export const ShipmentsReceptionsColumns = ({
   {
     accessorKey: "migration_status",
     header: "Migración",
-    cell: ({ getValue }) => {
+    cell: ({ row, getValue }) => {
+      const isAnnulled = row.original.is_annulled || !row.original.status;
+
+      if (isAnnulled) {
+        return (
+          <Badge color="gray" icon={Ban}>
+            Anulado
+          </Badge>
+        );
+      }
+
       return <MigrationStatusBadge migration_status={getValue() as string} />;
     },
   },
@@ -492,6 +513,16 @@ export const ShipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const { id, migration_status, is_accounted } = row.original;
       const was_migrated = migration_status === "completed";
+      const isAnnulled = row.original.is_annulled || !row.original.status;
+
+      if (isAnnulled) {
+        return (
+          <Badge color="gray" icon={Ban}>
+            Anulado
+          </Badge>
+        );
+      }
+
       if (is_accounted === true) {
         return (
           <Badge variant="outline" color="green" icon={BookCheck}>
@@ -543,6 +574,7 @@ export const ShipmentsReceptionsColumns = ({
       } = row.original;
       const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
       const isSent = !!sent_at;
+      const isAnnulled = row.original.is_annulled || !row.original.status;
       const isGuiaRemision = document_type === "GUIA_REMISION";
       const isPurchase =
         transfer_reason_id.toString() ===
@@ -563,7 +595,10 @@ export const ShipmentsReceptionsColumns = ({
         isGuiaRemision && !isSent && permissions.canSend;
 
       const canConsult =
-        isGuiaRemision && isSent && !isAcceptedBySunat && permissions.canView;
+        isGuiaRemision &&
+        isSent &&
+        !isAcceptedBySunat &&
+        permissions.canView;
 
       const canViewHistory = isGuiaRemision && permissions.canView;
 
@@ -613,6 +648,16 @@ export const ShipmentsReceptionsColumns = ({
         permissions.canGenerate &&
         row.original.migration_status === "completed" &&
         row.original.is_accounted === true;
+
+      if (isAnnulled) {
+        return (
+          <div className="flex items-center gap-2">
+            <Badge color="gray" icon={Ban}>
+              Anulado
+            </Badge>
+          </div>
+        );
+      }
 
       return (
         <div className="flex items-center gap-2">
