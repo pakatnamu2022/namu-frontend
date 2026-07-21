@@ -20,6 +20,7 @@ export interface WorkOrderLabourResource {
   work_order_id: string;
   worker_full_name: string;
   group_number: number;
+  is_deductible: boolean;
 }
 
 export interface WorkOrderLabourRequest {
