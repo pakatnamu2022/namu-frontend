@@ -19,6 +19,10 @@ import {
   finishAllowedStatuses,
   STATUS_WORK_ORDER,
 } from "../lib/workOrder.constants";
+import {
+  INTERNA_CC,
+  INTERNA_SC,
+} from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
 import { useSendToFinished, useRevertFinished } from "../lib/workOrder.hook";
@@ -117,30 +121,31 @@ export function WorkOrderActionCell({
 
   const isVisibleManage = permissions.canManage;
 
+  const isInterna =
+    firstItemPlanning?.type_document === INTERNA_SC ||
+    firstItemPlanning?.type_document === INTERNA_CC;
+
   const isVisibleFinish =
     !is_invoiced &&
     !isClosed &&
-    firstItemPlanning?.type_document !== "INTERNA" &&
+    !isInterna &&
     finishAllowedStatuses.includes(Number(status_id));
 
   const isVisibleRevert =
     !is_invoiced &&
     !isClosed &&
-    firstItemPlanning?.type_document !== "INTERNA" &&
+    !isInterna &&
     status_id == String(STATUS_WORK_ORDER.TERMINADO);
 
   const isVisibleDelivery =
     !isDelivery &&
-    firstItemPlanning?.type_document !== "INTERNA" &&
+    !isInterna &&
     (status_id == String(STATUS_WORK_ORDER.TERMINADO) || isClosed);
 
-  const isVisiblePdfDelivery =
-    (isDelivery || isClosed) && firstItemPlanning?.type_document !== "INTERNA";
+  const isVisiblePdfDelivery = (isDelivery || isClosed) && !isInterna;
 
   const isVisibleGenerateInternalNote =
-    permissions.canGenerateInternalNote &&
-    !isClosed &&
-    firstItemPlanning?.type_document === "INTERNA";
+    permissions.canGenerateInternalNote && !isClosed && isInterna;
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 

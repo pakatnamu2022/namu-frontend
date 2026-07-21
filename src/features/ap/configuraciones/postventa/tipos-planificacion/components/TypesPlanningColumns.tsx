@@ -6,6 +6,11 @@ import { Switch } from "@/components/ui/switch.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { TypesPlanningResource } from "../lib/typesPlanning.interface.ts";
+import {
+  INTERNA_CC,
+  INTERNA_SC,
+  PAYMENT_RECEIPTS,
+} from "../lib/typesPlanning.constants.ts";
 
 export type TypesPlanningColumns = ColumnDef<TypesPlanningResource>;
 
@@ -72,8 +77,9 @@ export const typesPlanningColumns = ({
       const value = getValue() as string;
 
       const typeDocumentLabels: Record<string, string> = {
-        INTERNA: "INTERNA",
-        PAYMENT_RECEIPTS: "COMPROBANTE DE PAGO",
+        [INTERNA_CC]: "INTERNA CON COMPROBANTE",
+        [INTERNA_SC]: "INTERNA SIN COMPROBANTE",
+        [PAYMENT_RECEIPTS]: "COMPROBANTE DE PAGO",
       };
 
       return typeDocumentLabels[value] || value;

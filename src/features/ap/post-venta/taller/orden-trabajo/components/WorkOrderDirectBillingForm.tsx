@@ -299,7 +299,7 @@ export default function WorkOrderDirectBillingForm({
                 </span>
               </div>
             </div>
-            <div>
+            {/* <div>
               <div className="flex justify-between px-4 py-1.5">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">
@@ -314,7 +314,7 @@ export default function WorkOrderDirectBillingForm({
                   {totalTax.toFixed(2)}
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
         </Card>
       )}

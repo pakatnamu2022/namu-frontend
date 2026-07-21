@@ -4,6 +4,16 @@ import { TypesPlanningResource } from "./typesPlanning.interface.ts";
 const ROUTE = "tipos-planificacion";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
 
+export const INTERNA_SC = "INTERNA_SC";
+export const INTERNA_CC = "INTERNA_CC";
+export const PAYMENT_RECEIPTS = "PAYMENT_RECEIPTS";
+
+export const TYPES_DOCUMENT = [
+  { value: INTERNA_CC, label: "INTERNA CON COMPROBANTE" },
+  { value: INTERNA_SC, label: "INTERNA SIN COMPROBANTE" },
+  { value: PAYMENT_RECEIPTS, label: "COMPROBANTE DE PAGO" },
+];
+
 export const TYPE_PLANNING: ModelComplete<TypesPlanningResource> = {
   MODEL: {
     name: "Tipo de Planificación",
@@ -24,7 +34,7 @@ export const TYPE_PLANNING: ModelComplete<TypesPlanningResource> = {
     notes: "",
     validate_receipt: false,
     validate_labor: false,
-    type_document: "INTERNA",
+    type_document: PAYMENT_RECEIPTS,
     status: true,
   },
 };
