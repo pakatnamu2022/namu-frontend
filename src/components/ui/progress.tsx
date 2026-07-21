@@ -9,11 +9,19 @@ const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
     indicatorClassName?: string;
+    indicatorStyle?: React.CSSProperties;
     indeterminate?: boolean;
   }
 >(
   (
-    { className, value, indicatorClassName, indeterminate = false, ...props },
+    {
+      className,
+      value,
+      indicatorClassName,
+      indicatorStyle,
+      indeterminate = false,
+      ...props
+    },
     ref
   ) => (
     <ProgressPrimitive.Root
@@ -30,7 +38,10 @@ const Progress = React.forwardRef<
           indicatorClassName,
           indeterminate && "animate-progress origin-left"
         )}
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+        style={{
+          transform: `translateX(-${100 - (value || 0)}%)`,
+          ...indicatorStyle,
+        }}
       />
     </ProgressPrimitive.Root>
   )

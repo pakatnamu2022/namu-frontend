@@ -61,7 +61,7 @@ const POSITION_STYLES: Record<
   asesor: {
     label: "Asesor",
     className: "bg-green-100 text-green-700 border-green-200",
-    textColor: "text-slate-700",
+    textColor: "text-muted-foreground",
     fontSize: "text-sm",
     fontWeight: "font-medium",
   },
@@ -75,7 +75,7 @@ const POSITION_STYLES: Record<
   sin_asesor: {
     label: "Sin asesor",
     className: "bg-slate-100 text-slate-600 border-slate-200",
-    textColor: "text-slate-600",
+    textColor: "text-muted-foreground",
     fontSize: "text-sm",
     fontWeight: "font-medium",
   },
