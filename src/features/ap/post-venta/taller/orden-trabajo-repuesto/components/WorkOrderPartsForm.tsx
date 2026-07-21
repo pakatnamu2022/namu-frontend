@@ -14,6 +14,7 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 interface WorkOrderPartsFormProps {
@@ -35,6 +36,7 @@ interface AddPartFormValues {
   quantity_used: number;
   unit_price: number;
   discount_percentage: number;
+  is_traverse: boolean;
 }
 
 const createPartFormSchema = (maxDiscount: number) =>
@@ -46,14 +48,13 @@ const createPartFormSchema = (maxDiscount: number) =>
       .number()
       .min(0, "El descuento no puede ser negativo")
       .max(maxDiscount, `El descuento no puede ser mayor a ${maxDiscount}%`),
+    is_traverse: z.boolean(),
   });
 
 export default function WorkOrderPartsForm({
   workOrderId,
   groupNumber,
   warehouseId,
-  warehouseName,
-  sedeName,
   currencySymbol = "S/",
   currencyId,
   exchangeRate,
@@ -75,13 +76,17 @@ export default function WorkOrderPartsForm({
       quantity_used: 1,
       unit_price: 0,
       discount_percentage: 0,
+      is_traverse: false,
     },
   });
 
   const unitPrice = form.watch("unit_price");
-  const isPriceBelowMin = minSalePrice > 0 && unitPrice < minSalePrice;
+  const isTraverse = form.watch("is_traverse");
+  const isPriceBelowMin =
+    !isTraverse && minSalePrice > 0 && unitPrice < minSalePrice;
 
   const handleInventoryChange = (_value: string, item?: InventoryResource) => {
+    if (isTraverse) return;
     if (item) {
       const priceSoles = parseFloat(item.sale_price);
       const price =
@@ -108,6 +113,7 @@ export default function WorkOrderPartsForm({
         unit_price: data.unit_price,
         discount_percentage: data.discount_percentage,
         group_number: groupNumber,
+        is_traverse: data.is_traverse,
       }),
     onSuccess: () => {
       successToast("Repuesto agregado exitosamente");
@@ -120,6 +126,7 @@ export default function WorkOrderPartsForm({
         quantity_used: 1,
         unit_price: 0,
         discount_percentage: 0,
+        is_traverse: false,
       });
       onSuccess();
     },
@@ -134,7 +141,11 @@ export default function WorkOrderPartsForm({
       errorToast("Debe seleccionar un almacén");
       return;
     }
-    if (minSalePrice > 0 && data.unit_price < minSalePrice) {
+    if (
+      !data.is_traverse &&
+      minSalePrice > 0 &&
+      data.unit_price < minSalePrice
+    ) {
       return;
     }
     storePartMutation.mutate(data);
@@ -143,7 +154,7 @@ export default function WorkOrderPartsForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+        {/* <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
           <p className="text-xs text-primary">
             <span className="font-semibold">Almacén:</span>{" "}
             {warehouseName || "No seleccionado"}
@@ -151,18 +162,37 @@ export default function WorkOrderPartsForm({
           <p className="text-xs text-primary">
             <span className="font-semibold">Sede:</span> {sedeName || "N/A"}
           </p>
-        </div>
+        </div> */}
+
+        <FormSwitch
+          control={form.control}
+          name="is_traverse"
+          text="Es travesía (EN DESARROLLO)"
+          textDescription={
+            isTraverse
+              ? "Activo: no se validará stock disponible ni precio de venta mínimo"
+              : "No se validará stock disponible ni precio de venta mínimo"
+          }
+          size="lg"
+          autoHeight
+          className={
+            isTraverse
+              ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
+              : undefined
+          }
+          disabled={true}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <FormSelectAsync
             name="product_id"
-            label="Producto"
+            label="Repuesto"
             placeholder="Buscar producto en el almacén..."
             control={form.control}
             useQueryHook={useInventory}
             additionalParams={{
               warehouse_id: warehouseId,
-              available_quantity: 0,
+              ...(isTraverse ? {} : { available_quantity: 0 }),
             }}
             mapOptionFn={(inventory: InventoryResource) => ({
               label: () => (
@@ -209,8 +239,8 @@ export default function WorkOrderPartsForm({
             />
             {isInDollars && exchangeRate && (
               <p className="text-[10px] text-muted-foreground">
-                Convertido con tipo de cambio S/. {exchangeRate.toFixed(4)}{" "}
-                (S/. {salePriceSoles.toFixed(2)})
+                Convertido con tipo de cambio S/. {exchangeRate.toFixed(4)} (S/.{" "}
+                {salePriceSoles.toFixed(2)})
               </p>
             )}
             {isPriceBelowMin && (
