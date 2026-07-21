@@ -251,10 +251,10 @@ export default function WorkOrderDirectBillingForm({
     (sum, wo) => sum + Number(wo.total_parts_cost || 0),
     0,
   );
-  const totalSubtotal = round2(totalLaborCost + totalPartsCost);
-  const totalTax = round2(
-    workOrders.reduce((sum, wo) => sum + Number(wo.tax_amount || 0), 0),
-  );
+  // const totalSubtotal = round2(totalLaborCost + totalPartsCost);
+  // const totalTax = round2(
+  //   workOrders.reduce((sum, wo) => sum + Number(wo.tax_amount || 0), 0),
+  // );
   const totalFinalAmount = round2(
     workOrders.reduce((sum, wo) => sum + Number(wo.final_amount || 0), 0),
   );
