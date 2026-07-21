@@ -319,7 +319,9 @@ export default function DirectInvoiceForm({
       (total - total_inafecta - total_exonerada) / 1.18,
     );
     const total_gravada = gravadaBase;
-    const total_igv = round2(total - total_inafecta - total_exonerada - total_gravada);
+    const total_igv = round2(
+      total - total_inafecta - total_exonerada - total_gravada,
+    );
     return { total_gravada, total_inafecta, total_exonerada, total_igv, total };
   }, [items, igvTypes]);
 
@@ -647,7 +649,8 @@ export default function DirectInvoiceForm({
                         disabled={
                           isPending ||
                           !form.formState.isValid ||
-                          totales.total <= 0
+                          totales.total <= 0 ||
+                          isEditing
                         }
                       >
                         {form.watch("enviar_automaticamente_a_la_sunat") ? (
@@ -670,11 +673,19 @@ export default function DirectInvoiceForm({
                     onConfirm={form.handleSubmit(onSubmit)}
                   />
                 </div>
-                {totales.total <= 0 && form.formState.isSubmitted && (
+                {isEditing && (
                   <p className="text-xs text-center text-destructive font-medium">
-                    El total debe ser mayor a 0 para guardar el documento
+                    Guarda o cancela la edición del ítem antes de guardar el
+                    documento
                   </p>
                 )}
+                {!isEditing &&
+                  totales.total <= 0 &&
+                  form.formState.isSubmitted && (
+                    <p className="text-xs text-center text-destructive font-medium">
+                      El total debe ser mayor a 0 para guardar el documento
+                    </p>
+                  )}
 
                 <div className="pt-4 border-t border-muted-foreground/10">
                   <p className="text-xs text-center text-muted-foreground">
