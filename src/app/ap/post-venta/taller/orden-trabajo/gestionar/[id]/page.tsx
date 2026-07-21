@@ -173,9 +173,21 @@ export default function ManageWorkOrderPage() {
                   <h1 className="text-lg sm:text-2xl font-bold truncate">
                     Gestión de Orden de Trabajo
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
-                    {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {workOrder.sede_name && (
+                      <span className="text-xs sm:text-sm text-gray-500 mt-1 truncate">
+                        {workOrder.sede_name} |
+                      </span>
+                    )}
+                    <CopyCell
+                      className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate"
+                      value={`${workOrder.correlative}`}
+                    />
+                    <CopyCell
+                      className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate"
+                      value={`${workOrder.vehicle_plate}`}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="shrink-0 flex flex-wrap items-start gap-4">

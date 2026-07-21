@@ -252,6 +252,32 @@ export default function LaborDetailsSection({
     }
   };
 
+  const handlePriceUpdate = async (
+    detail: OrderQuotationDetailsResource,
+    newPrice: number,
+  ) => {
+    try {
+      await updateOrderQuotationDetails(detail.id, {
+        order_quotation_id: detail.order_quotation_id,
+        item_type: detail.item_type,
+        description: detail.description,
+        quantity: detail.quantity,
+        unit_measure: detail.unit_measure,
+        retail_price_external: detail.retail_price_external,
+        freight_commission: detail.freight_commission,
+        exchange_rate: detail.exchange_rate,
+        unit_price: newPrice,
+        discount_percentage: Number(detail.discount_percentage || 0),
+        observations: detail.observations ?? undefined,
+      });
+      successToast("Precio actualizado correctamente");
+      await onRefresh();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar el precio");
+    }
+  };
+
   const onSubmit = async (data: LaborDetailSchema) => {
     try {
       setIsSaving(true);
@@ -607,6 +633,7 @@ export default function LaborDetailsSection({
           isRejecting={isRejecting}
           isReverting={isReverting}
           onDiscountUpdate={handleDiscountUpdate}
+          onPriceUpdate={handlePriceUpdate}
           onDelete={onDelete}
           onOpenCreate={handleOpenCreate}
           onOpenEdit={handleOpenEdit}

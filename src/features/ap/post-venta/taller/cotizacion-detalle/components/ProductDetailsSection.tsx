@@ -387,6 +387,32 @@ export default function ProductDetailsSection({
     }
   };
 
+  const handleQuantityUpdate = async (
+    detail: OrderQuotationDetailsResource,
+    newQuantity: number,
+  ) => {
+    try {
+      await updateOrderQuotationDetails(detail.id, {
+        order_quotation_id: detail.order_quotation_id,
+        item_type: detail.item_type,
+        description: detail.description,
+        quantity: newQuantity,
+        unit_measure: detail.unit_measure,
+        retail_price_external: detail.retail_price_external,
+        freight_commission: detail.freight_commission,
+        exchange_rate: detail.exchange_rate,
+        unit_price: detail.unit_price,
+        discount_percentage: detail.discount_percentage,
+        observations: detail.observations ?? undefined,
+      });
+      successToast("Cantidad actualizada correctamente");
+      await onRefresh();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar la cantidad");
+    }
+  };
+
   const [externalPriceText, setExternalPriceText] = useState("");
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
@@ -1238,6 +1264,7 @@ export default function ProductDetailsSection({
           isReverting={isReverting}
           onDiscountUpdate={handleDiscountUpdate}
           onPriceUpdate={handlePriceUpdate}
+          onQuantityUpdate={handleQuantityUpdate}
           onDelete={onDelete}
           onOpenCreate={handleOpenCreate}
           onOpenEdit={handleOpenEdit}

@@ -56,6 +56,11 @@ interface QuotationItemsTableProps {
     detail: OrderQuotationDetailsResource,
     newPrice: number,
   ) => Promise<void>;
+  /** Si se provee, habilita la edición inline de la cantidad */
+  onQuantityUpdate?: (
+    detail: OrderQuotationDetailsResource,
+    newQuantity: number,
+  ) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onOpenCreate: (
     type: "GLOBAL" | "PARTIAL",
@@ -253,6 +258,7 @@ export function QuotationItemsTable({
   isReverting,
   onDiscountUpdate,
   onPriceUpdate,
+  onQuantityUpdate,
   onDelete,
   onOpenCreate,
   onOpenEdit,
@@ -337,7 +343,19 @@ export function QuotationItemsTable({
                   </td>
 
                   <td className="px-3 py-2.5 text-center align-middle">
-                    {getQuantity(detail)}
+                    {onQuantityUpdate ? (
+                      <EditableCell
+                        id={detail.id}
+                        value={detail.quantity}
+                        min={0.01}
+                        widthClass="w-16"
+                        onUpdate={(_id, val) =>
+                          onQuantityUpdate(detail, Number(val))
+                        }
+                      />
+                    ) : (
+                      getQuantity(detail)
+                    )}
                   </td>
 
                   <td className="px-3 py-2.5 text-center align-middle font-medium">
@@ -471,7 +489,19 @@ export function QuotationItemsTable({
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground">Cant.:</span>
-                  <span className="font-medium">{getQuantity(detail)}</span>
+                  {onQuantityUpdate ? (
+                    <EditableCell
+                      id={detail.id}
+                      value={detail.quantity}
+                      min={0.01}
+                      widthClass="w-16"
+                      onUpdate={(_id, val) =>
+                        onQuantityUpdate(detail, Number(val))
+                      }
+                    />
+                  ) : (
+                    <span className="font-medium">{getQuantity(detail)}</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground">Precio:</span>
