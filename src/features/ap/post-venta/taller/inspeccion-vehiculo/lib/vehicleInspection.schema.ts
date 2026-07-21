@@ -43,9 +43,9 @@ export const vehicleInspectionSchemaCreate = z.object({
   tire_pressure_inflation_check: z.boolean().default(false),
   alignment_balancing: z.boolean().default(false),
   pad_replace_disc_resurface: z.boolean().default(false),
-  other_work_details: z.string().max(500).optional(),
+  other_work_details: z.string().max(50000).optional(),
   // Requerimiento del cliente
-  customer_requirement: z.string().max(500).optional(),
+  customer_requirement: z.string().max(50000).optional(),
   // Explicación de resultados
   explanation_work_performed: z.boolean().default(false),
   price_explanation: z.boolean().default(false),
@@ -73,7 +73,10 @@ export const vehicleInspectionSchemaCreate = z.object({
       message: "Nivel de aceite es requerido",
     }),
   mileage: requiredNumber("Kilometraje es requerido"),
-  damages: z.array(vehicleInspectionDamageSchema).max(10, "Máximo 10 daños permitidos").default([]),
+  damages: z
+    .array(vehicleInspectionDamageSchema)
+    .max(10, "Máximo 10 daños permitidos")
+    .default([]),
   customer_signature: z.string().min(1, "Firma del cliente es requerida"),
   signer_type: z.enum(["OWNER", "CONTACT"]).default("OWNER"),
   washed: z.boolean().default(true),
