@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   AccountingAccountPlanSchema,
@@ -39,6 +40,14 @@ export const AccountingAccountPlanForm = ({
     mode: "onChange",
   });
 
+  const isDetraction = form.watch("is_detraction");
+
+  useEffect(() => {
+    if (!isDetraction) {
+      form.setValue("detraction_percentage", "", { shouldValidate: true });
+    }
+  }, [isDetraction]);
+
   const enableCommercialError = form.formState.errors.enable_commercial;
 
   return (
@@ -72,6 +81,18 @@ export const AccountingAccountPlanForm = ({
             label="Detracción"
             text="¿Es detracción?"
           />
+
+          {isDetraction && (
+            <FormInput
+              name="detraction_percentage"
+              label="Porcentaje de detracción"
+              placeholder="Ej: 10"
+              inputMode="numeric"
+              maxLength={2}
+              control={form.control}
+              required
+            />
+          )}
         </div>
 
         {/* Habilitación por área */}

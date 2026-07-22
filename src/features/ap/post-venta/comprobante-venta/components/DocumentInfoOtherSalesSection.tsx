@@ -19,6 +19,9 @@ import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -37,6 +40,7 @@ interface DocumentInfoSectionProps {
   onIgvModeChange?: (mode: "normal" | "inafecta") => void;
   // Se bloquea el cambio de modo una vez que ya hay items agregados.
   igvModeLocked?: boolean;
+  isCommercial?: boolean;
 }
 
 export function DocumentInfoOtherSalesSection({
@@ -54,10 +58,15 @@ export function DocumentInfoOtherSalesSection({
   igvMode = "normal",
   onIgvModeChange,
   igvModeLocked = false,
+  isCommercial = true,
 }: DocumentInfoSectionProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
   >(undefined);
+
+  // Plan contable de detracción seleccionado, solo para determinar el % a aplicar.
+  // No se persiste en el formulario: únicamente alimenta `detraccion_porcentaje`.
+  const [detractionPlanId, setDetractionPlanId] = useState<string>("");
 
   // Cargar el cliente desde el ID cuando viene de una cotización
   const { data: loadedCustomer } = useCustomersById(defaultCustomerId || 0);
@@ -118,12 +127,30 @@ export function DocumentInfoOtherSalesSection({
   const selectedDocumentTypeId = form.watch("sunat_concept_document_type_id");
   const isBoleta =
     Number(selectedDocumentTypeId) === SUNAT_TYPE_INVOICES_ID.BOLETA;
+  const isDetraction = form.watch("detraccion") || false;
 
   useEffect(() => {
     if (isBoleta && form.getValues("detraccion")) {
       form.setValue("detraccion", false);
     }
   }, [isBoleta, form]);
+
+  // Planes contables habilitados para detracción: definen el % a aplicar sobre el total.
+  const { data: detractionAccountPlans = [] } = useAllAccountingAccountPlan({
+    is_detraction: 1,
+    type: ACP_TYPE_SALE,
+    ...(isCommercial ? { enable_commercial: 1 } : { enable_after_sales: 1 }),
+  });
+
+  // Si se desactiva la detracción, limpiar la selección y el % guardado en el form
+  useEffect(() => {
+    if (!isDetraction) {
+      setDetractionPlanId("");
+      if (form.getValues("detraccion_porcentaje") !== undefined) {
+        form.setValue("detraccion_porcentaje", undefined);
+      }
+    }
+  }, [isDetraction, form]);
 
   return (
     <GroupFormSection
@@ -198,9 +225,40 @@ export function DocumentInfoOtherSalesSection({
         description={
           isBoleta
             ? "La detracción no aplica para Boleta"
-            : "Se aplicará el 12% de detracción al documento"
+            : "Seleccione el plan de detracción para definir el % a aplicar"
         }
       />
+
+      {isDetraction && !isBoleta && (
+        <div className="flex flex-col gap-2">
+          <SearchableSelect
+            label="Plan de Detracción *"
+            value={detractionPlanId}
+            onChange={(value) => {
+              setDetractionPlanId(value);
+              const plan = detractionAccountPlans.find(
+                (p) => p.id.toString() === value,
+              );
+              form.setValue(
+                "detraccion_porcentaje",
+                plan?.detraction_percentage ?? undefined,
+                { shouldValidate: true },
+              );
+            }}
+            options={detractionAccountPlans.map((plan) => ({
+              value: plan.id.toString(),
+              label: `${plan.account} - ${plan.description} (${plan.detraction_percentage}%)`,
+            }))}
+            className="w-full!"
+            buttonSize="default"
+          />
+          {form.formState.errors.detraccion_porcentaje && (
+            <p className="text-sm font-medium text-destructive">
+              {form.formState.errors.detraccion_porcentaje.message}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Switch de Modo de IGV (Normal / Inafecto a IGV) */}
       <div className="flex flex-col gap-1">

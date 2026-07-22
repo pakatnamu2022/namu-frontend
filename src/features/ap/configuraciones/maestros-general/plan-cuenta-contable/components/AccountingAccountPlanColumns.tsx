@@ -80,27 +80,35 @@ export const accountingAccountPlanColumns = ({
     accessorKey: "is_detraction",
     header: "Detracción",
     cell: ({ row }) => {
-      const { id, is_detraction, status } = row.original;
-      return permissions.canUpdate ? (
-        <Switch
-          checked={is_detraction}
-          disabled={!status}
-          onCheckedChange={(checked) => onToggleDetraction(id, checked)}
-          className={cn(
-            "cursor-pointer",
-            is_detraction ? "bg-primary" : "bg-secondary",
-            !status && "opacity-50 cursor-not-allowed",
+      const { id, is_detraction, detraction_percentage, status } =
+        row.original;
+      return (
+        <div className="flex items-center gap-2">
+          {permissions.canUpdate ? (
+            <Switch
+              checked={is_detraction}
+              disabled={!status}
+              onCheckedChange={(checked) => onToggleDetraction(id, checked)}
+              className={cn(
+                "cursor-pointer",
+                is_detraction ? "bg-primary" : "bg-secondary",
+                !status && "opacity-50 cursor-not-allowed",
+              )}
+            />
+          ) : (
+            <Switch
+              checked={is_detraction}
+              disabled
+              className={cn(
+                "cursor-not-allowed",
+                is_detraction ? "bg-primary" : "bg-secondary",
+              )}
+            />
           )}
-        />
-      ) : (
-        <Switch
-          checked={is_detraction}
-          disabled
-          className={cn(
-            "cursor-not-allowed",
-            is_detraction ? "bg-primary" : "bg-secondary",
+          {is_detraction && detraction_percentage && (
+            <Badge variant="outline">{detraction_percentage}%</Badge>
           )}
-        />
+        </div>
       );
     },
   },

@@ -199,6 +199,19 @@ export const ElectronicDocumentSchema = z
   )
   .refine(
     (data) => {
+      // Si hay detracción activa, debe haberse seleccionado un plan (define el %)
+      if (data.detraccion) {
+        return !!data.detraccion_porcentaje && data.detraccion_porcentaje > 0;
+      }
+      return true;
+    },
+    {
+      message: "Debe seleccionar el plan de detracción",
+      path: ["detraccion_porcentaje"],
+    },
+  )
+  .refine(
+    (data) => {
       // Validar NC: documento que se modifica
       if ([31].includes(Number(data.sunat_concept_document_type_id))) {
         return !!(

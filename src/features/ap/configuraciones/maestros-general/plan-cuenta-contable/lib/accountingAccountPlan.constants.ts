@@ -26,6 +26,7 @@ export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResourc
       accounting_type_id: 0,
       status: true,
       is_detraction: false,
+      detraction_percentage: null,
       enable_commercial: false,
       enable_after_sales: false,
     },
