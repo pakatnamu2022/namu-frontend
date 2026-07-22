@@ -339,7 +339,7 @@ export default function NubefactPreviewDialog({
                       %
                     </dt>
                     <dd className="font-medium">
-                      {formatMoney(data.detraccion_total, symbol)}
+                      {formatMoney(data.detraccion_total, "S/")}
                     </dd>
                   </div>
                 )}

@@ -15,7 +15,6 @@ import {
   ArrowRightLeft,
   BookCheck,
   BookX,
-  FileX,
   LucideIcon,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
@@ -39,7 +38,6 @@ interface Props {
   onAnnul?: (id: number, reason: string) => void;
   onPreCancel?: (id: number) => Promise<boolean>;
   onMigrate?: (id: number) => void;
-  onCancelConsolidated?: (id: number) => void;
   onSyncAccountingStatus?: (id: number) => void;
   permissions: {
     canSend: boolean;
@@ -59,7 +57,6 @@ export const electronicDocumentColumns = ({
   onAnnul,
   onPreCancel,
   onMigrate,
-  onCancelConsolidated,
   onSyncAccountingStatus,
   permissions,
   isCommercial = false,
@@ -446,11 +443,6 @@ export const electronicDocumentColumns = ({
 
         const canViewMigrationHistory = document.migration_status !== "pending";
 
-        const canCancelConsolidated =
-          onCancelConsolidated &&
-          document.consolidation_type === "massive" &&
-          !document.aceptada_por_sunat;
-
         const canCreateDebitNote =
           isInvoiceOrBoleta &&
           document.status === "accepted" &&
@@ -595,26 +587,6 @@ export const electronicDocumentColumns = ({
                 }
               />
             )}
-
-            {/* Cancelar factura consolidada */}
-            <ConfirmationDialog
-              title="Cancelar factura consolidada"
-              description="¿Está seguro de que desea cancelar esta factura consolidada? Esta acción no se puede deshacer."
-              onConfirm={() =>
-                onCancelConsolidated && onCancelConsolidated(document.id)
-              }
-              icon="warning"
-              confirmText="Sí, cancelar"
-              cancelText="No, volver"
-              trigger={
-                <ButtonAction
-                  tooltip="Cancelar factura consolidada"
-                  icon={FileX}
-                  canRender={!!canCancelConsolidated}
-                  color="red"
-                />
-              }
-            />
 
             {/* Work Orders */}
             {document.consolidation_type === "massive" && (
