@@ -74,9 +74,6 @@ export const electronicDocumentColumns = ({
             <span className="font-medium text-sm">
               {documentType?.description || "N/A"}
             </span>
-            {/* <span className="text-xs text-muted-foreground">
-            {documentType?.prefix || ""}
-          </span> */}
           </div>
         );
       },
@@ -87,11 +84,28 @@ export const electronicDocumentColumns = ({
       cell: ({ row }) => {
         const fullNumber = row.original.full_number;
         const isAdvance = row.original.is_advance_payment;
+        const sunatDocumentTypeId = row.original.sunat_concept_document_type_id;
+
+        const documentTypeLabel: Record<number, string> = {
+          [SUNAT_TYPE_INVOICES_ID.FACTURA]: "Factura",
+          [SUNAT_TYPE_INVOICES_ID.BOLETA]: "Boleta",
+          [SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO]: "N. Crédito",
+          [SUNAT_TYPE_INVOICES_ID.NOTA_DEBITO]: "N. Débito",
+        };
+        const typeLabel = sunatDocumentTypeId
+          ? documentTypeLabel[sunatDocumentTypeId]
+          : undefined;
+
         return (
-          <div className="flex flex-col items-start w-fit">
+          <div className="flex flex-col items-start w-fit gap-0.5">
             <CopyCell size="sm" font="mono" value={fullNumber} />
-            <span className="text-xs">
-              {isAdvance ? "ANTICIPO" : "VENTA INTERNA"}
+            <span className="text-xs text-muted-foreground">
+              {typeLabel}
+              {isAdvance && (
+                <span className="text-amber-600 dark:text-amber-500">
+                  {typeLabel ? " · Anticipo" : "Anticipo"}
+                </span>
+              )}
             </span>
           </div>
         );

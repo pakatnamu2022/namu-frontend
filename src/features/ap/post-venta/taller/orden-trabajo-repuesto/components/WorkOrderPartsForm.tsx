@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -84,6 +84,20 @@ export default function WorkOrderPartsForm({
   const isTraverse = form.watch("is_traverse");
   const isPriceBelowMin =
     !isTraverse && minSalePrice > 0 && unitPrice < minSalePrice;
+
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setMinSalePrice(0);
+    setSalePriceSoles(0);
+    form.setValue("product_id", "");
+    form.setValue("unit_price", 0);
+    form.clearErrors(["product_id", "unit_price"]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTraverse]);
 
   const handleInventoryChange = (_value: string, item?: InventoryResource) => {
     if (isTraverse) return;
