@@ -138,8 +138,7 @@ export const ProformaMesonActionsCell = ({
   const isVisibleRequestDiscount =
     !isDiscarded && !has_invoice_generated && !isForInvoicing && !was_segmented;
 
-  const isVisibleDiscard =
-    !isDiscarded && !has_invoice_generated && !was_segmented;
+  const isVisibleDiscard = !isDiscarded && (!was_segmented || isForInvoicing);
 
   const isVisibleSegment =
     !isDiscarded &&
