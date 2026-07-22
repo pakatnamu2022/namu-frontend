@@ -55,12 +55,33 @@ interface MetricCardProps {
   icon?: LucideIcon;
   variant?: "outline" | "default";
   color?: TailwindColor;
+  colorHex?: string;
   colorIntensity?: ColorIntensity;
   showProgress?: boolean;
   progressValue?: number;
   progressMax?: number;
   className?: string;
   isLoading?: boolean;
+}
+
+// Determina si el texto debe ser claro u oscuro según el contraste del color hex
+function getContrastTextColor(hex: string): string {
+  const normalized = hex.replace("#", "");
+  const fullHex =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : normalized;
+
+  const r = parseInt(fullHex.substring(0, 2), 16);
+  const g = parseInt(fullHex.substring(2, 4), 16);
+  const b = parseInt(fullHex.substring(4, 6), 16);
+
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  return luminance > 0.6 ? "#0f172a" : "#f8fafc";
 }
 
 // Mapeo de colores de background
@@ -703,6 +724,7 @@ export function MetricCard({
   icon: Icon,
   variant = "outline",
   color = "blue",
+  colorHex,
   colorIntensity = "600",
   showProgress = false,
   progressValue = 0,
@@ -713,15 +735,32 @@ export function MetricCard({
   const progressPercentage =
     progressMax > 0 ? (progressValue / progressMax) * 100 : 0;
 
+  const hasHex = Boolean(colorHex);
+  const contrastText = hasHex ? getContrastTextColor(colorHex!) : undefined;
+
   const bgClass =
-    variant === "default" ? colorBgMap[color][colorIntensity] : "";
+    variant === "default" && !hasHex ? colorBgMap[color][colorIntensity] : "";
   const textClass =
-    variant === "default" ? colorTextMap[color][colorIntensity] : "";
-  const valueClass =
-    variant === "default"
+    variant === "default" && !hasHex
       ? colorTextMap[color][colorIntensity]
-      : colorValueMap[color];
-  const bgClassIcon = colorBgMap[color][colorIntensity];
+      : "";
+  const valueClass =
+    !hasHex &&
+    (variant === "default"
+      ? colorTextMap[color][colorIntensity]
+      : colorValueMap[color]);
+  const bgClassIcon = !hasHex ? colorBgMap[color][colorIntensity] : "";
+
+  const cardStyle =
+    variant === "default" && hasHex ? { backgroundColor: colorHex } : undefined;
+  const textStyle =
+    variant === "default" && hasHex ? { color: contrastText } : undefined;
+  const valueStyle = hasHex
+    ? { color: variant === "default" ? contrastText : colorHex }
+    : undefined;
+  const iconBgStyle = hasHex ? { backgroundColor: colorHex } : undefined;
+  const progressIndicatorStyle =
+    hasHex && variant !== "default" ? { backgroundColor: colorHex } : undefined;
 
   return (
     <Card
@@ -732,6 +771,7 @@ export function MetricCard({
         variant === "default" && bgClass,
         className,
       )}
+      style={cardStyle}
     >
       <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex w-full justify-between items-center">
@@ -740,13 +780,17 @@ export function MetricCard({
               "line-clamp-1 font-semibold",
               variant === "default" && textClass,
             )}
+            style={textStyle}
           >
             {title}
           </CardDescription>
 
           {Icon && (
-            <div className={cn("p-1 rounded-md", bgClassIcon)}>
-              <Icon className="w-4 h-4 text-white" />
+            <div className={cn("p-1 rounded-md", bgClassIcon)} style={iconBgStyle}>
+              <Icon
+                className="w-4 h-4"
+                style={{ color: hasHex ? contrastText : "#fff" }}
+              />
             </div>
           )}
         </div>
@@ -763,6 +807,7 @@ export function MetricCard({
                 "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl mb-0",
                 valueClass,
               )}
+              style={valueStyle}
             >
               {value}
             </CardTitle>
@@ -770,8 +815,11 @@ export function MetricCard({
               <p
                 className={cn(
                   "text-xs line-clamp-1",
-                  variant === "default" ? textClass : "text-muted-foreground",
+                  variant === "default" && !hasHex
+                    ? textClass
+                    : !hasHex && "text-muted-foreground",
                 )}
+                style={textStyle}
               >
                 {subtitle}
               </p>
@@ -787,6 +835,7 @@ export function MetricCard({
                 "line-clamp-1 flex gap-2 font-medium items-center",
                 variant === "default" && textClass,
               )}
+              style={textStyle}
             >
               {footer}
               {Icon && <Icon className="size-4" />}
@@ -802,8 +851,11 @@ export function MetricCard({
                   : "bg-gray-200 dark:bg-gray-800",
               )}
               indicatorClassName={cn(
-                variant === "default" ? "bg-white/30" : colorProgressMap[color],
+                variant === "default"
+                  ? "bg-white/30"
+                  : !hasHex && colorProgressMap[color],
               )}
+              indicatorStyle={progressIndicatorStyle}
             />
           )}
         </CardFooter>

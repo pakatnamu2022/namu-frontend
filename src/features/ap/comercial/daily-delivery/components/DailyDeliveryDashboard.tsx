@@ -11,7 +11,7 @@ import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
 import PurchasesReport from "./PurchasesReport";
-import AvancePorSede from "./AvancePorSede";
+import CurrentInventory from "./CurrentInventory";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cn } from "@/lib/utils";
@@ -122,7 +122,7 @@ export default function DailyDeliveryDashboard() {
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
               <TabsTrigger value="purchases">Por Compras</TabsTrigger>
               {canViewBranches && (
-                <TabsTrigger value="avance">Avance por Sede</TabsTrigger>
+                <TabsTrigger value="inventory">Inventario Actual</TabsTrigger>
               )}
             </TabsList>
 
@@ -138,8 +138,8 @@ export default function DailyDeliveryDashboard() {
               <PurchasesReport purchasesReport={data.purchases_report} />
             </TabsContent>
 
-            <TabsContent value="avance" className="mt-4">
-              <AvancePorSede avancePorSede={data.avance_por_sede || []} />
+            <TabsContent value="inventory" className="mt-4">
+              <CurrentInventory currentInventory={data.current_inventory} />
             </TabsContent>
           </Tabs>
         </>
