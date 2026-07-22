@@ -14,6 +14,7 @@ export interface AccountingAccountPlanResource {
   accounting_type_id: number;
   status: boolean;
   is_detraction: boolean;
+  detraction_percentage: number | null;
   enable_commercial: boolean;
   enable_after_sales: boolean;
 }
@@ -24,6 +25,7 @@ export interface AccountingAccountPlanRequest {
   accounting_type_id: number;
   status: boolean;
   is_detraction: boolean;
+  detraction_percentage: number | null;
   enable_commercial: boolean;
   enable_after_sales: boolean;
 }
