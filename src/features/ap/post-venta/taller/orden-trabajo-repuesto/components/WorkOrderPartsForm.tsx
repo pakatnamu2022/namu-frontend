@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,6 +16,8 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderPartsFormProps {
   workOrderId: number;
@@ -39,7 +41,10 @@ interface AddPartFormValues {
   is_traverse: boolean;
 }
 
-const createPartFormSchema = (maxDiscount: number) =>
+const createPartFormSchema = (
+  maxDiscount: number,
+  getCampaignDiscountOverride: () => number | undefined,
+) =>
   z.object({
     product_id: z.string().min(1, "El producto es requerido"),
     quantity_used: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
@@ -47,7 +52,21 @@ const createPartFormSchema = (maxDiscount: number) =>
     discount_percentage: z
       .number()
       .min(0, "El descuento no puede ser negativo")
-      .max(maxDiscount, `El descuento no puede ser mayor a ${maxDiscount}%`),
+      .superRefine((val, ctx) => {
+        // El descuento aplicado por campaña puede superar el máximo normal;
+        // solo se omite la validación cuando el valor coincide exactamente
+        // con el descuento de campaña vigente (asignado automáticamente).
+        const campaignOverride = getCampaignDiscountOverride();
+        if (campaignOverride !== undefined && val === campaignOverride) {
+          return;
+        }
+        if (val > maxDiscount) {
+          ctx.addIssue({
+            code: "custom",
+            message: `El descuento no puede ser mayor a ${maxDiscount}%`,
+          });
+        }
+      }),
     is_traverse: z.boolean(),
   });
 
@@ -67,9 +86,23 @@ export default function WorkOrderPartsForm({
   const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
   const [minSalePrice, setMinSalePrice] = useState(0);
   const [salePriceSoles, setSalePriceSoles] = useState(0);
+  const [hasStock, setHasStock] = useState(false);
+
+  const { data: activeCampaign } = useActiveCampaign({ area_id: AREA_TALLER });
+  const campaignDiscountValue =
+    activeCampaign && activeCampaign.discount_type === "percentage"
+      ? Number(activeCampaign.discount_value)
+      : undefined;
+  const campaignDiscountRef = useRef<number | undefined>(undefined);
+  campaignDiscountRef.current = campaignDiscountValue;
 
   const form = useForm<AddPartFormValues>({
-    resolver: zodResolver(createPartFormSchema(maxDiscountPercentage)),
+    resolver: zodResolver(
+      createPartFormSchema(
+        maxDiscountPercentage,
+        () => campaignDiscountRef.current,
+      ),
+    ),
     mode: "onChange",
     defaultValues: {
       product_id: "",
@@ -85,6 +118,25 @@ export default function WorkOrderPartsForm({
   const isPriceBelowMin =
     !isTraverse && minSalePrice > 0 && unitPrice < minSalePrice;
 
+  const isCampaignDiscountLocked =
+    hasStock && !isTraverse && campaignDiscountValue !== undefined;
+
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  useEffect(() => {
+    if (!isCampaignDiscountLocked) return;
+    const currentDiscount = form.getValues("discount_percentage");
+    if (currentDiscount !== campaignDiscountValue) {
+      form.setValue("discount_percentage", campaignDiscountValue as number);
+    }
+  }, [isCampaignDiscountLocked, campaignDiscountValue, form]);
+
+  // Si es travesía, no aplica el descuento de campaña
+  useEffect(() => {
+    if (isTraverse) {
+      form.setValue("discount_percentage", 0);
+    }
+  }, [isTraverse, form]);
+
   const handleInventoryChange = (_value: string, item?: InventoryResource) => {
     if (isTraverse) return;
     if (item) {
@@ -96,10 +148,12 @@ export default function WorkOrderPartsForm({
       setMinSalePrice(price);
       setSalePriceSoles(priceSoles);
       form.setValue("unit_price", price, { shouldValidate: true });
+      setHasStock(item.available_quantity > 0);
     } else {
       setMinSalePrice(0);
       setSalePriceSoles(0);
       form.setValue("unit_price", 0, { shouldValidate: true });
+      setHasStock(false);
     }
   };
 
@@ -121,6 +175,7 @@ export default function WorkOrderPartsForm({
         queryKey: ["workOrderParts", workOrderId],
       });
       setMinSalePrice(0);
+      setHasStock(false);
       form.reset({
         product_id: "",
         quantity_used: 1,
@@ -250,7 +305,7 @@ export default function WorkOrderPartsForm({
             )}
           </div>
 
-          <div className="items-start">
+          <div className="items-start space-y-1">
             <FormInput
               name="discount_percentage"
               label={`Descuento (% máx: ${maxDiscountPercentage})`}
@@ -260,7 +315,18 @@ export default function WorkOrderPartsForm({
               step="0.01"
               control={form.control}
               placeholder="0.0"
+              disabled={isCampaignDiscountLocked}
+              className={
+                isCampaignDiscountLocked
+                  ? "border-orange-400 bg-orange-50"
+                  : undefined
+              }
             />
+            {isCampaignDiscountLocked && (
+              <p className="text-[10px] font-medium text-orange-600">
+                Descuento por campaña aplicado
+              </p>
+            )}
           </div>
         </div>
 
@@ -271,6 +337,7 @@ export default function WorkOrderPartsForm({
             size="sm"
             onClick={() => {
               setMinSalePrice(0);
+              setHasStock(false);
               form.reset();
               onCancel();
             }}
