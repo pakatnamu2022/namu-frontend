@@ -23,6 +23,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
 import WorkOrdersSheet from "./WorkOrdersSheet";
+import NubefactPreviewDialog from "./NubefactPreviewDialog";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import MigrationStatusBadge from "./MigrationStatusBadge";
@@ -421,7 +422,6 @@ export const electronicDocumentColumns = ({
           document.status === "draft" && onSendToSunat && permissions.canSend;
         const canEdit = document.status === "draft" && permissions.canUpdate;
         const canAnnul =
-          document.status === "accepted" &&
           document.aceptada_por_sunat &&
           !document.anulado &&
           onAnnul &&
@@ -471,6 +471,8 @@ export const electronicDocumentColumns = ({
               ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
               : `${ABSOLUTE_ROUTE}/actualizar/${document.id}`;
 
+        const canPreviewNubefact = document.status === "draft";
+
         return (
           <div className="flex items-center gap-1">
             {/* Ver detalles */}
@@ -479,6 +481,11 @@ export const electronicDocumentColumns = ({
               tooltip="Ver detalles"
               icon={Eye}
             />
+
+            {/* Previsualizar datos que se enviarán a Nubefact (solo si es borrador) */}
+            {canPreviewNubefact && (
+              <NubefactPreviewDialog documentId={document.id} />
+            )}
 
             {/* Editar (solo si es borrador) */}
             <ButtonAction

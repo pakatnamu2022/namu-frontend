@@ -16,11 +16,13 @@ export type BadgeColor =
   | "orange"
   | "green"
   | "emerald"
+  | "lime"
   | "blue"
   | "sky"
   | "red"
   | "yellow"
   | "purple"
+  | "violet"
   | "pink"
   | "indigo"
   | "teal"
@@ -46,11 +48,13 @@ const badgeVariants = cva(
         orange: "",
         green: "",
         emerald: "",
+        lime: "",
         blue: "",
         sky: "",
         red: "",
         yellow: "",
         purple: "",
+        violet: "",
         pink: "",
         indigo: "",
         teal: "",
@@ -133,6 +137,13 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
     ghost:
       "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50",
   },
+  lime: {
+    default: "bg-lime-100 text-lime-700 dark:bg-lime-950 dark:text-lime-200",
+    outline:
+      "bg-lime-100 border-lime-400 text-lime-700 dark:border-lime-900 dark:bg-lime-950 dark:text-lime-200 hover:bg-lime-50 dark:hover:bg-lime-950/50",
+    ghost:
+      "text-lime-600 dark:text-lime-400 hover:bg-lime-50 dark:hover:bg-lime-950/50",
+  },
   blue: {
     default: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-200",
     outline:
@@ -169,6 +180,14 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
       "bg-purple-100 border-purple-400 text-purple-700 dark:border-purple-900 dark:bg-purple-950 dark:text-purple-200 hover:bg-purple-50 dark:hover:bg-purple-950/50",
     ghost:
       "text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50",
+  },
+  violet: {
+    default:
+      "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-200",
+    outline:
+      "bg-violet-100 border-violet-400 text-violet-700 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-200 hover:bg-violet-50 dark:hover:bg-violet-950/50",
+    ghost:
+      "text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/50",
   },
   pink: {
     default: "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-200",

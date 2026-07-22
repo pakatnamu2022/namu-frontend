@@ -19,6 +19,7 @@ import {
   User,
   UserRoundCheck,
   Receipt,
+  Files,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -37,10 +38,17 @@ import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/componen
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
 import OperatorsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OperatorsTab";
 import PartsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/PartsTab";
+import DocumentsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/DocumentsTab";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
 import { WorkOrderQuotationSelectionModal } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderQuotationSelectionModal";
+import { WorkOrderDeductibleAction } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderDeductibleAction";
 import { useParams, useNavigate } from "react-router-dom";
-import { successToast, errorToast, formatDateTime } from "@/core/core.function";
+import {
+  successToast,
+  errorToast,
+  formatDateTime,
+  formatMoney,
+} from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Badge } from "@/components/ui/badge";
 import { CopyCell } from "@/shared/components/CopyCell";
@@ -165,9 +173,21 @@ export default function ManageWorkOrderPage() {
                   <h1 className="text-lg sm:text-2xl font-bold truncate">
                     Gestión de Orden de Trabajo
                   </h1>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
-                    {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {workOrder.sede_name && (
+                      <span className="text-xs sm:text-sm text-gray-500 mt-1 truncate">
+                        {workOrder.sede_name} |
+                      </span>
+                    )}
+                    <CopyCell
+                      className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate"
+                      value={`${workOrder.correlative}`}
+                    />
+                    <CopyCell
+                      className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate"
+                      value={`${workOrder.vehicle_plate}`}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="shrink-0 flex flex-wrap items-start gap-4">
@@ -408,6 +428,59 @@ export default function ManageWorkOrderPage() {
                 </div>
               </div>
             </div>
+
+            {/* Monto total y deducible */}
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-muted bg-muted/20 p-2.5">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                {[
+                  { label: "M. Obra", value: workOrder.total_labor_cost },
+                  { label: "Repuestos", value: workOrder.total_parts_cost },
+                  { label: "IGV", value: workOrder.tax_amount },
+                ].map(({ label, value }) => (
+                  <div key={label} className="leading-tight">
+                    <p className="text-[10px] font-medium text-gray-500 uppercase">
+                      {label}
+                    </p>
+                    <span className="text-xs font-medium text-gray-700 whitespace-nowrap dark:text-gray-300">
+                      {formatMoney(
+                        value,
+                        2,
+                        workOrder.type_currency?.symbol || "S/",
+                      )}
+                    </span>
+                  </div>
+                ))}
+
+                <div className="h-8 w-px bg-border" />
+
+                <div className="flex items-center gap-2">
+                  <Receipt className="h-4 w-4 shrink-0 text-primary" />
+                  <div className="leading-tight">
+                    <p className="text-[10px] font-semibold text-gray-500 uppercase">
+                      Monto Total
+                    </p>
+                    <span className="text-sm font-semibold whitespace-nowrap">
+                      {formatMoney(
+                        workOrder.final_amount,
+                        2,
+                        workOrder.type_currency?.symbol || "S/",
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {!isCancelled && (
+                <WorkOrderDeductibleAction
+                  workOrderId={workOrder.id}
+                  plate={workOrder.vehicle_plate}
+                  deductible={workOrder.deductible}
+                  sedeId={workOrder.sede_id}
+                  currencyId={workOrder.type_currency?.id}
+                  currencySymbol={workOrder.type_currency?.symbol}
+                  deductibleAmount={workOrder.deductible_amount}
+                />
+              )}
+            </div>
           </div>
         </Card>
 
@@ -419,7 +492,7 @@ export default function ManageWorkOrderPage() {
             className="w-full"
           >
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
-              <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-6 gap-1">
+              <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-7 gap-1">
                 {permissions.canOtOptions && (
                   <>
                     <TabsTrigger
@@ -458,6 +531,13 @@ export default function ManageWorkOrderPage() {
                       <Package className="h-4 w-4 shrink-0" />
                       <span>Repuestos</span>
                     </TabsTrigger>
+                    <TabsTrigger
+                      value="documents"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <Files className="h-4 w-4 shrink-0" />
+                      <span>Archivos</span>
+                    </TabsTrigger>
                   </>
                 )}
               </TabsList>
@@ -485,6 +565,10 @@ export default function ManageWorkOrderPage() {
 
               <TabsContent value="parts" className="space-y-4">
                 <PartsTab workOrderId={workOrder.id} />
+              </TabsContent>
+
+              <TabsContent value="documents" className="space-y-4">
+                <DocumentsTab workOrderId={workOrder.id} />
               </TabsContent>
             </div>
           </Tabs>

@@ -43,6 +43,9 @@ export interface ReportField {
   // Si se indica, el rango se envía como un único parámetro `[from, to]` con este nombre
   // en lugar de los dos parámetros nameFrom/nameTo por separado
   rangeParamName?: string;
+  // Valores por defecto para daterange (se aplican a nameFrom/nameTo respectivamente)
+  defaultValueFrom?: any;
+  defaultValueTo?: any;
 }
 
 export interface ReportConfig {
@@ -52,7 +55,12 @@ export interface ReportConfig {
   description: string;
   icon?: string;
   endpoint: string;
+  // Método HTTP usado para solicitar el reporte. Por defecto: "post"
+  method?: "get" | "post";
   fields: ReportField[];
+  // Nombre de la sección/subtítulo bajo la cual se agrupa este reporte en el grid
+  // (ej. "DERCO", "TALLER"). Si no se indica, el reporte se muestra sin agrupar.
+  section?: string;
   // Parámetros adicionales que siempre se envían
   defaultParams?: Record<string, any>;
   // Nombre base del archivo al descargar (sin extensión), usado si el backend

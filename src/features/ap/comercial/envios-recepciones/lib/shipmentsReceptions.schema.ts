@@ -213,7 +213,8 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     (data) => {
       if (
         data.transfer_reason_id ===
-        SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE ||
+        data.transfer_reason_id === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS
       ) {
         return true;
       }
@@ -274,6 +275,7 @@ export const receptionChecklistSchemaUpdate = z.object({
   photo_right: z.instanceof(File, {
     message: "La foto lateral derecha es obligatoria",
   }),
+  photo_vin: z.instanceof(File).optional(),
   general_observations: z.string().max(1000).optional(),
   items_receiving: z.record(z.string(), z.string()),
   damages: z.array(receptionChecklistDamageSchema).default([]),

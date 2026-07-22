@@ -8,6 +8,8 @@ import {
   WorkOrderRequest,
   VehicleWorkOrderHistoryResponse,
   GenerateWorkOrderResponse,
+  StoreWorkOrderDeductibleRequest,
+  WorkOrderDigitalFileResource,
 } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
 
@@ -156,6 +158,25 @@ export async function getVehicleWorkOrderHistory(
     `${ENDPOINT}/vehicle/${vehicleId}/history`,
   );
   return data;
+}
+
+export async function storeWorkOrderDeductible(
+  data: StoreWorkOrderDeductibleRequest,
+): Promise<WorkOrderResource> {
+  const response = await api.post<WorkOrderResource>(
+    `${ENDPOINT}/deductible`,
+    data,
+  );
+  return response.data;
+}
+
+export async function deleteWorkOrderDeductible(
+  deductibleId: number,
+): Promise<WorkOrderResource> {
+  const response = await api.delete<WorkOrderResource>(
+    `${ENDPOINT}/deductible/${deductibleId}`,
+  );
+  return response.data;
 }
 
 export async function unlinkQuotation(id: number): Promise<WorkOrderResource> {
@@ -332,4 +353,27 @@ export async function updateWorkOrderItems(
     data,
   );
   return response.data;
+}
+
+export async function getWorkOrderDocuments(
+  id: number,
+): Promise<WorkOrderDigitalFileResource[]> {
+  const { data } = await api.get<WorkOrderDigitalFileResource[]>(
+    `${ENDPOINT}/${id}/documents`,
+  );
+  return data;
+}
+
+export async function uploadWorkOrderDocuments(
+  id: number,
+  files: File[],
+): Promise<WorkOrderDigitalFileResource[]> {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("files[]", file));
+  const { data } = await api.post<WorkOrderDigitalFileResource[]>(
+    `${ENDPOINT}/${id}/documents`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
 }

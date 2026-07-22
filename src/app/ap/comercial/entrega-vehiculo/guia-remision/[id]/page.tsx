@@ -429,6 +429,7 @@ export default function ShippingGuidePage(): JSX.Element {
             isSubmitting={generateMutation.isPending}
             isDisabled={!canEdit || !checklistConfirmed}
             onCancel={handleCancel}
+            vehicleDelivery={vehicleDelivery}
           />
         </div>
       </div>

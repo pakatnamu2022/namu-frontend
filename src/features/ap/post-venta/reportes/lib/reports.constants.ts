@@ -1,6 +1,5 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "@/shared/lib/reports/reports.interface";
-import { STATUS_WORK_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { SUNAT_CURRENCY_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export const POST_VENTA_REPORTS: ReportConfig[] = [
@@ -8,6 +7,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     id: "work-orders",
     title: "Reporte de Órdenes de Trabajo",
     type: "Taller",
+    section: "DERCO",
     description:
       "Exporta el reporte de órdenes de trabajo del taller, filtrando por estado y rango de fechas.",
     icon: "Wrench",
@@ -15,20 +15,6 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     fileName: "reporte_orden_trabajo",
     availableFormats: ["excel"],
     fields: [
-      {
-        name: "status_id",
-        label: "Estado",
-        type: "multiselect",
-        required: false,
-        placeholder: "Seleccionar estados",
-        multiSelectOptions: Object.entries(STATUS_WORK_ORDER).map(
-          ([key, value]) => ({
-            id: value,
-            name: key.replace(/_/g, " "),
-          }),
-        ),
-        getDisplayValue: (item) => item.name,
-      },
       {
         name: "date_range",
         label: "Rango de Fechas",
@@ -56,6 +42,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     id: "inventory-outputs",
     title: "Reporte de Salidas de Inventario",
     type: "Almacén",
+    section: "DERCO",
     description:
       "Exporta el reporte de salidas de inventario filtrando por rango de fechas.",
     icon: "PackageSearch",
@@ -77,13 +64,38 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
   },
   {
     id: "invoicing",
-    title: "Reporte de Facturación",
+    title: "Reporte de Facturación Taller",
     type: "Facturación",
+    section: "TALLER",
     description:
-      "Exporta el reporte de facturación filtrando por rango de fechas.",
+      "Exporta el reporte de facturación taller filtrando por rango de fechas.",
     icon: "FileText",
     endpoint: "/ap/postVenta/reports/invoicing/export",
-    fileName: "reporte_facturacion",
+    fileName: "reporte_facturacion_taller",
+    availableFormats: ["excel"],
+    fields: [
+      {
+        name: "date_range",
+        label: "Rango de Fechas",
+        type: "daterange",
+        required: false,
+        nameFrom: "date_from",
+        nameTo: "date_to",
+        rangeParamName: "fecha_emision",
+      },
+    ],
+    defaultParams: {},
+  },
+  {
+    id: "meson-invoicing",
+    title: "Reporte de Facturación Repuestos",
+    type: "Facturación",
+    section: "REPUESTOS",
+    description:
+      "Exporta el reporte de facturación de repuestos filtrando por rango de fechas.",
+    icon: "FileText",
+    endpoint: "/ap/postVenta/reports/meson-invoicing/export",
+    fileName: "reporte_facturacion_repuestos",
     availableFormats: ["excel"],
     fields: [
       {
@@ -100,13 +112,14 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
   },
   {
     id: "electronic-documents",
-    title: "Reporte de Documentos Electrónicos",
+    title: "Reporte de Ordenes de Compra / Caja",
     type: "Facturación",
+    section: "CAJA",
     description:
-      "Exporta el reporte de documentos electrónicos filtrando por rango de fechas y moneda.",
+      "Exporta el reporte de ordenes de compra en el área de caja filtrando por rango de fechas y moneda.",
     icon: "FileText",
     endpoint: "/ap/postVenta/reports/electronic-documents/export",
-    fileName: "reporte_documentos_electronicos",
+    fileName: "reporte_orden_compra_caja",
     availableFormats: ["excel"],
     fields: [
       {
@@ -121,11 +134,9 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
       {
         name: "sunat_concept_currency_id",
         label: "Moneda",
-        type: "select",
+        type: "toggle",
         required: false,
-        placeholder: "Seleccionar moneda",
         options: [
-          { label: "Ambos", value: "" },
           { label: "Soles", value: String(SUNAT_CURRENCY_ID.SOLES) },
           { label: "Dólares", value: String(SUNAT_CURRENCY_ID.DOLARES) },
         ],
@@ -137,7 +148,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
 ];
 
 export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
-  ROUTE: "/ap/post-venta/reportes",
+  ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes",
   MODEL: {
     name: "Reportes de Post Venta",
     gender: false,
@@ -147,7 +158,7 @@ export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
   ENDPOINT: "/ap/postVenta/reports",
   ICON: "BarChart",
   QUERY_KEY: "post-venta-reports",
-  ROUTE_ADD: "/ap/post-venta/reportes/nuevo",
-  ROUTE_UPDATE: "/ap/post-venta/reportes/editar",
-  ABSOLUTE_ROUTE: "/ap/post-venta/reportes",
+  ROUTE_ADD: "/ap/post-venta/indicadores-y-reportes/reportes/nuevo",
+  ROUTE_UPDATE: "/ap/post-venta/indicadores-y-reportes/reportes/editar",
+  ABSOLUTE_ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes",
 };

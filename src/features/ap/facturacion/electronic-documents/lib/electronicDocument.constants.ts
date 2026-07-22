@@ -116,6 +116,26 @@ export const NUBEFACT_CODES = {
   GRATUITA: "17",
 };
 
+// Categoría de total en la que debe sumar un item según su code_nubefact.
+// Fuente única de verdad para el cálculo de totales (gravada/exonerada/inafecta/gratuita).
+// Escalable: para soportar un nuevo tratamiento (ej. otro código de gratuita),
+// basta con agregarlo aquí sin tocar la lógica de sumatoria.
+export type IgvCategory = "gravada" | "exonerada" | "inafecta" | "gratuita";
+
+export function getIgvCategory(codeNubefact?: string): IgvCategory | null {
+  if (!codeNubefact) return null;
+  if (codeNubefact === NUBEFACT_CODES.GRAVADA_ONEROSA) return "gravada";
+  if (codeNubefact === NUBEFACT_CODES.EXONERADA_ONEROSA) return "exonerada";
+  if (codeNubefact === NUBEFACT_CODES.INAFECTA_ONEROSA) return "inafecta";
+  if (codeNubefact === NUBEFACT_CODES.GRATUITA) return "gratuita";
+  return null;
+}
+
+// Solo el tratamiento "gravada" cobra IGV; el resto (inafecta/exonerada/gratuita) va con igv=0.
+export function igvTypeChargesIgv(codeNubefact?: string): boolean {
+  return codeNubefact === NUBEFACT_CODES.GRAVADA_ONEROSA;
+}
+
 export const PAYMENT_CONDITIONS = [
   { label: "CONTADO", value: "contado" },
   { label: "CREDITO", value: "credito" },
@@ -134,3 +154,77 @@ export const CREDIT_DAYS_OPTIONS = [
   { label: "30 días", value: "30" },
   { label: "45 días", value: "45" },
 ] as const;
+
+// BILLING_DOCUMENT_TYPE - tipo_de_comprobante de Nubefact
+export const NUBEFACT_DOCUMENT_TYPES: Record<string, string> = {
+  "1": "Factura Electrónica",
+  "2": "Boleta de Venta Electrónica",
+  "3": "Nota de Crédito Electrónica",
+  "4": "Nota de Débito Electrónica",
+};
+
+export function getNubefactDocumentTypeLabel(value?: string | number): string {
+  if (value === undefined || value === null) return "-";
+  return NUBEFACT_DOCUMENT_TYPES[String(value)] || String(value);
+}
+
+// BILLING_DETRACTION_TYPE - detraccion_tipo de Nubefact
+export const NUBEFACT_DETRACTION_TYPES: Record<string, string> = {
+  "1": "001 Azúcar y melaza de caña",
+  "2": "002  Arroz",
+  "3": "003  Alcohol etílico",
+  "4": "004  Recursos Hidrobiológicos",
+  "5": "005  Maíz amarillo duro",
+  "7": "007  Caña de azúcar",
+  "8": "008  Madera",
+  "9": "009  Arena y piedra.",
+  "10": "010 Residuos, subproductos, desechos, recortes y desperdicios",
+  "11": "011 Bienes gravados con el IGV, o renuncia a la exoneración",
+  "12": "012 Intermediación laboral y tercerización",
+  "13": "014 Carnes y despojos comestibles",
+  "14": "016 Aceite de pescado",
+  "15": "017 Harina, polvo y “pellets” de pescado, crustáceos, moluscos y demás invertebrados acuáticos",
+  "17": "019 Arrendamiento de bienes muebles",
+  "18": "020 Mantenimiento y reparación de bienes muebles",
+  "19": "021 Movimiento de carga",
+  "20": "022 Otros servicios empresariales",
+  "21": "023 Leche",
+  "22": "024 Comisión mercantil",
+  "23": "025 Fabricación de bienes por encargo",
+  "24": "026 Servicio de transporte de personas",
+  "25": "027 Servicio de transporte de carga",
+  "26": "028  Transporte de pasajeros",
+  "28": "030 Contratos de construcción",
+  "29": "031 Oro gravado con el IGV",
+  "30": "032 Paprika y otros frutos de los generos capsicum o pimienta",
+  "32": "034 Minerales metálicos no auríferos",
+  "33": "035 Bienes exonerados del IGV",
+  "34": "036 Oro y demás minerales metálicos exonerados del IGV",
+  "35": "037 Demás servicios gravados con el IGV",
+  "37": "039 Minerales no metálicos",
+  "38": "040 Bien inmueble gravado con IGV",
+  "39": "041 Plomo",
+  "40": "013 ANIMALES VIVOS",
+  "41": "015 ABONOS, CUEROS Y PIELES DE ORIGEN ANIMAL",
+  "42": "099 LEY 30737",
+};
+
+export function getNubefactDetractionTypeLabel(
+  value?: string | number | null,
+): string {
+  if (value === undefined || value === null || value === "") return "-";
+  return NUBEFACT_DETRACTION_TYPES[String(value)] || String(value);
+}
+
+// BILLING_CURRENCY - moneda de Nubefact
+export const NUBEFACT_CURRENCIES: Record<string, string> = {
+  "1": "Soles",
+  "2": "Dólares Americanos",
+  "3": "Euros",
+  "4": "Libras Esterlinas",
+};
+
+export function getNubefactCurrencyLabel(value?: string | number): string {
+  if (value === undefined || value === null) return "-";
+  return NUBEFACT_CURRENCIES[String(value)] || String(value);
+}

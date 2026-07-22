@@ -343,3 +343,92 @@ export interface Step {
   error: null;
   last_attempt_at: null | string;
 }
+
+export interface NubefactPreviewItem {
+  unidad_de_medida: string;
+  codigo: string;
+  descripcion: string;
+  cantidad: string;
+  valor_unitario: number;
+  precio_unitario: number;
+  descuento: number;
+  subtotal: string;
+  tipo_de_igv: string;
+  igv: number;
+  total: number;
+  anticipo_regularizacion?: string;
+  anticipo_documento_serie?: string;
+  anticipo_documento_numero?: string;
+  codigo_producto_sunat?: string;
+}
+
+export interface NubefactPreviewGuide {
+  guia_tipo: string;
+  guia_serie_numero: string;
+}
+
+export interface NubefactPreviewInstallment {
+  cuota: string | number;
+  fecha_de_pago: string;
+  importe: string | number;
+}
+
+export interface NubefactPreviewResource {
+  operacion: string;
+  tipo_de_comprobante: string;
+  serie: string;
+  numero: string;
+  sunat_transaction: string;
+  cliente_tipo_de_documento: string;
+  cliente_numero_de_documento: string;
+  cliente_denominacion: string;
+  cliente_direccion: string;
+  cliente_email: string;
+  fecha_de_emision: string;
+  moneda: string;
+  porcentaje_de_igv: string;
+  total_descuento: number;
+  total_anticipo: string;
+  total_gravada: string;
+  total_inafecta: string;
+  total_exonerada: string;
+  total_igv: string;
+  total_gratuita: string;
+  total_otros_cargos: string;
+  total: string;
+  enviar_automaticamente_a_la_sunat: string;
+  enviar_automaticamente_al_cliente: string;
+  codigo_unico: string;
+  observaciones: string;
+  cliente_email_1: string;
+  cliente_email_2: string;
+  fecha_de_vencimiento: string;
+  tipo_de_cambio: string;
+  descuento_global: string;
+  condiciones_de_pago: string;
+  medio_de_pago: string;
+  placa_vehiculo: string;
+  orden_compra_servicio: string;
+  percepcion_tipo: string;
+  percepcion_base_imponible: string;
+  total_percepcion: string;
+  total_incluido_percepcion: string;
+  retencion_tipo: string;
+  retencion_base_imponible: string;
+  total_retencion: string;
+  detraccion: boolean;
+  detraccion_tipo: string | null;
+  detraccion_total: string;
+  detraccion_porcentaje: string;
+  medio_de_pago_detraccion: string;
+  total_isc: string;
+  documento_que_se_modifica_tipo: string;
+  documento_que_se_modifica_serie: string;
+  documento_que_se_modifica_numero: string;
+  tipo_de_nota_de_credito: string | null;
+  tipo_de_nota_de_debito: string | null;
+  items: NubefactPreviewItem[];
+  guia_remision: NubefactPreviewGuide[];
+  venta_al_credito: NubefactPreviewInstallment[];
+  generado_por_contingencia?: boolean;
+}

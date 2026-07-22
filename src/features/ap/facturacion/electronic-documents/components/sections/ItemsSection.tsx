@@ -20,7 +20,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { errorToast } from "@/core/core.function";
 import { FormInput } from "@/shared/components/FormInput";
 import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
-import { QUOTATION_ACCOUNT_PLAN_IDS } from "../../lib/electronicDocument.constants";
+import {
+  QUOTATION_ACCOUNT_PLAN_IDS,
+  NUBEFACT_CODES,
+} from "../../lib/electronicDocument.constants";
 
 interface ItemsSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -33,6 +36,8 @@ interface ItemsSectionProps {
   showActions?: boolean;
   useQuotation?: boolean;
   isDetraction?: boolean;
+  // Si es false, no se filtra el plan de cuenta contable por detracción (se listan todos).
+  filterByDetraction?: boolean;
   minRetentionPrice?: number;
   allowEditLastItemDescription?: boolean;
   isCommercial?: boolean;
@@ -42,6 +47,9 @@ interface ItemsSectionProps {
   onOpenVehicleModel?: () => void;
   onRefreshVehicleModel?: () => void;
   isRefreshingVehicleModel?: boolean;
+  // Modo de IGV del comprobante, definido por Caja a nivel de documento (no por item).
+  // "normal": items gravados con IGV (comportamiento actual). "inafecta": items sin IGV.
+  igvMode?: "normal" | "inafecta";
 }
 
 export function ItemsSection({
@@ -55,6 +63,7 @@ export function ItemsSection({
   showActions = true,
   useQuotation = false,
   isDetraction = false,
+  filterByDetraction = true,
   minRetentionPrice,
   allowEditLastItemDescription = false,
   isCommercial = true,
@@ -62,9 +71,12 @@ export function ItemsSection({
   onOpenVehicleModel,
   onRefreshVehicleModel,
   isRefreshingVehicleModel = false,
+  igvMode = "normal",
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan({
-    is_detraction: isDetraction ? 1 : 0,
+    ...(isAdvancePayment || !filterByDetraction
+      ? {}
+      : { is_detraction: isDetraction ? 1 : 0 }),
     type: ACP_TYPE_SALE,
     ...(isCommercial ? { enable_commercial: 1 } : { enable_after_sales: 1 }),
   });
@@ -111,6 +123,16 @@ export function ItemsSection({
     anticipo_documento_serie: "",
     anticipo_documento_numero: "",
   };
+
+  // Tipo de IGV a aplicar a los items nuevos/editados, según el modo elegido por Caja.
+  const activeIgvTypeCode =
+    igvMode === "inafecta"
+      ? NUBEFACT_CODES.INAFECTA_ONEROSA
+      : NUBEFACT_CODES.GRAVADA_ONEROSA;
+  const activeIgvType = igvTypes.find(
+    (t) => t.code_nubefact === activeIgvTypeCode,
+  );
+  const chargesIgv = igvMode !== "inafecta";
 
   const [newItem, setNewItem] = useState(emptyNewItem);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -167,12 +189,16 @@ export function ItemsSection({
     // 4. subtotal = (valor_unitario * cantidad) - descuento = 500 - 200 = 300
     // 5. igv = subtotal * 0.18 = 300 * 0.18 = 54
     // 6. total = subtotal + igv = 300 + 54 = 354
+    // Cuando el item no cobra IGV (inafecto/exonerado/gratuito): valor_unitario = precio_unitario,
+    // igv = 0 y total = subtotal.
     const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
     const descuento = newItem.descuento || 0;
-    const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
+    const valor_unitario = chargesIgv
+      ? precio_con_igv_input / (1 + porcentaje_de_igv / 100)
+      : precio_con_igv_input;
     const precio_unitario = precio_con_igv_input; // Precio CON IGV (sin descuento aplicado)
     const subtotal = valor_unitario * newItem.cantidad - descuento;
-    const igv = subtotal * (porcentaje_de_igv / 100);
+    const igv = chargesIgv ? subtotal * (porcentaje_de_igv / 100) : 0;
     const total = subtotal + igv;
 
     // Validar que el total no exceda el máximo permitido para anticipos
@@ -214,8 +240,7 @@ export function ItemsSection({
       precio_unitario: precio_unitario,
       descuento: descuento > 0 ? descuento : undefined,
       subtotal: subtotal,
-      sunat_concept_igv_type_id:
-        igvTypes.find((t) => t.code_nubefact === "1")?.id || 0,
+      sunat_concept_igv_type_id: activeIgvType?.id || 0,
       igv: igv,
       total: total,
       account_plan_id: newItem.account_plan_id.toString(),
@@ -282,10 +307,12 @@ export function ItemsSection({
 
     const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
     const descuento = newItem.descuento || 0;
-    const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
+    const valor_unitario = chargesIgv
+      ? precio_con_igv_input / (1 + porcentaje_de_igv / 100)
+      : precio_con_igv_input;
     const precio_unitario = precio_con_igv_input; // Precio CON IGV (sin descuento aplicado)
     const subtotal = valor_unitario * newItem.cantidad - descuento;
-    const igv = subtotal * (porcentaje_de_igv / 100);
+    const igv = chargesIgv ? subtotal * (porcentaje_de_igv / 100) : 0;
     const total = subtotal + igv;
 
     // Validar que el total no exceda el máximo permitido para anticipos
@@ -332,6 +359,7 @@ export function ItemsSection({
       precio_unitario: precio_unitario,
       descuento: descuento > 0 ? descuento : undefined,
       subtotal: subtotal,
+      sunat_concept_igv_type_id: activeIgvType?.id || 0,
       igv: igv,
       total: total,
       account_plan_id: newItem.account_plan_id,
@@ -464,6 +492,19 @@ export function ItemsSection({
       >
         <div className="flex flex-col gap-4">
           <div className="flex-1 space-y-4">
+            {igvMode === "inafecta" && (
+              <Alert className="text-sm p-2">
+                <AlertTitle className="flex items-center gap-2">
+                  <Info className="size-5" />
+                  Comprobante Inafecto a IGV
+                </AlertTitle>
+                <AlertDescription className="text-xs text-muted-foreground">
+                  Este item se registrará sin IGV (precio ingresado = precio
+                  final).
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="flex flex-col gap-2">
               <Label htmlFor="item-description">Descripción *</Label>
               <Textarea

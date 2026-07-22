@@ -133,6 +133,8 @@ export async function updateReceptionChecklist(
     formData.append("photo_left", payload.photo_left);
   if (payload.photo_right instanceof File)
     formData.append("photo_right", payload.photo_right);
+  if (payload.photo_vin instanceof File)
+    formData.append("photo_vin", payload.photo_vin);
 
   // items_receiving: solo los IDs seleccionados como array de enteros
   Object.keys(payload.items_receiving).forEach((itemId) => {

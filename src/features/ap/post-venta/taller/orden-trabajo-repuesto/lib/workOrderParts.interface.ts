@@ -26,6 +26,7 @@ export interface WorkOrderPartsResource {
   tax_amount: number;
   discount_percentage: number;
   part_fully_delivered: boolean;
+  is_traverse: boolean;
 }
 
 export interface WorkOrderPartsRequest {
@@ -37,6 +38,7 @@ export interface WorkOrderPartsRequest {
   quantity_used: number;
   unit_price?: number;
   discount_percentage?: number;
+  is_traverse?: boolean;
 }
 
 export interface getWorkOrderPartsProps {

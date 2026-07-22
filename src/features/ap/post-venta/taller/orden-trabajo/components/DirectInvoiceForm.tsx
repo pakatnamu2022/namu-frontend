@@ -297,28 +297,30 @@ export default function DirectInvoiceForm({
 
   const totales = useMemo(() => {
     const round2 = (n: number) => Math.round(n * 100) / 100;
-    let raw_gravada = 0;
     let raw_inafecta = 0;
     let raw_exonerada = 0;
-
-    let raw_igv = 0;
+    let raw_total = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
         (t) => t.id === item.sunat_concept_igv_type_id,
       );
-      if (igvType?.code_nubefact === "1") raw_gravada += item.subtotal;
-      else if (igvType?.code_nubefact === "20") raw_exonerada += item.subtotal;
+      if (igvType?.code_nubefact === "20") raw_exonerada += item.subtotal;
       else if (igvType?.code_nubefact === "30") raw_inafecta += item.subtotal;
-      raw_igv += item.igv ?? 0;
+      raw_total += item.total ?? 0;
     });
 
-    const total_gravada = round2(raw_gravada);
+    // El total no se recalcula: viene fijo de las OTs. Gravada e IGV se
+    // derivan del total (total / 1.18) para que la suma cuadre exacto.
+    const total = round2(raw_total);
     const total_inafecta = round2(raw_inafecta);
     const total_exonerada = round2(raw_exonerada);
-    const total_igv = round2(raw_igv);
-    const total = round2(
-      total_gravada + total_inafecta + total_exonerada + total_igv,
+    const gravadaBase = round2(
+      (total - total_inafecta - total_exonerada) / 1.18,
+    );
+    const total_gravada = gravadaBase;
+    const total_igv = round2(
+      total - total_inafecta - total_exonerada - total_gravada,
     );
     return { total_gravada, total_inafecta, total_exonerada, total_igv, total };
   }, [items, igvTypes]);
@@ -617,7 +619,7 @@ export default function DirectInvoiceForm({
                 <Separator className="bg-muted-foreground/20" />
 
                 {/* Botones */}
-                <div className="space-y-2 pt-4 flex gap-4">
+                <div className="space-y-2 pt-4 flex gap-4 flex-col">
                   <ConfirmationDialog
                     trigger={
                       <Button
@@ -647,7 +649,8 @@ export default function DirectInvoiceForm({
                         disabled={
                           isPending ||
                           !form.formState.isValid ||
-                          totales.total <= 0
+                          totales.total <= 0 ||
+                          isEditing
                         }
                       >
                         {form.watch("enviar_automaticamente_a_la_sunat") ? (
@@ -670,11 +673,19 @@ export default function DirectInvoiceForm({
                     onConfirm={form.handleSubmit(onSubmit)}
                   />
                 </div>
-                {totales.total <= 0 && form.formState.isSubmitted && (
+                {isEditing && (
                   <p className="text-xs text-center text-destructive font-medium">
-                    El total debe ser mayor a 0 para guardar el documento
+                    Guarda o cancela la edición del ítem antes de guardar el
+                    documento
                   </p>
                 )}
+                {!isEditing &&
+                  totales.total <= 0 &&
+                  form.formState.isSubmitted && (
+                    <p className="text-xs text-center text-destructive font-medium">
+                      El total debe ser mayor a 0 para guardar el documento
+                    </p>
+                  )}
 
                 <div className="pt-4 border-t border-muted-foreground/10">
                   <p className="text-xs text-center text-muted-foreground">

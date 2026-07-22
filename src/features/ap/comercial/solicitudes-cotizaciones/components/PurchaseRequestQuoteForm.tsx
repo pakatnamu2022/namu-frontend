@@ -337,7 +337,6 @@ export const PurchaseRequestQuoteForm = ({
     if (!isInitialLoad) {
       form.setValue("ap_models_vn_id", "");
       form.setValue("vehicle_color_id", "");
-      form.setValue("sale_price", "0");
       form.setValue("ap_vehicle_id", "");
       // Limpiar las referencias
       previousVehicleVnRef.current = undefined;
@@ -747,6 +746,7 @@ export const PurchaseRequestQuoteForm = ({
       description: row.description,
       type: row.type,
       value: row.value,
+      is_locked: row.isLocked,
     }));
 
     const finalData = {

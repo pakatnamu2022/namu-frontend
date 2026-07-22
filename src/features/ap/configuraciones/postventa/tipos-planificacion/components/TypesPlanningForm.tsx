@@ -12,6 +12,7 @@ import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormSwitch } from "@/shared/components/FormSwitch.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
+import { TYPES_DOCUMENT } from "../lib/typesPlanning.constants.ts";
 
 interface TypesPlanningFormProps {
   defaultValues: Partial<TypesPlanningSchema>;
@@ -84,10 +85,7 @@ export const TypesPlanningForm = ({
             control={form.control}
             name="type_document"
             label="Tipo de Documento"
-            options={[
-              { value: "INTERNA", label: "INTERNA" },
-              { value: "PAYMENT_RECEIPTS", label: "COMPROBANTE DE PAGO" },
-            ]}
+            options={TYPES_DOCUMENT}
           />
         </div>
 

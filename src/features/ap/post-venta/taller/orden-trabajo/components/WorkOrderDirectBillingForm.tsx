@@ -251,10 +251,10 @@ export default function WorkOrderDirectBillingForm({
     (sum, wo) => sum + Number(wo.total_parts_cost || 0),
     0,
   );
-  const totalSubtotal = round2(totalLaborCost + totalPartsCost);
-  const totalTax = round2(
-    workOrders.reduce((sum, wo) => sum + Number(wo.tax_amount || 0), 0),
-  );
+  // const totalSubtotal = round2(totalLaborCost + totalPartsCost);
+  // const totalTax = round2(
+  //   workOrders.reduce((sum, wo) => sum + Number(wo.tax_amount || 0), 0),
+  // );
   const totalFinalAmount = round2(
     workOrders.reduce((sum, wo) => sum + Number(wo.final_amount || 0), 0),
   );
@@ -299,7 +299,7 @@ export default function WorkOrderDirectBillingForm({
                 </span>
               </div>
             </div>
-            <div>
+            {/* <div>
               <div className="flex justify-between px-4 py-1.5">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">
@@ -314,7 +314,7 @@ export default function WorkOrderDirectBillingForm({
                   {totalTax.toFixed(2)}
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
         </Card>
       )}

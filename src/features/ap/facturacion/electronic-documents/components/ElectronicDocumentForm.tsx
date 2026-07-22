@@ -14,6 +14,7 @@ import {
   MIN_RETENTION,
   NUBEFACT_CODES,
   QUOTATION_ACCOUNT_PLAN_IDS,
+  getIgvCategory,
 } from "../lib/electronicDocument.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
@@ -530,7 +531,8 @@ export function ElectronicDocumentForm({
         (t) => t.id === item.sunat_concept_igv_type_id,
       );
 
-      if (igvType?.code_nubefact === "1") {
+      const category = getIgvCategory(igvType?.code_nubefact);
+      if (category === "gravada") {
         // Gravado
         if (item.anticipo_regularizacion) {
           if (item.reference_document_id) {
@@ -560,7 +562,7 @@ export function ElectronicDocumentForm({
           total_gravada += item.subtotal;
           total_igv += item.igv;
         }
-      } else if (igvType?.code_nubefact === "20") {
+      } else if (category === "exonerada") {
         if (item.anticipo_regularizacion) {
           // Exonerado
           total_exonerada += item.subtotal;
@@ -569,17 +571,14 @@ export function ElectronicDocumentForm({
           // Exonerado normal
           total_exonerada += item.subtotal;
         }
-      } else if (igvType?.code_nubefact === "30") {
+      } else if (category === "inafecta") {
         if (item.anticipo_regularizacion) {
           total_anticipo += item.subtotal;
         } else {
           // Inafecto
           total_inafecta += item.subtotal;
         }
-      } else if (
-        igvType?.code_nubefact?.startsWith("1") ||
-        igvType?.code_nubefact?.startsWith("2")
-      ) {
+      } else if (category === "gratuita") {
         // Gratuito
         total_gratuita += item.subtotal;
       }

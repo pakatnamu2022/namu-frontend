@@ -14,6 +14,7 @@ import {
   Percent,
   UserCheck,
   FileDown,
+  Truck,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -860,9 +861,28 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               {filteredParts.map((part) => {
                 const partialRequest = getPartialRequest(part.id);
                 return (
-                  <TableRow key={part.id}>
+                  <TableRow
+                    key={part.id}
+                    className={
+                      part.is_traverse
+                        ? "bg-amber-50/60 hover:bg-amber-50 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
+                        : undefined
+                    }
+                  >
                     <TableCell>
-                      <p className="font-medium">{part.product_name}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-medium">{part.product_name}</p>
+                        {part.is_traverse && (
+                          <Badge
+                            color="orange"
+                            size="xs"
+                            icon={Truck}
+                            tooltip="Producto en travesía"
+                          >
+                            Travesía
+                          </Badge>
+                        )}
+                      </div>
                       {part.product_code && (
                         <div className="mt-0.5">
                           <CopyCell

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { FileText } from "lucide-react";
+import { FileText, Info } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
@@ -16,6 +16,9 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { FormInput } from "@/shared/components/FormInput";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -29,6 +32,11 @@ interface DocumentInfoSectionProps {
   hasVehicle?: boolean;
   pendingBalance?: number;
   onCustomerChange?: (customer: CustomersResource | undefined) => void;
+  // Modo de IGV del comprobante (Normal / Inafecto a IGV), controlado por Caja.
+  igvMode?: "normal" | "inafecta";
+  onIgvModeChange?: (mode: "normal" | "inafecta") => void;
+  // Se bloquea el cambio de modo una vez que ya hay items agregados.
+  igvModeLocked?: boolean;
 }
 
 export function DocumentInfoOtherSalesSection({
@@ -43,6 +51,9 @@ export function DocumentInfoOtherSalesSection({
   hasVehicle = true,
   pendingBalance = 0,
   onCustomerChange,
+  igvMode = "normal",
+  onIgvModeChange,
+  igvModeLocked = false,
 }: DocumentInfoSectionProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
@@ -190,6 +201,45 @@ export function DocumentInfoOtherSalesSection({
             : "Se aplicará el 12% de detracción al documento"
         }
       />
+
+      {/* Switch de Modo de IGV (Normal / Inafecto a IGV) */}
+      <div className="flex flex-col gap-1">
+        <Label className="h-fit flex mb-1">Tipo de Operación (IGV)</Label>
+        <Label
+          className={cn(
+            "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background h-8 p-3 gap-3",
+            igvModeLocked
+              ? "opacity-60"
+              : "hover:bg-muted hover:cursor-pointer",
+          )}
+        >
+          <div className="flex flex-col gap-1 flex-1 min-w-0">
+            <p className="text-sm font-medium leading-tight">
+              {igvMode === "inafecta" ? "Inafecto a IGV" : "Normal"}
+            </p>
+          </div>
+          <Switch
+            checked={igvMode === "inafecta"}
+            onCheckedChange={(checked) =>
+              onIgvModeChange?.(checked ? "inafecta" : "normal")
+            }
+            disabled={igvModeLocked}
+            className="shrink-0"
+          />
+        </Label>
+        <p className="text-xs font-normal text-muted-foreground flex items-start gap-1">
+          {igvModeLocked ? (
+            <>
+              <Info className="size-3 mt-0.5 shrink-0" />
+              Para cambiar el modo, elimine primero los items agregados.
+            </>
+          ) : igvMode === "inafecta" ? (
+            "Los items se registrarán sin IGV (comprobante inafecto)"
+          ) : (
+            "Los items se registrarán gravados con IGV (comportamiento estándar)"
+          )}
+        </p>
+      </div>
 
       <FormSelect
         control={form.control}

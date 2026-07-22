@@ -3,7 +3,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   DeliveryStatus,
-  WashStatus,
   VehiclesDeliveryResource,
 } from "../lib/vehicleDelivery.interface";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -36,6 +35,8 @@ import { useNavigate } from "react-router-dom";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
+import { getTodayPeruDateString } from "@/core/core.function";
+import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -87,7 +88,7 @@ export const vehicleDeliveryColumns = ({
       const advisor = row.original.advisor_name;
       const client = row.original.client_name;
       return (
-        <div className="flex flex-col gap-0.5 min-w-[140px]">
+        <div className="flex flex-col gap-0.5 min-w-[140px] max-w-[300px] truncate">
           {advisor ? (
             <div className="flex items-center gap-1.5">
               <User className="size-3 text-muted-foreground shrink-0" />
@@ -112,7 +113,7 @@ export const vehicleDeliveryColumns = ({
     header: "VIN",
     cell: ({ row }) => {
       const vin = row.original.vin;
-      const sede = row.original.sede_name;
+      const model = row.original.vehicle.model.version;
       return (
         <div className="flex flex-col gap-0.5">
           {vin ? (
@@ -125,10 +126,22 @@ export const vehicleDeliveryColumns = ({
           ) : (
             <span className="text-muted-foreground text-xs">—</span>
           )}
-          {sede && (
-            <span className="text-xs text-muted-foreground pl-4">{sede}</span>
-          )}
+          <span className="font-mono text-xs font-semibold tracking-wide pl-4">
+            {model}
+          </span>
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "sede_name",
+    header: "Sede",
+    cell: ({ getValue }) => {
+      const sede = getValue() as string;
+      return sede ? (
+        <Badge color="blue" size="xs">{sede}</Badge>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
       );
     },
   },
@@ -155,8 +168,8 @@ export const vehicleDeliveryColumns = ({
     },
   },
   {
-    accessorKey: "wash_date",
-    header: "Lavado",
+    accessorKey: "created_at",
+    header: "Creación",
     cell: ({ getValue }) => {
       const date = formatDate(getValue() as string | Date);
       if (!date)
@@ -173,26 +186,6 @@ export const vehicleDeliveryColumns = ({
             {format(date, "HH:mm", { locale: es })}
           </span>
         </div>
-      );
-    },
-  },
-  {
-    accessorKey: "status_wash",
-    header: "Estado Lavado",
-    cell: ({ getValue }) => {
-      const value = (getValue() as WashStatus) ?? "pending";
-      const config: Record<
-        WashStatus,
-        { label: string; color: "green" | "amber"; icon: LucideIcon }
-      > = {
-        pending: { label: "Pendiente", color: "amber", icon: XCircle },
-        completed: { label: "Completado", color: "green", icon: CheckCircle2 },
-      };
-      const { label, color, icon } = config[value] ?? config.pending;
-      return (
-        <Badge color={color} icon={icon} className="capitalize w-fit">
-          {label}
-        </Badge>
       );
     },
   },
@@ -223,24 +216,33 @@ export const vehicleDeliveryColumns = ({
     cell: ({ row }) => {
       const { is_extraordinary, extraordinary_approved } = row.original;
       if (!is_extraordinary)
-        return <span className="text-muted-foreground text-xs">—</span>;
-      if (extraordinary_approved === null || extraordinary_approved === undefined) {
+        return (
+          <span className="text-muted-foreground text-xs">
+            <Badge color="gray" icon={Hourglass} className="w-fit">
+              No aplica
+            </Badge>
+          </span>
+        );
+      if (
+        extraordinary_approved === null ||
+        extraordinary_approved === undefined
+      ) {
         return (
           <Badge color="amber" icon={Hourglass} className="w-fit">
-            Pendiente de aprobación
+            Pendiente
           </Badge>
         );
       }
       if (extraordinary_approved) {
         return (
           <Badge color="green" icon={ShieldCheck} className="w-fit">
-            Extraordinaria aprobada
+            Extr. aprobada
           </Badge>
         );
       }
       return (
         <Badge color="red" icon={ShieldX} className="w-fit">
-          Extraordinaria rechazada
+          Extr. rechazada
         </Badge>
       );
     },
@@ -355,6 +357,17 @@ export const vehicleDeliveryColumns = ({
     },
   },
   {
+    id: "migration_status",
+    header: "Estado Migración",
+    cell: ({ row }) => {
+      const migrationStatus = row.original.shipping_guide?.migration_status;
+      if (!migrationStatus)
+        return <span className="text-muted-foreground text-xs">—</span>;
+      return <MigrationStatusBadge migration_status={migrationStatus} />;
+    },
+  },
+
+  {
     accessorKey: "observations",
     header: "Observaciones",
     cell: ({ getValue }) => {
@@ -371,6 +384,7 @@ export const vehicleDeliveryColumns = ({
       );
     },
   },
+
   {
     id: "actions",
     header: "Acciones",
@@ -384,6 +398,12 @@ export const vehicleDeliveryColumns = ({
         status_delivery,
         is_accounted,
       } = row.original;
+
+      const isToday =
+        format(row.original.scheduled_delivery_date, "yyyy-MM-dd", {
+          locale: es,
+        }) == getTodayPeruDateString();
+
       const migrationStatus = row.original.shipping_guide?.migration_status;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
@@ -400,13 +420,15 @@ export const vehicleDeliveryColumns = ({
        */
       const canView = permissions.canView;
 
-      const canOpenChecklist = permissions.canChecklist;
+      const canOpenChecklist =
+        permissions.canChecklist && isToday && !isChecklistConfirmed;
 
       const canDownloadChecklistPDF =
         isChecklistConfirmed && permissions.canGenerate;
 
       const canGenerateGuiaRemision =
         isChecklistConfirmed &&
+        isToday &&
         (!sent_at || aceptada_por_sunat !== true) &&
         permissions.canGenerate;
 
@@ -422,8 +444,7 @@ export const vehicleDeliveryColumns = ({
         !isMigrated &&
         permissions.canMigrate;
 
-      const canViewHistory =
-        !!shipping_guide_id && isMigrated && permissions.canViewHistory;
+      const canViewHistory = !!shipping_guide_id && permissions.canViewHistory;
 
       const canDelete = !shipping_guide_id && permissions.canDelete;
 

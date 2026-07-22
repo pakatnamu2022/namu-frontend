@@ -15,6 +15,13 @@ export interface WorkOrderResponse {
   meta: Meta;
 }
 
+export interface WorkOrderDeductibleResource {
+  id: number;
+  full_number: string;
+  cliente_denominacion: string;
+  cliente_numero_de_documento: string;
+}
+
 export interface WorkOrderResource {
   id: number;
   correlative: string;
@@ -55,6 +62,8 @@ export interface WorkOrderResource {
   discount_amount: number;
   tax_amount: number;
   final_amount: number;
+  deductible_amount: number;
+  deductible: WorkOrderDeductibleResource | null;
   is_delivery: boolean;
   num_doc_contact: string;
   full_contact_name: string;
@@ -141,6 +150,11 @@ export interface WorkOrderRequest {
   sede_id: string;
   estimated_delivery_time: string | Date;
   observations: string;
+}
+
+export interface StoreWorkOrderDeductibleRequest {
+  work_order_id: number;
+  electronic_document_id: number;
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {
@@ -312,4 +326,14 @@ export interface ActiveDocument extends BaseDocument {
 export interface WorkOrderDocumentsTreeResource {
   cancelled: CancelledDocument[];
   active: ActiveDocument[];
+}
+
+// Archivo adjunto a la orden de trabajo (tabla gp_digital_files)
+export interface WorkOrderDigitalFileResource {
+  id: number;
+  name: string;
+  description: string | null;
+  url: string;
+  mimeType: string;
+  created_at: string;
 }

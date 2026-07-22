@@ -69,17 +69,8 @@ export const inventoryColumns = ({
     },
   },
   {
-    accessorKey: "quantity",
-    header: "Stock Total",
-    enableSorting: true,
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return value?.toFixed(2) || "0.00";
-    },
-  },
-  {
     accessorKey: "available_quantity",
-    header: "Stock Disponible",
+    header: "Disponible",
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -87,8 +78,17 @@ export const inventoryColumns = ({
   },
   {
     accessorKey: "reserved_quantity",
-    header: "Stock Reservado",
+    header: "Reservado",
     enableSorting: false,
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "quantity",
+    header: "Total",
+    enableSorting: true,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";

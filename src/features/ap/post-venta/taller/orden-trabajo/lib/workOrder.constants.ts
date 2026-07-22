@@ -68,6 +68,31 @@ export const finishAllowedStatuses: number[] = [
   STATUS_WORK_ORDER.FIN_TRABAJO,
 ];
 
+// AGRUPACION DE ESTADOS PARA EL FILTRO "OTs ABIERTAS / CERRADAS / ANULADAS"
+export const WORK_ORDER_STATUS_GROUP = {
+  ABIERTAS: "abiertas",
+  CERRADAS: "cerradas",
+  ANULADAS: "anuladas",
+} as const;
+
+export type WorkOrderStatusGroup =
+  (typeof WORK_ORDER_STATUS_GROUP)[keyof typeof WORK_ORDER_STATUS_GROUP];
+
+export const WORK_ORDER_STATUS_GROUP_IDS: Record<
+  WorkOrderStatusGroup,
+  number[]
+> = {
+  [WORK_ORDER_STATUS_GROUP.ABIERTAS]: [
+    STATUS_WORK_ORDER.APERTURADO,
+    STATUS_WORK_ORDER.RECEPCIONADO,
+    STATUS_WORK_ORDER.EN_TRABAJO,
+    STATUS_WORK_ORDER.FIN_TRABAJO,
+    STATUS_WORK_ORDER.TERMINADO,
+  ],
+  [WORK_ORDER_STATUS_GROUP.CERRADAS]: [STATUS_WORK_ORDER.CERRADO],
+  [WORK_ORDER_STATUS_GROUP.ANULADAS]: [STATUS_WORK_ORDER.ANULADO],
+};
+
 // RUTAS PARA POSTVENTA - CAJA
 const ROUTE_CAJA = "orden-trabajo-taller-caja";
 const ABSOLUTE_ROUTE_CAJA = `/ap/post-venta/caja/${ROUTE_CAJA}`;

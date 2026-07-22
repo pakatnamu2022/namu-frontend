@@ -32,11 +32,6 @@ import {
   useSuppliersById,
 } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
-import {
-  useCustomers,
-  useCustomersById,
-} from "@/features/ap/comercial/clientes/lib/customers.hook.ts";
-import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface.ts";
 import { EstablishmentsResource } from "@/features/ap/comercial/establecimientos/lib/establishments.interface.ts";
 import { EstablishmentSelectorModal } from "@/features/ap/comercial/envios-recepciones/components/EstablishmentSelectorModal.tsx";
 import {
@@ -60,6 +55,11 @@ import { FormTextArea } from "@/shared/components/FormTextArea.tsx";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { useEstablishmentBySede } from "@/features/ap/comercial/establecimientos/lib/establishments.hook.ts";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { BusinessPartnersResource } from "@/features/ap/business-partners/lib/businessPartners.interface";
+import {
+  useBusinessPartners,
+  useBusinessPartnersById,
+} from "@/features/ap/business-partners/lib/businessPartners.hook";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -615,18 +615,14 @@ export const ProductTransferForm = ({
               name="receiver_destination_id"
               placeholder="Buscar cliente..."
               control={form.control}
-              useQueryHook={useCustomers}
-              mapOptionFn={(item: CustomersResource) => ({
+              useQueryHook={useBusinessPartners}
+              mapOptionFn={(item: BusinessPartnersResource) => ({
                 value: item.id.toString(),
                 label: `${item.num_doc || "S/N"} | ${item.full_name}`,
               })}
-              additionalParams={{
-                type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
-                status_ap: 1,
-              }}
               perPage={10}
               debounceMs={500}
-              useFindByIdHook={useCustomersById}
+              useFindByIdHook={useBusinessPartnersById}
               defaultOption={
                 selectedCustomer
                   ? {
@@ -639,7 +635,10 @@ export const ProductTransferForm = ({
                 watchTransferReasonId ===
                 SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
               }
-              onValueChange={(value, item: CustomersResource | undefined) => {
+              onValueChange={(
+                value,
+                item: BusinessPartnersResource | undefined,
+              ) => {
                 if (value && item) {
                   setSelectedCustomer({ id: item.id, name: item.full_name });
                 } else if (!value) {

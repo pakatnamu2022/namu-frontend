@@ -14,6 +14,8 @@ export default function VehicleDeliveryOptions({
   setDateRange,
   sedeId = "all",
   setSedeId,
+  statusDelivery = "all",
+  setStatusDelivery,
 }: {
   search: string;
   setSearch: (value: string) => void;
@@ -22,6 +24,8 @@ export default function VehicleDeliveryOptions({
   setDateRange: (dateFrom: Date | undefined, dateTo: Date | undefined) => void;
   sedeId?: string;
   setSedeId: (value: string) => void;
+  statusDelivery?: string;
+  setStatusDelivery: (value: string) => void;
 }) {
   const { data: availableSedes = [] } = useMyShops();
 
@@ -33,6 +37,12 @@ export default function VehicleDeliveryOptions({
       })),
     [availableSedes],
   );
+
+  const getStatusDelivery = [
+    { value: "all", label: "Todos" },
+    { value: "pending", label: "Pendientes" },
+    { value: "delivered", label: "Entregados" },
+  ];
 
   return (
     <FilterWrapper>
@@ -46,6 +56,14 @@ export default function VehicleDeliveryOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Seleccionar sede"
+        className="w-fit"
+        classNameOption="text-xs"
+      />
+      <SearchableSelect
+        options={getStatusDelivery}
+        value={statusDelivery}
+        onChange={setStatusDelivery}
+        placeholder="Seleccionar estado"
         className="w-fit"
         classNameOption="text-xs"
       />

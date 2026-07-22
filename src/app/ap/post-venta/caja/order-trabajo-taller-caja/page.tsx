@@ -35,7 +35,12 @@ import { Receipt } from "lucide-react";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { OT_UNBILLED_IDS } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
+import {
+  INTERNA_CC,
+  INTERNA_SC,
+  OT_UNBILLED_IDS,
+  PAYMENT_RECEIPTS,
+} from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function WorkOrderCajaPage() {
@@ -78,7 +83,9 @@ export default function WorkOrderCajaPage() {
   const isBillingView = activeView === "PENDING" || activeView === "INVOICED";
 
   const billingTypesPlanning = allTypesPlanning.filter(
-    (t) => t.type_document === "INTERNA" && !OT_UNBILLED_IDS.includes(t.id),
+    (t) =>
+      (t.type_document === INTERNA_SC || t.type_document === INTERNA_CC) &&
+      !OT_UNBILLED_IDS.includes(t.id),
   );
 
   // Valor efectivo: en vistas de facturación usa el seleccionado o el primero disponible;
@@ -130,7 +137,7 @@ export default function WorkOrderCajaPage() {
           : undefined,
       sede_id: effectiveSedeId || undefined,
       currency_id: efecctiveTypeCurrencyId || undefined,
-      items$typePlanning$type_document: "PAYMENT_RECEIPTS",
+      items$typePlanning$type_document: PAYMENT_RECEIPTS,
       items$typePlanning$id: typePlanningId || undefined,
       status_id: [
         STATUS_WORK_ORDER.APERTURADO,

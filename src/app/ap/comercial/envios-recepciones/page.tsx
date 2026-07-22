@@ -40,11 +40,15 @@ import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
 import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
-import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import {
+  SUNAT_CONCEPTS_ID,
+  SUNAT_CONCEPTS_TYPE,
+} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import {
   generatePDIForVehicle,
   generateInstAccessoriesForVehicle,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -53,7 +57,7 @@ export default function ShipmentsReceptionsPage() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
-
+  const [transferReasonId, setTransferReasonId] = useState<string>("");
   const formattedDateFrom = dateFrom
     ? format(dateFrom, "yyyy-MM-dd")
     : undefined;
@@ -95,13 +99,15 @@ export default function ShipmentsReceptionsPage() {
     per_page,
     issue_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
-    send_dynamics: 1,
-    transfer_reason_id: [
-      SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
-      SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
-      SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
-    ],
+    transfer_reason_id: transferReasonId
+      ? [transferReasonId]
+      : [
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA,
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
+        ],
     document_type: "GUIA_REMISION",
+    is_consignment: 0,
   });
 
   const handleDelete = async () => {
@@ -184,6 +190,10 @@ export default function ShipmentsReceptionsPage() {
     },
   });
 
+  const { data: transferReasons = [] } = useAllSunatConcepts({
+    type: [SUNAT_CONCEPTS_TYPE.TRANSFER_REASON],
+  });
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -229,6 +239,9 @@ export default function ShipmentsReceptionsPage() {
             setDateFrom(from);
             setDateTo(to);
           }}
+          transferReasons={transferReasons}
+          transferReasonId={transferReasonId}
+          setTransferReasonId={setTransferReasonId}
         />
       </ShipmentsReceptionsTable>
 

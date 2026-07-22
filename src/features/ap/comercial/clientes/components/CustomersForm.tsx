@@ -27,10 +27,12 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import { useAllTypeGender } from "@/features/ap/configuraciones/maestros-general/tipos-sexo/lib/typesGender.hook";
 import { useAllMaritalStatus } from "@/features/ap/configuraciones/maestros-general/estado-civil/lib/maritalStatus.hook";
-import { useDistricts } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
+import {
+  useDistricts,
+  useDistrictById,
+} from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
 import { useAllPersonSegment } from "@/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
-import { useAllTaxClassTypes } from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
 import {
   useCeValidation,
   useDniValidation,
@@ -110,6 +112,7 @@ export const CustomersForm = ({
       ...defaultValues,
       company_id: EMPRESA_AP.id,
       type: defaultValues?.type || TYPE_BUSINESS_PARTNERS.CLIENTE,
+      tax_class_type_id: BUSINESS_PARTNERS.TYPE_TAX_CLASS_DEFAULT_ID,
       ...(leadData?.document_type_id && {
         document_type_id: leadData.document_type_id,
         type_person_id: getTypePersonFromDocument(leadData.document_type_id),
@@ -117,7 +120,11 @@ export const CustomersForm = ({
       ...(leadData?.num_doc && { num_doc: leadData.num_doc }),
       ...(leadData?.phone && { phone: leadData.phone }),
       ...(leadData?.email && { email: leadData.email }),
-    },
+      // Solo se usa en frontend para decidir cómo validar (DNI/CE) o si se
+      // omite la validación del cónyuge; nunca se envía al backend, que solo
+      // recibe spouse_num_doc y spouse_full_name.
+      spouse_document_type_id: BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
+    } as any,
     mode: "onChange",
   });
   const { ABSOLUTE_ROUTE } = CUSTOMERS;
@@ -153,10 +160,6 @@ export const CustomersForm = ({
   } = useAllMaritalStatus();
   const { data: personSegment = [], isLoading: isLoadingPersonSegment } =
     useAllPersonSegment();
-  const { data: taxClassType = [], isLoading: isLoadingTaxClassType } =
-    useAllTaxClassTypes({
-      type: TYPE_BUSINESS_PARTNERS.CLIENTE,
-    });
   const { data: economicActivity = [], isLoading: isLoadingEconomicActivity } =
     useAllEconomicActivity();
 
@@ -167,6 +170,9 @@ export const CustomersForm = ({
   const documentNumber = form.watch("num_doc");
   const legalRepresentativeDni = form.watch("legal_representative_num_doc");
   const conductorDni = form.watch("driver_num_doc");
+  const spouseDocumentTypeId: string = form.watch(
+    "spouse_document_type_id" as any,
+  );
   const conyugeDni = form.watch("spouse_num_doc");
   const typePersonWatch = form.watch("type_person_id");
   const isMarried =
@@ -188,6 +194,18 @@ export const CustomersForm = ({
     // si hay CE, agregar aquí
   };
   const expectedDigits = DIGITS_MAP[documentTypeId!] ?? 0;
+
+  // El cónyuge es siempre persona natural: se excluye RUC de las opciones.
+  const spouseDocumentTypes = documentTypes.filter(
+    (type) => type.id.toString() !== BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
+  );
+  const selectedSpouseDocumentType = spouseDocumentTypes.find(
+    (type) => type.id.toString() === spouseDocumentTypeId,
+  );
+  const spouseValidationType =
+    VALIDATABLE_DOCUMENT.TYPE_MAP[spouseDocumentTypeId] || null;
+  const spouseExpectedDigits = DIGITS_MAP[spouseDocumentTypeId] ?? 0;
+  const shouldValidateSpouseDoc = Boolean(spouseValidationType);
 
   const isValidLength =
     documentNumber && documentNumber.length === expectedDigits;
@@ -260,10 +278,35 @@ export const CustomersForm = ({
   } = useDniValidation(
     conyugeDni,
     !isFirstLoad &&
+      spouseValidationType === "dni" &&
       !!conyugeDni &&
       conyugeDni.length === Number(NUM_DIGITS_DNI),
     true,
   );
+
+  const {
+    data: conyugeCeData,
+    isLoading: isConyugeCeLoading,
+    error: conyugeCeError,
+  } = useCeValidation(
+    conyugeDni,
+    !isFirstLoad &&
+      spouseValidationType === "ce" &&
+      !!conyugeDni &&
+      conyugeDni.length === Number(NUM_DIGITS_CE),
+    true,
+  );
+
+  // Datos consolidados de validación del cónyuge (DNI, CE, o ninguno si es
+  // extranjero con un tipo de documento no validable, ej. pasaporte).
+  const conyugeValidationData =
+    spouseValidationType === "dni"
+      ? conyugeDniData
+      : spouseValidationType === "ce"
+        ? conyugeCeData
+        : undefined;
+  const isConyugeValidating = isConyugeDniLoading || isConyugeCeLoading;
+  const conyugeValidationError = conyugeDniError || conyugeCeError;
 
   const {
     data: legalRepDniData,
@@ -497,13 +540,21 @@ export const CustomersForm = ({
   useEffect(() => {
     if (isFirstLoad) return;
 
-    if (conyugeDniData?.success && conyugeDniData.data) {
-      const repInfo = conyugeDniData.data;
+    if (conyugeValidationData?.success && conyugeValidationData.data) {
+      const repInfo = conyugeValidationData.data;
       form.setValue("spouse_full_name", repInfo.names || "");
-    } else if (conyugeDniData && !conyugeDniData.success) {
+    } else if (conyugeValidationData && !conyugeValidationData.success) {
       form.setValue("spouse_full_name", "");
     }
-  }, [conyugeDniData, form]);
+  }, [conyugeValidationData, form]);
+
+  // Al cambiar el tipo de documento del cónyuge se limpia el número y el
+  // nombre, para no dejar datos validados con un tipo de documento distinto.
+  useEffect(() => {
+    if (isFirstLoad) return;
+    form.setValue("spouse_num_doc", "");
+    form.setValue("spouse_full_name", "");
+  }, [spouseDocumentTypeId]);
 
   // UseEffect específico para representante legal:
   useEffect(() => {
@@ -623,7 +674,7 @@ export const CustomersForm = ({
     validationData?.success && validationData.data,
   );
   const shouldDisableSpouseFields = Boolean(
-    conyugeDniData?.success && conyugeDniData.data,
+    conyugeValidationData?.success && conyugeValidationData.data,
   );
   const shouldDisableLegalRepFields = Boolean(
     legalRepDniData?.success && legalRepDniData.data,
@@ -657,7 +708,6 @@ export const CustomersForm = ({
     isLoadingTypeMaritalStatus ||
     isLoadingTypesPerson ||
     isLoadingPersonSegment ||
-    isLoadingTaxClassType ||
     isLoadingEconomicActivity;
 
   if (isLoading) return <FormSkeleton />;
@@ -942,29 +992,18 @@ export const CustomersForm = ({
               placeholder="Selecciona ubigeo"
               control={form.control}
               useQueryHook={useDistricts}
+              useFindByIdHook={useDistrictById}
               mapOptionFn={(item) => ({
                 label: item.name + " - " + item.province + " - " + item.ubigeo,
                 value: item.id.toString(),
               })}
               perPage={10}
               debounceMs={500}
-              disabled={!!districtDefaultOption && mode !== "update"}
               defaultOption={districtDefaultOption}
             />
           </div>
 
-          <FormSelect
-            name="tax_class_type_id"
-            label="Clase de Impuesto"
-            placeholder="Selecciona clase"
-            options={taxClassType.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={mode === "update"}
-          />
+          <input type="hidden" {...form.register("tax_class_type_id")} />
 
           <div className="col-span-1 md:col-span-2 lg:col-span-3">
             <FormInput
@@ -1065,48 +1104,67 @@ export const CustomersForm = ({
             cols={{ sm: 1, md: 3 }}
             className="mt-8"
           >
+            <FormSelect
+              name="spouse_document_type_id"
+              label="Tipo Documento"
+              placeholder="Selecciona tipo"
+              options={spouseDocumentTypes.map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+            />
+
             <FormInput
               control={form.control}
               name="spouse_num_doc"
               label={
                 <div className="flex items-center gap-2 relative">
-                  DNI
+                  {selectedSpouseDocumentType?.description || "Núm. Documento"}
                   <DocumentValidationStatus
-                    shouldValidate={true}
+                    shouldValidate={shouldValidateSpouseDoc}
                     documentNumber={conyugeDni || ""}
-                    expectedDigits={8}
-                    isValidating={isConyugeDniLoading}
+                    expectedDigits={spouseExpectedDigits}
+                    isValidating={isConyugeValidating}
                     leftPosition="right-0"
                   />
                 </div>
               }
-              placeholder="Número de documento"
+              placeholder={
+                shouldValidateSpouseDoc
+                  ? `Ingrese ${spouseExpectedDigits} dígitos`
+                  : "Número de documento"
+              }
               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                 e.target.value = e.target.value.replace(/\D/g, "");
               }}
-              maxLength={8}
+              maxLength={spouseExpectedDigits || undefined}
               addonEnd={
-                <ValidationIndicator
-                  show={!!conyugeDni}
-                  isValidating={isConyugeDniLoading}
-                  isValid={conyugeDniData?.success && !!conyugeDniData.data}
-                  hasError={
-                    !!conyugeDniError ||
-                    (conyugeDniData && !conyugeDniData.success)
-                  }
-                />
+                shouldValidateSpouseDoc && (
+                  <ValidationIndicator
+                    show={!!conyugeDni}
+                    isValidating={isConyugeValidating}
+                    isValid={
+                      conyugeValidationData?.success &&
+                      !!conyugeValidationData.data
+                    }
+                    hasError={
+                      !!conyugeValidationError ||
+                      (conyugeValidationData && !conyugeValidationData.success)
+                    }
+                  />
+                )
               }
             />
 
-            <div className="col-span-1 md:col-span-2">
-              <FormInput
-                control={form.control}
-                name="spouse_full_name"
-                label="Nombres Completos"
-                placeholder="Nombres Completos"
-                disabled={shouldDisableSpouseFields}
-              />
-            </div>
+            <FormInput
+              control={form.control}
+              name="spouse_full_name"
+              label="Nombres Completos"
+              placeholder="Nombres Completos"
+              disabled={shouldDisableSpouseFields}
+            />
           </GroupFormSection>
         )}
 
