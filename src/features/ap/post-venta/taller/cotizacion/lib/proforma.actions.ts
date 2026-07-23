@@ -165,22 +165,30 @@ export async function downloadOrderQuotationPdf(
 export async function downloadOrderQuotationRepuestoPdf(
   id: number,
   show_codes: boolean,
+  format: "pdf" | "excel" = "pdf",
 ): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf-repuesto`, {
     responseType: "blob",
     params: {
       show_codes: show_codes,
+      format: format,
     },
   });
 
+  const mimeType =
+    format === "excel"
+      ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      : "application/pdf";
+  const extension = format === "excel" ? "xlsx" : "pdf";
+
   // Crear un blob desde la respuesta
-  const blob = new Blob([response.data], { type: "application/pdf" });
+  const blob = new Blob([response.data], { type: mimeType });
 
   // Crear un enlace temporal para descargar el archivo
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `cotizacion-${id}.pdf`);
+  link.setAttribute("download", `cotizacion-${id}.${extension}`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);
