@@ -51,6 +51,9 @@ export default function AccountingAccountPlanModal({
       description: data.description,
       accounting_type_id: String(data.accounting_type_id),
       is_detraction: data.is_detraction,
+      detraction_percentage: data.detraction_percentage
+        ? (String(data.detraction_percentage) as "10" | "12")
+        : "",
       enable_commercial: data.enable_commercial,
       enable_after_sales: data.enable_after_sales,
     };
@@ -76,6 +79,10 @@ export default function AccountingAccountPlanModal({
   const handleSubmit = (data: AccountingAccountPlanSchema) => {
     mutate({
       ...data,
+      detraction_percentage:
+        data.is_detraction && data.detraction_percentage
+          ? Number(data.detraction_percentage)
+          : null,
     } as any);
 
     onClose();

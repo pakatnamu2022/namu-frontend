@@ -24,6 +24,7 @@ type Props = {
   max?: number;
   min?: number;
   allowUpdateWithoutChange?: boolean; // si true, llama onUpdate aunque no haya cambios
+  disabled?: boolean; // si true, el valor no se puede editar (solo lectura)
 };
 
 export function EditableCell({
@@ -36,6 +37,7 @@ export function EditableCell({
   max,
   min,
   allowUpdateWithoutChange = false,
+  disabled = false,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState<string>(String(value ?? ""));
@@ -93,8 +95,9 @@ export function EditableCell({
         variant={variant}
         size="sm"
         className={cn("font-semibold h-7", widthClass)}
-        onClick={startEdit}
-        title={"Haga clic para actualizar"}
+        onClick={disabled ? undefined : startEdit}
+        disabled={disabled}
+        title={disabled ? "No editable" : "Haga clic para actualizar"}
       >
         {String(value ?? "—")}
       </Button>

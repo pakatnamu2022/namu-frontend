@@ -265,6 +265,7 @@ export function OtherSalesForm({
               igvMode={igvMode}
               onIgvModeChange={setIgvMode}
               igvModeLocked={itemsCount > 0}
+              isCommercial={isCommercial}
             />
             {/* Agregar Items */}
             <ItemsSection
