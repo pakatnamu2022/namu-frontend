@@ -46,7 +46,7 @@ export const PurchaseRequestActionsCell = ({
 
   const hasQuotation = ap_order_quotation_id !== null;
   const isLockedStatus = approved || status === "cancelled";
-  const hideOptions = !hasQuotation && !isLockedStatus && status === "pending";
+  const hideOptions = !hasQuotation && status === "pending";
   const hideOptionsDelete = !isLockedStatus && status === "pending";
 
   const handleDownloadPdf = async () => {
