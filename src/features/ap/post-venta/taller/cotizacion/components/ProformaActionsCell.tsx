@@ -8,6 +8,8 @@ import {
   Loader2,
   Pencil,
   Copy,
+  FileText,
+  FileSpreadsheet,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
@@ -17,6 +19,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -71,13 +75,24 @@ export const ProformaActionsCell = ({
     }
   };
 
-  const handleDownloadPdf = async (withCode: boolean) => {
+  const handleDownloadPdf = async (
+    withCode: boolean,
+    format: "pdf" | "excel" = "pdf",
+  ) => {
     setIsDownloadingPdf(true);
     try {
-      await downloadOrderQuotationPdf(id, withCode);
-      successToast("PDF descargado correctamente");
+      await downloadOrderQuotationPdf(id, withCode, format);
+      successToast(
+        format === "excel"
+          ? "Excel descargado correctamente"
+          : "PDF descargado correctamente",
+      );
     } catch {
-      errorToast("Error al descargar el PDF");
+      errorToast(
+        format === "excel"
+          ? "Error al descargar el Excel"
+          : "Error al descargar el PDF",
+      );
     } finally {
       setIsDownloadingPdf(false);
     }
@@ -143,19 +158,38 @@ export const ProformaActionsCell = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuLabel>PDF</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() => handleDownloadPdf(true)}
+            onClick={() => handleDownloadPdf(true, "pdf")}
             disabled={isDownloadingPdf}
           >
-            <Download className="size-4 mr-2" />
+            <FileText className="size-4 mr-2" />
             PDF con código
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => handleDownloadPdf(false)}
+            onClick={() => handleDownloadPdf(false, "pdf")}
             disabled={isDownloadingPdf}
           >
-            <Download className="size-4 mr-2" />
+            <FileText className="size-4 mr-2" />
             PDF sin código
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuLabel>Excel</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => handleDownloadPdf(true, "excel")}
+            disabled={isDownloadingPdf}
+          >
+            <FileSpreadsheet className="size-4 mr-2" />
+            Excel con código
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleDownloadPdf(false, "excel")}
+            disabled={isDownloadingPdf}
+          >
+            <FileSpreadsheet className="size-4 mr-2" />
+            Excel sin código
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
