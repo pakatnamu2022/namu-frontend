@@ -49,7 +49,6 @@ export default function AccountingAccountPlanModal({
       account: data.account,
       code_dynamics: data.code_dynamics || "",
       description: data.description,
-      accounting_type_id: String(data.accounting_type_id),
       is_detraction: data.is_detraction,
       detraction_percentage: data.detraction_percentage
         ? (String(data.detraction_percentage) as "10" | "12")

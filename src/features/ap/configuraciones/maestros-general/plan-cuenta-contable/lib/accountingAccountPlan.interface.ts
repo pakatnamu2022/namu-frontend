@@ -6,21 +6,30 @@ export interface AccountingAccountPlanResponse {
   meta: Meta;
 }
 
+export interface AccountingAccountPlanDetractionType {
+  id: number;
+  code_nubefact: string;
+  description: string;
+  type: string;
+  prefix: string | null;
+  length: number | null;
+  tribute_code: string | null;
+  affects_total: boolean | null;
+  iso_code: string;
+  symbol: string | null;
+  percentage: string;
+}
+
 export interface AccountingAccountPlanResource {
   id: number;
   account: string;
   code_dynamics: string;
   description: string;
-  accounting_type_id: number;
-  status: boolean;
   is_detraction: boolean;
   detraction_percentage: number | null;
   sunat_concept_detraction_type_id: number | null;
-  detraction_type?: {
-    id: number;
-    description: string;
-    code_nubefact: string;
-  } | null;
+  detraction_type: AccountingAccountPlanDetractionType | null;
+  status: number;
   enable_commercial: boolean;
   enable_after_sales: boolean;
 }
