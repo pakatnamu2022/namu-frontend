@@ -15,10 +15,8 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
+import { IgvMode } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
 import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
@@ -35,13 +33,19 @@ interface DocumentInfoSectionProps {
   hasVehicle?: boolean;
   pendingBalance?: number;
   onCustomerChange?: (customer: CustomersResource | undefined) => void;
-  // Modo de IGV del comprobante (Normal / Inafecto a IGV), controlado por Caja.
-  igvMode?: "normal" | "inafecta";
-  onIgvModeChange?: (mode: "normal" | "inafecta") => void;
+  // Modo de IGV del comprobante (Normal / Inafecto a IGV / Transferencia Gratuita), controlado por Caja.
+  igvMode?: IgvMode;
+  onIgvModeChange?: (mode: IgvMode) => void;
   // Se bloquea el cambio de modo una vez que ya hay items agregados.
   igvModeLocked?: boolean;
   isCommercial?: boolean;
 }
+
+const IGV_MODE_OPTIONS: { value: IgvMode; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "inafecta", label: "Inafecto a IGV" },
+  { value: "gratuita", label: "Transferencia Gratuita" },
+];
 
 export function DocumentInfoOtherSalesSection({
   form,
@@ -260,31 +264,17 @@ export function DocumentInfoOtherSalesSection({
         </div>
       )}
 
-      {/* Switch de Modo de IGV (Normal / Inafecto a IGV) */}
+      {/* Select de Modo de IGV (Normal / Inafecto a IGV / Transferencia Gratuita) */}
       <div className="flex flex-col gap-1">
-        <Label className="h-fit flex mb-1">Tipo de Operación (IGV)</Label>
-        <Label
-          className={cn(
-            "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background h-8 p-3 gap-3",
-            igvModeLocked
-              ? "opacity-60"
-              : "hover:bg-muted hover:cursor-pointer",
-          )}
-        >
-          <div className="flex flex-col gap-1 flex-1 min-w-0">
-            <p className="text-sm font-medium leading-tight">
-              {igvMode === "inafecta" ? "Inafecto a IGV" : "Normal"}
-            </p>
-          </div>
-          <Switch
-            checked={igvMode === "inafecta"}
-            onCheckedChange={(checked) =>
-              onIgvModeChange?.(checked ? "inafecta" : "normal")
-            }
-            disabled={igvModeLocked}
-            className="shrink-0"
-          />
-        </Label>
+        <SearchableSelect
+          label="Tipo de Operación (IGV)"
+          value={igvMode}
+          onChange={(value) => onIgvModeChange?.(value as IgvMode)}
+          options={IGV_MODE_OPTIONS}
+          disabled={igvModeLocked}
+          className="w-full!"
+          buttonSize="default"
+        />
         <p className="text-xs font-normal text-muted-foreground flex items-start gap-1">
           {igvModeLocked ? (
             <>
@@ -293,6 +283,8 @@ export function DocumentInfoOtherSalesSection({
             </>
           ) : igvMode === "inafecta" ? (
             "Los items se registrarán sin IGV (comprobante inafecto)"
+          ) : igvMode === "gratuita" ? (
+            "Los items se registrarán como transferencia gratuita (sin IGV, sin cobro)"
           ) : (
             "Los items se registrarán gravados con IGV (comportamiento estándar)"
           )}
