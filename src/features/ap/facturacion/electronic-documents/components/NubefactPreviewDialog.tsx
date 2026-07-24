@@ -106,181 +106,177 @@ export default function NubefactPreviewDialog({
         )}
 
         {!isFetching && data && (
-          <div className="mx-auto max-w-3xl rounded-lg border bg-white p-6 text-slate-900 shadow-sm print:shadow-none">
-            {/* Encabezado */}
-            <div className="flex items-start justify-between gap-4 border-b pb-4">
-              <div className="flex items-start gap-3">
+          <div className="flex h-full w-full justify-center overflow-y-auto bg-muted/40 py-6 print:bg-white print:py-0">
+            <div
+              className="w-full max-w-sm bg-background px-5 py-6 font-mono text-foreground shadow-lg print:shadow-none print:text-slate-900"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(to bottom, transparent, transparent 27px, color-mix(in srgb, currentColor 3%, transparent) 27px, color-mix(in srgb, currentColor 3%, transparent) 28px)",
+              }}
+            >
+              {/* Encabezado */}
+              <div className="flex flex-col items-center gap-1.5 text-center">
                 <img
                   src="/images/logo-ap.png"
                   alt="Automotores Pakatnamu"
-                  className="h-14 w-auto shrink-0 object-contain"
+                  className="h-8 w-auto object-contain"
                 />
-                <div className="flex flex-col gap-0.5 pt-1">
-                  <span className="text-xs text-slate-600">
-                    CAR. PANAMERICANA NORTE NRO. 1006 (COSTAD COLEG. SANTO
-                    TORIBIO-CURVA...)
-                  </span>
-                  <span className="text-xs text-slate-600">
-                    CHICLAYO - CHICLAYO - LAMBAYEQUE
-                  </span>
-                </div>
-              </div>
-              <div className="shrink-0 rounded-md bg-slate-100 px-4 py-3 text-center">
-                <p className="text-xs font-medium text-slate-600">
+                <p className="text-[10px] leading-tight text-muted-foreground">
+                  CAR. PANAMERICANA NORTE NRO. 1006 (COSTAD COLEG. SANTO
+                  TORIBIO-CURVA...)
+                </p>
+                <p className="text-[10px] leading-tight text-muted-foreground">
+                  CHICLAYO - CHICLAYO - LAMBAYEQUE
+                </p>
+                <p className="text-[10px] font-medium text-muted-foreground">
                   RUC 20538993400
                 </p>
-                <p className="text-sm font-bold uppercase leading-tight">
+              </div>
+
+              <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+
+              <div className="text-center">
+                <p className="text-xs font-semibold uppercase leading-tight">
                   {getNubefactDocumentTypeLabel(data.tipo_de_comprobante)}
                 </p>
-                <p className="text-sm font-bold">
+                <p className="text-sm font-bold tracking-wide">
                   {data.serie}-{data.numero}
                 </p>
               </div>
-            </div>
 
-            {/* Datos cliente / documento */}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-md border p-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Datos del Cliente
-                </p>
-                <dl className="space-y-0.5 text-xs">
-                  <div className="flex gap-2">
-                    <dt className="w-20 shrink-0 text-slate-500">
-                      {data.cliente_tipo_de_documento === "6" ? "RUC" : "DOC."}
-                    </dt>
-                    <dd className="font-medium">
-                      {data.cliente_numero_de_documento}
-                    </dd>
-                  </div>
-                  <div className="flex gap-2">
-                    <dt className="w-20 shrink-0 text-slate-500">
-                      Denominación
-                    </dt>
-                    <dd className="font-medium">{data.cliente_denominacion}</dd>
-                  </div>
-                  <div className="flex gap-2">
-                    <dt className="w-20 shrink-0 text-slate-500">Dirección</dt>
-                    <dd className="font-medium">{data.cliente_direccion}</dd>
-                  </div>
-                </dl>
-              </div>
+              <div className="my-3 border-t border-dashed border-muted-foreground/40" />
 
-              <div className="rounded-md border p-3">
-                <dl className="space-y-0.5 text-xs">
-                  <div className="flex gap-2">
-                    <dt className="w-28 shrink-0 text-slate-500">
-                      Fecha Emisión
+              {/* Datos cliente / documento */}
+              <dl className="space-y-1 text-[11px] leading-tight">
+                <div className="flex justify-between gap-2">
+                  <dt className="shrink-0 text-muted-foreground">
+                    {data.cliente_tipo_de_documento === "6" ? "RUC" : "DOC."}
+                  </dt>
+                  <dd className="text-right font-medium">
+                    {data.cliente_numero_de_documento}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="shrink-0 text-muted-foreground">CLIENTE</dt>
+                  <dd className="text-right font-medium">
+                    {data.cliente_denominacion}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="shrink-0 text-muted-foreground">DIRECCIÓN</dt>
+                  <dd className="text-right font-medium">
+                    {data.cliente_direccion}
+                  </dd>
+                </div>
+                {!!data.cliente_email && (
+                  <div className="flex justify-between gap-2">
+                    <dt className="shrink-0 text-muted-foreground">EMAIL</dt>
+                    <dd className="text-right font-medium">
+                      {data.cliente_email}
+                    </dd>
+                  </div>
+                )}
+                <div className="flex justify-between gap-2">
+                  <dt className="shrink-0 text-muted-foreground">EMISIÓN</dt>
+                  <dd className="text-right font-medium">
+                    {formatDate(data.fecha_de_emision)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="shrink-0 text-muted-foreground">VENC.</dt>
+                  <dd className="text-right font-medium">
+                    {formatDate(data.fecha_de_vencimiento)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="shrink-0 text-muted-foreground">MONEDA</dt>
+                  <dd className="text-right font-medium">
+                    {getNubefactCurrencyLabel(data.moneda)}
+                  </dd>
+                </div>
+                {!!data.tipo_de_cambio && Number(data.tipo_de_cambio) > 0 && (
+                  <div className="flex justify-between gap-2">
+                    <dt className="shrink-0 text-muted-foreground">T. CAMBIO</dt>
+                    <dd className="text-right font-medium">
+                      {data.tipo_de_cambio}
+                    </dd>
+                  </div>
+                )}
+                {!!data.condiciones_de_pago && (
+                  <div className="flex justify-between gap-2">
+                    <dt className="shrink-0 text-muted-foreground">
+                      CONDICIÓN
                     </dt>
-                    <dd className="font-medium">
-                      {formatDate(data.fecha_de_emision)}
+                    <dd className="text-right font-medium">
+                      {data.condiciones_de_pago}
                     </dd>
                   </div>
-                  <div className="flex gap-2">
-                    <dt className="w-28 shrink-0 text-slate-500">
-                      Fecha Venc.
-                    </dt>
-                    <dd className="font-medium">
-                      {formatDate(data.fecha_de_vencimiento)}
-                    </dd>
-                  </div>
-                  <div className="flex gap-2">
-                    <dt className="w-28 shrink-0 text-slate-500">Moneda</dt>
-                    <dd className="font-medium">
-                      {getNubefactCurrencyLabel(data.moneda)}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
+                )}
+              </dl>
 
-            {/* Items */}
-            <div className="mt-4 overflow-hidden rounded-md border">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-slate-800 text-white">
-                    <th className="px-2 py-2 text-left font-semibold">CANT.</th>
-                    <th className="px-2 py-2 text-left font-semibold">UM</th>
-                    <th className="px-2 py-2 text-left font-semibold">CÓD.</th>
-                    <th className="px-2 py-2 text-left font-semibold">
-                      DESCRIPCIÓN
-                    </th>
-                    <th className="px-2 py-2 text-right font-semibold">V/U</th>
-                    <th className="px-2 py-2 text-right font-semibold">P/U</th>
-                    <th className="px-2 py-2 text-right font-semibold">
-                      IMPORTE
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {data.items.map((item, index) => (
-                    <tr key={index}>
-                      <td className="px-2 py-1.5">{item.cantidad}</td>
-                      <td className="px-2 py-1.5">{item.unidad_de_medida}</td>
-                      <td className="px-2 py-1.5">{item.codigo}</td>
-                      <td className="px-2 py-1.5">{item.descripcion}</td>
-                      <td className="px-2 py-1.5 text-right">
-                        {Number(item.valor_unitario).toLocaleString("es-PE", {
-                          minimumFractionDigits: 3,
-                        })}
-                      </td>
-                      <td className="px-2 py-1.5 text-right">
+              <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+
+              {/* Items */}
+              <div className="space-y-2.5 text-[11px]">
+                {data.items.map((item, index) => (
+                  <div key={index}>
+                    <p className="font-medium uppercase leading-tight">
+                      {item.descripcion}
+                    </p>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>
+                        {item.cantidad} {item.unidad_de_medida} x{" "}
                         {Number(item.precio_unitario).toLocaleString("es-PE", {
-                          minimumFractionDigits: 3,
+                          minimumFractionDigits: 2,
                         })}
-                      </td>
-                      <td className="px-2 py-1.5 text-right font-medium">
+                        {!!item.codigo && ` · ${item.codigo}`}
+                      </span>
+                      <span className="font-semibold text-foreground">
                         {formatMoney(item.total, symbol)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Cuotas de crédito */}
-            {data.venta_al_credito?.length > 0 && (
-              <div className="mt-4 overflow-hidden rounded-md border">
-                <p className="border-b bg-slate-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Venta al Crédito
-                </p>
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="bg-slate-100">
-                      <th className="px-3 py-1.5 text-left font-semibold text-slate-600">
-                        CUOTA
-                      </th>
-                      <th className="px-3 py-1.5 text-left font-semibold text-slate-600">
-                        FECHA DE PAGO
-                      </th>
-                      <th className="px-3 py-1.5 text-right font-semibold text-slate-600">
-                        IMPORTE
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {data.venta_al_credito.map((cuota, index) => (
-                      <tr key={index}>
-                        <td className="px-3 py-1.5">{cuota.cuota}</td>
-                        <td className="px-3 py-1.5">
-                          {formatDate(String(cuota.fecha_de_pago))}
-                        </td>
-                        <td className="px-3 py-1.5 text-right font-medium">
-                          {formatMoney(cuota.importe, symbol)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
 
-            {/* Totales */}
-            <div className="mt-4 flex justify-end">
-              <dl className="w-64 space-y-1 text-xs">
+              {/* Cuotas de crédito */}
+              {data.venta_al_credito?.length > 0 && (
+                <>
+                  <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+                  <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Venta al Crédito
+                  </p>
+                  <div className="space-y-1 text-[11px]">
+                    {data.venta_al_credito.map((cuota, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          CUOTA {cuota.cuota} ·{" "}
+                          {formatDate(String(cuota.fecha_de_pago))}
+                        </span>
+                        <span className="font-medium">
+                          {formatMoney(cuota.importe, symbol)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+
+              {/* Totales */}
+              <dl className="space-y-1 text-[11px]">
+                {Number(data.total_anticipo) > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">ANTICIPO</dt>
+                    <dd className="font-medium">
+                      -{formatMoney(data.total_anticipo, symbol)}
+                    </dd>
+                  </div>
+                )}
                 {Number(data.total_gravada) > 0 && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">GRAVADA</dt>
+                    <dt className="text-muted-foreground">GRAVADA</dt>
                     <dd className="font-medium">
                       {formatMoney(data.total_gravada, symbol)}
                     </dd>
@@ -288,7 +284,7 @@ export default function NubefactPreviewDialog({
                 )}
                 {Number(data.total_inafecta) > 0 && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">INAFECTA</dt>
+                    <dt className="text-muted-foreground">INAFECTA</dt>
                     <dd className="font-medium">
                       {formatMoney(data.total_inafecta, symbol)}
                     </dd>
@@ -296,7 +292,7 @@ export default function NubefactPreviewDialog({
                 )}
                 {Number(data.total_exonerada) > 0 && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">EXONERADA</dt>
+                    <dt className="text-muted-foreground">EXONERADA</dt>
                     <dd className="font-medium">
                       {formatMoney(data.total_exonerada, symbol)}
                     </dd>
@@ -304,101 +300,165 @@ export default function NubefactPreviewDialog({
                 )}
                 {Number(data.total_gratuita) > 0 && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">GRATUITA</dt>
+                    <dt className="text-muted-foreground">GRATUITA</dt>
                     <dd className="font-medium">
                       {formatMoney(data.total_gratuita, symbol)}
                     </dd>
                   </div>
                 )}
+                {Number(data.total_isc) > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">ISC</dt>
+                    <dd className="font-medium">
+                      {formatMoney(data.total_isc, symbol)}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <dt className="text-slate-500">
-                    IGV {Number(data.porcentaje_de_igv).toFixed(2)} %
+                  <dt className="text-muted-foreground">
+                    IGV {Number(data.porcentaje_de_igv).toFixed(2)}%
                   </dt>
                   <dd className="font-medium">
                     {formatMoney(data.total_igv, symbol)}
                   </dd>
                 </div>
+                {Number(data.total_otros_cargos) > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">OTROS CARGOS</dt>
+                    <dd className="font-medium">
+                      {formatMoney(data.total_otros_cargos, symbol)}
+                    </dd>
+                  </div>
+                )}
+                {Number(data.descuento_global) > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">DESCUENTO GLOBAL</dt>
+                    <dd className="font-medium">
+                      -{formatMoney(data.descuento_global, symbol)}
+                    </dd>
+                  </div>
+                )}
                 {Number(data.total_descuento) > 0 && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">DESCUENTO</dt>
+                    <dt className="text-muted-foreground">DESCUENTO</dt>
                     <dd className="font-medium">
                       -{formatMoney(data.total_descuento, symbol)}
                     </dd>
                   </div>
                 )}
-                <div className="flex justify-between border-t pt-1 text-sm">
-                  <dt className="font-semibold">TOTAL</dt>
-                  <dd className="font-bold">
-                    {formatMoney(data.total, symbol)}
-                  </dd>
-                </div>
-                {data.detraccion && (
-                  <div className="flex justify-between text-amber-700">
-                    <dt>
-                      DETRACCIÓN {Number(data.detraccion_porcentaje).toFixed(2)}
-                      %
+                {Number(data.total_percepcion) > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">
+                      PERCEPCIÓN{" "}
+                      {data.percepcion_tipo ? `(${data.percepcion_tipo})` : ""}
                     </dt>
                     <dd className="font-medium">
-                      {formatMoney(data.detraccion_total, "S/")}
+                      {formatMoney(data.total_percepcion, symbol)}
+                    </dd>
+                  </div>
+                )}
+                {Number(data.total_retencion) > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">RETENCIÓN</dt>
+                    <dd className="font-medium">
+                      -{formatMoney(data.total_retencion, symbol)}
                     </dd>
                   </div>
                 )}
               </dl>
-            </div>
 
-            {/* Observaciones / condiciones */}
-            <div className="mt-4 space-y-1 border-t pt-3 text-xs">
-              {!!data.observaciones && (
-                <p>
-                  <span className="font-semibold">Observaciones: </span>
-                  {data.observaciones}
-                </p>
-              )}
-              {!!data.medio_de_pago && (
-                <p>
-                  <span className="font-semibold">Forma de Pago: </span>
-                  {data.medio_de_pago}
-                </p>
-              )}
+              <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+
+              <div className="flex justify-between text-base font-bold">
+                <span>TOTAL</span>
+                <span>{formatMoney(data.total, symbol)}</span>
+              </div>
+
               {data.detraccion && (
+                <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+                  <span>
+                    DETRACCIÓN {Number(data.detraccion_porcentaje).toFixed(2)}%
+                  </span>
+                  <span className="font-medium">
+                    {formatMoney(data.detraccion_total, "S/")}
+                  </span>
+                </div>
+              )}
+
+              {/* Observaciones / condiciones */}
+              {(!!data.observaciones ||
+                !!data.medio_de_pago ||
+                data.detraccion ||
+                !!data.placa_vehiculo ||
+                !!data.orden_compra_servicio) && (
                 <>
-                  {!!data.medio_de_pago_detraccion && (
-                    <p>
-                      <span className="font-semibold">
-                        Operación sujeta al Sistema de Pago de Obligaciones
-                        Tributarias.
-                      </span>{" "}
-                      {data.medio_de_pago_detraccion}
-                    </p>
-                  )}
-                  {!!data.detraccion_tipo && (
-                    <p>
-                      <span className="font-semibold">Tipo de Detracción:</span>{" "}
-                      {getNubefactDetractionTypeLabel(data.detraccion_tipo)}
-                    </p>
-                  )}
+                  <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+                  <div className="space-y-1 text-[10px] leading-relaxed text-muted-foreground">
+                    {!!data.observaciones && (
+                      <p>
+                        <span className="font-semibold text-foreground">
+                          Obs:{" "}
+                        </span>
+                        {data.observaciones}
+                      </p>
+                    )}
+                    {!!data.medio_de_pago && (
+                      <p>
+                        <span className="font-semibold text-foreground">
+                          Forma de Pago:{" "}
+                        </span>
+                        {data.medio_de_pago}
+                      </p>
+                    )}
+                    {data.detraccion && (
+                      <>
+                        {!!data.medio_de_pago_detraccion && (
+                          <p>
+                            <span className="font-semibold text-foreground">
+                              Operación sujeta al SPOT.
+                            </span>{" "}
+                            {data.medio_de_pago_detraccion}
+                          </p>
+                        )}
+                        {!!data.detraccion_tipo && (
+                          <p>
+                            <span className="font-semibold text-foreground">
+                              Tipo de Detracción:{" "}
+                            </span>
+                            {getNubefactDetractionTypeLabel(
+                              data.detraccion_tipo,
+                            )}
+                          </p>
+                        )}
+                      </>
+                    )}
+                    {!!data.placa_vehiculo && (
+                      <p>
+                        <span className="font-semibold text-foreground">
+                          Placa:{" "}
+                        </span>
+                        {data.placa_vehiculo}
+                      </p>
+                    )}
+                    {!!data.orden_compra_servicio && (
+                      <p>
+                        <span className="font-semibold text-foreground">
+                          O/C:{" "}
+                        </span>
+                        {data.orden_compra_servicio}
+                      </p>
+                    )}
+                  </div>
                 </>
               )}
-              {!!data.placa_vehiculo && (
-                <p>
-                  <span className="font-semibold">Placa: </span>
-                  {data.placa_vehiculo}
-                </p>
-              )}
-              {!!data.orden_compra_servicio && (
-                <p>
-                  <span className="font-semibold">
-                    Orden de Compra/Servicio:{" "}
-                  </span>
-                  {data.orden_compra_servicio}
-                </p>
-              )}
-            </div>
 
-            {/* Nota informativa */}
-            <div className="mt-4 rounded-md bg-slate-50 p-3 text-[11px] text-slate-500">
-              Esta es una previsualización de los datos que se enviarán a
-              Nubefact / SUNAT. El comprobante aún no ha sido emitido.
+              <div className="my-3 border-t border-dashed border-muted-foreground/40" />
+
+              {/* Nota informativa */}
+              <p className="text-center text-[9px] leading-snug text-muted-foreground">
+                Esta es una previsualización de los datos que se enviarán a
+                Nubefact / SUNAT. El comprobante aún no ha sido emitido.
+              </p>
             </div>
           </div>
         )}
