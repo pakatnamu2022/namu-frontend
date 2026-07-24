@@ -136,17 +136,6 @@ export function igvTypeChargesIgv(codeNubefact?: string): boolean {
   return codeNubefact === NUBEFACT_CODES.GRAVADA_ONEROSA;
 }
 
-// Modo de operación del comprobante a nivel de documento (elegido por Caja),
-// que determina qué sunat_concept_igv_type_id se asigna a los items nuevos.
-export type IgvMode = "normal" | "inafecta" | "gratuita";
-
-// Código Nubefact de tipo de IGV asociado a cada modo de documento.
-export const IGV_MODE_CODES: Record<IgvMode, string> = {
-  normal: NUBEFACT_CODES.GRAVADA_ONEROSA,
-  inafecta: NUBEFACT_CODES.INAFECTA_ONEROSA,
-  gratuita: NUBEFACT_CODES.GRATUITA,
-};
-
 export const PAYMENT_CONDITIONS = [
   { label: "CONTADO", value: "contado" },
   { label: "CREDITO", value: "credito" },

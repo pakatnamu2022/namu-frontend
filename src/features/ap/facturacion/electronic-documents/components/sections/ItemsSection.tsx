@@ -22,8 +22,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import {
   QUOTATION_ACCOUNT_PLAN_IDS,
-  IGV_MODE_CODES,
-  IgvMode,
+  NUBEFACT_CODES,
 } from "../../lib/electronicDocument.constants";
 
 interface ItemsSectionProps {
@@ -49,8 +48,8 @@ interface ItemsSectionProps {
   onRefreshVehicleModel?: () => void;
   isRefreshingVehicleModel?: boolean;
   // Modo de IGV del comprobante, definido por Caja a nivel de documento (no por item).
-  // "normal": items gravados con IGV. "inafecta"/"gratuita": items sin IGV.
-  igvMode?: IgvMode;
+  // "normal": items gravados con IGV (comportamiento actual). "inafecta": items sin IGV.
+  igvMode?: "normal" | "inafecta";
 }
 
 export function ItemsSection({
@@ -126,11 +125,14 @@ export function ItemsSection({
   };
 
   // Tipo de IGV a aplicar a los items nuevos/editados, según el modo elegido por Caja.
-  const activeIgvTypeCode = IGV_MODE_CODES[igvMode];
+  const activeIgvTypeCode =
+    igvMode === "inafecta"
+      ? NUBEFACT_CODES.INAFECTA_ONEROSA
+      : NUBEFACT_CODES.GRAVADA_ONEROSA;
   const activeIgvType = igvTypes.find(
     (t) => t.code_nubefact === activeIgvTypeCode,
   );
-  const chargesIgv = igvMode === "normal";
+  const chargesIgv = igvMode !== "inafecta";
 
   const [newItem, setNewItem] = useState(emptyNewItem);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -499,19 +501,6 @@ export function ItemsSection({
                 <AlertDescription className="text-xs text-muted-foreground">
                   Este item se registrará sin IGV (precio ingresado = precio
                   final).
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {igvMode === "gratuita" && (
-              <Alert className="text-sm p-2">
-                <AlertTitle className="flex items-center gap-2">
-                  <Info className="size-5" />
-                  Transferencia Gratuita
-                </AlertTitle>
-                <AlertDescription className="text-xs text-muted-foreground">
-                  Este item se registrará como gratuito, sin IGV y sin monto a
-                  cobrar (precio ingresado = precio referencial).
                 </AlertDescription>
               </Alert>
             )}

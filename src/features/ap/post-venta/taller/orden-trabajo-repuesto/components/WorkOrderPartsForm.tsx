@@ -236,7 +236,7 @@ export default function WorkOrderPartsForm({
         <FormSwitch
           control={form.control}
           name="is_traverse"
-          text="Es travesía (EN DESARROLLO)"
+          text="Es travesía"
           textDescription={
             isTraverse
               ? "Activo: no se validará stock disponible ni precio de venta mínimo"
@@ -249,7 +249,6 @@ export default function WorkOrderPartsForm({
               ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
               : undefined
           }
-          disabled={true}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
