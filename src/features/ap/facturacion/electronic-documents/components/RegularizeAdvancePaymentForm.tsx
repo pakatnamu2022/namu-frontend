@@ -341,6 +341,7 @@ export function RegularizeAdvancePaymentForm({
               useQuotation={false}
               isDetraction={false}
               filterByDetraction={false}
+              isCommercial={false}
             />
 
             {/* Configuración adicional (subset) */}
