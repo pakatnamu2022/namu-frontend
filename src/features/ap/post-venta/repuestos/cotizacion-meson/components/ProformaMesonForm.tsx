@@ -50,9 +50,9 @@ import {
   useProduct,
   useProductById,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
-import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { Badge } from "@/components/ui/badge";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
@@ -826,9 +826,7 @@ export default function ProformaMesonForm({
   approvedDiscountRequests = [],
 }: ProformaMesonFormProps) {
   const router = useNavigate();
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
-  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
     null,
@@ -963,35 +961,24 @@ export default function ProformaMesonForm({
     }
   }, [quotationDate, form]);
 
-  // Consultar tipo de cambio cuando se monta el componente o cambia la fecha
-  useEffect(() => {
-    const fetchExchangeRate = async () => {
-      if (!quotationDate) return;
-
-      const dateObj = new Date(quotationDate);
-      if (isNaN(dateObj.getTime())) return;
-
-      setIsLoadingExchangeRate(true);
-      try {
-        const formattedDate = format(dateObj, "yyyy-MM-dd");
-        const response = await api.get(
-          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
-        );
-
-        if (response.data?.data?.rate) {
-          const rate = parseFloat(response.data.data.rate);
-          setExchangeRate(rate);
-        }
-      } catch (error) {
-        console.error("Error al obtener tipo de cambio:", error);
-        setExchangeRate(null);
-      } finally {
-        setIsLoadingExchangeRate(false);
-      }
-    };
-
-    fetchExchangeRate();
+  // Consultar tipo de cambio cuando cambia la fecha de cotización
+  const quotationDateFormatted = useMemo(() => {
+    if (!quotationDate) return "";
+    const dateObj = new Date(quotationDate);
+    if (isNaN(dateObj.getTime())) return "";
+    return format(dateObj, "yyyy-MM-dd");
   }, [quotationDate]);
+
+  const {
+    data: exchangeRateData,
+    isLoading: isLoadingExchangeRate,
+  } = useExchangeRateByDateAndCurrency(
+    Number(CURRENCY_TYPE_IDS.DOLLARS),
+    quotationDateFormatted,
+  );
+  const exchangeRate = exchangeRateData?.rate
+    ? Number(exchangeRateData.rate)
+    : null;
 
   // Consultar stock de productos seleccionados
   // Crear un string con los IDs de productos para detectar cambios
