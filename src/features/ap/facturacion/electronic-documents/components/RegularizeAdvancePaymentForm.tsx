@@ -340,6 +340,7 @@ export function RegularizeAdvancePaymentForm({
               isFromQuotation={false}
               useQuotation={false}
               isDetraction={false}
+              filterByDetraction={false}
             />
 
             {/* Configuración adicional (subset) */}
