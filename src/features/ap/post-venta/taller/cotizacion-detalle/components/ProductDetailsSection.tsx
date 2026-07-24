@@ -196,12 +196,19 @@ export default function ProductDetailsSection({
     apClassArticleId !== null &&
     apClassArticleId !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén,
+  // y limpiarlo si deja de aplicar (p. ej. al cambiar a un repuesto de lubricantes)
   useEffect(() => {
-    if (!isApCampaignDiscountLocked) return;
     const currentDiscount = apForm.getValues("ap_discount");
-    if (currentDiscount !== campaignDiscountValue) {
-      apForm.setValue("ap_discount", campaignDiscountValue as number);
+    if (isApCampaignDiscountLocked) {
+      if (currentDiscount !== campaignDiscountValue) {
+        apForm.setValue("ap_discount", campaignDiscountValue as number);
+      }
+    } else if (
+      campaignDiscountValue !== undefined &&
+      currentDiscount === campaignDiscountValue
+    ) {
+      apForm.setValue("ap_discount", 0);
     }
   }, [isApCampaignDiscountLocked, campaignDiscountValue, apForm]);
 
@@ -552,12 +559,19 @@ export default function ProductDetailsSection({
     !!productData &&
     productData.ap_class_article_id !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén,
+  // y limpiarlo si deja de aplicar (p. ej. al cambiar a un repuesto de lubricantes)
   useEffect(() => {
-    if (!isCampaignDiscountLocked) return;
     const currentDiscount = form.getValues("discount_percentage");
-    if (currentDiscount !== campaignDiscountValue) {
-      form.setValue("discount_percentage", campaignDiscountValue as number);
+    if (isCampaignDiscountLocked) {
+      if (currentDiscount !== campaignDiscountValue) {
+        form.setValue("discount_percentage", campaignDiscountValue as number);
+      }
+    } else if (
+      campaignDiscountValue !== undefined &&
+      currentDiscount === campaignDiscountValue
+    ) {
+      form.setValue("discount_percentage", 0);
     }
   }, [isCampaignDiscountLocked, campaignDiscountValue, form]);
 
@@ -1263,6 +1277,7 @@ export default function ProductDetailsSection({
           emptyMessage="No hay items de repuestos"
           formatCurrency={formatCurrency}
           maxDiscountAllowed={maxDiscountAllowed}
+          campaignDiscountValue={campaignDiscountValue}
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}

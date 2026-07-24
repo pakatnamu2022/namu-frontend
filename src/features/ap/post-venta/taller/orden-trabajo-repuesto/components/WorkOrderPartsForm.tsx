@@ -141,12 +141,19 @@ export default function WorkOrderPartsForm({
     classArticleId !== null &&
     classArticleId !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén,
+  // y limpiarlo si deja de aplicar (p. ej. al cambiar a un repuesto de lubricantes)
   useEffect(() => {
-    if (!isCampaignDiscountLocked) return;
     const currentDiscount = form.getValues("discount_percentage");
-    if (currentDiscount !== campaignDiscountValue) {
-      form.setValue("discount_percentage", campaignDiscountValue as number);
+    if (isCampaignDiscountLocked) {
+      if (currentDiscount !== campaignDiscountValue) {
+        form.setValue("discount_percentage", campaignDiscountValue as number);
+      }
+    } else if (
+      campaignDiscountValue !== undefined &&
+      currentDiscount === campaignDiscountValue
+    ) {
+      form.setValue("discount_percentage", 0);
     }
   }, [isCampaignDiscountLocked, campaignDiscountValue, form]);
 
