@@ -8,11 +8,11 @@ import { translateMovementType } from "@/features/ap/post-venta/gestion-almacen/
 import { ArrowDown, ArrowUp, RotateCcw, XCircle } from "lucide-react";
 import InventoryMovementActions from "./InventoryMovementActions.tsx";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
-import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface.ts";
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
+import { ShippingGuidesResource } from "@/features/ap/shipping_guides/lib/shippingGuides.interface.ts";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -156,11 +156,8 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       // TRANSFER_OUT - Mostrar almacén destino y guía de remisión
-      if (
-        movementType === "TRANSFER_OUT" ||
-        referenceType?.includes("ShipmentsReceptions")
-      ) {
-        const shipment = reference as ShipmentsReceptionsResource;
+      if (movementType === "TRANSFER_OUT") {
+        const shipment = reference as ShippingGuidesResource;
         const destinationName =
           shipment.receiver_establishment?.description ||
           shipment.receiver_name ||
@@ -180,14 +177,15 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       // TRANSFER_IN - Mostrar almacén origen y guía de remisión
-      if (
-        movementType === "TRANSFER_IN" ||
-        referenceType?.includes("TransferReception")
-      ) {
-        const transferReception = reference as TransferReceptionResource;
-        const warehouseOrigin =
-          transferReception.shipping_guide?.transmitter_establishment;
-        const shippingGuide = transferReception.shipping_guide;
+      if (movementType === "TRANSFER_IN") {
+        // La referencia puede venir como TransferReception (con shipping_guide anidado)
+        // o directamente como ShippingGuides, según el origen del movimiento
+        const isShippingGuide = referenceType?.includes("ShippingGuides");
+
+        const shippingGuide = isShippingGuide
+          ? (reference as ShippingGuidesResource)
+          : (reference as TransferReceptionResource).shipping_guide;
+        const warehouseOrigin = shippingGuide?.transmitter_establishment;
 
         return (
           <div className="flex flex-col text-sm">
