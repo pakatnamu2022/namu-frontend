@@ -48,9 +48,9 @@ import {
   useProductById,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { FormInput } from "@/shared/components/FormInput";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { QuotationItemsTable } from "./QuotationItemsTable";
@@ -129,8 +129,17 @@ export default function ProductDetailsSection({
   const { user, general } = useAuthStore();
   const freightCommissionMultiplier = 1 + (general?.freight_commission ?? 0.05);
   const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
+  const quotationDateFormatted = quotationDate
+    ? format(new Date(quotationDate), "yyyy-MM-dd")
+    : "";
+  const { data: exchangeRateData, isLoading: isLoadingExchangeRate } =
+    useExchangeRateByDateAndCurrency(
+      Number(CURRENCY_TYPE_IDS.DOLLARS),
+      quotationDateFormatted,
+    );
+  const exchangeRate = exchangeRateData?.rate
+    ? Number(exchangeRateData.rate)
+    : null;
 
   const { data: activeCampaign } = useActiveCampaign({ area_id: AREA_TALLER });
   const campaignDiscountValue =
@@ -520,28 +529,8 @@ export default function ProductDetailsSection({
   }, [selectedProductId]);
 
   useEffect(() => {
-    const fetchExchangeRate = async () => {
-      setIsLoadingExchangeRate(true);
-      try {
-        const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
-        const response = await api.get(
-          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
-        );
-        if (response.data?.data?.rate) {
-          const rate = parseFloat(response.data.data.rate);
-          setExchangeRate(rate);
-          form.setValue("exchange_rate", rate);
-        }
-      } catch (error) {
-        console.error("Error al obtener tipo de cambio:", error);
-        setExchangeRate(null);
-        form.setValue("exchange_rate", 0);
-      } finally {
-        setIsLoadingExchangeRate(false);
-      }
-    };
-    fetchExchangeRate();
-  }, [quotationDate, form]);
+    form.setValue("exchange_rate", exchangeRate || 0);
+  }, [exchangeRate, form]);
 
   const hasStockInWarehouse = (() => {
     const currentProductStock = stockData?.data?.find(
