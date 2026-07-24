@@ -80,7 +80,7 @@ export const accountingAccountPlanColumns = ({
     accessorKey: "is_detraction",
     header: "Detracción",
     cell: ({ row }) => {
-      const { id, is_detraction, detraction_percentage, status } =
+      const { id, is_detraction, detraction_percentage, detraction_type, status } =
         row.original;
       return (
         <div className="flex items-center gap-2">
@@ -107,6 +107,9 @@ export const accountingAccountPlanColumns = ({
           )}
           {is_detraction && detraction_percentage && (
             <Badge variant="outline">{detraction_percentage}%</Badge>
+          )}
+          {is_detraction && detraction_type && (
+            <Badge variant="outline">{detraction_type.description}</Badge>
           )}
         </div>
       );

@@ -27,6 +27,7 @@ export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResourc
       status: true,
       is_detraction: false,
       detraction_percentage: null,
+      sunat_concept_detraction_type_id: null,
       enable_commercial: false,
       enable_after_sales: false,
     },
