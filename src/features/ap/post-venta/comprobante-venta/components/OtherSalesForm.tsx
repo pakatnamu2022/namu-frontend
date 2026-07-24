@@ -13,6 +13,7 @@ import { SummarySection } from "@/features/ap/facturacion/electronic-documents/c
 import {
   DEFAULT_IGV_PERCENTAGE,
   getIgvCategory,
+  IgvMode,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import {
   useNextCorrelativeElectronicDocument,
@@ -58,7 +59,7 @@ export function OtherSalesForm({
 
   // Modo de IGV del comprobante: Normal (gravado) o Inafecto a IGV.
   // Se bloquea una vez que ya hay items agregados, para no dejar items inconsistentes.
-  const [igvMode, setIgvMode] = useState<"normal" | "inafecta">("normal");
+  const [igvMode, setIgvMode] = useState<IgvMode>("normal");
   const itemsCount = form.watch("items")?.length || 0;
 
   // Sincronizar sunat_concept_transaction_type_id con is_advance_payment
