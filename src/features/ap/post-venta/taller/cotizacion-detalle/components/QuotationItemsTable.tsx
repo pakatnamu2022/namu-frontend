@@ -15,7 +15,10 @@ import {
   STATUS_REJECTED,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
+import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import React from "react";
+
+const SUPPLY_TYPE_STOCK = "STOCK";
 
 export interface QuotationItemColumn {
   header: string;
@@ -31,6 +34,9 @@ interface QuotationItemsTableProps {
   emptyMessage: string;
   formatCurrency: (v: string | number | null | undefined) => string;
   maxDiscountAllowed: number;
+  /** Valor del descuento de campaña activa (tipo porcentaje). Si se define, bloquea la
+   * edición del % Desc. en ítems abastecidos por Stock cuyo producto no sea lubricante. */
+  campaignDiscountValue?: number;
   discountRequests: DiscountRequestOrderQuotationResource[];
   globalRequest: DiscountRequestOrderQuotationResource | undefined;
   permissions: {
@@ -249,6 +255,7 @@ export function QuotationItemsTable({
   emptyMessage,
   formatCurrency,
   maxDiscountAllowed,
+  campaignDiscountValue,
   discountRequests,
   globalRequest,
   permissions,
@@ -282,6 +289,15 @@ export function QuotationItemsTable({
       (r) =>
         r.type === TYPE_PARTIAL && r.ap_order_quotation_detail_id === detailId,
     );
+
+  // El descuento por campaña ya viene asignado automáticamente al crear el ítem;
+  // no debe permitirse editarlo manualmente mientras siga abasteciéndose por Stock
+  // y el producto no sea de la clase lubricantes.
+  const isCampaignDiscountLocked = (detail: OrderQuotationDetailsResource) =>
+    campaignDiscountValue !== undefined &&
+    detail.supply_type === SUPPLY_TYPE_STOCK &&
+    !!detail.product &&
+    detail.product.ap_class_article_id !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
   if (isLoading) {
     return (
@@ -382,6 +398,7 @@ export function QuotationItemsTable({
                         min={0}
                         max={maxDiscountAllowed}
                         widthClass="w-14"
+                        disabled={isCampaignDiscountLocked(detail)}
                         onUpdate={(_id, val) =>
                           onDiscountUpdate(detail, Number(val))
                         }
@@ -528,6 +545,7 @@ export function QuotationItemsTable({
                       min={0}
                       max={maxDiscountAllowed}
                       widthClass="w-14"
+                      disabled={isCampaignDiscountLocked(detail)}
                       onUpdate={(_id, val) =>
                         onDiscountUpdate(detail, Number(val))
                       }

@@ -271,16 +271,12 @@ export function SummarySection({
             </div>
           </div>
 
-          {/* <Separator className="bg-muted-foreground/20" /> */}
-
           {/* Totales */}
-          <div className="space-y-3 border pt-2 rounded-lg">
+          <div className="space-y-2">
             {totales.total_gravada > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Gravada
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. gravada</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_gravada.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -289,11 +285,9 @@ export function SummarySection({
               </div>
             )}
             {totales.total_exonerada > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Exonerada
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. exonerada</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_exonerada.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -302,11 +296,9 @@ export function SummarySection({
               </div>
             )}
             {totales.total_inafecta > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Inafecta
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. inafecta</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_inafecta.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -315,11 +307,9 @@ export function SummarySection({
               </div>
             )}
             {totales.total_gratuita > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Gratuita
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. gratuita</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_gratuita.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -327,11 +317,11 @@ export function SummarySection({
                 </span>
               </div>
             )}
-            <div className="flex justify-between items-center text-sm px-2">
-              <span className="text-muted-foreground font-mono uppercase">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">
                 IGV ({porcentaje_de_igv}%)
               </span>
-              <span className="font-medium">
+              <span className="tabular-nums">
                 {currencySymbol}{" "}
                 {totales.total_igv.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
@@ -339,13 +329,9 @@ export function SummarySection({
               </span>
             </div>
 
-            <div className="border border-dashed border-primary/20 m-0" />
-
-            <div className="flex justify-between items-center p-3 bg-muted rounded-b-lg">
-              <span className="text-base font-semibold font-mono uppercase text-blue-600 dark:text-blue-400">
-                Total
-              </span>
-              <span className="text-2xl font-medium text-blue-600 dark:text-blue-400">
+            <div className="flex justify-between items-center rounded-2xl bg-muted/40 px-4 py-3 mt-3">
+              <span className="text-sm font-semibold">Total</span>
+              <span className="text-2xl font-semibold tabular-nums">
                 {currencySymbol}
                 {totales.total.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
@@ -356,16 +342,16 @@ export function SummarySection({
 
           {/* Detracción */}
           {hasDetraccion && (
-            <div className="space-y-2 border border-dashed border-muted-foreground/20 pt-2 rounded-lg">
-              <p className="text-xs font-mono uppercase text-muted-foreground px-3">
+            <div className="space-y-2 rounded-2xl bg-muted/40 p-4">
+              <p className="text-xs font-medium text-muted-foreground mb-1">
                 Forma de pago con detracción
               </p>
 
-              <div className="flex justify-between items-center text-xs px-3">
-                <span className="text-muted-foreground/80 font-mono uppercase">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground/80">
                   Detracción ({detraccionPorcentaje}%)
                 </span>
-                <span className="text-muted-foreground">
+                <span className="tabular-nums">
                   S/{" "}
                   {detraccionAmountSoles.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -373,11 +359,11 @@ export function SummarySection({
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-xs px-3">
-                <span className="text-muted-foreground/80 font-mono uppercase">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground/80">
                   Cliente paga
                 </span>
-                <span className="text-muted-foreground">
+                <span className="tabular-nums">
                   {currencySymbol}
                   {totalConDetraccion.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -385,11 +371,9 @@ export function SummarySection({
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-xs px-3 pb-2">
-                <span className="text-muted-foreground/80 font-mono uppercase">
-                  Depósito BN
-                </span>
-                <span className="text-muted-foreground">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground/80">Depósito BN</span>
+                <span className="tabular-nums">
                   S/{" "}
                   {detraccionAmountSoles.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -397,17 +381,16 @@ export function SummarySection({
                 </span>
               </div>
               {isUSD && !exchangeRate && (
-                <p className="text-xs text-destructive font-medium px-3 pb-2">
+                <p className="text-xs text-destructive font-medium pt-1">
                   Sin tipo de cambio: no se puede calcular la detracción en
                   soles
                 </p>
               )}
             </div>
           )}
-          {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4 flex flex-col gap-2">
+          <div className="space-y-2 pt-2 flex flex-col gap-2">
             <ConfirmationDialog
               trigger={
                 <Button
@@ -463,8 +446,8 @@ export function SummarySection({
           </div>
 
           {/* Footer Info */}
-          <div className="pt-4 border-t border-muted-foreground/10">
-            <p className="text-xs text-center text-muted-foreground">
+          <div className="pt-2">
+            <p className="text-xs text-center text-muted-foreground/70">
               {form.watch("fecha_de_emision")
                 ? new Date(
                     form.watch("fecha_de_emision") + "T00:00:00",
