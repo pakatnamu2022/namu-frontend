@@ -12,6 +12,9 @@ import { Loader } from "lucide-react";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormCheckbox } from "@/shared/components/FormCheckbox";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface AccountingAccountPlanFormProps {
   defaultValues: Partial<AccountingAccountPlanSchema>;
@@ -42,9 +45,16 @@ export const AccountingAccountPlanForm = ({
 
   const isDetraction = form.watch("is_detraction");
 
+  const { data: detractionTypes = [] } = useAllSunatConcepts({
+    type: SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
+  });
+
   useEffect(() => {
     if (!isDetraction) {
       form.setValue("detraction_percentage", "", { shouldValidate: true });
+      form.setValue("sunat_concept_detraction_type_id", "", {
+        shouldValidate: true,
+      });
     }
   }, [isDetraction]);
 
@@ -90,6 +100,21 @@ export const AccountingAccountPlanForm = ({
               inputMode="numeric"
               maxLength={2}
               control={form.control}
+              required
+            />
+          )}
+
+          {isDetraction && (
+            <FormSelect
+              name="sunat_concept_detraction_type_id"
+              label="Tipo de detracción"
+              placeholder="Selecciona tipo de detracción"
+              options={detractionTypes.map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
               required
             />
           )}

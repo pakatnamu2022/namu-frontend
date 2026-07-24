@@ -73,6 +73,7 @@ import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import {
   ITEM_TYPE_PRODUCT,
   onSelectSupplyType,
@@ -195,7 +196,9 @@ function ProductDetailItem({
   const isCampaignDiscountLocked =
     hasStockInSede &&
     campaignDiscountValue !== undefined &&
-    supplyType === "STOCK";
+    supplyType === "STOCK" &&
+    !!productData &&
+    productData.ap_class_article_id !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
   // Aplicar automáticamente el descuento de campaña cuando el repuesto se abastece por STOCK,
   // y limpiarlo si deja de ser STOCK teniendo un descuento de campaña disponible
