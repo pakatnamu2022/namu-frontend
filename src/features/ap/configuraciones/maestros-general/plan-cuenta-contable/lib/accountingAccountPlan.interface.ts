@@ -15,6 +15,12 @@ export interface AccountingAccountPlanResource {
   status: boolean;
   is_detraction: boolean;
   detraction_percentage: number | null;
+  sunat_concept_detraction_type_id: number | null;
+  detraction_type?: {
+    id: number;
+    description: string;
+    code_nubefact: string;
+  } | null;
   enable_commercial: boolean;
   enable_after_sales: boolean;
 }
@@ -26,6 +32,7 @@ export interface AccountingAccountPlanRequest {
   status: boolean;
   is_detraction: boolean;
   detraction_percentage: number | null;
+  sunat_concept_detraction_type_id: number | null;
   enable_commercial: boolean;
   enable_after_sales: boolean;
 }

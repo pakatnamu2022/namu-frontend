@@ -16,7 +16,6 @@ export const useAccountingAccountPlan = (params?: Record<string, any>) => {
   return useQuery<AccountingAccountPlanResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAccountingAccountPlan({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -24,7 +23,6 @@ export const useAllAccountingAccountPlan = (params?: Record<string, any>) => {
   return useQuery<AccountingAccountPlanResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAllAccountingAccountPlan({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -32,6 +30,5 @@ export const useAccountingAccountPlanById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findAccountingAccountPlanById(id),
-    refetchOnWindowFocus: false,
   });
 };

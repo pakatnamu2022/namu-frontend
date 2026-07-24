@@ -25,6 +25,7 @@ export const accountingAccountPlanSchemaCreate = z
     status: z.boolean().optional().default(true),
     is_detraction: z.boolean().optional().default(false),
     detraction_percentage: z.string().optional().default(""),
+    sunat_concept_detraction_type_id: z.string().optional().default(""),
     enable_commercial: z.boolean().optional().default(false),
     enable_after_sales: z.boolean().optional().default(false),
   })
@@ -57,6 +58,16 @@ export const accountingAccountPlanSchemaCreate = z
     {
       message: "El porcentaje de detracción debe ser 10 o 12",
       path: ["detraction_percentage"],
+    }
+  )
+  .refine(
+    (data) =>
+      !data.is_detraction ||
+      data.sunat_concept_detraction_type_id?.trim() !== "",
+    {
+      message:
+        "El tipo de detracción es obligatorio cuando se marca como detracción",
+      path: ["sunat_concept_detraction_type_id"],
     }
   );
 
