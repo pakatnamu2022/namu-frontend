@@ -34,7 +34,6 @@ export default function AccountingAccountPlanTable({
         initialColumnVisibility={{
           account: true,
           description: true,
-          accounting_type_id: true,
           status: true,
         }}
       >

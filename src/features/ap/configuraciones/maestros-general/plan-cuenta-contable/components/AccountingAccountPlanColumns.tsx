@@ -119,7 +119,7 @@ export const accountingAccountPlanColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
-      const value = getValue() as boolean;
+      const value = Boolean(getValue());
       return (
         <Badge
           color={value ? "default" : "secondary"}
@@ -141,7 +141,7 @@ export const accountingAccountPlanColumns = ({
           {/* Toggle Status */}
           {permissions.canUpdate && (
             <Switch
-              checked={status}
+              checked={Boolean(status)}
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
               className={cn(
                 "cursor-pointer",
