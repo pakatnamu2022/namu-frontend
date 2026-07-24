@@ -17,6 +17,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderPartsFormProps {
@@ -87,6 +88,7 @@ export default function WorkOrderPartsForm({
   const [minSalePrice, setMinSalePrice] = useState(0);
   const [salePriceSoles, setSalePriceSoles] = useState(0);
   const [hasStock, setHasStock] = useState(false);
+  const [classArticleId, setClassArticleId] = useState<number | null>(null);
 
   const { data: activeCampaign } = useActiveCampaign({ area_id: AREA_TALLER });
   const campaignDiscountValue =
@@ -133,7 +135,11 @@ export default function WorkOrderPartsForm({
   }, [isTraverse]);
 
   const isCampaignDiscountLocked =
-    hasStock && !isTraverse && campaignDiscountValue !== undefined;
+    hasStock &&
+    !isTraverse &&
+    campaignDiscountValue !== undefined &&
+    classArticleId !== null &&
+    classArticleId !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
   // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
   useEffect(() => {
@@ -163,11 +169,13 @@ export default function WorkOrderPartsForm({
       setSalePriceSoles(priceSoles);
       form.setValue("unit_price", price, { shouldValidate: true });
       setHasStock(item.available_quantity > 0);
+      setClassArticleId(item.product?.ap_class_article_id ?? null);
     } else {
       setMinSalePrice(0);
       setSalePriceSoles(0);
       form.setValue("unit_price", 0, { shouldValidate: true });
       setHasStock(false);
+      setClassArticleId(null);
     }
   };
 
@@ -332,7 +340,7 @@ export default function WorkOrderPartsForm({
               disabled={isCampaignDiscountLocked}
               className={
                 isCampaignDiscountLocked
-                  ? "border-orange-400 bg-orange-50"
+                  ? "border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200"
                   : undefined
               }
             />

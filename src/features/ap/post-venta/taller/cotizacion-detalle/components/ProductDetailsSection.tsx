@@ -81,6 +81,7 @@ import {
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const SUPPLY_TYPE_STOCK = "STOCK";
@@ -137,6 +138,7 @@ export default function ProductDetailsSection({
       ? Number(activeCampaign.discount_value)
       : undefined;
   const [apHasStock, setApHasStock] = useState(false);
+  const [apClassArticleId, setApClassArticleId] = useState<number | null>(null);
 
   // AP mode
   const maxDiscountPercentage =
@@ -176,19 +178,23 @@ export default function ProductDetailsSection({
       apForm.setValue("ap_unit_price", price);
       apForm.setValue("ap_description", item.product?.name || "");
       setApHasStock(item.available_quantity > 0);
+      setApClassArticleId(item.product?.ap_class_article_id ?? null);
     } else {
       setApMinSalePrice(0);
       setApSalePriceSoles(0);
       apForm.setValue("ap_unit_price", 0);
       apForm.setValue("ap_description", "");
       setApHasStock(false);
+      setApClassArticleId(null);
     }
   };
 
   const isApCampaignDiscountLocked =
     apHasStock &&
     apSupplyType === SUPPLY_TYPE_STOCK &&
-    campaignDiscountValue !== undefined;
+    campaignDiscountValue !== undefined &&
+    apClassArticleId !== null &&
+    apClassArticleId !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
   // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
   useEffect(() => {
@@ -542,7 +548,9 @@ export default function ProductDetailsSection({
   const isCampaignDiscountLocked =
     hasStockInWarehouse &&
     supplyType === SUPPLY_TYPE_STOCK &&
-    campaignDiscountValue !== undefined;
+    campaignDiscountValue !== undefined &&
+    !!productData &&
+    productData.ap_class_article_id !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
   // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
   useEffect(() => {
@@ -824,7 +832,7 @@ export default function ProductDetailsSection({
                   disabled={isApCampaignDiscountLocked}
                   className={
                     isApCampaignDiscountLocked
-                      ? "border-orange-400 bg-orange-50"
+                      ? "border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200"
                       : undefined
                   }
                   onChange={(e) => {
