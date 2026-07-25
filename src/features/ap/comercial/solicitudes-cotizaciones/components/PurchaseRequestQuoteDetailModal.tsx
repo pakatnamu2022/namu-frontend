@@ -290,85 +290,81 @@ export default function PurchaseRequestQuoteDetailModal({
             <Field label="T. Cambio" value={quote.exchange_rate} />
           </div>
 
-          {/* Cliente / Vehículo */}
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
-            <div className="min-w-0 py-3 md:pr-4">
-              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Titular
+          {/* Cliente */}
+          <div className="py-3">
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Cliente
+            </p>
+            <p className="truncate font-semibold">{quote.holder}</p>
+            {quote.client_name && quote.client_name !== quote.holder && (
+              <p className="truncate text-xs text-muted-foreground">
+                {quote.client_name}
               </p>
-              <p className="truncate font-semibold">{quote.holder}</p>
-              {quote.client_name && quote.client_name !== quote.holder && (
-                <p className="truncate text-xs text-muted-foreground">
-                  {quote.client_name}
-                </p>
-              )}
-              <div className="mt-1.5">
-                <Field
-                  label={quote.holder_document_type === 810 ? "RUC" : "DNI"}
-                  value={quote.holder_document_number}
-                  copy
-                  mono
-                />
-                <Field label="Teléfono" value={quote.holder_phone} copy mono />
-                <Field label="Email" value={quote.holder_email} copy />
-                <Field label="Dirección" value={quote.holder_address} />
+            )}
+            <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5">
+              <Field
+                label={quote.holder_document_type === 810 ? "RUC" : "DNI"}
+                value={quote.holder_document_number}
+                copy
+                mono
+              />
+              <Field label="Teléfono" value={quote.holder_phone} copy />
+              <Field label="Email" value={quote.holder_email} copy />
+              <div className="col-span-2 sm:col-span-1">
+                <Field  label="Dirección" value={quote.holder_address} />
               </div>
             </div>
+          </div>
 
-            <div className="min-w-0 py-3 md:pl-4">
-              <div className="mb-1.5 flex items-center justify-between gap-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Vehículo
-                </p>
-                {quote.ap_vehicle?.vehicle_status && (
-                  <span
-                    className="inline-block shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                    style={{
-                      backgroundColor: quote.ap_vehicle.status_color
-                        ? `${quote.ap_vehicle.status_color}22`
-                        : undefined,
-                      color: quote.ap_vehicle.status_color || undefined,
-                    }}
-                  >
-                    {quote.ap_vehicle.vehicle_status}
-                  </span>
-                )}
-              </div>
-              <p className="truncate font-semibold">
-                {quote.ap_model_vn || "N/A"}
+          {/* Vehículo */}
+          <div className="py-3">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Vehículo
               </p>
-              <p className="truncate text-xs text-muted-foreground">
-                {[quote.vehicle_color, quote.type_vehicle]
-                  .filter(Boolean)
-                  .join(" · ") || "N/A"}
-              </p>
-              <div className="mt-1.5">
-                <Field label="VIN" value={quote.ap_vehicle?.vin} copy mono />
-                <Field
-                  label="Placa"
-                  value={quote.ap_vehicle?.plate}
-                  copy
-                  mono
-                />
-                <Field
-                  label="N° Motor"
-                  value={quote.ap_vehicle?.engine_number}
-                  copy
-                  mono
-                />
-                <Field label="Año" value={quote.ap_vehicle?.year} />
-                <Field
-                  label="Ubicación"
-                  value={
-                    [
-                      quote.ap_vehicle?.warehouse_name,
-                      quote.ap_vehicle?.sede_name_warehouse,
-                    ]
-                      .filter(Boolean)
-                      .join(" - ") || undefined
-                  }
-                />
-              </div>
+              {quote.ap_vehicle?.vehicle_status && (
+                <span
+                  className="inline-block shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                  style={{
+                    backgroundColor: quote.ap_vehicle.status_color
+                      ? `${quote.ap_vehicle.status_color}22`
+                      : undefined,
+                    color: quote.ap_vehicle.status_color || undefined,
+                  }}
+                >
+                  {quote.ap_vehicle.vehicle_status}
+                </span>
+              )}
+            </div>
+            <p className="truncate font-semibold">
+              {quote.ap_model_vn || "N/A"}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {[quote.vehicle_color, quote.type_vehicle]
+                .filter(Boolean)
+                .join(" · ") || "N/A"}
+            </p>
+            <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5">
+              <Field label="VIN" value={quote.ap_vehicle?.vin} copy mono />
+              <Field label="Placa" value={quote.ap_vehicle?.plate} copy mono />
+              <Field
+                label="N° Motor"
+                value={quote.ap_vehicle?.engine_number}
+                copy
+                mono
+              />
+              <Field label="Año" value={quote.ap_vehicle?.year} />
+              <Field
+                label="Ubicación"
+                value={
+                  [
+                    quote.ap_vehicle?.warehouse_name,
+                    quote.ap_vehicle?.sede_name_warehouse,
+                  ]
+                    .filter(Boolean)
+                    .join(" - ") || undefined
+                }
+              />
             </div>
           </div>
 
@@ -418,7 +414,7 @@ export default function PurchaseRequestQuoteDetailModal({
                           className="truncate text-muted-foreground"
                         />
                       ) : (
-                        <p className="truncate font-mono text-xs text-muted-foreground">
+                        <p className="truncate text-xs text-muted-foreground">
                           {item.detail}
                         </p>
                       ))}
