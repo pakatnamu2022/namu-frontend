@@ -27,6 +27,7 @@ export const productDetailMesonSchema = z.object({
     .min(0, "Comisión de flete debe ser mayor o igual a 0")
     .optional(),
   supply_type: z.enum(["STOCK", "TRASLADO", "LOCAL", "CENTRAL", "IMPORTACION"]),
+  // TODO: is_traverse: z.boolean().default(false)
 });
 
 // Schema para crear cotización con productos
