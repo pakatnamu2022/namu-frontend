@@ -39,6 +39,7 @@ type ItemRow = {
   total: number;
   isDiscount?: boolean;
   coupon?: BonusDiscountResource;
+  typeOrder: number;
 };
 
 const TYPE_DOCUMENT_LABEL: Record<string, string> = {
@@ -117,6 +118,7 @@ export default function PurchaseRequestQuoteDetailModal({
       quantity: 1,
       unitPrice: Number(quote.base_selling_price),
       total: Number(quote.base_selling_price),
+      typeOrder: 0,
     });
 
     quote.accessories?.forEach((accessory) => {
@@ -135,11 +137,12 @@ export default function PurchaseRequestQuoteDetailModal({
         detail: `#${accessory.approved_accessory_id}`,
         badge:
           accessory.type === "OBSEQUIO"
-            ? { label: "Obsequio", className: "bg-green-100 text-green-800" }
-            : { label: "Adicional", className: "bg-blue-100 text-primary" },
+            ? { label: "Obsequio", className: "bg-primary/10 text-primary" }
+            : { label: "Adicional", className: "bg-primary/20 text-primary" },
         quantity: accessory.quantity,
         unitPrice: effectivePrice,
         total: converted,
+        typeOrder: accessory.type === "OBSEQUIO" ? 1 : 2,
       });
     });
 
@@ -147,12 +150,16 @@ export default function PurchaseRequestQuoteDetailModal({
       items.push({
         key: `other-${other.id}`,
         description: other.description,
-        badge: { label: "Cargo", className: "bg-muted text-muted-foreground" },
+        badge: { label: "Cargo", className: "bg-foreground/10 text-foreground" },
         total: Number(other.amount),
+        typeOrder: 3,
       });
     });
 
-    quote.bonus_discounts?.forEach((item) => {
+    const sortedBonusDiscounts = [...(quote.bonus_discounts ?? [])].sort(
+      (a, b) => Number(!!a.is_negative) - Number(!!b.is_negative),
+    );
+    sortedBonusDiscounts.forEach((item) => {
       const amount = Number(item.amount);
       items.push({
         key: `bonus-${item.id}`,
@@ -162,14 +169,17 @@ export default function PurchaseRequestQuoteDetailModal({
           item.type === "PORCENTAJE"
             ? {
                 label: `${item.percentage}%`,
-                className: "bg-muted text-muted-foreground",
+                className: "bg-primary/5 text-primary",
               }
             : undefined,
         total: item.is_negative ? -amount : amount,
         isDiscount: true,
         coupon: item,
+        typeOrder: 4,
       });
     });
+
+    items.sort((a, b) => a.typeOrder - b.typeOrder);
   }
 
   const specs = model
@@ -425,11 +435,7 @@ export default function PurchaseRequestQuoteDetailModal({
                   </TableCell>
                   <TableCell
                     className={`whitespace-nowrap py-2 pr-0 text-right font-semibold ${
-                      item.isDiscount
-                        ? item.total < 0
-                          ? "text-red-600"
-                          : "text-primary"
-                        : ""
+                      item.isDiscount && item.total < 0 ? "text-red-600" : ""
                     }`}
                   >
                     <span className="inline-flex items-center gap-1 justify-end">
@@ -439,7 +445,7 @@ export default function PurchaseRequestQuoteDetailModal({
                         <ButtonAction
                           tooltip="Editar bono / descuento"
                           icon={Pencil}
-                          color="blue"
+                          color="neutral"
                           onClick={() => setEditingCoupon(item.coupon!)}
                         />
                       ) : null}
@@ -455,7 +461,7 @@ export default function PurchaseRequestQuoteDetailModal({
             <div className="w-full max-w-[260px] space-y-1">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="font-semibold">Precio de venta</span>
-                <span className="whitespace-nowrap text-xl font-bold text-green-600">
+                <span className="whitespace-nowrap text-xl font-bold">
                   <NumberFormat
                     value={Number(quote.sale_price)}
                     prefix={symbol}
@@ -468,7 +474,7 @@ export default function PurchaseRequestQuoteDetailModal({
                   <Separator className="my-1.5" />
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="text-muted-foreground">A cuenta</span>
-                    <span className="whitespace-nowrap font-medium text-blue-600">
+                    <span className="whitespace-nowrap font-medium text-muted-foreground">
                       -{" "}
                       <NumberFormat
                         value={Number(quote.down_payment)}
@@ -478,7 +484,7 @@ export default function PurchaseRequestQuoteDetailModal({
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="font-semibold">Saldo pendiente</span>
-                    <span className="whitespace-nowrap font-bold">
+                    <span className="whitespace-nowrap font-bold text-primary">
                       <NumberFormat
                         value={
                           Number(quote.sale_price) - Number(quote.down_payment)

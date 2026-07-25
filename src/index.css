@@ -29,7 +29,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -295,7 +294,7 @@
   --card-foreground: oklch(0.985 0.002 247.839);
   --popover: oklch(0.2544 0.0317 262.45);
   --popover-foreground: oklch(0.985 0.002 247.839);
-  --primary: oklch(0.3939 0.1962 262.99);
+  --primary: oklch(0.488 0.243 264.376);
   --primary-foreground: oklch(0.9838 0.0035 247.86);
   --secondary: oklch(0.704 0.191 22.216);
   --secondary-foreground: oklch(0.971 0.0127 17.38);
@@ -319,12 +318,11 @@
   --sidebar-foreground: oklch(0.985 0.002 247.839);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0.002 247.839);
-  --sidebar-accent: oklch(0.3114 0.1575 263.35);
+  --sidebar-accent: oklch(0.488 0.243 264.376);
   --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
-
 
 /* break */
 
