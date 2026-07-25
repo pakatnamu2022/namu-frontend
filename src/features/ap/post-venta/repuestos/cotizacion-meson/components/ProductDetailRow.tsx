@@ -2,6 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
@@ -17,6 +23,7 @@ interface ProductDetailRowProps {
   onToggleStock: () => void;
   onEdit: () => void;
   onRemove: () => void;
+  onChangeSupplyType?: (value: string) => void;
   isDetailsDisabled?: boolean;
   sedeId?: string;
 }
@@ -30,10 +37,54 @@ export default function ProductDetailRow({
   onToggleStock,
   onEdit,
   onRemove,
+  onChangeSupplyType,
   isDetailsDisabled = false,
   sedeId,
 }: ProductDetailRowProps) {
   if (!detail) return null;
+
+  const supplyTypeBadge = (className: string) => {
+    const badge = (
+      <Badge
+        variant="outline"
+        className={
+          className +
+          (onChangeSupplyType && !isDetailsDisabled
+            ? " cursor-pointer hover:bg-accent"
+            : "")
+        }
+      >
+        {supplyTypeLabel}
+      </Badge>
+    );
+
+    if (!onChangeSupplyType) return badge;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          disabled={isDetailsDisabled}
+          className="rounded-md"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {badge}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          {onSelectSupplyType.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              onClick={() => onChangeSupplyType(option.value)}
+              className={
+                option.value === detail.supply_type ? "font-semibold" : ""
+              }
+            >
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   const currentProductStock = stockData?.data?.find(
     (stock) => stock.product_id === Number(detail.product_id),
@@ -70,9 +121,7 @@ export default function ProductDetailRow({
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{productLabel}</p>
             <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
-              <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">
-                {supplyTypeLabel}
-              </Badge>
+              {supplyTypeBadge("text-[10px] py-0 px-1.5 h-4")}
               {hasStock && (
                 <Badge
                   color={hasStockInSede ? "green" : "destructive"}
@@ -199,9 +248,7 @@ export default function ProductDetailRow({
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
-          <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">
-            {supplyTypeLabel}
-          </Badge>
+          {supplyTypeBadge("text-[10px] py-0 px-1.5 h-4")}
           {hasStock && (
             <Badge
               color={hasStockInSede ? "green" : "destructive"}

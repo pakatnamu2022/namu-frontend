@@ -748,6 +748,12 @@ export default function ProformaMesonForm({
                     }
                     onEdit={() => openEditSheet(index)}
                     onRemove={() => remove(index)}
+                    onChangeSupplyType={(value) =>
+                      form.setValue(`details.${index}.supply_type`, value as any, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
                     isDetailsDisabled={isDetailsDisabled}
                     sedeId={sedeId}
                   />

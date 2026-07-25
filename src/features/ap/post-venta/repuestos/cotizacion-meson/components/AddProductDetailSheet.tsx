@@ -118,10 +118,7 @@ export default function AddProductDetailSheet({
   useEffect(() => {
     if (productData) {
       form.setValue("description", productData.name || "");
-      form.setValue(
-        "unit_measure",
-        productData.unit_measurement_name || "UND",
-      );
+      form.setValue("unit_measure", productData.unit_measurement_name || "UND");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productData]);
@@ -187,7 +184,8 @@ export default function AddProductDetailSheet({
     const commission = freightCommission || freightCommissionMultiplier;
     const isUSD = selectedCurrency?.code === "USD";
     const rate = isUSD ? 1 : exchangeRate || 1;
-    const calculatedUnitPrice = Math.round(retail * commission * rate * 100) / 100;
+    const calculatedUnitPrice =
+      Math.round(retail * commission * rate * 100) / 100;
 
     if (calculatedUnitPrice !== form.getValues("unit_price")) {
       form.setValue("unit_price", calculatedUnitPrice);
@@ -228,7 +226,7 @@ export default function AddProductDetailSheet({
       title={mode === "create" ? "Agregar Repuesto" : "Editar Repuesto"}
       subtitle="Complete los datos del repuesto para la cotización"
       icon="Package"
-      size="3xl"
+      size="5xl"
       childrenFooter={
         <div className="flex gap-2 w-full justify-end">
           <Button type="button" variant="outline" onClick={onClose}>
