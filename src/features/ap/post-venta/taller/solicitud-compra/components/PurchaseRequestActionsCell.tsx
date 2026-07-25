@@ -49,6 +49,14 @@ export const PurchaseRequestActionsCell = ({
   const hideOptions = !hasQuotation && status === "pending";
   const hideOptionsDelete = !isLockedStatus && status === "pending";
 
+  const canNotify = permissions.canNotify && hideOptions && !!onNotifyManagers;
+  const canApprove =
+    permissions.canApprove && hideOptions && !isLockedStatus && !!onApprove;
+  const canReject =
+    permissions.canReject && hideOptions && !isLockedStatus && !!onCancel;
+  const canUpdate = permissions.canUpdate && hideOptions;
+  const canDelete = permissions.canDelete && hideOptionsDelete;
+
   const handleDownloadPdf = async () => {
     setIsDownloadingPdf(true);
     try {
@@ -90,43 +98,43 @@ export const PurchaseRequestActionsCell = ({
         )}
       </Button>
 
-      {permissions.canNotify && hideOptions && onNotifyManagers && (
+      {canNotify && (
         <Button
           variant="outline"
           size="icon"
           className="size-7 text-blue-500 hover:text-blue-600"
           tooltip="Notificar a Jefatura"
-          onClick={() => onNotifyManagers(id)}
+          onClick={() => onNotifyManagers!(id)}
         >
           <BellRing className="size-5" />
         </Button>
       )}
 
-      {permissions.canApprove && hideOptions && onApprove && (
+      {canApprove && (
         <Button
           variant="outline"
           size="icon"
           className="size-7 text-green-600 hover:text-green-700"
           tooltip="Aprobar"
-          onClick={() => onApprove(id)}
+          onClick={() => onApprove!(id)}
         >
           <CheckCircle className="size-5" />
         </Button>
       )}
 
-      {permissions.canReject && hideOptions && onCancel && (
+      {canReject && (
         <Button
           variant="outline"
           size="icon"
           className="size-7 text-red-500 hover:text-red-600"
           tooltip="Rechazar"
-          onClick={() => onCancel(id)}
+          onClick={() => onCancel!(id)}
         >
           <XCircle className="size-5" />
         </Button>
       )}
 
-      {permissions.canUpdate && hideOptions && (
+      {canUpdate && (
         <Button
           variant="outline"
           size="icon"
@@ -138,9 +146,7 @@ export const PurchaseRequestActionsCell = ({
         </Button>
       )}
 
-      {permissions.canDelete && hideOptionsDelete && (
-        <DeleteButton onClick={() => onDelete(id)} />
-      )}
+      {canDelete && <DeleteButton onClick={() => onDelete(id)} />}
     </div>
   );
 };
