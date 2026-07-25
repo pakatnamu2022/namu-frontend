@@ -218,7 +218,7 @@ export default function PurchaseRequestQuoteDetailModal({
       }
       icon="FileText"
       side="right"
-      size="5xl"
+      size="4xl"
       isLoading={isLoading}
     >
       {quote && (
