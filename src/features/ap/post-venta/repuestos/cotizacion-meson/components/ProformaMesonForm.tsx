@@ -244,13 +244,11 @@ export default function ProformaMesonForm({
     return format(dateObj, "yyyy-MM-dd");
   }, [quotationDate]);
 
-  const {
-    data: exchangeRateData,
-    isLoading: isLoadingExchangeRate,
-  } = useExchangeRateByDateAndCurrency(
-    Number(CURRENCY_TYPE_IDS.DOLLARS),
-    quotationDateFormatted,
-  );
+  const { data: exchangeRateData, isLoading: isLoadingExchangeRate } =
+    useExchangeRateByDateAndCurrency(
+      Number(CURRENCY_TYPE_IDS.DOLLARS),
+      quotationDateFormatted,
+    );
   const exchangeRate = exchangeRateData?.rate
     ? Number(exchangeRateData.rate)
     : null;
@@ -749,7 +747,17 @@ export default function ProformaMesonForm({
                     onEdit={() => openEditSheet(index)}
                     onRemove={() => remove(index)}
                     onChangeSupplyType={(value) =>
-                      form.setValue(`details.${index}.supply_type`, value as any, {
+                      form.setValue(
+                        `details.${index}.supply_type`,
+                        value as any,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        },
+                      )
+                    }
+                    onToggleTraverse={(value) =>
+                      form.setValue(`details.${index}.is_traverse`, value, {
                         shouldValidate: true,
                         shouldDirty: true,
                       })

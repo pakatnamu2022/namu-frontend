@@ -17,6 +17,7 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import {
   productDetailMesonSchema,
   ProductDetailMesonSchema,
@@ -43,6 +44,7 @@ const EMPTY_DETAIL: ProductDetailMesonSchema = {
   exchange_rate: 0,
   freight_commission: 1,
   supply_type: "STOCK",
+  is_traverse: false,
 };
 
 interface AddProductDetailSheetProps {
@@ -151,6 +153,7 @@ export default function AddProductDetailSheet({
   );
 
   const supplyType = form.watch("supply_type");
+  const isTraverse = form.watch("is_traverse");
 
   const isCampaignDiscountLocked =
     hasStockInSede &&
@@ -243,6 +246,25 @@ export default function AddProductDetailSheet({
       }
     >
       <div className="space-y-4">
+        <FormSwitch
+          control={form.control}
+          name="is_traverse"
+          text="Es travesía"
+          textDescription={
+            isTraverse
+              ? "Activo: este repuesto se marcará como travesía"
+              : "Indica si este repuesto será de travesía"
+          }
+          size="lg"
+          autoHeight
+          disabled={isDetailsDisabled}
+          className={
+            isTraverse
+              ? "border-blue-300 bg-blue-50 hover:bg-blue-50"
+              : undefined
+          }
+        />
+
         <FormSelectAsync
           name="product_id"
           label="Repuesto"

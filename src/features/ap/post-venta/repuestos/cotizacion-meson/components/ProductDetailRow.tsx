@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Trash2, Truck } from "lucide-react";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import { ProductDetailMesonSchema } from "../lib/quotationMeson.schema";
@@ -24,6 +24,7 @@ interface ProductDetailRowProps {
   onEdit: () => void;
   onRemove: () => void;
   onChangeSupplyType?: (value: string) => void;
+  onToggleTraverse?: (value: boolean) => void;
   isDetailsDisabled?: boolean;
   sedeId?: string;
 }
@@ -38,6 +39,7 @@ export default function ProductDetailRow({
   onEdit,
   onRemove,
   onChangeSupplyType,
+  onToggleTraverse,
   isDetailsDisabled = false,
   sedeId,
 }: ProductDetailRowProps) {
@@ -64,7 +66,7 @@ export default function ProductDetailRow({
       <DropdownMenu>
         <DropdownMenuTrigger
           disabled={isDetailsDisabled}
-          className="rounded-md"
+          className="inline-flex items-center rounded-md"
           onClick={(e) => e.stopPropagation()}
         >
           {badge}
@@ -86,6 +88,54 @@ export default function ProductDetailRow({
     );
   };
 
+  const traverseBadge = (className: string) => {
+    if (!detail.is_traverse && !onToggleTraverse) return null;
+
+    const badge = detail.is_traverse ? (
+      <Badge
+        color="orange"
+        icon={Truck}
+        tooltip="Producto en travesía"
+        className={
+          className +
+          (onToggleTraverse && !isDetailsDisabled ? " cursor-pointer" : "")
+        }
+      >
+        Travesía
+      </Badge>
+    ) : (
+      <Badge
+        variant="outline"
+        icon={Truck}
+        tooltip="Marcar como travesía"
+        className={
+          className +
+          " text-gray-400 border-dashed" +
+          (!isDetailsDisabled ? " cursor-pointer" : "")
+        }
+      >
+        Travesía
+      </Badge>
+    );
+
+    if (!onToggleTraverse) return badge;
+
+    return (
+      <button
+        type="button"
+        className="inline-flex items-center rounded-md"
+        disabled={isDetailsDisabled}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleTraverse(!detail.is_traverse);
+        }}
+        tabIndex={-1}
+      >
+        {badge}
+      </button>
+    );
+  };
+
   const currentProductStock = stockData?.data?.find(
     (stock) => stock.product_id === Number(detail.product_id),
   );
@@ -100,8 +150,8 @@ export default function ProductDetailRow({
     : detail.description;
 
   const supplyTypeLabel =
-    onSelectSupplyType.find((opt) => opt.value === detail.supply_type)
-      ?.label || detail.supply_type;
+    onSelectSupplyType.find((opt) => opt.value === detail.supply_type)?.label ||
+    detail.supply_type;
 
   const quantity = detail?.quantity || 0;
   const unitPrice = detail?.unit_price || 0;
@@ -111,7 +161,13 @@ export default function ProductDetailRow({
     Math.round((subtotal - subtotal * (discount / 100)) * 100) / 100;
 
   return (
-    <div className="border rounded-lg bg-white transition-colors">
+    <div
+      className={`border rounded-lg transition-colors ${
+        detail.is_traverse
+          ? "bg-amber-50/60 hover:bg-amber-50 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
+          : "bg-white"
+      }`}
+    >
       {/* Vista Desktop */}
       <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
         <div className="col-span-4 flex items-center gap-2 min-w-0">
@@ -122,6 +178,7 @@ export default function ProductDetailRow({
             <p className="text-sm font-medium truncate">{productLabel}</p>
             <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
               {supplyTypeBadge("text-[10px] py-0 px-1.5 h-4")}
+              {traverseBadge("text-[10px] py-0 px-1.5 h-4")}
               {hasStock && (
                 <Badge
                   color={hasStockInSede ? "green" : "destructive"}
@@ -249,6 +306,7 @@ export default function ProductDetailRow({
 
         <div className="flex items-center gap-1.5 flex-wrap">
           {supplyTypeBadge("text-[10px] py-0 px-1.5 h-4")}
+          {traverseBadge("text-[10px] py-0 px-1.5 h-4")}
           {hasStock && (
             <Badge
               color={hasStockInSede ? "green" : "destructive"}
