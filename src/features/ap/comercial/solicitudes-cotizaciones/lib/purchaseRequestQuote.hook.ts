@@ -108,7 +108,7 @@ export const useUpdateDiscountCoupon = () => {
       id: number;
       data: DiscountCouponUpdatePayload;
     }) => updateDiscountCoupon(id, data),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [DISCOUNT_COUPON_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
