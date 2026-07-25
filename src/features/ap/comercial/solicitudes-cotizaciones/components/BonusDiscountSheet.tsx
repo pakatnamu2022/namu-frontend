@@ -16,8 +16,8 @@ import { Option } from "@/core/core.interface";
 
 const DEDUCCION_7_FACTOR = 0.93;
 
-const BONO_FINANCIERO_ID = "862";
-const BONO_MARCA_ID = "861";
+export const BONO_FINANCIERO_ID = "862";
+export const BONO_MARCA_ID = "861";
 export const DESCUENTO_NUEVO_ID = "863";
 
 const EMPTY_FORM: Omit<BonusDiscountRow, "id"> = {
@@ -28,7 +28,7 @@ const EMPTY_FORM: Omit<BonusDiscountRow, "id"> = {
   isNegative: false,
 };
 
-const getDescriptionOptions = (conceptId: string): string[] | null => {
+export const getDescriptionOptions = (conceptId: string): string[] | null => {
   if (conceptId === BONO_FINANCIERO_ID) return ["MARCA", "BANCO", "AP"];
   if (conceptId === BONO_MARCA_ID)
     return [
