@@ -107,13 +107,7 @@ export default function NubefactPreviewDialog({
 
         {!isFetching && data && (
           <div className="flex h-full w-full justify-center overflow-y-auto bg-muted/40 py-6 print:bg-white print:py-0">
-            <div
-              className="w-full max-w-sm bg-background px-5 py-6 font-mono text-foreground shadow-lg print:shadow-none print:text-slate-900"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(to bottom, transparent, transparent 27px, color-mix(in srgb, currentColor 3%, transparent) 27px, color-mix(in srgb, currentColor 3%, transparent) 28px)",
-              }}
-            >
+            <div className="w-full max-w-sm bg-background px-5 py-6 font-mono text-foreground shadow-lg print:shadow-none print:text-slate-900">
               {/* Encabezado */}
               <div className="flex flex-col items-center gap-1.5 text-center">
                 <img
@@ -196,7 +190,9 @@ export default function NubefactPreviewDialog({
                 </div>
                 {!!data.tipo_de_cambio && Number(data.tipo_de_cambio) > 0 && (
                   <div className="flex justify-between gap-2">
-                    <dt className="shrink-0 text-muted-foreground">T. CAMBIO</dt>
+                    <dt className="shrink-0 text-muted-foreground">
+                      T. CAMBIO
+                    </dt>
                     <dd className="text-right font-medium">
                       {data.tipo_de_cambio}
                     </dd>

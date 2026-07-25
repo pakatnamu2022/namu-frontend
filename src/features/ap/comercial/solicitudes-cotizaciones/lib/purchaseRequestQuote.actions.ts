@@ -5,6 +5,8 @@ import { STATUS_ACTIVE } from "@/core/core.constants";
 import { PURCHASE_REQUEST_QUOTE } from "./purchaseRequestQuote.constants";
 import {
   ConceptDiscountBondResource,
+  DiscountCouponResource,
+  DiscountCouponUpdatePayload,
   getPurchaseRequestQuoteProps,
   PurchaseRequestQuoteResource,
   PurchaseRequestQuoteResponse,
@@ -12,6 +14,7 @@ import {
 import { AP_MASTERS } from "../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PURCHASE_REQUEST_QUOTE;
+const DISCOUNT_COUPON_ENDPOINT = "/ap/commercial/discountCoupons";
 
 export async function getPurchaseRequestQuote({
   params,
@@ -159,6 +162,26 @@ export async function swapVehicleInPurchaseRequestQuote(
   const response = await api.post<PurchaseRequestQuoteResource>(
     `${ENDPOINT}/swapVehicle/${id}`,
     { ap_vehicle_id }
+  );
+  return response.data;
+}
+
+export async function getDiscountCouponsByQuote(
+  quoteId: number
+): Promise<DiscountCouponResource[]> {
+  const { data } = await api.get<DiscountCouponResource[]>(
+    `${DISCOUNT_COUPON_ENDPOINT}/byQuote/${quoteId}`
+  );
+  return data;
+}
+
+export async function updateDiscountCoupon(
+  id: number,
+  data: DiscountCouponUpdatePayload
+): Promise<DiscountCouponResource> {
+  const response = await api.put<DiscountCouponResource>(
+    `${DISCOUNT_COUPON_ENDPOINT}/${id}`,
+    data
   );
   return response.data;
 }
