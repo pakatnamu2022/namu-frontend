@@ -51,12 +51,10 @@ function Field({
   label,
   value,
   copy,
-  mono,
 }: {
   label: string;
   value?: string | number | null;
   copy?: boolean;
-  mono?: boolean;
 }) {
   if (value === undefined || value === null || value === "" || value === "-")
     return null;
@@ -67,13 +65,10 @@ function Field({
         <CopyCell
           value={String(value)}
           size="sm"
-          font={mono ? "mono" : "normal"}
           className="truncate text-right font-medium"
         />
       ) : (
-        <span
-          className={`truncate text-right text-sm font-medium ${mono ? "font-mono" : ""}`}
-        >
+        <span className={`truncate text-right text-sm font-medium`}>
           {value}
         </span>
       )}
@@ -150,7 +145,10 @@ export default function PurchaseRequestQuoteDetailModal({
       items.push({
         key: `other-${other.id}`,
         description: other.description,
-        badge: { label: "Cargo", className: "bg-foreground/10 text-foreground" },
+        badge: {
+          label: "Cargo",
+          className: "bg-foreground/10 text-foreground",
+        },
         total: Number(other.amount),
         typeOrder: 3,
       });
@@ -220,11 +218,11 @@ export default function PurchaseRequestQuoteDetailModal({
       }
       icon="FileText"
       side="right"
-      size="4xl"
+      size="5xl"
       isLoading={isLoading}
     >
       {quote && (
-        <div className="divide-y divide-border text-sm">
+        <div className="divide-y divide-border text-sm px-6">
           {/* Encabezado */}
           <div className="flex items-start justify-between gap-3 py-3">
             <div className="min-w-0">
@@ -235,7 +233,6 @@ export default function PurchaseRequestQuoteDetailModal({
                 value={quote.correlative}
                 label={quote.correlative}
                 size="lg"
-                font="mono"
                 className="font-bold tracking-wide"
               />
             </div>
@@ -306,12 +303,11 @@ export default function PurchaseRequestQuoteDetailModal({
                 label={quote.holder_document_type === 810 ? "RUC" : "DNI"}
                 value={quote.holder_document_number}
                 copy
-                mono
               />
               <Field label="Teléfono" value={quote.holder_phone} copy />
               <Field label="Email" value={quote.holder_email} copy />
-              <div className="col-span-2 sm:col-span-1">
-                <Field  label="Dirección" value={quote.holder_address} />
+              <div className="col-span-1 sm:col-span-2">
+                <Field label="Dirección" value={quote.holder_address} />
               </div>
             </div>
           </div>
@@ -345,26 +341,27 @@ export default function PurchaseRequestQuoteDetailModal({
                 .join(" · ") || "N/A"}
             </p>
             <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5">
-              <Field label="VIN" value={quote.ap_vehicle?.vin} copy mono />
-              <Field label="Placa" value={quote.ap_vehicle?.plate} copy mono />
+              <Field label="VIN" value={quote.ap_vehicle?.vin} copy />
+              <Field label="Placa" value={quote.ap_vehicle?.plate} copy />
               <Field
                 label="N° Motor"
                 value={quote.ap_vehicle?.engine_number}
                 copy
-                mono
               />
               <Field label="Año" value={quote.ap_vehicle?.year} />
-              <Field
-                label="Ubicación"
-                value={
-                  [
-                    quote.ap_vehicle?.warehouse_name,
-                    quote.ap_vehicle?.sede_name_warehouse,
-                  ]
-                    .filter(Boolean)
-                    .join(" - ") || undefined
-                }
-              />
+              <div className="col-span-1 sm:col-span-2">
+                <Field
+                  label="Ubicación"
+                  value={
+                    [
+                      quote.ap_vehicle?.warehouse_name,
+                      quote.ap_vehicle?.sede_name_warehouse,
+                    ]
+                      .filter(Boolean)
+                      .join(" - ") || undefined
+                  }
+                />
+              </div>
             </div>
           </div>
 
@@ -388,7 +385,6 @@ export default function PurchaseRequestQuoteDetailModal({
                           value={item.descriptionCopyValue}
                           label={item.description}
                           size="sm"
-                          font="mono"
                           className="truncate font-semibold"
                         />
                       ) : (
@@ -410,7 +406,6 @@ export default function PurchaseRequestQuoteDetailModal({
                           value={item.detailCopyValue}
                           label={item.detail}
                           size="xs"
-                          font="mono"
                           className="truncate text-muted-foreground"
                         />
                       ) : (
@@ -437,7 +432,9 @@ export default function PurchaseRequestQuoteDetailModal({
                     <span className="inline-flex items-center gap-1 justify-end">
                       {item.isDiscount && item.total >= 0 && "+ "}
                       <NumberFormat value={item.total} prefix={symbol} />
-                      {item.coupon && !item.coupon.is_negative && quote.is_invoiced ? (
+                      {item.coupon &&
+                      !item.coupon.is_negative &&
+                      quote.is_invoiced ? (
                         <ButtonAction
                           tooltip="Editar bono / descuento"
                           icon={Pencil}
@@ -538,7 +535,6 @@ export default function PurchaseRequestQuoteDetailModal({
                         <CopyCell
                           value={doc.full_number}
                           size="xs"
-                          font="mono"
                           className="truncate text-muted-foreground"
                         />
                       </TableCell>
