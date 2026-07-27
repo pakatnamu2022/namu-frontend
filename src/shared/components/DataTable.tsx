@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import type { RowSelectionState, VisibilityState } from "@tanstack/react-table";
 import DataTableColumnFilter from "./DataTableColumnFilter";
 import FormSkeleton from "./FormSkeleton";
@@ -106,6 +106,7 @@ interface DataTableProps<TData, TValue> extends VariantProps<
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   enableRowSelection?: boolean;
   getRowId?: (originalRow: TData, index: number) => string;
+  renderSubRow?: (row: TData) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -125,6 +126,7 @@ export function DataTable<TData, TValue>({
   onRowSelectionChange,
   enableRowSelection = false,
   getRowId,
+  renderSubRow,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
@@ -277,29 +279,42 @@ export function DataTable<TData, TValue>({
                   </TableCell>
                 </TableRow>
               ) : data.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="text-nowrap hover:bg-muted bg-background group"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          "p-2 truncate",
-                          hasActionsColumn &&
-                            isActionsCol(cell.column.id) &&
-                            "sticky right-0 z-1 bg-background group-hover:bg-muted border-l border-border",
-                        )}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  const subContent = renderSubRow?.(row.original);
+
+                  return (
+                    <Fragment key={row.id}>
+                      <TableRow className="text-nowrap hover:bg-muted bg-background group">
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell
+                            key={cell.id}
+                            className={cn(
+                              "p-2 truncate",
+                              hasActionsColumn &&
+                                isActionsCol(cell.column.id) &&
+                                "sticky right-0 z-1 bg-background group-hover:bg-muted border-l border-border",
+                            )}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+
+                      {subContent && (
+                        <TableRow className="hover:bg-transparent bg-background">
+                          <TableCell colSpan={columns.length} className="p-0">
+                            <div className="p-3 bg-muted-foreground/5">
+                              {subContent}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="text-center">
@@ -342,6 +357,7 @@ export function DataTable<TData, TValue>({
                 !cell.column.id.toLowerCase().includes("accion") &&
                 !cell.column.id.toLowerCase().includes("action"),
             );
+            const subContent = renderSubRow?.(row.original);
 
             return (
               <Card
@@ -377,6 +393,11 @@ export function DataTable<TData, TValue>({
                       );
                     })}
                   </div>
+                  {subContent && (
+                    <div className="mt-2 p-2 rounded-md bg-muted-foreground/5 text-xs text-foreground/90">
+                      {subContent}
+                    </div>
+                  )}
                 </CardContent>
                 {actionCell && (
                   <CardFooter
