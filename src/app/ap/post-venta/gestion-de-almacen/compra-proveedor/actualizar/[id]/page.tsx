@@ -68,7 +68,11 @@ export default function UpdateSupplierOrderPage() {
       order_date: data.order_date
         ? new Date(data.order_date + "T00:00:00")
         : "",
-      supply_type: data.supply_type as "STOCK" | "CENTRAL" | "IMPORTACION",
+      supply_type: data.supply_type as
+        | "CENTRAL"
+        | "IMPORTACION"
+        | "LOCAL"
+        | "CENTRAL_IMPORTACION",
       details:
         data.details?.map((item) => ({
           product_id: String(item.product_id),
