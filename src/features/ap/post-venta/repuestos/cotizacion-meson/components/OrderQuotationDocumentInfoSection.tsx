@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle, Info } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -17,6 +17,9 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { useMemo } from "react";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface OrderQuotationDocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -36,6 +39,9 @@ interface OrderQuotationDocumentInfoSectionProps {
   lockedClientId?: number | null;
   lockedClientName?: string;
   lockedClientDoc?: string;
+  // Modo de facturación del comprobante (Normal / Gratuita), controlado a nivel de documento.
+  billingMode?: "normal" | "gratuita";
+  onBillingModeChange?: (mode: "normal" | "gratuita") => void;
 }
 
 export function OrderQuotationDocumentInfoSection({
@@ -51,6 +57,8 @@ export function OrderQuotationDocumentInfoSection({
   lockedClientId = null,
   lockedClientName = "",
   lockedClientDoc = "",
+  billingMode = "normal",
+  onBillingModeChange,
 }: OrderQuotationDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -321,6 +329,45 @@ export function OrderQuotationDocumentInfoSection({
                 : "Tipo de operación: Venta Interna (código 01)"
           }
         />
+
+        {/* Switch de Modo de Facturación (Normal / Gratuita) */}
+        <div className="flex flex-col gap-1">
+          <Label className="h-fit flex mb-1">Tipo de Facturación</Label>
+          <Label
+            className={cn(
+              "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background h-8 p-3 gap-3",
+              isAdvancePayment
+                ? "opacity-60"
+                : "hover:bg-muted hover:cursor-pointer",
+            )}
+          >
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
+              <p className="text-sm font-medium leading-tight">
+                {billingMode === "gratuita" ? "Gratuita" : "Normal"}
+              </p>
+            </div>
+            <Switch
+              checked={billingMode === "gratuita"}
+              onCheckedChange={(checked) =>
+                onBillingModeChange?.(checked ? "gratuita" : "normal")
+              }
+              disabled={isAdvancePayment}
+              className="shrink-0"
+            />
+          </Label>
+          <p className="text-xs font-normal text-muted-foreground flex items-start gap-1">
+            {isAdvancePayment ? (
+              <>
+                <Info className="size-3 mt-0.5 shrink-0" />
+                No aplica para anticipos.
+              </>
+            ) : billingMode === "gratuita" ? (
+              "Los items se registrarán sin IGV y sin cobro (transferencia gratuita)"
+            ) : (
+              "Los items se registrarán gravados con IGV (comportamiento estándar)"
+            )}
+          </p>
+        </div>
 
         <FormSelect
           control={form.control}
