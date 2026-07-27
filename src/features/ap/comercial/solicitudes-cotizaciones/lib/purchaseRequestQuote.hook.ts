@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PURCHASE_REQUEST_QUOTE } from "./purchaseRequestQuote.constants";
 import {
   ConceptDiscountBondResource,
+  DiscountCouponResource,
+  DiscountCouponUpdatePayload,
   PurchaseRequestQuoteResource,
   PurchaseRequestQuoteResponse,
 } from "./purchaseRequestQuote.interface";
@@ -10,9 +12,13 @@ import {
   findPurchaseRequestQuoteById,
   getAllConceptDiscountBond,
   getAllPurchaseRequestQuote,
+  getDiscountCouponsByQuote,
   getPurchaseRequestQuote,
   swapVehicleInPurchaseRequestQuote,
+  updateDiscountCoupon,
 } from "./purchaseRequestQuote.actions";
+
+const DISCOUNT_COUPON_QUERY_KEY = "discountCoupons";
 
 const { QUERY_KEY } = PURCHASE_REQUEST_QUOTE;
 
@@ -77,6 +83,33 @@ export const useSwapVehiclePurchaseRequestQuote = () => {
       ap_vehicle_id: number;
     }) => swapVehicleInPurchaseRequestQuote(id, ap_vehicle_id),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useDiscountCouponsByQuote = (quoteId: number) => {
+  return useQuery<DiscountCouponResource[]>({
+    queryKey: [DISCOUNT_COUPON_QUERY_KEY, quoteId],
+    queryFn: () => getDiscountCouponsByQuote(quoteId),
+    refetchOnWindowFocus: false,
+    enabled: !!quoteId && quoteId > 0,
+  });
+};
+
+export const useUpdateDiscountCoupon = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: DiscountCouponUpdatePayload;
+    }) => updateDiscountCoupon(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [DISCOUNT_COUPON_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
   });
