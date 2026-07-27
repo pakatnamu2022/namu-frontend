@@ -859,8 +859,7 @@ export const ShipmentsReceptionsForm = ({
             disabled={!watchArticleClassId || isLoadingMySedes}
           />
 
-          {watchTransferReasonId !==
-            SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA &&
+          {watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA &&
             !(
               watchTransferReasonId ===
                 SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS && isConsignment
@@ -1043,7 +1042,7 @@ export const ShipmentsReceptionsForm = ({
           <DatePickerFormField
             control={form.control}
             name="issue_date"
-            label="Fecha de Translado"
+            label="Fecha de Traslado"
             disabledRange={{ before: new Date() }}
           />
 
@@ -1240,15 +1239,15 @@ export const ShipmentsReceptionsForm = ({
                     <FormLabel>Ubicación Destino</FormLabel>
                     {selectedCustomer &&
                       (!watchDocumentSeriesId || isOtrosDestinoLibre) && (
-                      <button
-                        type="button"
-                        onClick={() => setIsDestinationModalOpen(true)}
-                        className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
-                        title="Seleccionar establecimiento"
-                      >
-                        <Search className="h-4 w-4 text-primary" />
-                      </button>
-                    )}
+                        <button
+                          type="button"
+                          onClick={() => setIsDestinationModalOpen(true)}
+                          className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                          title="Seleccionar establecimiento"
+                        >
+                          <Search className="h-4 w-4 text-primary" />
+                        </button>
+                      )}
                   </div>
                 )}
                 placeholder="Selecciona cliente"

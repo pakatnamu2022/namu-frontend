@@ -720,8 +720,7 @@ export function OrderQuotationBillingForm({
               currencyTypes={currencyTypes}
               isFromQuotation={true}
               defaultCustomer={quotation.invoice_to_client ?? quotation.client}
-              hasSufficientStock={quotation.has_sufficient_stock}
-              pendingBalance={pendingBalance}
+              canGenerateFinalReceipt={quotation.can_generate_final_receipt}
               lockedClientId={lockedClientId}
               lockedClientName={lockedClientName}
               lockedClientDoc={lockedClientDoc}

@@ -4,30 +4,20 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import {
   quotationMesonWithProductsSchemaCreate,
   quotationMesonWithProductsSchemaUpdate,
   QuotationMesonWithProductsSchema,
+  ProductDetailMesonSchema,
 } from "../lib/quotationMeson.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import {
   Plus,
-  Trash2,
   Package,
   PackagePlus,
-  Copy,
-  Check,
   User,
   Car,
   FileText,
@@ -46,20 +36,15 @@ import {
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import {
-  useProduct,
-  useProductById,
-} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import { Badge } from "@/components/ui/badge";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
-import { Warehouse, AlertCircle } from "lucide-react";
-import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import QuotationPartModal from "./QuotationPartModal";
+import AddProductDetailSheet from "./AddProductDetailSheet";
+import ProductDetailRow from "./ProductDetailRow";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import CustomerModal from "@/features/ap/comercial/clientes/components/CustomerModal";
@@ -73,11 +58,7 @@ import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
-import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
-import {
-  ITEM_TYPE_PRODUCT,
-  onSelectSupplyType,
-} from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { ITEM_TYPE_PRODUCT } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import {
   STATUS_APPROVED,
@@ -88,720 +69,9 @@ import {
   ORDER_QUOTATION_MESON,
   STATUS_ORDER_QUOTATION,
 } from "../../../taller/cotizacion/lib/proforma.constants";
-import { FormInput } from "@/shared/components/FormInput";
 import { DataCard } from "@/components/DataCard";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
-
-// Componente auxiliar para manejar cada item de producto
-function ProductDetailItem({
-  index,
-  form,
-  onRemove,
-  selectedCurrency,
-  stockData,
-  defaultProductOption,
-  approvedDiscount,
-  defaultDiscount,
-  isDetailsDisabled = false,
-  showStock,
-  onToggleStock,
-  sedeId,
-  campaignDiscountValue,
-}: {
-  index: number;
-  form: any;
-  onRemove: () => void;
-  selectedCurrency: any;
-  stockData: StockByProductIdsResponse | null;
-  defaultProductOption?: { value: string; label: string };
-  detailId?: number;
-  approvedDiscount?: number;
-  defaultDiscount: number;
-  isDetailsDisabled?: boolean;
-  showStock: boolean;
-  onToggleStock: () => void;
-  selectedVehicle: VehicleResource | null;
-  sedeId?: string;
-  campaignDiscountValue?: number;
-}) {
-  const productId = form.watch(`details.${index}.product_id`);
-  const { data: productData } = useProductById(Number(productId) || 0);
-  const [isCopied, setIsCopied] = useState(false);
-
-  const detail = form.watch(`details.${index}`);
-  const computedTotal = (() => {
-    const quantity = detail?.quantity || 0;
-    const unitPrice = detail?.unit_price || 0;
-    const discount = detail?.discount_percentage || 0;
-    const subtotal = quantity * unitPrice;
-    return Math.round((subtotal - subtotal * (discount / 100)) * 100) / 100;
-  })();
-
-  // Función para copiar código del repuesto
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error("Error al copiar:", err);
-    }
-  };
-
-  // Función para manejar el pegado y convertir comas a puntos
-  const handlePaste = (
-    e: React.ClipboardEvent<HTMLInputElement>,
-    field: any,
-  ) => {
-    e.preventDefault();
-    const pastedText = e.clipboardData.getData("text");
-    const normalizedValue = pastedText.replace(",", ".");
-    const numericValue = parseFloat(normalizedValue);
-
-    if (!isNaN(numericValue)) {
-      field.onChange(numericValue);
-    }
-  };
-
-  // Buscar el stock del producto actual
-  const currentProductStock = stockData?.data?.find(
-    (stock) => stock.product_id === Number(productId),
-  );
-
-  // Auto-completar descripción y unidad de medida cuando se selecciona un producto
-  useEffect(() => {
-    if (productData) {
-      // Siempre actualizar descripción con el nombre del producto
-      form.setValue(`details.${index}.description`, productData.name || "");
-
-      // Actualizar unidad de medida
-      form.setValue(
-        `details.${index}.unit_measure`,
-        productData.unit_measurement_name || "UND",
-      );
-    }
-  }, [productData, index, form]);
-
-  const hasStock = !!(currentProductStock && productId);
-
-  // Stock disponible en la sede seleccionada de la cotización
-  const hasStockInSede = !!currentProductStock?.warehouses.some(
-    (warehouse) =>
-      warehouse.sede_id === Number(sedeId) && warehouse.available_quantity > 0,
-  );
-
-  const supplyType = form.watch(`details.${index}.supply_type`);
-
-  const isCampaignDiscountLocked =
-    hasStockInSede &&
-    campaignDiscountValue !== undefined &&
-    supplyType === "STOCK" &&
-    !!productData &&
-    productData.ap_class_article_id !== AP_CLASS_ARTICLE_LUBRICANT_ID;
-
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto se abastece por STOCK,
-  // y limpiarlo si deja de ser STOCK teniendo un descuento de campaña disponible
-  useEffect(() => {
-    const currentDiscount = form.getValues(
-      `details.${index}.discount_percentage`,
-    );
-    if (isCampaignDiscountLocked) {
-      if (currentDiscount !== campaignDiscountValue) {
-        form.setValue(
-          `details.${index}.discount_percentage`,
-          campaignDiscountValue,
-        );
-      }
-    } else if (
-      hasStockInSede &&
-      campaignDiscountValue !== undefined &&
-      currentDiscount === campaignDiscountValue
-    ) {
-      form.setValue(`details.${index}.discount_percentage`, 0);
-    }
-  }, [
-    isCampaignDiscountLocked,
-    hasStockInSede,
-    campaignDiscountValue,
-    index,
-    form,
-  ]);
-
-  return (
-    <div className="border rounded-lg bg-white transition-colors">
-      {/* Vista Desktop - Formato Tabla */}
-      <div className="hidden md:grid grid-cols-14 gap-3 px-4 py-3 items-start">
-        <div className="col-span-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="shrink-0 inline-flex items-center justify-center size-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-              {index + 1}
-            </span>
-            <div className="flex-1 min-w-0">
-              <FormSelectAsync
-                name={`details.${index}.product_id`}
-                label=""
-                placeholder="Seleccione repuesto"
-                control={form.control}
-                useQueryHook={useProduct}
-                mapOptionFn={(product) => ({
-                  label: () => (
-                    <div className="flex items-center justify-between gap-2 w-full">
-                      <span className="font-medium truncate">
-                        {product.code} - {product.name}
-                      </span>
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0 bg-orange-100 text-orange-700">
-                        {product.brand.name || "Sin marca"}
-                      </span>
-                    </div>
-                  ),
-                  value: product.id.toString(),
-                })}
-                // additionalParams={{
-                //   brand_id: selectedVehicle?.model.brand_id,
-                // }}
-                perPage={10}
-                debounceMs={500}
-                defaultOption={defaultProductOption}
-                disabled={isDetailsDisabled}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Tarjeta de stock expandida - se extiende hasta antes del botón eliminar */}
-        {hasStock && showStock && (
-          <div className="col-span-14 row-start-2 col-start-1">
-            <StockWarehousesCard
-              stock={currentProductStock!}
-              productInfo={productData}
-            />
-          </div>
-        )}
-
-        <div className="col-span-1">
-          <FormField
-            control={form.control}
-            name={`details.${index}.quantity`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder="Cant."
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === "" ? undefined : Number(value));
-                    }}
-                    className="h-9"
-                    disabled={isDetailsDisabled}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="col-span-2">
-          <FormField
-            control={form.control}
-            name={`details.${index}.retail_price_external`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="P. Lista ($)"
-                    {...field}
-                    value={field.value || ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : undefined,
-                      )
-                    }
-                    onPaste={(e) => handlePaste(e, field)}
-                    className="h-9"
-                    disabled={isDetailsDisabled}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="col-span-2">
-          <FormField
-            control={form.control}
-            name={`details.${index}.unit_price`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    className="h-9 bg-gray-100 font-medium"
-                    disabled
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="col-span-2">
-          <FormField
-            control={form.control}
-            name={`details.${index}.discount_percentage`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max={approvedDiscount ?? defaultDiscount}
-                    placeholder="Dcto %"
-                    {...field}
-                    value={field.value || ""}
-                    onChange={(e) => {
-                      const val = e.target.value
-                        ? Number(e.target.value)
-                        : undefined;
-                      const maxAllowed = approvedDiscount ?? defaultDiscount;
-                      if (val !== undefined && val > maxAllowed) return;
-                      field.onChange(val);
-                    }}
-                    className={
-                      isCampaignDiscountLocked
-                        ? "h-9 border-orange-400 bg-orange-50"
-                        : approvedDiscount !== undefined
-                          ? "h-9 border-green-400"
-                          : "h-9"
-                    }
-                    disabled={isDetailsDisabled || isCampaignDiscountLocked}
-                  />
-                </FormControl>
-                {isCampaignDiscountLocked ? (
-                  <p className="text-[10px] font-medium mt-0.5 text-orange-600">
-                    Descuento por campaña aplicado
-                  </p>
-                ) : (
-                  <p className="text-[10px] font-medium mt-0.5 text-green-600">
-                    Máx.{" "}
-                    {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
-                    {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
-                  </p>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="col-span-2">
-          <Input
-            type="number"
-            value={computedTotal}
-            className="h-9 bg-gray-100 font-bold text-primary"
-            disabled
-            readOnly
-          />
-        </div>
-
-        <div className="col-span-1 flex justify-center items-start gap-1">
-          {hasStock && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
-              onClick={onToggleStock}
-              tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
-            >
-              {showStock ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={onRemove}
-            disabled={isDetailsDisabled}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Tipo de abastecimiento y Observaciones */}
-        <div className="col-span-7 col-start-1">
-          <FormSelect
-            name={`details.${index}.supply_type`}
-            label="Tipo de Abastecimiento"
-            placeholder="Seleccione tipo"
-            control={form.control}
-            options={onSelectSupplyType}
-            disabled={isDetailsDisabled}
-          />
-        </div>
-
-        <div className="col-span-7">
-          <FormInput
-            name={`details.${index}.observations`}
-            label="Notas"
-            control={form.control}
-            placeholder="Opcional"
-            disabled={isDetailsDisabled}
-          />
-        </div>
-      </div>
-
-      {/* Vista Mobile - Formato Card */}
-      <div className="md:hidden p-4 space-y-3">
-        <div className="flex items-start justify-between">
-          <Badge color="secondary" className="text-xs">
-            Repuesto #{index + 1}
-          </Badge>
-          <div className="flex items-center gap-1">
-            {hasStock && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 transition-colors ${showStock ? "text-primary hover:text-primary/80 hover:bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/10"}`}
-                onClick={onToggleStock}
-                tooltip={showStock ? "Ocultar almacenes" : "Ver almacenes"}
-              >
-                {showStock ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={onRemove}
-              disabled={isDetailsDisabled}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <FormSelectAsync
-          name={`details.${index}.product_id`}
-          label="Repuesto"
-          placeholder="Seleccione repuesto"
-          control={form.control}
-          useQueryHook={useProduct}
-          mapOptionFn={(product) => ({
-            label: product.name,
-            value: product.id.toString(),
-          })}
-          perPage={10}
-          debounceMs={500}
-          defaultOption={defaultProductOption}
-          disabled={isDetailsDisabled}
-        />
-
-        {/* Mostrar stock inline debajo del selector - Mobile */}
-        {hasStock && showStock && (
-          <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <div className="flex items-center gap-1">
-                <Warehouse className="h-3 w-3 text-primary" />
-                <span className="text-xs font-semibold text-primary">
-                  Stock Disponible
-                </span>
-              </div>
-              {productData?.brand_name && (
-                <span className="text-xs text-primary">
-                  Marca:{" "}
-                  <span className="font-medium">{productData.brand_name}</span>
-                </span>
-              )}
-              {productData?.code && (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-primary">
-                    Cod: <span className="font-medium">{productData.code}</span>
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-5 w-5 hover:bg-blue-100"
-                    onClick={() => copyToClipboard(productData.code)}
-                    tooltip="Copiar código"
-                  >
-                    {isCopied ? (
-                      <Check className="h-3 w-3 text-green-600" />
-                    ) : (
-                      <Copy className="h-3 w-3 text-primary" />
-                    )}
-                  </Button>
-                </div>
-              )}
-            </div>
-            {currentProductStock.warehouses.length > 0 ? (
-              <div className="space-y-1.5">
-                {currentProductStock.warehouses.slice(0, 3).map((warehouse) => (
-                  <div
-                    key={warehouse.warehouse_id}
-                    className="text-xs bg-white p-1.5 rounded"
-                  >
-                    <div className="font-medium text-gray-700 mb-0.5">
-                      {warehouse.warehouse_name}
-                    </div>
-                    <div className="flex gap-3 text-xs mb-1">
-                      <span>
-                        <span className="text-gray-500">Disp:</span>
-                        <span className="ml-1 text-green-600 font-semibold">
-                          {warehouse.available_quantity}
-                        </span>
-                      </span>
-                      {warehouse.quantity_in_transit > 0 && (
-                        <span>
-                          <span className="text-gray-500">Trán:</span>
-                          <span className="ml-1 text-primary font-semibold">
-                            {warehouse.quantity_in_transit}
-                          </span>
-                        </span>
-                      )}
-                      {warehouse.is_out_of_stock && (
-                        <Badge
-                          color="destructive"
-                          className="text-xs py-0 px-1 h-4"
-                        >
-                          Sin Stock
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-4 gap-1 text-[10px] text-gray-600">
-                      <div>
-                        <div className="text-gray-500">Últ. compra</div>
-                        <div className="font-medium">
-                          {warehouse.currency.symbol || "S/."}{" "}
-                          {warehouse.last_purchase_price?.toFixed(2) || "0.00"}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500">P. público</div>
-                        <div className="font-medium">
-                          {warehouse.currency.symbol || "S/."}{" "}
-                          {warehouse.public_sale_price?.toFixed(2) || "0.00"}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500">P. mín</div>
-                        <div className="font-medium">
-                          {warehouse.currency.symbol || "S/."}{" "}
-                          {warehouse.minimum_sale_price?.toFixed(2) || "0.00"}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500">Sin mov.</div>
-                        <div className="font-medium">
-                          {warehouse.days_without_movement} días
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {currentProductStock.warehouses.length > 3 && (
-                  <div className="text-xs text-gray-500 text-center">
-                    +{currentProductStock.warehouses.length - 3} almacenes más
-                  </div>
-                )}
-                <div className="pt-1.5 border-t border-blue-300 text-xs font-semibold text-gray-700">
-                  Total disponible:{" "}
-                  <span className="text-green-600">
-                    {currentProductStock.total_available_quantity}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <AlertCircle className="h-3 w-3" />
-                <span>Sin stock en almacenes</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name={`details.${index}.quantity`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs">Cantidad</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === "" ? undefined : Number(value));
-                    }}
-                    className="h-9"
-                    disabled={isDetailsDisabled}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name={`details.${index}.retail_price_external`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs">P. Lista ($)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...field}
-                    value={field.value || ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : undefined,
-                      )
-                    }
-                    onPaste={(e) => handlePaste(e, field)}
-                    className="h-9"
-                    disabled={isDetailsDisabled}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name={`details.${index}.unit_price`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs">
-                  P. Unit. ({selectedCurrency?.symbol || "S/."})
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    className="h-9 bg-gray-100"
-                    disabled
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name={`details.${index}.discount_percentage`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs">Dcto %</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max={approvedDiscount ?? defaultDiscount}
-                    {...field}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      const maxAllowed = approvedDiscount ?? defaultDiscount;
-                      if (val > maxAllowed) return;
-                      field.onChange(val);
-                    }}
-                    className={
-                      isCampaignDiscountLocked
-                        ? "h-9 border-orange-400 bg-orange-50"
-                        : approvedDiscount !== undefined
-                          ? "h-9 border-green-400"
-                          : "h-9"
-                    }
-                    disabled={isDetailsDisabled || isCampaignDiscountLocked}
-                  />
-                </FormControl>
-                {isCampaignDiscountLocked ? (
-                  <p className="text-[10px] font-medium mt-0.5 text-orange-600">
-                    Descuento por campaña aplicado
-                  </p>
-                ) : (
-                  <p className="text-[10px] font-medium mt-0.5 text-green-600">
-                    Máx.{" "}
-                    {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
-                    {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
-                  </p>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormItem className="col-span-2">
-            <FormLabel className="text-xs">
-              Total ({selectedCurrency?.symbol || "S/."})
-            </FormLabel>
-            <Input
-              type="number"
-              value={computedTotal}
-              className="h-9 bg-gray-100 font-bold text-primary"
-              disabled
-              readOnly
-            />
-          </FormItem>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3">
-          <FormSelect
-            name={`details.${index}.supply_type`}
-            label="Tipo de Abastecimiento"
-            placeholder="Seleccione tipo"
-            control={form.control}
-            options={onSelectSupplyType}
-            disabled={isDetailsDisabled}
-          />
-
-          <FormInput
-            name={`details.${index}.observations`}
-            label="Notas"
-            control={form.control}
-            placeholder="Opcional"
-            disabled={isDetailsDisabled}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 interface ProformaMesonFormProps {
   defaultValues?: Partial<QuotationMesonWithProductsSchema>;
@@ -838,6 +108,11 @@ export default function ProformaMesonForm({
   const [itemStockVisible, setItemStockVisible] = useState<
     Record<number, boolean>
   >({});
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [pendingProductId, setPendingProductId] = useState<
+    number | undefined
+  >();
   const [vehicleDefaultOption, setVehicleDefaultOption] = useState<
     { value: string; label: string } | undefined
   >(
@@ -882,7 +157,7 @@ export default function ProformaMesonForm({
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: "details",
   });
@@ -969,13 +244,11 @@ export default function ProformaMesonForm({
     return format(dateObj, "yyyy-MM-dd");
   }, [quotationDate]);
 
-  const {
-    data: exchangeRateData,
-    isLoading: isLoadingExchangeRate,
-  } = useExchangeRateByDateAndCurrency(
-    Number(CURRENCY_TYPE_IDS.DOLLARS),
-    quotationDateFormatted,
-  );
+  const { data: exchangeRateData, isLoading: isLoadingExchangeRate } =
+    useExchangeRateByDateAndCurrency(
+      Number(CURRENCY_TYPE_IDS.DOLLARS),
+      quotationDateFormatted,
+    );
   const exchangeRate = exchangeRateData?.rate
     ? Number(exchangeRateData.rate)
     : null;
@@ -1012,20 +285,54 @@ export default function ProformaMesonForm({
     fetchProductsStock();
   }, [productIdsString]);
 
-  const addProduct = () => {
-    append({
-      product_id: "",
-      description: "",
-      quantity: 1,
-      unit_measure: "UND",
-      unit_price: 0,
-      discount_percentage: 0,
-      observations: "",
-      retail_price_external: undefined,
-      exchange_rate: exchangeRate || 0,
-      freight_commission: freightCommissionMultiplier,
-      supply_type: "STOCK",
-    });
+  const openAddSheet = () => {
+    setEditingIndex(null);
+    setSheetOpen(true);
+  };
+
+  const openEditSheet = (index: number) => {
+    setEditingIndex(index);
+    setSheetOpen(true);
+  };
+
+  const closeSheet = () => {
+    setSheetOpen(false);
+    setEditingIndex(null);
+    setPendingProductId(undefined);
+  };
+
+  const handleConfirmDetail = (row: ProductDetailMesonSchema) => {
+    if (editingIndex === null) {
+      append(row);
+    } else {
+      update(editingIndex, row);
+    }
+    closeSheet();
+  };
+
+  // Resuelve el descuento aprobado (GLOBAL aplica a todos, PARTIAL por detail_id)
+  const resolveApprovedDiscount = (index: number) => {
+    const originalDetail = quotationData?.details?.filter(
+      (d) => d.item_type === ITEM_TYPE_PRODUCT,
+    )[index];
+
+    const globalApproved = approvedDiscountRequests.find(
+      (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+    );
+    const partialApproved = originalDetail
+      ? approvedDiscountRequests.find(
+          (r) =>
+            r.type === TYPE_PARTIAL &&
+            r.status === STATUS_APPROVED &&
+            r.ap_order_quotation_detail_id === originalDetail.id,
+        )
+      : undefined;
+
+    return globalApproved
+      ? Number(globalApproved.requested_discount_percentage)
+      : partialApproved
+        ? Number(partialApproved.requested_discount_percentage)
+        : undefined;
   };
 
   const calculateUnitPrice = (index: number) => {
@@ -1353,7 +660,7 @@ export default function ProformaMesonForm({
             </Button>
             <Button
               type="button"
-              onClick={addProduct}
+              onClick={openAddSheet}
               size="sm"
               className="w-full sm:w-auto"
               disabled={!quotationDate || isDetailsDisabled}
@@ -1402,70 +709,34 @@ export default function ProformaMesonForm({
         ) : (
           <div className="space-y-3">
             {/* Cabecera de tabla - Solo Desktop */}
-            <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
+            <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
               <div className="col-span-4">Repuesto</div>
               <div className="col-span-1 text-center">Cant.</div>
-              <div className="col-span-2 text-center">P. Lista ($)</div>
               <div className="col-span-2 text-center">
                 P. Unit. ({selectedCurrency?.symbol || "S/."})
               </div>
-              <div className="col-span-2 text-center">Dcto %</div>
+              <div className="col-span-1 text-center">Dcto %</div>
               <div className="col-span-2 text-center">
                 Total ({selectedCurrency?.symbol || "S/."})
               </div>
-              <div className="col-span-1 text-center">Acción</div>
+              <div className="col-span-2 text-center">Acción</div>
             </div>
 
             {/* Items */}
             <div className="space-y-2">
               {fields.map((field, index) => {
-                // Buscar el detalle original para obtener el defaultOption del producto
-                const originalDetail = quotationData?.details?.filter(
-                  (d) => d.item_type === ITEM_TYPE_PRODUCT,
-                )[index];
-                const defaultProductOption = originalDetail?.product
-                  ? {
-                      value: originalDetail.product.id.toString(),
-                      label: `${originalDetail.product.code} - ${originalDetail.product.name}`,
-                    }
-                  : undefined;
-
-                // Resolver descuento aprobado: GLOBAL aplica a todos, PARTIAL por detail_id
-                const globalApproved = approvedDiscountRequests.find(
-                  (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
-                );
-                const partialApproved = originalDetail
-                  ? approvedDiscountRequests.find(
-                      (r) =>
-                        r.type === TYPE_PARTIAL &&
-                        r.status === STATUS_APPROVED &&
-                        r.ap_order_quotation_detail_id === originalDetail.id,
-                    )
-                  : undefined;
-                const approvedDiscount = globalApproved
-                  ? Number(globalApproved.requested_discount_percentage)
-                  : partialApproved
-                    ? Number(partialApproved.requested_discount_percentage)
-                    : undefined;
-
                 const isStockVisible =
                   itemStockVisible[index] !== undefined
                     ? itemStockVisible[index]
                     : globalShowStock;
 
                 return (
-                  <ProductDetailItem
+                  <ProductDetailRow
                     key={field.id}
                     index={index}
-                    form={form}
-                    onRemove={() => remove(index)}
+                    detail={watchedDetails?.[index] as ProductDetailMesonSchema}
                     selectedCurrency={selectedCurrency}
                     stockData={stockData}
-                    defaultProductOption={defaultProductOption}
-                    detailId={originalDetail?.id}
-                    approvedDiscount={approvedDiscount}
-                    defaultDiscount={defaultDiscount}
-                    isDetailsDisabled={isDetailsDisabled}
                     showStock={isStockVisible}
                     onToggleStock={() =>
                       setItemStockVisible((prev) => ({
@@ -1473,9 +744,26 @@ export default function ProformaMesonForm({
                         [index]: !isStockVisible,
                       }))
                     }
-                    selectedVehicle={selectedVehicle}
+                    onEdit={() => openEditSheet(index)}
+                    onRemove={() => remove(index)}
+                    onChangeSupplyType={(value) =>
+                      form.setValue(
+                        `details.${index}.supply_type`,
+                        value as any,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        },
+                      )
+                    }
+                    onToggleTraverse={(value) =>
+                      form.setValue(`details.${index}.is_traverse`, value, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                    isDetailsDisabled={isDetailsDisabled}
                     sedeId={sedeId}
-                    campaignDiscountValue={campaignDiscountValue}
                   />
                 );
               })}
@@ -1543,6 +831,37 @@ export default function ProformaMesonForm({
       <QuotationPartModal
         open={isPartModalOpen}
         onClose={() => setIsPartModalOpen(false)}
+        onSuccess={(productId) => {
+          setPendingProductId(productId);
+          setIsPartModalOpen(false);
+          setSheetOpen(true);
+        }}
+      />
+
+      {/* Sheet para agregar/editar repuesto */}
+      <AddProductDetailSheet
+        open={sheetOpen}
+        onClose={closeSheet}
+        onConfirm={handleConfirmDetail}
+        mode={editingIndex === null ? "create" : "edit"}
+        initialValue={
+          editingIndex !== null
+            ? (watchedDetails?.[editingIndex] as ProductDetailMesonSchema)
+            : undefined
+        }
+        exchangeRate={exchangeRate}
+        freightCommissionMultiplier={freightCommissionMultiplier}
+        selectedCurrency={selectedCurrency}
+        campaignDiscountValue={campaignDiscountValue}
+        sedeId={sedeId}
+        approvedDiscount={
+          editingIndex !== null
+            ? resolveApprovedDiscount(editingIndex)
+            : undefined
+        }
+        defaultDiscount={defaultDiscount}
+        isDetailsDisabled={isDetailsDisabled}
+        initialProductId={pendingProductId}
       />
 
       <CustomerModal

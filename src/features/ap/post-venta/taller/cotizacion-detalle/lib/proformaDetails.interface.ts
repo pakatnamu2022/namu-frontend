@@ -29,6 +29,7 @@ export interface OrderQuotationDetailsResource {
   supply_type: string;
   product: ProductResource | null;
   status: string;
+  is_traverse?: boolean;
 }
 
 export interface OrderQuotationDetailsRequest {
