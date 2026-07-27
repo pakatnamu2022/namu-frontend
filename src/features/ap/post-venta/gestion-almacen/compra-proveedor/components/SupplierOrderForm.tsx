@@ -81,7 +81,7 @@ export const SupplierOrderForm = ({
     defaultValues: {
       ...defaultValues,
       details: defaultValues.details || [],
-      supply_type: defaultValues.supply_type || "STOCK",
+      supply_type: defaultValues.supply_type || "LOCAL",
     },
     mode: "onChange",
   });

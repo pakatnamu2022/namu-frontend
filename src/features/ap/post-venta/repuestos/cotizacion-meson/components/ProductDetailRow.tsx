@@ -13,6 +13,7 @@ import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-alma
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import { ProductDetailMesonSchema } from "../lib/quotationMeson.schema";
 import { onSelectSupplyType } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 interface ProductDetailRowProps {
   index: number;
@@ -160,6 +161,12 @@ export default function ProductDetailRow({
   const computedTotal =
     Math.round((subtotal - subtotal * (discount / 100)) * 100) / 100;
 
+  const isCurrencyUSD =
+    selectedCurrency?.id?.toString() === CURRENCY_TYPE_IDS.DOLLARS;
+  const retailPriceExternal = detail?.retail_price_external;
+  const showRetailPrice =
+    !isCurrencyUSD && retailPriceExternal !== undefined && retailPriceExternal !== null;
+
   return (
     <div
       className={`border rounded-lg transition-colors ${
@@ -199,6 +206,11 @@ export default function ProductDetailRow({
         <div className="col-span-1 text-center text-sm">{quantity}</div>
         <div className="col-span-2 text-center text-sm font-medium">
           {selectedCurrency?.symbol || "S/."} {unitPrice.toFixed(2)}
+          {showRetailPrice && (
+            <p className="text-[10px] font-normal text-gray-400">
+              $ {retailPriceExternal!.toFixed(2)}
+            </p>
+          )}
         </div>
         <div className="col-span-1 text-center text-sm">
           {discount.toFixed(2)}%
@@ -327,6 +339,11 @@ export default function ProductDetailRow({
             <p className="font-medium">
               {selectedCurrency?.symbol || "S/."} {unitPrice.toFixed(2)}
             </p>
+            {showRetailPrice && (
+              <p className="text-[10px] font-normal text-gray-400">
+                $ {retailPriceExternal!.toFixed(2)}
+              </p>
+            )}
           </div>
           <div>
             <span className="text-gray-500">Dcto%</span>

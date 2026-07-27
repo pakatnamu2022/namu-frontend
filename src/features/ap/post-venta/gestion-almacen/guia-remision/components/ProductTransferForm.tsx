@@ -729,7 +729,7 @@ export const ProductTransferForm = ({
           <DatePickerFormField
             control={form.control}
             name="issue_date"
-            label="Fecha de Translado"
+            label="Fecha de Traslado"
             disabledRange={{ before: new Date() }}
           />
         </GroupFormSection>

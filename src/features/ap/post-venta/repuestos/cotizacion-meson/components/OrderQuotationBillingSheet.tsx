@@ -72,6 +72,7 @@ import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import SearchInput from "@/shared/components/SearchInput";
 import FilterWrapper from "@/shared/components/FilterWrapper";
+import { onSelectSupplyType } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
 
 const DEFAULT_PER_PAGE = 10;
 
@@ -772,7 +773,13 @@ export function BillingSheetContent({
               className: "text-center",
               render: (detail) => (
                 <>
-                  <div className="text-sm">{detail.supply_type || "-"}</div>
+                  <div className="text-sm">
+                    {onSelectSupplyType.find(
+                      (option) => option.value === detail.supply_type,
+                    )?.label ||
+                      detail.supply_type ||
+                      "-"}
+                  </div>
                   <span className="text-xs text-muted-foreground">
                     {detail.observations || ""}
                   </span>

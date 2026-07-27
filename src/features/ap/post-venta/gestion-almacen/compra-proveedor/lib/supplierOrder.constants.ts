@@ -36,5 +36,5 @@ export const supplyTypeOptions = [
   { label: "Local", value: "LOCAL" },
   { label: "Central", value: "CENTRAL" },
   { label: "Importación", value: "IMPORTACION" },
+  { label: "Central e Importación", value: "CENTRAL_IMPORTACION" },
 ];
-

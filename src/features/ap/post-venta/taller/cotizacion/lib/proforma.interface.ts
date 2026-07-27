@@ -74,7 +74,12 @@ export interface OrderQuotationResource {
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
   //Opcionales
-  has_sufficient_stock: boolean;
+  can_generate_final_receipt?: {
+    can_final_receipt: boolean;
+    can_advance: boolean;
+    is_toggle_enabled: boolean;
+    message: string | null;
+  };
   cost_man_hours: number;
   is_requested_by_management: boolean;
   //Guía de remisión
