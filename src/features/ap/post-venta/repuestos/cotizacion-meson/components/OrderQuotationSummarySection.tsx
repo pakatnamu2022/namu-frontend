@@ -199,6 +199,17 @@ export function OrderQuotationSummarySection({
                 </span>
               </div>
             )}
+            {totales.total_gratuita > 0 && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. Gratuita</span>
+                <span className="font-medium">
+                  {currencySymbol}{" "}
+                  {totales.total_gratuita.toLocaleString("es-PE", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">
                 IGV ({porcentaje_de_igv}%)
@@ -263,7 +274,9 @@ export function OrderQuotationSummarySection({
                     isPending ||
                     !form.formState.isValid ||
                     isCompletedWithoutAdvances ||
-                    (totales.total <= 0 && !hasRealAdvancePayments)
+                    (totales.total <= 0 &&
+                      !hasRealAdvancePayments &&
+                      totales.total_gratuita <= 0)
                   }
                 >
                   {form.watch("enviar_automaticamente_a_la_sunat") ? (
@@ -300,7 +313,8 @@ export function OrderQuotationSummarySection({
           )}
           {!isCompletedWithoutAdvances &&
             totales.total <= 0 &&
-            !hasRealAdvancePayments && (
+            !hasRealAdvancePayments &&
+            totales.total_gratuita <= 0 && (
               <p className="text-xs text-center text-destructive font-medium">
                 El total debe ser mayor a 0 para guardar el documento
               </p>
