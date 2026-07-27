@@ -4,6 +4,11 @@ import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { DataTable } from "@/shared/components/DataTable";
 import { cn } from "@/lib/utils";
 import { History } from "lucide-react";
@@ -101,6 +106,35 @@ const columns: ColumnDef<VehicleMovement>[] = [
       </span>
     ),
   },
+  {
+    id: "detalle",
+    header: "Detalle",
+    cell: ({ row }) => {
+      const observation = row.original.observation;
+      const text = observation || "Sin observaciones";
+
+      if (!observation) {
+        return (
+          <span className="text-[10px] uppercase text-muted-foreground">
+            {text}
+          </span>
+        );
+      }
+
+      return (
+        <Popover>
+          <PopoverTrigger asChild>
+            <span className="text-[10px] uppercase text-muted-foreground line-clamp-2 whitespace-normal max-w-[220px] cursor-pointer hover:text-foreground">
+              {text}
+            </span>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-3 normal-case" align="start">
+            <p className="text-sm text-foreground/90">{text}</p>
+          </PopoverContent>
+        </Popover>
+      );
+    },
+  },
 ];
 
 // Movements Table Component
@@ -130,11 +164,6 @@ const MovementsTable = ({ movements }: { movements: VehicleMovement[] }) => {
         variant="ghost"
         isVisibleColumnFilter={false}
         getRowId={(movement) => String(movement.id)}
-        renderSubRow={(movement) => (
-          <p className="text-xs uppercase text-foreground/90">
-            {movement.observation || "Sin observaciones"}
-          </p>
-        )}
       />
     </div>
   );
@@ -165,7 +194,7 @@ export default function VehicleMovements({
         onClose={() => setOpen(false)}
         title="Historial de Movimientos"
         icon="History"
-        size="4xl"
+        size="5xl"
         childrenFooter={
           <Button
             variant="outline"
