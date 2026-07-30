@@ -279,41 +279,20 @@ export function DataTable<TData, TValue>({
                   </TableCell>
                 </TableRow>
               ) : data.length ? (
-                table.getRowModel().rows.map((row, index) => {
+                table.getRowModel().rows.map((row) => {
                   const subContent = renderSubRow?.(row.original);
-                  const groupBg =
-                    index % 2 === 1 ? "bg-muted-foreground/8" : "bg-background";
 
                   return (
                     <Fragment key={row.id}>
-                      <TableRow
-                        className={cn(
-                          "text-nowrap hover:bg-muted group",
-                          groupBg,
-                          subContent && "border-none",
-                        )}
-                      >
-                        {row.getVisibleCells().map((cell, cellIndex) => (
+                      <TableRow className="text-nowrap hover:bg-muted bg-background group">
+                        {row.getVisibleCells().map((cell) => (
                           <TableCell
                             key={cell.id}
                             className={cn(
-                              "p-2 pt-3 truncate",
-                              cellIndex === 0 &&
-                                cn(
-                                  "rounded-tl-md",
-                                  !subContent && "rounded-bl-md",
-                                ),
-                              cellIndex === row.getVisibleCells().length - 1 &&
-                                cn(
-                                  "rounded-tr-md",
-                                  !subContent && "rounded-br-md",
-                                ),
+                              "p-2 truncate",
                               hasActionsColumn &&
                                 isActionsCol(cell.column.id) &&
-                                cn(
-                                  "sticky right-0 z-1 group-hover:bg-muted border-l border-border",
-                                  groupBg,
-                                ),
+                                "sticky right-0 z-1 bg-background group-hover:bg-muted border-l border-border",
                             )}
                           >
                             {flexRender(
@@ -325,12 +304,11 @@ export function DataTable<TData, TValue>({
                       </TableRow>
 
                       {subContent && (
-                        <TableRow className={cn("hover:bg-transparent", groupBg)}>
-                          <TableCell
-                            colSpan={columns.length}
-                            className="p-2 pb-4 rounded-b-md"
-                          >
-                            {subContent}
+                        <TableRow className="hover:bg-transparent bg-background">
+                          <TableCell colSpan={columns.length} className="p-0">
+                            <div className="p-3 bg-muted-foreground/5">
+                              {subContent}
+                            </div>
                           </TableCell>
                         </TableRow>
                       )}

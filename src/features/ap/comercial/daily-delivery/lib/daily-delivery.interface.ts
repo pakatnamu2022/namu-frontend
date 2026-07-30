@@ -28,6 +28,7 @@ export interface BrandReportItem {
   compras: number;
   entregas: number;
   facturadas: number;
+  stock_libre: number;
   reporteria_dealer_portal: number | null;
 }
 
@@ -36,6 +37,7 @@ export interface BrandReportSection {
   total_compras: number;
   total_entregas: number;
   total_facturadas: number;
+  total_libre: number;
   items: BrandReportItem[];
 }
 
@@ -78,12 +80,18 @@ export interface PurchasesByBrandSede {
   sede_id: number;
   sede_name: string;
   compras: number;
+  ventas: number;
+  objetivo_sell_in: number;
+  objetivo_sell_out: number;
 }
 
 export interface PurchasesByBrand {
   brand_id: number;
   brand_name: string;
   total_compras: number;
+  total_ventas: number;
+  objetivo_sell_in: number;
+  objetivo_sell_out: number;
   sedes: PurchasesByBrandSede[];
 }
 
@@ -91,12 +99,18 @@ export interface PurchasesBySedeBrand {
   brand_id: number;
   brand_name: string;
   compras: number;
+  ventas: number;
+  objetivo_sell_in: number;
+  objetivo_sell_out: number;
 }
 
 export interface PurchasesBySede {
   sede_id: number;
   sede_name: string;
   total_compras: number;
+  total_ventas: number;
+  objetivo_sell_in: number;
+  objetivo_sell_out: number;
   brands: PurchasesBySedeBrand[];
 }
 

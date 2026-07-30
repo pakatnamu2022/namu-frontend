@@ -135,7 +135,7 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
       </div>
 
       {/* Header de columnas */}
-      <div className="grid grid-cols-[1fr_120px_120px_120px] gap-4 px-3 py-2 border-b bg-muted/30 sticky top-0">
+      <div className="grid grid-cols-[1fr_110px_110px_110px_110px] gap-4 px-3 py-2 border-b bg-muted/30 sticky top-0">
         <div>
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Marca / Sede
@@ -154,6 +154,11 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
         <div className="text-right">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Facturadas
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Stock Libre
           </span>
         </div>
       </div>
@@ -193,6 +198,10 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
                         <span className="text-muted-foreground">Facturadas: </span>
                         {section.total_facturadas}
                       </div>
+                      <div className="text-amber-600">
+                        <span className="text-muted-foreground">Stock Libre: </span>
+                        {section.total_libre}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -214,7 +223,7 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
                       {/* Sede con accordion */}
                       <div
                         onClick={() => toggleSede(sedeKey)}
-                        className={`grid grid-cols-[1fr_120px_120px_120px] gap-4 items-center py-2 px-3 rounded-md ml-4 cursor-pointer hover:bg-blue-100/50 transition-colors ${LEVEL_STYLES.sede.bgColor}`}
+                        className={`grid grid-cols-[1fr_110px_110px_110px_110px] gap-4 items-center py-2 px-3 rounded-md ml-4 cursor-pointer hover:bg-blue-100/50 transition-colors ${LEVEL_STYLES.sede.bgColor}`}
                       >
                         <div className="flex items-center gap-2">
                           {isSedeExpanded ? (
@@ -243,13 +252,18 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
                             {entry.item.facturadas}
                           </div>
                         </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-amber-600 tabular-nums">
+                            {entry.item.stock_libre}
+                          </div>
+                        </div>
                       </div>
 
                       {/* Marcas de la sede - Solo mostrar si la sede está expandida */}
                       {isSedeExpanded && entry.brands && entry.brands.map((brand, brandIndex) => (
                         <div
                           key={`brand-${entryIndex}-${brandIndex}`}
-                          className={`grid grid-cols-[1fr_120px_120px_120px] gap-4 items-center py-1.5 px-3 rounded-md ml-8 hover:bg-accent/30 transition-all ${LEVEL_STYLES.brand.bgColor}`}
+                          className={`grid grid-cols-[1fr_110px_110px_110px_110px] gap-4 items-center py-1.5 px-3 rounded-md ml-8 hover:bg-accent/30 transition-all ${LEVEL_STYLES.brand.bgColor}`}
                         >
                           <div className="flex items-center gap-2">
                             <span
@@ -277,6 +291,11 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
                           <div className="text-right">
                             <div className="text-sm font-bold text-emerald-600 tabular-nums">
                               {brand.facturadas}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold text-amber-600 tabular-nums">
+                              {brand.stock_libre}
                             </div>
                           </div>
                         </div>
