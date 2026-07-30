@@ -8,8 +8,6 @@ export const useDailyDelivery = (dateFrom?: string, dateTo?: string) => {
   return useQuery<DailyDeliveryResponse>({
     queryKey: ["daily-delivery", dateFrom, dateTo],
     queryFn: () => getDailyDeliveryReport(dateFrom, dateTo),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
   });
 };
 

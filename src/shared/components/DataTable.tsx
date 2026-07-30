@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import type { RowSelectionState, VisibilityState } from "@tanstack/react-table";
 import DataTableColumnFilter from "./DataTableColumnFilter";
 import FormSkeleton from "./FormSkeleton";
@@ -106,6 +106,7 @@ interface DataTableProps<TData, TValue> extends VariantProps<
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
   enableRowSelection?: boolean;
   getRowId?: (originalRow: TData, index: number) => string;
+  renderSubRow?: (row: TData) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -125,6 +126,7 @@ export function DataTable<TData, TValue>({
   onRowSelectionChange,
   enableRowSelection = false,
   getRowId,
+  renderSubRow,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
@@ -277,29 +279,64 @@ export function DataTable<TData, TValue>({
                   </TableCell>
                 </TableRow>
               ) : data.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="text-nowrap hover:bg-muted bg-background group"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
+                table.getRowModel().rows.map((row, index) => {
+                  const subContent = renderSubRow?.(row.original);
+                  const groupBg =
+                    index % 2 === 1 ? "bg-muted-foreground/8" : "bg-background";
+
+                  return (
+                    <Fragment key={row.id}>
+                      <TableRow
                         className={cn(
-                          "p-2 truncate",
-                          hasActionsColumn &&
-                            isActionsCol(cell.column.id) &&
-                            "sticky right-0 z-1 bg-background group-hover:bg-muted border-l border-border",
+                          "text-nowrap hover:bg-muted group",
+                          groupBg,
+                          subContent && "border-none",
                         )}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                        {row.getVisibleCells().map((cell, cellIndex) => (
+                          <TableCell
+                            key={cell.id}
+                            className={cn(
+                              "p-2 pt-3 truncate",
+                              cellIndex === 0 &&
+                                cn(
+                                  "rounded-tl-md",
+                                  !subContent && "rounded-bl-md",
+                                ),
+                              cellIndex === row.getVisibleCells().length - 1 &&
+                                cn(
+                                  "rounded-tr-md",
+                                  !subContent && "rounded-br-md",
+                                ),
+                              hasActionsColumn &&
+                                isActionsCol(cell.column.id) &&
+                                cn(
+                                  "sticky right-0 z-1 group-hover:bg-muted border-l border-border",
+                                  groupBg,
+                                ),
+                            )}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+
+                      {subContent && (
+                        <TableRow className={cn("hover:bg-transparent", groupBg)}>
+                          <TableCell
+                            colSpan={columns.length}
+                            className="p-2 pb-4 rounded-b-md"
+                          >
+                            {subContent}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="text-center">
@@ -342,6 +379,7 @@ export function DataTable<TData, TValue>({
                 !cell.column.id.toLowerCase().includes("accion") &&
                 !cell.column.id.toLowerCase().includes("action"),
             );
+            const subContent = renderSubRow?.(row.original);
 
             return (
               <Card
@@ -377,6 +415,11 @@ export function DataTable<TData, TValue>({
                       );
                     })}
                   </div>
+                  {subContent && (
+                    <div className="mt-2 p-2 rounded-md bg-muted-foreground/5 text-xs text-foreground/90">
+                      {subContent}
+                    </div>
+                  )}
                 </CardContent>
                 {actionCell && (
                   <CardFooter

@@ -8,14 +8,22 @@ export interface VehicleResponse {
   meta: Meta;
 }
 
+export interface VehicleMovementWarehouse {
+  id: number;
+  description: string;
+  dyn_code: string;
+}
+
 export interface VehicleMovement {
   id: number;
   date: string;
-  observation: string;
+  observation: string | null;
   status: string;
   status_color: string;
   ap_vehicle_status_id: number;
   ap_vehicle_purchase_order_id: number | null;
+  warehouse?: VehicleMovementWarehouse;
+  origin_warehouse?: VehicleMovementWarehouse;
 }
 
 export interface VehicleResource {
