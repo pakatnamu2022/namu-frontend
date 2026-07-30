@@ -479,6 +479,21 @@ export const electronicDocumentColumns = ({
 
         const canPreviewNubefact = document.status === "draft";
 
+        const isAnnulled = document.anulado || document.status === "cancelled";
+
+        if (isAnnulled) {
+          return (
+            <div className="flex items-center gap-1">
+              {/* Ver detalles */}
+              <ButtonAction
+                onClick={() => onView(document)}
+                tooltip="Ver detalles"
+                icon={Eye}
+              />
+            </div>
+          );
+        }
+
         return (
           <div className="flex items-center gap-1">
             {/* Ver detalles */}
