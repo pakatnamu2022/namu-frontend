@@ -84,7 +84,15 @@ export const DOCUMENT_STATUS = [
   { value: "accepted", label: "Aceptado", color: "bg-green-500" },
   { value: "rejected", label: "Rechazado", color: "bg-red-500" },
   { value: "cancelled", label: "Anulado", color: "bg-orange-500" },
-];
+] as const;
+
+export const DOCUMENT_STATUS_VALUE = {
+  DRAFT: "draft",
+  SENT: "sent",
+  ACCEPTED: "accepted",
+  REJECTED: "rejected",
+  CANCELLED: "cancelled",
+} as const;
 
 export const UNIT_MEASURES = [
   { value: "NIU", label: "NIU - Unidad (Bienes)" },

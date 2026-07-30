@@ -9,6 +9,7 @@ import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic
 import { SUNAT_CURRENCY_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { cn } from "@/lib/utils";
+import { DOCUMENT_STATUS_VALUE } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 
 interface WorkOrderDeductibleSheetProps {
   open: boolean;
@@ -52,7 +53,7 @@ export const WorkOrderDeductibleSheet = ({
       search,
       seriesModel$sede_id: sedeId ? Number(sedeId) : undefined,
       sunat_concept_currency_id: toSunatCurrencyId(currencyId),
-      status: "accepted",
+      status: [DOCUMENT_STATUS_VALUE.SENT, DOCUMENT_STATUS_VALUE.ACCEPTED],
       workOrder$vehicle_plate: plate,
     },
     open,
