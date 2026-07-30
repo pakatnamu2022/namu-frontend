@@ -24,20 +24,32 @@ export default function PurchasesReport({
           key: `brand-${g.brand_id}`,
           title: g.brand_name,
           total: g.total_compras,
+          totalVentas: g.total_ventas,
+          objetivoSellIn: g.objetivo_sell_in,
+          objetivoSellOut: g.objetivo_sell_out,
           children: g.sedes.map((s) => ({
             key: `sede-${s.sede_id}`,
             name: s.sede_name,
             compras: s.compras,
+            ventas: s.ventas,
+            objetivoSellIn: s.objetivo_sell_in,
+            objetivoSellOut: s.objetivo_sell_out,
           })),
         }))
       : purchasesReport.by_sede.map((g) => ({
           key: `sede-${g.sede_id}`,
           title: g.sede_name,
           total: g.total_compras,
+          totalVentas: g.total_ventas,
+          objetivoSellIn: g.objetivo_sell_in,
+          objetivoSellOut: g.objetivo_sell_out,
           children: g.brands.map((b) => ({
             key: `brand-${b.brand_id}`,
             name: b.brand_name,
             compras: b.compras,
+            ventas: b.ventas,
+            objetivoSellIn: b.objetivo_sell_in,
+            objetivoSellOut: b.objetivo_sell_out,
           })),
         }));
 
@@ -121,7 +133,7 @@ export default function PurchasesReport({
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_120px] gap-4 px-3 py-2 border-b bg-muted/30 sticky top-0">
+      <div className="grid grid-cols-[1fr_100px_110px_100px_110px] gap-4 px-3 py-2 border-b bg-muted/30 sticky top-0">
         <div>
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             {viewMode === "brand" ? "Marca / Sede" : "Sede / Marca"}
@@ -130,6 +142,21 @@ export default function PurchasesReport({
         <div className="text-right">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Compras
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Obj. Sell-in
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Ventas
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Obj. Sell-out
           </span>
         </div>
       </div>
@@ -154,9 +181,23 @@ export default function PurchasesReport({
                     <h4 className="text-sm font-bold text-slate-800 flex-1">
                       {group.title}
                     </h4>
-                    <div className="text-xs font-semibold text-slate-600">
-                      <span className="text-muted-foreground">Compras: </span>
-                      {group.total}
+                    <div className="flex gap-4 items-center text-xs font-semibold">
+                      <div className="text-slate-600">
+                        <span className="text-muted-foreground">Compras: </span>
+                        {group.total}
+                      </div>
+                      <div className="text-slate-600">
+                        <span className="text-muted-foreground">Obj. Sell-in: </span>
+                        {group.objetivoSellIn}
+                      </div>
+                      <div className="text-emerald-600">
+                        <span className="text-muted-foreground">Ventas: </span>
+                        {group.totalVentas}
+                      </div>
+                      <div className="text-slate-600">
+                        <span className="text-muted-foreground">Obj. Sell-out: </span>
+                        {group.objetivoSellOut}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -165,7 +206,7 @@ export default function PurchasesReport({
                   group.children.map((child) => (
                     <div
                       key={child.key}
-                      className="grid grid-cols-[1fr_120px] gap-4 items-center py-1.5 px-3 rounded-md ml-4 hover:bg-accent/30 transition-all bg-white"
+                      className="grid grid-cols-[1fr_100px_110px_100px_110px] gap-4 items-center py-1.5 px-3 rounded-md ml-4 hover:bg-accent/30 transition-all bg-white"
                     >
                       <div className="flex items-center gap-2">
                         <span className="truncate text-sm font-medium text-slate-700">
@@ -181,6 +222,21 @@ export default function PurchasesReport({
                       <div className="text-right">
                         <div className="text-sm font-bold tabular-nums">
                           {child.compras}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-muted-foreground tabular-nums">
+                          {child.objetivoSellIn}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-emerald-600 tabular-nums">
+                          {child.ventas}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-muted-foreground tabular-nums">
+                          {child.objetivoSellOut}
                         </div>
                       </div>
                     </div>
