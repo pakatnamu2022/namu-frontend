@@ -41,6 +41,7 @@ export interface BrandReportSection {
 
 export interface CurrentInventoryItem {
   estado: string;
+  estado_real: string;
   fecha_emision: string | null;
   importe_inicial: string | null;
   numero_factura: string | null;

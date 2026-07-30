@@ -76,7 +76,7 @@ export default function CurrentInventory({
 
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {summaryEntries.map(({ estado, total, color }) => (
           <MetricCard
             key={estado}
