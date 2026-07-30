@@ -13,7 +13,6 @@ import {
   cancelElectronicDocument,
   preCancelElectronicDocument,
   dispatchElectronicDocumentMigration,
-  cancelConsolidatedInvoice,
   syncAccountingStatusById,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable.tsx";
@@ -143,22 +142,6 @@ export default function SalesReceiptsCajaPage() {
     },
   });
 
-  const cancelConsolidatedMutation = useMutation({
-    mutationFn: cancelConsolidatedInvoice,
-    onSuccess: () => {
-      successToast("Factura consolidada cancelada correctamente");
-      refetch();
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(`Error al cancelar factura consolidada: ${msg}`);
-    },
-  });
-
-  const handleCancelConsolidated = (id: number) => {
-    cancelConsolidatedMutation.mutate(id);
-  };
-
   const syncAccountingStatusMutation = useMutation({
     mutationFn: syncAccountingStatusById,
     onSuccess: (data) => {
@@ -218,7 +201,6 @@ export default function SalesReceiptsCajaPage() {
           onAnnul: handleCancel,
           onPreCancel: handlePreCancel,
           onMigrate: (id) => migrateMutation.mutate(id),
-          onCancelConsolidated: handleCancelConsolidated,
           onSyncAccountingStatus: (id) =>
             syncAccountingStatusMutation.mutate(id),
           permissions: {

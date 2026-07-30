@@ -48,9 +48,9 @@ import {
   useProductById,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { FormInput } from "@/shared/components/FormInput";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { QuotationItemsTable } from "./QuotationItemsTable";
@@ -81,6 +81,7 @@ import {
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { StockWarehousesCard } from "@/features/ap/post-venta/gestion-almacen/inventario/components/StockWarehousesCard";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const SUPPLY_TYPE_STOCK = "STOCK";
@@ -128,8 +129,17 @@ export default function ProductDetailsSection({
   const { user, general } = useAuthStore();
   const freightCommissionMultiplier = 1 + (general?.freight_commission ?? 0.05);
   const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
+  const quotationDateFormatted = quotationDate
+    ? format(new Date(quotationDate), "yyyy-MM-dd")
+    : "";
+  const { data: exchangeRateData, isLoading: isLoadingExchangeRate } =
+    useExchangeRateByDateAndCurrency(
+      Number(CURRENCY_TYPE_IDS.DOLLARS),
+      quotationDateFormatted,
+    );
+  const exchangeRate = exchangeRateData?.rate
+    ? Number(exchangeRateData.rate)
+    : null;
 
   const { data: activeCampaign } = useActiveCampaign({ area_id: AREA_TALLER });
   const campaignDiscountValue =
@@ -137,6 +147,7 @@ export default function ProductDetailsSection({
       ? Number(activeCampaign.discount_value)
       : undefined;
   const [apHasStock, setApHasStock] = useState(false);
+  const [apClassArticleId, setApClassArticleId] = useState<number | null>(null);
 
   // AP mode
   const maxDiscountPercentage =
@@ -176,26 +187,37 @@ export default function ProductDetailsSection({
       apForm.setValue("ap_unit_price", price);
       apForm.setValue("ap_description", item.product?.name || "");
       setApHasStock(item.available_quantity > 0);
+      setApClassArticleId(item.product?.ap_class_article_id ?? null);
     } else {
       setApMinSalePrice(0);
       setApSalePriceSoles(0);
       apForm.setValue("ap_unit_price", 0);
       apForm.setValue("ap_description", "");
       setApHasStock(false);
+      setApClassArticleId(null);
     }
   };
 
   const isApCampaignDiscountLocked =
     apHasStock &&
     apSupplyType === SUPPLY_TYPE_STOCK &&
-    campaignDiscountValue !== undefined;
+    campaignDiscountValue !== undefined &&
+    apClassArticleId !== null &&
+    apClassArticleId !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén,
+  // y limpiarlo si deja de aplicar (p. ej. al cambiar a un repuesto de lubricantes)
   useEffect(() => {
-    if (!isApCampaignDiscountLocked) return;
     const currentDiscount = apForm.getValues("ap_discount");
-    if (currentDiscount !== campaignDiscountValue) {
-      apForm.setValue("ap_discount", campaignDiscountValue as number);
+    if (isApCampaignDiscountLocked) {
+      if (currentDiscount !== campaignDiscountValue) {
+        apForm.setValue("ap_discount", campaignDiscountValue as number);
+      }
+    } else if (
+      campaignDiscountValue !== undefined &&
+      currentDiscount === campaignDiscountValue
+    ) {
+      apForm.setValue("ap_discount", 0);
     }
   }, [isApCampaignDiscountLocked, campaignDiscountValue, apForm]);
 
@@ -507,28 +529,8 @@ export default function ProductDetailsSection({
   }, [selectedProductId]);
 
   useEffect(() => {
-    const fetchExchangeRate = async () => {
-      setIsLoadingExchangeRate(true);
-      try {
-        const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
-        const response = await api.get(
-          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
-        );
-        if (response.data?.data?.rate) {
-          const rate = parseFloat(response.data.data.rate);
-          setExchangeRate(rate);
-          form.setValue("exchange_rate", rate);
-        }
-      } catch (error) {
-        console.error("Error al obtener tipo de cambio:", error);
-        setExchangeRate(null);
-        form.setValue("exchange_rate", 0);
-      } finally {
-        setIsLoadingExchangeRate(false);
-      }
-    };
-    fetchExchangeRate();
-  }, [quotationDate, form]);
+    form.setValue("exchange_rate", exchangeRate || 0);
+  }, [exchangeRate, form]);
 
   const hasStockInWarehouse = (() => {
     const currentProductStock = stockData?.data?.find(
@@ -542,14 +544,23 @@ export default function ProductDetailsSection({
   const isCampaignDiscountLocked =
     hasStockInWarehouse &&
     supplyType === SUPPLY_TYPE_STOCK &&
-    campaignDiscountValue !== undefined;
+    campaignDiscountValue !== undefined &&
+    !!productData &&
+    productData.ap_class_article_id !== AP_CLASS_ARTICLE_LUBRICANT_ID;
 
-  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén
+  // Aplicar automáticamente el descuento de campaña cuando el repuesto tiene stock en el almacén,
+  // y limpiarlo si deja de aplicar (p. ej. al cambiar a un repuesto de lubricantes)
   useEffect(() => {
-    if (!isCampaignDiscountLocked) return;
     const currentDiscount = form.getValues("discount_percentage");
-    if (currentDiscount !== campaignDiscountValue) {
-      form.setValue("discount_percentage", campaignDiscountValue as number);
+    if (isCampaignDiscountLocked) {
+      if (currentDiscount !== campaignDiscountValue) {
+        form.setValue("discount_percentage", campaignDiscountValue as number);
+      }
+    } else if (
+      campaignDiscountValue !== undefined &&
+      currentDiscount === campaignDiscountValue
+    ) {
+      form.setValue("discount_percentage", 0);
     }
   }, [isCampaignDiscountLocked, campaignDiscountValue, form]);
 
@@ -824,7 +835,7 @@ export default function ProductDetailsSection({
                   disabled={isApCampaignDiscountLocked}
                   className={
                     isApCampaignDiscountLocked
-                      ? "border-orange-400 bg-orange-50"
+                      ? "border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200"
                       : undefined
                   }
                   onChange={(e) => {
@@ -1255,6 +1266,7 @@ export default function ProductDetailsSection({
           emptyMessage="No hay items de repuestos"
           formatCurrency={formatCurrency}
           maxDiscountAllowed={maxDiscountAllowed}
+          campaignDiscountValue={campaignDiscountValue}
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}

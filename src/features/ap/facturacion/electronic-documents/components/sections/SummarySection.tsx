@@ -1,9 +1,8 @@
+import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileCheck, Send } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
@@ -63,9 +62,30 @@ export function SummarySection({
   const series = form.watch("serie");
   const selectedClientId = form.watch("client_id");
   const hasDetraccion = form.watch("detraccion") || false;
-  const DETRACCION_RATE = 0.12;
+  const detraccionPorcentaje = form.watch("detraccion_porcentaje") || 0;
+  const DETRACCION_RATE = detraccionPorcentaje / 100;
+  // Monto de detracción en la moneda del documento (lo que se resta al cliente)
   const detraccionAmount = hasDetraccion ? totales.total * DETRACCION_RATE : 0;
   const totalConDetraccion = hasDetraccion ? totales.total * (1 - DETRACCION_RATE) : totales.total;
+  // El depósito de detracción a Banco de la Nación siempre se hace en soles,
+  // por lo que si el documento es en dólares se convierte con el T.C. del día
+  const isUSD = currencySymbol === "$";
+  const detraccionAmountSoles = hasDetraccion
+    ? Math.round(
+        (isUSD ? detraccionAmount * (exchangeRate || 0) : detraccionAmount) *
+          100,
+      ) / 100
+    : 0;
+
+  // Persistir siempre el monto de detracción en soles para el envío al backend
+  useEffect(() => {
+    const current = form.getValues("detraccion_total");
+    const next = hasDetraccion ? detraccionAmountSoles : undefined;
+    if (current !== next) {
+      form.setValue("detraccion_total", next);
+    }
+  }, [hasDetraccion, detraccionAmountSoles, form]);
+
   // Buscar el cliente seleccionado
   const selectedCustomer =
     useCustomersById(Number(selectedClientId), !!selectedClientId).data ||
@@ -73,102 +93,104 @@ export function SummarySection({
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3">
-      <Card className="h-fit sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20">
-        <CardHeader className="space-y-1">
+      <Card className="h-fit sticky top-6 border-0 shadow-lg shadow-black/4 dark:shadow-black/20">
+        <CardHeader className="space-y-4 pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <FileCheck className="size-5 text-primary" />
+            <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
               Resumen
-            </CardTitle>
-            <Badge
-              variant="outline"
-              className="bg-primary/10 text-primary border-primary/30"
-            >
+            </p>
+            <span className="text-xs font-medium text-muted-foreground">
               {isEdit ? "Edición" : "Nuevo"}
-            </Badge>
+            </span>
           </div>
-          <div className="flex gap-2 justify-between">
-            <p className="text-xs text-muted-foreground">
+
+          <div>
+            <p className="text-2xl font-semibold tracking-tight tabular-nums">
               {series
                 ? authorizedSeries.find((s) => s.id === Number(series))?.series
                 : "****"}
               -{form.watch("numero") || "########"}
             </p>
-            {isAdvancePayment && (
-              <Badge color="orange" className="w-fit">
-                Anticipo
-              </Badge>
+            {(isAdvancePayment || quotation) && (
+              <div className="flex items-center gap-2 mt-1.5">
+                {isAdvancePayment && (
+                  <span className="text-xs font-medium text-orange-500 dark:text-orange-400">
+                    Anticipo
+                  </span>
+                )}
+                {isAdvancePayment && quotation && (
+                  <span className="text-muted-foreground/40">·</span>
+                )}
+                {quotation && (
+                  <span className="text-xs text-muted-foreground">
+                    Cotización COT-{quotation.id}
+                  </span>
+                )}
+              </div>
             )}
           </div>
-          {quotation && (
-            <Badge variant="outline" className="w-fit">
-              Desde Cotización: COT-{quotation.id}
-            </Badge>
-          )}
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          {/* Tipo de Comprobante */}
-          <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-            <p className="text-xs font-medium text-muted-foreground">
-              Tipo de Comprobante
-            </p>
-            <p className="text-sm font-semibold">
-              {documentTypes.find((t) => t.id === Number(selectedDocumentType))
-                ?.description || "Sin seleccionar"}
-            </p>
-          </div>
+        <CardContent className="space-y-6">
+          {/* Tipo de Comprobante + Cliente */}
+          <div className="space-y-4 rounded-2xl bg-muted/40 p-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">
+                Comprobante
+              </p>
+              <p className="text-sm font-medium">
+                {documentTypes.find(
+                  (t) => t.id === Number(selectedDocumentType),
+                )?.description || "Sin seleccionar"}
+              </p>
+            </div>
 
-          {/* Cliente Info */}
-          <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-            <p className="text-xs font-medium text-muted-foreground">Cliente</p>
-            <p className="text-sm font-semibold">
-              {selectedCustomer?.full_name
-                ? selectedCustomer.full_name +
-                  (selectedCustomer.spouse_full_name
-                    ? ` - ${selectedCustomer.spouse_full_name}`
-                    : "")
-                : "Sin seleccionar"}
-            </p>
-            <div className="text-xs text-muted-foreground">
-              <span className="font-semibold">Documento:</span>{" "}
-              {selectedCustomer?.num_doc}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              <span className="font-semibold">Dirección:</span>{" "}
-              {selectedCustomer?.direction}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              <span className="font-semibold">Teléfono:</span>{" "}
-              {selectedCustomer && selectedCustomer?.phone !== "0"
-                ? selectedCustomer.phone
-                : "-"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              <span className="font-semibold">Email:</span>{" "}
-              {selectedCustomer?.email ?? "-"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              <span className="font-semibold">IGV:</span>{" "}
-              {selectedCustomer?.tax_class_type_igv
-                ? `${selectedCustomer.tax_class_type_igv}%`
-                : "-"}
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Cliente</p>
+              <p className="text-sm font-medium">
+                {selectedCustomer?.full_name
+                  ? selectedCustomer.full_name +
+                    (selectedCustomer.spouse_full_name
+                      ? ` - ${selectedCustomer.spouse_full_name}`
+                      : "")
+                  : "Sin seleccionar"}
+              </p>
+              <div className="text-xs text-muted-foreground space-y-0.5 mt-1.5">
+                <p>
+                  <span className="text-muted-foreground/70">Doc.</span>{" "}
+                  {selectedCustomer?.num_doc || "-"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground/70">Dirección</span>{" "}
+                  {selectedCustomer?.direction || "-"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground/70">Teléfono</span>{" "}
+                  {selectedCustomer && selectedCustomer?.phone !== "0"
+                    ? selectedCustomer.phone
+                    : "-"}
+                </p>
+                <p>
+                  <span className="text-muted-foreground/70">Email</span>{" "}
+                  {selectedCustomer?.email ?? "-"}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* IGV Info */}
-          <div className="space-y-1 p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/10 dark:border-blue-700/20">
-            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-              IGV: {porcentaje_de_igv}%
+          <div className="space-y-1 px-1">
+            <p className="text-xs font-medium text-foreground">
+              IGV {porcentaje_de_igv}%
             </p>
             <p className="text-xs text-muted-foreground">
-              El porcentaje de IGV se calcula automáticamente según la
-              clasificación tributaria del cliente seleccionado
+              Calculado automáticamente según la clasificación tributaria del
+              cliente
             </p>
             {exchangeRate && (
               <p className="text-xs text-muted-foreground">
                 T.C. venta:{" "}
-                <span className="font-medium">
+                <span className="font-medium text-foreground">
                   S/{" "}
                   {exchangeRate.toLocaleString("es-PE", {
                     minimumFractionDigits: 3,
@@ -183,8 +205,6 @@ export function SummarySection({
               </p>
             )}
           </div>
-
-          <Separator className="bg-muted-foreground/20 hidden" />
 
           {/* Items Summary */}
           <div className="space-y-2 hidden">
@@ -251,16 +271,12 @@ export function SummarySection({
             </div>
           </div>
 
-          {/* <Separator className="bg-muted-foreground/20" /> */}
-
           {/* Totales */}
-          <div className="space-y-3 border pt-2 rounded-lg">
+          <div className="space-y-2">
             {totales.total_gravada > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Gravada
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. gravada</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_gravada.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -269,11 +285,9 @@ export function SummarySection({
               </div>
             )}
             {totales.total_exonerada > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Exonerada
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. exonerada</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_exonerada.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -282,11 +296,9 @@ export function SummarySection({
               </div>
             )}
             {totales.total_inafecta > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Inafecta
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. inafecta</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_inafecta.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -295,11 +307,9 @@ export function SummarySection({
               </div>
             )}
             {totales.total_gratuita > 0 && (
-              <div className="flex justify-between items-center text-sm px-2">
-                <span className="text-muted-foreground font-mono uppercase">
-                  Op. Gratuita
-                </span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Op. gratuita</span>
+                <span className="tabular-nums">
                   {currencySymbol}{" "}
                   {totales.total_gratuita.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -307,11 +317,11 @@ export function SummarySection({
                 </span>
               </div>
             )}
-            <div className="flex justify-between items-center text-sm px-2">
-              <span className="text-muted-foreground font-mono uppercase">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">
                 IGV ({porcentaje_de_igv}%)
               </span>
-              <span className="font-medium">
+              <span className="tabular-nums">
                 {currencySymbol}{" "}
                 {totales.total_igv.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
@@ -319,13 +329,9 @@ export function SummarySection({
               </span>
             </div>
 
-            <div className="border border-dashed border-primary/20 m-0" />
-
-            <div className="flex justify-between items-center p-3 bg-muted rounded-b-lg">
-              <span className="text-base font-semibold font-mono uppercase text-blue-600 dark:text-blue-400">
-                Total
-              </span>
-              <span className="text-2xl font-medium text-blue-600 dark:text-blue-400">
+            <div className="flex justify-between items-center rounded-2xl bg-muted/40 px-4 py-3 mt-3">
+              <span className="text-sm font-semibold">Total</span>
+              <span className="text-2xl font-semibold tabular-nums">
                 {currencySymbol}
                 {totales.total.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,
@@ -336,28 +342,28 @@ export function SummarySection({
 
           {/* Detracción */}
           {hasDetraccion && (
-            <div className="space-y-2 border border-dashed border-muted-foreground/20 pt-2 rounded-lg">
-              <p className="text-xs font-mono uppercase text-muted-foreground px-3">
+            <div className="space-y-2 rounded-2xl bg-muted/40 p-4">
+              <p className="text-xs font-medium text-muted-foreground mb-1">
                 Forma de pago con detracción
               </p>
 
-              <div className="flex justify-between items-center text-xs px-3">
-                <span className="text-muted-foreground/80 font-mono uppercase">
-                  Detracción (12%)
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground/80">
+                  Detracción ({detraccionPorcentaje}%)
                 </span>
-                <span className="text-muted-foreground">
-                  {currencySymbol}
-                  {detraccionAmount.toLocaleString("es-PE", {
+                <span className="tabular-nums">
+                  S/{" "}
+                  {detraccionAmountSoles.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
                   })}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-xs px-3">
-                <span className="text-muted-foreground/80 font-mono uppercase">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground/80">
                   Cliente paga
                 </span>
-                <span className="text-muted-foreground">
+                <span className="tabular-nums">
                   {currencySymbol}
                   {totalConDetraccion.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
@@ -365,23 +371,26 @@ export function SummarySection({
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-xs px-3 pb-2">
-                <span className="text-muted-foreground/80 font-mono uppercase">
-                  Depósito BN
-                </span>
-                <span className="text-muted-foreground">
-                  {currencySymbol}
-                  {detraccionAmount.toLocaleString("es-PE", {
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-muted-foreground/80">Depósito BN</span>
+                <span className="tabular-nums">
+                  S/{" "}
+                  {detraccionAmountSoles.toLocaleString("es-PE", {
                     minimumFractionDigits: 2,
                   })}
                 </span>
               </div>
+              {isUSD && !exchangeRate && (
+                <p className="text-xs text-destructive font-medium pt-1">
+                  Sin tipo de cambio: no se puede calcular la detracción en
+                  soles
+                </p>
+              )}
             </div>
           )}
-          {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-4 flex flex-col gap-2">
+          <div className="space-y-2 pt-2 flex flex-col gap-2">
             <ConfirmationDialog
               trigger={
                 <Button
@@ -437,8 +446,8 @@ export function SummarySection({
           </div>
 
           {/* Footer Info */}
-          <div className="pt-4 border-t border-muted-foreground/10">
-            <p className="text-xs text-center text-muted-foreground">
+          <div className="pt-2">
+            <p className="text-xs text-center text-muted-foreground/70">
               {form.watch("fecha_de_emision")
                 ? new Date(
                     form.watch("fecha_de_emision") + "T00:00:00",

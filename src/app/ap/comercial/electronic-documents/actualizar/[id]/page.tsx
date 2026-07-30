@@ -309,7 +309,7 @@ export default function UpdateElectronicDocumentPage() {
         igvTypes={igvTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
-        useQuotation={true}
+        useQuotation={!!document.purchase_request_quote_id}
       />
     </PageWrapper>
   );

@@ -1,19 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
-import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { Separator } from "@/components/ui/separator";
 import { NumberFormat } from "@/shared/components/NumberFormat";
+import { CopyCell } from "@/shared/components/CopyCell";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { usePurchaseRequestQuoteById } from "../lib/purchaseRequestQuote.hook";
-import {
-  FileText,
-  User,
-  Car,
-  Calendar,
-  MapPin,
-  Package,
-  MessageSquare,
-} from "lucide-react";
+import { EditDiscountCouponModal } from "./EditDiscountCouponModal";
+import { BonusDiscountResource } from "../lib/purchaseRequestQuote.interface";
+import { FileDown, Pencil } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -30,17 +27,188 @@ interface PurchaseRequestQuoteDetailModalProps {
   id: number;
 }
 
+type ItemRow = {
+  key: string;
+  description: string;
+  descriptionCopyValue?: string;
+  detail?: string;
+  detailCopyValue?: string;
+  badge?: { label: string; className: string };
+  quantity?: number | string;
+  unitPrice?: number;
+  total: number;
+  isDiscount?: boolean;
+  coupon?: BonusDiscountResource;
+  typeOrder: number;
+};
+
+const TYPE_DOCUMENT_LABEL: Record<string, string> = {
+  COTIZACION: "Cotización",
+  SOLICITUD_COMPRA: "Solicitud de Compra",
+};
+
+function Field({
+  label,
+  value,
+  copy,
+  mono,
+}: {
+  label: string;
+  value?: string | number | null;
+  copy?: boolean;
+  mono?: boolean;
+}) {
+  if (value === undefined || value === null || value === "" || value === "-")
+    return null;
+  return (
+    <div className="flex items-baseline justify-between gap-3 py-0.5">
+      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
+      {copy ? (
+        <CopyCell
+          value={String(value)}
+          size="sm"
+          font={mono ? "mono" : "normal"}
+          className="truncate text-right font-medium"
+        />
+      ) : (
+        <span
+          className={`truncate text-right text-sm font-medium ${mono ? "font-mono" : ""}`}
+        >
+          {value}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function PurchaseRequestQuoteDetailModal({
   open,
   onOpenChange,
   id,
 }: PurchaseRequestQuoteDetailModalProps) {
   const { data: quote, isLoading } = usePurchaseRequestQuoteById(id);
+  const [editingCoupon, setEditingCoupon] =
+    useState<BonusDiscountResource | null>(null);
 
-  const hasBonusDiscounts =
-    quote?.bonus_discounts && quote.bonus_discounts.length > 0;
-  const hasAccessories = quote?.accessories && quote.accessories.length > 0;
   const model = quote?.ap_vehicle?.model ?? quote?.model;
+  const symbol = quote?.doc_type_currency_symbol ?? "";
+  const typeDocumentLabel = quote
+    ? (TYPE_DOCUMENT_LABEL[quote.type_document] ?? quote.type_document)
+    : "";
+
+  const items: ItemRow[] = [];
+  if (quote) {
+    const modelCodeAndVersion = [quote.ap_model_vn, model?.version]
+      .filter(Boolean)
+      .join(" · ");
+
+    items.push({
+      key: "vehicle",
+      description: quote.ap_vehicle?.vin
+        ? `VIN ${quote.ap_vehicle.vin}`
+        : (quote.ap_model_vn ?? "Vehículo"),
+      descriptionCopyValue: quote.ap_vehicle?.vin,
+      detail: quote.ap_vehicle?.vin
+        ? modelCodeAndVersion || undefined
+        : quote.vehicle_color || undefined,
+      detailCopyValue:
+        quote.ap_vehicle?.vin && modelCodeAndVersion
+          ? quote.ap_model_vn
+          : undefined,
+      quantity: 1,
+      unitPrice: Number(quote.base_selling_price),
+      total: Number(quote.base_selling_price),
+      typeOrder: 0,
+    });
+
+    quote.accessories?.forEach((accessory) => {
+      const effectivePrice =
+        Number(accessory.price) + Number(accessory.additional_price ?? 0);
+      const localTotal = effectivePrice * accessory.quantity;
+      const sameCurrency =
+        accessory.type_currency_code === quote.doc_type_currency;
+      const converted = sameCurrency
+        ? localTotal
+        : localTotal / quote.exchange_rate;
+
+      items.push({
+        key: `accessory-${accessory.id}`,
+        description: accessory.description,
+        detail: `#${accessory.approved_accessory_id}`,
+        badge:
+          accessory.type === "OBSEQUIO"
+            ? { label: "Obsequio", className: "bg-primary/10 text-primary" }
+            : { label: "Adicional", className: "bg-primary/20 text-primary" },
+        quantity: accessory.quantity,
+        unitPrice: effectivePrice,
+        total: converted,
+        typeOrder: accessory.type === "OBSEQUIO" ? 1 : 2,
+      });
+    });
+
+    quote.others?.forEach((other) => {
+      items.push({
+        key: `other-${other.id}`,
+        description: other.description,
+        badge: { label: "Cargo", className: "bg-foreground/10 text-foreground" },
+        total: Number(other.amount),
+        typeOrder: 3,
+      });
+    });
+
+    const sortedBonusDiscounts = [...(quote.bonus_discounts ?? [])].sort(
+      (a, b) => Number(!!a.is_negative) - Number(!!b.is_negative),
+    );
+    sortedBonusDiscounts.forEach((item) => {
+      const amount = Number(item.amount);
+      items.push({
+        key: `bonus-${item.id}`,
+        description: item.description,
+        detail: item.concept_code,
+        badge:
+          item.type === "PORCENTAJE"
+            ? {
+                label: `${item.percentage}%`,
+                className: "bg-primary/5 text-primary",
+              }
+            : undefined,
+        total: item.is_negative ? -amount : amount,
+        isDiscount: true,
+        coupon: item,
+        typeOrder: 4,
+      });
+    });
+
+    items.sort((a, b) => a.typeOrder - b.typeOrder);
+  }
+
+  const specs = model
+    ? (
+        [
+          ["Marca", model.brand],
+          ["Familia", model.family],
+          ["Tipo", model.vehicle_type],
+          ["Carrocería", model.body_type],
+          ["Combustible", model.fuel],
+          ["Tracción", model.traction_type],
+          ["Transmisión", model.transmission],
+          ["Potencia", model.power],
+          ["Cilindrada", model.displacement],
+          ["Cilindros", model.cylinders_number],
+          ["Asientos", model.seats_number],
+          ["Puertas", model.doors_number],
+          ["Distancia Ejes", model.wheelbase],
+          ["Peso Neto", model.net_weight],
+          ["Peso Bruto", model.gross_weight],
+          ["Carga Útil", model.payload],
+          ["Tipo Motor", quote?.ap_vehicle?.engine_type],
+        ] as [string, string | number | undefined][]
+      ).filter(
+        ([, v]) => v !== undefined && v !== null && v !== "" && v !== "-",
+      )
+    : [];
+
+  const electronicDocuments = quote?.electronic_documents ?? [];
 
   return (
     <GeneralSheet
@@ -48,603 +216,420 @@ export default function PurchaseRequestQuoteDetailModal({
       onClose={() => onOpenChange(false)}
       title="Detalle de Cotización"
       subtitle={
-        quote ? `${quote.correlative} - ${quote.type_document}` : undefined
+        quote ? `${quote.correlative} - ${typeDocumentLabel}` : undefined
       }
       icon="FileText"
       side="right"
-      size="5xl"
+      size="4xl"
       isLoading={isLoading}
     >
       {quote && (
-        <div className="space-y-6">
-          {/* Información General */}
-          <GroupFormSection
-            title="Información General"
-            color="gray"
-            icon={FileText}
-            cols={{ sm: 1, md: 2, xl: 5 }}
-            headerExtra={
+        <div className="divide-y divide-border text-sm">
+          {/* Encabezado */}
+          <div className="flex items-start justify-between gap-3 py-3">
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                {typeDocumentLabel}
+              </p>
+              <CopyCell
+                value={quote.correlative}
+                label={quote.correlative}
+                size="lg"
+                font="mono"
+                className="font-bold tracking-wide"
+              />
+            </div>
+            <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
               <Badge
                 color={quote.is_approved ? "default" : "secondary"}
                 className={quote.is_approved ? "bg-primary" : "bg-secondary"}
               >
                 {quote.is_approved ? "Aprobado" : "Pendiente"}
               </Badge>
-            }
-          >
-            <div>
-              <p className="text-xs text-muted-foreground">Correlativo</p>
-              <p className="font-semibold">{quote.correlative}</p>
+              {quote.is_invoiced ? (
+                <Badge className="bg-emerald-600">Facturado</Badge>
+              ) : null}
+              {quote.is_paid ? (
+                <Badge className="bg-blue-600">Pagado</Badge>
+              ) : null}
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Tipo de Documento</p>
-              <p className="font-medium">{quote.type_document}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Calendar className="size-3" />
-                Fecha Límite
-              </p>
-              <p className="font-medium">
-                {/* PPP */}
-                {quote.quote_deadline
+          </div>
+
+          {/* Meta */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5 py-3">
+            <Field
+              label="Fecha límite"
+              value={
+                quote.quote_deadline
                   ? parse(
                       quote.quote_deadline,
                       "yyyy-MM-dd",
                       new Date(),
                     ).toLocaleDateString("es-PE", {
-                      day: "numeric",
-                      month: "long",
+                      day: "2-digit",
+                      month: "2-digit",
                       year: "numeric",
                     })
-                  : "No especificada"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <MapPin className="size-3" />
-                Sede
-              </p>
-              <p className="font-medium">{quote.sede || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Garantía</p>
-              <p className="font-medium">
-                {quote.warranty_years && quote.warranty_km
-                  ? `${quote.warranty_years} ${quote.warranty_years === 1 ? "año" : "años"} / ${quote.warranty_km.toLocaleString("es-PE")} km`
-                  : "N/A"}
-              </p>
-            </div>
-            <div className="xl:col-span-2">
-              <p className="text-xs text-muted-foreground">Asesor</p>
-              <p className="font-medium">{quote.consultant?.name || "N/A"}</p>
-            </div>
+                  : "N/A"
+              }
+            />
+            <Field label="Sede" value={quote.sede} />
+            <Field label="Asesor" value={quote.consultant?.name} />
+            <Field
+              label="Garantía"
+              value={
+                quote.warranty_years && quote.warranty_km
+                  ? `${quote.warranty_years}a / ${quote.warranty_km.toLocaleString("es-PE")}km`
+                  : "N/A"
+              }
+            />
+            <Field
+              label="Moneda"
+              value={quote.type_currency || quote.doc_type_currency}
+            />
+            <Field label="T. Cambio" value={quote.exchange_rate} />
+          </div>
 
-            {/* Información Financiera */}
-            <div>
-              <p className="text-xs text-muted-foreground">Moneda</p>
-              <p className="font-medium">
-                {quote.type_currency || quote.doc_type_currency}
+          {/* Cliente */}
+          <div className="py-3">
+            <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Cliente
+            </p>
+            <p className="truncate font-semibold">{quote.holder}</p>
+            {quote.client_name && quote.client_name !== quote.holder && (
+              <p className="truncate text-xs text-muted-foreground">
+                {quote.client_name}
               </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Tipo de Cambio</p>
-              <p className="font-medium">{quote.exchange_rate}</p>
-            </div>
-            {/* <div>
-              <p className="text-xs text-muted-foreground">Moneda Facturado</p>
-              <p className="font-medium">
-                {quote.doc_type_currency} ({quote.doc_type_currency_symbol})
-              </p>
-            </div> */}
-            <div>
-              <p className="text-xs text-muted-foreground">Precio Base</p>
-              <p className="font-medium text-emerald-600 text-xl">
-                <NumberFormat
-                  value={Number(quote.base_selling_price)}
-                  prefix={quote.doc_type_currency_symbol}
-                />
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Precio de Venta Total</p>
-              <p className="font-medium text-green-600 text-2xl">
-                <NumberFormat
-                  value={Number(quote.sale_price)}
-                  prefix={quote.doc_type_currency_symbol}
-                />
-              </p>
-            </div>
-            {quote.down_payment != null && (
-              <div>
-                <p className="text-xs text-muted-foreground">Monto a Cuenta</p>
-                <p className="font-medium text-blue-600 text-xl">
-                  <NumberFormat
-                    value={Number(quote.down_payment)}
-                    prefix={quote.doc_type_currency_symbol}
-                  />
-                </p>
-              </div>
             )}
-          </GroupFormSection>
-
-          {/* Información del Titular/Cliente */}
-          <GroupFormSection
-            title="Información del Titular"
-            icon={User}
-            color="gray"
-            cols={{ sm: 1, md: 2, xl: 5 }}
-          >
-            <div className="xl:col-span-2">
-              <p className="text-xs text-muted-foreground">Nombre Completo</p>
-              <p className="font-semibold">{quote.holder}</p>
-            </div>
-            <div className="xl:col-span-3">
-              <p className="text-xs text-muted-foreground">Cliente</p>
-              <p className="font-medium">{quote.client_name || "N/A"}</p>
-            </div>
-            <div className="xl:col-span-2">
-              <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium text-sm break-all">
-                {quote.holder_email || "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Tipo de Documento</p>
-              <p className="font-medium">
-                {quote.holder_document_type === 1 ? "DNI" : "RUC"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">
-                Número de Documento
-              </p>
-              <p className="font-medium">{quote.holder_document_number}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Teléfono</p>
-              <p className="font-medium">{quote.holder_phone || "N/A"}</p>
-            </div>
-            <div className="col-span-full">
-              <p className="text-xs text-muted-foreground">Dirección</p>
-              <p className="font-medium text-sm">
-                {quote.holder_address || "N/A"}
-              </p>
-            </div>
-          </GroupFormSection>
-
-          {/* Información del Vehículo */}
-          <GroupFormSection
-            title="Información del Vehículo"
-            icon={Car}
-            color="blue"
-            cols={{ sm: 1, md: 2, xl: 4 }}
-          >
-            <div>
-              <p className="text-xs text-muted-foreground">Modelo</p>
-              <p className="font-semibold">{quote.ap_model_vn || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Color</p>
-              <p className="font-medium">{quote.vehicle_color || "N/A"}</p>
-            </div>
-            {quote.type_vehicle && (
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  Tipo de Vehículo
-                </p>
-                <p className="font-medium">{quote.type_vehicle}</p>
+            <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5">
+              <Field
+                label={quote.holder_document_type === 810 ? "RUC" : "DNI"}
+                value={quote.holder_document_number}
+                copy
+                mono
+              />
+              <Field label="Teléfono" value={quote.holder_phone} copy />
+              <Field label="Email" value={quote.holder_email} copy />
+              <div className="col-span-2 sm:col-span-1">
+                <Field  label="Dirección" value={quote.holder_address} />
               </div>
-            )}
+            </div>
+          </div>
 
-            {quote.ap_vehicle && (
-              <div className="col-span-full space-y-4">
-                {/* Identificación */}
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                    Identificación
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 p-3 bg-muted/30 rounded-lg border border-muted-foreground/10">
-                    <div>
-                      <p className="text-xs text-muted-foreground">VIN</p>
-                      <p className="font-mono font-semibold text-sm">
-                        {quote.ap_vehicle.vin || "N/A"}
-                      </p>
-                    </div>
-                    {quote.ap_vehicle.plate && (
-                      <div>
-                        <p className="text-xs text-muted-foreground">Placa</p>
-                        <p className="font-mono font-semibold text-sm">
-                          {quote.ap_vehicle.plate}
-                        </p>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-xs text-muted-foreground">Año</p>
-                      <p className="font-medium text-sm">
-                        {quote.ap_vehicle.year}
-                      </p>
-                    </div>
-                    {quote.ap_vehicle.engine_number && (
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          N° Motor
-                        </p>
-                        <p className="font-mono font-medium text-sm">
-                          {quote.ap_vehicle.engine_number}
-                        </p>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-xs text-muted-foreground">Color</p>
-                      <p className="font-medium text-sm">
-                        {quote.ap_vehicle.vehicle_color || "N/A"}
-                      </p>
-                    </div>
-                    {quote.ap_vehicle.engine_type && (
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Tipo Motor
-                        </p>
-                        <p className="font-medium text-sm">
-                          {quote.ap_vehicle.engine_type}
-                        </p>
-                      </div>
-                    )}
-                    {quote.ap_vehicle.vehicle_status && (
-                      <div className="col-span-2">
-                        <p className="text-xs text-muted-foreground">Estado</p>
-                        <span
-                          className="inline-block text-xs font-semibold px-2 py-0.5 rounded-full"
-                          style={{
-                            backgroundColor: quote.ap_vehicle.status_color
-                              ? `${quote.ap_vehicle.status_color}22`
-                              : undefined,
-                            color: quote.ap_vehicle.status_color || undefined,
-                          }}
-                        >
-                          {quote.ap_vehicle.vehicle_status}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+          {/* Vehículo */}
+          <div className="py-3">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Vehículo
+              </p>
+              {quote.ap_vehicle?.vehicle_status && (
+                <span
+                  className="inline-block shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                  style={{
+                    backgroundColor: quote.ap_vehicle.status_color
+                      ? `${quote.ap_vehicle.status_color}22`
+                      : undefined,
+                    color: quote.ap_vehicle.status_color || undefined,
+                  }}
+                >
+                  {quote.ap_vehicle.vehicle_status}
+                </span>
+              )}
+            </div>
+            <p className="truncate font-semibold">
+              {quote.ap_model_vn || "N/A"}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {[quote.vehicle_color, quote.type_vehicle]
+                .filter(Boolean)
+                .join(" · ") || "N/A"}
+            </p>
+            <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5">
+              <Field label="VIN" value={quote.ap_vehicle?.vin} copy mono />
+              <Field label="Placa" value={quote.ap_vehicle?.plate} copy mono />
+              <Field
+                label="N° Motor"
+                value={quote.ap_vehicle?.engine_number}
+                copy
+                mono
+              />
+              <Field label="Año" value={quote.ap_vehicle?.year} />
+              <Field
+                label="Ubicación"
+                value={
+                  [
+                    quote.ap_vehicle?.warehouse_name,
+                    quote.ap_vehicle?.sede_name_warehouse,
+                  ]
+                    .filter(Boolean)
+                    .join(" - ") || undefined
+                }
+              />
+            </div>
+          </div>
 
-                {/* Ubicación */}
-                {(quote.ap_vehicle.warehouse_name ||
-                  quote.ap_vehicle.warehouse_physical_name ||
-                  quote.ap_vehicle.sede_name_warehouse) && (
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                      Ubicación
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-3 bg-muted/30 rounded-lg border border-muted-foreground/10">
-                      {quote.ap_vehicle.sede_name_warehouse && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">Sede</p>
-                          <p className="font-medium text-sm">
-                            {quote.ap_vehicle.sede_name_warehouse}
-                          </p>
-                        </div>
-                      )}
-                      {quote.ap_vehicle.warehouse_name && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Almacén
-                          </p>
-                          <p className="font-medium text-sm">
-                            {quote.ap_vehicle.warehouse_name}
-                          </p>
-                        </div>
-                      )}
-                      {quote.ap_vehicle.warehouse_physical_name && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Almacén Físico
-                          </p>
-                          <p className="font-medium text-sm">
-                            {quote.ap_vehicle.warehouse_physical_name}
-                          </p>
-                        </div>
-                      )}
-                      {quote.ap_vehicle.sede_name_warehouse_physical &&
-                        quote.ap_vehicle.sede_name_warehouse_physical !==
-                          quote.ap_vehicle.sede_name_warehouse && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">
-                              Sede (Físico)
-                            </p>
-                            <p className="font-medium text-sm">
-                              {quote.ap_vehicle.sede_name_warehouse_physical}
-                            </p>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Especificaciones del Modelo */}
-            {model && (
-              <div className="col-span-full space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Especificaciones del Modelo
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 p-3 bg-muted/30 rounded-lg border border-muted-foreground/10">
-                  {model.brand && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Marca</p>
-                      <p className="font-medium text-sm">{model.brand}</p>
-                    </div>
-                  )}
-                  {model.family && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Familia</p>
-                      <p className="font-medium text-sm">{model.family}</p>
-                    </div>
-                  )}
-                  {model.vehicle_type && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Tipo Vehículo
-                      </p>
-                      <p className="font-medium text-sm">
-                        {model.vehicle_type}
-                      </p>
-                    </div>
-                  )}
-                  {model.body_type && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Carrocería
-                      </p>
-                      <p className="font-medium text-sm">{model.body_type}</p>
-                    </div>
-                  )}
-                  {model.fuel && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Combustible
-                      </p>
-                      <p className="font-medium text-sm">{model.fuel}</p>
-                    </div>
-                  )}
-                  {model.traction_type && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Tracción</p>
-                      <p className="font-medium text-sm">
-                        {model.traction_type}
-                      </p>
-                    </div>
-                  )}
-                  {model.transmission && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Transmisión
-                      </p>
-                      <p className="font-medium text-sm">
-                        {model.transmission}
-                      </p>
-                    </div>
-                  )}
-                  {model.power && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Potencia</p>
-                      <p className="font-medium text-sm">{model.power}</p>
-                    </div>
-                  )}
-                  {model.displacement && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Cilindrada
-                      </p>
-                      <p className="font-medium text-sm">
-                        {model.displacement}
-                      </p>
-                    </div>
-                  )}
-                  {model.cylinders_number && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Cilindros</p>
-                      <p className="font-medium text-sm">
-                        {model.cylinders_number}
-                      </p>
-                    </div>
-                  )}
-                  {model.seats_number && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Asientos</p>
-                      <p className="font-medium text-sm">
-                        {model.seats_number}
-                      </p>
-                    </div>
-                  )}
-                  {model.doors_number && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Puertas</p>
-                      <p className="font-medium text-sm">
-                        {model.doors_number}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </GroupFormSection>
-
-          {/* Bonos/Descuentos */}
-          {hasBonusDiscounts && (
-            <GroupFormSection
-              title="Bonos y Descuentos"
-              icon={Package}
-              cols={{ sm: 1 }}
-            >
-              <div className="md:col-span-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Descripción</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Código</TableHead>
-                      <TableHead className="text-right">Porcentaje</TableHead>
-                      <TableHead className="text-right">Monto</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {quote.bonus_discounts.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">
+          {/* Detalle */}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="h-9 pl-0">Descripción</TableHead>
+                <TableHead className="h-9 px-2 text-right">Cant.</TableHead>
+                <TableHead className="h-9 px-2 text-right">P. Unit.</TableHead>
+                <TableHead className="h-9 pr-0 text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item) => (
+                <TableRow key={item.key}>
+                  <TableCell className="py-2 pl-0">
+                    <div className="flex items-center gap-2">
+                      {item.descriptionCopyValue ? (
+                        <CopyCell
+                          value={item.descriptionCopyValue}
+                          label={item.description}
+                          size="sm"
+                          font="mono"
+                          className="truncate font-semibold"
+                        />
+                      ) : (
+                        <p className="truncate font-medium">
                           {item.description}
-                        </TableCell>
-                        <TableCell>{item.type}</TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {item.concept_code}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {item.type === "PORCENTAJE"
-                            ? `${item.percentage}%`
-                            : "-"}
-                        </TableCell>
-                        <TableCell
-                          className={`text-right font-semibold ${
-                            item.is_negative ? "text-red-600" : "text-primary"
+                        </p>
+                      )}
+                      {item.badge && (
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${item.badge.className}`}
+                        >
+                          {item.badge.label}
+                        </span>
+                      )}
+                    </div>
+                    {item.detail &&
+                      (item.detailCopyValue ? (
+                        <CopyCell
+                          value={item.detailCopyValue}
+                          label={item.detail}
+                          size="xs"
+                          font="mono"
+                          className="truncate text-muted-foreground"
+                        />
+                      ) : (
+                        <p className="truncate text-xs text-muted-foreground">
+                          {item.detail}
+                        </p>
+                      ))}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2 text-right">
+                    {item.quantity ?? "-"}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2 text-right">
+                    {item.unitPrice != null ? (
+                      <NumberFormat value={item.unitPrice} prefix={symbol} />
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+                  <TableCell
+                    className={`whitespace-nowrap py-2 pr-0 text-right font-semibold ${
+                      item.isDiscount && item.total < 0 ? "text-red-600" : ""
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-1 justify-end">
+                      {item.isDiscount && item.total >= 0 && "+ "}
+                      <NumberFormat value={item.total} prefix={symbol} />
+                      {item.coupon && !item.coupon.is_negative && quote.is_invoiced ? (
+                        <ButtonAction
+                          tooltip="Editar bono / descuento"
+                          icon={Pencil}
+                          color="neutral"
+                          onClick={() => setEditingCoupon(item.coupon!)}
+                        />
+                      ) : null}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {/* Totales */}
+          <div className="flex justify-end py-3">
+            <div className="w-full max-w-[260px] space-y-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="font-semibold">Precio de venta</span>
+                <span className="whitespace-nowrap text-xl font-bold">
+                  <NumberFormat
+                    value={Number(quote.sale_price)}
+                    prefix={symbol}
+                  />
+                </span>
+              </div>
+
+              {quote.down_payment != null && (
+                <>
+                  <Separator className="my-1.5" />
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-muted-foreground">A cuenta</span>
+                    <span className="whitespace-nowrap font-medium text-muted-foreground">
+                      -{" "}
+                      <NumberFormat
+                        value={Number(quote.down_payment)}
+                        prefix={symbol}
+                      />
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold">Saldo pendiente</span>
+                    <span className="whitespace-nowrap font-bold text-primary">
+                      <NumberFormat
+                        value={
+                          Number(quote.sale_price) - Number(quote.down_payment)
+                        }
+                        prefix={symbol}
+                      />
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {quote.is_invoiced ? (
+                <>
+                  <Separator className="my-1.5" />
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      Margen
+                    </span>
+                    <span className="whitespace-nowrap text-xs font-medium text-muted-foreground">
+                      <NumberFormat
+                        value={Number(quote.margin_amount)}
+                        prefix={symbol}
+                      />{" "}
+                      ({Number(quote.margin_pct).toFixed(1)}%)
+                    </span>
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Comprobantes electrónicos (solo si ya se facturó) */}
+          {electronicDocuments.length > 0 && (
+            <div className="py-3">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Comprobantes Emitidos
+              </p>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="h-9 pl-0">Documento</TableHead>
+                    <TableHead className="h-9 px-2">Emisión</TableHead>
+                    <TableHead className="h-9 px-2">Estado</TableHead>
+                    <TableHead className="h-9 px-2 text-right">Total</TableHead>
+                    <TableHead className="h-9 pr-0 text-right">PDF</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {electronicDocuments.map((doc) => (
+                    <TableRow key={doc.id}>
+                      <TableCell className="py-2 pl-0">
+                        <p className="truncate font-medium">
+                          {doc.document_type?.description ?? "Comprobante"}
+                        </p>
+                        <CopyCell
+                          value={doc.full_number}
+                          size="xs"
+                          font="mono"
+                          className="truncate text-muted-foreground"
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-2">
+                        {doc.fecha_de_emision
+                          ? new Date(doc.fecha_de_emision).toLocaleDateString(
+                              "es-PE",
+                            )
+                          : "-"}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-2">
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                            doc.status === "accepted"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : doc.status === "rejected" ||
+                                  doc.status === "cancelled"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {item.is_negative ? "-" : "+"}{" "}
-                          <NumberFormat value={Number(item.amount)} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </GroupFormSection>
+                          {doc.status === "accepted"
+                            ? "Aceptado"
+                            : doc.status === "rejected"
+                              ? "Rechazado"
+                              : doc.status === "cancelled"
+                                ? "Anulado"
+                                : doc.status === "sent"
+                                  ? "Enviado"
+                                  : doc.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-2 text-right font-semibold">
+                        <NumberFormat
+                          value={Number(doc.total)}
+                          prefix={symbol}
+                        />
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap py-2 pr-0 text-right">
+                        {doc.enlace_del_pdf && (
+                          <ButtonAction
+                            tooltip="Descargar PDF"
+                            icon={FileDown}
+                            color="blue"
+                            onClick={() =>
+                              window.open(doc.enlace_del_pdf, "_blank")
+                            }
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
 
-          {/* Accesorios */}
-          {hasAccessories && (
-            <GroupFormSection
-              title="Accesorios"
-              icon={Package}
-              cols={{ sm: 1 }}
-            >
-              <div className="md:col-span-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Descripción</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead className="text-right">Cantidad</TableHead>
-                      <TableHead className="text-right">Precio Unit.</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {quote.accessories.map((accessory, index) => {
-                      const effectivePrice =
-                        Number(accessory.price) +
-                        Number(accessory.additional_price ?? 0);
-                      const localTotal = effectivePrice * accessory.quantity;
-                      const sameCurrency =
-                        accessory.type_currency_code ===
-                        quote.doc_type_currency;
-                      const convertedTotal = sameCurrency
-                        ? localTotal
-                        : localTotal / quote.exchange_rate;
-
-                      return (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <p className="font-medium">
-                              {accessory.description}
-                            </p>
-                            <p className="text-xs text-muted-foreground font-mono">
-                              #{accessory.approved_accessory_id}
-                            </p>
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                                accessory.type === "OBSEQUIO"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-blue-100 text-primary"
-                              }`}
-                            >
-                              {accessory.type === "OBSEQUIO"
-                                ? "Obsequio"
-                                : "Adicional"}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {accessory.quantity}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div>
-                              {accessory.type_currency_symbol}{" "}
-                              <NumberFormat value={effectivePrice} />
-                            </div>
-                            {(accessory.additional_price ?? 0) > 0 && (
-                              <div className="text-xs text-muted-foreground">
-                                Base{" "}
-                                <NumberFormat value={Number(accessory.price)} />
-                                {" + "}
-                                <NumberFormat
-                                  value={accessory.additional_price}
-                                />
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right font-semibold text-primary">
-                            {sameCurrency ? (
-                              <>
-                                {quote.doc_type_currency_symbol}{" "}
-                                <NumberFormat
-                                  value={Number(localTotal.toFixed(2))}
-                                />
-                              </>
-                            ) : (
-                              <div className="space-y-0.5">
-                                <div>
-                                  {accessory.type_currency_symbol}{" "}
-                                  <NumberFormat
-                                    value={Number(localTotal.toFixed(2))}
-                                  />
-                                </div>
-                                <div className="text-xs text-muted-foreground font-normal">
-                                  ≈ {quote.doc_type_currency_symbol}{" "}
-                                  <NumberFormat
-                                    value={Number(convertedTotal.toFixed(2))}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+          {/* Especificaciones técnicas */}
+          {specs.length > 0 && (
+            <div className="py-3">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Especificaciones técnicas
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-0.5">
+                {specs.map(([label, value]) => (
+                  <Field key={label} label={label} value={value} />
+                ))}
               </div>
-            </GroupFormSection>
+            </div>
           )}
 
           {/* Comentarios */}
           {quote.comment && (
-            <GroupFormSection
-              title="Comentarios"
-              icon={MessageSquare}
-              cols={{ sm: 1 }}
-            >
-              <div>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {quote.comment}
-                </p>
-              </div>
-            </GroupFormSection>
+            <div className="py-3">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Comentarios
+              </p>
+              <p className="whitespace-pre-wrap wrap-break-word text-sm text-muted-foreground">
+                {quote.comment}
+              </p>
+            </div>
           )}
         </div>
       )}
+
+      <EditDiscountCouponModal
+        open={!!editingCoupon}
+        onClose={() => setEditingCoupon(null)}
+        coupon={editingCoupon}
+        currencySymbol={symbol}
+      />
     </GeneralSheet>
   );
 }

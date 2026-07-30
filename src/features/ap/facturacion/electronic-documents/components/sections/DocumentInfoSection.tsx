@@ -15,6 +15,8 @@ import {
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { FormInput } from "@/shared/components/FormInput";
+import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -48,6 +50,38 @@ export function DocumentInfoSection({
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
   >(undefined);
+
+  const isDetraction = form.watch("detraccion") || false;
+  const firstItemPlanId = form.watch("items.0.account_plan_id");
+
+  // Planes contables habilitados para detracción: el % aplicado lo define el plan
+  // de cuenta contable seleccionado en el item, no una elección manual aquí.
+  const { data: detractionAccountPlans = [] } = useAllAccountingAccountPlan({
+    is_detraction: 1,
+    type: ACP_TYPE_SALE,
+    enable_commercial: 1,
+  });
+
+  // El % de detracción se deriva del plan de cuenta contable del item agregado.
+  // Si se desactiva la detracción, o no hay items aún, se limpia el % guardado.
+  useEffect(() => {
+    if (!isDetraction) {
+      if (form.getValues("detraccion_porcentaje") !== undefined) {
+        form.setValue("detraccion_porcentaje", undefined);
+      }
+      return;
+    }
+
+    const plan = detractionAccountPlans.find(
+      (p) => p.id.toString() === firstItemPlanId?.toString(),
+    );
+
+    if (plan?.detraction_percentage !== form.getValues("detraccion_porcentaje")) {
+      form.setValue("detraccion_porcentaje", plan?.detraction_percentage ?? undefined, {
+        shouldValidate: true,
+      });
+    }
+  }, [isDetraction, firstItemPlanId, detractionAccountPlans, form]);
 
   // Cargar el cliente desde el ID cuando viene de una cotización
   const { data: loadedCustomer } = useCustomersById(defaultCustomerId || 0);
@@ -175,8 +209,32 @@ export function DocumentInfoSection({
           name="detraccion"
           label="Detracción"
           text="Aplicar Detracción"
-          description="Se aplicará el 12% de detracción al documento"
+          description="El % se toma del plan de cuenta contable del item agregado"
         />
+      )}
+
+      {!useQuotation && isDetraction && (
+        <div className="flex flex-col gap-2">
+          {form.watch("detraccion_porcentaje") ? (
+            <p className="text-sm text-muted-foreground">
+              Se aplicará{" "}
+              <span className="font-medium text-foreground">
+                {form.watch("detraccion_porcentaje")}%
+              </span>{" "}
+              de detracción, según el plan de cuenta contable del item.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Agregue un item con un plan de cuenta contable de detracción
+              para determinar el % a aplicar.
+            </p>
+          )}
+          {form.formState.errors.detraccion_porcentaje && (
+            <p className="text-sm font-medium text-destructive">
+              {form.formState.errors.detraccion_porcentaje.message}
+            </p>
+          )}
+        </div>
       )}
 
       <FormSelect

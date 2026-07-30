@@ -72,6 +72,7 @@ import { DataTable } from "@/shared/components/DataTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import SearchInput from "@/shared/components/SearchInput";
 import FilterWrapper from "@/shared/components/FilterWrapper";
+import { onSelectSupplyType } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
 
 const DEFAULT_PER_PAGE = 10;
 
@@ -717,6 +718,9 @@ export function BillingSheetContent({
         <DetailSheetTable
           rows={orderQuotation.details ?? []}
           getKey={(detail) => detail.id}
+          getRowClassName={(detail) =>
+            detail.is_traverse ? "bg-amber-50/60 hover:bg-amber-50" : undefined
+          }
           columns={[
             {
               header: "#",
@@ -727,7 +731,18 @@ export function BillingSheetContent({
               header: "Repuesto",
               render: (detail) => (
                 <>
-                  <div className="text-sm">{detail.description}</div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="text-sm">{detail.description}</div>
+                    {detail.is_traverse && (
+                      <Badge
+                        color="orange"
+                        icon={Truck}
+                        tooltip="Producto en travesía"
+                      >
+                        Travesía
+                      </Badge>
+                    )}
+                  </div>
                   {detail.product?.code ? (
                     <CopyCell
                       value={detail.product.code}
@@ -758,7 +773,13 @@ export function BillingSheetContent({
               className: "text-center",
               render: (detail) => (
                 <>
-                  <div className="text-sm">{detail.supply_type || "-"}</div>
+                  <div className="text-sm">
+                    {onSelectSupplyType.find(
+                      (option) => option.value === detail.supply_type,
+                    )?.label ||
+                      detail.supply_type ||
+                      "-"}
+                  </div>
                   <span className="text-xs text-muted-foreground">
                     {detail.observations || ""}
                   </span>

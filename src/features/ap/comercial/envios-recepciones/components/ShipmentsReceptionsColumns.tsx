@@ -227,7 +227,7 @@ export const ShipmentsReceptionsColumns = ({
   },
   {
     accessorKey: "issue_date",
-    header: "Fecha Translado",
+    header: "Fecha Traslado",
     cell: ({ row }) => {
       const date = row.getValue("issue_date") as string;
       return date ? format(new Date(date), "dd/MM/yyyy", { locale: es }) : "-";
@@ -595,10 +595,7 @@ export const ShipmentsReceptionsColumns = ({
         isGuiaRemision && !isSent && permissions.canSend;
 
       const canConsult =
-        isGuiaRemision &&
-        isSent &&
-        !isAcceptedBySunat &&
-        permissions.canView;
+        isGuiaRemision && isSent && !isAcceptedBySunat && permissions.canView;
 
       const canViewHistory = isGuiaRemision && permissions.canView;
 

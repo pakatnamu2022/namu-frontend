@@ -412,8 +412,8 @@ export default function WorkOrderBillingForm({
   // Deducible asociado a la OT: se envía como descuento global del comprobante.
   // Solo aplica a la venta final (no tiene sentido restarlo de un anticipo parcial).
   const deductibleAmount =
-    !isAdvancePayment && workOrder.deductible_amount > 0
-      ? workOrder.deductible_amount
+    !isAdvancePayment && workOrder.deductible_amount_without_tax > 0
+      ? workOrder.deductible_amount_without_tax
       : 0;
 
   // Calcular totales

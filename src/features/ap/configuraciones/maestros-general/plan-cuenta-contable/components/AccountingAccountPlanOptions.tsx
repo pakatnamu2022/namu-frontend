@@ -31,8 +31,8 @@ export default function AccountingAccountPlanOptions({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="true">Con detracción</SelectItem>
-          <SelectItem value="false">Sin detracción</SelectItem>
+          <SelectItem value="1">Con detracción</SelectItem>
+          <SelectItem value="0">Sin detracción</SelectItem>
         </SelectContent>
       </Select>
     </div>

@@ -2,6 +2,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 export interface PurchaseRequestQuoteResponse {
   data: PurchaseRequestQuoteResource[];
@@ -17,6 +18,28 @@ export interface BonusDiscountResource {
   amount: string;
   concept_code_id: number;
   concept_code: string;
+  is_negative?: boolean;
+  has_retention?: boolean;
+}
+
+export interface DiscountCouponResource {
+  id: number;
+  description: string;
+  type: "FIJO" | "PORCENTAJE";
+  percentage: string;
+  amount: string;
+  valor_unitario: string;
+  precio_unitario: string;
+  is_negative: boolean;
+  has_retention: boolean;
+  concept_code_id: number;
+  concept_code: string;
+}
+
+export interface DiscountCouponUpdatePayload {
+  has_retention?: boolean;
+  description?: string;
+  value?: number;
   is_negative?: boolean;
 }
 
@@ -92,10 +115,13 @@ export interface PurchaseRequestQuoteResource {
   sede_id: number;
   sede: string;
   down_payment?: number;
+  kyc_declaration_id?: number | null;
+  kyc_status?: string | null;
   created_at: string;
   updated_at: string;
   ap_vehicle?: VehicleResource;
   model?: ModelsVnResource;
+  electronic_documents?: ElectronicDocumentResource[];
 }
 
 export interface OtherCostPayload {

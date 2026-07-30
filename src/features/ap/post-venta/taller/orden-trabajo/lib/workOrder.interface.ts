@@ -63,6 +63,7 @@ export interface WorkOrderResource {
   tax_amount: number;
   final_amount: number;
   deductible_amount: number;
+  deductible_amount_without_tax: number;
   deductible: WorkOrderDeductibleResource | null;
   is_delivery: boolean;
   num_doc_contact: string;

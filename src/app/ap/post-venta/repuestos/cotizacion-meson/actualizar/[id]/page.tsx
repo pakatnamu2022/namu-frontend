@@ -104,6 +104,7 @@ export default function UpdateOrderQuotationMesonPage() {
             | "STOCK"
             | "CENTRAL"
             | "IMPORTACION",
+          is_traverse: Boolean(detail.is_traverse),
         })) || [],
   };
 

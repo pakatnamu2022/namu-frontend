@@ -56,9 +56,11 @@ export function OtherSalesForm({
     CustomersResource | undefined
   >(undefined);
 
-  // Modo de IGV del comprobante: Normal (gravado) o Inafecto a IGV.
+  // Modo de IGV del comprobante: Normal (gravado), Inafecto a IGV o Gratuita.
   // Se bloquea una vez que ya hay items agregados, para no dejar items inconsistentes.
-  const [igvMode, setIgvMode] = useState<"normal" | "inafecta">("normal");
+  const [igvMode, setIgvMode] = useState<"normal" | "inafecta" | "gratuita">(
+    "normal",
+  );
   const itemsCount = form.watch("items")?.length || 0;
 
   // Sincronizar sunat_concept_transaction_type_id con is_advance_payment
@@ -265,6 +267,7 @@ export function OtherSalesForm({
               igvMode={igvMode}
               onIgvModeChange={setIgvMode}
               igvModeLocked={itemsCount > 0}
+              isCommercial={isCommercial}
             />
             {/* Agregar Items */}
             <ItemsSection

@@ -74,12 +74,14 @@ export const SUPPLY_TYPES = {
   LOCAL: "LOCAL",
   CENTRAL: "CENTRAL",
   IMPORTACION: "IMPORTACION",
+  CENTRAL_IMPORTACION: "CENTRAL_IMPORTACION",
 } as const;
 
 export const SUPPLY_TYPE_OPTIONS = [
   { label: "Local", value: SUPPLY_TYPES.LOCAL },
   { label: "Central", value: SUPPLY_TYPES.CENTRAL },
   { label: "Importación", value: SUPPLY_TYPES.IMPORTACION },
+  { label: "Central e Importación", value: SUPPLY_TYPES.CENTRAL_IMPORTACION },
 ];
 
 export const getStatusLabelPurchaseOrder = (status: string) => {

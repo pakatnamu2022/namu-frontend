@@ -49,8 +49,14 @@ export default function AccountingAccountPlanModal({
       account: data.account,
       code_dynamics: data.code_dynamics || "",
       description: data.description,
-      accounting_type_id: String(data.accounting_type_id),
       is_detraction: data.is_detraction,
+      detraction_percentage: data.detraction_percentage
+        ? (String(data.detraction_percentage) as "10" | "12")
+        : "",
+      sunat_concept_detraction_type_id:
+        data.sunat_concept_detraction_type_id
+          ? String(data.sunat_concept_detraction_type_id)
+          : "",
       enable_commercial: data.enable_commercial,
       enable_after_sales: data.enable_after_sales,
     };
@@ -76,6 +82,14 @@ export default function AccountingAccountPlanModal({
   const handleSubmit = (data: AccountingAccountPlanSchema) => {
     mutate({
       ...data,
+      detraction_percentage:
+        data.is_detraction && data.detraction_percentage
+          ? Number(data.detraction_percentage)
+          : null,
+      sunat_concept_detraction_type_id:
+        data.is_detraction && data.sunat_concept_detraction_type_id
+          ? Number(data.sunat_concept_detraction_type_id)
+          : null,
     } as any);
 
     onClose();

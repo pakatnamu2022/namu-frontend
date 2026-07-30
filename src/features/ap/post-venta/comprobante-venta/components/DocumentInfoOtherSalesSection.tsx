@@ -16,9 +16,9 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { FormInput } from "@/shared/components/FormInput";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import { ACP_TYPE_SALE } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -32,11 +32,12 @@ interface DocumentInfoSectionProps {
   hasVehicle?: boolean;
   pendingBalance?: number;
   onCustomerChange?: (customer: CustomersResource | undefined) => void;
-  // Modo de IGV del comprobante (Normal / Inafecto a IGV), controlado por Caja.
-  igvMode?: "normal" | "inafecta";
-  onIgvModeChange?: (mode: "normal" | "inafecta") => void;
+  // Modo de IGV del comprobante (Normal / Inafecto a IGV / Gratuita), controlado por Caja.
+  igvMode?: "normal" | "inafecta" | "gratuita";
+  onIgvModeChange?: (mode: "normal" | "inafecta" | "gratuita") => void;
   // Se bloquea el cambio de modo una vez que ya hay items agregados.
   igvModeLocked?: boolean;
+  isCommercial?: boolean;
 }
 
 export function DocumentInfoOtherSalesSection({
@@ -54,10 +55,15 @@ export function DocumentInfoOtherSalesSection({
   igvMode = "normal",
   onIgvModeChange,
   igvModeLocked = false,
+  isCommercial = true,
 }: DocumentInfoSectionProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
   >(undefined);
+
+  // Plan contable de detracción seleccionado, solo para determinar el % a aplicar.
+  // No se persiste en el formulario: únicamente alimenta `detraccion_porcentaje`.
+  const [detractionPlanId, setDetractionPlanId] = useState<string>("");
 
   // Cargar el cliente desde el ID cuando viene de una cotización
   const { data: loadedCustomer } = useCustomersById(defaultCustomerId || 0);
@@ -118,12 +124,30 @@ export function DocumentInfoOtherSalesSection({
   const selectedDocumentTypeId = form.watch("sunat_concept_document_type_id");
   const isBoleta =
     Number(selectedDocumentTypeId) === SUNAT_TYPE_INVOICES_ID.BOLETA;
+  const isDetraction = form.watch("detraccion") || false;
 
   useEffect(() => {
     if (isBoleta && form.getValues("detraccion")) {
       form.setValue("detraccion", false);
     }
   }, [isBoleta, form]);
+
+  // Planes contables habilitados para detracción: definen el % a aplicar sobre el total.
+  const { data: detractionAccountPlans = [] } = useAllAccountingAccountPlan({
+    is_detraction: 1,
+    type: ACP_TYPE_SALE,
+    ...(isCommercial ? { enable_commercial: 1 } : { enable_after_sales: 1 }),
+  });
+
+  // Si se desactiva la detracción, limpiar la selección y el % guardado en el form
+  useEffect(() => {
+    if (!isDetraction) {
+      setDetractionPlanId("");
+      if (form.getValues("detraccion_porcentaje") !== undefined) {
+        form.setValue("detraccion_porcentaje", undefined);
+      }
+    }
+  }, [isDetraction, form]);
 
   return (
     <GroupFormSection
@@ -198,35 +222,58 @@ export function DocumentInfoOtherSalesSection({
         description={
           isBoleta
             ? "La detracción no aplica para Boleta"
-            : "Se aplicará el 12% de detracción al documento"
+            : "Seleccione el plan de detracción para definir el % a aplicar"
         }
       />
 
-      {/* Switch de Modo de IGV (Normal / Inafecto a IGV) */}
-      <div className="flex flex-col gap-1">
-        <Label className="h-fit flex mb-1">Tipo de Operación (IGV)</Label>
-        <Label
-          className={cn(
-            "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background h-8 p-3 gap-3",
-            igvModeLocked
-              ? "opacity-60"
-              : "hover:bg-muted hover:cursor-pointer",
-          )}
-        >
-          <div className="flex flex-col gap-1 flex-1 min-w-0">
-            <p className="text-sm font-medium leading-tight">
-              {igvMode === "inafecta" ? "Inafecto a IGV" : "Normal"}
-            </p>
-          </div>
-          <Switch
-            checked={igvMode === "inafecta"}
-            onCheckedChange={(checked) =>
-              onIgvModeChange?.(checked ? "inafecta" : "normal")
-            }
-            disabled={igvModeLocked}
-            className="shrink-0"
+      {isDetraction && !isBoleta && (
+        <div className="flex flex-col gap-2">
+          <SearchableSelect
+            label="Plan de Detracción *"
+            value={detractionPlanId}
+            onChange={(value) => {
+              setDetractionPlanId(value);
+              const plan = detractionAccountPlans.find(
+                (p) => p.id.toString() === value,
+              );
+              form.setValue(
+                "detraccion_porcentaje",
+                plan?.detraction_percentage ?? undefined,
+                { shouldValidate: true },
+              );
+            }}
+            options={detractionAccountPlans.map((plan) => ({
+              value: plan.id.toString(),
+              label: `${plan.account} - ${plan.description} (${plan.detraction_percentage}%)`,
+            }))}
+            className="w-full!"
+            buttonSize="default"
           />
-        </Label>
+          {form.formState.errors.detraccion_porcentaje && (
+            <p className="text-sm font-medium text-destructive">
+              {form.formState.errors.detraccion_porcentaje.message}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Select de Modo de IGV (Normal / Inafecto a IGV / Gratuita) */}
+      <div className="flex flex-col gap-2">
+        <SearchableSelect
+          label="Tipo de Operación (IGV)"
+          value={igvMode}
+          onChange={(value) =>
+            onIgvModeChange?.(value as "normal" | "inafecta" | "gratuita")
+          }
+          options={[
+            { value: "normal", label: "Normal" },
+            { value: "inafecta", label: "Inafecto a IGV" },
+            { value: "gratuita", label: "Gratuita" },
+          ]}
+          disabled={igvModeLocked}
+          className="w-full!"
+          buttonSize="default"
+        />
         <p className="text-xs font-normal text-muted-foreground flex items-start gap-1">
           {igvModeLocked ? (
             <>
@@ -235,6 +282,8 @@ export function DocumentInfoOtherSalesSection({
             </>
           ) : igvMode === "inafecta" ? (
             "Los items se registrarán sin IGV (comprobante inafecto)"
+          ) : igvMode === "gratuita" ? (
+            "Los items se registrarán sin IGV y sin cobro (transferencia gratuita)"
           ) : (
             "Los items se registrarán gravados con IGV (comportamiento estándar)"
           )}

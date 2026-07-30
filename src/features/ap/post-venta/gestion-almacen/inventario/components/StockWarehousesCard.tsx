@@ -53,12 +53,6 @@ export function StockWarehousesCard({
             Stock Disponible
           </span>
         </div>
-        {/* {productInfo?.brand_name && (
-          <span className="text-xs text-primary">
-            Marca:{" "}
-            <span className="font-medium">{productInfo.brand_name}</span>
-          </span>
-        )} */}
         {productInfo?.code && (
           <div className="flex items-center gap-1">
             <span className="text-xs text-primary">
@@ -84,69 +78,79 @@ export function StockWarehousesCard({
 
       {stock.warehouses.length > 0 ? (
         <div className="space-y-2">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-            {stock.warehouses.map((warehouse) => (
-              <div
-                key={warehouse.warehouse_id}
-                className="bg-white p-2 rounded border border-blue-100 space-y-1"
-              >
-                <div className="flex items-start justify-between">
-                  <span className="font-semibold text-gray-800 text-xs">
-                    {warehouse.warehouse_name}
-                  </span>
-                  {warehouse.is_out_of_stock && (
-                    <Badge variant="outline" color="red" size="sm">
-                      Sin Stock
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex gap-3 text-xs">
-                  <div>
-                    <span className="text-gray-500">Disp:</span>
-                    <span className="ml-1 text-green-600 font-bold">
+          <div className="overflow-x-auto rounded-md border border-gray-200 bg-white">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="bg-gray-50 text-gray-500">
+                  <th className="text-left font-medium px-3 py-1.5 border-b border-gray-200">
+                    Almacén
+                  </th>
+                  <th className="text-right font-medium px-3 py-1.5 border-b border-gray-200">
+                    Disponible
+                  </th>
+                  <th className="text-right font-medium px-3 py-1.5 border-b border-gray-200">
+                    Últ. compra
+                  </th>
+                  <th className="text-right font-medium px-3 py-1.5 border-b border-gray-200">
+                    P. público
+                  </th>
+                  <th className="text-right font-medium px-3 py-1.5 border-b border-gray-200">
+                    P. mín
+                  </th>
+                  <th className="text-right font-medium px-3 py-1.5 border-b border-gray-200">
+                    Sin mov.
+                  </th>
+                  <th className="text-center font-medium px-3 py-1.5 border-b border-gray-200">
+                    Estado
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {stock.warehouses.map((warehouse, idx) => (
+                  <tr
+                    key={warehouse.warehouse_id}
+                    className={
+                      idx < stock.warehouses.length - 1
+                        ? "border-b border-gray-100"
+                        : ""
+                    }
+                  >
+                    <td className="px-3 py-1.5 font-medium text-gray-800">
+                      {warehouse.warehouse_name}
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-green-600 font-semibold">
                       {warehouse.available_quantity}
-                    </span>
-                  </div>
-                  {warehouse.quantity_in_transit > 0 && (
-                    <div>
-                      <span className="text-gray-500">Trán:</span>
-                      <span className="ml-1 text-primary font-bold">
-                        {warehouse.quantity_in_transit}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-4 gap-1 text-[10px] pt-1 border-t border-gray-200">
-                  <div>
-                    <div className="text-gray-500">Últ. compra</div>
-                    <div className="font-semibold text-gray-700">
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-gray-600">
                       {warehouse.currency.symbol || "S/."}{" "}
                       {warehouse.last_purchase_price?.toFixed(2) || "0.00"}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">P. público</div>
-                    <div className="font-semibold text-gray-700">
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-gray-600">
                       {warehouse.currency.symbol || "S/."}{" "}
                       {warehouse.public_sale_price?.toFixed(2) || "0.00"}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">P. mín</div>
-                    <div className="font-semibold text-gray-700">
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-gray-600">
                       {warehouse.currency.symbol || "S/."}{" "}
                       {warehouse.minimum_sale_price?.toFixed(2) || "0.00"}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Sin mov.</div>
-                    <div className="font-semibold text-gray-700">
-                      {warehouse.days_without_movement} días
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-gray-600">
+                      {warehouse.days_without_movement}d
+                    </td>
+                    <td className="px-3 py-1.5 text-center">
+                      {warehouse.is_out_of_stock ? (
+                        <Badge variant="outline" color="red" size="sm">
+                          Sin Stock
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" color="green" size="sm">
+                          OK
+                        </Badge>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           <div className="pt-1.5 border-t border-blue-300 text-xs font-semibold text-gray-700 flex items-center justify-between">
             <span>

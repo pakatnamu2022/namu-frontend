@@ -80,27 +80,38 @@ export const accountingAccountPlanColumns = ({
     accessorKey: "is_detraction",
     header: "Detracción",
     cell: ({ row }) => {
-      const { id, is_detraction, status } = row.original;
-      return permissions.canUpdate ? (
-        <Switch
-          checked={is_detraction}
-          disabled={!status}
-          onCheckedChange={(checked) => onToggleDetraction(id, checked)}
-          className={cn(
-            "cursor-pointer",
-            is_detraction ? "bg-primary" : "bg-secondary",
-            !status && "opacity-50 cursor-not-allowed",
+      const { id, is_detraction, detraction_percentage, detraction_type, status } =
+        row.original;
+      return (
+        <div className="flex items-center gap-2">
+          {permissions.canUpdate ? (
+            <Switch
+              checked={is_detraction}
+              disabled={!status}
+              onCheckedChange={(checked) => onToggleDetraction(id, checked)}
+              className={cn(
+                "cursor-pointer",
+                is_detraction ? "bg-primary" : "bg-secondary",
+                !status && "opacity-50 cursor-not-allowed",
+              )}
+            />
+          ) : (
+            <Switch
+              checked={is_detraction}
+              disabled
+              className={cn(
+                "cursor-not-allowed",
+                is_detraction ? "bg-primary" : "bg-secondary",
+              )}
+            />
           )}
-        />
-      ) : (
-        <Switch
-          checked={is_detraction}
-          disabled
-          className={cn(
-            "cursor-not-allowed",
-            is_detraction ? "bg-primary" : "bg-secondary",
+          {is_detraction && detraction_percentage && (
+            <Badge variant="outline">{detraction_percentage}%</Badge>
           )}
-        />
+          {is_detraction && detraction_type && (
+            <Badge variant="outline">{detraction_type.description}</Badge>
+          )}
+        </div>
       );
     },
   },
@@ -108,7 +119,7 @@ export const accountingAccountPlanColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
-      const value = getValue() as boolean;
+      const value = Boolean(getValue());
       return (
         <Badge
           color={value ? "default" : "secondary"}
@@ -130,7 +141,7 @@ export const accountingAccountPlanColumns = ({
           {/* Toggle Status */}
           {permissions.canUpdate && (
             <Switch
-              checked={status}
+              checked={Boolean(status)}
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
               className={cn(
                 "cursor-pointer",

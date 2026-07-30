@@ -12,6 +12,7 @@ import {
   DEFAULT_IGV_PERCENTAGE,
   NUBEFACT_CODES,
   QUOTATION_ACCOUNT_PLAN_IDS,
+  getIgvCategory,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
@@ -56,6 +57,12 @@ export function OrderQuotationBillingForm({
   const [lockedClientId, setLockedClientId] = useState<number | null>(null);
   const [lockedClientName, setLockedClientName] = useState<string>("");
   const [lockedClientDoc, setLockedClientDoc] = useState<string>("");
+
+  // Modo de facturación del comprobante: Normal (gravado) o Gratuita (transferencia gratuita).
+  // No aplica a anticipos, por lo que se fuerza a "normal" en ese caso.
+  const [billingMode, setBillingMode] = useState<"normal" | "gratuita">(
+    "normal",
+  );
 
   // Callback para recibir los datos del cliente bloqueado
   const handleClientIdDetected = (
@@ -540,10 +547,13 @@ export function OrderQuotationBillingForm({
   // Calcular totales
   const totales = useMemo(() => {
     // Si el backend ya calculó el desglose para esta cotización (venta normal, no edición,
-    // no anticipo consolidado), usarlo directo como fuente de verdad.
+    // no anticipo consolidado, sin cambiar a modo Gratuita), usarlo directo como fuente de verdad.
+    // En modo "gratuita" los items ya fueron recalculados en el frontend (handleBillingModeChange),
+    // por lo que ese preview (calculado por el backend en modo normal) queda obsoleto.
     if (
       !isEdit &&
       !isAdvancePayment &&
+      billingMode === "normal" &&
       quotation.items_invoice &&
       quotation.items_invoice.length > 0 &&
       quotation.invoice_preview
@@ -572,17 +582,15 @@ export function OrderQuotationBillingForm({
         return;
       }
 
-      if (igvType?.code_nubefact === "1") {
+      const category = getIgvCategory(igvType?.code_nubefact);
+      if (category === "gravada") {
         raw_total_gravada += item.total;
         raw_sub_gravada += item.subtotal;
-      } else if (igvType?.code_nubefact === "20") {
+      } else if (category === "exonerada") {
         raw_total_exonerada += item.total;
-      } else if (igvType?.code_nubefact === "30") {
+      } else if (category === "inafecta") {
         raw_total_inafecta += item.total;
-      } else if (
-        igvType?.code_nubefact?.startsWith("1") ||
-        igvType?.code_nubefact?.startsWith("2")
-      ) {
+      } else if (category === "gratuita") {
         raw_total_gratuita += item.total;
       }
     });
@@ -621,6 +629,7 @@ export function OrderQuotationBillingForm({
     porcentaje_de_igv,
     isEdit,
     isAdvancePayment,
+    billingMode,
     quotation.items_invoice,
     quotation.invoice_preview,
   ]);
@@ -631,6 +640,60 @@ export function OrderQuotationBillingForm({
       form.setValue("medio_de_pago", "contado", { shouldValidate: false });
     }
   }, [isAdvancePayment, form]);
+
+  // La facturación gratuita no aplica a anticipos: forzar el modo a "normal" en ese caso.
+  useEffect(() => {
+    if (isAdvancePayment && billingMode === "gratuita") {
+      setBillingMode("normal");
+    }
+  }, [isAdvancePayment, billingMode]);
+
+  // Al cambiar el modo de facturación, recalcular los items ya cargados para que
+  // reflejen el tratamiento elegido (gravada con IGV vs. gratuita sin IGV/sin cobro).
+  const handleBillingModeChange = (mode: "normal" | "gratuita") => {
+    setBillingMode(mode);
+
+    const targetCode =
+      mode === "gratuita"
+        ? NUBEFACT_CODES.GRATUITA
+        : NUBEFACT_CODES.GRAVADA_ONEROSA;
+    const targetIgvType = igvTypes.find((t) => t.code_nubefact === targetCode);
+    if (!targetIgvType) return;
+
+    const currentItems = form.getValues("items") || [];
+    if (currentItems.length === 0) return;
+
+    const round2 = (num: number) => Math.round(num * 100) / 100;
+
+    const updatedItems = currentItems.map((item) => {
+      if (item.anticipo_regularizacion) return item;
+
+      if (mode === "gratuita") {
+        // Sin cobro: precio_unitario (con IGV) debe igualar a valor_unitario (sin IGV).
+        return {
+          ...item,
+          sunat_concept_igv_type_id: targetIgvType.id,
+          precio_unitario: round2(item.valor_unitario),
+          igv: 0,
+          total: round2(item.subtotal),
+        };
+      }
+
+      // Volver a "normal": recalcular precio_unitario (con IGV) e IGV sobre el subtotal actual.
+      const igvAmount = round2(item.subtotal * (porcentaje_de_igv / 100));
+      return {
+        ...item,
+        sunat_concept_igv_type_id: targetIgvType.id,
+        precio_unitario: round2(
+          item.valor_unitario * (1 + porcentaje_de_igv / 100),
+        ),
+        igv: igvAmount,
+        total: round2(item.subtotal + igvAmount),
+      };
+    });
+
+    form.setValue("items", updatedItems, { shouldValidate: false });
+  };
 
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
@@ -720,11 +783,12 @@ export function OrderQuotationBillingForm({
               currencyTypes={currencyTypes}
               isFromQuotation={true}
               defaultCustomer={quotation.invoice_to_client ?? quotation.client}
-              hasSufficientStock={quotation.has_sufficient_stock}
-              pendingBalance={pendingBalance}
+              canGenerateFinalReceipt={quotation.can_generate_final_receipt}
               lockedClientId={lockedClientId}
               lockedClientName={lockedClientName}
               lockedClientDoc={lockedClientDoc}
+              billingMode={billingMode}
+              onBillingModeChange={handleBillingModeChange}
             />
 
             {/* Agregar Items */}
@@ -740,6 +804,7 @@ export function OrderQuotationBillingForm({
               isFromQuotation={true}
               showActions={false}
               allowEditLastItemDescription={true}
+              igvMode={billingMode}
             />
 
             {/* Configuración Adicional */}

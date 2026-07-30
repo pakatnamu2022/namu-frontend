@@ -860,6 +860,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             <TableBody>
               {filteredParts.map((part) => {
                 const partialRequest = getPartialRequest(part.id);
+                const isCampaignDiscount =
+                  Number(part.discount_percentage ?? 0) >
+                  maxDiscountPercentage;
                 return (
                   <TableRow
                     key={part.id}
@@ -948,6 +951,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                           widthClass="w-20"
                           min={0}
                           max={maxDiscountPercentage}
+                          disabled={isCampaignDiscount}
                         />
                         <span className="text-orange-600 text-sm">%</span>
                       </div>
