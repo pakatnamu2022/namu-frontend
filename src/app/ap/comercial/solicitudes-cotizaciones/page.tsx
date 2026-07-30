@@ -44,6 +44,7 @@ export default function PurchaseRequestQuotePage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("");
   const [approveId, setApproveId] = useState<number | null>(null);
+  const [selectedFamilyId, setSelectedFamilyId] = useState<string>("");
   const [selectedModelId, setSelectedModelId] = useState<string>("");
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [isPaid, setIsPaid] = useState<string>("");
@@ -82,6 +83,7 @@ export default function PurchaseRequestQuotePage() {
     created_to: [formattedDateFrom, formattedDateTo],
     sede_id: sedeId,
     ap_models_vn_id: selectedModelId,
+    apModelsVn$family_id: selectedFamilyId,
     apModelsVn$family$brand_id: selectedBrandId,
     is_paid: isPaid,
     ...(sorting.length > 0 && {
@@ -181,6 +183,8 @@ export default function PurchaseRequestQuotePage() {
           sedes={sedesData}
           canViewBranches={canViewBranches}
           selectedModelId={selectedModelId}
+          selectedFamilyId={selectedFamilyId}
+          setSelectedFamilyId={setSelectedFamilyId}
           setSelectedModelId={setSelectedModelId}
           selectedBrandId={selectedBrandId}
           setSelectedBrandId={setSelectedBrandId}

@@ -1,11 +1,17 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DataTable } from "@/shared/components/DataTable";
 import { cn } from "@/lib/utils";
 import { History } from "lucide-react";
-import { useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { VehicleMovement } from "../lib/vehicles.interface";
 
@@ -14,14 +20,18 @@ interface Props {
   loading?: boolean;
 }
 
-// Utility functions
-
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString("es-PE", {
     day: "2-digit",
     month: "short",
     year: "numeric",
+  });
+};
+
+const formatTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("es-PE", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -42,84 +52,122 @@ const EmptyState = () => (
   </div>
 );
 
-// Timeline Item Component
-const TimelineItem = ({
-  movement,
-  isLast,
-}: {
-  movement: VehicleMovement;
-  isLast: boolean;
-}) => {
-  const statusColor = movement.status_color || "#94a3b8";
+const columns: ColumnDef<VehicleMovement>[] = [
+  {
+    id: "date",
+    header: "Fecha",
+    cell: ({ row }) => (
+      <div>
+        <div className="text-xs font-medium text-foreground/80 whitespace-nowrap">
+          {formatDate(row.original.date)}
+        </div>
+        <div className="text-[11px] text-muted-foreground whitespace-nowrap">
+          {formatTime(row.original.date)}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const statusColor = row.original.status_color || "#94a3b8";
+      return (
+        <div className="flex items-center gap-1.5">
+          <span
+            className="size-2 rounded-full shrink-0"
+            style={{ backgroundColor: statusColor }}
+          />
+          <span
+            className="text-xs font-medium whitespace-nowrap"
+            style={{ color: statusColor }}
+          >
+            {row.original.status}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    id: "origin_warehouse",
+    header: "Almacén origen",
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">
+        {row.original.origin_warehouse?.description ?? "—"}
+      </span>
+    ),
+  },
+  {
+    id: "warehouse",
+    header: "Almacén destino",
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">
+        {row.original.warehouse?.description ?? "—"}
+      </span>
+    ),
+  },
+  {
+    id: "detalle",
+    header: "Detalle",
+    cell: ({ row }) => {
+      const observation = row.original.observation;
+      const text = observation || "Sin observaciones";
+
+      if (!observation) {
+        return (
+          <span className="text-[10px] uppercase text-muted-foreground">
+            {text}
+          </span>
+        );
+      }
+
+      return (
+        <Popover>
+          <PopoverTrigger asChild>
+            <span className="text-[10px] uppercase text-muted-foreground line-clamp-2 whitespace-normal max-w-[220px] cursor-pointer hover:text-foreground">
+              {text}
+            </span>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-3 normal-case" align="start">
+            <p className="text-sm text-foreground/90">{text}</p>
+          </PopoverContent>
+        </Popover>
+      );
+    },
+  },
+];
+
+// Movements Table Component
+const MovementsTable = ({ movements }: { movements: VehicleMovement[] }) => {
+  const ordered = useMemo(
+    () =>
+      [...movements].sort((a, b) => {
+        const dateDiff =
+          new Date(b.date).getTime() - new Date(a.date).getTime();
+        return dateDiff !== 0 ? dateDiff : b.id - a.id;
+      }),
+    [movements],
+  );
 
   return (
-    <div className="relative flex gap-4 pb-6 items-start">
-      {/* Indicator */}
-      <div className="flex flex-col items-center pt-1">
-        <div
-          className="flex items-center justify-center rounded-full"
-          style={{
-            width: 12,
-            height: 12,
-            backgroundColor: statusColor,
-            boxShadow: "0 0 0 4px rgba(0,0,0,0.03)",
-          }}
-        />
-        {!isLast && <div className="w-px h-full mt-2 bg-muted-foreground/20" />}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Badge color="blue">
+          {movements.length}{" "}
+          {movements.length === 1 ? "movimiento" : "movimientos"}
+        </Badge>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 -mt-1">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="text-sm font-medium"
-              style={{
-                color: statusColor,
-              }}
-            >
-              {movement.status}
-            </div>
-            <div className="text-xs text-muted-foreground">•</div>
-            <div className="text-xs text-muted-foreground whitespace-nowrap">
-              {formatDate(movement.date)}
-            </div>
-          </div>
-        </div>
-
-        {movement.observation && (
-          <div className="mt-2 text-sm text-muted-foreground bg-muted-foreground/5 rounded-md p-3">
-            {movement.observation}
-          </div>
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        data={ordered}
+        variant="ghost"
+        isVisibleColumnFilter={false}
+        getRowId={(movement) => String(movement.id)}
+      />
     </div>
   );
 };
-
-// Timeline List Component
-const TimelineList = ({ movements }: { movements: VehicleMovement[] }) => (
-  <div className="space-y-4">
-    <div className="flex items-center justify-between">
-      <Badge color="blue">
-        {movements.length}{" "}
-        {movements.length === 1 ? "movimiento" : "movimientos"}
-      </Badge>
-    </div>
-
-    <Separator />
-
-    <div className="p-2">
-      {movements.map((movement, index) => (
-        <TimelineItem
-          key={movement.id}
-          movement={movement}
-          isLast={index === movements.length - 1}
-        />
-      ))}
-    </div>
-  </div>
-);
 
 // Main Component
 export default function VehicleMovements({
@@ -146,7 +194,7 @@ export default function VehicleMovements({
         onClose={() => setOpen(false)}
         title="Historial de Movimientos"
         icon="History"
-        size="md"
+        size="5xl"
         childrenFooter={
           <Button
             variant="outline"
@@ -158,7 +206,7 @@ export default function VehicleMovements({
         }
       >
         {movements.length > 0 ? (
-          <TimelineList movements={movements} />
+          <MovementsTable movements={movements} />
         ) : (
           <EmptyState />
         )}

@@ -44,6 +44,5 @@ export const useFilterTree = (company: string = "deposito") => {
   return useQuery({
     queryKey: [QUERY_KEY, "filterTree"],
     queryFn: () => getFilterTree(company),
-    staleTime: 5 * 60 * 1000,
   });
 };
