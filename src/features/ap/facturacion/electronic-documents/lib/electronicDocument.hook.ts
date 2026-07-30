@@ -10,6 +10,7 @@ import {
   findElectronicDocumentById,
   getAllElectronicDocuments,
   getElectronicDocuments,
+  getInvoicesAndTicketsElectronicDocuments,
   getNextCorrelativeElectronicDocument,
   getAdvancePaymentsByVehicle,
   getAdvancePaymentsByQuotation,
@@ -27,6 +28,17 @@ export const useElectronicDocuments = (
   return useQuery<ElectronicDocumentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getElectronicDocuments(params),
+    enabled,
+  });
+};
+
+export const useInvoicesAndTicketsElectronicDocuments = (
+  params?: Record<string, any>,
+  enabled = true,
+) => {
+  return useQuery<ElectronicDocumentResponse>({
+    queryKey: [QUERY_KEY, "invoices-and-tickets", params],
+    queryFn: () => getInvoicesAndTicketsElectronicDocuments(params),
     enabled,
   });
 };
@@ -49,7 +61,7 @@ export const useAllElectronicDocuments = (params?: Record<string, any>) => {
 
 export const useNextCorrelativeElectronicDocument = (
   documentTypeId: number,
-  series: number
+  series: number,
 ) => {
   return useQuery<{ number: string }>({
     queryKey: [QUERY_KEY, { documentTypeId, series }],
