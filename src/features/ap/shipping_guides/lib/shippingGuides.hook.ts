@@ -13,12 +13,14 @@ import {
   markAsReceived,
   cancelShippingGuide,
   getNextShippingGuideDocumentNumber,
+  storeHistoricalShippingGuide,
 } from "./shippingGuides.actions";
 import { SHIPPING_GUIDES } from "./shippingGuides.constants";
 import {
   ShippingGuidesResponse,
   ShippingGuidesResource,
   ShippingGuidesRequest,
+  HistoricalShippingGuideRequest,
 } from "./shippingGuides.interface";
 
 const { QUERY_KEY } = SHIPPING_GUIDES;
@@ -220,6 +222,34 @@ export const useCancelShippingGuide = () => {
       errorToast(errorMessage);
 
       // Si hay errores de validación adicionales, mostrarlos
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        Object.keys(errors).forEach((key) => {
+          errorToast(`${key}: ${errors[key].join(", ")}`);
+        });
+      }
+    },
+  });
+};
+
+// Hook para regularizar una guía de remisión histórica
+export const useStoreHistoricalShippingGuide = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: HistoricalShippingGuideRequest) =>
+      storeHistoricalShippingGuide(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      successToast("Guía de remisión histórica registrada exitosamente");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al registrar la guía de remisión histórica";
+
+      errorToast(errorMessage);
+
       if (error?.response?.data?.errors) {
         const errors = error.response.data.errors;
         Object.keys(errors).forEach((key) => {
