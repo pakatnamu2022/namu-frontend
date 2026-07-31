@@ -15,7 +15,7 @@ import {
   diagnoseVehicleDeliveryVin,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
-import { successToast, errorToast } from "@/core/core.function";
+import { successToast, errorToast, promiseToast } from "@/core/core.function";
 
 const { QUERY_KEY } = VEHICLE_DELIVERY;
 
@@ -176,24 +176,22 @@ export const useSyncAccountingEntry = () => {
 export const useSyncShippingGuideWithDynamics = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => syncShippingGuideWithDynamics(id),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-
-      if (response.success) {
-        successToast(response.message);
-      } else {
-        errorToast(
-          response.message || "Error al sincronizar la guía con Dynamics",
-        );
-      }
+    mutationFn: (id: number) => {
+      const promise = syncShippingGuideWithDynamics(id);
+      promiseToast(promise, {
+        id: `sync-shipping-guide-dynamics-${id}`,
+        loading: "Consultando estado en Dynamics...",
+        success: (response) =>
+          response.message || "Guía sincronizada con Dynamics",
+        error: (error: any) =>
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Error al sincronizar la guía con Dynamics",
+      });
+      return promise;
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        "Error al sincronizar la guía con Dynamics";
-      errorToast(errorMessage);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
   });
 };

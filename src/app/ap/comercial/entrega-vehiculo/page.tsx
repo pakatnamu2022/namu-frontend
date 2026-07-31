@@ -168,6 +168,9 @@ export default function VehicleDeliveryPage() {
           onMigrate: (id) => migrateMutation.mutate(id),
           onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
           onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
+          syncingWithDynamicsId: syncWithDynamicsMutation.isPending
+            ? syncWithDynamicsMutation.variables
+            : null,
           onReschedule: setRescheduleDelivery,
           permissions,
         })}

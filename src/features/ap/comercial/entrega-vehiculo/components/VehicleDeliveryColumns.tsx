@@ -50,6 +50,7 @@ interface Props {
   onMigrate?: (id: number) => void;
   onSyncAccountingEntry?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
+  syncingWithDynamicsId?: number | null;
   onReschedule?: (vehicle: VehiclesDeliveryResource) => void;
   permissions: {
     canUpdate: boolean;
@@ -81,6 +82,7 @@ export const vehicleDeliveryColumns = ({
   onMigrate,
   onSyncAccountingEntry,
   onSyncWithDynamics,
+  syncingWithDynamicsId,
   onReschedule,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
@@ -233,6 +235,7 @@ export const vehicleDeliveryColumns = ({
             icon={Search}
             color={color}
             canRender={canSyncWithDynamics}
+            disabled={syncingWithDynamicsId === shipping_guide_id}
             onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
           />
         </div>
