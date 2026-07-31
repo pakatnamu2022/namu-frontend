@@ -21,6 +21,7 @@ import {
   useSendVehicleDeliveryToNubefact,
   useQueryVehicleDeliveryFromNubefact,
   useSyncAccountingEntry,
+  useSyncShippingGuideWithDynamics,
   useRescheduleVehicleDelivery,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
 import { RescheduleDeliveryModal } from "@/features/ap/comercial/entrega-vehiculo/components/RescheduleDeliveryModal";
@@ -74,6 +75,7 @@ export default function VehicleDeliveryPage() {
     },
   });
   const syncAccountingEntryMutation = useSyncAccountingEntry();
+  const syncWithDynamicsMutation = useSyncShippingGuideWithDynamics();
 
   useEffect(() => {
     setPage(1);
@@ -165,6 +167,7 @@ export default function VehicleDeliveryPage() {
           onViewDetails: setSelectedVehicle,
           onMigrate: (id) => migrateMutation.mutate(id),
           onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
+          onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
           onReschedule: setRescheduleDelivery,
           permissions,
         })}

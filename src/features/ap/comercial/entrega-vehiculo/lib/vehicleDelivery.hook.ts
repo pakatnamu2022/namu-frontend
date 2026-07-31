@@ -9,6 +9,7 @@ import {
   queryVehicleDeliveryFromNubefact,
   getNextShippingGuideDocumentNumber,
   syncAccountingEntry,
+  syncShippingGuideWithDynamics,
   getAvailableDeliverySlots,
   rescheduleVehicleDelivery,
   diagnoseVehicleDeliveryVin,
@@ -167,6 +168,32 @@ export const useSyncAccountingEntry = () => {
         error?.response?.data?.error ||
         "Error al sincronizar el asiento contable";
       errorToast(msg);
+    },
+  });
+};
+
+// Hook para sincronizar guía de remisión con Dynamics
+export const useSyncShippingGuideWithDynamics = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => syncShippingGuideWithDynamics(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(
+          response.message || "Error al sincronizar la guía con Dynamics",
+        );
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al sincronizar la guía con Dynamics";
+      errorToast(errorMessage);
     },
   });
 };
