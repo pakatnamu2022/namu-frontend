@@ -243,7 +243,7 @@ export default function OrderQuotationBillingContent({
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
                 <h4 className="font-semibold text-gray-900">
-                  Facturas Emitidas
+                  Comprobantes Emitidos
                 </h4>
                 {vouchers && vouchers.active.length > 0 && (
                   <Badge variant="outline" className="bg-primary/5">
@@ -258,7 +258,7 @@ export default function OrderQuotationBillingContent({
                   disabled={!quotation.invoice_to_client}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Nueva Factura
+                  Nuevo Comprobante
                 </Button>
               )}
             </div>

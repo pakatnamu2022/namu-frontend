@@ -104,6 +104,7 @@ function buildFormDefaults(
     sunat_concept_detraction_type_id:
       document.sunat_concept_detraction_type_id?.toString() || "",
     detraccion_total: document.detraccion_total ?? 0,
+    detraccion_porcentaje: Number(document.detraccion_porcentaje) || undefined,
     sunat_concept_credit_note_type_id:
       document.sunat_concept_credit_note_type_id?.toString() || "",
     sunat_concept_debit_note_type_id:

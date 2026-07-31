@@ -343,6 +343,19 @@ export default function ManageWorkOrderPage() {
                   </p>
                 </div>
                 <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">Año</p>
+                  <p className="text-xs font-medium truncate">
+                    {workOrder.vehicle?.year || "N/A"}
+                  </p>
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">N° Motor</p>
+                  <CopyCell
+                    className="text-xs font-medium truncate"
+                    value={workOrder.vehicle?.engine_number || "N/A"}
+                  />
+                </div>
+                <div className="min-w-0 leading-tight">
                   <p className="text-[10px] text-gray-500">Kilometraje</p>
                   <p className="text-xs font-medium truncate">
                     {workOrder.vehicle?.mileage != null
