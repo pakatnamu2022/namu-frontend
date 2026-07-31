@@ -19,6 +19,7 @@ export interface CustomersResource {
   spouse_num_doc: string | null;
   spouse_full_name: string | null;
   direction: string;
+  district?: string;
   legal_representative_num_doc: string | null;
   legal_representative_name: string | null;
   legal_representative_paternal_surname: string | null;

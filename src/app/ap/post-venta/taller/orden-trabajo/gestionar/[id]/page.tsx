@@ -20,6 +20,9 @@ import {
   UserRoundCheck,
   Receipt,
   Files,
+  Mail,
+  MapPin,
+  Car,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -183,10 +186,6 @@ export default function ManageWorkOrderPage() {
                       className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate"
                       value={`${workOrder.correlative}`}
                     />
-                    <CopyCell
-                      className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate"
-                      value={`${workOrder.vehicle_plate}`}
-                    />
                   </div>
                 </div>
               </div>
@@ -310,11 +309,61 @@ export default function ManageWorkOrderPage() {
               </Button>
             </div>
 
+            {/* Información del Vehículo */}
+            <div className="rounded-md border border-muted bg-muted/20 p-2.5">
+              <p className="text-[11px] font-semibold text-gray-500 uppercase flex items-center gap-1.5 mb-2">
+                <Car className="h-3.5 w-3.5 text-primary" />
+                Información del Vehículo
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-2">
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">Placa</p>
+                  <CopyCell
+                    className="text-xs font-medium truncate"
+                    value={workOrder.vehicle_plate || "N/A"}
+                  />
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">VIN</p>
+                  <CopyCell
+                    className="text-xs font-medium truncate"
+                    value={workOrder.vehicle_vin || "N/A"}
+                  />
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">Marca</p>
+                  <p className="text-xs font-medium truncate">
+                    {workOrder.vehicle?.model?.brand || "N/A"}
+                  </p>
+                </div>
+                <div className="min-w-0 leading-tight col-span-2 sm:col-span-1">
+                  <p className="text-[10px] text-gray-500">Modelo</p>
+                  <p className="text-xs font-medium truncate">
+                    {workOrder.vehicle?.model?.version || "N/A"}
+                  </p>
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">Kilometraje</p>
+                  <p className="text-xs font-medium truncate">
+                    {workOrder.vehicle?.mileage != null
+                      ? `${workOrder.vehicle.mileage.toLocaleString("es-PE")} km`
+                      : "N/A"}
+                  </p>
+                </div>
+                <div className="min-w-0 leading-tight">
+                  <p className="text-[10px] text-gray-500">Color</p>
+                  <p className="text-xs font-medium truncate">
+                    {workOrder.vehicle?.vehicle_color || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Información de propietario, contacto, recojo y facturación */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
               <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
                 <User className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                <div className="min-w-0 leading-tight">
+                <div className="min-w-0 leading-tight space-y-1">
                   <p className="text-[11px] font-semibold text-gray-500 uppercase">
                     Propietario
                   </p>
@@ -338,6 +387,29 @@ export default function ManageWorkOrderPage() {
                       />
                     )}
                   </div>
+                  {workOrder.vehicle?.owner?.email && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Mail className="h-3 w-3 shrink-0" />
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.vehicle.owner.email}
+                      />
+                    </div>
+                  )}
+                  {(workOrder.vehicle?.owner?.direction ||
+                    workOrder.vehicle?.owner?.district) && (
+                    <div className="flex items-start gap-1 text-xs text-gray-500">
+                      <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                      <span className="truncate">
+                        {[
+                          workOrder.vehicle?.owner?.direction,
+                          workOrder.vehicle?.owner?.district,
+                        ]
+                          .filter(Boolean)
+                          .join(" - ")}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -401,7 +473,7 @@ export default function ManageWorkOrderPage() {
 
               <div className="flex items-start gap-2 rounded-md border border-muted bg-muted/20 p-2.5">
                 <Receipt className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                <div className="min-w-0 leading-tight">
+                <div className="min-w-0 leading-tight space-y-1">
                   <p className="text-[11px] font-semibold text-gray-500 uppercase">
                     Se factura a
                   </p>
@@ -425,6 +497,29 @@ export default function ManageWorkOrderPage() {
                       />
                     )}
                   </div>
+                  {workOrder.invoice_to_client?.email && (
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Mail className="h-3 w-3 shrink-0" />
+                      <CopyCell
+                        className="truncate text-xs text-gray-500"
+                        value={workOrder.invoice_to_client.email}
+                      />
+                    </div>
+                  )}
+                  {(workOrder.invoice_to_client?.direction ||
+                    workOrder.invoice_to_client?.district) && (
+                    <div className="flex items-start gap-1 text-xs text-gray-500">
+                      <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                      <span className="truncate">
+                        {[
+                          workOrder.invoice_to_client?.direction,
+                          workOrder.invoice_to_client?.district,
+                        ]
+                          .filter(Boolean)
+                          .join(" - ")}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
