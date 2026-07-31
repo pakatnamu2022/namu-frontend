@@ -9,12 +9,13 @@ import {
   queryVehicleDeliveryFromNubefact,
   getNextShippingGuideDocumentNumber,
   syncAccountingEntry,
+  syncShippingGuideWithDynamics,
   getAvailableDeliverySlots,
   rescheduleVehicleDelivery,
   diagnoseVehicleDeliveryVin,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
-import { successToast, errorToast } from "@/core/core.function";
+import { successToast, errorToast, promiseToast } from "@/core/core.function";
 
 const { QUERY_KEY } = VEHICLE_DELIVERY;
 
@@ -167,6 +168,30 @@ export const useSyncAccountingEntry = () => {
         error?.response?.data?.error ||
         "Error al sincronizar el asiento contable";
       errorToast(msg);
+    },
+  });
+};
+
+// Hook para sincronizar guía de remisión con Dynamics
+export const useSyncShippingGuideWithDynamics = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => {
+      const promise = syncShippingGuideWithDynamics(id);
+      promiseToast(promise, {
+        id: `sync-shipping-guide-dynamics-${id}`,
+        loading: "Consultando estado en Dynamics...",
+        success: (response) =>
+          response.message || "Guía sincronizada con Dynamics",
+        error: (error: any) =>
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Error al sincronizar la guía con Dynamics",
+      });
+      return promise;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },
   });
 };

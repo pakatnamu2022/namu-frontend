@@ -68,12 +68,14 @@ export const loadingToast = (body: string = "Cargando...") => {
 export const promiseToast = <T>(
   promise: Promise<T>,
   messages: {
+    id?: string | number;
     loading?: string;
     success?: string | ((data: T) => string);
     error?: string | ((error: unknown) => string);
   } = {},
 ) => {
   return toast.promise(promise, {
+    id: messages.id,
     loading: messages.loading ?? "Procesando...",
     success: messages.success ?? "Operación exitosa",
     error: messages.error ?? "Ocurrió un error",

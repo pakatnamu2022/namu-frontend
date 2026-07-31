@@ -118,6 +118,15 @@ export async function syncAccountingEntry(id: number): Promise<void> {
   await api.post(`${ENDPOINT}/${id}/sync-accounting-entry`);
 }
 
+export async function syncShippingGuideWithDynamics(
+  id: number
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.post<{ success: boolean; message: string }>(
+    `/ap/commercial/shippingGuides/${id}/sync-with-dynamics`
+  );
+  return data;
+}
+
 export async function rescheduleVehicleDelivery(
   id: number,
   data: { scheduled_delivery_date: string; observations?: string }

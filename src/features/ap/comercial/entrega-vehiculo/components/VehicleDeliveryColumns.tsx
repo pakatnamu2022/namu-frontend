@@ -29,6 +29,7 @@ import {
   Hourglass,
   ShieldCheck,
   ShieldX,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,8 @@ interface Props {
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
   onMigrate?: (id: number) => void;
   onSyncAccountingEntry?: (id: number) => void;
+  onSyncWithDynamics?: (id: number) => void;
+  syncingWithDynamicsId?: number | null;
   onReschedule?: (vehicle: VehiclesDeliveryResource) => void;
   permissions: {
     canUpdate: boolean;
@@ -78,6 +81,8 @@ export const vehicleDeliveryColumns = ({
   onViewDetails,
   onMigrate,
   onSyncAccountingEntry,
+  onSyncWithDynamics,
+  syncingWithDynamicsId,
   onReschedule,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
@@ -139,7 +144,9 @@ export const vehicleDeliveryColumns = ({
     cell: ({ getValue }) => {
       const sede = getValue() as string;
       return sede ? (
-        <Badge color="blue" size="xs">{sede}</Badge>
+        <Badge color="blue" size="xs">
+          {sede}
+        </Badge>
       ) : (
         <span className="text-muted-foreground text-xs">—</span>
       );
@@ -192,7 +199,7 @@ export const vehicleDeliveryColumns = ({
   {
     accessorKey: "status_delivery",
     header: "Estado Entrega",
-    cell: ({ getValue }) => {
+    cell: ({ row, getValue }) => {
       const value = (getValue() as DeliveryStatus) ?? "pending";
       const config: Record<
         DeliveryStatus,
@@ -203,10 +210,35 @@ export const vehicleDeliveryColumns = ({
         completed: { label: "Completado", color: "green", icon: CheckCircle2 },
       };
       const { label, color, icon } = config[value] ?? config.pending;
+
+      const { shipping_guide_id, sent_at, aceptada_por_sunat, shipping_guide } =
+        row.original;
+      const migrationStatus = shipping_guide?.migration_status;
+      const isAcceptedBySunat = !!sent_at && aceptada_por_sunat === true;
+      const isMigrated =
+        migrationStatus === "completed" ||
+        migrationStatus === "updated_with_nc";
+
+      const canSyncWithDynamics =
+        !!onSyncWithDynamics &&
+        !!shipping_guide_id &&
+        isAcceptedBySunat &&
+        isMigrated;
+
       return (
-        <Badge color={color} icon={icon} className="capitalize w-fit">
-          {label}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          <Badge color={color} icon={icon} className="capitalize w-fit">
+            {label}
+          </Badge>
+          <ButtonAction
+            tooltip="Sincronizar con Dynamics"
+            icon={Search}
+            color={color}
+            canRender={canSyncWithDynamics}
+            disabled={syncingWithDynamicsId === shipping_guide_id}
+            onClick={() => onSyncWithDynamics!(shipping_guide_id!)}
+          />
+        </div>
       );
     },
   },
