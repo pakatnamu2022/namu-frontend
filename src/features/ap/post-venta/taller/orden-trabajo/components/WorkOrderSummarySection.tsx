@@ -39,6 +39,8 @@ interface WorkOrderSummarySectionProps {
   isInvalidWithQuote?: boolean;
   isInvoiced?: boolean;
   deductibleAmount?: number;
+  hasDraftFinalInvoice?: boolean;
+  hasDraftAdvance?: boolean;
 }
 
 export function WorkOrderSummarySection({
@@ -59,6 +61,8 @@ export function WorkOrderSummarySection({
   isInvalidWithQuote = false,
   isInvoiced = false,
   deductibleAmount = 0,
+  hasDraftFinalInvoice = false,
+  hasDraftAdvance = false,
 }: WorkOrderSummarySectionProps) {
   //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
@@ -79,9 +83,11 @@ export function WorkOrderSummarySection({
   );
 
   // Determinar si está completamente facturado (bloquear botón)
+  // No aplica en edición: ahí se está editando el documento existente, no creando uno nuevo.
   // Cuando isInvalidWithQuote = true: todos los pagos son anticipos → el parámetro que manda es isInvoiced
   // Cuando isInvalidWithQuote = false: usar el saldo que ya calculó el backend (remainingBalance)
   const isCompletedWithoutAdvances = (() => {
+    if (isEdit) return false;
     if (isInvalidWithQuote) {
       // Con cotización inválida: solo bloquear si el backend ya marcó como facturado
       return isInvoiced;
@@ -91,6 +97,20 @@ export function WorkOrderSummarySection({
     if (isInvoiced) return true;
     return remainingBalance <= 0 && !hasRealAdvancePayments;
   })();
+
+  // Ya existe un comprobante final en borrador: no se puede crear otro
+  // documento. No aplica en edición: ahí se está editando ese mismo borrador.
+  const isBlockedByDraftFinalInvoice = !isEdit && hasDraftFinalInvoice;
+
+  // Ya existe un anticipo en borrador: no se puede crear otro anticipo ni
+  // tampoco la factura final hasta que ese borrador se complete o elimine.
+  // No aplica en edición: ahí se está editando ese mismo borrador.
+  const isBlockedByDraftAdvance = !isEdit && hasDraftAdvance;
+
+  const isSaveBlocked =
+    isCompletedWithoutAdvances ||
+    isBlockedByDraftFinalInvoice ||
+    isBlockedByDraftAdvance;
 
   return (
     <div className="lg:col-span-1 h-full">
@@ -182,74 +202,6 @@ export function WorkOrderSummarySection({
           </div>
 
           <Separator className="bg-muted-foreground/20" />
-
-          {/* Items Summary */}
-          {/* <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground mb-3">
-              Items ({items.length})
-            </p>
-            <div className="space-y-2 pr-2">
-              {items.length === 0 ? (
-                <p className="text-xs text-center text-muted-foreground py-4">
-                  No hay items agregados
-                </p>
-              ) : (
-                items.map((item, index) => {
-                  // Si es anticipo de regularización, determinar si debe mostrarse en negativo
-                  const isAdvanceRegularization = item.anticipo_regularizacion;
-
-                  // Verificar si el anticipo referenciado NO es una nota de crédito
-                  // (las notas de crédito ya son negativas, así que no las marcamos como negativas)
-                  const isNegative =
-                    isAdvanceRegularization &&
-                    advancePayments.find(
-                      (ap) => ap.id === Number(item.reference_document_id)
-                    )?.sunat_concept_document_type_id !==
-                      SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO;
-
-                  return (
-                    <div
-                      key={index}
-                      className={`flex justify-between items-start gap-2 text-sm p-2 rounded ${
-                        isNegative
-                          ? "bg-orange-50 border border-orange-200"
-                          : "bg-background/50 border border-muted-foreground/10"
-                      }`}
-                    >
-                      <div className="flex-1 min-w-0 text-wrap!">
-                        <p
-                          className={`font-medium text-xs whitespace-pre-line ${
-                            isNegative ? "text-orange-700" : ""
-                          }`}
-                        >
-                          {item.descripcion}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.cantidad} x {currencySymbol}{" "}
-                          {item.precio_unitario.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </p>
-                      </div>
-                      <p
-                        className={`text-xs font-semibold whitespace-nowrap ${
-                          isNegative ? "text-orange-600" : ""
-                        }`}
-                      >
-                        {isNegative ? "- " : ""}
-                        {currencySymbol}{" "}
-                        {Math.abs(item.total).toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div> */}
-
-          {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Totales */}
           <div className="space-y-3">
@@ -362,7 +314,7 @@ export function WorkOrderSummarySection({
                   disabled={
                     isPending ||
                     !form.formState.isValid ||
-                    isCompletedWithoutAdvances ||
+                    isSaveBlocked ||
                     (!isInvalidWithQuote &&
                       totales.total <= 0 &&
                       !hasRealAdvancePayments)
@@ -394,14 +346,26 @@ export function WorkOrderSummarySection({
               onConfirm={onSubmit ?? (() => {})}
             />
           </div>
-          {isCompletedWithoutAdvances && (
+          {isBlockedByDraftFinalInvoice ? (
             <p className="text-xs text-center text-destructive font-medium">
-              Esta orden ya está completamente facturada. No se puede crear más
-              documentos.
+              Ya existe un comprobante final en borrador para esta orden. No se
+              puede generar otro documento hasta que se complete o elimine.
             </p>
+          ) : isBlockedByDraftAdvance ? (
+            <p className="text-xs text-center text-destructive font-medium">
+              Ya existe un anticipo en borrador para esta orden. Debe
+              completarse o eliminarse antes de generar otro documento.
+            </p>
+          ) : (
+            isCompletedWithoutAdvances && (
+              <p className="text-xs text-center text-destructive font-medium">
+                Esta orden ya está completamente facturada. No se puede crear
+                más documentos.
+              </p>
+            )
           )}
           {!isInvalidWithQuote &&
-            !isCompletedWithoutAdvances &&
+            !isSaveBlocked &&
             totales.total <= 0 &&
             !hasRealAdvancePayments && (
               <p className="text-xs text-center text-destructive font-medium">
