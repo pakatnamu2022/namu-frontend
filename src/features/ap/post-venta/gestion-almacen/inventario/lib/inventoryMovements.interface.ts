@@ -9,6 +9,7 @@ import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interfa
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface.ts";
+import { InternalNoteResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 
 export interface InventoryMovementDetail {
   id: number;
@@ -43,6 +44,7 @@ export interface InventoryMovementResource {
     | OrderQuotationResource // type = SALE, ADJUSTMENT_OUT
     | TransferReceptionResource // type = TRANSFER_IN
     | ElectronicDocumentResource // type = RETURN_IN
+    | InternalNoteResource // type = ADJUSTMENT_IN, ADJUSTMENT_OUT (ApInternalNote)
     | Record<string, any>;
   details?: InventoryMovementDetail[];
   reason_in_out_id: number; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
