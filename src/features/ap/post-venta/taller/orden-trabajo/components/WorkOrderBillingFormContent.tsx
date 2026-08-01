@@ -434,6 +434,7 @@ export default function WorkOrderBillingFormContent({
                         disabled={
                           !workOrder?.invoice_to_client ||
                           workOrder?.has_draft_final_invoice ||
+                          workOrder?.has_draft_advance ||
                           hasNegativeInvoicePreview
                         }
                       >
@@ -451,6 +452,20 @@ export default function WorkOrderBillingFormContent({
                       <p className="text-xs text-amber-800 leading-relaxed">
                         Ya existe un comprobante final en borrador para esta
                         orden. Complételo o elimínelo para poder crear un nuevo
+                        documento.
+                      </p>
+                    </div>
+                  )}
+
+                {!workOrder?.is_invoiced &&
+                  !workOrder?.payment_summary?.has_final_invoice &&
+                  !workOrder?.has_draft_final_invoice &&
+                  workOrder?.has_draft_advance && (
+                    <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                      <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Ya existe un anticipo en borrador para esta orden.
+                        Debe completarse o eliminarse antes de generar otro
                         documento.
                       </p>
                     </div>
