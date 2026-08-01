@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  successToast,
+  getFirstDayOfMonth,
+  getCurrentDayOfMonth,
+} from "@/core/core.function";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
@@ -21,8 +26,6 @@ import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ELECTRONIC_DOCUMENT_REPUESTOS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
@@ -42,10 +45,23 @@ export default function SalesReceiptsRepuestoPage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [documentTypeFilter, setDocumentTypeFilter] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
+    ),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getCurrentDayOfMonth(currentDate),
+  );
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined;
+  };
 
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
@@ -53,9 +69,10 @@ export default function SalesReceiptsRepuestoPage() {
     search,
     status: statusFilter,
     area_id: [String(AREA_MESON)],
-    sunat_concept_document_type_id: documentTypeFilter
-      ? parseInt(documentTypeFilter)
-      : undefined,
+    fecha_de_emision:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });
 
@@ -66,9 +83,6 @@ export default function SalesReceiptsRepuestoPage() {
   const canCreateDebitNote = permissions.canCreate || false;
   const canMigrate = permissions.canMigrate || false;
 
-  const { data: documentTypes } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
-  });
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
@@ -200,9 +214,10 @@ export default function SalesReceiptsRepuestoPage() {
           setSedeId={setSedeId}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          documentTypeFilter={documentTypeFilter}
-          setDocumentTypeFilter={setDocumentTypeFilter}
-          documentTypes={documentTypes || []}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
         />
       </ElectronicDocumentTable>
 

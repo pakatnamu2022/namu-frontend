@@ -91,11 +91,7 @@ export default function OrderQuotationMesonCajaPage() {
         : undefined,
     area_id: AREA_MESON.toString(),
     sede_id: sedeId,
-    status_id: [
-      STATUS_ORDER_QUOTE.APROBADO,
-      STATUS_ORDER_QUOTE.FACTURAR,
-      STATUS_ORDER_QUOTE.FACTURADO,
-    ], // Solo mostrar cotizaciones finalizadas
+    status_id: [STATUS_ORDER_QUOTE.FACTURAR, STATUS_ORDER_QUOTE.FACTURADO], // Solo mostrar cotizaciones finalizadas
   });
 
   const handleDelete = async () => {

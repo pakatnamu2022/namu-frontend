@@ -255,13 +255,27 @@ export default function OrderQuotationBillingContent({
                 <Button
                   onClick={handleCreateInvoice}
                   size="sm"
-                  disabled={!quotation.invoice_to_client}
+                  disabled={
+                    !quotation.invoice_to_client ||
+                    quotation.has_draft_final_invoice
+                  }
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo Comprobante
                 </Button>
               )}
             </div>
+
+            {!quotation.is_fully_paid && quotation.has_draft_final_invoice && (
+              <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Ya existe un comprobante final en borrador para esta
+                  cotización. Complételo o elimínelo para poder crear un nuevo
+                  documento.
+                </p>
+              </div>
+            )}
 
             <InvoiceList
               vouchers={vouchers ?? { active: [], cancelled: [] }}

@@ -70,7 +70,6 @@ export const ProformaMesonActionsCell = ({
     id,
     is_fully_paid,
     status,
-    has_invoice_generated,
     delivery_document_number,
     has_management_discount,
     parent_quotation_id,
@@ -189,25 +188,16 @@ export const ProformaMesonActionsCell = ({
     !isDiscarded && is_fully_paid && !isDelivered;
 
   const isVisibleSendVirtualLink =
-    !isDiscarded &&
-    !isApproved &&
-    !isForInvoicing &&
-    !has_invoice_generated &&
-    !was_segmented;
+    !isDiscarded && !isApproved && !isForInvoicing && !was_segmented;
 
   const isVisibleRequestDiscount =
-    !isDiscarded &&
-    !isApproved &&
-    !has_invoice_generated &&
-    !isForInvoicing &&
-    !was_segmented;
+    !isDiscarded && !isApproved && !isForInvoicing && !was_segmented;
 
   const isVisibleDiscard = !isDiscarded && (!was_segmented || isForInvoicing);
 
   const isVisibleSegment =
     !isDiscarded &&
     !isApproved &&
-    !has_invoice_generated &&
     !isForInvoicing &&
     !was_segmented &&
     !parent_quotation_id;
@@ -217,17 +207,15 @@ export const ProformaMesonActionsCell = ({
   const isVisibleSendToInvoice =
     (status.id === STATUS_ORDER_QUOTE.APERTURADO ||
       status.id === STATUS_ORDER_QUOTE.APROBADO) &&
-    !has_invoice_generated &&
     !was_segmented;
 
-  const isVisibleSetInEditing = isForInvoicing && !has_invoice_generated;
+  const isVisibleSetInEditing = isForInvoicing;
 
   const isVisibleEdit =
     !isDiscarded &&
     !isForInvoicing &&
     permissions.canUpdate &&
     !has_management_discount &&
-    !has_invoice_generated &&
     !was_segmented;
 
   const isVisibleDelete =
@@ -236,7 +224,6 @@ export const ProformaMesonActionsCell = ({
     !isForInvoicing &&
     permissions.canDelete &&
     !has_management_discount &&
-    !has_invoice_generated &&
     !was_segmented;
 
   return (

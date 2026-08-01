@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
-import { errorToast, successToast } from "@/core/core.function.ts";
+import {
+  errorToast,
+  successToast,
+  getFirstDayOfMonth,
+  getCurrentDayOfMonth,
+} from "@/core/core.function.ts";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import {
   sendElectronicDocumentToSunat,
@@ -22,8 +27,6 @@ import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { ELECTRONIC_DOCUMENT_CAJA } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants.ts";
 import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
-import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions.tsx";
@@ -47,11 +50,24 @@ export default function SalesReceiptsCajaPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [documentTypeFilter, setDocumentTypeFilter] = useState("");
   const [consolidationType, setConsolidationType] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
+    ),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getCurrentDayOfMonth(currentDate),
+  );
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined;
+  };
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -70,9 +86,10 @@ export default function SalesReceiptsCajaPage() {
     search,
     status: statusFilter,
     area_id: [AREA_TALLER, AREA_MESON, AREA_POSTVENTA], // Filtrar por ambas áreas
-    sunat_concept_document_type_id: documentTypeFilter
-      ? parseInt(documentTypeFilter)
-      : undefined,
+    fecha_de_emision:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
     seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
     consolidation_type: consolidationType || undefined,
   });
@@ -83,10 +100,6 @@ export default function SalesReceiptsCajaPage() {
   const canCreateCreditNote = permissions.canCreate || false; // Usar mismo permiso que crear
   const canCreateDebitNote = permissions.canCreate || false;
   const canMigrate = permissions.canMigrate || false;
-
-  const { data: documentTypes } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE],
-  });
 
   const sendToSunatMutation = useMutation({
     mutationFn: sendElectronicDocumentToSunat,
@@ -223,9 +236,10 @@ export default function SalesReceiptsCajaPage() {
           setSedeId={setSedeId}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          documentTypeFilter={documentTypeFilter}
-          setDocumentTypeFilter={setDocumentTypeFilter}
-          documentTypes={documentTypes || []}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
           consolidationType={consolidationType}
           setConsolidationType={setConsolidationType}
         />

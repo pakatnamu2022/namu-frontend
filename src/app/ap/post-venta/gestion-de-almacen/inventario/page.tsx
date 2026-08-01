@@ -2,6 +2,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
@@ -27,8 +28,13 @@ export default function InventoryPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [warehouseId, setWarehouseId] = useState<string>("");
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    INVENTORY.ABSOLUTE_ROUTE,
+    { search: "", warehouseId: "" },
+  );
+  const { search, warehouseId } = filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setWarehouseId = (value: string) => setFilter("warehouseId", value);
   const [stockMinMaxSelected, setStockMinMaxSelected] =
     useState<InventoryResource | null>(null);
   const [reservedStockSelected, setReservedStockSelected] = useState<{
@@ -46,9 +52,9 @@ export default function InventoryPage() {
   // Setear automáticamente el primer almacén cuando se carguen
   useEffect(() => {
     if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWarehouseId(warehouses[0].id.toString());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingWarehouses, warehouses, warehouseId]);
 
   // Extraer order_by_stock del sorting state
