@@ -14,6 +14,7 @@ import {
   Scissors,
   ShieldCheck,
   Trash2,
+  Undo2,
   XCircle,
 } from "lucide-react";
 import {
@@ -30,7 +31,9 @@ import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/li
 import { DiscardQuotationModal } from "./DiscardQuotationModal";
 import {
   segmentOrderQuotationBySupplyType,
+  sendOrderQuotationToInvoice,
   sendVirtualConfirmation,
+  setOrderQuotationInEditing,
 } from "../lib/quotationMeson.actions";
 import { VirtualConfirmationDialog } from "./VirtualConfirmationDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -82,6 +85,8 @@ export const ProformaMesonActionsCell = ({
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isSendingLink, setIsSendingLink] = useState(false);
   const [isSegmenting, setIsSegmenting] = useState(false);
+  const [isSendingToInvoice, setIsSendingToInvoice] = useState(false);
+  const [isSettingInEditing, setIsSettingInEditing] = useState(false);
   const [virtualConfirmationData, setVirtualConfirmationData] = useState<{
     confirmationLink: string;
     sentTo: string;
@@ -122,6 +127,38 @@ export const ProformaMesonActionsCell = ({
       );
     } finally {
       setIsSegmenting(false);
+    }
+  };
+
+  const handleSendToInvoice = async () => {
+    setIsSendingToInvoice(true);
+    try {
+      await sendOrderQuotationToInvoice(id);
+      successToast("Cotización enviada a facturar correctamente");
+      onRefresh();
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al enviar la cotización a facturar",
+      );
+    } finally {
+      setIsSendingToInvoice(false);
+    }
+  };
+
+  const handleSetInEditing = async () => {
+    setIsSettingInEditing(true);
+    try {
+      await setOrderQuotationInEditing(id);
+      successToast("Cotización puesta en edición correctamente");
+      onRefresh();
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al poner la cotización en edición",
+      );
+    } finally {
+      setIsSettingInEditing(false);
     }
   };
 
@@ -177,9 +214,16 @@ export const ProformaMesonActionsCell = ({
 
   const isVisibleApprove = permissions.canApprove && isForInvoicing;
 
+  const isVisibleSendToInvoice =
+    (status.id === STATUS_ORDER_QUOTE.APERTURADO ||
+      status.id === STATUS_ORDER_QUOTE.APROBADO) &&
+    !has_invoice_generated &&
+    !was_segmented;
+
+  const isVisibleSetInEditing = isForInvoicing && !has_invoice_generated;
+
   const isVisibleEdit =
     !isDiscarded &&
-    !isApproved &&
     !isForInvoicing &&
     permissions.canUpdate &&
     !has_management_discount &&
@@ -261,6 +305,40 @@ export const ProformaMesonActionsCell = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {isVisibleSendToInvoice && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Enviar a Facturar"
+            onClick={handleSendToInvoice}
+            disabled={isSendingToInvoice}
+          >
+            {isSendingToInvoice ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <FileText className="size-4" />
+            )}
+          </Button>
+        )}
+
+        {isVisibleSetInEditing && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Regresar a edición"
+            onClick={handleSetInEditing}
+            disabled={isSettingInEditing}
+          >
+            {isSettingInEditing ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Undo2 className="size-4" />
+            )}
+          </Button>
+        )}
+
         {isVisibleGenerateDelivery && (
           <Button
             variant="outline"
@@ -314,7 +392,7 @@ export const ProformaMesonActionsCell = ({
                   ) : (
                     <Link2 className="size-4 mr-2" />
                   )}
-                  Enviar Link de Confirmación Virtual
+                  Link Confirmación
                 </DropdownMenuItem>
               )}
 
@@ -342,7 +420,7 @@ export const ProformaMesonActionsCell = ({
                   ) : (
                     <Scissors className="size-4 mr-2" />
                   )}
-                  Segmentar Cotización
+                  Segmentar
                 </DropdownMenuItem>
               )}
 
@@ -352,7 +430,7 @@ export const ProformaMesonActionsCell = ({
                   className="text-orange-600 focus:text-orange-700"
                 >
                   <XCircle className="size-4 mr-2" />
-                  Descartar Cotización
+                  Descartar
                 </DropdownMenuItem>
               )}
 

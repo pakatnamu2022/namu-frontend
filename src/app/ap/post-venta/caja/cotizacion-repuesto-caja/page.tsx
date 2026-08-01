@@ -93,7 +93,6 @@ export default function OrderQuotationMesonCajaPage() {
     sede_id: sedeId,
     status_id: [
       STATUS_ORDER_QUOTE.APROBADO,
-      STATUS_ORDER_QUOTE.EN_EDICION,
       STATUS_ORDER_QUOTE.FACTURAR,
       STATUS_ORDER_QUOTE.FACTURADO,
     ], // Solo mostrar cotizaciones finalizadas
