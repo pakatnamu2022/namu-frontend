@@ -6,6 +6,7 @@ import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { STATUS_ORDER_QUOTE_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 
 export type OrderQuotationMesonCajaColumns = ColumnDef<OrderQuotationResource>;
 
@@ -132,24 +133,14 @@ export const orderQuotationMesonCajaColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
-      const status = getValue() as string;
+      const status = getValue() as OrderQuotationResource["status"];
+      if (!status) return "-";
 
-      const getStatusBadge = (status: string) => {
-        switch (status) {
-          case "Descartado":
-            return <Badge color="red">{status}</Badge>;
-          case "Aperturado":
-            return <Badge color="indigo">{status}</Badge>;
-          case "Por Facturar":
-            return <Badge color="orange">{status}</Badge>;
-          case "Facturado":
-            return <Badge color="green">{status}</Badge>;
-          default:
-            return <Badge color="secondary">{status}</Badge>;
-        }
-      };
-
-      return getStatusBadge(status);
+      return (
+        <Badge color={STATUS_ORDER_QUOTE_COLOR[status.id] ?? "secondary"}>
+          {status.description}
+        </Badge>
+      );
     },
   },
   {

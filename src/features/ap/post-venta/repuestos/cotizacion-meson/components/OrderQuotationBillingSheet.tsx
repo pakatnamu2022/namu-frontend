@@ -73,6 +73,7 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import SearchInput from "@/shared/components/SearchInput";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { onSelectSupplyType } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { STATUS_ORDER_QUOTE } from "../../../taller/cotizacion/lib/proforma.constants";
 
 const DEFAULT_PER_PAGE = 10;
 
@@ -355,9 +356,10 @@ export function BillingSheetContent({
   });
 
   // Verificar si debe mostrar la sección de firma
-  const shouldShowSignature = orderQuotation.status === "Aperturado";
+  const shouldShowSignature =
+    orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO;
 
-  const isInvoiced = orderQuotation.status === "Facturado";
+  const isInvoiced = orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURADO;
 
   const form = useForm<SignatureFormData>({
     resolver: zodResolver(signatureSchema),
@@ -440,19 +442,19 @@ export function BillingSheetContent({
         <h3 className="font-semibold text-lg">Estado de la Cotización</h3>
         <div className="bg-muted/30 p-4 rounded-lg">
           <div className="flex items-center gap-3">
-            {orderQuotation.status === "Descartado" ? (
+            {orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO ? (
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
                 <XCircle className="h-5 w-5 text-red-600" />
               </div>
-            ) : orderQuotation.status === "Aperturado" ? (
+            ) : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO ? (
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100">
                 <FileText className="h-5 w-5 text-indigo-600" />
               </div>
-            ) : orderQuotation.status === "Por Facturar" ? (
+            ) : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR ? (
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100">
                 <Clock className="h-5 w-5 text-orange-600" />
               </div>
-            ) : orderQuotation.status === "Facturado" ? (
+            ) : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURADO ? (
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
                 <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
@@ -465,38 +467,41 @@ export function BillingSheetContent({
               <Badge
                 variant="outline"
                 color={
-                  orderQuotation.status === "Descartado"
+                  orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO
                     ? "destructive"
-                    : orderQuotation.status === "Aperturado"
+                    : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO
                       ? "default"
-                      : orderQuotation.status === "Por Facturar"
+                      : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR
                         ? "secondary"
-                        : orderQuotation.status === "Facturado"
+                        : orderQuotation.status.id ===
+                            STATUS_ORDER_QUOTE.FACTURADO
                           ? "default"
                           : "default"
                 }
                 className={
-                  orderQuotation.status === "Descartado"
+                  orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO
                     ? "bg-red-100 text-red-700 border-red-300"
-                    : orderQuotation.status === "Aperturado"
+                    : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO
                       ? "bg-indigo-100 text-indigo-700 border-indigo-300"
-                      : orderQuotation.status === "Por Facturar"
+                      : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR
                         ? "bg-orange-100 text-orange-700 border-orange-300"
-                        : orderQuotation.status === "Facturado"
+                        : orderQuotation.status.id ===
+                            STATUS_ORDER_QUOTE.FACTURADO
                           ? "bg-green-100 text-green-700 border-green-300"
                           : ""
                 }
               >
-                {orderQuotation.status}
+                {orderQuotation.status.description}
               </Badge>
               <p className="text-xs text-muted-foreground mt-1">
-                {orderQuotation.status === "Descartado"
+                {orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO
                   ? "Esta cotización ha sido descartada"
-                  : orderQuotation.status === "Aperturado"
+                  : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO
                     ? "Cotización abierta, pendiente de confirmación"
-                    : orderQuotation.status === "Por Facturar"
+                    : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR
                       ? "Cotización confirmada, lista para facturar"
-                      : orderQuotation.status === "Facturado"
+                      : orderQuotation.status.id ===
+                          STATUS_ORDER_QUOTE.FACTURADO
                         ? "Cotización completamente facturada"
                         : "Estado de la cotización"}
               </p>
@@ -506,7 +511,7 @@ export function BillingSheetContent({
       </div>
 
       {/* Información de Descarte (solo si fue descartada) */}
-      {orderQuotation.status === "Descartado" && (
+      {orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO && (
         <>
           <Separator />
           <div className="space-y-3">

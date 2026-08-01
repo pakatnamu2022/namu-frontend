@@ -21,7 +21,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import {
   ORDER_QUOTATION_CAJA,
-  STATUS_ORDER_QUOTATION,
+  STATUS_ORDER_QUOTE,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
@@ -91,7 +91,12 @@ export default function OrderQuotationMesonCajaPage() {
         : undefined,
     area_id: AREA_MESON.toString(),
     sede_id: sedeId,
-    status: [STATUS_ORDER_QUOTATION.TO_BILL, STATUS_ORDER_QUOTATION.BILLED], // Solo mostrar cotizaciones finalizadas
+    status_id: [
+      STATUS_ORDER_QUOTE.APROBADO,
+      STATUS_ORDER_QUOTE.EN_EDICION,
+      STATUS_ORDER_QUOTE.FACTURAR,
+      STATUS_ORDER_QUOTE.FACTURADO,
+    ], // Solo mostrar cotizaciones finalizadas
   });
 
   const handleDelete = async () => {

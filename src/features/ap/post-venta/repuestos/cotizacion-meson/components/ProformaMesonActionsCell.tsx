@@ -34,6 +34,7 @@ import {
 } from "../lib/quotationMeson.actions";
 import { VirtualConfirmationDialog } from "./VirtualConfirmationDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { STATUS_ORDER_QUOTE } from "../../../taller/cotizacion/lib/proforma.constants";
 
 interface ActionsCellProps {
   row: OrderQuotationResource;
@@ -72,8 +73,9 @@ export const ProformaMesonActionsCell = ({
     parent_quotation_id,
     was_segmented,
   } = row;
-  const isDiscarded = status === "Descartado";
-  const isForInvoicing = status === "Por Facturar";
+  const isDiscarded = status.id === STATUS_ORDER_QUOTE.DESCARTADO;
+  const isForInvoicing = status.id === STATUS_ORDER_QUOTE.FACTURAR;
+  const isApproved = status.id === STATUS_ORDER_QUOTE.APROBADO;
   const isDelivered = !!delivery_document_number;
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showSegmentConfirm, setShowSegmentConfirm] = useState(false);
@@ -150,15 +152,24 @@ export const ProformaMesonActionsCell = ({
     !isDiscarded && is_fully_paid && !isDelivered;
 
   const isVisibleSendVirtualLink =
-    !isDiscarded && !isForInvoicing && !has_invoice_generated && !was_segmented;
+    !isDiscarded &&
+    !isApproved &&
+    !isForInvoicing &&
+    !has_invoice_generated &&
+    !was_segmented;
 
   const isVisibleRequestDiscount =
-    !isDiscarded && !has_invoice_generated && !isForInvoicing && !was_segmented;
+    !isDiscarded &&
+    !isApproved &&
+    !has_invoice_generated &&
+    !isForInvoicing &&
+    !was_segmented;
 
   const isVisibleDiscard = !isDiscarded && (!was_segmented || isForInvoicing);
 
   const isVisibleSegment =
     !isDiscarded &&
+    !isApproved &&
     !has_invoice_generated &&
     !isForInvoicing &&
     !was_segmented &&
@@ -168,6 +179,7 @@ export const ProformaMesonActionsCell = ({
 
   const isVisibleEdit =
     !isDiscarded &&
+    !isApproved &&
     !isForInvoicing &&
     permissions.canUpdate &&
     !has_management_discount &&
@@ -176,6 +188,7 @@ export const ProformaMesonActionsCell = ({
 
   const isVisibleDelete =
     !isDiscarded &&
+    !isApproved &&
     !isForInvoicing &&
     permissions.canDelete &&
     !has_management_discount &&

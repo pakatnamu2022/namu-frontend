@@ -54,8 +54,7 @@ export interface OrderQuotationResource {
   has_invoice_generated: boolean;
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
-  status: string;
-  status_oficial: {
+  status: {
     id: number;
     description: string;
   };

@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import {
   ORDER_QUOTATION_MESON,
-  STATUS_ORDER_QUOTATION_COLOR,
+  STATUS_ORDER_QUOTE_COLOR,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { Button } from "@/components/ui/button";
@@ -338,11 +338,9 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         <div>
           <p className="text-muted-foreground text-xs">Estado</p>
           <Badge
-            color={
-              STATUS_ORDER_QUOTATION_COLOR[quotation.status] ?? "secondary"
-            }
+            color={STATUS_ORDER_QUOTE_COLOR[quotation.status.id] ?? "secondary"}
           >
-            {quotation.status}
+            {quotation.status.description}
           </Badge>
         </div>
         <div>
