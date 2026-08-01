@@ -58,12 +58,6 @@ export const ORDER_QUOTATION_CAJA: ModelComplete<OrderQuotationResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_CAJA}/actualizar`,
 };
 
-export const SUPPLY_TYPE = {
-  STOCK: "REPUESTO",
-  CENTRAL: "CENTRAL",
-  IMPORTACION: "IMPORTACION",
-};
-
 export const STATUS_ORDER_QUOTATION = {
   OPEN: "Aperturado",
   DISCARDED: "Descartado",
@@ -78,4 +72,25 @@ export const STATUS_ORDER_QUOTATION_COLOR: Record<string, BadgeColor> = {
   [STATUS_ORDER_QUOTATION.TO_BILL]: "orange",
   [STATUS_ORDER_QUOTATION.BILLED]: "green",
   [STATUS_ORDER_QUOTATION.SEGMENTED]: "purple",
+};
+
+// IDs DE ESTADOS DE COTIZACIÓN (STATUS_ORDER_QUOTE)
+export const STATUS_ORDER_QUOTE = {
+  APERTURADO: 1282,
+  APROBADO: 1283,
+  FACTURAR: 1284,
+  EN_EDICION: 1285,
+  FACTURADO: 1286,
+  SEGMENTADO: 1304,
+  DESCARTADO: 1305,
+} as const;
+
+export const STATUS_ORDER_QUOTE_COLOR: Record<number, BadgeColor> = {
+  [STATUS_ORDER_QUOTE.APERTURADO]: "blue",
+  [STATUS_ORDER_QUOTE.APROBADO]: "cyan",
+  [STATUS_ORDER_QUOTE.FACTURAR]: "orange",
+  [STATUS_ORDER_QUOTE.EN_EDICION]: "amber",
+  [STATUS_ORDER_QUOTE.FACTURADO]: "green",
+  [STATUS_ORDER_QUOTE.SEGMENTADO]: "purple",
+  [STATUS_ORDER_QUOTE.DESCARTADO]: "red",
 };

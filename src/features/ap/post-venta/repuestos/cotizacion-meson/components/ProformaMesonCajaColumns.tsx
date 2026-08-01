@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Receipt, Eye } from "lucide-react";
+import { Receipt } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,6 @@ export type OrderQuotationMesonCajaColumns = ColumnDef<OrderQuotationResource>;
 
 interface Props {
   onBilling: (id: number) => void;
-  onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onRefresh?: () => void;
   permissions: {
     canBill: boolean;
@@ -20,7 +19,6 @@ interface Props {
 
 export const orderQuotationMesonCajaColumns = ({
   onBilling,
-  onViewBilling,
   permissions,
 }: Props): OrderQuotationMesonCajaColumns[] => [
   {
@@ -162,29 +160,17 @@ export const orderQuotationMesonCajaColumns = ({
 
       return (
         <>
-          <div className="flex items-center gap-2">
+          {permissions.canBill && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => onViewBilling(row.original)}
-              tooltip="Ver Información"
+              tooltip="Facturar"
+              onClick={() => onBilling(id)}
             >
-              <Eye className="size-5" />
+              <Receipt className="size-5" />
             </Button>
-
-            {permissions.canBill && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Facturar"
-                onClick={() => onBilling(id)}
-              >
-                <Receipt className="size-5" />
-              </Button>
-            )}
-          </div>
+          )}
         </>
       );
     },

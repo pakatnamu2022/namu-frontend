@@ -112,11 +112,6 @@ export default function OrderQuotationMesonCajaPage() {
     router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
   };
 
-  const handleViewBilling = (orderQuotation: { id: number }) => {
-    setSelectedOrderQuotationId(orderQuotation.id);
-    setIsBillingSheetOpen(true);
-  };
-
   const handleCloseBillingSheet = () => {
     setIsBillingSheetOpen(false);
     setSelectedOrderQuotationId(null);
@@ -145,7 +140,6 @@ export default function OrderQuotationMesonCajaPage() {
         isLoading={isLoading}
         columns={orderQuotationMesonCajaColumns({
           onBilling: handleBilling,
-          onViewBilling: handleViewBilling,
           onRefresh: refetch,
           permissions,
         })}

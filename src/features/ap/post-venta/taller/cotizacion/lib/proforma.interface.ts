@@ -55,6 +55,10 @@ export interface OrderQuotationResource {
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
   status: string;
+  status_oficial: {
+    id: number;
+    description: string;
+  };
   supply_type: "STOCK" | "CENTRAL" | "IMPORTACION";
   exchange_rate: number;
   chief_approval_by: string | null;

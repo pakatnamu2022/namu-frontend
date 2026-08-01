@@ -7,11 +7,13 @@ import {
   FileText,
   Link2,
   Loader2,
+  MoreVertical,
   PackageOpen,
   Pencil,
   Percent,
   Scissors,
   ShieldCheck,
+  Trash2,
   XCircle,
 } from "lucide-react";
 import {
@@ -22,7 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { useState } from "react";
 import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -75,6 +76,7 @@ export const ProformaMesonActionsCell = ({
   const isForInvoicing = status === "Por Facturar";
   const isDelivered = !!delivery_document_number;
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [showSegmentConfirm, setShowSegmentConfirm] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isSendingLink, setIsSendingLink] = useState(false);
   const [isSegmenting, setIsSegmenting] = useState(false);
@@ -258,73 +260,6 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {isVisibleSendVirtualLink && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-            tooltip="Enviar Link de Confirmación Virtual"
-            onClick={handleSendVirtualLink}
-            disabled={isSendingLink}
-          >
-            {isSendingLink ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Link2 className="size-4" />
-            )}
-          </Button>
-        )}
-
-        {isVisibleRequestDiscount && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-            tooltip="Solicitar Descuento"
-            onClick={() => onRequestDiscount(id)}
-          >
-            <Percent className="size-5" />
-          </Button>
-        )}
-
-        {isVisibleSegment && (
-          <ConfirmationDialog
-            trigger={
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                tooltip="Segmentar Cotización"
-                disabled={isSegmenting}
-              >
-                {isSegmenting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Scissors className="size-4" />
-                )}
-              </Button>
-            }
-            title="¿Segmentar cotización?"
-            description="Esta acción dividirá la cotización según el tipo de suministro. ¿Estás seguro de que deseas continuar?"
-            confirmText="Sí, segmentar"
-            cancelText="Cancelar"
-            icon="info"
-            onConfirm={handleSegment}
-          />
-        )}
-
-        {isVisibleDiscard && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-            tooltip="Descartar Cotización"
-            onClick={() => setShowDiscardModal(true)}
-          >
-            <XCircle className="size-5" />
-          </Button>
-        )}
-
         {isVisibleApprove && (
           <Button
             variant="outline"
@@ -337,19 +272,102 @@ export const ProformaMesonActionsCell = ({
           </Button>
         )}
 
-        {isVisibleEdit && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Editar"
-            onClick={() => onUpdate(id)}
-          >
-            <Pencil className="size-5" />
-          </Button>
-        )}
+        {(isVisibleSendVirtualLink ||
+          isVisibleRequestDiscount ||
+          isVisibleSegment ||
+          isVisibleDiscard ||
+          isVisibleEdit ||
+          isVisibleDelete) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Más acciones"
+              >
+                <MoreVertical className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {isVisibleSendVirtualLink && (
+                <DropdownMenuItem
+                  onClick={handleSendVirtualLink}
+                  disabled={isSendingLink}
+                  className="text-emerald-600 focus:text-emerald-700"
+                >
+                  {isSendingLink ? (
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                  ) : (
+                    <Link2 className="size-4 mr-2" />
+                  )}
+                  Enviar Link de Confirmación Virtual
+                </DropdownMenuItem>
+              )}
 
-        {isVisibleDelete && <DeleteButton onClick={() => onDelete(id)} />}
+              {isVisibleRequestDiscount && (
+                <DropdownMenuItem
+                  onClick={() => onRequestDiscount(id)}
+                  className="text-blue-600 focus:text-blue-700"
+                >
+                  <Percent className="size-4 mr-2" />
+                  Solicitar Descuento
+                </DropdownMenuItem>
+              )}
+
+              {isVisibleSegment && (
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setShowSegmentConfirm(true);
+                  }}
+                  disabled={isSegmenting}
+                  className="text-purple-600 focus:text-purple-700"
+                >
+                  {isSegmenting ? (
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                  ) : (
+                    <Scissors className="size-4 mr-2" />
+                  )}
+                  Segmentar Cotización
+                </DropdownMenuItem>
+              )}
+
+              {isVisibleDiscard && (
+                <DropdownMenuItem
+                  onClick={() => setShowDiscardModal(true)}
+                  className="text-orange-600 focus:text-orange-700"
+                >
+                  <XCircle className="size-4 mr-2" />
+                  Descartar Cotización
+                </DropdownMenuItem>
+              )}
+
+              {(isVisibleEdit || isVisibleDelete) &&
+                (isVisibleSendVirtualLink ||
+                  isVisibleRequestDiscount ||
+                  isVisibleSegment ||
+                  isVisibleDiscard) && <DropdownMenuSeparator />}
+
+              {isVisibleEdit && (
+                <DropdownMenuItem onClick={() => onUpdate(id)}>
+                  <Pencil className="size-4 mr-2" />
+                  Editar
+                </DropdownMenuItem>
+              )}
+
+              {isVisibleDelete && (
+                <DropdownMenuItem
+                  onClick={() => onDelete(id)}
+                  className="text-red-600 focus:text-red-700"
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Eliminar
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {showDiscardModal && (
@@ -360,6 +378,18 @@ export const ProformaMesonActionsCell = ({
           onSuccess={onRefresh}
         />
       )}
+
+      <ConfirmationDialog
+        open={showSegmentConfirm}
+        onOpenChange={setShowSegmentConfirm}
+        trigger={<span className="hidden" />}
+        title="¿Segmentar cotización?"
+        description="Esta acción dividirá la cotización según el tipo de suministro. ¿Estás seguro de que deseas continuar?"
+        confirmText="Sí, segmentar"
+        cancelText="Cancelar"
+        icon="info"
+        onConfirm={handleSegment}
+      />
 
       {virtualConfirmationData && (
         <VirtualConfirmationDialog
