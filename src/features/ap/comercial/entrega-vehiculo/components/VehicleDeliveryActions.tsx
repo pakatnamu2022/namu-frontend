@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileOutput, Plus, RefreshCcw, Send } from "lucide-react";
+import { FileClock, FileOutput, Plus, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import ExportButtons from "@/shared/components/ExportButtons";
@@ -16,6 +17,7 @@ import {
 } from "../lib/vehicleDelivery.actions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import HistoricalShippingGuideDialog from "@/features/ap/shipping_guides/components/HistoricalShippingGuideDialog";
 
 interface Props {
   permissions: {
@@ -37,6 +39,8 @@ export default function VehicleDeliveryActions({
   const { ROUTE_ADD } = VEHICLE_DELIVERY;
 
   const { canCreate, canMigrate, canManage } = permissions;
+
+  const [historicalOpen, setHistoricalOpen] = useState(false);
 
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllShippingGuides,
@@ -82,6 +86,15 @@ export default function VehicleDeliveryActions({
           </Button>
         </Link>
       )}
+      {canManage && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setHistoricalOpen(true)}
+        >
+          <FileClock className="size-4 mr-2" /> Regularización Histórica
+        </Button>
+      )}
       {canCreate && (
         <Link to={ROUTE_ADD}>
           <Button size="sm">
@@ -89,6 +102,10 @@ export default function VehicleDeliveryActions({
           </Button>
         </Link>
       )}
+      <HistoricalShippingGuideDialog
+        open={historicalOpen}
+        onOpenChange={setHistoricalOpen}
+      />
     </ActionsWrapper>
   );
 }
