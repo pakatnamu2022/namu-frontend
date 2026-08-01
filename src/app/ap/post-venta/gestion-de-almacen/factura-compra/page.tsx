@@ -1,6 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -28,9 +29,15 @@ export default function PurchaseOrderWarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [sedeId, setSedeId] = useState<string>("");
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_INVOICE_PV;
+
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    ABSOLUTE_ROUTE,
+    { search: "", sedeId: "" },
+  );
+  const { search, sedeId } = filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
 
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 

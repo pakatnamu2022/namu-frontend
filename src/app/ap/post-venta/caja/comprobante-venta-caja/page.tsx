@@ -2,6 +2,7 @@
 
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
+import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
@@ -44,26 +45,43 @@ export default function SalesReceiptsCajaPage() {
   const { ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = ELECTRONIC_DOCUMENT_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
-  const [sedeId, setSedeId] = useState<string>("");
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [consolidationType, setConsolidationType] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const currentDate = new Date();
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getFirstDayOfMonth(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
-    ),
+
+  const { values: filters, setFieldValue: setFilter } = useScopedFilters(
+    ABSOLUTE_ROUTE,
+    {
+      search: "",
+      sedeId: "",
+      statusFilter: "",
+      consolidationType: "",
+      dateFrom: getFirstDayOfMonth(
+        new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1),
+      ) as Date | undefined,
+      dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
+    },
   );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getCurrentDayOfMonth(currentDate),
-  );
+  const {
+    search,
+    sedeId,
+    statusFilter,
+    consolidationType,
+    dateFrom,
+    dateTo,
+  } = filters;
+  const setSearch = (value: string) => setFilter("search", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
+  const setStatusFilter = (value: string) => setFilter("statusFilter", value);
+  const setConsolidationType = (value: string) =>
+    setFilter("consolidationType", value);
+  const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
+  const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined;
