@@ -191,3 +191,21 @@ export async function recalculateOrderQuotationTotals(
   );
   return response.data;
 }
+
+export async function sendOrderQuotationToInvoice(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/send-to-invoice`,
+  );
+  return response.data;
+}
+
+export async function setOrderQuotationInEditing(
+  id: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/set-in-editing`,
+  );
+  return response.data;
+}

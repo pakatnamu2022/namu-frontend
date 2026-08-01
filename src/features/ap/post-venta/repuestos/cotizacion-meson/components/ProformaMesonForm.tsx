@@ -67,7 +67,7 @@ import {
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import {
   ORDER_QUOTATION_MESON,
-  STATUS_ORDER_QUOTATION,
+  STATUS_ORDER_QUOTE,
 } from "../../../taller/cotizacion/lib/proforma.constants";
 import { DataCard } from "@/components/DataCard";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -134,7 +134,7 @@ export default function ProformaMesonForm({
   // Determinar si los detalles deben estar deshabilitados
   const isDetailsDisabled =
     mode === "update" &&
-    (quotationData?.status === STATUS_ORDER_QUOTATION.TO_BILL ||
+    (quotationData?.status.id === STATUS_ORDER_QUOTE.FACTURAR ||
       quotationData?.has_management_discount);
 
   const form = useForm<QuotationMesonWithProductsSchema>({

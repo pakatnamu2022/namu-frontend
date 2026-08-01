@@ -304,6 +304,15 @@ export async function revertFinished(id: number): Promise<WorkOrderResource> {
   return response.data;
 }
 
+export async function revertInternalNote(
+  id: number,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/revert-internal-note`,
+  );
+  return response.data;
+}
+
 export interface CancelWorkOrderData {
   discard_reason_id: number;
   discarded_note?: string | null;

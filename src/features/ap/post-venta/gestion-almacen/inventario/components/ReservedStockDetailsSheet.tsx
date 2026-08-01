@@ -1,11 +1,19 @@
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { InfoSection } from "@/shared/components/InfoSection.tsx";
-import { Badge } from "@/components/ui/badge.tsx";
+import { Badge, type BadgeColor } from "@/components/ui/badge.tsx";
 import { formatDateTime } from "@/core/core.function.ts";
 import { ReservedStockReportItem } from "../lib/inventory.interface.ts";
 import { useReservedStockReport } from "../lib/inventory.hook.ts";
 import { WORK_ORDER_STATUS_COLORS } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants.ts";
-import { STATUS_ORDER_QUOTATION_COLOR } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
+
+// Colores por descripción de estado de cotización (este reporte devuelve el estado como texto, no como { id, description })
+const QUOTATION_STATUS_COLOR: Record<string, BadgeColor> = {
+  Aperturado: "blue",
+  Descartado: "red",
+  "Por Facturar": "orange",
+  Facturado: "green",
+  Segmentada: "purple",
+};
 
 interface Props {
   open: boolean;
@@ -177,7 +185,7 @@ export default function ReservedStockDetailsSheet({
                     </p>
                     <Badge
                       color={
-                        STATUS_ORDER_QUOTATION_COLOR[
+                        QUOTATION_STATUS_COLOR[
                           reservation.quotation_status
                         ] ?? "default"
                       }

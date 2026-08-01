@@ -32,6 +32,8 @@ interface OrderQuotationSummarySectionProps {
   quotation?: OrderQuotationResource | null;
   onCancel?: () => void;
   onSubmit?: () => void;
+  hasDraftFinalInvoice?: boolean;
+  hasDraftAdvance?: boolean;
 }
 
 export function OrderQuotationSummarySection({
@@ -47,6 +49,8 @@ export function OrderQuotationSummarySection({
   quotation,
   onCancel,
   onSubmit,
+  hasDraftFinalInvoice = false,
+  hasDraftAdvance = false,
 }: OrderQuotationSummarySectionProps) {
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
@@ -68,6 +72,20 @@ export function OrderQuotationSummarySection({
   // Si el saldo está completado (<=0) y NO hay anticipos reales, no se puede facturar nada más
   const isCompletedWithoutAdvances =
     pendingBalance <= 0 && !hasRealAdvancePayments;
+
+  // Ya existe un comprobante final en borrador: no se puede crear otro
+  // documento. No aplica en edición: ahí se está editando ese mismo borrador.
+  const isBlockedByDraftFinalInvoice = !isEdit && hasDraftFinalInvoice;
+
+  // Ya existe un anticipo en borrador: no se puede crear otro anticipo ni
+  // tampoco la factura final hasta que ese borrador se complete o elimine.
+  // No aplica en edición: ahí se está editando ese mismo borrador.
+  const isBlockedByDraftAdvance = !isEdit && hasDraftAdvance;
+
+  const isSaveBlocked =
+    isCompletedWithoutAdvances ||
+    isBlockedByDraftFinalInvoice ||
+    isBlockedByDraftAdvance;
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
@@ -273,7 +291,7 @@ export function OrderQuotationSummarySection({
                   disabled={
                     isPending ||
                     !form.formState.isValid ||
-                    isCompletedWithoutAdvances ||
+                    isSaveBlocked ||
                     (totales.total <= 0 &&
                       !hasRealAdvancePayments &&
                       totales.total_gratuita <= 0)
@@ -305,13 +323,26 @@ export function OrderQuotationSummarySection({
               onConfirm={onSubmit ?? (() => {})}
             />
           </div>
-          {isCompletedWithoutAdvances && (
+          {isBlockedByDraftFinalInvoice ? (
             <p className="text-xs text-center text-destructive font-medium">
-              Esta cotización ya está completamente facturada. No se puede crear
-              más documentos.
+              Ya existe un comprobante final en borrador para esta cotización.
+              No se puede generar otro documento hasta que se complete o
+              elimine.
             </p>
+          ) : isBlockedByDraftAdvance ? (
+            <p className="text-xs text-center text-destructive font-medium">
+              Ya existe un anticipo en borrador para esta cotización. Debe
+              completarse o eliminarse antes de generar otro documento.
+            </p>
+          ) : (
+            isCompletedWithoutAdvances && (
+              <p className="text-xs text-center text-destructive font-medium">
+                Esta cotización ya está completamente facturada. No se puede
+                crear más documentos.
+              </p>
+            )
           )}
-          {!isCompletedWithoutAdvances &&
+          {!isSaveBlocked &&
             totales.total <= 0 &&
             !hasRealAdvancePayments &&
             totales.total_gratuita <= 0 && (

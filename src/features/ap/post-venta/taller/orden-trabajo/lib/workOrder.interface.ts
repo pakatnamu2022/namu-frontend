@@ -140,6 +140,7 @@ export interface InternalNoteResource {
   id: number;
   number: string;
   work_order_id: number;
+  work_order_correlative?: string;
   created_date: string;
   closed_date: string | null;
   status: "pending" | "invoiced";

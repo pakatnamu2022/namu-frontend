@@ -1,9 +1,9 @@
 import SearchInput from "@/shared/components/SearchInput";
-import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { DOCUMENT_STATUS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import FilterWrapper from "@/shared/components/FilterWrapper";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 interface Props {
   search: string;
@@ -13,9 +13,10 @@ interface Props {
   setSedeId: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  documentTypeFilter: string;
-  setDocumentTypeFilter: (value: string) => void;
-  documentTypes: SunatConceptsResource[];
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
   consolidationType?: string;
   setConsolidationType?: (value: string) => void;
 }
@@ -33,9 +34,10 @@ export default function SalesReceiptsOptions({
   setSedeId,
   statusFilter,
   setStatusFilter,
-  documentTypeFilter,
-  setDocumentTypeFilter,
-  documentTypes = [],
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
   consolidationType,
   setConsolidationType,
 }: Props) {
@@ -58,6 +60,16 @@ export default function SalesReceiptsOptions({
         classNameOption="text-xs"
       />
 
+      <DateRangePickerFilter
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={(from, to) => {
+          setDateFrom(from);
+          setDateTo(to);
+        }}
+        className="w-auto min-w-56"
+      />
+
       {setStatusFilter && (
         <SearchableSelect
           onChange={setStatusFilter}
@@ -67,19 +79,6 @@ export default function SalesReceiptsOptions({
           options={DOCUMENT_STATUS.map((status) => ({
             value: status.value,
             label: status.label,
-          }))}
-        />
-      )}
-
-      {setDocumentTypeFilter && documentTypes.length > 0 && (
-        <SearchableSelect
-          onChange={setDocumentTypeFilter}
-          value={documentTypeFilter}
-          className="min-w-64"
-          placeholder="Seleccionar Tipo de Documento"
-          options={documentTypes.map((type) => ({
-            value: type.id.toString(),
-            label: type.description,
           }))}
         />
       )}

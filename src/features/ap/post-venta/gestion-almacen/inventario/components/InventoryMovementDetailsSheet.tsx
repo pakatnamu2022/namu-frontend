@@ -626,7 +626,9 @@ export default function InventoryMovementDetailsSheet({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Estado</p>
-                  <Badge variant="default">{quotation.status}</Badge>
+                  <Badge variant="default">
+                    {quotation.status.description}
+                  </Badge>
                 </div>
               </div>
             </div>

@@ -13,6 +13,7 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
 import { ShippingGuidesResource } from "@/features/ap/shipping_guides/lib/shippingGuides.interface.ts";
+import { InternalNoteResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -268,8 +269,29 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         );
       }
 
-      // ADJUSTMENT_OUT - Puede ser por orden de trabajo o por cotización
+      // ADJUSTMENT_OUT - Puede ser por orden de trabajo, cotización o nota interna
       if (movementType === "ADJUSTMENT_OUT") {
+        // Verificar si es ApInternalNote (nota interna de taller)
+        if (referenceType?.includes("ApInternalNote")) {
+          const internalNote = reference as InternalNoteResource;
+
+          return (
+            <div className="flex flex-col text-sm">
+              <span className="font-medium">
+                Nota interna: {internalNote.number}
+              </span>
+              <span className="text-xs text-gray-500">
+                {formatDate(internalNote.created_date)}
+              </span>
+              {internalNote.work_order_correlative && (
+                <span className="text-xs text-gray-500">
+                  OT: {internalNote.work_order_correlative}
+                </span>
+              )}
+            </div>
+          );
+        }
+
         // Verificar si es WorkOrderPartsResource
         if ("work_order_correlative" in reference) {
           const workOrderPart = reference as WorkOrderPartsResource;
@@ -313,16 +335,39 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         }
       }
 
-      // ADJUSTMENT_IN con reason_in_out
-      if (movementType === "ADJUSTMENT_IN" && movement.movement_number_dyn) {
-        return (
-          <div className="flex flex-col text-sm">
-            <span className="font-medium">Ajuste de inventario</span>
-            <span className="text-xs text-gray-500">
-              {movement.movement_number_dyn || "-"}
-            </span>
-          </div>
-        );
+      // ADJUSTMENT_IN - Puede ser por nota interna o por reason_in_out
+      if (movementType === "ADJUSTMENT_IN") {
+        // Verificar si es ApInternalNote (nota interna de taller)
+        if (referenceType?.includes("ApInternalNote")) {
+          const internalNote = reference as InternalNoteResource;
+
+          return (
+            <div className="flex flex-col text-sm">
+              <span className="font-medium">
+                Nota interna: {internalNote.number}
+              </span>
+              <span className="text-xs text-gray-500">
+                {formatDate(internalNote.created_date)}
+              </span>
+              {internalNote.work_order_correlative && (
+                <span className="text-xs text-gray-500">
+                  {internalNote.work_order_correlative}
+                </span>
+              )}
+            </div>
+          );
+        }
+
+        if (movement.movement_number_dyn) {
+          return (
+            <div className="flex flex-col text-sm">
+              <span className="font-medium">Ajuste de inventario</span>
+              <span className="text-xs text-gray-500">
+                {movement.movement_number_dyn || "-"}
+              </span>
+            </div>
+          );
+        }
       }
 
       if (movementType === "RETURN_IN") {
