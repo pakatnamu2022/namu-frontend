@@ -26,7 +26,7 @@ const workOrderSchemaBase = z.object({
     .min(1, "Debe agregar al menos un trabajo"),
   num_doc_contact: z
     .string()
-    .regex(/^[0-9]{8}$/, "El documento debe tener exactamente 8 dígitos")
+    .regex(/^[0-9]{8}([0-9])?$/, "El documento debe tener 8 (DNI) o 9 (CE) dígitos")
     .optional()
     .or(z.literal("")),
   full_contact_name: z.string().optional(),
@@ -37,7 +37,7 @@ const workOrderSchemaBase = z.object({
     .or(z.literal("")),
   num_doc_pickup: z
     .string()
-    .regex(/^[0-9]{8}$/, "El documento debe tener exactamente 8 dígitos")
+    .regex(/^[0-9]{8}([0-9])?$/, "El documento debe tener 8 (DNI) o 9 (CE) dígitos")
     .optional()
     .or(z.literal("")),
   full_pickup_name: z.string().optional(),
