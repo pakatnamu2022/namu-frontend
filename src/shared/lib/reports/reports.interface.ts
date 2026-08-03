@@ -3,6 +3,7 @@ export type ReportFormat = "excel" | "pdf";
 export type ReportFieldType =
   | "date"
   | "daterange"
+  | "daterange-or-month"
   | "select"
   | "multiselect"
   | "text"
@@ -37,7 +38,7 @@ export interface ReportField {
   multiSelectMapper?: (data: any) => MultiSelectOption[];
   getDisplayValue?: (item: MultiSelectOption) => string;
   getSecondaryText?: (item: MultiSelectOption) => string | undefined;
-  // Para daterange
+  // Para daterange y daterange-or-month
   nameFrom?: string;
   nameTo?: string;
   // Si se indica, el rango se envía como un único parámetro `[from, to]` con este nombre

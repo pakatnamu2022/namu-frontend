@@ -53,6 +53,7 @@ export default function TypesPlanningModal({
       validate_receipt: Boolean(data.validate_receipt),
       validate_labor: Boolean(data.validate_labor),
       type_document: data.type_document,
+      category_type: data.category_type,
     };
   }
 

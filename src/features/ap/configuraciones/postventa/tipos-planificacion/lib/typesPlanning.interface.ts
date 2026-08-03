@@ -14,6 +14,7 @@ export interface TypesPlanningResource {
   validate_receipt: boolean;
   validate_labor: boolean;
   type_document: string;
+  category_type: string;
   status: boolean;
 }
 

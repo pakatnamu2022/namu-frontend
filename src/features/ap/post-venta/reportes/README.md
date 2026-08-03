@@ -55,6 +55,22 @@ Ejemplo (reporte de repuestos):
 }
 ```
 
+## Filtro de fechas por mes o por rango (`daterange-or-month`)
+
+Cuando un reporte se consulta habitualmente "por mes" pero también debe soportar un rango de fechas arbitrario, usa `type: "daterange-or-month"` en vez de `"daterange"`. Se comporta igual (mismos `nameFrom`/`nameTo`/`rangeParamName`), pero el formulario muestra un toggle "Por Mes" / "Por Rango": en modo mes el usuario solo elige mes y año, y internamente se calculan el primer y último día de ese mes como `nameFrom`/`nameTo`.
+
+```typescript
+{
+  name: "date_range",
+  label: "Rango de Fechas",
+  type: "daterange-or-month",
+  required: true,
+  nameFrom: "date_from",
+  nameTo: "date_to",
+  rangeParamName: "date_range", // se sigue enviando como date_range: [from, to]
+}
+```
+
 ## Reportes para socios (DERCO y similares)
 
 Estos son reportes normales del catálogo — no hay un mecanismo especial. Si el formato/campos que exige la marca difiere mucho de un reporte interno, prefiere crear una entrada separada (`derco-warranty-claims`, por ejemplo) en vez de sobrecargar un reporte existente con parámetros condicionales.

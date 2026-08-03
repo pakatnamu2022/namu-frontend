@@ -7,9 +7,8 @@ import { cn } from "@/lib/utils.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { TypesPlanningResource } from "../lib/typesPlanning.interface.ts";
 import {
-  INTERNA_CC,
-  INTERNA_SC,
-  PAYMENT_RECEIPTS,
+  CATEGORY_TYPE_LABELS,
+  TYPE_DOCUMENT_LABELS,
 } from "../lib/typesPlanning.constants.ts";
 
 export type TypesPlanningColumns = ColumnDef<TypesPlanningResource>;
@@ -75,14 +74,15 @@ export const typesPlanningColumns = ({
     header: "Tipo Documento",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-
-      const typeDocumentLabels: Record<string, string> = {
-        [INTERNA_CC]: "INTERNA CON COMPROBANTE",
-        [INTERNA_SC]: "INTERNA SIN COMPROBANTE",
-        [PAYMENT_RECEIPTS]: "COMPROBANTE DE PAGO",
-      };
-
-      return typeDocumentLabels[value] || value;
+      return TYPE_DOCUMENT_LABELS[value] || value;
+    },
+  },
+  {
+    accessorKey: "category_type",
+    header: "Categoría",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return CATEGORY_TYPE_LABELS[value] || value;
     },
   },
   {
