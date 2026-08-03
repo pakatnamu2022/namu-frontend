@@ -10,7 +10,10 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
-import { WorkOrderBasicInfoResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
+import {
+  InternalNoteResource,
+  WorkOrderBasicInfoResource,
+} from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
 import { InfoSection } from "@/shared/components/InfoSection.tsx";
 import { translateMovementType } from "../lib/inventory.constants.ts";
@@ -402,6 +405,115 @@ export default function InventoryMovementDetailsSheet({
 
       case "SALE": {
         const doc = electronicDoc as ElectronicDocumentResource | null;
+
+        if (reference_type?.includes("ApInternalNote")) {
+          const internalNote = reference as InternalNoteResource;
+
+          return (
+            <div className="space-y-4">
+              {/* Factura — info principal */}
+              {doc ? (
+                <div className="border rounded-lg">
+                  <div className="p-4 bg-muted/50 border-b">
+                    <h3 className="font-semibold text-sm">
+                      Documento Electrónico
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 p-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        N° Documento
+                      </p>
+                      <p className="font-semibold">{doc.full_number || "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Fecha Emisión
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(doc.fecha_de_emision)}
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-xs text-muted-foreground">Cliente</p>
+                      <p className="font-semibold">
+                        {doc.cliente_denominacion}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {doc.cliente_numero_de_documento}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <p className="font-semibold text-lg text-green-600">
+                        S/ {Number(doc.total).toFixed(2)}
+                      </p>
+                    </div>
+                    {doc.enlace_del_pdf && (
+                      <div className="col-span-2">
+                        <a
+                          href={doc.enlace_del_pdf}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline text-sm font-medium"
+                        >
+                          📄 Ver PDF
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 border rounded-lg text-sm text-muted-foreground">
+                  Sin documento electrónico asociado.
+                </div>
+              )}
+
+              {/* Nota Interna — info adicional */}
+              <div className="border rounded-lg">
+                <div className="p-4 bg-muted/50 border-b">
+                  <h3 className="font-semibold text-sm">Nota Interna</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      N° Nota Interna
+                    </p>
+                    <p className="font-semibold">{internalNote.number}</p>
+                  </div>
+                  {internalNote.work_order_correlative && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        N° Orden de Trabajo
+                      </p>
+                      <p className="font-medium">
+                        {internalNote.work_order_correlative}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Fecha Creación
+                    </p>
+                    <p className="font-medium">
+                      {formatDate(internalNote.created_date)}
+                    </p>
+                  </div>
+                  {internalNote.closed_date && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Fecha Cierre
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(internalNote.closed_date)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
 
         if (reference_type?.includes("ApWorkOrder")) {
           const workOrder = reference as WorkOrderBasicInfoResource;

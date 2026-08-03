@@ -202,6 +202,50 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         );
       }
 
+      // SALE - Nota interna facturada (venta generada desde una nota interna de taller)
+      if (
+        movementType === "SALE" &&
+        referenceType?.includes("ApInternalNote")
+      ) {
+        const internalNote = reference as InternalNoteResource;
+        const electronicDoc = movement.electronic_document;
+        const isCancelled = electronicDoc?.status === "cancelled";
+
+        console.log("internalNote", internalNote);
+        console.log("electronicDoc", electronicDoc);
+
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">
+              {electronicDoc?.cliente_denominacion ?? "-"}
+            </span>
+            <span className="text-xs text-gray-500">
+              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
+            </span>
+            <span className="text-xs text-gray-500">
+              Nota interna: {internalNote.number}
+              {internalNote.work_order_correlative &&
+                ` · ${internalNote.work_order_correlative}`}
+            </span>
+            {electronicDoc?.full_number && (
+              <div
+                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
+              >
+                {isCancelled && (
+                  <XCircle className="h-3 w-3 text-red-500 shrink-0" />
+                )}
+                <span>Factura: {electronicDoc.full_number}</span>
+                {electronicDoc.credit_note_id && (
+                  <span className="text-red-400 font-medium">
+                    · NC {electronicDoc.credit_note_number}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
       // SALE - Mostrar cliente desde el documento electrónico (ApWorkOrder)
       if (movementType === "SALE" && referenceType?.includes("ApWorkOrder")) {
         const electronicDoc = movement.electronic_document;
@@ -280,12 +324,9 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               <span className="font-medium">
                 Nota interna: {internalNote.number}
               </span>
-              <span className="text-xs text-gray-500">
-                {formatDate(internalNote.created_date)}
-              </span>
               {internalNote.work_order_correlative && (
                 <span className="text-xs text-gray-500">
-                  OT: {internalNote.work_order_correlative}
+                  {internalNote.work_order_correlative}
                 </span>
               )}
             </div>
