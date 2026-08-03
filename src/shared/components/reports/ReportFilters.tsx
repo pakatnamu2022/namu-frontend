@@ -10,8 +10,21 @@ import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFor
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
-import { Loader2, Download, FileSpreadsheet, FileText } from "lucide-react";
+import {
+  Loader2,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { FormLabel } from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
   ReportField,
@@ -20,6 +33,8 @@ import {
 } from "@/shared/lib/reports/reports.interface";
 import { useSelectOptions } from "@/shared/lib/reports/reports.hook";
 import { useState } from "react";
+import { toLocalDateString, toDateOrUndefined } from "@/core/core.function";
+import RequiredField from "@/shared/components/RequiredField";
 
 interface ReportFiltersProps {
   fields: ReportField[];
@@ -40,7 +55,7 @@ export function ReportFilters({
     const schemaFields: Record<string, z.ZodTypeAny> = {};
 
     fields.forEach((field) => {
-      if (field.type === "daterange") {
+      if (field.type === "daterange" || field.type === "daterange-or-month") {
         // Para daterange, agregamos dos campos
         if (field.nameFrom && field.nameTo) {
           const dateSchema = field.required
@@ -82,7 +97,7 @@ export function ReportFilters({
     const defaults: Record<string, any> = {};
 
     fields.forEach((field) => {
-      if (field.type === "daterange") {
+      if (field.type === "daterange" || field.type === "daterange-or-month") {
         if (field.nameFrom && field.defaultValueFrom !== undefined) {
           defaults[field.nameFrom] = field.defaultValueFrom;
         }
@@ -122,7 +137,7 @@ export function ReportFilters({
     // Para daterange con rangeParamName, combinar from/to en un único array
     fields.forEach((field) => {
       if (
-        field.type === "daterange" &&
+        (field.type === "daterange" || field.type === "daterange-or-month") &&
         field.rangeParamName &&
         field.nameFrom &&
         field.nameTo
@@ -241,6 +256,9 @@ function DynamicField({ field, control }: DynamicFieldProps) {
         />
       );
 
+    case "daterange-or-month":
+      return <DateRangeOrMonthField field={field} control={control} />;
+
     case "date":
       return (
         <DatePickerFormField
@@ -341,6 +359,175 @@ function ToggleField({ field, control }: DynamicFieldProps) {
           </Button>
         ))}
       </div>
+    </div>
+  );
+}
+
+const MONTH_LABELS = [
+  "Ene",
+  "Feb",
+  "Mar",
+  "Abr",
+  "May",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dic",
+];
+
+function MonthPickerFormField({
+  field,
+  control,
+  nameFrom,
+  nameTo,
+}: DynamicFieldProps & { nameFrom: string; nameTo: string }) {
+  const [open, setOpen] = useState(false);
+
+  const {
+    field: { value: fromValue, onChange: onChangeFrom },
+  } = useController({ name: nameFrom, control });
+  const {
+    field: { onChange: onChangeTo },
+  } = useController({ name: nameTo, control });
+
+  const selected = toDateOrUndefined(fromValue);
+  const [viewYear, setViewYear] = useState(
+    selected?.getFullYear() ?? new Date().getFullYear(),
+  );
+
+  const displayValue = selected
+    ? `${MONTH_LABELS[selected.getMonth()]} ${selected.getFullYear()}`
+    : field.placeholder || "Selecciona un mes";
+
+  const handleSelectMonth = (monthIndex: number) => {
+    const from = new Date(viewYear, monthIndex, 1);
+    const to = new Date(viewYear, monthIndex + 1, 0);
+
+    onChangeFrom(toLocalDateString(from));
+    onChangeTo(toLocalDateString(to));
+    setOpen(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-1">
+      {field.label && (
+        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none dark:text-muted-foreground">
+          {field.label}
+          {field.required && <RequiredField />}
+        </FormLabel>
+      )}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !selected && "text-muted-foreground",
+            )}
+          >
+            {displayValue}
+            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-3" align="start">
+          <div className="flex items-center justify-between mb-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={() => setViewYear((y) => y - 1)}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            <span className="text-sm font-medium select-none">
+              {viewYear}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={() => setViewYear((y) => y + 1)}
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-1.5 w-52">
+            {MONTH_LABELS.map((monthLabel, index) => {
+              const isSelected =
+                selected?.getFullYear() === viewYear &&
+                selected?.getMonth() === index;
+
+              return (
+                <Button
+                  key={monthLabel}
+                  type="button"
+                  variant={isSelected ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleSelectMonth(index)}
+                >
+                  {monthLabel}
+                </Button>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
+function DateRangeOrMonthField({ field, control }: DynamicFieldProps) {
+  const [mode, setMode] = useState<"month" | "range">("month");
+
+  const nameFrom = field.nameFrom || `${field.name}_from`;
+  const nameTo = field.nameTo || `${field.name}_to`;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="inline-flex rounded-md shadow-sm w-fit" role="group">
+        <Button
+          type="button"
+          variant={mode === "month" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("month")}
+          className="rounded-r-none"
+        >
+          Por Mes
+        </Button>
+        <Button
+          type="button"
+          variant={mode === "range" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("range")}
+          className="rounded-l-none border-l-0"
+        >
+          Por Rango
+        </Button>
+      </div>
+
+      {mode === "month" ? (
+        <MonthPickerFormField
+          field={field}
+          control={control}
+          nameFrom={nameFrom}
+          nameTo={nameTo}
+        />
+      ) : (
+        <DateRangePickerFormField
+          control={control}
+          nameFrom={nameFrom}
+          nameTo={nameTo}
+          label={field.label}
+          placeholder={field.placeholder}
+          required={field.required}
+        />
+      )}
     </div>
   );
 }
