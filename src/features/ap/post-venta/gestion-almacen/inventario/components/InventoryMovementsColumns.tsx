@@ -280,12 +280,9 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               <span className="font-medium">
                 Nota interna: {internalNote.number}
               </span>
-              <span className="text-xs text-gray-500">
-                {formatDate(internalNote.created_date)}
-              </span>
               {internalNote.work_order_correlative && (
                 <span className="text-xs text-gray-500">
-                  OT: {internalNote.work_order_correlative}
+                  {internalNote.work_order_correlative}
                 </span>
               )}
             </div>
