@@ -60,7 +60,7 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
         type: "select",
         required: false,
         placeholder: "Seleccionar estado",
-        defaultValue: "delivered",
+        defaultValue: "all",
         options: [
           { label: "Todos", value: "all" },
           { label: "Pendientes", value: "pending" },
