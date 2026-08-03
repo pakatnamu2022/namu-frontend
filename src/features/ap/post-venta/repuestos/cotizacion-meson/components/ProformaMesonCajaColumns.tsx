@@ -1,17 +1,17 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Receipt, Eye } from "lucide-react";
+import { Receipt } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { STATUS_ORDER_QUOTE_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 
 export type OrderQuotationMesonCajaColumns = ColumnDef<OrderQuotationResource>;
 
 interface Props {
   onBilling: (id: number) => void;
-  onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onRefresh?: () => void;
   permissions: {
     canBill: boolean;
@@ -20,7 +20,6 @@ interface Props {
 
 export const orderQuotationMesonCajaColumns = ({
   onBilling,
-  onViewBilling,
   permissions,
 }: Props): OrderQuotationMesonCajaColumns[] => [
   {
@@ -134,24 +133,14 @@ export const orderQuotationMesonCajaColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
-      const status = getValue() as string;
+      const status = getValue() as OrderQuotationResource["status"];
+      if (!status) return "-";
 
-      const getStatusBadge = (status: string) => {
-        switch (status) {
-          case "Descartado":
-            return <Badge color="red">{status}</Badge>;
-          case "Aperturado":
-            return <Badge color="indigo">{status}</Badge>;
-          case "Por Facturar":
-            return <Badge color="orange">{status}</Badge>;
-          case "Facturado":
-            return <Badge color="green">{status}</Badge>;
-          default:
-            return <Badge color="secondary">{status}</Badge>;
-        }
-      };
-
-      return getStatusBadge(status);
+      return (
+        <Badge color={STATUS_ORDER_QUOTE_COLOR[status.id] ?? "secondary"}>
+          {status.description}
+        </Badge>
+      );
     },
   },
   {
@@ -162,29 +151,17 @@ export const orderQuotationMesonCajaColumns = ({
 
       return (
         <>
-          <div className="flex items-center gap-2">
+          {permissions.canBill && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => onViewBilling(row.original)}
-              tooltip="Ver Información"
+              tooltip="Facturar"
+              onClick={() => onBilling(id)}
             >
-              <Eye className="size-5" />
+              <Receipt className="size-5" />
             </Button>
-
-            {permissions.canBill && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Facturar"
-                onClick={() => onBilling(id)}
-              >
-                <Receipt className="size-5" />
-              </Button>
-            )}
-          </div>
+          )}
         </>
       );
     },

@@ -4,7 +4,7 @@ import SearchInput from "@/shared/components/SearchInput";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { formatMoney } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
+import { useInvoicesAndTicketsElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { SUNAT_CURRENCY_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
@@ -45,14 +45,13 @@ export const WorkOrderDeductibleSheet = ({
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useElectronicDocuments(
+  const { data, isLoading } = useInvoicesAndTicketsElectronicDocuments(
     {
       page,
       per_page,
       search,
       seriesModel$sede_id: sedeId ? Number(sedeId) : undefined,
       sunat_concept_currency_id: toSunatCurrencyId(currencyId),
-      status: "accepted",
       workOrder$vehicle_plate: plate,
     },
     open,

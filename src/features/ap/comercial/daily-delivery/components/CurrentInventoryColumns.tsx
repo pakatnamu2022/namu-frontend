@@ -32,6 +32,30 @@ export const currentInventoryColumns: CurrentInventoryColumns[] = [
     },
   },
   {
+    accessorKey: "estado_real",
+    header: "Estado Real",
+    enableSorting: true,
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge variant="default" color="slate" className="font-medium">
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
+    accessorKey: "vin",
+    header: "VIN",
+    enableSorting: true,
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="font-semibold">{value}</p>;
+    },
+  },
+  {
     accessorKey: "marca",
     header: "Marca",
     enableSorting: true,
@@ -55,15 +79,6 @@ export const currentInventoryColumns: CurrentInventoryColumns[] = [
     accessorKey: "combustible",
     header: "Combustible",
     enableSorting: true,
-  },
-  {
-    accessorKey: "vin",
-    header: "VIN",
-    enableSorting: true,
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
-    },
   },
   {
     accessorKey: "serie_motor",

@@ -835,6 +835,8 @@ export function OrderQuotationBillingForm({
             quotation={quotation}
             onCancel={onCancel}
             onSubmit={form.handleSubmit(onSubmit)}
+            hasDraftFinalInvoice={quotation.has_draft_final_invoice ?? false}
+            hasDraftAdvance={quotation.has_draft_advance ?? false}
           />
         </div>
       </form>

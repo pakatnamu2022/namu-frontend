@@ -120,6 +120,17 @@ export interface getShippingGuidesProps {
   params?: Record<string, any>;
 }
 
+export interface HistoricalShippingGuideRequest {
+  vin: string;
+  series: string;
+  correlativo: string;
+  issue_date: string | Date;
+  sede_transmitter_id: string | number;
+  advisor_id: string | number;
+  client_id: string | number;
+  notes?: string;
+}
+
 // Interfaces relacionadas
 export interface VehicleMovementResource {
   id: string;

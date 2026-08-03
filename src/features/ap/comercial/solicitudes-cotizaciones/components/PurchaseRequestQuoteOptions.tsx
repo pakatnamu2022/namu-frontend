@@ -8,6 +8,8 @@ import FilterWrapper from "@/shared/components/FilterWrapper";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
 import SearchInput from "@/shared/components/SearchInput";
+import { useFamilies } from "../../oportunidades/lib/opportunities.hook";
+import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 
 export default function PurchaseRequestQuoteOptions({
   search,
@@ -19,6 +21,8 @@ export default function PurchaseRequestQuoteOptions({
   sedeId,
   setSedeId,
   canViewBranches,
+  selectedFamilyId,
+  setSelectedFamilyId,
   selectedModelId,
   setSelectedModelId,
   selectedBrandId,
@@ -39,6 +43,8 @@ export default function PurchaseRequestQuoteOptions({
   setSelectedModelId: (value: string) => void;
   selectedBrandId: string;
   setSelectedBrandId: (value: string) => void;
+  selectedFamilyId: string;
+  setSelectedFamilyId: (value: string) => void;
   isPaid: string;
   setIsPaid: (value: string) => void;
 }) {
@@ -91,6 +97,17 @@ export default function PurchaseRequestQuoteOptions({
         placeholder="Filtrar por modelo"
         value={selectedModelId ? selectedModelId.toString() : ""}
         onChange={setSelectedModelId}
+      />
+      <SearchableSelectAsync
+        useQueryHook={useFamilies}
+        mapOptionFn={(model: FamiliesResource) => ({
+          label: model.description,
+          value: model.id.toString(),
+          description: model.code,
+        })}
+        placeholder="Filtrar por familia"
+        value={selectedFamilyId ? selectedFamilyId.toString() : ""}
+        onChange={setSelectedFamilyId}
       />
       <SearchableSelect
         value={isPaid}

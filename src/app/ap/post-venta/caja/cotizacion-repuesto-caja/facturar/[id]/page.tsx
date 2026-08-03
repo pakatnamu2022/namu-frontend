@@ -51,7 +51,7 @@ export default function BillOrderQuotationCajaPage() {
         </Button>
         <TitleComponent
           title="Facturar Cotización"
-          subtitle={`Cotización: ${quotation.quotation_number}`}
+          subtitle={`${quotation.quotation_number}`}
         />
       </div>
 

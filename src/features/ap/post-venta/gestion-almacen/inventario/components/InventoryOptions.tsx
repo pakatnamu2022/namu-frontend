@@ -23,7 +23,7 @@ export default function InventoryOptions({
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar producto..."
+        placeholder="Buscar repuesto..."
       />
       <SearchableSelect
         options={warehouses.map((item) => ({

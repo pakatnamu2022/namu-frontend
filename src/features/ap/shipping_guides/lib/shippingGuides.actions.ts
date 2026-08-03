@@ -10,6 +10,7 @@ import {
   ShippingGuidesResponse,
   ShippingGuidesResource,
   ShippingGuidesRequest,
+  HistoricalShippingGuideRequest,
 } from "./shippingGuides.interface";
 import { SHIPPING_GUIDES } from "./shippingGuides.constants";
 import { ControlUnitsRequest } from "../../comercial/control-unidades/lib/controlUnits.interface";
@@ -181,4 +182,15 @@ export async function dispatchShippingGuideMigration(
 
 export async function dispatchAllShippingGuides(): Promise<void> {
   await api.post(`${ENDPOINT}/dispatch-all`);
+}
+
+// Función para regularizar una guía de remisión histórica
+export async function storeHistoricalShippingGuide(
+  payload: HistoricalShippingGuideRequest,
+): Promise<ShippingGuidesResource> {
+  const { data } = await api.post<ShippingGuidesResource>(
+    `${ENDPOINT}/historical`,
+    payload,
+  );
+  return data;
 }

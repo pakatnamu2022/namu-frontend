@@ -28,7 +28,8 @@ export type BadgeColor =
   | "teal"
   | "cyan"
   | "gray"
-  | "amber";
+  | "amber"
+  | "slate";
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -232,6 +233,14 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
       "bg-amber-100 border-amber-400 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200 hover:bg-amber-50 dark:hover:bg-amber-950/50",
     ghost:
       "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50",
+  },
+  slate: {
+    default:
+      "bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-200",
+    outline:
+      "bg-slate-100 border-slate-400 text-slate-700 dark:border-slate-900 dark:bg-slate-950 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-950/50",
+    ghost:
+      "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-950/50",
   },
 };
 

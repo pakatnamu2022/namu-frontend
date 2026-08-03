@@ -37,7 +37,8 @@
       "Bash(Remove-Item -Recurse -Force \"c:\\\\laragon\\\\www\\\\namu-frontend\\\\src\\\\app\\\\dp\\\\comercial\\\\cuentas-por-cobrar\")",
       "Bash(npx tsc *)",
       "Bash(mkdir -p \"c:/Users/Equipo-66/Desktop/Proyecto Pakatnamu/namu-frontend/src/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo\")",
-      "Bash(awk 'NR==81 || \\(NR>=1 && NR<=80\\) || NR>=790' src/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonForm.tsx)"
+      "Bash(awk 'NR==81 || \\(NR>=1 && NR<=80\\) || NR>=790' src/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonForm.tsx)",
+      "Bash(echo \"EXIT:$?\")"
     ],
     "deny": [],
     "ask": [],

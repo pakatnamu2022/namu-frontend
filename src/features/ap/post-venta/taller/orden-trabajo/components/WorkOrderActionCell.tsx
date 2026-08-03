@@ -25,7 +25,11 @@ import {
 } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadDeliveryPdf } from "../lib/workOrder.actions";
-import { useSendToFinished, useRevertFinished } from "../lib/workOrder.hook";
+import {
+  useSendToFinished,
+  useRevertFinished,
+  useRevertInternalNote,
+} from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
 import { CancelWorkOrderModal } from "./CancelWorkOrderModal";
 
@@ -65,6 +69,10 @@ export function WorkOrderActionCell({
     useSendToFinished();
   const { mutateAsync: revertFinished, isPending: isReverting } =
     useRevertFinished();
+  const {
+    mutateAsync: revertInternalNote,
+    isPending: isRevertingInternalNote,
+  } = useRevertInternalNote();
   const {
     id,
     is_inspection_completed,
@@ -113,6 +121,18 @@ export function WorkOrderActionCell({
     }
   };
 
+  const handleRevertInternalNote = async () => {
+    try {
+      await revertInternalNote(id);
+      successToast("Nota interna revertida exitosamente");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Error al revertir la nota interna";
+      errorToast(message);
+    }
+  };
+
   const isVisibleReceive =
     permissions.canReceive &&
     !is_inspection_completed &&
@@ -146,6 +166,9 @@ export function WorkOrderActionCell({
 
   const isVisibleGenerateInternalNote =
     permissions.canGenerateInternalNote && !isClosed && isInterna;
+
+  const isVisibleRevertInternalNote =
+    permissions.canGenerateInternalNote && isClosed && isInterna;
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
@@ -272,6 +295,36 @@ export function WorkOrderActionCell({
         >
           <BookMarked className="size-5" />
         </Button>
+      )}
+
+      {isVisibleRevertInternalNote && (
+        <ConfirmationDialog
+          title="¿Revertir Nota Interna?"
+          description="Esta acción revertirá el cierre de la nota interna. ¿Estás seguro de que deseas continuar?"
+          confirmText="Sí, revertir"
+          cancelText="Cancelar"
+          icon="info"
+          onConfirm={handleRevertInternalNote}
+          trigger={
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              disabled={isRevertingInternalNote}
+              tooltip={
+                isRevertingInternalNote
+                  ? "Revirtiendo..."
+                  : "Revertir Nota Interna"
+              }
+            >
+              {isRevertingInternalNote ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <RotateCcw className="size-5" />
+              )}
+            </Button>
+          }
+        />
       )}
 
       {isOpenForEdit && (
