@@ -59,12 +59,18 @@ function Field({
   if (value === undefined || value === null || value === "" || value === "-")
     return null;
   return (
-    <div className="flex flex-col gap-0.5 py-1">
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="flex items-center justify-between gap-3 py-1">
+      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
       {copy ? (
-        <CopyCell value={String(value)} size="sm" className="truncate font-medium" />
+        <CopyCell
+          value={String(value)}
+          size="sm"
+          className="truncate text-right font-medium"
+        />
       ) : (
-        <span className="truncate text-sm font-medium">{value}</span>
+        <span className="truncate text-right text-sm font-medium">
+          {value}
+        </span>
       )}
     </div>
   );
@@ -588,7 +594,7 @@ export default function PurchaseRequestQuoteDetailModal({
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Especificaciones técnicas
               </p>
-              <div className="grid grid-cols-1 gap-y-0.5">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                 {specs.map(([label, value]) => (
                   <Field key={label} label={label} value={value} />
                 ))}
