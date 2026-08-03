@@ -46,7 +46,10 @@ import { FormInput } from "@/shared/components/FormInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
+import {
+  useDniValidation,
+  useCeValidation,
+} from "@/shared/hooks/useDocumentValidation";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
@@ -61,7 +64,7 @@ const pickupPersonSchema = z.object({
   num_doc_pickup: z
     .string()
     .min(1, "Documento requerido")
-    .regex(/^[0-9]{8}$/, "Debe tener 8 dígitos"),
+    .regex(/^[0-9]{8}([0-9])?$/, "Debe tener 8 (DNI) o 9 (CE) dígitos"),
   full_pickup_name: z.string().min(1, "Nombre requerido"),
   phone_pickup: z
     .string()
@@ -215,25 +218,33 @@ export default function OpeningTab({
   ]);
 
   const watchedNumDocPickup = pickupForm.watch("num_doc_pickup");
-  const isValidPickupLength = watchedNumDocPickup?.length === 8;
+  const isDniPickup = watchedNumDocPickup?.length === 8;
+  const isCePickup = watchedNumDocPickup?.length === 9;
 
   const {
     data: dniPickupData,
     isLoading: isDniPickupLoading,
     error: dniPickupError,
-  } = useDniValidation(watchedNumDocPickup, Boolean(isValidPickupLength));
+  } = useDniValidation(watchedNumDocPickup, Boolean(isDniPickup));
+
+  const {
+    data: cePickupData,
+    isLoading: isCePickupLoading,
+    error: cePickupError,
+  } = useCeValidation(watchedNumDocPickup, Boolean(isCePickup));
+
+  // Datos consolidados
+  const pickupData = dniPickupData || cePickupData;
+  const pickupError = dniPickupError || cePickupError;
+  const isPickupLoading = isDniPickupLoading || isCePickupLoading;
 
   useEffect(() => {
-    if (
-      dniPickupData?.data &&
-      dniPickupData.success &&
-      dniPickupData.data.valid
-    ) {
-      pickupForm.setValue("full_pickup_name", dniPickupData.data.names, {
+    if (pickupData?.data && pickupData.success && pickupData.data.valid) {
+      pickupForm.setValue("full_pickup_name", pickupData.data.names, {
         shouldValidate: true,
       });
     }
-  }, [dniPickupData, pickupForm]);
+  }, [pickupData, pickupForm]);
 
   const handlePickupSubmit = (data: z.infer<typeof pickupPersonSchema>) => {
     pickupMutation.mutate(data);
@@ -557,28 +568,27 @@ export default function OpeningTab({
                     name="num_doc_pickup"
                     label={
                       <>
-                        <span>DNI</span>
+                        <span>DNI/CE</span>
                         <DocumentValidationStatus
                           shouldValidate={true}
                           documentNumber={watchedNumDocPickup!}
-                          expectedDigits={8}
-                          isValidating={isDniPickupLoading}
+                          expectedDigits={isCePickup ? 9 : 8}
+                          isValidating={isPickupLoading}
                           leftPosition=""
                         />
                       </>
                     }
                     labelClassName="w-full justify-between gap-2"
-                    placeholder="12345678"
-                    maxLength={8}
+                    placeholder="8 (DNI) o 9 (CE) dígitos"
+                    maxLength={9}
                     control={pickupForm.control}
                     addonEnd={
                       <ValidationIndicator
                         show={!!watchedNumDocPickup}
-                        isValidating={isDniPickupLoading}
-                        isValid={dniPickupData?.success && !!dniPickupData.data}
+                        isValidating={isPickupLoading}
+                        isValid={pickupData?.success && !!pickupData.data}
                         hasError={
-                          !!dniPickupError ||
-                          (dniPickupData && !dniPickupData.success)
+                          !!pickupError || (pickupData && !pickupData.success)
                         }
                         positioned={false}
                       />
@@ -589,9 +599,7 @@ export default function OpeningTab({
                     label="Nombre Completo"
                     placeholder="Nombre del receptor"
                     control={pickupForm.control}
-                    disabled={
-                      dniPickupData?.success && dniPickupData.data?.valid
-                    }
+                    disabled={pickupData?.success && pickupData.data?.valid}
                   />
                   <FormInput
                     name="phone_pickup"
@@ -631,7 +639,8 @@ export default function OpeningTab({
                   {workOrder.full_pickup_name || "—"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  DNI {workOrder.num_doc_pickup} ·{" "}
+                  {workOrder.num_doc_pickup.length === 9 ? "CE" : "DNI"}{" "}
+                  {workOrder.num_doc_pickup} ·{" "}
                   {workOrder.phone_pickup || "—"}
                 </p>
               </div>
