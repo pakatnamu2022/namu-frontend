@@ -23,6 +23,7 @@ import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general
 import {
   useDniValidation,
   useRucValidation,
+  useCeValidation,
 } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import {
@@ -150,6 +151,13 @@ export const CustomersPvForm = ({
       documentNumber?.startsWith(BUSINESS_PARTNERS.RUC_PREFIX_EXTRANJERO)) &&
     shouldTriggerValidation;
 
+  // Validación CE
+  const shouldEnableCeValidation =
+    !isFirstLoad &&
+    hasDocumentChanged &&
+    validationType === "ce" &&
+    shouldTriggerValidation;
+
   // Hooks de validación condicional
   const {
     data: dniData,
@@ -163,12 +171,18 @@ export const CustomersPvForm = ({
     error: rucError,
   } = useRucValidation(documentNumber, shouldEnableRucValidation, true);
 
+  const {
+    data: ceData,
+    isLoading: isCeLoading,
+    error: ceError,
+  } = useCeValidation(documentNumber, shouldEnableCeValidation, true);
+
   // Datos consolidados
-  const validationData = dniData || rucData;
-  const validationError = dniError || rucError;
+  const validationData = dniData || rucData || ceData;
+  const validationError = dniError || rucError || ceError;
 
   // Estado de carga consolidado
-  const isValidatingDocument = isDniLoading || isRucLoading;
+  const isValidatingDocument = isDniLoading || isRucLoading || isCeLoading;
 
   // Verificar si el cliente está en la base de datos y obtener su tipo
   const isFromDatabase = validationData?.source === "database";
@@ -232,6 +246,20 @@ export const CustomersPvForm = ({
           shouldValidate: true,
         });
         form.setValue("maternal_surname", dniInfo.maternal_surname || "", {
+          shouldValidate: true,
+        });
+      } else if (ceData?.data && ceData.success && ceData.data.valid) {
+        const ceInfo = ceData.data;
+        const fullFirstName = ceInfo.first_name || "";
+        const nameParts = fullFirstName.split(" ");
+        const firstName = nameParts[0] || "";
+        const middleName = nameParts.slice(1).join(" ") || "";
+        form.setValue("first_name", firstName, { shouldValidate: true });
+        form.setValue("middle_name", middleName, { shouldValidate: true });
+        form.setValue("paternal_surname", ceInfo.paternal_surname || "", {
+          shouldValidate: true,
+        });
+        form.setValue("maternal_surname", ceInfo.maternal_surname || "", {
           shouldValidate: true,
         });
       } else if (rucData?.data && rucData.success && rucData.data.valid) {
@@ -312,6 +340,7 @@ export const CustomersPvForm = ({
     form,
     dniData,
     rucData,
+    ceData,
     isJuridica,
     isFirstLoad,
     districts,

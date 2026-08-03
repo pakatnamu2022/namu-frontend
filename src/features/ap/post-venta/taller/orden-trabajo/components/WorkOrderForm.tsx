@@ -56,7 +56,10 @@ import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { DataCard } from "@/components/DataCard";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
-import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
+import {
+  useDniValidation,
+  useCeValidation,
+} from "@/shared/hooks/useDocumentValidation";
 import { formatDate, formatDateTimeLocalInput } from "@/core/core.function";
 
 interface WorkOrderFormProps {
@@ -176,48 +179,65 @@ export const WorkOrderForm = ({
     [watchedTypePlanningIds],
   );
 
-  const isValidLength =
-    watchedNumDocContact && watchedNumDocContact.length === 8;
-  const isValidPickupLength =
-    watchedNumDocPickup && watchedNumDocPickup.length === 8;
+  const isDniContact = watchedNumDocContact?.length === 8;
+  const isCeContact = watchedNumDocContact?.length === 9;
+  const isDniPickup = watchedNumDocPickup?.length === 8;
+  const isCePickup = watchedNumDocPickup?.length === 9;
 
   // Hooks de validación condicional
   const {
     data: dniData,
     isLoading: isDniLoading,
     error: dniError,
-  } = useDniValidation(watchedNumDocContact, Boolean(isValidLength));
+  } = useDniValidation(watchedNumDocContact, Boolean(isDniContact));
+
+  const {
+    data: ceData,
+    isLoading: isCeLoading,
+    error: ceError,
+  } = useCeValidation(watchedNumDocContact, Boolean(isCeContact));
 
   const {
     data: dniPickupData,
     isLoading: isDniPickupLoading,
     error: dniPickupError,
-  } = useDniValidation(watchedNumDocPickup, Boolean(isValidPickupLength));
+  } = useDniValidation(watchedNumDocPickup, Boolean(isDniPickup));
+
+  const {
+    data: cePickupData,
+    isLoading: isCePickupLoading,
+    error: cePickupError,
+  } = useCeValidation(watchedNumDocPickup, Boolean(isCePickup));
+
+  // Datos consolidados
+  const contactData = dniData || ceData;
+  const contactError = dniError || ceError;
+  const isContactLoading = isDniLoading || isCeLoading;
+
+  const pickupData = dniPickupData || cePickupData;
+  const pickupError = dniPickupError || cePickupError;
+  const isPickupLoading = isDniPickupLoading || isCePickupLoading;
 
   // Efecto para auto-completar campos cuando se obtienen datos válidos
   useEffect(() => {
-    if (dniData?.data && dniData.success && dniData.data.valid) {
-      form.setValue("full_contact_name", dniData.data.names, {
+    if (contactData?.data && contactData.success && contactData.data.valid) {
+      form.setValue("full_contact_name", contactData.data.names, {
         shouldValidate: true,
       });
     } else {
       form.setValue("full_contact_name", "", { shouldValidate: true });
     }
-  }, [form, dniData]);
+  }, [form, contactData]);
 
   useEffect(() => {
-    if (
-      dniPickupData?.data &&
-      dniPickupData.success &&
-      dniPickupData.data.valid
-    ) {
-      form.setValue("full_pickup_name", dniPickupData.data.names, {
+    if (pickupData?.data && pickupData.success && pickupData.data.valid) {
+      form.setValue("full_pickup_name", pickupData.data.names, {
         shouldValidate: true,
       });
     } else if (watchedNumDocPickup !== undefined) {
       form.setValue("full_pickup_name", "", { shouldValidate: true });
     }
-  }, [form, dniPickupData, watchedNumDocPickup]);
+  }, [form, pickupData, watchedNumDocPickup]);
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
@@ -891,26 +911,28 @@ export const WorkOrderForm = ({
                 name="num_doc_contact"
                 label={
                   <>
-                    <span>DNI de Contacto</span>
+                    <span>DNI/CE de Contacto</span>
                     <DocumentValidationStatus
                       shouldValidate={true}
                       documentNumber={watchedNumDocContact!}
-                      expectedDigits={8}
-                      isValidating={isDniLoading}
+                      expectedDigits={isCeContact ? 9 : 8}
+                      isValidating={isContactLoading}
                       leftPosition=""
                     />
                   </>
                 }
                 labelClassName="w-full justify-between gap-2"
-                placeholder="Número de documento"
-                maxLength={8}
+                placeholder="8 (DNI) o 9 (CE) dígitos"
+                maxLength={9}
                 control={form.control}
                 addonEnd={
                   <ValidationIndicator
                     show={!!watchedNumDocContact}
-                    isValidating={isDniLoading}
-                    isValid={dniData?.success && !!dniData.data}
-                    hasError={!!dniError || (dniData && !dniData.success)}
+                    isValidating={isContactLoading}
+                    isValid={contactData?.success && !!contactData.data}
+                    hasError={
+                      !!contactError || (contactData && !contactData.success)
+                    }
                     positioned={false}
                   />
                 }
@@ -920,7 +942,7 @@ export const WorkOrderForm = ({
                 label="Nombre Completo"
                 placeholder="Ingrese el nombre del contacto"
                 control={form.control}
-                disabled={dniData?.success && dniData.data?.valid}
+                disabled={contactData?.success && contactData.data?.valid}
               />
               <FormInput
                 name="phone_contact"
@@ -969,28 +991,27 @@ export const WorkOrderForm = ({
                 name="num_doc_pickup"
                 label={
                   <>
-                    <span>DNI de Contacto</span>
+                    <span>DNI/CE de Contacto</span>
                     <DocumentValidationStatus
                       shouldValidate={true}
                       documentNumber={watchedNumDocPickup!}
-                      expectedDigits={8}
-                      isValidating={isDniPickupLoading}
+                      expectedDigits={isCePickup ? 9 : 8}
+                      isValidating={isPickupLoading}
                       leftPosition=""
                     />
                   </>
                 }
                 labelClassName="w-full justify-between gap-2"
-                placeholder="Número de documento"
-                maxLength={8}
+                placeholder="8 (DNI) o 9 (CE) dígitos"
+                maxLength={9}
                 control={form.control}
                 addonEnd={
                   <ValidationIndicator
                     show={!!watchedNumDocPickup}
-                    isValidating={isDniPickupLoading}
-                    isValid={dniPickupData?.success && !!dniPickupData.data}
+                    isValidating={isPickupLoading}
+                    isValid={pickupData?.success && !!pickupData.data}
                     hasError={
-                      !!dniPickupError ||
-                      (dniPickupData && !dniPickupData.success)
+                      !!pickupError || (pickupData && !pickupData.success)
                     }
                     positioned={false}
                   />
@@ -1001,7 +1022,7 @@ export const WorkOrderForm = ({
                 label="Nombre Completo"
                 placeholder="Ingrese el nombre del contacto"
                 control={form.control}
-                disabled={dniPickupData?.success && dniPickupData.data?.valid}
+                disabled={pickupData?.success && pickupData.data?.valid}
               />
               <FormInput
                 name="phone_pickup"
