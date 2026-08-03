@@ -1,6 +1,5 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "@/shared/lib/reports/reports.interface";
-import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
   getFirstDayOfMonth,
   getTodayLocalDateString,
@@ -60,9 +59,9 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
         type: "select",
         required: false,
         placeholder: "Seleccionar estado",
-        defaultValue: "all",
+        defaultValue: "",
         options: [
-          { label: "Todos", value: "all" },
+          { label: "Todos", value: "" },
           { label: "Pendientes", value: "pending" },
           { label: "Entregados", value: "delivered" },
         ],
@@ -90,9 +89,6 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
           })),
       },
     ],
-    defaultParams: {
-      area_id: AREA_COMERCIAL,
-    },
   },
   {
     id: "vehicle-inventory",
