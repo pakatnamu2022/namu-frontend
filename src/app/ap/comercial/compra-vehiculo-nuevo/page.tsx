@@ -117,6 +117,13 @@ export default function VehiclePurchaseOrderPage() {
         <VehiclePurchaseOrderActions
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
+          exportParams={{
+            search: search || undefined,
+            sede_id: sedeId || undefined,
+            warehouse_id: warehouseId !== "all" ? warehouseId : undefined,
+            supplier_id: supplierId !== "all" ? supplierId : undefined,
+            "vehicle.ap_models_vn_id": modelId !== "all" ? modelId : undefined,
+          }}
         />
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable

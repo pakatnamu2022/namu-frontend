@@ -2,20 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Plus, RefreshCcw, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
-import { dispatchAllVehiclePurchaseOrders } from "../lib/vehiclePurchaseOrder.actions";
+import {
+  dispatchAllVehiclePurchaseOrders,
+  exportVehiclePurchaseOrder,
+} from "../lib/vehiclePurchaseOrder.actions";
 import { toast } from "sonner";
 
 interface Props {
   isFetching?: boolean;
   onRefresh: () => void;
+  exportParams?: Record<string, any>;
 }
 
 export default function VehiclePurchaseOrderActions({
   onRefresh,
   isFetching,
+  exportParams,
 }: Props) {
   const router = useNavigate();
   const { ROUTE_ADD } = VEHICLE_PURCHASE_ORDER;
@@ -52,6 +58,20 @@ export default function VehiclePurchaseOrderActions({
         />
         Migrar Todo
       </Button>
+      <ExportButtons
+        onExcelDownload={() =>
+          exportVehiclePurchaseOrder({
+            params: exportParams,
+            format: "excel",
+          })
+        }
+        onPdfDownload={() =>
+          exportVehiclePurchaseOrder({
+            params: exportParams,
+            format: "pdf",
+          })
+        }
+      />
       <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
         <Plus className="size-4 mr-2" /> Agregar Orden de Compra
       </Button>

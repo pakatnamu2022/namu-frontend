@@ -149,6 +149,38 @@ export async function dispatchVehiclePurchaseOrderMigration(id: number): Promise
   await api.post(`${ENDPOINT}/migration/${id}/dispatch-migration`);
 }
 
+export async function exportVehiclePurchaseOrder({
+  params,
+  format = "excel",
+}: GetVehiclePurchaseOrderProps & {
+  format?: "excel" | "pdf";
+}): Promise<void> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      format,
+    },
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export`, config);
+
+  const blob = new Blob([response.data], {
+    type:
+      format === "excel"
+        ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        : "application/pdf",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `ordenes-compra-vehiculo-${new Date().toISOString().split("T")[0]}.${format === "excel" ? "xlsx" : "pdf"}`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 export async function getNextCorrelative(
   sedeId: number,
   typeOperationId: number,
