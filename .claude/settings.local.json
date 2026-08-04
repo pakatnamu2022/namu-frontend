@@ -36,7 +36,12 @@
       "Bash(Remove-Item -Recurse -Force \"c:\\\\laragon\\\\www\\\\namu-frontend\\\\src\\\\features\\\\dp\\\\comercial\\\\cuentas-por-cobrar\")",
       "Bash(Remove-Item -Recurse -Force \"c:\\\\laragon\\\\www\\\\namu-frontend\\\\src\\\\app\\\\dp\\\\comercial\\\\cuentas-por-cobrar\")",
       "Bash(npx tsc *)",
-      "Bash(mkdir -p \"c:/Users/Equipo-66/Desktop/Proyecto Pakatnamu/namu-frontend/src/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo\")"
+      "Bash(mkdir -p \"c:/Users/Equipo-66/Desktop/Proyecto Pakatnamu/namu-frontend/src/app/ap/post-venta/caja/comprobante-venta-caja/agregar-regularizacion-anticipo\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(wc -l /tmp_tsc_out.txt)",
+      "Bash(head -20 /tmp_tsc_out.txt)",
+      "Bash(php -l app/Http/Traits/Filterable.php)",
+      "Bash(php -l app/Models/dp/comercial/AccountReceivable.php)"
     ],
     "deny": [],
     "ask": [],

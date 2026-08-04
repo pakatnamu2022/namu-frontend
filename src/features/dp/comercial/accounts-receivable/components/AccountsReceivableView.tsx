@@ -19,6 +19,7 @@ import { formatDistanceToNow, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { promiseToast } from "@/core/core.function";
@@ -37,7 +38,10 @@ import SearchInput from "@/shared/components/SearchInput";
 import AccountsReceivableSheet from "@/features/dp/comercial/accounts-receivable/components/AccountsReceivableSheet";
 import BulkCommentModal from "@/features/dp/comercial/accounts-receivable/components/BulkCommentModal";
 import type { AccountsReceivableFilters } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
-import { ACCOUNTS_RECEIVABLE } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
+import {
+  ACCOUNTS_RECEIVABLE,
+  ACCOUNTS_RECEIVABLE_AP,
+} from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.constants";
 import type { AccountReceivable } from "@/features/dp/comercial/accounts-receivable/lib/accountsReceivable.interface";
 import { MetricCard } from "@/shared/components/MetricCard";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
@@ -403,11 +407,60 @@ export default function AccountsReceivableView({
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
       >
-        <SearchInput
-          value={filters.search ?? ""}
-          onChange={(v) => handleFiltersChange({ search: v || undefined })}
-          placeholder="Buscar cliente, doc..."
-        />
+        <div className="flex items-center gap-2 flex-wrap">
+          <SearchInput
+            value={filters.search ?? ""}
+            onChange={(v) => handleFiltersChange({ search: v || undefined })}
+            placeholder="Buscar cliente, doc..."
+          />
+
+          {company === ACCOUNTS_RECEIVABLE_AP.COMPANY && (
+            <ButtonGroup>
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  filters.electronic_document_id === undefined
+                    ? "default"
+                    : "outline"
+                }
+                onClick={() =>
+                  handleFiltersChange({ electronic_document_id: undefined })
+                }
+              >
+                Todos
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  filters.electronic_document_id === true
+                    ? "default"
+                    : "outline"
+                }
+                onClick={() =>
+                  handleFiltersChange({ electronic_document_id: true })
+                }
+              >
+                Nuevos
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  filters.electronic_document_id === false
+                    ? "default"
+                    : "outline"
+                }
+                onClick={() =>
+                  handleFiltersChange({ electronic_document_id: false })
+                }
+              >
+                Históricos
+              </Button>
+            </ButtonGroup>
+          )}
+        </div>
       </AccountsReceivableTable>
 
       <AccountsReceivableSheet
