@@ -25,6 +25,7 @@ interface Props {
     canUpdate: boolean;
     canDelete: boolean;
     canGenerateInternalNote: boolean;
+    canAuthorizeReversalInternalNote: boolean;
   };
 }
 

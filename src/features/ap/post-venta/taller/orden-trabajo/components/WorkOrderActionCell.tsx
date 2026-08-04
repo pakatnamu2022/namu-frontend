@@ -11,6 +11,7 @@ import {
   Handshake,
   Ban,
   RotateCcw,
+  ShieldCheck,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -29,9 +30,11 @@ import {
   useSendToFinished,
   useRevertFinished,
   useRevertInternalNote,
+  useAuthorizeInternalNoteRevert,
 } from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
 import { CancelWorkOrderModal } from "./CancelWorkOrderModal";
+import InternalNoteHistory from "./InternalNoteHistory";
 
 interface WorkOrderActionCellProps {
   row: WorkOrderResource;
@@ -41,6 +44,7 @@ interface WorkOrderActionCellProps {
     canUpdate: boolean;
     canDelete: boolean;
     canGenerateInternalNote: boolean;
+    canAuthorizeReversalInternalNote: boolean;
   };
   onInternalNote: (id: number) => void;
   onDelete: (id: number) => void;
@@ -73,6 +77,10 @@ export function WorkOrderActionCell({
     mutateAsync: revertInternalNote,
     isPending: isRevertingInternalNote,
   } = useRevertInternalNote();
+  const {
+    mutateAsync: authorizeInternalNoteRevert,
+    isPending: isAuthorizingInternalNoteRevert,
+  } = useAuthorizeInternalNoteRevert();
   const {
     id,
     is_inspection_completed,
@@ -127,8 +135,19 @@ export function WorkOrderActionCell({
       successToast("Nota interna revertida exitosamente");
     } catch (error: any) {
       const message =
+        error?.response?.data?.message || "Error al revertir la nota interna";
+      errorToast(message);
+    }
+  };
+
+  const handleAuthorizeInternalNoteRevert = async () => {
+    try {
+      await authorizeInternalNoteRevert(id);
+      successToast("Reversión de nota interna autorizada exitosamente");
+    } catch (error: any) {
+      const message =
         error?.response?.data?.message ||
-        "Error al revertir la nota interna";
+        "Error al autorizar la reversión de la nota interna";
       errorToast(message);
     }
   };
@@ -169,6 +188,12 @@ export function WorkOrderActionCell({
 
   const isVisibleRevertInternalNote =
     permissions.canGenerateInternalNote && isClosed && isInterna;
+
+  const isVisibleAuthorizeInternalNoteRevert =
+    permissions.canAuthorizeReversalInternalNote && isClosed && isInterna;
+
+  const isVisibleInternalNoteHistory =
+    isClosed && firstItemPlanning?.type_document === INTERNA_SC;
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
@@ -326,6 +351,38 @@ export function WorkOrderActionCell({
           }
         />
       )}
+
+      {isVisibleAuthorizeInternalNoteRevert && (
+        <ConfirmationDialog
+          title="¿Autorizar Reversión de Nota Interna?"
+          description="Esta acción autorizará la reversión del cierre de la nota interna. ¿Estás seguro de que deseas continuar?"
+          confirmText="Sí, continuar"
+          cancelText="Cancelar"
+          icon="info"
+          onConfirm={handleAuthorizeInternalNoteRevert}
+          trigger={
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              disabled={isAuthorizingInternalNoteRevert}
+              tooltip={
+                isAuthorizingInternalNoteRevert
+                  ? "Autorizando..."
+                  : "Autorizar Reversión de Nota Interna"
+              }
+            >
+              {isAuthorizingInternalNoteRevert ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <ShieldCheck className="size-5" />
+              )}
+            </Button>
+          }
+        />
+      )}
+
+      {isVisibleInternalNoteHistory && <InternalNoteHistory workOrderId={id} />}
 
       {isOpenForEdit && (
         <Button
