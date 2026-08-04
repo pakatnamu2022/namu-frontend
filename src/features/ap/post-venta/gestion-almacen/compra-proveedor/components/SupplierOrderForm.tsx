@@ -39,13 +39,13 @@ import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-g
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
 import { STATUS_ACTIVE } from "@/core/core.constants.ts";
-import { api } from "@/core/api.ts";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
@@ -81,7 +81,7 @@ export const SupplierOrderForm = ({
     defaultValues: {
       ...defaultValues,
       details: defaultValues.details || [],
-      supply_type: defaultValues.supply_type || "STOCK",
+      supply_type: defaultValues.supply_type || "LOCAL",
     },
     mode: "onChange",
   });
@@ -99,9 +99,6 @@ export const SupplierOrderForm = ({
       enable_after_sales: STATUS_ACTIVE,
     });
 
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [exchangeRateError, setExchangeRateError] = useState<string>("");
-  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [addedRequestDetailIds, setAddedRequestDetailIds] = useState<number[]>(
     [],
   );
@@ -210,73 +207,54 @@ export const SupplierOrderForm = ({
     !!selectedWarehouseId && !!selectedSupplyType,
   );
 
-  // Función para consultar el tipo de cambio
-  const fetchExchangeRate = async (currencyId: string, date: Date) => {
-    setIsLoadingExchangeRate(true);
-    setExchangeRateError("");
-    setExchangeRate(null);
-
-    try {
-      const formattedDate = format(date, "yyyy-MM-dd");
-      const response = await api.get(
-        `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${currencyId}&date=${formattedDate}`,
-      );
-
-      if (response.data?.data?.rate) {
-        setExchangeRate(parseFloat(response.data.data.rate));
-        setExchangeRateError("");
-      }
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "No se encontró tipo de cambio para los parámetros proporcionados";
-      setExchangeRateError(errorMessage);
-      setExchangeRate(null);
-    } finally {
-      setIsLoadingExchangeRate(false);
-    }
-  };
-
-  // useEffect para consultar tipo de cambio cuando cambien la moneda y la fecha
-  useEffect(() => {
-    // Verificar si la fecha es válida (puede ser Date o string)
-    const isValidDate =
-      watchedOrderDate instanceof Date ||
-      (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0);
-
-    let dateToUse: Date | null = null;
-
+  // Fecha del pedido normalizada a YYYY-MM-DD (acepta Date o string)
+  const orderDateFormatted = useMemo(() => {
     if (watchedOrderDate instanceof Date) {
-      dateToUse = watchedOrderDate;
-    } else if (
-      typeof watchedOrderDate === "string" &&
-      watchedOrderDate.length > 0
-    ) {
+      if (isNaN(watchedOrderDate.getTime())) return "";
+      return format(watchedOrderDate, "yyyy-MM-dd");
+    }
+    if (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0) {
       // Para evitar problemas de zona horaria, parseamos manualmente la fecha en formato YYYY-MM-DD
       const parts = watchedOrderDate.split("-");
       if (parts.length === 3) {
         const year = parseInt(parts[0], 10);
         const month = parseInt(parts[1], 10) - 1; // Los meses en JS empiezan en 0
         const day = parseInt(parts[2], 10);
-        dateToUse = new Date(year, month, day);
+        const dateToUse = new Date(year, month, day);
+        if (!isNaN(dateToUse.getTime())) {
+          return format(dateToUse, "yyyy-MM-dd");
+        }
       }
     }
+    return "";
+  }, [watchedOrderDate]);
 
-    // Solo consultar si la moneda NO es soles (id 1) y si ambos valores existen
-    if (
-      watchedCurrencyTypeId &&
-      watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-      isValidDate &&
-      dateToUse &&
-      !isNaN(dateToUse.getTime())
-    ) {
-      fetchExchangeRate(watchedCurrencyTypeId, dateToUse);
-    } else {
-      // Si es soles o no hay datos, limpiar el tipo de cambio
-      setExchangeRate(null);
-      setExchangeRateError("");
-    }
-  }, [watchedCurrencyTypeId, watchedOrderDate]);
+  // Solo consultar si la moneda NO es soles y hay fecha válida
+  const shouldFetchExchangeRate = Boolean(
+    watchedCurrencyTypeId &&
+    watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+    orderDateFormatted,
+  );
+
+  const {
+    data: exchangeRateData,
+    isLoading: isLoadingExchangeRate,
+    isError: isExchangeRateError,
+    error: exchangeRateFetchError,
+  } = useExchangeRateByDateAndCurrency(
+    shouldFetchExchangeRate ? Number(watchedCurrencyTypeId) : null,
+    orderDateFormatted,
+  );
+
+  const exchangeRate =
+    shouldFetchExchangeRate && exchangeRateData?.rate
+      ? Number(exchangeRateData.rate)
+      : null;
+  const exchangeRateError =
+    shouldFetchExchangeRate && isExchangeRateError
+      ? (exchangeRateFetchError as any)?.response?.data?.message ||
+        "No se encontró tipo de cambio para los parámetros proporcionados"
+      : "";
 
   // Setear el primer almacén por defecto cuando se carguen los almacenes
   useEffect(() => {

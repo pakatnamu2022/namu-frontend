@@ -10,6 +10,7 @@ import {
   getWorkOrderWithInternalNotes,
   sendToFinished,
   revertFinished,
+  revertInternalNote,
   updateWorkOrderItems,
   UpdateWorkOrderItemData,
 } from "./workOrder.actions";
@@ -133,6 +134,17 @@ export function useRevertFinished() {
 
   return useMutation({
     mutationFn: (id: number) => revertFinished(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+}
+
+export function useRevertInternalNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => revertInternalNote(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

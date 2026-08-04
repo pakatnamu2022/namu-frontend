@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle, Info } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -17,6 +17,9 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { useMemo } from "react";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface OrderQuotationDocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -27,11 +30,18 @@ interface OrderQuotationDocumentInfoSectionProps {
   currencyTypes: SunatConceptsResource[];
   isFromQuotation?: boolean;
   defaultCustomer?: CustomersResource;
-  hasSufficientStock?: boolean;
-  pendingBalance?: number;
+  canGenerateFinalReceipt?: {
+    can_final_receipt: boolean;
+    can_advance: boolean;
+    is_toggle_enabled: boolean;
+    message: string | null;
+  };
   lockedClientId?: number | null;
   lockedClientName?: string;
   lockedClientDoc?: string;
+  // Modo de facturación del comprobante (Normal / Gratuita), controlado a nivel de documento.
+  billingMode?: "normal" | "gratuita";
+  onBillingModeChange?: (mode: "normal" | "gratuita") => void;
 }
 
 export function OrderQuotationDocumentInfoSection({
@@ -43,11 +53,12 @@ export function OrderQuotationDocumentInfoSection({
   currencyTypes,
   isFromQuotation = false,
   defaultCustomer,
-  hasSufficientStock = true,
-  pendingBalance = 0,
+  canGenerateFinalReceipt,
   lockedClientId = null,
   lockedClientName = "",
   lockedClientDoc = "",
+  billingMode = "normal",
+  onBillingModeChange,
 }: OrderQuotationDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -109,23 +120,27 @@ export function OrderQuotationDocumentInfoSection({
     }
   }, [defaultCustomer?.id, lockedClientId, form]);
 
-  // Forzar el switch a true (anticipo) cuando no hay stock suficiente
-  // Forzar el switch a false (venta interna) cuando el saldo pendiente es 0
+  // Fuente de verdad: la regla de Tipo de Operación la evalúa el backend.
+  // Mientras no llegue el dato (carga inicial), el switch queda bloqueado.
+  const canFinalReceipt = canGenerateFinalReceipt?.can_final_receipt ?? true;
+  const canAdvance = canGenerateFinalReceipt?.can_advance ?? true;
+  const isToggleEnabled = canGenerateFinalReceipt?.is_toggle_enabled ?? false;
+  // Sin stock suficiente es el único caso donde el backend niega el comprobante final.
+  const hasSufficientStock = canFinalReceipt;
+
+  // Forzar el switch a true (anticipo) cuando no se puede emitir comprobante final
+  // Forzar el switch a false (venta interna) cuando no se puede emitir anticipo
   useEffect(() => {
-    if (!hasSufficientStock) {
+    if (!canFinalReceipt) {
       form.setValue("is_advance_payment", true, {
         shouldValidate: false,
       });
-    } else if (pendingBalance === 0) {
+    } else if (!canAdvance) {
       form.setValue("is_advance_payment", false, {
         shouldValidate: false,
       });
     }
-  }, [hasSufficientStock, pendingBalance, form]);
-
-  // Determinar si el switch debe estar habilitado
-  // Se deshabilita cuando: no hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
-  const isToggleEnabled = hasSufficientStock && pendingBalance !== 0;
+  }, [canFinalReceipt, canAdvance, form]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -238,7 +253,8 @@ export function OrderQuotationDocumentInfoSection({
               >
                 {hasSufficientStock
                   ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
-                  : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
+                  : (canGenerateFinalReceipt?.message ??
+                    "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo.")}
               </p>
             </div>
           </div>
@@ -306,15 +322,52 @@ export function OrderQuotationDocumentInfoSection({
           disabled={!isToggleEnabled}
           text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
           description={
-            !hasSufficientStock && pendingBalance > 0
-              ? "Sin stock suficiente: Solo se permite anticipo"
-              : pendingBalance === 0
-                ? "Pago completo realizado: Solo se permite venta interna"
-                : isAdvancePayment
-                  ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-                  : "Tipo de operación: Venta Interna (código 01)"
+            canGenerateFinalReceipt?.message
+              ? canGenerateFinalReceipt.message
+              : isAdvancePayment
+                ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                : "Tipo de operación: Venta Interna (código 01)"
           }
         />
+
+        {/* Switch de Modo de Facturación (Normal / Gratuita) */}
+        <div className="flex flex-col gap-1">
+          <Label className="h-fit flex mb-1">Tipo de Facturación</Label>
+          <Label
+            className={cn(
+              "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background h-8 p-3 gap-3",
+              isAdvancePayment
+                ? "opacity-60"
+                : "hover:bg-muted hover:cursor-pointer",
+            )}
+          >
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
+              <p className="text-sm font-medium leading-tight">
+                {billingMode === "gratuita" ? "Gratuita" : "Normal"}
+              </p>
+            </div>
+            <Switch
+              checked={billingMode === "gratuita"}
+              onCheckedChange={(checked) =>
+                onBillingModeChange?.(checked ? "gratuita" : "normal")
+              }
+              disabled={isAdvancePayment}
+              className="shrink-0"
+            />
+          </Label>
+          <p className="text-xs font-normal text-muted-foreground flex items-start gap-1">
+            {isAdvancePayment ? (
+              <>
+                <Info className="size-3 mt-0.5 shrink-0" />
+                No aplica para anticipos.
+              </>
+            ) : billingMode === "gratuita" ? (
+              "Los items se registrarán sin IGV y sin cobro (transferencia gratuita)"
+            ) : (
+              "Los items se registrarán gravados con IGV (comportamiento estándar)"
+            )}
+          </p>
+        </div>
 
         <FormSelect
           control={form.control}

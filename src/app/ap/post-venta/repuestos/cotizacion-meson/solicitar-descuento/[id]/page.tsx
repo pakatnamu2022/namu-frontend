@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import {
   ORDER_QUOTATION_MESON,
-  STATUS_ORDER_QUOTATION_COLOR,
+  STATUS_ORDER_QUOTE_COLOR,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,14 @@ import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuen
 import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CheckCircle, Pencil, Percent, Tag, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Pencil,
+  Percent,
+  Tag,
+  Truck,
+  XCircle,
+} from "lucide-react";
 import { useDiscountRequestsQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import {
@@ -38,12 +45,16 @@ import {
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { errorToast, successToast } from "@/core/core.function";
-import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
+import {
+  ITEM_TYPE_PRODUCT,
+  onSelectSupplyType,
+} from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import BackButton from "@/shared/components/BackButton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 
 export default function RequestDiscountOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -327,11 +338,9 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         <div>
           <p className="text-muted-foreground text-xs">Estado</p>
           <Badge
-            color={
-              STATUS_ORDER_QUOTATION_COLOR[quotation.status] ?? "secondary"
-            }
+            color={STATUS_ORDER_QUOTE_COLOR[quotation.status.id] ?? "secondary"}
           >
-            {quotation.status}
+            {quotation.status.description}
           </Badge>
         </div>
         <div>
@@ -342,69 +351,72 @@ export default function RequestDiscountOrderQuotationMesonPage() {
       </div>
 
       {/* Tabla de ítems */}
-      <div className="rounded-lg border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">
-                #
-              </th>
-              <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">
-                Descripción
-              </th>
-              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                Cant.
-              </th>
-              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                P. Unit.
-              </th>
-              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                Desc. %
-              </th>
-              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                Cto. Total
-              </th>
-              <th className="text-right px-4 py-2 font-medium text-xs text-muted-foreground">
-                Cto. Neto
-              </th>
-              {!globalRequest && (
-                <th className="text-left px-4 py-2 font-medium text-xs text-muted-foreground">
-                  Desc. parcial
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {productDetails.map((detail, index) => {
-              const partialRequest = getPartialRequest(detail.id);
-              return (
-                <tr key={detail.id} className="border-t">
-                  <td className="px-4 py-2 text-muted-foreground">
-                    {index + 1}
-                  </td>
-                  <td className="px-4 py-2">
-                    <p className="font-medium">{detail.description}</p>
-                    {detail.observations && (
-                      <p className="text-xs text-muted-foreground">
-                        {detail.observations}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 text-right">{detail.quantity}</td>
-                  <td className="px-4 py-2 text-right">
-                    {currencySymbol} {Number(detail.unit_price).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    {Number(detail.discount_percentage).toFixed(2)}%
-                  </td>
-                  <td className="px-4 py-2 text-right font-medium">
-                    {currencySymbol} {Number(detail.total_cost).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2 text-right font-medium">
-                    {currencySymbol} {Number(detail.net_amount).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2">
-                    {partialRequest ? (
+      <DetailSheetTable
+        rows={productDetails}
+        getKey={(detail) => detail.id}
+        columns={[
+          {
+            header: "#",
+            className: "text-left text-muted-foreground",
+            render: (_, index) => index + 1,
+          },
+          {
+            header: "Descripción",
+            render: (detail) => (
+              <>
+                <p className="font-medium">{detail.description}</p>
+                {detail.observations && (
+                  <p className="text-xs text-muted-foreground">
+                    {detail.observations}
+                  </p>
+                )}
+                {detail.supply_type && (
+                  <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Truck className="size-3" />
+                    {onSelectSupplyType.find(
+                      (option) => option.value === detail.supply_type,
+                    )?.label ?? detail.supply_type}
+                  </p>
+                )}
+              </>
+            ),
+          },
+          {
+            header: "Cant.",
+            className: "text-right",
+            render: (detail) => detail.quantity,
+          },
+          {
+            header: "P. Unit.",
+            className: "text-right",
+            render: (detail) =>
+              `${currencySymbol} ${Number(detail.unit_price).toFixed(2)}`,
+          },
+          {
+            header: "Desc. %",
+            className: "text-right",
+            render: (detail) =>
+              `${Number(detail.discount_percentage).toFixed(2)}%`,
+          },
+          {
+            header: "Cto. Total",
+            className: "text-right font-medium",
+            render: (detail) =>
+              `${currencySymbol} ${Number(detail.total_cost).toFixed(2)}`,
+          },
+          {
+            header: "Cto. Neto",
+            className: "text-right font-medium",
+            render: (detail) =>
+              `${currencySymbol} ${Number(detail.net_amount).toFixed(2)}`,
+          },
+          ...(!globalRequest
+            ? [
+                {
+                  header: "Desc. parcial",
+                  render: (detail: OrderQuotationDetailsResource) => {
+                    const partialRequest = getPartialRequest(detail.id);
+                    return partialRequest ? (
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-semibold">
                           {Number(
@@ -479,25 +491,22 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                         )}
                       </div>
                     ) : (
-                      !globalRequest && (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="size-7"
-                          tooltip="Solicitar descuento parcial"
-                          onClick={() => handleOpenCreate(TYPE_PARTIAL, detail)}
-                        >
-                          <Tag className="size-4" />
-                        </Button>
-                      )
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-7"
+                        tooltip="Solicitar descuento parcial"
+                        onClick={() => handleOpenCreate(TYPE_PARTIAL, detail)}
+                      >
+                        <Tag className="size-4" />
+                      </Button>
+                    );
+                  },
+                },
+              ]
+            : []),
+        ]}
+      />
 
       <DiscountRequestModal
         open={modalOpen}

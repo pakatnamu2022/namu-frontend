@@ -57,6 +57,7 @@ import { FormTextArea } from "@/shared/components/FormTextArea";
 import {
   useDniValidation,
   useRucValidation,
+  useCeValidation,
 } from "@/shared/hooks/useDocumentValidation";
 import { DataCard } from "@/components/DataCard";
 
@@ -152,6 +153,7 @@ export const AppointmentPlanningForm = ({
 
   // Detectar el tipo de documento basado en la longitud
   const isDni = watchCustomer?.length === 8;
+  const isCe = watchCustomer?.length === 9;
   const isRuc = watchCustomer?.length === 11;
 
   // Validación DNI (8 dígitos)
@@ -162,6 +164,17 @@ export const AppointmentPlanningForm = ({
   } = useDniValidation(
     watchCustomer,
     isCustomerDocDirty && !!watchCustomer && isDni,
+    true,
+  );
+
+  // Validación CE (9 dígitos)
+  const {
+    data: ceData,
+    isLoading: isCeLoading,
+    error: ceError,
+  } = useCeValidation(
+    watchCustomer,
+    isCustomerDocDirty && !!watchCustomer && isCe,
     true,
   );
 
@@ -177,9 +190,9 @@ export const AppointmentPlanningForm = ({
   );
 
   // Datos consolidados
-  const customerData = dniData || rucData;
-  const customerError = dniError || rucError;
-  const isCustomerLoading = isDniLoading || isRucLoading;
+  const customerData = dniData || ceData || rucData;
+  const customerError = dniError || ceError || rucError;
+  const isCustomerLoading = isDniLoading || isCeLoading || isRucLoading;
 
   // Effect para cargar datos del cliente cuando se selecciona un vehículo
   useEffect(() => {
@@ -240,6 +253,11 @@ export const AppointmentPlanningForm = ({
         const clientInfo = dniData.data;
         form.setValue("full_name_client", clientInfo.names || "");
       }
+      // Si es CE (persona natural extranjera)
+      else if (ceData?.success && ceData.data) {
+        const clientInfo = ceData.data;
+        form.setValue("full_name_client", clientInfo.names || "");
+      }
       // Si es RUC (persona jurídica)
       else if (rucData?.success && rucData.data) {
         const clientInfo = rucData.data;
@@ -248,7 +266,15 @@ export const AppointmentPlanningForm = ({
     } else if (customerData && !customerData.success) {
       form.setValue("full_name_client", "");
     }
-  }, [customerData, dniData, rucData, form, isCustomerDocDirty, watchCustomer]);
+  }, [
+    customerData,
+    dniData,
+    ceData,
+    rucData,
+    form,
+    isCustomerDocDirty,
+    watchCustomer,
+  ]);
 
   // Deshabilitar campos de cliente si se encontró información
   const shouldDisableCustomerFields = Boolean(
@@ -373,11 +399,11 @@ export const AppointmentPlanningForm = ({
             render={({ field }) => (
               <FormItem className="flex flex-col justify-between">
                 <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground relative">
-                  Cliente DNI/RUC
+                  Cliente DNI/CE/RUC
                   <DocumentValidationStatus
                     shouldValidate={true}
                     documentNumber={watchCustomer || ""}
-                    expectedDigits={isDni ? 8 : isRuc ? 11 : 0}
+                    expectedDigits={isDni ? 8 : isCe ? 9 : isRuc ? 11 : 0}
                     isValidating={isCustomerLoading}
                     leftPosition="right-0"
                   />
@@ -386,7 +412,7 @@ export const AppointmentPlanningForm = ({
                   <div className="relative">
                     <Input
                       className="h-8 md:h-9 text-xs md:text-sm"
-                      placeholder="8 dígitos (DNI) o 11 dígitos (RUC)"
+                      placeholder="8 (DNI), 9 (CE) u 11 dígitos (RUC)"
                       {...field}
                       onChange={(e) => {
                         setIsCustomerDocDirty(true);

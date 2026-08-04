@@ -21,6 +21,7 @@ interface DetailSheetTableProps<T> {
   emptyMessage?: string;
   emptyIcon?: React.ReactNode;
   footer?: React.ReactNode;
+  getRowClassName?: (row: T, index: number) => string | undefined;
 }
 
 export function DetailSheetTable<T>({
@@ -30,6 +31,7 @@ export function DetailSheetTable<T>({
   emptyMessage = "No hay elementos para mostrar",
   emptyIcon,
   footer,
+  getRowClassName,
 }: DetailSheetTableProps<T>) {
   if (rows.length === 0) {
     return (
@@ -55,7 +57,10 @@ export function DetailSheetTable<T>({
           </TableHeader>
           <TableBody>
             {rows.map((row, index) => (
-              <TableRow key={getKey(row, index)}>
+              <TableRow
+                key={getKey(row, index)}
+                className={getRowClassName?.(row, index)}
+              >
                 {columns.map((col, i) => (
                   <TableCell key={i} className={col.className}>
                     {col.render(row, index)}

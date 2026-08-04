@@ -35,15 +35,14 @@ import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/l
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { PAYMENT_TERMS_OPTIONS } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
-import { useState } from "react";
-import { api } from "@/core/api.ts";
 import { format, addDays } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
+import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
@@ -162,9 +161,6 @@ export const PurchaseOrderProductsForm = ({
       enable_after_sales: STATUS_ACTIVE,
     });
 
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [exchangeRateError, setExchangeRateError] = useState<string>("");
-  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
@@ -202,35 +198,8 @@ export const PurchaseOrderProductsForm = ({
     }
   }, [mode, isInitialLoad, defaultValues.warehouse_id, initialWarehouse, form]);
 
-  // Función para consultar el tipo de cambio
-  const fetchExchangeRate = async (currencyId: string, date: Date) => {
-    setIsLoadingExchangeRate(true);
-    setExchangeRateError("");
-    setExchangeRate(null);
-
-    try {
-      const formattedDate = format(date, "yyyy-MM-dd");
-      const response = await api.get(
-        `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${currencyId}&date=${formattedDate}`,
-      );
-
-      if (response.data?.data?.rate) {
-        setExchangeRate(parseFloat(response.data.data.rate));
-        setExchangeRateError("");
-      }
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "No se encontró tipo de cambio para los parámetros proporcionados";
-      setExchangeRateError(errorMessage);
-      setExchangeRate(null);
-    } finally {
-      setIsLoadingExchangeRate(false);
-    }
-  };
-
-  // useEffect para consultar tipo de cambio cuando cambien la moneda y la fecha
-  useEffect(() => {
+  // Fecha de emisión normalizada a YYYY-MM-DD (acepta Date o string)
+  const emissionDateFormatted = useMemo(() => {
     const rawDate = watchedEmissionDate as Date | string | undefined;
     const emissionDateAsDate =
       rawDate instanceof Date
@@ -240,17 +209,40 @@ export const PurchaseOrderProductsForm = ({
           : null;
 
     if (
-      watchedCurrencyTypeId &&
-      watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
       emissionDateAsDate instanceof Date &&
       !isNaN(emissionDateAsDate.getTime())
     ) {
-      fetchExchangeRate(watchedCurrencyTypeId, emissionDateAsDate);
-    } else {
-      setExchangeRate(null);
-      setExchangeRateError("");
+      return format(emissionDateAsDate, "yyyy-MM-dd");
     }
-  }, [watchedCurrencyTypeId, watchedEmissionDate]);
+    return "";
+  }, [watchedEmissionDate]);
+
+  // Solo consultar si la moneda NO es soles y hay fecha válida
+  const shouldFetchExchangeRate = Boolean(
+    watchedCurrencyTypeId &&
+    watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+    emissionDateFormatted,
+  );
+
+  const {
+    data: exchangeRateData,
+    isLoading: isLoadingExchangeRate,
+    isError: isExchangeRateError,
+    error: exchangeRateFetchError,
+  } = useExchangeRateByDateAndCurrency(
+    shouldFetchExchangeRate ? Number(watchedCurrencyTypeId) : null,
+    emissionDateFormatted,
+  );
+
+  const exchangeRate =
+    shouldFetchExchangeRate && exchangeRateData?.rate
+      ? Number(exchangeRateData.rate)
+      : null;
+  const exchangeRateError =
+    shouldFetchExchangeRate && isExchangeRateError
+      ? (exchangeRateFetchError as any)?.response?.data?.message ||
+        "No se encontró tipo de cambio para los parámetros proporcionados"
+      : "";
 
   // useEffect para calcular y sincronizar totales cuando cambian los item_total
   useEffect(() => {

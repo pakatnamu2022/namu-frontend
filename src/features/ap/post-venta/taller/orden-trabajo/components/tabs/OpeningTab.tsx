@@ -5,7 +5,17 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, User, Save, Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Plus,
+  FileText,
+  Save,
+  Pencil,
+  Receipt,
+  KeyRound,
+  UserCog,
+  CheckCircle2,
+} from "lucide-react";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import {
   findWorkOrderById,
@@ -78,6 +88,9 @@ export default function OpeningTab({
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [isEditingInvoice, setIsEditingInvoice] = useState(false);
+  const [isEditingPickup, setIsEditingPickup] = useState(false);
+  const [isEditingAdvisor, setIsEditingAdvisor] = useState(false);
   const queryClient = useQueryClient();
   const { MODEL } = WORKER_ORDER_ITEM;
 
@@ -112,6 +125,7 @@ export default function OpeningTab({
     onSuccess: () => {
       successToast("Cliente de facturación actualizado");
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+      setIsEditingInvoice(false);
     },
     onError: (error: any) => {
       const message =
@@ -139,6 +153,7 @@ export default function OpeningTab({
     onSuccess: () => {
       successToast("Asesor actualizado");
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+      setIsEditingAdvisor(false);
     },
     onError: (error: any) => {
       advisorForm.setValue("advisor_id", String(workOrder?.advisor_id ?? ""), {
@@ -173,6 +188,7 @@ export default function OpeningTab({
     onSuccess: () => {
       successToast("Persona que recoge actualizada");
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+      setIsEditingPickup(false);
     },
     onError: (error: any) => {
       const message =
@@ -221,6 +237,15 @@ export default function OpeningTab({
 
   const handlePickupSubmit = (data: z.infer<typeof pickupPersonSchema>) => {
     pickupMutation.mutate(data);
+  };
+
+  const handleCancelPickupEdit = () => {
+    pickupForm.reset({
+      num_doc_pickup: workOrder?.num_doc_pickup ?? "",
+      full_pickup_name: workOrder?.full_pickup_name ?? "",
+      phone_pickup: workOrder?.phone_pickup ?? "",
+    });
+    setIsEditingPickup(false);
   };
 
   // Si ya existe invoice_to desde el backend, precargar el select
@@ -389,256 +414,340 @@ export default function OpeningTab({
         />
       )}
 
-      {/* Sección: Facturar a */}
-      <div className="border-t pt-6">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-            <User className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h4 className="text-base font-semibold text-gray-900">
+      {/* Datos de la Orden */}
+      <div className="divide-y divide-gray-200 md:flex md:divide-y-0 md:divide-x md:divide-gray-200">
+        {/* Bloque: Facturar a */}
+        <div className="py-6 first:pt-0 last:pb-0 md:flex-1 md:py-0 md:px-6 md:first:pl-0 md:last:pr-0 min-w-0">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Receipt className="h-4 w-4 text-primary" />
+            </div>
+            <h4 className="text-sm font-semibold text-gray-900 flex-1 min-w-0">
               Facturar a
             </h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {isInvoiced
-                ? "Cliente de facturación establecido"
-                : "Selecciona el cliente para la factura"}
-            </p>
+            {isInvoiced && (
+              <Badge color="green" size="sm" className="shrink-0 gap-1">
+                <CheckCircle2 className="h-3 w-3" />
+                Facturado
+              </Badge>
+            )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="w-full">
+          {isEditingInvoice ? (
             <FormProvider {...invoiceToForm}>
-              <div className="flex w-full items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <FormSelectAsync
-                    name="invoice_to_id"
-                    label="Cliente de facturación"
-                    placeholder="Seleccionar cliente"
-                    control={invoiceToForm.control}
-                    useQueryHook={useCustomers}
-                    mapOptionFn={(customer: CustomersResource) => ({
-                      value: customer.id.toString(),
-                      label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-                    })}
-                    description={
-                      isInvoiced
-                        ? "Ya existe una factura emitida, no se puede modificar"
-                        : (workOrder?.payment_summary?.paid_amount ?? 0) > 0
-                          ? "Ya existe un monto facturado, no se puede modificar"
-                          : "Cliente a quien se le emitirá la factura de esta OT"
-                    }
-                    perPage={10}
-                    debounceMs={500}
-                    disabled={
-                      isInvoiced ||
-                      invoiceToMutation.isPending ||
-                      (workOrder?.payment_summary?.paid_amount ?? 0) > 0
-                    }
-                    defaultOption={invoiceToDefaultOption}
-                    onValueChange={(value) => {
-                      invoiceToMutation.mutate(value ? Number(value) : null);
-                    }}
-                    allowClear={false}
-                  />
+              <div className="flex flex-col gap-3">
+                <div className="flex items-end gap-2">
+                  <div className="flex-1 min-w-0">
+                    <FormSelectAsync
+                      name="invoice_to_id"
+                      label="Cliente de facturación"
+                      placeholder="Seleccionar cliente"
+                      control={invoiceToForm.control}
+                      useQueryHook={useCustomers}
+                      mapOptionFn={(customer: CustomersResource) => ({
+                        value: customer.id.toString(),
+                        label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+                      })}
+                      perPage={10}
+                      debounceMs={500}
+                      disabled={invoiceToMutation.isPending}
+                      defaultOption={invoiceToDefaultOption}
+                      onValueChange={(value) => {
+                        invoiceToMutation.mutate(value ? Number(value) : null);
+                      }}
+                      allowClear={false}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-lg"
+                    className="aspect-square shrink-0"
+                    onClick={() => setIsCustomerModalOpen(true)}
+                    tooltip="Agregar nuevo cliente"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon-lg"
-                  className="aspect-square shrink-0"
-                  onClick={() => setIsCustomerModalOpen(true)}
-                  tooltip="Agregar nuevo cliente"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingInvoice(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
               </div>
             </FormProvider>
-          </div>
-
-          {/* Info del cliente seleccionado */}
-          {workOrder?.invoice_to && (
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
-              <div className="flex-1 grid grid-cols-1 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Nombre
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {workOrder.invoice_to_client?.full_name || "—"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Documento
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {workOrder.invoice_to_client?.document_type || "—"}{" "}
-                    {workOrder.invoice_to_client?.num_doc || "S/N"}
-                  </span>
-                </div>
+          ) : workOrder?.invoice_to ? (
+            <div className="flex flex-col gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {workOrder.invoice_to_client?.full_name || "—"}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {workOrder.invoice_to_client?.document_type || "Doc."}{" "}
+                  {workOrder.invoice_to_client?.num_doc || "S/N"}
+                </p>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="self-start"
+                disabled={
+                  isInvoiced ||
+                  (workOrder?.payment_summary?.paid_amount ?? 0) > 0
+                }
+                tooltip={
+                  isInvoiced
+                    ? "Ya existe una factura emitida, no se puede modificar"
+                    : (workOrder?.payment_summary?.paid_amount ?? 0) > 0
+                      ? "Ya existe un monto facturado, no se puede modificar"
+                      : undefined
+                }
+                onClick={() => setIsEditingInvoice(true)}
+              >
+                <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                Editar
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-400">Sin cliente asignado</p>
+              <Button
+                type="button"
+                size="sm"
+                className="self-start"
+                disabled={isInvoiced}
+                tooltip={
+                  isInvoiced
+                    ? "Ya existe una factura emitida, no se puede modificar"
+                    : undefined
+                }
+                onClick={() => setIsEditingInvoice(true)}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                Asignar
+              </Button>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Sección: Persona que recoge el vehículo */}
-      <div className="border-t pt-6">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-            <User className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h4 className="text-base font-semibold text-gray-900">
+        {/* Bloque: Persona que recoge el vehículo */}
+        <div className="py-6 first:pt-0 last:pb-0 md:flex-1 md:py-0 md:px-6 md:first:pl-0 md:last:pr-0 min-w-0">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <KeyRound className="h-4 w-4 text-primary" />
+            </div>
+            <h4 className="text-sm font-semibold text-gray-900 flex-1 min-w-0">
               Recogerá el Vehículo
             </h4>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Persona autorizada a retirar el vehículo del taller
-            </p>
           </div>
-        </div>
 
-        <Form {...pickupForm}>
-          <form onSubmit={pickupForm.handleSubmit(handlePickupSubmit)}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="grid grid-cols-1 gap-4 items-start">
-                <FormInput
-                  name="num_doc_pickup"
-                  label={
-                    <>
-                      <span>DNI</span>
-                      <DocumentValidationStatus
-                        shouldValidate={true}
-                        documentNumber={watchedNumDocPickup!}
-                        expectedDigits={8}
+          {isEditingPickup ? (
+            <Form {...pickupForm}>
+              <form onSubmit={pickupForm.handleSubmit(handlePickupSubmit)}>
+                <div className="flex flex-col gap-3">
+                  <FormInput
+                    name="num_doc_pickup"
+                    label={
+                      <>
+                        <span>DNI</span>
+                        <DocumentValidationStatus
+                          shouldValidate={true}
+                          documentNumber={watchedNumDocPickup!}
+                          expectedDigits={8}
+                          isValidating={isDniPickupLoading}
+                          leftPosition=""
+                        />
+                      </>
+                    }
+                    labelClassName="w-full justify-between gap-2"
+                    placeholder="12345678"
+                    maxLength={8}
+                    control={pickupForm.control}
+                    addonEnd={
+                      <ValidationIndicator
+                        show={!!watchedNumDocPickup}
                         isValidating={isDniPickupLoading}
-                        leftPosition=""
+                        isValid={dniPickupData?.success && !!dniPickupData.data}
+                        hasError={
+                          !!dniPickupError ||
+                          (dniPickupData && !dniPickupData.success)
+                        }
+                        positioned={false}
                       />
-                    </>
-                  }
-                  labelClassName="w-full justify-between gap-2"
-                  placeholder="12345678"
-                  maxLength={8}
-                  control={pickupForm.control}
-                  addonEnd={
-                    <ValidationIndicator
-                      show={!!watchedNumDocPickup}
-                      isValidating={isDniPickupLoading}
-                      isValid={dniPickupData?.success && !!dniPickupData.data}
-                      hasError={
-                        !!dniPickupError ||
-                        (dniPickupData && !dniPickupData.success)
-                      }
-                      positioned={false}
-                    />
-                  }
-                />
-                <FormInput
-                  name="full_pickup_name"
-                  label="Nombre Completo"
-                  placeholder="Nombre del receptor"
-                  control={pickupForm.control}
-                  disabled={dniPickupData?.success && dniPickupData.data?.valid}
-                />
-                <FormInput
-                  name="phone_pickup"
-                  label="Teléfono"
-                  placeholder="987654321"
-                  maxLength={9}
-                  control={pickupForm.control}
-                />
-              </div>
-
-              {/* Info actual si ya tiene datos */}
-              {workOrder?.num_doc_pickup && (
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
-                  <div className="flex-1 grid grid-cols-1 gap-3">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Nombre registrado
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {workOrder.full_pickup_name || "—"}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        DNI / Teléfono
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {workOrder.num_doc_pickup} /{" "}
-                        {workOrder.phone_pickup || "—"}
-                      </span>
-                    </div>
-                  </div>
+                    }
+                  />
+                  <FormInput
+                    name="full_pickup_name"
+                    label="Nombre Completo"
+                    placeholder="Nombre del receptor"
+                    control={pickupForm.control}
+                    disabled={
+                      dniPickupData?.success && dniPickupData.data?.valid
+                    }
+                  />
+                  <FormInput
+                    name="phone_pickup"
+                    label="Teléfono"
+                    placeholder="987654321"
+                    maxLength={9}
+                    control={pickupForm.control}
+                  />
                 </div>
-              )}
-            </div>
 
-            <div className="mt-4 flex justify-end">
+                <div className="mt-3 flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancelPickupEdit}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={
+                      pickupMutation.isPending || !pickupForm.formState.isValid
+                    }
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {pickupMutation.isPending ? "Guardando..." : "Guardar"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          ) : workOrder?.num_doc_pickup ? (
+            <div className="flex flex-col gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {workOrder.full_pickup_name || "—"}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  DNI {workOrder.num_doc_pickup} ·{" "}
+                  {workOrder.phone_pickup || "—"}
+                </p>
+              </div>
               <Button
-                type="submit"
-                disabled={
-                  pickupMutation.isPending || !pickupForm.formState.isValid
-                }
+                type="button"
+                variant="outline"
                 size="sm"
+                className="self-start"
+                onClick={() => setIsEditingPickup(true)}
               >
-                <Save className="h-4 w-4 mr-2" />
-                {pickupMutation.isPending ? "Guardando..." : "Guardar"}
+                <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                Editar
               </Button>
             </div>
-          </form>
-        </Form>
-      </div>
-
-      {/* Sección: Asesor */}
-      {permissions.canChangeAdvisor && (
-        <div className="border-t pt-6">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-              <User className="h-4 w-4 text-primary" />
+          ) : (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-400">Sin persona asignada</p>
+              <Button
+                type="button"
+                size="sm"
+                className="self-start"
+                onClick={() => setIsEditingPickup(true)}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                Asignar
+              </Button>
             </div>
-            <div>
-              <h4 className="text-base font-semibold text-gray-900">Asesor</h4>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Selecciona el asesor responsable de esta orden
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <FormProvider {...advisorForm}>
-              <FormSelect
-                name="advisor_id"
-                label="Asesor"
-                placeholder="Seleccionar asesor"
-                control={advisorForm.control}
-                options={asesores.map((worker) => ({
-                  value: String(worker.id),
-                  label: worker.name,
-                }))}
-                isLoadingOptions={isLoadingAsesores}
-                disabled={advisorMutation.isPending}
-                onValueChange={(value) => {
-                  const parsedAdvisorId = Number(value);
-
-                  if (
-                    !parsedAdvisorId ||
-                    parsedAdvisorId === Number(workOrder?.advisor_id)
-                  ) {
-                    return;
-                  }
-
-                  advisorMutation.mutate(parsedAdvisorId);
-                }}
-              />
-            </FormProvider>
-          </div>
+          )}
         </div>
-      )}
+
+        {/* Bloque: Asesor */}
+        {permissions.canChangeAdvisor && (
+          <div className="py-6 first:pt-0 last:pb-0 md:flex-1 md:py-0 md:px-6 md:first:pl-0 md:last:pr-0 min-w-0">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <UserCog className="h-4 w-4 text-primary" />
+              </div>
+              <h4 className="text-sm font-semibold text-gray-900 flex-1 min-w-0">
+                Asesor
+              </h4>
+            </div>
+
+            {isEditingAdvisor ? (
+              <FormProvider {...advisorForm}>
+                <div className="flex flex-col gap-3">
+                  <FormSelect
+                    name="advisor_id"
+                    label="Asesor"
+                    placeholder="Seleccionar asesor"
+                    control={advisorForm.control}
+                    options={asesores.map((worker) => ({
+                      value: String(worker.id),
+                      label: worker.name,
+                    }))}
+                    isLoadingOptions={isLoadingAsesores}
+                    disabled={advisorMutation.isPending}
+                    onValueChange={(value) => {
+                      const parsedAdvisorId = Number(value);
+
+                      if (
+                        !parsedAdvisorId ||
+                        parsedAdvisorId === Number(workOrder?.advisor_id)
+                      ) {
+                        return;
+                      }
+
+                      advisorMutation.mutate(parsedAdvisorId);
+                    }}
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingAdvisor(false)}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              </FormProvider>
+            ) : workOrder?.advisor_name ? (
+              <div className="flex flex-col gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {workOrder.advisor_name}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="self-start"
+                  onClick={() => setIsEditingAdvisor(true)}
+                >
+                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                  Editar
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-gray-400">Sin asesor asignado</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="self-start"
+                  onClick={() => setIsEditingAdvisor(true)}
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1.5" />
+                  Asignar
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Empty State */}
       {items.length === 0 && (

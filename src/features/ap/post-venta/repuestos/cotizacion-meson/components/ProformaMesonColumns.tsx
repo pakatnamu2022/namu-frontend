@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { STATUS_ORDER_QUOTATION_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
+import { STATUS_ORDER_QUOTE_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 import { ProformaMesonActionsCell } from "./ProformaMesonActionsCell";
 import { CopyCell } from "@/shared/components/CopyCell";
 
@@ -173,11 +173,12 @@ export const orderQuotationMesonColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
-      const status = getValue() as string;
+      const status = getValue() as OrderQuotationResource["status"];
+      if (!status) return "-";
 
       return (
-        <Badge color={STATUS_ORDER_QUOTATION_COLOR[status] ?? "secondary"}>
-          {status}
+        <Badge color={STATUS_ORDER_QUOTE_COLOR[status.id] ?? "secondary"}>
+          {status.description}
         </Badge>
       );
     },

@@ -43,6 +43,8 @@ export interface OrderQuotationResource {
     has_final_invoice: boolean;
     advances_count: number;
   };
+  has_draft_final_invoice?: boolean;
+  has_draft_advance?: boolean;
   client: CustomersResource;
   currency_id: number;
   type_currency: CurrencyTypesResource;
@@ -54,7 +56,10 @@ export interface OrderQuotationResource {
   has_invoice_generated: boolean;
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
-  status: string;
+  status: {
+    id: number;
+    description: string;
+  };
   supply_type: "STOCK" | "CENTRAL" | "IMPORTACION";
   exchange_rate: number;
   chief_approval_by: string | null;
@@ -74,7 +79,12 @@ export interface OrderQuotationResource {
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
   //Opcionales
-  has_sufficient_stock: boolean;
+  can_generate_final_receipt?: {
+    can_final_receipt: boolean;
+    can_advance: boolean;
+    is_toggle_enabled: boolean;
+    message: string | null;
+  };
   cost_man_hours: number;
   is_requested_by_management: boolean;
   //Guía de remisión

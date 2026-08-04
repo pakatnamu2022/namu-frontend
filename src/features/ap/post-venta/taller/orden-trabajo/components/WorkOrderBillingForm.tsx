@@ -615,6 +615,8 @@ export default function WorkOrderBillingForm({
             isInvalidWithQuote={isInvalidWithQuote}
             isInvoiced={workOrder.is_invoiced}
             deductibleAmount={deductibleAmount}
+            hasDraftFinalInvoice={workOrder.has_draft_final_invoice ?? false}
+            hasDraftAdvance={workOrder.has_draft_advance ?? false}
           />
         </div>
       </form>

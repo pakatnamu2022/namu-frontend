@@ -191,7 +191,9 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                 key: "status",
                 label: "Estado",
                 icon: Activity,
-                value: purchaseRequest.ap_order_quotation.status || "N/A",
+                value:
+                  purchaseRequest.ap_order_quotation.status.description ||
+                  "N/A",
               },
             ]}
             sections={

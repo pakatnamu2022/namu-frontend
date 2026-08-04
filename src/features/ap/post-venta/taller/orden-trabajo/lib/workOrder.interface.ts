@@ -90,6 +90,8 @@ export interface WorkOrderResource {
     has_final_invoice: boolean;
     advances_count: number;
   };
+  has_draft_final_invoice: boolean;
+  has_draft_advance: boolean;
   status: ApMastersResource;
   invoice_to: number | null;
   invoice_to_client: CustomersResource | null;
@@ -138,6 +140,7 @@ export interface InternalNoteResource {
   id: number;
   number: string;
   work_order_id: number;
+  work_order_correlative?: string;
   created_date: string;
   closed_date: string | null;
   status: "pending" | "invoiced";

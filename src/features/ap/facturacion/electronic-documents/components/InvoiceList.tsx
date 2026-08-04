@@ -152,10 +152,10 @@ export default function InvoiceList({
       <div className="text-center py-6">
         <FileText className="h-10 w-10 text-gray-400 mx-auto mb-2" />
         <p className="text-sm text-gray-600 mb-1">
-          No hay facturas para este grupo
+          No hay comprobantes emitidos
         </p>
         <p className="text-xs text-gray-500">
-          Crea la primera factura haciendo clic en "Nueva Factura"
+          Crea la primera factura haciendo clic en "Nuevo Comprobante".
         </p>
       </div>
     );

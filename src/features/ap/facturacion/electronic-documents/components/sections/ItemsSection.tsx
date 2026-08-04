@@ -47,9 +47,10 @@ interface ItemsSectionProps {
   onOpenVehicleModel?: () => void;
   onRefreshVehicleModel?: () => void;
   isRefreshingVehicleModel?: boolean;
-  // Modo de IGV del comprobante, definido por Caja a nivel de documento (no por item).
-  // "normal": items gravados con IGV (comportamiento actual). "inafecta": items sin IGV.
-  igvMode?: "normal" | "inafecta";
+  // Modo de IGV del comprobante, definido a nivel de documento (no por item).
+  // "normal": items gravados con IGV. "inafecta": items sin IGV. "gratuita": items sin IGV
+  // y sin cobro (transferencia gratuita, code_nubefact 17).
+  igvMode?: "normal" | "inafecta" | "gratuita";
 }
 
 export function ItemsSection({
@@ -124,15 +125,17 @@ export function ItemsSection({
     anticipo_documento_numero: "",
   };
 
-  // Tipo de IGV a aplicar a los items nuevos/editados, según el modo elegido por Caja.
+  // Tipo de IGV a aplicar a los items nuevos/editados, según el modo elegido a nivel de documento.
   const activeIgvTypeCode =
     igvMode === "inafecta"
       ? NUBEFACT_CODES.INAFECTA_ONEROSA
-      : NUBEFACT_CODES.GRAVADA_ONEROSA;
+      : igvMode === "gratuita"
+        ? NUBEFACT_CODES.GRATUITA
+        : NUBEFACT_CODES.GRAVADA_ONEROSA;
   const activeIgvType = igvTypes.find(
     (t) => t.code_nubefact === activeIgvTypeCode,
   );
-  const chargesIgv = igvMode !== "inafecta";
+  const chargesIgv = igvMode === "normal";
 
   const [newItem, setNewItem] = useState(emptyNewItem);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -501,6 +504,19 @@ export function ItemsSection({
                 <AlertDescription className="text-xs text-muted-foreground">
                   Este item se registrará sin IGV (precio ingresado = precio
                   final).
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {igvMode === "gratuita" && (
+              <Alert className="text-sm p-2">
+                <AlertTitle className="flex items-center gap-2">
+                  <Info className="size-5" />
+                  Comprobante de Transferencia Gratuita
+                </AlertTitle>
+                <AlertDescription className="text-xs text-muted-foreground">
+                  Este item se registrará sin IGV y sin cobro (transferencia
+                  gratuita).
                 </AlertDescription>
               </Alert>
             )}

@@ -8,11 +8,12 @@ import { translateMovementType } from "@/features/ap/post-venta/gestion-almacen/
 import { ArrowDown, ArrowUp, RotateCcw, XCircle } from "lucide-react";
 import InventoryMovementActions from "./InventoryMovementActions.tsx";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
-import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface.ts";
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
 import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
+import { ShippingGuidesResource } from "@/features/ap/shipping_guides/lib/shippingGuides.interface.ts";
+import { InternalNoteResource } from "../../../taller/orden-trabajo/lib/workOrder.interface.ts";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -156,11 +157,8 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       // TRANSFER_OUT - Mostrar almacén destino y guía de remisión
-      if (
-        movementType === "TRANSFER_OUT" ||
-        referenceType?.includes("ShipmentsReceptions")
-      ) {
-        const shipment = reference as ShipmentsReceptionsResource;
+      if (movementType === "TRANSFER_OUT") {
+        const shipment = reference as ShippingGuidesResource;
         const destinationName =
           shipment.receiver_establishment?.description ||
           shipment.receiver_name ||
@@ -180,14 +178,15 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       // TRANSFER_IN - Mostrar almacén origen y guía de remisión
-      if (
-        movementType === "TRANSFER_IN" ||
-        referenceType?.includes("TransferReception")
-      ) {
-        const transferReception = reference as TransferReceptionResource;
-        const warehouseOrigin =
-          transferReception.shipping_guide?.transmitter_establishment;
-        const shippingGuide = transferReception.shipping_guide;
+      if (movementType === "TRANSFER_IN") {
+        // La referencia puede venir como TransferReception (con shipping_guide anidado)
+        // o directamente como ShippingGuides, según el origen del movimiento
+        const isShippingGuide = referenceType?.includes("ShippingGuides");
+
+        const shippingGuide = isShippingGuide
+          ? (reference as ShippingGuidesResource)
+          : (reference as TransferReceptionResource).shipping_guide;
+        const warehouseOrigin = shippingGuide?.transmitter_establishment;
 
         return (
           <div className="flex flex-col text-sm">
@@ -198,6 +197,50 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               <span className="text-xs text-gray-500">
                 Guía: {shippingGuide.document_number}
               </span>
+            )}
+          </div>
+        );
+      }
+
+      // SALE - Nota interna facturada (venta generada desde una nota interna de taller)
+      if (
+        movementType === "SALE" &&
+        referenceType?.includes("ApInternalNote")
+      ) {
+        const internalNote = reference as InternalNoteResource;
+        const electronicDoc = movement.electronic_document;
+        const isCancelled = electronicDoc?.status === "cancelled";
+
+        console.log("internalNote", internalNote);
+        console.log("electronicDoc", electronicDoc);
+
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">
+              {electronicDoc?.cliente_denominacion ?? "-"}
+            </span>
+            <span className="text-xs text-gray-500">
+              RUC: {electronicDoc?.cliente_numero_de_documento ?? "-"}
+            </span>
+            <span className="text-xs text-gray-500">
+              Nota interna: {internalNote.number}
+              {internalNote.work_order_correlative &&
+                ` · ${internalNote.work_order_correlative}`}
+            </span>
+            {electronicDoc?.full_number && (
+              <div
+                className={`flex items-center gap-1.5 text-xs ${isCancelled ? "text-red-500" : "text-gray-500"}`}
+              >
+                {isCancelled && (
+                  <XCircle className="h-3 w-3 text-red-500 shrink-0" />
+                )}
+                <span>Factura: {electronicDoc.full_number}</span>
+                {electronicDoc.credit_note_id && (
+                  <span className="text-red-400 font-medium">
+                    · NC {electronicDoc.credit_note_number}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         );
@@ -270,8 +313,26 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         );
       }
 
-      // ADJUSTMENT_OUT - Puede ser por orden de trabajo o por cotización
+      // ADJUSTMENT_OUT - Puede ser por orden de trabajo, cotización o nota interna
       if (movementType === "ADJUSTMENT_OUT") {
+        // Verificar si es ApInternalNote (nota interna de taller)
+        if (referenceType?.includes("ApInternalNote")) {
+          const internalNote = reference as InternalNoteResource;
+
+          return (
+            <div className="flex flex-col text-sm">
+              <span className="font-medium">
+                Nota interna: {internalNote.number}
+              </span>
+              {internalNote.work_order_correlative && (
+                <span className="text-xs text-gray-500">
+                  {internalNote.work_order_correlative}
+                </span>
+              )}
+            </div>
+          );
+        }
+
         // Verificar si es WorkOrderPartsResource
         if ("work_order_correlative" in reference) {
           const workOrderPart = reference as WorkOrderPartsResource;
@@ -315,16 +376,39 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         }
       }
 
-      // ADJUSTMENT_IN con reason_in_out
-      if (movementType === "ADJUSTMENT_IN" && movement.movement_number_dyn) {
-        return (
-          <div className="flex flex-col text-sm">
-            <span className="font-medium">Ajuste de inventario</span>
-            <span className="text-xs text-gray-500">
-              {movement.movement_number_dyn || "-"}
-            </span>
-          </div>
-        );
+      // ADJUSTMENT_IN - Puede ser por nota interna o por reason_in_out
+      if (movementType === "ADJUSTMENT_IN") {
+        // Verificar si es ApInternalNote (nota interna de taller)
+        if (referenceType?.includes("ApInternalNote")) {
+          const internalNote = reference as InternalNoteResource;
+
+          return (
+            <div className="flex flex-col text-sm">
+              <span className="font-medium">
+                Nota interna: {internalNote.number}
+              </span>
+              <span className="text-xs text-gray-500">
+                {formatDate(internalNote.created_date)}
+              </span>
+              {internalNote.work_order_correlative && (
+                <span className="text-xs text-gray-500">
+                  {internalNote.work_order_correlative}
+                </span>
+              )}
+            </div>
+          );
+        }
+
+        if (movement.movement_number_dyn) {
+          return (
+            <div className="flex flex-col text-sm">
+              <span className="font-medium">Ajuste de inventario</span>
+              <span className="text-xs text-gray-500">
+                {movement.movement_number_dyn || "-"}
+              </span>
+            </div>
+          );
+        }
       }
 
       if (movementType === "RETURN_IN") {

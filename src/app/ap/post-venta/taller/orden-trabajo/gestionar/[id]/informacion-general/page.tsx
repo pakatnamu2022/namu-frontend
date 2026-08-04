@@ -338,7 +338,7 @@ export default function GeneralInformationPage() {
               </h3>
               <Badge color="default">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                {workOrder.order_quotation.status}
+                {workOrder.order_quotation.status.description}
               </Badge>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -295,6 +295,7 @@ export default function WorkOrderBillingFormContent({
 
   const vouchers = workOrder?.vouchers;
   const currencySymbol = workOrder?.type_currency?.symbol || "S/";
+  const hasNegativeInvoicePreview = (workOrder?.invoice_preview?.total ?? 0) < 0;
 
   return (
     <div className="space-y-6">
@@ -417,7 +418,7 @@ export default function WorkOrderBillingFormContent({
                   <div className="flex items-center gap-2">
                     <FileText className="h-5 w-5 text-primary" />
                     <h4 className="font-semibold text-gray-900">
-                      Facturas Emitidas
+                      Comprobantes Emitidos
                     </h4>
                     {vouchers && vouchers.active.length > 0 && (
                       <Badge variant="outline" className="bg-primary/5">
@@ -425,17 +426,64 @@ export default function WorkOrderBillingFormContent({
                       </Badge>
                     )}
                   </div>
-                  {!workOrder?.is_invoiced && (
-                    <Button
-                      onClick={handleCreateInvoice}
-                      size="sm"
-                      disabled={!workOrder?.invoice_to_client}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Nueva Factura
-                    </Button>
-                  )}
+                  {!workOrder?.is_invoiced &&
+                    !workOrder?.payment_summary?.has_final_invoice && (
+                      <Button
+                        onClick={handleCreateInvoice}
+                        size="sm"
+                        disabled={
+                          !workOrder?.invoice_to_client ||
+                          workOrder?.has_draft_final_invoice ||
+                          workOrder?.has_draft_advance ||
+                          hasNegativeInvoicePreview
+                        }
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nuevo Comprobante
+                      </Button>
+                    )}
                 </div>
+
+                {!workOrder?.is_invoiced &&
+                  !workOrder?.payment_summary?.has_final_invoice &&
+                  workOrder?.has_draft_final_invoice && (
+                    <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                      <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Ya existe un comprobante final en borrador para esta
+                        orden. Complételo o elimínelo para poder crear un nuevo
+                        documento.
+                      </p>
+                    </div>
+                  )}
+
+                {!workOrder?.is_invoiced &&
+                  !workOrder?.payment_summary?.has_final_invoice &&
+                  !workOrder?.has_draft_final_invoice &&
+                  workOrder?.has_draft_advance && (
+                    <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                      <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Ya existe un anticipo en borrador para esta orden.
+                        Debe completarse o eliminarse antes de generar otro
+                        documento.
+                      </p>
+                    </div>
+                  )}
+
+                {!workOrder?.is_invoiced &&
+                  !workOrder?.payment_summary?.has_final_invoice &&
+                  hasNegativeInvoicePreview && (
+                    <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
+                      <AlertCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-red-800 leading-relaxed">
+                        Esta orden de trabajo no está regularizada o cuadrada:
+                        tiene pagos/anticipos que superan el total asignado a
+                        la orden {workOrder?.correlative}. Regularice los
+                        pagos antes de generar un nuevo comprobante.
+                      </p>
+                    </div>
+                  )}
 
                 <InvoiceList
                   vouchers={vouchers ?? { active: [], cancelled: [] }}
