@@ -297,6 +297,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "FilePlus",
     description: "Permite generar una nota interna para una orden de trabajo",
   },
+  {
+    value: "authorizeReversalInternalNote",
+    label: "Autorizar Reversión Nota Interna",
+    icon: "CheckCircle",
+    description: "Permite autorizar la reversión de una nota interna",
+  },
 ];
 
 /**
@@ -380,5 +386,8 @@ export function useModulePermissions(moduleCode: string) {
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
     canGenerateInternalNote: hasModulePermission("generateInternalNote"),
     canChangeLocation: hasModulePermission("changeLocation"),
+    canAuthorizeReversalInternalNote: hasModulePermission(
+      "authorizeReversalInternalNote",
+    ),
   };
 }

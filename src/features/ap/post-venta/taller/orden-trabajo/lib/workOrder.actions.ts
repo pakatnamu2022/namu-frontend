@@ -313,6 +313,27 @@ export async function revertInternalNote(
   return response.data;
 }
 
+export async function authorizeInternalNoteRevert(
+  id: number,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/authorize-internal-note-revert`,
+  );
+  return response.data;
+}
+
+export async function getInternalNoteLogs(id: number): Promise<any> {
+  const { data } = await api.get<any>(`${ENDPOINT}/${id}/internal-note-logs`);
+  return data;
+}
+
+export async function verifyInternalNoteMigration(id: number): Promise<any> {
+  const { data } = await api.post<any>(
+    `${ENDPOINT}/${id}/verify-internal-note-migration`,
+  );
+  return data;
+}
+
 export interface CancelWorkOrderData {
   discard_reason_id: number;
   discarded_note?: string | null;
