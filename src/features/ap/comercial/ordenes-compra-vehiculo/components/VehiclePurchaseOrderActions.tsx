@@ -16,12 +16,14 @@ interface Props {
   isFetching?: boolean;
   onRefresh: () => void;
   exportParams?: Record<string, any>;
+  canExport?: boolean;
 }
 
 export default function VehiclePurchaseOrderActions({
   onRefresh,
   isFetching,
   exportParams,
+  canExport = true,
 }: Props) {
   const router = useNavigate();
   const { ROUTE_ADD } = VEHICLE_PURCHASE_ORDER;
@@ -58,20 +60,22 @@ export default function VehiclePurchaseOrderActions({
         />
         Migrar Todo
       </Button>
-      <ExportButtons
-        onExcelDownload={() =>
-          exportVehiclePurchaseOrder({
-            params: exportParams,
-            format: "excel",
-          })
-        }
-        onPdfDownload={() =>
-          exportVehiclePurchaseOrder({
-            params: exportParams,
-            format: "pdf",
-          })
-        }
-      />
+      {canExport && (
+        <ExportButtons
+          onExcelDownload={() =>
+            exportVehiclePurchaseOrder({
+              params: exportParams,
+              format: "excel",
+            })
+          }
+          onPdfDownload={() =>
+            exportVehiclePurchaseOrder({
+              params: exportParams,
+              format: "pdf",
+            })
+          }
+        />
+      )}
       <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
         <Plus className="size-4 mr-2" /> Agregar Orden de Compra
       </Button>
