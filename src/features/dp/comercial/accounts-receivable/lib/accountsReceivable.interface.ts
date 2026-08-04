@@ -9,8 +9,8 @@ export interface AccountReceivableComment {
   comment: string;
   sede_id: number;
   sede: Sede;
-  user_id: number;
-  user: { id: number; name: string; sede: string };
+  user_id: number | null;
+  user: { id: number; name: string; sede: string } | null;
   created_at: string;
 }
 
@@ -120,6 +120,8 @@ export interface AccountsReceivableFilters {
   currency?: string;
   overdue_status?: string[];
   seller?: string;
+  /** true = solo documentos digitalizados (con documento electrónico vinculado); false = solo históricos (sin vínculo) */
+  electronic_document_id?: boolean;
   "document_date[from]"?: string;
   "document_date[to]"?: string;
   "document_due_date[from]"?: string;

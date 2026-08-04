@@ -7,6 +7,7 @@ import {
   Check,
   X,
   ChevronDown,
+  Cog,
 } from "lucide-react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
@@ -115,8 +116,10 @@ function CommentItem({
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const editable = canUpdate && isToday(comment.created_at) && comment.id !== 0;
-  const name = comment.user?.name ?? "Usuario";
+  const isSystem = comment.user == null;
+  const editable =
+    canUpdate && !isSystem && isToday(comment.created_at) && comment.id !== 0;
+  const name = comment.user?.name ?? "Sistema";
   const align = isOwn ? "end" : "start";
 
   const isLong = comment.comment.length > TRUNCATE_LIMIT;
@@ -161,16 +164,18 @@ function CommentItem({
               <div
                 className={cn(
                   "size-8 rounded-full flex items-center justify-center text-[11px] font-bold cursor-default select-none",
-                  avatarColor(name),
+                  isSystem
+                    ? "bg-slate-100 text-slate-500"
+                    : avatarColor(name),
                 )}
               >
-                {getInitials(name)}
+                {isSystem ? <Cog className="size-4" /> : getInitials(name)}
               </div>
             </MessageAvatar>
           </TooltipTrigger>
           <TooltipContent side="top">
             {isOwn ? "Tú" : name}
-            {!isOwn && comment.user.sede && ` · ${comment.user.sede}`}
+            {!isOwn && comment.user?.sede && ` · ${comment.user.sede}`}
           </TooltipContent>
         </Tooltip>
 

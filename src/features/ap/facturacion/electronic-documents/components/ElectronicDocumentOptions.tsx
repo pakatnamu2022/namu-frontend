@@ -1,5 +1,8 @@
 import SearchInput from "@/shared/components/SearchInput";
-import { DOCUMENT_STATUS } from "../lib/electronicDocument.constants";
+import {
+  DOCUMENT_STATUS,
+  MIGRATION_STATUS,
+} from "../lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { AREA_OPTIONS } from "@/features/ap/ap-master/lib/apMaster.constants";
@@ -10,6 +13,8 @@ interface Props {
   setSearch: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
+  migrationStatusFilter?: string;
+  setMigrationStatusFilter?: (value: string) => void;
   areaFilter?: string;
   setAreaFilter?: (value: string) => void;
   documentTypeFilter: string;
@@ -25,6 +30,8 @@ export default function ElectronicDocumentOptions({
   setSearch,
   statusFilter,
   setStatusFilter,
+  migrationStatusFilter,
+  setMigrationStatusFilter,
   areaFilter,
   setAreaFilter,
   documentTypeFilter,
@@ -65,6 +72,19 @@ export default function ElectronicDocumentOptions({
           className="md:min-w-44"
           placeholder="Seleccionar Estado"
           options={DOCUMENT_STATUS.map((status) => ({
+            value: status.value,
+            label: status.label,
+          }))}
+        />
+      )}
+
+      {setMigrationStatusFilter && (
+        <SearchableSelect
+          onChange={setMigrationStatusFilter}
+          value={migrationStatusFilter ?? ""}
+          className="md:min-w-44"
+          placeholder="Seleccionar Estado de Migración"
+          options={MIGRATION_STATUS.map((status) => ({
             value: status.value,
             label: status.label,
           }))}

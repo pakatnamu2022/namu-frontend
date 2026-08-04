@@ -22,9 +22,12 @@ import {
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { useMutation } from "@tanstack/react-query";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclePurchaseOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const permissions = useModulePermissions(ROUTE);
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -35,7 +38,7 @@ export default function VehiclePurchaseOrderPage() {
   const [modelId, setModelId] = useState("all");
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
-  const { MODEL, ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const { MODEL } = VEHICLE_PURCHASE_ORDER;
   const migrateMutation = useMutation({
     mutationFn: dispatchVehiclePurchaseOrderMigration,
     onSuccess: () => successToast("Migración despachada correctamente"),
@@ -117,6 +120,15 @@ export default function VehiclePurchaseOrderPage() {
         <VehiclePurchaseOrderActions
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
+          canExport={permissions.canExport}
+          exportParams={{
+            search: search || undefined,
+            sede_id: sedeId || undefined,
+            warehouse_id: warehouseId !== "all" ? warehouseId : undefined,
+            supplier_id: supplierId !== "all" ? supplierId : undefined,
+            "vehicle.ap_models_vn_id": modelId !== "all" ? modelId : undefined,
+            type_operation_id: CM_COMERCIAL_ID,
+          }}
         />
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
