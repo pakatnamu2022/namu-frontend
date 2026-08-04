@@ -41,6 +41,7 @@ export default function ElectronicDocumentsPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [migrationStatusFilter, setMigrationStatusFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
   const [selectedDocument, setSelectedDocument] =
@@ -52,13 +53,21 @@ export default function ElectronicDocumentsPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, statusFilter, documentTypeFilter, sedeId]);
+  }, [
+    search,
+    per_page,
+    statusFilter,
+    migrationStatusFilter,
+    documentTypeFilter,
+    sedeId,
+  ]);
 
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
     search,
     status: statusFilter,
+    migration_status: migrationStatusFilter,
     area_id: [AREA_COMERCIAL],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
@@ -204,6 +213,8 @@ export default function ElectronicDocumentsPage() {
           setSearch={setSearch}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          migrationStatusFilter={migrationStatusFilter}
+          setMigrationStatusFilter={setMigrationStatusFilter}
           documentTypeFilter={documentTypeFilter}
           setDocumentTypeFilter={setDocumentTypeFilter}
           documentTypes={documentTypes || []}
