@@ -181,6 +181,7 @@ export const ExitGuideForm = ({
             name="is_extraordinary"
             text="Entrega extraordinaria"
             textDescription="Permite programar la entrega en un horario ya tomado."
+            autoHeight
           />
           {watchIsExtraordinary && (
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50">
