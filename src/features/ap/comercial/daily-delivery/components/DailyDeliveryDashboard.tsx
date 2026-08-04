@@ -13,7 +13,6 @@ import BrandReport from "./BrandReport";
 import PurchasesReport from "./PurchasesReport";
 import CurrentInventory from "./CurrentInventory";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cn } from "@/lib/utils";
 import TitleComponent from "@/shared/components/TitleComponent";
 import PageWrapper from "@/shared/components/PageWrapper";
@@ -26,7 +25,6 @@ export default function DailyDeliveryDashboard() {
   });
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState("hierarchy");
-  const { canViewBranches } = useModulePermissions("dashboard-entregas");
 
   const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
@@ -112,18 +110,11 @@ export default function DailyDeliveryDashboard() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList
-              className={cn(
-                "grid w-full max-w-2xl",
-                canViewBranches ? "grid-cols-4" : "grid-cols-3",
-              )}
-            >
+            <TabsList className={cn("grid w-full max-w-2xl grid-cols-4")}>
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
               <TabsTrigger value="purchases">Por Compras</TabsTrigger>
-              {canViewBranches && (
-                <TabsTrigger value="inventory">Inventario Actual</TabsTrigger>
-              )}
+              <TabsTrigger value="inventory">Inventario Actual</TabsTrigger>
             </TabsList>
 
             <TabsContent value="hierarchy" className="mt-4">
