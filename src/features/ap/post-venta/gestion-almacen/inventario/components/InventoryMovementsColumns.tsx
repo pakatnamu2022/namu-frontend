@@ -318,6 +318,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         // Verificar si es ApInternalNote (nota interna de taller)
         if (referenceType?.includes("ApInternalNote")) {
           const internalNote = reference as InternalNoteResource;
+          const movement = row.original;
 
           return (
             <div className="flex flex-col text-sm">
@@ -327,6 +328,11 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               {internalNote.work_order_correlative && (
                 <span className="text-xs text-gray-500">
                   {internalNote.work_order_correlative}
+                </span>
+              )}
+              {movement.movement_number_dyn && (
+                <span className="text-xs text-gray-500">
+                  Dyn: {movement.movement_number_dyn}
                 </span>
               )}
             </div>
@@ -381,18 +387,21 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         // Verificar si es ApInternalNote (nota interna de taller)
         if (referenceType?.includes("ApInternalNote")) {
           const internalNote = reference as InternalNoteResource;
+          const movement = row.original;
 
           return (
             <div className="flex flex-col text-sm">
               <span className="font-medium">
                 Nota interna: {internalNote.number}
               </span>
-              <span className="text-xs text-gray-500">
-                {formatDate(internalNote.created_date)}
-              </span>
               {internalNote.work_order_correlative && (
                 <span className="text-xs text-gray-500">
                   {internalNote.work_order_correlative}
+                </span>
+              )}
+              {movement.movement_number_dyn && (
+                <span className="text-xs text-gray-500">
+                  Dyn: {movement.movement_number_dyn}
                 </span>
               )}
             </div>
