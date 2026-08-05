@@ -24,12 +24,14 @@ import {
   dispatchVehiclePurchaseOrderMigration,
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { useMutation } from "@tanstack/react-query";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function PurchaseOrderWarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_INVOICE_PV;
+  const permissions = useModulePermissions(ROUTE);
 
   const { values: filters, setFieldValue: setFilter } = useScopedFilters(
     ABSOLUTE_ROUTE,
@@ -38,6 +40,20 @@ export default function PurchaseOrderWarehousePage() {
   const { search, sedeId } = filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setSedeId = (value: string) => setFilter("sedeId", value);
+
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
+
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
 
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 
@@ -54,6 +70,10 @@ export default function PurchaseOrderWarehousePage() {
     search,
     per_page,
     sede_id: sedeId !== "all" ? sedeId : undefined,
+    emission_date:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
     type_operation_id: CM_POSTVENTA_ID,
   });
 
@@ -111,6 +131,16 @@ export default function PurchaseOrderWarehousePage() {
         <PurchaseOrderWarehouseActions
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
+          canExport={permissions.canExport}
+          exportParams={{
+            search: search || undefined,
+            sede_id: sedeId !== "all" ? sedeId : undefined,
+            emission_date:
+              dateFrom && dateTo
+                ? [formatDate(dateFrom), formatDate(dateTo)]
+                : undefined,
+            type_operation_id: CM_POSTVENTA_ID,
+          }}
         />
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
@@ -130,6 +160,10 @@ export default function PurchaseOrderWarehousePage() {
           sedes={sedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
         />
       </VehiclePurchaseOrderTable>
 
