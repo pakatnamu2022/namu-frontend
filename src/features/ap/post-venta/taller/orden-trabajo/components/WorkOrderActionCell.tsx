@@ -193,7 +193,7 @@ export function WorkOrderActionCell({
     permissions.canAuthorizeReversalInternalNote && isClosed && isInterna;
 
   const isVisibleInternalNoteHistory =
-    isClosed && firstItemPlanning?.type_document === INTERNA_SC;
+    firstItemPlanning?.type_document === INTERNA_SC;
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
