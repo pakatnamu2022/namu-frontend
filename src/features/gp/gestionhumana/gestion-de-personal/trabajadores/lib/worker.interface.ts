@@ -23,6 +23,7 @@ export interface WorkerResource {
   has_category?: boolean;
   has_objectives?: boolean;
   has_competences?: boolean;
+  has_signature: boolean;
   /**
    * SHOW EXTRA = 1 => Show extra data (inclusion_reason, has_category, has_objectives, has_competences)
    */
