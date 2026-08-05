@@ -123,7 +123,7 @@ export default function VehiclePurchaseOrderPage() {
           canExport={permissions.canExport}
           exportParams={{
             search: search || undefined,
-            sede_id: sedeId || undefined,
+            sede_id: sedeId !== "all" ? sedeId : undefined,
             warehouse_id: warehouseId !== "all" ? warehouseId : undefined,
             supplier_id: supplierId !== "all" ? supplierId : undefined,
             "vehicle.ap_models_vn_id": modelId !== "all" ? modelId : undefined,
