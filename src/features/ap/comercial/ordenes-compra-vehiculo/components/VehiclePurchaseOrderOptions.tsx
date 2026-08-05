@@ -5,7 +5,7 @@ import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-
 import { useAllVehicleStatus } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Option } from "@/core/core.interface";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 
 interface Props {
@@ -30,7 +30,7 @@ interface Props {
 export default function VehiclePurchaseOrderOptions({
   search,
   setSearch,
-  sedeId = "",
+  sedeId = "all",
   setSedeId,
   modelId = "all",
   setModelId,
@@ -69,18 +69,6 @@ export default function VehiclePurchaseOrderOptions({
     ],
     [statuses],
   );
-
-  useEffect(() => {
-    if (sedes.length === 0) return;
-
-    const selectedSedeExists = sedes.some(
-      (sede) => sede.id.toString() === sedeId,
-    );
-
-    if (!selectedSedeExists) {
-      setSedeId(sedes[0].id.toString());
-    }
-  }, [sedes, sedeId, setSedeId]);
 
   return (
     <FilterWrapper>
