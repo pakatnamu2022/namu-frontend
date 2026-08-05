@@ -47,7 +47,7 @@ export const workerColumns = ({
   },
   {
     accessorKey: "has_signature",
-    header: "Firma",
+    header: "Reg. Firma",
     cell: ({ row }) => {
       const hasSignature = row.original.has_signature;
 
