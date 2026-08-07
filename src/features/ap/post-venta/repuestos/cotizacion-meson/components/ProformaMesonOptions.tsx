@@ -3,6 +3,15 @@ import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
+import { FilterMultiSelect } from "@/shared/components/FilterMultiSelect";
+import { ORDER_QUOTATION_STATUS_GROUP } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+
+const STATUS_GROUP_OPTIONS = [
+  { label: "Abiertas", value: ORDER_QUOTATION_STATUS_GROUP.ABIERTAS },
+  { label: "Facturadas", value: ORDER_QUOTATION_STATUS_GROUP.FACTURADAS },
+  { label: "Segmentadas", value: ORDER_QUOTATION_STATUS_GROUP.SEGMENTADAS },
+  { label: "Descartadas", value: ORDER_QUOTATION_STATUS_GROUP.DESCARTADAS },
+];
 
 interface Props {
   search: string;
@@ -14,6 +23,8 @@ interface Props {
   setDateFrom: (date: Date | undefined) => void;
   dateTo: Date | undefined;
   setDateTo: (date: Date | undefined) => void;
+  statusGroups?: string[];
+  setStatusGroups?: (value: string[]) => void;
 }
 
 export default function OrderQuotationMesonOptions({
@@ -26,6 +37,8 @@ export default function OrderQuotationMesonOptions({
   setDateFrom,
   dateTo,
   setDateTo,
+  statusGroups,
+  setStatusGroups,
 }: Props) {
   return (
     <FilterWrapper>
@@ -54,6 +67,15 @@ export default function OrderQuotationMesonOptions({
         }}
         className="w-auto min-w-56"
       />
+      {setStatusGroups && (
+        <FilterMultiSelect
+          options={STATUS_GROUP_OPTIONS}
+          value={statusGroups || []}
+          onChange={setStatusGroups}
+          placeholder="Abiertas / Facturadas / Segmentadas"
+          className="min-w-48"
+        />
+      )}
     </FilterWrapper>
   );
 }

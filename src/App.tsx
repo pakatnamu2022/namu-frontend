@@ -327,6 +327,7 @@ import AddProductTallerPage from "./app/ap/post-venta/taller/producto-taller/agr
 import UpdateProductTallerPage from "./app/ap/post-venta/taller/producto-taller/actualizar/[id]/page.tsx";
 import AssignWarehouseTallerPage from "./app/ap/post-venta/taller/producto-taller/asignar-almacen/[id]/page.tsx";
 import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
+import InternalNoteMigrationPage from "./app/ap/post-venta/taller/notas-internas/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
@@ -1716,6 +1717,10 @@ function App() {
                 element={<OrderQuotationPage />}
               />
               <Route path="taller/orden-trabajo" element={<WorkOrderPage />} />
+              <Route
+                path="taller/notas-internas"
+                element={<InternalNoteMigrationPage />}
+              />
               <Route
                 path="taller/orden-trabajo/agregar"
                 element={<AddWorkOrderPage />}
