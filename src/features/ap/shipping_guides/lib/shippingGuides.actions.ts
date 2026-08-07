@@ -180,6 +180,10 @@ export async function dispatchShippingGuideMigration(
   await api.post(`${ENDPOINT}/${id}/dispatch-migration`);
 }
 
+export async function resetShippingGuideMigration(id: number): Promise<void> {
+  await api.post(`${ENDPOINT}/${id}/reset-migration`);
+}
+
 export async function dispatchAllShippingGuides(): Promise<void> {
   await api.post(`${ENDPOINT}/dispatch-all`);
 }

@@ -22,6 +22,7 @@ import {
   BookX,
   CloudUpload,
   BatteryPlus,
+  RotateCcw,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
@@ -53,6 +54,7 @@ interface Props {
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onCancel: (id: number) => void;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
   onGeneratePDI: (ap_vehicle_id: number) => void;
   onGenerateInstAccessories: (ap_vehicle_id: number) => void;
@@ -65,6 +67,7 @@ interface Props {
     canGenerate: boolean;
     canMigrate: boolean;
     canAnnul: boolean;
+    canResetMigration: boolean;
   };
 }
 
@@ -130,6 +133,7 @@ export const ShipmentsReceptionsColumns = ({
   onViewDetails,
   onCancel,
   onMigrate,
+  onResetMigration,
   onSyncWithDynamics,
   onGeneratePDI,
   onGenerateInstAccessories,
@@ -626,6 +630,11 @@ export const ShipmentsReceptionsColumns = ({
         row.original.migration_status !== "completed" &&
         permissions.canMigrate;
 
+      const canResetMigration =
+        !!onResetMigration &&
+        row.original.migration_status === "failed" &&
+        permissions.canResetMigration;
+
       const canCancel =
         isGuiaRemision &&
         isAlreadyReceived &&
@@ -714,6 +723,14 @@ export const ShipmentsReceptionsColumns = ({
             color="purple"
             onClick={() => onMigrate && onMigrate(id)}
             canRender={canMigrate}
+          />
+
+          <ButtonAction
+            icon={RotateCcw}
+            tooltip="Reiniciar migración"
+            color="red"
+            onClick={() => onResetMigration && onResetMigration(id)}
+            canRender={canResetMigration}
           />
 
           <ButtonAction

@@ -13,6 +13,7 @@ import {
   cancelElectronicDocument,
   preCancelElectronicDocument,
   dispatchElectronicDocumentMigration,
+  resetElectronicDocumentMigration,
   syncAccountingStatusById,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
@@ -141,6 +142,18 @@ export default function ElectronicDocumentsPage() {
     },
   });
 
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetElectronicDocumentMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
+    },
+  });
+
   const syncAccountingStatusMutation = useMutation({
     mutationFn: syncAccountingStatusById,
     onSuccess: (data) => {
@@ -193,6 +206,7 @@ export default function ElectronicDocumentsPage() {
           onAnnul: handleCancel,
           onPreCancel: handlePreCancel,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncAccountingStatus: (id) =>
             syncAccountingStatusMutation.mutate(id),
           isCommercial: true,
@@ -203,6 +217,7 @@ export default function ElectronicDocumentsPage() {
             canCreateCreditNote,
             canCreateDebitNote,
             canMigrate,
+            canResetMigration: permissions.canResetMigration || false,
           },
           routeAbsolute: ABSOLUTE_ROUTE,
         })}

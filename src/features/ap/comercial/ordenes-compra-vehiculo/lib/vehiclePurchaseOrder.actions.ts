@@ -149,6 +149,10 @@ export async function dispatchVehiclePurchaseOrderMigration(id: number): Promise
   await api.post(`${ENDPOINT}/migration/${id}/dispatch-migration`);
 }
 
+export async function resetVehiclePurchaseOrderMigration(id: number): Promise<void> {
+  await api.post(`${ENDPOINT}/migration/${id}/reset-migration`);
+}
+
 export async function exportVehiclePurchaseOrder({
   params,
   format = "excel",

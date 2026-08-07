@@ -22,7 +22,10 @@ import TransfersOptions from "@/features/ap/comercial/traslados/components/Trans
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMutation } from "@tanstack/react-query";
-import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import {
+  dispatchShippingGuideMigration,
+  resetShippingGuideMigration,
+} from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { errorToast, successToast } from "@/core/core.function";
 
 export default function TransfersPage() {
@@ -56,6 +59,17 @@ export default function TransfersPage() {
       errorToast(`Error al despachar migración: ${msg}`);
     },
   });
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetShippingGuideMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
+    },
+  });
   const syncWithDynamicsMutation = useSyncShippingGuideWithDynamics();
 
   if (isLoadingModule) return <PageSkeleton />;
@@ -82,7 +96,9 @@ export default function TransfersPage() {
         columns={TransfersColumns({
           onViewDetails: setSelectedShipment,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
+          permissions,
         })}
         data={data?.data || []}
       >

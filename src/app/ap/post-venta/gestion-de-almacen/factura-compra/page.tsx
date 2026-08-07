@@ -22,6 +22,7 @@ import {
   dispatchSyncCreditNote,
   dispatchSyncInvoice,
   dispatchVehiclePurchaseOrderMigration,
+  resetVehiclePurchaseOrderMigration,
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { useMutation } from "@tanstack/react-query";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -115,6 +116,17 @@ export default function PurchaseOrderWarehousePage() {
       errorToast(`Error al despachar migración: ${msg}`);
     },
   });
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetVehiclePurchaseOrderMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
+    },
+  });
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -151,6 +163,8 @@ export default function PurchaseOrderWarehousePage() {
           typeOperationId: CM_POSTVENTA_ID,
           resendRoute: ABSOLUTE_ROUTE,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
+          permissions: { canResetMigration: permissions.canResetMigration },
         })}
         data={data?.data || []}
       >
