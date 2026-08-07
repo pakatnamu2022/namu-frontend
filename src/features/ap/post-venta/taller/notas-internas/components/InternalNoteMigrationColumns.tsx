@@ -1,9 +1,15 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { InternalNoteMigrationResource } from "../lib/internalNoteMigration.interface";
-import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/core/core.function";
 import { CopyCell } from "@/shared/components/CopyCell";
 import { InternalNoteMigrationActionCell } from "./InternalNoteMigrationActionCell";
+import { Badge } from "@/components/ui/badge";
+import { Check, X } from "lucide-react";
+import {
+  MIGRATION_STATUS,
+  MIGRATION_STATUS_COLOR,
+  MigrationStatus,
+} from "../lib/internalNoteMigration.constants";
 
 export type InternalNoteMigrationColumns =
   ColumnDef<InternalNoteMigrationResource>;
@@ -20,14 +26,23 @@ export const internalNoteMigrationColumns = ({
   {
     accessorKey: "number",
     header: "Número",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      return value && <CopyCell className="font-semibold" value={value} />;
+      const isReversed = !!row.original.dyn_series_in;
+
+      if (!value) return null;
+
+      return (
+        <div className="flex flex-col items-start gap-0.5">
+          <CopyCell className="font-semibold" value={value} />
+          {isReversed && (
+            <Badge color="red" size="xs" className="w-fit">
+              Revertido
+            </Badge>
+          )}
+        </div>
+      );
     },
-  },
-  {
-    accessorKey: "work_order_correlative",
-    header: "Orden de Trabajo",
   },
   {
     accessorKey: "created_date",
@@ -43,28 +58,60 @@ export const internalNoteMigrationColumns = ({
     },
   },
   {
-    accessorKey: "closed_date",
-    header: "Fecha Cierre",
+    accessorKey: "work_order_correlative",
+    header: "Orden de Trabajo",
+  },
+  {
+    accessorKey: "migration_status",
+    header: "Estado Migración",
     cell: ({ getValue }) => {
-      const value = getValue() as string | null;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
+      const status = getValue() as MigrationStatus;
+      const label = MIGRATION_STATUS[status] ?? status;
+      const color = MIGRATION_STATUS_COLOR[status] ?? "gray";
+
+      return (
+        <Badge color={color} size="sm">
+          {label}
+        </Badge>
+      );
     },
   },
   {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const color = value === "invoiced" ? "green" : "gray";
+    id: "dyn_status",
+    header: "Estados Dynamics",
+    cell: ({ row }) => {
+      const {
+        dyn_series_out: seriesOut,
+        dyn_series_in: seriesIn,
+        is_accounted_out: isAccountedOut,
+        is_accounted_in: isAccountedIn,
+      } = row.original;
+
+      if (!seriesOut && !seriesIn) return "-";
+
       return (
-        <Badge variant="outline" color={color}>
-          {value === "invoiced" ? "Facturado" : "Pendiente"}
-        </Badge>
+        <div className="flex flex-col gap-1">
+          {seriesOut && (
+            <div className="flex items-center gap-1.5">
+              <span>{seriesOut}</span>
+              {isAccountedOut ? (
+                <Check className="size-3.5 text-green-600 dark:text-green-400" />
+              ) : (
+                <X className="size-3.5 text-red-600 dark:text-red-400" />
+              )}
+            </div>
+          )}
+          {seriesIn && (
+            <div className="flex items-center gap-1.5">
+              <span>{seriesIn}</span>
+              {isAccountedIn ? (
+                <Check className="size-3.5 text-green-600 dark:text-green-400" />
+              ) : (
+                <X className="size-3.5 text-red-600 dark:text-red-400" />
+              )}
+            </div>
+          )}
+        </div>
       );
     },
   },
