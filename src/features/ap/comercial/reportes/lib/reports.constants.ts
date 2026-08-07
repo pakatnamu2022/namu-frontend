@@ -124,6 +124,81 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     ],
     defaultParams: {},
   },
+  {
+    id: "purchase-request-quote",
+    title: "Reporte de Solicitudes de Compra | Cotizaciones",
+    type: "Compras",
+    description:
+      "Exporta el reporte de solicitudes de compra | cotizaciones de vehículos, filtrando por rango de fechas, modelo, marca, familia y sede.",
+    icon: "FileSearch",
+    endpoint: "/ap/commercial/reports/purchase-request-quote/export",
+    method: "get",
+    fields: [
+      {
+        name: "fecha",
+        label: "Fecha",
+        type: "daterange",
+        required: true,
+        nameFrom: "fecha_inicio",
+        nameTo: "fecha_fin",
+        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
+        defaultValueTo: getTodayLocalDateString(),
+      },
+      {
+        name: "brand_id",
+        label: "Marca",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar marca",
+        endpoint: "/ap/configuration/vehicleBrand?all=true&status=1&type_operation_id=794",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.name,
+          })),
+      },
+      {
+        name: "family_id",
+        label: "Familia",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar familia",
+        endpoint: "/ap/configuration/families?all=true&status=1",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.description,
+          })),
+      },
+      {
+        name: "ap_models_vn_id",
+        label: "Modelo",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar modelo",
+        endpoint: "/ap/configuration/modelsVn?all=true&status=1",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: `${item.code} - ${item.version}`,
+          })),
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.abreviatura,
+          })),
+      },
+    ],
+    defaultParams: {},
+  },
 ];
 
 export const REPORTS_CONSTANTS: ModelComplete = {
