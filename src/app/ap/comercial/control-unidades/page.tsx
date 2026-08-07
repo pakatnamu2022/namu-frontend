@@ -31,10 +31,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
-import {
-  dispatchShippingGuideMigration,
-  resetShippingGuideMigration,
-} from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { errorToast, successToast } from "@/core/core.function";
 
 export default function ControlUnitsPage() {
@@ -68,17 +65,6 @@ export default function ControlUnitsPage() {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
       errorToast(`Error al despachar migración: ${msg}`);
-    },
-  });
-  const resetMigrationMutation = useMutation({
-    mutationFn: resetShippingGuideMigration,
-    onSuccess: () => {
-      successToast("Migración reiniciada correctamente");
-      refetch();
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(`Error al reiniciar migración: ${msg}`);
     },
   });
 
@@ -161,7 +147,6 @@ export default function ControlUnitsPage() {
           onSendToNubefact: (id) => sendToNubefactMutation.mutate(id),
           onQueryFromNubefact: (id) => queryFromNubefactMutation.mutate(id),
           onMigrate: (id) => migrateMutation.mutate(id),
-          onResetMigration: (id) => resetMigrationMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}

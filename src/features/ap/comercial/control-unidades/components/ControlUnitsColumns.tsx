@@ -19,7 +19,6 @@ import {
   ShoppingCart,
   LucideIcon,
   ArrowRightLeft,
-  RotateCcw,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -129,7 +128,6 @@ export const ControlUnitsColumns = ({
   onSendToNubefact,
   onQueryFromNubefact,
   onMigrate,
-  onResetMigration,
   permissions,
 }: Props): ControlUnitsColumnsType[] => [
   {
@@ -538,11 +536,6 @@ export const ControlUnitsColumns = ({
         isAcceptedBySunat &&
         permissions.canMigrate;
 
-      const canResetMigration =
-        !!onResetMigration &&
-        row.original.migration_status === "failed" &&
-        permissions.canResetMigration;
-
       const canCancel =
         permissions.canAnnul &&
         isAlreadyReceived &&
@@ -619,14 +612,6 @@ export const ControlUnitsColumns = ({
             tooltip="Migrar"
             onClick={() => onMigrate && onMigrate(id)}
             canRender={canMigrate}
-          />
-
-          <ButtonAction
-            icon={RotateCcw}
-            tooltip="Reiniciar migración"
-            color="red"
-            onClick={() => onResetMigration && onResetMigration(id)}
-            canRender={canResetMigration}
           />
 
           <ButtonAction
