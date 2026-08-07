@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import {
   ConfirmByTokenData,
@@ -208,4 +209,31 @@ export async function setOrderQuotationInEditing(
     `${ENDPOINT}/${id}/set-in-editing`,
   );
   return response.data;
+}
+
+export interface exportOrderQuotationsProps {
+  params?: Record<string, any>;
+}
+
+export async function exportOrderQuotations({
+  params,
+}: exportOrderQuotationsProps): Promise<void> {
+  const config: AxiosRequestConfig = {
+    params,
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export`, config);
+
+  const blob = new Blob([response.data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `cotizaciones-meson-${Date.now()}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 }
