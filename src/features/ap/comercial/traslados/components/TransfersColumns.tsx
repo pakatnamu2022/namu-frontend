@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, ArrowRightLeft, CloudUpload } from "lucide-react";
+import { Eye, ArrowRightLeft, CloudUpload, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { ShipmentsReceptionsResource } from "../../envios-recepciones/lib/shipmentsReceptions.interface";
@@ -16,13 +16,19 @@ export type TransfersColumn = ColumnDef<ShipmentsReceptionsResource>;
 interface Props {
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
+  permissions?: {
+    canResetMigration: boolean;
+  };
 }
 
 export const TransfersColumns = ({
   onViewDetails,
   onMigrate,
+  onResetMigration,
   onSyncWithDynamics,
+  permissions,
 }: Props): TransfersColumn[] => [
   {
     accessorKey: "document_number",
@@ -163,6 +169,21 @@ export const TransfersColumns = ({
               <ArrowRightLeft className="size-4" />
             </Button>
           )}
+
+          {onResetMigration &&
+            migration_status === "failed" &&
+            permissions?.canResetMigration && (
+              <Button
+                variant="outline"
+                size="icon"
+                color="red"
+                className="size-7"
+                tooltip="Reiniciar migración"
+                onClick={() => onResetMigration(id)}
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            )}
         </div>
       );
     },

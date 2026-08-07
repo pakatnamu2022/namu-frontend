@@ -39,7 +39,10 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMutation } from "@tanstack/react-query";
-import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import {
+  dispatchShippingGuideMigration,
+  resetShippingGuideMigration,
+} from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import {
   SUNAT_CONCEPTS_ID,
   SUNAT_CONCEPTS_TYPE,
@@ -58,6 +61,7 @@ export default function ShipmentsReceptionsPage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [transferReasonId, setTransferReasonId] = useState<string>("");
+  const [migrationStatus, setMigrationStatus] = useState<string[]>([]);
   const formattedDateFrom = dateFrom
     ? format(dateFrom, "yyyy-MM-dd")
     : undefined;
@@ -92,6 +96,17 @@ export default function ShipmentsReceptionsPage() {
       errorToast(`Error al despachar migración: ${msg}`);
     },
   });
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetShippingGuideMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
+    },
+  });
 
   const { data, isLoading, refetch, isFetching } = useShipmentsReceptions({
     page,
@@ -108,6 +123,7 @@ export default function ShipmentsReceptionsPage() {
         ],
     document_type: "GUIA_REMISION",
     is_consignment: 0,
+    migration_status: migrationStatus.length > 0 ? migrationStatus : undefined,
   });
 
   const handleDelete = async () => {
@@ -223,6 +239,7 @@ export default function ShipmentsReceptionsPage() {
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
           onGeneratePDI: setGeneratePDIVehicleId,
           onGenerateInstAccessories: setGenerateInstAccessoriesVehicleId,
@@ -242,6 +259,8 @@ export default function ShipmentsReceptionsPage() {
           transferReasons={transferReasons}
           transferReasonId={transferReasonId}
           setTransferReasonId={setTransferReasonId}
+          migrationStatus={migrationStatus}
+          setMigrationStatus={setMigrationStatus}
         />
       </ShipmentsReceptionsTable>
 

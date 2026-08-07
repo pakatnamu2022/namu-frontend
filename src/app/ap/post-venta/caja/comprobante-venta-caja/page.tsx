@@ -19,6 +19,7 @@ import {
   cancelElectronicDocument,
   preCancelElectronicDocument,
   dispatchElectronicDocumentMigration,
+  resetElectronicDocumentMigration,
   syncAccountingStatusById,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions.ts";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable.tsx";
@@ -173,6 +174,18 @@ export default function SalesReceiptsCajaPage() {
     },
   });
 
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetElectronicDocumentMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
+    },
+  });
+
   const syncAccountingStatusMutation = useMutation({
     mutationFn: syncAccountingStatusById,
     onSuccess: (data) => {
@@ -232,6 +245,7 @@ export default function SalesReceiptsCajaPage() {
           onAnnul: handleCancel,
           onPreCancel: handlePreCancel,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncAccountingStatus: (id) =>
             syncAccountingStatusMutation.mutate(id),
           permissions: {
@@ -241,6 +255,7 @@ export default function SalesReceiptsCajaPage() {
             canCreateCreditNote,
             canCreateDebitNote,
             canMigrate,
+            canResetMigration: permissions.canResetMigration || false,
           },
           routeAbsolute: ABSOLUTE_ROUTE,
         })}

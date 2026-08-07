@@ -19,6 +19,7 @@ import {
   ShoppingCart,
   LucideIcon,
   ArrowRightLeft,
+  RotateCcw,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
@@ -50,6 +51,7 @@ interface Props {
   onSendToNubefact: (id: number) => void;
   onQueryFromNubefact: (id: number) => void;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   permissions: {
     canView: boolean;
     canUpdate: boolean;
@@ -59,6 +61,7 @@ interface Props {
     canGenerate: boolean;
     canMigrate: boolean;
     canAnnul: boolean;
+    canResetMigration: boolean;
   };
 }
 
@@ -126,6 +129,7 @@ export const ControlUnitsColumns = ({
   onSendToNubefact,
   onQueryFromNubefact,
   onMigrate,
+  onResetMigration,
   permissions,
 }: Props): ControlUnitsColumnsType[] => [
   {
@@ -534,6 +538,11 @@ export const ControlUnitsColumns = ({
         isAcceptedBySunat &&
         permissions.canMigrate;
 
+      const canResetMigration =
+        !!onResetMigration &&
+        row.original.migration_status === "failed" &&
+        permissions.canResetMigration;
+
       const canCancel =
         permissions.canAnnul &&
         isAlreadyReceived &&
@@ -610,6 +619,14 @@ export const ControlUnitsColumns = ({
             tooltip="Migrar"
             onClick={() => onMigrate && onMigrate(id)}
             canRender={canMigrate}
+          />
+
+          <ButtonAction
+            icon={RotateCcw}
+            tooltip="Reiniciar migración"
+            color="red"
+            onClick={() => onResetMigration && onResetMigration(id)}
+            canRender={canResetMigration}
           />
 
           <ButtonAction

@@ -297,6 +297,13 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "FilePlus",
     description: "Permite generar una nota interna para una orden de trabajo",
   },
+  {
+    value: "resetMigration",
+    label: "Reiniciar Migración",
+    icon: "RotateCcw",
+    description:
+      "Permite reiniciar el estado de migración (elimina logs y reintenta desde cero)",
+  },
 ];
 
 /**
@@ -380,5 +387,6 @@ export function useModulePermissions(moduleCode: string) {
     canChangeAdvisor: hasModulePermission("changeAdvisor"),
     canGenerateInternalNote: hasModulePermission("generateInternalNote"),
     canChangeLocation: hasModulePermission("changeLocation"),
+    canResetMigration: hasModulePermission("resetMigration"),
   };
 }
