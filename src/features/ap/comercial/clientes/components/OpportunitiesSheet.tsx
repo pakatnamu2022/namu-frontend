@@ -83,7 +83,7 @@ export default function OpportunitiesSheet({
         title="Oportunidades"
         subtitle={clientName}
         icon="BriefcaseBusiness"
-        size="2xl"
+        size="xl"
       >
         <div className="space-y-6">
           {/* Loading State */}
@@ -128,7 +128,7 @@ export default function OpportunitiesSheet({
 
               <Separator />
 
-              <div className="grid gap-4 max-h-[400px] overflow-y-auto p-2">
+              <div className="grid gap-4 p-1">
                 {opportunities.map((opportunity) => {
                   const isClosed = opportunity.is_closed;
                   const canClick = isClosed;
