@@ -31,6 +31,7 @@ export const ACCOUNTANT_DISTRICT_ASSIGNMENT: ModelComplete<AccountantDistrictAss
         offerLetterConfirmation: "",
         emailOfferLetterStatus: "",
         photo: "",
+        has_signature: false,
       },
       district: {
         id: 0,

@@ -46,6 +46,24 @@ export const workerColumns = ({
     header: "Cargo",
   },
   {
+    accessorKey: "has_signature",
+    header: "Reg. Firma",
+    cell: ({ row }) => {
+      const hasSignature = row.original.has_signature;
+
+      console.log("hasSignature", hasSignature); // Agrega este console.log para depuración
+
+      return (
+        <Badge
+          color={hasSignature ? "green" : "orange"}
+          className="flex gap-2 w-fit"
+        >
+          {hasSignature ? "Si" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "emailOfferLetterStatus",
     header: "Carta Oferta",
     cell: ({ row }) => {
@@ -91,6 +109,7 @@ export const workerColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const id = row.original.id;
 

@@ -1,16 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 import { cn } from "@/lib/utils";
+import { exportVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 
 interface Props {
   isFetching?: boolean;
   onRefresh: () => void;
+  exportParams?: Record<string, any>;
+  canExport?: boolean;
 }
 
 export default function PurchaseOrderWarehouseActions({
   onRefresh,
   isFetching,
+  exportParams,
+  canExport = true,
 }: Props) {
   return (
     <ActionsWrapper>
@@ -20,6 +26,22 @@ export default function PurchaseOrderWarehouseActions({
         />
         Actualizar
       </Button>
+      {canExport && (
+        <ExportButtons
+          onExcelDownload={() =>
+            exportVehiclePurchaseOrder({
+              params: exportParams,
+              format: "excel",
+            })
+          }
+          onPdfDownload={() =>
+            exportVehiclePurchaseOrder({
+              params: exportParams,
+              format: "pdf",
+            })
+          }
+        />
+      )}
     </ActionsWrapper>
   );
 }

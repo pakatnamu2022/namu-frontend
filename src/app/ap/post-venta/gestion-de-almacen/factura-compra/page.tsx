@@ -42,6 +42,20 @@ export default function PurchaseOrderWarehousePage() {
   const setSearch = (value: string) => setFilter("search", value);
   const setSedeId = (value: string) => setFilter("sedeId", value);
 
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
+
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
+
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 
   // Setear el primer almacén por defecto
@@ -57,6 +71,10 @@ export default function PurchaseOrderWarehousePage() {
     search,
     per_page,
     sede_id: sedeId !== "all" ? sedeId : undefined,
+    emission_date:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
     type_operation_id: CM_POSTVENTA_ID,
   });
 
@@ -125,6 +143,16 @@ export default function PurchaseOrderWarehousePage() {
         <PurchaseOrderWarehouseActions
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
+          canExport={permissions.canExport}
+          exportParams={{
+            search: search || undefined,
+            sede_id: sedeId !== "all" ? sedeId : undefined,
+            emission_date:
+              dateFrom && dateTo
+                ? [formatDate(dateFrom), formatDate(dateTo)]
+                : undefined,
+            type_operation_id: CM_POSTVENTA_ID,
+          }}
         />
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
@@ -146,6 +174,10 @@ export default function PurchaseOrderWarehousePage() {
           sedes={sedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
         />
       </VehiclePurchaseOrderTable>
 

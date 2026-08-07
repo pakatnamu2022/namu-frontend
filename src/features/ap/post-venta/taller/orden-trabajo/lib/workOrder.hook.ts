@@ -11,6 +11,7 @@ import {
   sendToFinished,
   revertFinished,
   revertInternalNote,
+  authorizeInternalNoteRevert,
   updateWorkOrderItems,
   UpdateWorkOrderItemData,
 } from "./workOrder.actions";
@@ -145,6 +146,17 @@ export function useRevertInternalNote() {
 
   return useMutation({
     mutationFn: (id: number) => revertInternalNote(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+}
+
+export function useAuthorizeInternalNoteRevert() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => authorizeInternalNoteRevert(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

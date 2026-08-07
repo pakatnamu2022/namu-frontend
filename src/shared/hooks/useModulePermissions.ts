@@ -304,6 +304,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     description:
       "Permite reiniciar el estado de migración (elimina logs y reintenta desde cero)",
   },
+  {
+    value: "authorizeReversalInternalNote",
+    label: "Autorizar Reversión Nota Interna",
+    icon: "CheckCircle",
+    description: "Permite autorizar la reversión de una nota interna",
+  },
 ];
 
 /**
@@ -388,5 +394,8 @@ export function useModulePermissions(moduleCode: string) {
     canGenerateInternalNote: hasModulePermission("generateInternalNote"),
     canChangeLocation: hasModulePermission("changeLocation"),
     canResetMigration: hasModulePermission("resetMigration"),
+    canAuthorizeReversalInternalNote: hasModulePermission(
+      "authorizeReversalInternalNote",
+    ),
   };
 }
