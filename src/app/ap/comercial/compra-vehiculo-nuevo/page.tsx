@@ -19,6 +19,7 @@ import {
   dispatchSyncCreditNote,
   dispatchSyncInvoice,
   dispatchVehiclePurchaseOrderMigration,
+  resetVehiclePurchaseOrderMigration,
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { useMutation } from "@tanstack/react-query";
@@ -45,6 +46,17 @@ export default function VehiclePurchaseOrderPage() {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
       errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetVehiclePurchaseOrderMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
     },
   });
 
@@ -137,6 +149,8 @@ export default function VehiclePurchaseOrderPage() {
           onRequestInvoice: handleRequestInvoice,
           onRequestCreditNote: handleRequestCreditNote,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
+          permissions: { canResetMigration: permissions.canResetMigration },
         })}
         data={data?.data || []}
       >

@@ -141,7 +141,7 @@ export function SearchableSelect({
             <Check
               className={cn(
                 "mr-2 h-4 w-4 shrink-0",
-                value === option.value ? "opacity-100" : "opacity-0"
+                value === option.value ? "opacity-100" : "opacity-0",
               )}
             />
             <div className="flex flex-col min-w-0 flex-1">
@@ -169,9 +169,9 @@ export function SearchableSelect({
       size={buttonSize}
       disabled={disabled}
       className={cn(
-        "flex w-full text-muted-foreground items-center justify-between rounded-md border px-3 text-xs md:text-sm overflow-hidden",
+        "flex w-full text-muted-foreground items-center justify-between rounded-md border px-3 overflow-hidden",
         selected && "bg-muted text-foreground",
-        className
+        className,
       )}
     >
       <span className="truncate min-w-0 flex-1 text-left block">

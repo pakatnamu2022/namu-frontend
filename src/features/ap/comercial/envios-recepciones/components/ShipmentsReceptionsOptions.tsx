@@ -3,6 +3,8 @@ import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
+import { FilterMultiSelect } from "@/shared/components/FilterMultiSelect";
+import { MIGRATION_STATUS } from "../lib/shipmentsReceptions.constants";
 
 export default function ShipmentsReceptionsOptions({
   search,
@@ -13,6 +15,8 @@ export default function ShipmentsReceptionsOptions({
   transferReasons,
   transferReasonId,
   setTransferReasonId,
+  migrationStatus,
+  setMigrationStatus,
 }: {
   search: string;
   setSearch: (value: string) => void;
@@ -22,6 +26,8 @@ export default function ShipmentsReceptionsOptions({
   transferReasons: SunatConceptsResource[];
   transferReasonId: string;
   setTransferReasonId: (value: string) => void;
+  migrationStatus?: string[];
+  setMigrationStatus?: (value: string[]) => void;
 }) {
   return (
     <FilterWrapper>
@@ -48,6 +54,18 @@ export default function ShipmentsReceptionsOptions({
         placeholder="Seleccionar motivo de traslado"
         className="md:w-fit"
       />
+      {setMigrationStatus && (
+        <FilterMultiSelect
+          options={MIGRATION_STATUS.map((status) => ({
+            value: status.value,
+            label: status.label,
+          }))}
+          value={migrationStatus || []}
+          onChange={setMigrationStatus}
+          placeholder="Estado de migración"
+          className="md:w-fit"
+        />
+      )}
     </FilterWrapper>
   );
 }

@@ -2,7 +2,14 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRightLeft, Check, RefreshCw, Search, X } from "lucide-react";
+import {
+  ArrowRightLeft,
+  Check,
+  RefreshCw,
+  Search,
+  X,
+  RotateCcw,
+} from "lucide-react";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
@@ -18,16 +25,22 @@ interface Props {
   onRequestCreditNote: (purchaseOrderId: number) => void;
   onRequestInvoice: (purchaseOrderId: number) => void;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   typeOperationId?: number;
   resendRoute?: string;
+  permissions?: {
+    canResetMigration: boolean;
+  };
 }
 
 export const vehiclePurchaseOrderColumns = ({
   onRequestCreditNote,
   onRequestInvoice,
   onMigrate,
+  onResetMigration,
   typeOperationId,
   resendRoute,
+  permissions,
 }: Props): VehiclePurchaseOrderColumns[] => {
   const isPostventa = typeOperationId === CM_POSTVENTA_ID;
 
@@ -247,6 +260,11 @@ export const vehiclePurchaseOrderColumns = ({
           purchaseOrder.status &&
           purchaseOrder.migration_status !== "completed";
 
+        const canResetMigration =
+          !!onResetMigration &&
+          purchaseOrder.migration_status === "failed" &&
+          !!permissions?.canResetMigration;
+
         return (
           <div className="flex items-center gap-2">
             {/* View Detail */}
@@ -265,6 +283,20 @@ export const vehiclePurchaseOrderColumns = ({
                 onClick={() => onMigrate(id)}
               >
                 <ArrowRightLeft className="size-4" />
+              </Button>
+            )}
+
+            {/* Reiniciar migración */}
+            {canResetMigration && (
+              <Button
+                variant="outline"
+                size="icon"
+                color="red"
+                className="size-7"
+                tooltip="Reiniciar migración"
+                onClick={() => onResetMigration!(id)}
+              >
+                <RotateCcw className="size-4" />
               </Button>
             )}
 

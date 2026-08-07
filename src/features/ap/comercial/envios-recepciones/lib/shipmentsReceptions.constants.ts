@@ -30,3 +30,11 @@ export const ISSUER_TYPES = [
   { value: "SYSTEM", label: "Automotores" },
   { value: "PROVEEDOR", label: "Proveedor" },
 ];
+
+// Estados de migración
+export const MIGRATION_STATUS = [
+  { value: "pending", label: "Pendiente" },
+  { value: "in_progress", label: "En Proceso" },
+  { value: "completed", label: "Completado" },
+  { value: "failed", label: "Fallido" },
+] as const;

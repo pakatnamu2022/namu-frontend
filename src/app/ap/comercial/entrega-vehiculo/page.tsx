@@ -28,6 +28,7 @@ import { RescheduleDeliveryModal } from "@/features/ap/comercial/entrega-vehicul
 import {
   deleteVehicleDelivery,
   dispatchShippingGuideMigration,
+  resetShippingGuideMigration,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 import { useMutation } from "@tanstack/react-query";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
@@ -72,6 +73,17 @@ export default function VehicleDeliveryPage() {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
       errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
+  const resetMigrationMutation = useMutation({
+    mutationFn: resetShippingGuideMigration,
+    onSuccess: () => {
+      successToast("Migración reiniciada correctamente");
+      refetch();
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al reiniciar migración: ${msg}`);
     },
   });
   const syncAccountingEntryMutation = useSyncAccountingEntry();
@@ -166,6 +178,7 @@ export default function VehicleDeliveryPage() {
           onQueryFromNubefact: handleQueryFromNubefact,
           onViewDetails: setSelectedVehicle,
           onMigrate: (id) => migrateMutation.mutate(id),
+          onResetMigration: (id) => resetMigrationMutation.mutate(id),
           onSyncAccountingEntry: (id) => syncAccountingEntryMutation.mutate(id),
           onSyncWithDynamics: (id) => syncWithDynamicsMutation.mutate(id),
           syncingWithDynamicsId: syncWithDynamicsMutation.isPending

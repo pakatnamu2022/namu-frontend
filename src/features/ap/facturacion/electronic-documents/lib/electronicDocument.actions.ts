@@ -438,6 +438,12 @@ export async function dispatchElectronicDocumentMigration(
   await api.post(`${ENDPOINT}/${id}/dispatch-migration`);
 }
 
+export async function resetElectronicDocumentMigration(
+  id: number,
+): Promise<void> {
+  await api.post(`${ENDPOINT}/${id}/reset-migration`);
+}
+
 export async function syncAccountingStatus(): Promise<void> {
   await api.post(`${ENDPOINT}/sync-accounting-status`);
 }

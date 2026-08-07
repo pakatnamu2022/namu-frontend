@@ -50,6 +50,7 @@ interface Props {
   onSendToNubefact: (id: number) => void;
   onQueryFromNubefact: (id: number) => void;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   permissions: {
     canView: boolean;
     canUpdate: boolean;
@@ -59,6 +60,7 @@ interface Props {
     canGenerate: boolean;
     canMigrate: boolean;
     canAnnul: boolean;
+    canResetMigration: boolean;
   };
 }
 

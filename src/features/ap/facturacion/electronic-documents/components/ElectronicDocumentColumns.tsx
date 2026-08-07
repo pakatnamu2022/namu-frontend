@@ -16,6 +16,7 @@ import {
   BookCheck,
   BookX,
   LucideIcon,
+  RotateCcw,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -38,6 +39,7 @@ interface Props {
   onAnnul?: (id: number, reason: string) => void;
   onPreCancel?: (id: number) => Promise<boolean>;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   onSyncAccountingStatus?: (id: number) => void;
   permissions: {
     canSend: boolean;
@@ -46,6 +48,7 @@ interface Props {
     canCreateCreditNote: boolean;
     canCreateDebitNote: boolean;
     canMigrate?: boolean;
+    canResetMigration?: boolean;
   };
   isCommercial?: boolean;
 }
@@ -57,6 +60,7 @@ export const electronicDocumentColumns = ({
   onAnnul,
   onPreCancel,
   onMigrate,
+  onResetMigration,
   onSyncAccountingStatus,
   permissions,
   isCommercial = false,
@@ -424,6 +428,12 @@ export const electronicDocumentColumns = ({
           onMigrate && document.migration_status !== "completed";
         //  &&          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
 
+        const canResetMigration =
+          !!onResetMigration &&
+          document.migration_status === "failed" &&
+          !document.is_accounted &&
+          !!permissions.canResetMigration;
+
         const canSyncAccountingStatus =
           !!onSyncAccountingStatus &&
           !!permissions.canMigrate &&
@@ -590,6 +600,28 @@ export const electronicDocumentColumns = ({
                     icon={ArrowRightLeft}
                     canRender={canMigrate}
                     color="indigo"
+                  />
+                }
+              />
+            )}
+
+            {/* Reiniciar migración */}
+            {canResetMigration && (
+              <ConfirmationDialog
+                title="Confirmar reinicio de migración"
+                description="¿Está seguro de que desea reiniciar la migración de este documento? Se eliminarán los logs y se reiniciará el estado de migración."
+                onConfirm={() =>
+                  onResetMigration && onResetMigration(document.id)
+                }
+                icon="warning"
+                confirmText="Sí, reiniciar"
+                cancelText="No, cancelar"
+                trigger={
+                  <ButtonAction
+                    tooltip="Reiniciar migración"
+                    icon={RotateCcw}
+                    canRender={canResetMigration}
+                    color="red"
                   />
                 }
               />

@@ -30,6 +30,7 @@ import {
   ShieldCheck,
   ShieldX,
   Search,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,7 @@ interface Props {
   onSendToDynamic?: (id: number) => void;
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
   onMigrate?: (id: number) => void;
+  onResetMigration?: (id: number) => void;
   onSyncAccountingEntry?: (id: number) => void;
   onSyncWithDynamics?: (id: number) => void;
   syncingWithDynamicsId?: number | null;
@@ -61,6 +63,7 @@ interface Props {
     canChecklist: boolean;
     canSend: boolean;
     canMigrate: boolean;
+    canResetMigration: boolean;
   };
 }
 
@@ -80,6 +83,7 @@ export const vehicleDeliveryColumns = ({
   onQueryFromNubefact,
   onViewDetails,
   onMigrate,
+  onResetMigration,
   onSyncAccountingEntry,
   onSyncWithDynamics,
   syncingWithDynamicsId,
@@ -476,6 +480,12 @@ export const vehicleDeliveryColumns = ({
         !isMigrated &&
         permissions.canMigrate;
 
+      const canResetMigration =
+        !!onResetMigration &&
+        !!shipping_guide_id &&
+        migrationStatus === "failed" &&
+        permissions.canResetMigration;
+
       const canViewHistory = !!shipping_guide_id && permissions.canViewHistory;
 
       const canDelete = !shipping_guide_id && permissions.canDelete;
@@ -573,6 +583,19 @@ export const vehicleDeliveryColumns = ({
               onClick={() => onMigrate!(shipping_guide_id!)}
             >
               <ArrowRightLeft className="size-4" />
+            </Button>
+          )}
+
+          {canResetMigration && (
+            <Button
+              variant="outline"
+              size="icon"
+              color="red"
+              className="size-7"
+              tooltip="Reiniciar migración"
+              onClick={() => onResetMigration!(shipping_guide_id!)}
+            >
+              <RotateCcw className="size-4" />
             </Button>
           )}
 
