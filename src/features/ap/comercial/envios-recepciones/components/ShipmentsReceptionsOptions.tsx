@@ -63,7 +63,7 @@ export default function ShipmentsReceptionsOptions({
           value={migrationStatus || []}
           onChange={setMigrationStatus}
           placeholder="Estado de migración"
-          className="md:w-fit md:min-w-52"
+          className="md:w-fit"
         />
       )}
     </FilterWrapper>
