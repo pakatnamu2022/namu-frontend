@@ -85,10 +85,10 @@ export default function OpportunitiesSheet({
         icon="BriefcaseBusiness"
         size="xl"
       >
-        <div className="space-y-6">
+        <div className="space-y-6 h-full">
           {/* Loading State */}
           {loadingOpportunities && (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-12 h-full">
               <div className="text-center space-y-4">
                 <Loader2 className="size-8 animate-spin mx-auto text-primary" />
                 <p className="text-sm text-muted-foreground">
@@ -129,31 +129,17 @@ export default function OpportunitiesSheet({
               <Separator />
 
               <div className="grid gap-4 p-1">
-                {opportunities.map((opportunity) => {
-                  const isClosed = opportunity.is_closed;
-                  const canClick = isClosed;
-
-                  const handleCardClick = () => {
-                    if (canClick) {
-                      router(`${ABSOLUTE_ROUTE}/${opportunity.id}`);
+                {opportunities.map((opportunity) => (
+                  <OpportunityInfoCard
+                    key={opportunity.id}
+                    opportunity={opportunity}
+                    onView={
+                      opportunity.is_closed
+                        ? () => router(`${ABSOLUTE_ROUTE}/${opportunity.id}`)
+                        : undefined
                     }
-                  };
-
-                  return (
-                    <div
-                      key={opportunity.id}
-                      onClick={handleCardClick}
-                      className={cn(
-                        "transition-all duration-200",
-                        canClick
-                          ? "cursor-pointer hover:shadow-lg"
-                          : "cursor-not-allowed opacity-60",
-                      )}
-                    >
-                      <OpportunityInfoCard opportunity={opportunity} />
-                    </div>
-                  );
-                })}
+                  />
+                ))}
               </div>
             </div>
           )}

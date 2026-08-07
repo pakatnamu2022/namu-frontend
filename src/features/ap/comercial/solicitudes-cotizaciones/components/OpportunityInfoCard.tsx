@@ -1,4 +1,11 @@
 import { Badge, BadgeColor } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import {
   Target,
   User,
@@ -8,12 +15,14 @@ import {
   UserCircle2,
   MessageSquare,
   Calendar,
+  ArrowRight,
 } from "lucide-react";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { cn } from "@/lib/utils";
 
 interface OpportunityInfoCardProps {
   opportunity: OpportunityResource;
+  onView?: () => void;
 }
 
 const getClientStatusVariant = (status: string): BadgeColor => {
@@ -71,20 +80,21 @@ const getStatusColors = (status: string) => {
 
 export const OpportunityInfoCard = ({
   opportunity,
+  onView,
 }: OpportunityInfoCardProps) => {
   const colors = getStatusColors(opportunity.opportunity_status);
 
   return (
-    <div
+    <Card
       className={cn(
-        "rounded-2xl bg-card text-card-foreground",
+        "gap-0 rounded-2xl border-0 bg-card text-card-foreground py-0 overflow-hidden",
         "ring-1 ring-black/6 dark:ring-white/8",
         "shadow-[0_1px_3px_rgba(0,0,0,0.06),0_10px_24px_-8px_rgba(0,0,0,0.12)]",
         "dark:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_10px_24px_-8px_rgba(0,0,0,0.5)]",
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <CardHeader className="grid-cols-none flex items-center justify-between gap-3 px-4 py-3! border-b border-border">
         <div className="flex items-center gap-2.5 min-w-0">
           <Target className={cn("size-4 shrink-0", colors.text)} />
           <div className="min-w-0">
@@ -98,7 +108,7 @@ export const OpportunityInfoCard = ({
         </div>
         <div className="shrink-0">
           {opportunity.is_closed ? (
-            <Badge color="destructive" className="text-xs">
+            <Badge color="gray" className="text-xs">
               Cerrada
             </Badge>
           ) : (
@@ -107,12 +117,10 @@ export const OpportunityInfoCard = ({
             </Badge>
           )}
         </div>
-      </div>
-
-      <div className="mx-4 h-px bg-border" />
+      </CardHeader>
 
       {/* Content */}
-      <div className="px-4 divide-y divide-border">
+      <CardContent className="px-4">
         {/* Cliente */}
         <div className="flex items-start gap-2.5 py-2">
           <User className="size-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -152,21 +160,6 @@ export const OpportunityInfoCard = ({
             </p>
           </div>
         </div>
-
-        {/* Estado comercial (solo si está cerrada, ya que el header lo reemplaza por "Cerrada") */}
-        {opportunity.is_closed && (
-          <div className="flex items-start gap-2.5 py-2">
-            <Target className={cn("size-4 mt-0.5 shrink-0", colors.text)} />
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                Estado comercial
-              </p>
-              <p className={cn("text-sm font-semibold", colors.text)}>
-                {opportunity.opportunity_status}
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Creada */}
         <div className="flex items-start gap-2.5 py-2">
@@ -234,7 +227,22 @@ export const OpportunityInfoCard = ({
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+
+      {/* Footer */}
+      {onView && (
+        <CardFooter className="p-0! border-t border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-center text-primary-foreground hover:text-primary-foreground rounded-none py-4!"
+            onClick={onView}
+          >
+            Ver oportunidad
+            <ArrowRight className="size-4" />
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
   );
 };
