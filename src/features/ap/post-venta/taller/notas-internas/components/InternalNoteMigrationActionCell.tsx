@@ -26,6 +26,8 @@ export function InternalNoteMigrationActionCell({ row }: Props) {
     isPending: isUpdatingAccountingStatus,
   } = useUpdateInternalNoteAccountingStatus();
 
+  const isSkipped = row.migration_status === "skipped";
+
   const handleVerify = async () => {
     await verifyMigration(row.id);
     setOpen(false);
@@ -35,6 +37,15 @@ export function InternalNoteMigrationActionCell({ row }: Props) {
     await updateAccountingStatus(row.id);
     setOpenAccountingStatus(false);
   };
+
+  if (isSkipped) {
+    return (
+      <InternalNoteHistory
+        workOrderId={row.work_order_id}
+        internalNoteId={row.id}
+      />
+    );
+  }
 
   return (
     <div className="flex items-center gap-2">
