@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar, Truck, AlertCircle, RefreshCw, TrendingUp, TrendingDown, FileText, Search, Clock, Users } from "lucide-react";
+import { Calendar, Truck, AlertCircle, RefreshCw, TrendingUp, TrendingDown, FileText, Search, Clock, Users, Copy } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -17,6 +17,7 @@ import {
 import { useViajesNoFacturados, useAvailableYearsGoalTravel } from "../lib/GoalTravelControl.hook";
 import { MONTHS } from "../lib/GoalTravelControl.constants";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function ViajesNoFacturados() {
     const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -38,6 +39,21 @@ export default function ViajesNoFacturados() {
     const getTendencia = (produccion: number) => {
         return produccion > 0 ? 'up' : 'down';
     };
+
+    const handleCopyCodes = (codigos: string) => {
+        if (!codigos) {
+            toast.error("No hay códigos para copiar");
+            return;
+        }
+
+        navigator.clipboard.writeText(codigos)
+            .then(() => {
+                toast.success("Códigos copiados al portapapeles");
+            })
+            .catch(() => {
+                toast.error("Error al copiar los códigos");
+            });
+    }
 
     if (isLoading) {
         return (
@@ -265,6 +281,7 @@ export default function ViajesNoFacturados() {
                                         const produccion = Number(item.total_produccion) || 0;
                                         const esAlta = produccion > 10000;
                                         const tendencia = getTendencia(produccion);
+                                        const codigos = item.codigos_viajes || "";
 
                                         return (
                                             <tr key={item.cliente_id} className="border-b hover:bg-muted/30 transition-colors group">
@@ -307,8 +324,8 @@ export default function ViajesNoFacturados() {
                                                 </td>
                                                 <td className="py-3 px-4">
                                                     <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20">
-                                                        {item.codigos_viajes ? (
-                                                            item.codigos_viajes.split(', ').map((codigo, idx) => (
+                                                        {codigos ? (
+                                                            codigos.split(', ').map((codigo, idx) => (
                                                                 <Badge
                                                                     key={idx}
                                                                     variant="outline"
@@ -321,6 +338,20 @@ export default function ViajesNoFacturados() {
                                                             <span className="text-muted-foreground text-sm">-</span>
                                                         )}
                                                     </div>
+                                                    {
+                                                        codigos && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-7 w-7 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary/10"
+                                                                onClick={() => handleCopyCodes(codigos)}
+                                                                title="Copiar códigos al portapapeles"
+                                                            >
+                                                                <Copy className="h-3.5 w-3.5" />
+
+                                                            </Button>
+                                                        )
+                                                    }
                                                 </td>
                                             </tr>
                                         );
