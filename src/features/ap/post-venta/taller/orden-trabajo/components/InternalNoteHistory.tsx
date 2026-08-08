@@ -37,6 +37,7 @@ export default function InternalNoteHistory({
 }: InternalNoteHistoryProps) {
   const { ICON } = WORKER_ORDER;
   const [open, setOpen] = useState(false);
+  const [hasVerified, setHasVerified] = useState(false);
   const queryClient = useQueryClient();
 
   const {
@@ -177,14 +178,22 @@ export default function InternalNoteHistory({
       await verifyMigration();
       successToast("Verificación de migración ejecutada exitosamente");
       await refetchLogs();
-      queryClient.invalidateQueries({
-        queryKey: [INTERNAL_NOTE_MIGRATION.QUERY_KEY],
-      });
+      setHasVerified(true);
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
         "Error al verificar la migración de la nota interna";
       errorToast(message);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    if (hasVerified) {
+      queryClient.invalidateQueries({
+        queryKey: [INTERNAL_NOTE_MIGRATION.QUERY_KEY],
+      });
+      setHasVerified(false);
     }
   };
 
@@ -253,7 +262,7 @@ export default function InternalNoteHistory({
         title="Historial de Nota Interna"
         subtitle="Historial detallado del proceso de migración de la nota interna"
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
         icon={ICON}
         size="7xl"
       >
