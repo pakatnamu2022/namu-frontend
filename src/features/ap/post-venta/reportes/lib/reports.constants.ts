@@ -147,6 +147,41 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     defaultParams: {},
   },
   {
+    id: "work-orders-parts",
+    title: "Reporte de Facturación Repuestos",
+    type: "Facturación",
+    section: "TALLER",
+    description:
+      "Exporta el reporte de facturación de repuestos de órdenes de trabajo filtrando por rango de fechas.",
+    icon: "FileText",
+    endpoint: "/ap/postVenta/reports/work-orders/parts/export",
+    fileName: "reporte_facturacion_repuestos_orden_trabajo",
+    availableFormats: ["excel"],
+    fields: [
+      {
+        name: "date_range",
+        label: "Rango de Fechas",
+        type: "daterange",
+        required: false,
+        nameFrom: "date_from",
+        nameTo: "date_to",
+        rangeParamName: "fecha_emision",
+      },
+      {
+        name: "amounts_in_soles",
+        label: "Moneda",
+        type: "toggle",
+        required: false,
+        options: [
+          { label: "Soles", value: "1" },
+          { label: "Dólares", value: "0" },
+        ],
+        defaultValue: "1",
+      },
+    ],
+    defaultParams: {},
+  },
+  {
     id: "worked-hours-by-sede",
     title: "Reporte de Horas Trabajadas por Sede",
     type: "Taller",

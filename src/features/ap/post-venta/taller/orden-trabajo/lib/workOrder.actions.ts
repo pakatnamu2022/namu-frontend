@@ -103,7 +103,7 @@ export async function exportWorkOrder({
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `ordenes-trabajo-${new Date().toISOString().split("T")[0]}.xlsx`;
+  link.download = `ordenes-trabajo-${Date.now()}.xlsx`;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -324,13 +324,6 @@ export async function authorizeInternalNoteRevert(
 
 export async function getInternalNoteLogs(id: number): Promise<any> {
   const { data } = await api.get<any>(`${ENDPOINT}/${id}/internal-note-logs`);
-  return data;
-}
-
-export async function verifyInternalNoteMigration(id: number): Promise<any> {
-  const { data } = await api.post<any>(
-    `${ENDPOINT}/${id}/verify-internal-note-migration`,
-  );
   return data;
 }
 

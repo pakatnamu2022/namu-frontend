@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge, BadgeColor } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,20 +22,23 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { errorToast, successToast } from "@/core/core.function";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
-import {
-  getInternalNoteLogs,
-  verifyInternalNoteMigration,
-} from "../lib/workOrder.actions";
+import { getInternalNoteLogs } from "../lib/workOrder.actions";
+import { verifyInternalNoteMigration } from "../../notas-internas/lib/internalNoteMigration.actions";
+import { INTERNAL_NOTE_MIGRATION } from "../../notas-internas/lib/internalNoteMigration.constants";
 
 interface InternalNoteHistoryProps {
   workOrderId: number;
+  internalNoteId: number;
 }
 
 export default function InternalNoteHistory({
   workOrderId,
+  internalNoteId,
 }: InternalNoteHistoryProps) {
   const { ICON } = WORKER_ORDER;
   const [open, setOpen] = useState(false);
+  const [hasVerified, setHasVerified] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     data: logsData,
@@ -141,7 +144,10 @@ export default function InternalNoteHistory({
   const logs = logsData?.data?.logs ?? [];
 
   const timeline = useMemo(() => {
-    const stepsMap = new Map<string, { step: string; step_name: string; events: any[] }>();
+    const stepsMap = new Map<
+      string,
+      { step: string; step_name: string; events: any[] }
+    >();
 
     for (const log of logs) {
       const key = log.step ?? log.step_name;
@@ -164,7 +170,7 @@ export default function InternalNoteHistory({
 
   const { mutateAsync: verifyMigration, isPending: isVerifyingMigration } =
     useMutation({
-      mutationFn: () => verifyInternalNoteMigration(workOrderId),
+      mutationFn: () => verifyInternalNoteMigration(internalNoteId),
     });
 
   const handleVerifyMigration = async () => {
@@ -172,11 +178,22 @@ export default function InternalNoteHistory({
       await verifyMigration();
       successToast("Verificación de migración ejecutada exitosamente");
       await refetchLogs();
+      setHasVerified(true);
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
         "Error al verificar la migración de la nota interna";
       errorToast(message);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    if (hasVerified) {
+      queryClient.invalidateQueries({
+        queryKey: [INTERNAL_NOTE_MIGRATION.QUERY_KEY],
+      });
+      setHasVerified(false);
     }
   };
 
@@ -245,7 +262,7 @@ export default function InternalNoteHistory({
         title="Historial de Nota Interna"
         subtitle="Historial detallado del proceso de migración de la nota interna"
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
         icon={ICON}
         size="7xl"
       >

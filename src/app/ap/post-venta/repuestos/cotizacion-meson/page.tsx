@@ -20,7 +20,12 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+import {
+  ORDER_QUOTATION_MESON,
+  ORDER_QUOTATION_STATUS_GROUP,
+  ORDER_QUOTATION_STATUS_GROUP_IDS,
+  type OrderQuotationStatusGroup,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
@@ -50,13 +55,15 @@ export default function OrderQuotationMesonPage() {
     {
       search: "",
       sedeId: "",
+      statusGroups: [ORDER_QUOTATION_STATUS_GROUP.ABIERTAS] as string[],
       dateFrom: getFirstDayOfMonth(currentDate) as Date | undefined,
       dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
     },
   );
-  const { search, sedeId, dateFrom, dateTo } = filters;
+  const { search, sedeId, statusGroups, dateFrom, dateTo } = filters;
   const setSearch = (value: string) => setFilter("search", value);
   const setSedeId = (value: string) => setFilter("sedeId", value);
+  const setStatusGroups = (value: string[]) => setFilter("statusGroups", value);
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
@@ -72,18 +79,26 @@ export default function OrderQuotationMesonPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFrom, dateTo]);
 
+  const statusIds = statusGroups.flatMap(
+    (group) =>
+      ORDER_QUOTATION_STATUS_GROUP_IDS[group as OrderQuotationStatusGroup],
+  );
+
+  const orderQuotationFilters = {
+    page,
+    search,
+    per_page,
+    quotation_date:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
+    area_id: AREA_MESON.toString(),
+    sede_id: sedeId,
+    status_id: statusIds.length > 0 ? statusIds : undefined,
+  };
+
   const { data, isLoading, refetch } = useOrderQuotations(
-    {
-      page,
-      search,
-      per_page,
-      quotation_date:
-        dateFrom && dateTo
-          ? [formatDate(dateFrom), formatDate(dateTo)]
-          : undefined,
-      area_id: AREA_MESON.toString(),
-      sede_id: sedeId,
-    },
+    orderQuotationFilters,
     !!sedeId,
   );
 
@@ -150,7 +165,10 @@ export default function OrderQuotationMesonPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <OrderQuotationMesonActions permissions={permissions} />
+        <OrderQuotationMesonActions
+          permissions={permissions}
+          filters={orderQuotationFilters}
+        />
       </HeaderTableWrapper>
 
       <OrderQuotationMesonTable
@@ -177,6 +195,8 @@ export default function OrderQuotationMesonPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          statusGroups={statusGroups}
+          setStatusGroups={setStatusGroups}
         />
       </OrderQuotationMesonTable>
 
