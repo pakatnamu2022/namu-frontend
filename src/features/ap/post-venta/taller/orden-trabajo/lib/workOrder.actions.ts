@@ -327,13 +327,6 @@ export async function getInternalNoteLogs(id: number): Promise<any> {
   return data;
 }
 
-export async function verifyInternalNoteMigration(id: number): Promise<any> {
-  const { data } = await api.post<any>(
-    `${ENDPOINT}/${id}/verify-internal-note-migration`,
-  );
-  return data;
-}
-
 export interface CancelWorkOrderData {
   discard_reason_id: number;
   discarded_note?: string | null;
