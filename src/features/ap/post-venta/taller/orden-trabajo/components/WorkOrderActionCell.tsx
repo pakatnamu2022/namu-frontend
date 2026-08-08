@@ -34,7 +34,6 @@ import {
 } from "../lib/workOrder.hook";
 import { WorkOrderDeliverySheet } from "./WorkOrderDeliverySheet";
 import { CancelWorkOrderModal } from "./CancelWorkOrderModal";
-import InternalNoteHistory from "./InternalNoteHistory";
 
 interface WorkOrderActionCellProps {
   row: WorkOrderResource;
@@ -191,9 +190,6 @@ export function WorkOrderActionCell({
 
   const isVisibleAuthorizeInternalNoteRevert =
     permissions.canAuthorizeReversalInternalNote && isClosed && isInterna;
-
-  const isVisibleInternalNoteHistory =
-    firstItemPlanning?.type_document === INTERNA_SC;
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
 
@@ -381,8 +377,6 @@ export function WorkOrderActionCell({
           }
         />
       )}
-
-      {isVisibleInternalNoteHistory && <InternalNoteHistory workOrderId={id} />}
 
       {isOpenForEdit && (
         <Button

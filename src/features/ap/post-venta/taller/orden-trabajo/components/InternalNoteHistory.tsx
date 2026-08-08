@@ -27,10 +27,12 @@ import { verifyInternalNoteMigration } from "../../notas-internas/lib/internalNo
 
 interface InternalNoteHistoryProps {
   workOrderId: number;
+  internalNoteId: number;
 }
 
 export default function InternalNoteHistory({
   workOrderId,
+  internalNoteId,
 }: InternalNoteHistoryProps) {
   const { ICON } = WORKER_ORDER;
   const [open, setOpen] = useState(false);
@@ -165,7 +167,7 @@ export default function InternalNoteHistory({
 
   const { mutateAsync: verifyMigration, isPending: isVerifyingMigration } =
     useMutation({
-      mutationFn: () => verifyInternalNoteMigration(workOrderId),
+      mutationFn: () => verifyInternalNoteMigration(internalNoteId),
     });
 
   const handleVerifyMigration = async () => {
