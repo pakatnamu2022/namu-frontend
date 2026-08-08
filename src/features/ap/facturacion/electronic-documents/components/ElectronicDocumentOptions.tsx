@@ -7,6 +7,8 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { AREA_OPTIONS } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import FilterWrapper from "@/shared/components/FilterWrapper";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 interface Props {
   search: string;
@@ -23,6 +25,10 @@ interface Props {
   sedes?: SedeResource[];
   sedeId?: string;
   setSedeId?: (value: string) => void;
+  // Rango de fecha de emisión: solo acota la exportación (Excel/PDF).
+  fechaEmisionFrom?: Date;
+  fechaEmisionTo?: Date;
+  onFechaEmisionChange: (from?: Date, to?: Date) => void;
 }
 
 export default function ElectronicDocumentOptions({
@@ -40,9 +46,12 @@ export default function ElectronicDocumentOptions({
   sedes,
   sedeId,
   setSedeId,
+  fechaEmisionFrom,
+  fechaEmisionTo,
+  onFechaEmisionChange,
 }: Props) {
   return (
-    <div className="flex items-end gap-4 flex-wrap">
+    <FilterWrapper>
       <div className="flex-1 min-w-[200px]">
         <SearchInput
           value={search}
@@ -116,6 +125,15 @@ export default function ElectronicDocumentOptions({
           }))}
         />
       )}
-    </div>
+
+      <DateRangePickerFilter
+        dateFrom={fechaEmisionFrom}
+        dateTo={fechaEmisionTo}
+        onDateChange={onFechaEmisionChange}
+        placeholder="Fecha de emisión"
+        dateFormat="d MMM yyyy"
+        className="md:w-fit"
+      />
+    </FilterWrapper>
   );
 }

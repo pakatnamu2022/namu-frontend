@@ -498,6 +498,38 @@ export async function previewNubefactElectronicDocument(
   return data;
 }
 
+export async function exportElectronicDocuments(
+  params?: Record<string, any>,
+): Promise<void> {
+  const isPDF = params?.format === "pdf";
+
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      format: isPDF ? "pdf" : "excel",
+      title: "Comprobantes de Venta",
+    },
+    responseType: "blob",
+  };
+
+  const response = await api.get(`${ENDPOINT}/export`, config);
+
+  const mimeType = isPDF
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const extension = isPDF ? "pdf" : "xlsx";
+
+  const blob = new Blob([response.data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `comprobantes-venta-${new Date().toISOString().split("T")[0]}.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export async function getExchangeRateByDateAndCurrency(
   to_currency_id: number,
   date: string,
