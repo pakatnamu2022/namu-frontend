@@ -6,6 +6,7 @@ export const MIGRATION_STATUS = {
   completed: "Completado",
   failed: "Fallido",
   pending: "Pendiente",
+  in_progress: "En Progreso",
 } as const;
 
 export type MigrationStatus = keyof typeof MIGRATION_STATUS;
@@ -17,6 +18,7 @@ export const MIGRATION_STATUS_COLOR: Record<
   completed: "green",
   failed: "red",
   pending: "yellow",
+  in_progress: "yellow",
 };
 
 // RUTAS PARA MIGRACIONES DE NOTAS INTERNAS - TALLER
