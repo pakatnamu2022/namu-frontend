@@ -11,14 +11,17 @@ import {
   Send,
 } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import ExportButtons from "@/shared/components/ExportButtons";
 import { useNavigate } from "react-router-dom";
 import { ELECTRONIC_DOCUMENT } from "../lib/electronicDocument.constants";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import {
   dispatchAllElectronicDocuments,
+  exportElectronicDocuments,
   syncAccountingStatus,
 } from "../lib/electronicDocument.actions";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { toast } from "sonner";
 
 import {
@@ -42,12 +45,15 @@ interface ElectronicDocumentActionsProps {
     canGenerate: boolean;
     canManage: boolean;
   };
+  // Filtros tomados de ElectronicDocumentOptions para acotar la exportación.
+  filters?: Record<string, unknown>;
 }
 
 export default function ElectronicDocumentActions({
   onRefresh,
   isLoading,
   permissions,
+  filters,
 }: ElectronicDocumentActionsProps) {
   const router = useNavigate();
   const { ROUTE_ADD } = ELECTRONIC_DOCUMENT;
@@ -68,6 +74,18 @@ export default function ElectronicDocumentActions({
       toast.error("Error al iniciar la migración");
     },
   });
+
+  const getExportParams = (format?: string) => {
+    const params: Record<string, unknown> = { area_id: AREA_COMERCIAL };
+
+    Object.entries(filters ?? {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+      params[key] = value;
+    });
+
+    if (format) params.format = format;
+    return params;
+  };
 
   const syncAccountingMutation = useMutation({
     mutationFn: syncAccountingStatus,
@@ -119,6 +137,13 @@ export default function ElectronicDocumentActions({
           />
           Actualizar
         </Button>
+
+        <ExportButtons
+          onExcelDownload={() => exportElectronicDocuments(getExportParams())}
+          onPdfDownload={() =>
+            exportElectronicDocuments(getExportParams("pdf"))
+          }
+        />
 
         {permissions.canGenerate && (
           <Button

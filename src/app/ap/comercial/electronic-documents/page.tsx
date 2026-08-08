@@ -49,6 +49,16 @@ export default function ElectronicDocumentsPage() {
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  // Rango de fecha de emisión: solo acota la exportación Excel/PDF, no el
+  // listado principal de la tabla.
+  const [fechaEmisionFrom, setFechaEmisionFrom] = useState<Date>();
+  const [fechaEmisionTo, setFechaEmisionTo] = useState<Date>();
+
+  const handleFechaEmisionChange = (from?: Date, to?: Date) => {
+    setFechaEmisionFrom(from);
+    setFechaEmisionTo(to);
+  };
+
   const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
 
   useEffect(() => {
@@ -175,6 +185,20 @@ export default function ElectronicDocumentsPage() {
     refetch();
   };
 
+  const documentExportFilters = {
+    search,
+    status: statusFilter,
+    migration_status: migrationStatusFilter,
+    sunat_concept_document_type_id: documentTypeFilter || undefined,
+    "seriesModel$sede_id": sedeId || undefined,
+    ...(fechaEmisionFrom && fechaEmisionTo
+      ? {
+          "fecha_de_emision[0]": fechaEmisionFrom.toLocaleDateString("en-CA"),
+          "fecha_de_emision[1]": fechaEmisionTo.toLocaleDateString("en-CA"),
+        }
+      : {}),
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -195,6 +219,7 @@ export default function ElectronicDocumentsPage() {
             canGenerate: canGenerate,
             canManage: permissions.canManage || false,
           }}
+          filters={documentExportFilters}
         />
       </HeaderTableWrapper>
 
@@ -236,6 +261,9 @@ export default function ElectronicDocumentsPage() {
           sedes={sedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
+          fechaEmisionFrom={fechaEmisionFrom}
+          fechaEmisionTo={fechaEmisionTo}
+          onFechaEmisionChange={handleFechaEmisionChange}
         />
       </ElectronicDocumentTable>
 
