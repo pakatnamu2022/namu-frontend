@@ -22,10 +22,8 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DetailSheetTable } from "@/shared/components/DetailSheetTable";
 import { errorToast, successToast } from "@/core/core.function";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
-import {
-  getInternalNoteLogs,
-  verifyInternalNoteMigration,
-} from "../lib/workOrder.actions";
+import { getInternalNoteLogs } from "../lib/workOrder.actions";
+import { verifyInternalNoteMigration } from "../../notas-internas/lib/internalNoteMigration.actions";
 
 interface InternalNoteHistoryProps {
   workOrderId: number;
@@ -141,7 +139,10 @@ export default function InternalNoteHistory({
   const logs = logsData?.data?.logs ?? [];
 
   const timeline = useMemo(() => {
-    const stepsMap = new Map<string, { step: string; step_name: string; events: any[] }>();
+    const stepsMap = new Map<
+      string,
+      { step: string; step_name: string; events: any[] }
+    >();
 
     for (const log of logs) {
       const key = log.step ?? log.step_name;
