@@ -7,6 +7,7 @@ import {
   useVerifyInternalNoteMigration,
   useUpdateInternalNoteAccountingStatus,
 } from "../lib/internalNoteMigration.hook";
+import InternalNoteHistory from "../../orden-trabajo/components/InternalNoteHistory";
 
 interface Props {
   row: InternalNoteMigrationResource;
@@ -91,6 +92,10 @@ export function InternalNoteMigrationActionCell({ row }: Props) {
           <Calculator className="size-5" />
         )}
       </Button>
+      <InternalNoteHistory
+        workOrderId={row.work_order_id}
+        internalNoteId={row.id}
+      />
     </div>
   );
 }
