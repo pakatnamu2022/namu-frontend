@@ -82,7 +82,7 @@ export function InternalNoteMigrationActionCell({ row }: Props) {
         tooltip={
           isUpdatingAccountingStatus
             ? "Actualizando..."
-            : "Actualizar Estado Contable"
+            : "Verificar Contabilizado"
         }
         onClick={() => setOpenAccountingStatus(true)}
       >
