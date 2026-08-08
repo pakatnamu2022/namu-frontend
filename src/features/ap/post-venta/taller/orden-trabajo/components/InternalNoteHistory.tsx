@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge, BadgeColor } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,6 +24,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { getInternalNoteLogs } from "../lib/workOrder.actions";
 import { verifyInternalNoteMigration } from "../../notas-internas/lib/internalNoteMigration.actions";
+import { INTERNAL_NOTE_MIGRATION } from "../../notas-internas/lib/internalNoteMigration.constants";
 
 interface InternalNoteHistoryProps {
   workOrderId: number;
@@ -36,6 +37,7 @@ export default function InternalNoteHistory({
 }: InternalNoteHistoryProps) {
   const { ICON } = WORKER_ORDER;
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     data: logsData,
@@ -175,6 +177,9 @@ export default function InternalNoteHistory({
       await verifyMigration();
       successToast("Verificación de migración ejecutada exitosamente");
       await refetchLogs();
+      queryClient.invalidateQueries({
+        queryKey: [INTERNAL_NOTE_MIGRATION.QUERY_KEY],
+      });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
