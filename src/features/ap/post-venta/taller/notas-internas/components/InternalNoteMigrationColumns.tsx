@@ -85,7 +85,15 @@ export const internalNoteMigrationColumns = ({
         dyn_series_in: seriesIn,
         is_accounted_out: isAccountedOut,
         is_accounted_in: isAccountedIn,
+        migration_status: migrationStatus,
       } = row.original;
+
+      if (migrationStatus === "skipped")
+        return (
+          <span className="text-xs text-muted-foreground">
+            No se han cargado repuestos en esta nota interna
+          </span>
+        );
 
       if (!seriesOut && !seriesIn) return "-";
 
