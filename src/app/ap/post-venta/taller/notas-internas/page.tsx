@@ -1,12 +1,12 @@
 "use client";
 
 import { useScopedFilters } from "@/shared/hooks/useScopedFilters";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { getCurrentDayOfMonth, getFirstDayOfMonth } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { INTERNAL_NOTE_MIGRATION } from "@/features/ap/post-venta/taller/notas-internas/lib/internalNoteMigration.constants";
 import { useGetInternalNoteMigration } from "@/features/ap/post-venta/taller/notas-internas/lib/internalNoteMigration.hook";
@@ -15,6 +15,7 @@ import { internalNoteMigrationColumns } from "@/features/ap/post-venta/taller/no
 import InternalNoteMigrationOptions from "@/features/ap/post-venta/taller/notas-internas/components/InternalNoteMigrationOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function InternalNoteMigrationPage() {
   const router = useNavigate();
@@ -28,12 +29,14 @@ export default function InternalNoteMigrationPage() {
     ABSOLUTE_ROUTE,
     {
       search: "",
+      sedeId: "",
       dateFrom: getFirstDayOfMonth(currentDate) as Date | undefined,
       dateTo: getCurrentDayOfMonth(currentDate) as Date | undefined,
     },
   );
-  const { search, dateFrom, dateTo } = filters;
+  const { search, sedeId, dateFrom, dateTo } = filters;
   const setSearch = (value: string) => setFilter("search", value);
+  const setSedeId = (value: string) => setFilter("sedeId", value);
   const setDateFrom = (value: Date | undefined) => setFilter("dateFrom", value);
   const setDateTo = (value: Date | undefined) => setFilter("dateTo", value);
 
@@ -41,16 +44,30 @@ export default function InternalNoteMigrationPage() {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+    has_workshop: true,
+  });
+
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      setSedeId(mySedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mySedes, sedeId]);
+
   const { data, isLoading } = useGetInternalNoteMigration({
     params: {
       page,
       search,
       per_page,
+      workOrder$sede_id: sedeId || undefined,
       created_date:
         dateFrom && dateTo
           ? [formatDate(dateFrom), formatDate(dateTo)]
           : undefined,
     },
+    enabled: !!sedeId,
   });
 
   return (
@@ -65,7 +82,7 @@ export default function InternalNoteMigrationPage() {
       </HeaderTableWrapper>
 
       <InternalNoteMigrationTable
-        isLoading={isLoading}
+        isLoading={isLoading || isLoadingSedes}
         columns={internalNoteMigrationColumns({
           permissions: {
             canVerifyMigration: permissions.canMigrate,
@@ -80,6 +97,9 @@ export default function InternalNoteMigrationPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          sedes={mySedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </InternalNoteMigrationTable>
 
