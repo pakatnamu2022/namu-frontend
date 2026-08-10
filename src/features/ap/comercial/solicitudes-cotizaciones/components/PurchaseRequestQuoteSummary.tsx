@@ -311,14 +311,14 @@ export function PurchaseRequestQuoteSummary({
           </p>
         </CardHeader>
 
-        <CardContent className="space-y-4 pt-6">
-          {/* Vehículo + Titular */}
-          <div className="grid grid-cols-2 gap-3 rounded-2xl bg-muted/40 p-4">
-            <div>
-              <p className="text-[11px] text-muted-foreground mb-0.5">
+        <CardContent className="pt-6">
+          <div className="divide-y divide-border">
+            {/* Vehículo */}
+            <div className="flex justify-between items-baseline py-2.5 text-sm">
+              <span className="text-muted-foreground">
                 {withVinWatch ? "Vehículo" : "Modelo"}
-              </p>
-              <p className="text-sm font-medium truncate">
+              </span>
+              <span className="font-medium text-right truncate max-w-[65%]">
                 {withVinWatch && vehicleVnWatch
                   ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))
                       ?.vin || "Sin seleccionar"
@@ -326,30 +326,32 @@ export function PurchaseRequestQuoteSummary({
                     ? modelsVn.find((m) => m.id === Number(modelVnWatch))
                         ?.version || "Sin seleccionar"
                     : "Sin seleccionar"}
-              </p>
-              {selectedModel && (
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-                  {selectedModel.code}
-                  {!withVinWatch &&
-                    selectedColor &&
-                    ` · ${selectedColor.description}`}
-                </p>
-              )}
+                {selectedModel && (
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {selectedModel.code}
+                    {!withVinWatch &&
+                      selectedColor &&
+                      ` · ${selectedColor.description}`}
+                  </span>
+                )}
+              </span>
             </div>
 
-            <div>
-              <p className="text-[11px] text-muted-foreground mb-0.5">
-                Titular
-              </p>
-              <p className="text-sm font-medium truncate">
+            {/* Titular */}
+            <div className="flex justify-between items-baseline py-2.5 text-sm">
+              <span className="text-muted-foreground">Titular</span>
+              <span className="font-medium text-right truncate max-w-[65%]">
                 {selectedHolder?.full_name || "Sin seleccionar"}
-              </p>
+                {selectedHolder?.num_doc && (
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {selectedHolder.num_doc}
+                  </span>
+                )}
+              </span>
             </div>
-          </div>
 
-          {/* Desglose de precio */}
-          <div className="rounded-2xl bg-muted/40 p-4 space-y-2">
-            <div className="flex justify-between items-center text-sm">
+            {/* Precio Venta */}
+            <div className="flex justify-between items-center py-2.5 text-sm">
               <span className="text-muted-foreground">Precio Venta</span>
               <span className="tabular-nums">
                 {vehicleCurrency.symbol} {fmt(totals.salePrice)}
@@ -357,7 +359,7 @@ export function PurchaseRequestQuoteSummary({
             </div>
 
             {totals.bonusDiscountTotal > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Bonos/Desc.</span>
                 <span className="text-muted-foreground/70 tabular-nums">
                   {vehicleCurrency.symbol} {fmt(totals.bonusDiscountTotal)}
@@ -366,7 +368,7 @@ export function PurchaseRequestQuoteSummary({
             )}
 
             {totals.negativeDiscounts > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Descuentos</span>
                 <span className="text-red-500 tabular-nums">
                   − {vehicleCurrency.symbol} {fmt(totals.negativeDiscounts)}
@@ -375,7 +377,7 @@ export function PurchaseRequestQuoteSummary({
             )}
 
             {totals.accessoriesTotal > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Accesorios</span>
                 <span className="text-primary tabular-nums">
                   + {vehicleCurrency.symbol} {fmt(totals.accessoriesTotal)}
@@ -393,7 +395,7 @@ export function PurchaseRequestQuoteSummary({
                 return (
                   <div
                     key={c.id}
-                    className="flex justify-between items-center text-xs"
+                    className="flex justify-between items-center py-2 text-xs"
                   >
                     <span className="text-muted-foreground/70">
                       T.C. 1 {vehicleCurrency.symbol} = {c.symbol}
@@ -405,9 +407,7 @@ export function PurchaseRequestQuoteSummary({
                 );
               })}
 
-            <Separator className="my-1" />
-
-            <div className="flex justify-between items-center text-sm font-semibold">
+            <div className="flex justify-between items-center py-2.5 text-sm font-semibold">
               <span>Subtotal</span>
               <span className="tabular-nums">
                 {vehicleCurrency.symbol} {fmt(totals.subtotal)}
@@ -420,7 +420,7 @@ export function PurchaseRequestQuoteSummary({
             <Button
               type="button"
               variant="outline"
-              className={`w-full font-semibold ${marginButtonColor}`}
+              className={`w-full font-semibold mt-4 ${marginButtonColor}`}
               onClick={() => setIsMarginModalOpen(true)}
             >
               <TrendingUp className="size-4 mr-2" />
@@ -434,7 +434,7 @@ export function PurchaseRequestQuoteSummary({
             control={form.control}
             name="comment"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="mt-4">
                 <FormLabel>Comentarios/Notas</FormLabel>
                 <FormControl>
                   <textarea
