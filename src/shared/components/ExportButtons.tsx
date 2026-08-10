@@ -26,6 +26,10 @@ interface ExportButtonsProps {
   pdfEndpoint?: string;
   excelFileName?: string;
   pdfFileName?: string;
+  /** Filtros activos de la página (búsqueda, estado, rango de fechas, etc.).
+   * Se envían como query params junto a excelEndpoint/pdfEndpoint para que el
+   * archivo exportado respete lo que el usuario está viendo en la tabla. */
+  filters?: Record<string, any>;
   onExcelDownload?: () => void | Promise<void>;
   onPdfDownload?: () => void | Promise<void>;
   disableExcel?: boolean;
@@ -46,6 +50,7 @@ export default function ExportButtons({
   pdfEndpoint,
   excelFileName = "export.xlsx",
   pdfFileName = "export.pdf",
+  filters,
   onExcelDownload,
   onPdfDownload,
   disableExcel = false,
@@ -73,7 +78,7 @@ export default function ExportButtons({
     if (!excelEndpoint) return;
 
     const download = api
-      .get(excelEndpoint, { responseType: "blob" })
+      .get(excelEndpoint, { params: filters, responseType: "blob" })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
@@ -105,7 +110,7 @@ export default function ExportButtons({
     if (!pdfEndpoint) return;
 
     const download = api
-      .get(pdfEndpoint, { responseType: "blob" })
+      .get(pdfEndpoint, { params: filters, responseType: "blob" })
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");

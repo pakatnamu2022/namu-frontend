@@ -7,6 +7,7 @@ import VehicleUpdateByVinSheet from "./VehicleUpdateByVinSheet";
 import { VEHICLES_EXPORT } from "../lib/vehicles.constants";
 
 interface VehicleActionsProps {
+  filters?: Record<string, any>;
   permissions?: {
     canImport?: boolean;
   };
@@ -14,6 +15,7 @@ interface VehicleActionsProps {
 }
 
 export default function VehicleActions({
+  filters,
   onUpdateSuccess,
 }: VehicleActionsProps) {
   const [updateByVinOpen, setUpdateByVinOpen] = useState(false);
@@ -31,6 +33,7 @@ export default function VehicleActions({
         pdfEndpoint={VEHICLES_EXPORT.ENDPOINT_EXPORT_PDF}
         excelFileName="vehiculos.xlsx"
         pdfFileName="vehiculos.pdf"
+        filters={filters}
         variant="grouped"
       />
     </ActionsWrapper>
