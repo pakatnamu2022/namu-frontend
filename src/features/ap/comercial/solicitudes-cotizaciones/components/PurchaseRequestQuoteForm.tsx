@@ -35,6 +35,7 @@ import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelo
 import {
   useAllVehicleColor,
   useVehicleColor,
+  useVehicleColorById,
 } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
@@ -1072,6 +1073,7 @@ export const PurchaseRequestQuoteForm = ({
                       label: item.description,
                       description: item.code ?? "S/C",
                     })}
+                    useFindByIdHook={useVehicleColorById}
                     control={form.control}
                   >
                     <Button

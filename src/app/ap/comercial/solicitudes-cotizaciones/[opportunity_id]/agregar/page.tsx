@@ -61,7 +61,7 @@ export default function AddPurchaseRequestQuotePage() {
   }
 
   return (
-    <PageWrapper size="2xl">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
