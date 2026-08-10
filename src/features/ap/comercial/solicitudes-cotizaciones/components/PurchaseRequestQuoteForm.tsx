@@ -837,23 +837,6 @@ export const PurchaseRequestQuoteForm = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna izquierda: Formulario (3 cols) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
-            {opportunity && (
-              <div className="col-span-full">
-                <OpportunityInfoCard
-                  opportunity={opportunity}
-                  canEditFamily
-                  onFamilyChange={(familyId) => {
-                    familyManuallyEditedRef.current = true;
-                    setSelectedFamilyId(familyId);
-                    form.setValue("ap_models_vn_id", "");
-                    form.setValue("vehicle_color_id", "");
-                    form.setValue("ap_vehicle_id", "");
-                  }}
-                />
-              </div>
-            )}
-
             {/*Seccion Información General*/}
             <GroupFormSection
               title="Información General"
@@ -1249,36 +1232,52 @@ export const PurchaseRequestQuoteForm = ({
             )}
           </div>
 
-          {/* Columna derecha: Resumen - sticky */}
-          <PurchaseRequestQuoteSummary
-            form={form}
-            mode={mode}
-            isSubmitting={isSubmitting}
-            selectedHolder={selectedHolder}
-            modelsVn={modelsVn}
-            vehiclesVn={vehiclesVn}
-            vehicleColors={color}
-            withVinWatch={withVinWatch}
-            vehicleVnWatch={vehicleVnWatch}
-            modelVnWatch={modelVnWatch}
-            vehicleColorWatch={vehicleColorWatch}
-            selectedModel={selectedModel}
-            vehicleCurrency={vehicleCurrency}
-            totals={totals}
-            finalTotal={finalTotal}
-            invoiceCurrencyId={invoiceCurrencyId}
-            selectedInvoiceCurrency={selectedInvoiceCurrency}
-            getExchangeRate={getExchangeRate}
-            currencyTypes={currencyTypes}
-            billedCost={billedCost}
-            bonusDiscountRows={bonusDiscountRows}
-            accessoriesRows={accessoriesRows}
-            othersRows={othersRows}
-            approvedAccesories={approvedAccesories}
-            canManage={canManage}
-            onCancel={onCancel}
-            onSubmit={handleFormSubmit}
-          />
+          {/* Columna derecha: Oportunidad + Resumen - sticky */}
+          <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 space-y-6">
+            {opportunity && (
+              <OpportunityInfoCard
+                opportunity={opportunity}
+                canEditFamily
+                onFamilyChange={(familyId) => {
+                  familyManuallyEditedRef.current = true;
+                  setSelectedFamilyId(familyId);
+                  form.setValue("ap_models_vn_id", "");
+                  form.setValue("vehicle_color_id", "");
+                  form.setValue("ap_vehicle_id", "");
+                }}
+              />
+            )}
+
+            <PurchaseRequestQuoteSummary
+              form={form}
+              mode={mode}
+              isSubmitting={isSubmitting}
+              selectedHolder={selectedHolder}
+              modelsVn={modelsVn}
+              vehiclesVn={vehiclesVn}
+              vehicleColors={color}
+              withVinWatch={withVinWatch}
+              vehicleVnWatch={vehicleVnWatch}
+              modelVnWatch={modelVnWatch}
+              vehicleColorWatch={vehicleColorWatch}
+              selectedModel={selectedModel}
+              vehicleCurrency={vehicleCurrency}
+              totals={totals}
+              finalTotal={finalTotal}
+              invoiceCurrencyId={invoiceCurrencyId}
+              selectedInvoiceCurrency={selectedInvoiceCurrency}
+              getExchangeRate={getExchangeRate}
+              currencyTypes={currencyTypes}
+              billedCost={billedCost}
+              bonusDiscountRows={bonusDiscountRows}
+              accessoriesRows={accessoriesRows}
+              othersRows={othersRows}
+              approvedAccesories={approvedAccesories}
+              canManage={canManage}
+              onCancel={onCancel}
+              onSubmit={handleFormSubmit}
+            />
+          </div>
         </div>
       </form>
       <VehicleColorModal

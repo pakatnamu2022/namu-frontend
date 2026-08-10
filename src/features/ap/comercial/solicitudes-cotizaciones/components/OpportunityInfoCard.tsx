@@ -115,12 +115,9 @@ export const OpportunityInfoCard = ({
 
   return (
     <Card
-      className={cn(
-        "gap-0 rounded-2xl border-0 bg-card text-card-foreground py-0 overflow-hidden",
-        "ring-1 ring-black/6 dark:ring-white/8",
-        "shadow-[0_1px_3px_rgba(0,0,0,0.06),0_10px_24px_-8px_rgba(0,0,0,0.12)]",
-        "dark:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_10px_24px_-8px_rgba(0,0,0,0.5)]",
-      )}
+      className={
+        "gap-0 rounded-2xl bg-card text-card-foreground py-0 overflow-hidden border border-muted shadow-sm"
+      }
     >
       {/* Header */}
       <CardHeader className="grid-cols-none flex items-center justify-between gap-3 px-4 py-3! border-b border-border">
@@ -149,7 +146,7 @@ export const OpportunityInfoCard = ({
       </CardHeader>
 
       {/* Content */}
-      <CardContent className="px-4">
+      <CardContent className="px-4 pb-2">
         {/* Cliente */}
         <div className="flex items-start gap-2.5 py-2">
           <User className="size-4 text-muted-foreground mt-0.5 shrink-0" />
