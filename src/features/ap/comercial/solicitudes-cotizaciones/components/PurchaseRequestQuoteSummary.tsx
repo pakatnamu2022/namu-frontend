@@ -298,27 +298,16 @@ export function PurchaseRequestQuoteSummary({
             {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}
             {fmt(finalTotal)}
           </p>
-
-          <p className="text-xs text-muted-foreground mt-2">
-            {withVinWatch && vehicleVnWatch
-              ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))
-                  ?.vin || "Sin seleccionar"
-              : modelVnWatch
-                ? modelsVn.find((m) => m.id === Number(modelVnWatch))
-                    ?.version || "Sin seleccionar"
-                : "Sin seleccionar"}
-            {selectedHolder?.full_name && ` · ${selectedHolder.full_name}`}
-          </p>
         </CardHeader>
 
         <CardContent className="pt-6">
-          <div className="divide-y divide-border">
-            {/* Vehículo */}
-            <div className="flex justify-between items-baseline py-2.5 text-sm">
-              <span className="text-muted-foreground">
+          {/* Modelo/Vehículo + Titular */}
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 {withVinWatch ? "Vehículo" : "Modelo"}
-              </span>
-              <span className="font-medium text-right truncate max-w-[65%]">
+              </p>
+              <p className="text-sm font-semibold truncate mt-0.5">
                 {withVinWatch && vehicleVnWatch
                   ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))
                       ?.vin || "Sin seleccionar"
@@ -326,31 +315,34 @@ export function PurchaseRequestQuoteSummary({
                     ? modelsVn.find((m) => m.id === Number(modelVnWatch))
                         ?.version || "Sin seleccionar"
                     : "Sin seleccionar"}
-                {selectedModel && (
-                  <span className="block text-xs font-normal text-muted-foreground">
-                    {selectedModel.code}
-                    {!withVinWatch &&
-                      selectedColor &&
-                      ` · ${selectedColor.description}`}
-                  </span>
-                )}
-              </span>
+              </p>
+              {selectedModel && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {selectedModel.code}
+                  {!withVinWatch &&
+                    selectedColor &&
+                    ` · ${selectedColor.description}`}
+                </p>
+              )}
             </div>
 
-            {/* Titular */}
-            <div className="flex justify-between items-baseline py-2.5 text-sm">
-              <span className="text-muted-foreground">Titular</span>
-              <span className="font-medium text-right truncate max-w-[65%]">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Titular
+              </p>
+              <p className="text-sm font-semibold truncate mt-0.5">
                 {selectedHolder?.full_name || "Sin seleccionar"}
-                {selectedHolder?.num_doc && (
-                  <span className="block text-xs font-normal text-muted-foreground">
-                    {selectedHolder.num_doc}
-                  </span>
-                )}
-              </span>
+              </p>
+              {selectedHolder?.num_doc && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {selectedHolder.num_doc}
+                </p>
+              )}
             </div>
+          </div>
 
-            {/* Precio Venta */}
+          {/* Desglose de precio */}
+          <div className="divide-y divide-border mt-6">
             <div className="flex justify-between items-center py-2.5 text-sm">
               <span className="text-muted-foreground">Precio Venta</span>
               <span className="tabular-nums">
@@ -398,10 +390,11 @@ export function PurchaseRequestQuoteSummary({
                     className="flex justify-between items-center py-2 text-xs"
                   >
                     <span className="text-muted-foreground/70">
-                      T.C. 1 {vehicleCurrency.symbol} = {c.symbol}
+                      Tasa de Cambio
                     </span>
                     <span className="tabular-nums text-muted-foreground">
-                      {tc.toFixed(3)}
+                      {vehicleCurrency.symbol} 1 = {c.symbol}{" "}
+                      <strong className="pl-2">{tc.toFixed(3)}</strong>
                     </span>
                   </div>
                 );
@@ -449,7 +442,7 @@ export function PurchaseRequestQuoteSummary({
           />
 
           {/* Botones de Acción */}
-          <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 pt-2 gap-2">
+          <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 pt-6 gap-2">
             <Button
               type="button"
               className="w-full"
