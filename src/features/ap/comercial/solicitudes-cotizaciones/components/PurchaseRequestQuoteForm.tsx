@@ -975,7 +975,7 @@ export const PurchaseRequestQuoteForm = ({
             <GroupFormSection
               title="Información del Vehículo"
               icon={Building2}
-              color="gray"
+              color="indigo"
               cols={{ sm: 1, md: 2 }}
             >
               {/* Switch para seleccionar Con VIN o Sin VIN */}
