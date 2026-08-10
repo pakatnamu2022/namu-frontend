@@ -68,6 +68,7 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { useNextShippingGuideDocumentNumber } from "../lib/shipmentsReceptions.hook";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import { useQueryClient } from "@tanstack/react-query";
 import VehicleModal from "../../vehiculos/components/VehicleModal";
 import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
@@ -968,6 +969,14 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
+                ...(watchTransferReasonId ===
+                SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
+                  ? {
+                      ap_vehicle_status_id: [
+                        VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO,
+                      ],
+                    }
+                  : {}),
               }}
               disabled={!watchSedeTransmitterId || !watchArticleClassId}
               onValueChange={handleVehicleChange}
@@ -1015,6 +1024,14 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
+                ...(watchTransferReasonId ===
+                SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
+                  ? {
+                      ap_vehicle_status_id: [
+                        VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO,
+                      ],
+                    }
+                  : {}),
               }}
               disabled={
                 (watchIssuerType !== "PROVEEDOR" && !watchSedeTransmitterId) ||
