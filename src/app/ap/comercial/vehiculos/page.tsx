@@ -40,13 +40,18 @@ export default function VehiclesPage() {
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
+
+  const filters = {
+    search,
+    ap_vehicle_status_id: ap_vehicle_status_id,
+    type_operation_id: CM_COMERCIAL_ID,
+  };
+
   const { data, isLoading, refetch } = useVehicles(
     {
       page,
-      search,
       per_page,
-      ap_vehicle_status_id: ap_vehicle_status_id,
-      type_operation_id: CM_COMERCIAL_ID,
+      ...filters,
     },
     true,
   );
@@ -78,6 +83,7 @@ export default function VehiclesPage() {
           icon={currentView.icon}
         />
         <VehicleActions
+          filters={filters}
           permissions={{ canImport: permissions.canImport }}
           onUpdateSuccess={refetch}
         />
