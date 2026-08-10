@@ -16,13 +16,25 @@ import {
   MessageSquare,
   Calendar,
   ArrowRight,
+  Pencil,
+  X,
 } from "lucide-react";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
+import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
+import { useFamilies } from "../../oportunidades/lib/opportunities.hook";
+import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface OpportunityInfoCardProps {
   opportunity: OpportunityResource;
   onView?: () => void;
+  /** Permite editar la familia del vehículo directamente desde esta tarjeta.
+   *  Solo debe activarse en la instancia donde tenga sentido reasignarla
+   *  (ej. PurchaseRequestQuoteForm), no en todas las que usan esta tarjeta. */
+  canEditFamily?: boolean;
+  /** Se dispara cuando el usuario confirma un cambio de familia. */
+  onFamilyChange?: (familyId: number, family: FamiliesResource) => void;
 }
 
 const getClientStatusVariant = (status: string): BadgeColor => {
@@ -81,8 +93,25 @@ const getStatusColors = (status: string) => {
 export const OpportunityInfoCard = ({
   opportunity,
   onView,
+  canEditFamily = false,
+  onFamilyChange,
 }: OpportunityInfoCardProps) => {
   const colors = getStatusColors(opportunity.opportunity_status);
+
+  // Estado local solo para mostrar la familia elegida en esta tarjeta;
+  // el dato "real" que usa el formulario contenedor se sincroniza vía onFamilyChange.
+  const [displayedFamily, setDisplayedFamily] = useState(opportunity.family);
+  const [isEditingFamily, setIsEditingFamily] = useState(false);
+  const [familyDraft, setFamilyDraft] = useState("");
+
+  const handleFamilySelect = (value: string, item?: FamiliesResource) => {
+    setFamilyDraft(value);
+    if (item) {
+      setDisplayedFamily(item);
+      onFamilyChange?.(item.id, item);
+      setIsEditingFamily(false);
+    }
+  };
 
   return (
     <Card
@@ -152,12 +181,56 @@ export const OpportunityInfoCard = ({
         <div className="flex items-start gap-2.5 py-2">
           <Package className="size-4 text-muted-foreground mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              Vehículo de Interés
-            </p>
-            <p className="text-sm font-semibold truncate">
-              {opportunity.family.brand} {opportunity.family.description}
-            </p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                Vehículo de Interés
+              </p>
+              {canEditFamily && !isEditingFamily && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFamilyDraft(displayedFamily.id.toString());
+                    setIsEditingFamily(true);
+                  }}
+                  className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                  title="Editar familia"
+                >
+                  <Pencil className="size-3" />
+                </button>
+              )}
+            </div>
+
+            {isEditingFamily ? (
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex-1 min-w-0">
+                  <SearchableSelectAsync
+                    useQueryHook={useFamilies}
+                    mapOptionFn={(item: FamiliesResource) => ({
+                      value: item.id.toString(),
+                      label: `${item.brand} ${item.description}`,
+                      description: item.code,
+                    })}
+                    value={familyDraft}
+                    onChange={setFamilyDraft}
+                    onValueChange={handleFamilySelect}
+                    placeholder="Buscar familia..."
+                    buttonSize="sm"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingFamily(false)}
+                  className="text-muted-foreground hover:text-foreground shrink-0"
+                  title="Cancelar"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm font-semibold truncate">
+                {displayedFamily.brand} {displayedFamily.description}
+              </p>
+            )}
           </div>
         </div>
 

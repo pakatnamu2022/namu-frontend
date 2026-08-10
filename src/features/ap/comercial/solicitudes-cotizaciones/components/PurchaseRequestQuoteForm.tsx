@@ -48,6 +48,7 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import {
+  useAllVehicles,
   useAllVehiclesWithCosts,
   useVehiclePurchaseOrder,
 } from "../../vehiculos/lib/vehicles.hook";
@@ -125,6 +126,9 @@ export const PurchaseRequestQuoteForm = ({
   const [selectedHolder, setSelectedHolder] = useState<
     CustomersResource | undefined
   >(undefined);
+  // Texto de VIN (debounced) que se busca fuera del filtro de familia,
+  // para poder avisar si el VIN existe pero pertenece a otra familia.
+  const [vinCrossFamilyQuery, setVinCrossFamilyQuery] = useState("");
 
   // Hooks de datos
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -199,6 +203,12 @@ export const PurchaseRequestQuoteForm = ({
   const hasInitializedFamilyIdRef = useRef(false);
   const previousVehicleVnRef = useRef<string | undefined>(undefined);
   const previousModelVnRef = useRef<string | undefined>(undefined);
+  // Cuando el usuario reasigna la familia manualmente desde OpportunityInfoCard,
+  // este ref evita que el effect de sincronización con `opportunity` la sobrescriba de vuelta.
+  const familyManuallyEditedRef = useRef(false);
+  const vinSearchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   // Form watchers
   const modelVnWatch = form.watch("ap_models_vn_id");
@@ -213,6 +223,14 @@ export const PurchaseRequestQuoteForm = ({
   // Hook para obtener datos de la orden de compra del vehículo
   const { data: vehiclePurchaseOrderData } = useVehiclePurchaseOrder(
     withVinWatch && vehicleVnWatch ? Number(vehicleVnWatch) : null,
+  );
+
+  // Búsqueda de VIN sin filtrar por familia, solo para detectar el caso
+  // "el VIN existe y está activo, pero pertenece a otra familia".
+  const { data: vinCrossFamilyResults = [] } = useAllVehicles(
+    withVinWatch && vinCrossFamilyQuery.length >= 5
+      ? { search: vinCrossFamilyQuery }
+      : undefined,
   );
 
   // Datos iniciales para las tablas (solo en modo update)
@@ -316,6 +334,40 @@ export const PurchaseRequestQuoteForm = ({
   const vehicleVnSelected = vehiclesVn.find(
     (vehicle) => vehicle.id === Number(vehicleVnWatch),
   );
+
+  // Detecta si el VIN escrito por el usuario existe y está activo, pero en
+  // una familia distinta a la seleccionada (por eso no aparece en el listado filtrado).
+  const vinFamilyMismatch = useMemo(() => {
+    if (!vinCrossFamilyQuery || !selectedFamilyId) return null;
+
+    const match = vinCrossFamilyResults.find(
+      (vehicle) =>
+        vehicle.vin?.toUpperCase() === vinCrossFamilyQuery.toUpperCase(),
+    );
+    if (!match) return null;
+    if (match.model?.family_id === selectedFamilyId) return null;
+    if (!match.status) return null; // solo avisar si está activo
+
+    return match;
+  }, [vinCrossFamilyResults, vinCrossFamilyQuery, selectedFamilyId]);
+
+  // Debounce del texto de búsqueda del VIN para no disparar una consulta por tecla
+  const handleVinSearch = (value: string) => {
+    if (vinSearchTimeoutRef.current) {
+      clearTimeout(vinSearchTimeoutRef.current);
+    }
+    vinSearchTimeoutRef.current = setTimeout(() => {
+      setVinCrossFamilyQuery(value.trim());
+    }, 350);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (vinSearchTimeoutRef.current) {
+        clearTimeout(vinSearchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Obtener el modelo seleccionado y su precio original
   // Si está CON VIN: buscar por el modelo del vehículo
@@ -501,8 +553,11 @@ export const PurchaseRequestQuoteForm = ({
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
     // Si viene la prop opportunity directamente, usar su family_id
+    // (salvo que el usuario ya la haya reasignado manualmente desde la tarjeta).
     if (opportunity && opportunity.family_id) {
-      setSelectedFamilyId(opportunity.family_id);
+      if (!familyManuallyEditedRef.current) {
+        setSelectedFamilyId(opportunity.family_id);
+      }
       if (!hasInitializedFamilyIdRef.current) {
         hasInitializedFamilyIdRef.current = true;
       }
@@ -785,7 +840,17 @@ export const PurchaseRequestQuoteForm = ({
             {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
             {opportunity && (
               <div className="col-span-full">
-                <OpportunityInfoCard opportunity={opportunity} />
+                <OpportunityInfoCard
+                  opportunity={opportunity}
+                  canEditFamily
+                  onFamilyChange={(familyId) => {
+                    familyManuallyEditedRef.current = true;
+                    setSelectedFamilyId(familyId);
+                    form.setValue("ap_models_vn_id", "");
+                    form.setValue("vehicle_color_id", "");
+                    form.setValue("ap_vehicle_id", "");
+                  }}
+                />
               </div>
             )}
 
@@ -929,25 +994,40 @@ export const PurchaseRequestQuoteForm = ({
               )}
               {/* Mostrar campo de Vehículo VN cuando with_vin es true */}
               {withVinWatch && (
-                <FormSelect
-                  name="ap_vehicle_id"
-                  label="Vehículo VN"
-                  placeholder="Selecciona un vehículo"
-                  options={vehiclesVn.map((item) => ({
-                    label: item.vin + " | " + item.family,
-                    value: item.id.toString(),
-                    description:
-                      item.model_code +
-                      " | " +
-                      item.model +
-                      " | " +
-                      item.warehouse,
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                  disabled={isLoadingVehiclesVn}
-                  withValue={false}
-                />
+                <div className="col-span-full md:col-span-1">
+                  <FormSelect
+                    name="ap_vehicle_id"
+                    label="Vehículo VN"
+                    placeholder="Selecciona un vehículo"
+                    options={vehiclesVn.map((item) => ({
+                      label: item.vin + " | " + item.family,
+                      value: item.id.toString(),
+                      description:
+                        item.model_code +
+                        " | " +
+                        item.model +
+                        " | " +
+                        item.warehouse,
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
+                    disabled={isLoadingVehiclesVn}
+                    withValue={false}
+                    isSearchable
+                    setSearchQuery={handleVinSearch}
+                  />
+                  {vinFamilyMismatch && (
+                    <Alert variant="warning" className="mt-2">
+                      <AlertDescription>
+                        El VIN <strong>{vinFamilyMismatch.vin}</strong> está
+                        activo, pero pertenece a la familia{" "}
+                        <strong>{vinFamilyMismatch.model?.family}</strong>, no
+                        a la familia de esta solicitud. Verifica el vehículo o
+                        edita la familia en la tarjeta de la oportunidad.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
               )}
 
               {/* Mostrar accesorios de la orden de compra cuando se selecciona un VIN */}

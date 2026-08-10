@@ -18,10 +18,14 @@ import {
 
 const { QUERY_KEY } = VEHICLES;
 
-export const useAllVehicles = (params?: Record<string, any>) => {
+export const useAllVehicles = (
+  params?: Record<string, any>,
+  enabled: boolean = true,
+) => {
   return useQuery<VehicleResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAllVehicles({ params }),
+    enabled: enabled && !!params,
   });
 };
 
