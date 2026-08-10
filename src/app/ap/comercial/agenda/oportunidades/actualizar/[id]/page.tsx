@@ -75,6 +75,7 @@ export default function UpdateOpportunityPage() {
         isSubmitting={updateMutation.isPending}
         mode="update"
         clientId={opportunity.client_id}
+        leadBrandId={opportunity.lead?.vehicle_brand_id}
       />
     </FormWrapper>
   );

@@ -195,6 +195,14 @@ export const OpportunityInfoCard = ({
                     })}
                     additionalParams={{
                       "brand$type_operation_id": CM_COMERCIAL_ID,
+                      ...(opportunity.lead?.vehicle_brand_id
+                        ? { brand_id: opportunity.lead.vehicle_brand_id }
+                        : {}),
+                    }}
+                    defaultOption={{
+                      value: displayedFamily.id.toString(),
+                      label: `${displayedFamily.brand} ${displayedFamily.description}`,
+                      description: displayedFamily.code,
                     }}
                     value={familyDraft}
                     onChange={setFamilyDraft}
