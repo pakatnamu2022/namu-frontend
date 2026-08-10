@@ -110,6 +110,10 @@ export interface PurchaseRequestQuoteResource {
   bonus_discounts: BonusDiscountResource[];
   accessories: AccessoryResource[];
   others: OtherCostResource[];
+  credit_type?: string | null;
+  credit_entity?: string | null;
+  insurance_entity?: string | null;
+  gps_hunter_years?: number | null;
   margin_amount: number;
   margin_pct: number;
   sede_id: number;
@@ -147,6 +151,10 @@ export interface PurchaseRequestQuoteRequest {
   doc_type_currency_id: string;
   down_payment?: number;
   others?: OtherCostPayload[];
+  credit_type?: string | null;
+  credit_entity?: string | null;
+  insurance_entity?: string | null;
+  gps_hunter_years?: number | null;
 }
 
 export interface ConceptDiscountBondResource {

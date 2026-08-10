@@ -12,7 +12,10 @@ import {
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
-import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
+import {
+  PURCHASE_REQUEST_QUOTE,
+  CREDIT_TYPE_OPTIONS,
+} from "../lib/purchaseRequestQuote.constants";
 import { DECLARACION_JURADA_KYC } from "../../declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { NUM_DIGITS_RUC } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { Badge } from "@/components/ui/badge";
@@ -127,6 +130,57 @@ export const purchaseRequestQuoteColumns = ({
       return (
         <Badge color={is_paid ? "green" : "gray"} icon={is_paid ? Check : X}>
           {is_paid ? "Pagado" : "Pendiente Pago"}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "credit",
+    header: "Crédito",
+    cell: ({ row }) => {
+      const { credit_type, credit_entity } = row.original;
+      if (!credit_type) {
+        return <p className="text-muted-foreground text-xs">Sin crédito</p>;
+      }
+      const label =
+        CREDIT_TYPE_OPTIONS.find((opt) => opt.value === credit_type)?.label ??
+        credit_type;
+      return (
+        <div className="flex flex-col text-xs">
+          <span>{label}</span>
+          {credit_entity && (
+            <span className="font-semibold text-primary">
+              {credit_entity}
+            </span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "insurance_entity",
+    header: "Seguro",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null | undefined;
+      return value ? (
+        <span className="font-semibold">{value}</span>
+      ) : (
+        <p className="text-muted-foreground text-xs">Sin seguro</p>
+      );
+    },
+  },
+  {
+    accessorKey: "gps_hunter_years",
+    header: "GPS Hunter",
+    cell: ({ getValue }) => {
+      const value = getValue() as number | null | undefined;
+      return value ? (
+        <Badge color="green" icon={Check}>
+          {value} {value === 1 ? "año" : "años"}
+        </Badge>
+      ) : (
+        <Badge color="gray" icon={X}>
+          No
         </Badge>
       );
     },

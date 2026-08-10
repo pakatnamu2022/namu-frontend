@@ -83,6 +83,10 @@ export default function AddPurchaseRequestQuotePage() {
           ap_vehicle_id: "",
           sale_price: "0",
           doc_type_currency_id: "",
+          credit_type: "",
+          credit_entity: "",
+          insurance_entity: "",
+          gps_hunter_years: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
