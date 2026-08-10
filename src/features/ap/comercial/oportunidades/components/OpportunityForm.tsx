@@ -125,7 +125,7 @@ export const OpportunityForm = ({
             control={form.control}
             additionalParams={{
               "brand$type_operation_id": CM_COMERCIAL_ID,
-              ...(leadBrandId ? { brand_id: leadBrandId } : {}),
+              brand_id: leadBrandId,
             }}
             useFindByIdHook={useFamiliesById}
           />
