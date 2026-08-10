@@ -418,7 +418,9 @@ export const PurchaseRequestQuoteForm = ({
       if (previousModelVnRef.current !== modelVnWatch) {
         previousModelVnRef.current = modelVnWatch;
         // Solo actualizar el precio si actualmente no hay precio o es 0
-        const currentSalePrice = parseFloat(form.getValues("sale_price") || "0");
+        const currentSalePrice = parseFloat(
+          form.getValues("sale_price") || "0",
+        );
         if (!currentSalePrice) {
           form.setValue("sale_price", originalPrice.toString());
         }
@@ -1004,8 +1006,8 @@ export const PurchaseRequestQuoteForm = ({
                       <AlertDescription>
                         El VIN <strong>{vinFamilyMismatch.vin}</strong> está
                         activo, pero pertenece a la familia{" "}
-                        <strong>{vinFamilyMismatch.model?.family}</strong>, no
-                        a la familia de esta solicitud. Verifica el vehículo o
+                        <strong>{vinFamilyMismatch.model?.family}</strong>, no a
+                        la familia de esta solicitud. Verifica el vehículo o
                         edita la familia en la tarjeta de la oportunidad.
                       </AlertDescription>
                     </Alert>
@@ -1234,20 +1236,6 @@ export const PurchaseRequestQuoteForm = ({
 
           {/* Columna derecha: Oportunidad + Resumen - sticky */}
           <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 space-y-6">
-            {opportunity && (
-              <OpportunityInfoCard
-                opportunity={opportunity}
-                canEditFamily
-                onFamilyChange={(familyId) => {
-                  familyManuallyEditedRef.current = true;
-                  setSelectedFamilyId(familyId);
-                  form.setValue("ap_models_vn_id", "");
-                  form.setValue("vehicle_color_id", "");
-                  form.setValue("ap_vehicle_id", "");
-                }}
-              />
-            )}
-
             <PurchaseRequestQuoteSummary
               form={form}
               mode={mode}
@@ -1277,6 +1265,19 @@ export const PurchaseRequestQuoteForm = ({
               onCancel={onCancel}
               onSubmit={handleFormSubmit}
             />
+            {opportunity && (
+              <OpportunityInfoCard
+                opportunity={opportunity}
+                canEditFamily
+                onFamilyChange={(familyId) => {
+                  familyManuallyEditedRef.current = true;
+                  setSelectedFamilyId(familyId);
+                  form.setValue("ap_models_vn_id", "");
+                  form.setValue("vehicle_color_id", "");
+                  form.setValue("ap_vehicle_id", "");
+                }}
+              />
+            )}
           </div>
         </div>
       </form>
