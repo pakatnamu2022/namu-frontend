@@ -178,24 +178,9 @@ export const OpportunityInfoCard = ({
         <div className="flex items-start gap-2.5 py-2">
           <Package className="size-4 text-muted-foreground mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                Vehículo de Interés
-              </p>
-              {canEditFamily && !isEditingFamily && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFamilyDraft(displayedFamily.id.toString());
-                    setIsEditingFamily(true);
-                  }}
-                  className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                  title="Editar familia"
-                >
-                  <Pencil className="size-3" />
-                </button>
-              )}
-            </div>
+            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              Vehículo de Interés
+            </p>
 
             {isEditingFamily ? (
               <div className="flex items-center gap-1.5 mt-1">
@@ -214,19 +199,36 @@ export const OpportunityInfoCard = ({
                     buttonSize="sm"
                   />
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={() => setIsEditingFamily(false)}
-                  className="text-muted-foreground hover:text-foreground shrink-0"
+                  variant="outline"
+                  size="icon-sm"
                   title="Cancelar"
                 >
-                  <X className="size-4" />
-                </button>
+                  <X/>
+                </Button>
               </div>
             ) : (
               <p className="text-sm font-semibold truncate">
                 {displayedFamily.brand} {displayedFamily.description}
               </p>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            {canEditFamily && !isEditingFamily && (
+              <Button
+                type="button"
+                onClick={() => {
+                  setFamilyDraft(displayedFamily.id.toString());
+                  setIsEditingFamily(true);
+                }}
+                tooltip="Editar familia"
+                size="icon"
+                variant="outline"
+              >
+                <Pencil />
+              </Button>
             )}
           </div>
         </div>

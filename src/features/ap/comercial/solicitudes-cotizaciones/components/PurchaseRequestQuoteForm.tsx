@@ -10,7 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Handshake, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
@@ -74,17 +74,6 @@ interface PurchaseRequestQuoteFormProps {
   opportunity?: OpportunityResource;
   onCancel: () => void;
 }
-
-const typeDocOptions = [
-  {
-    label: "Cotización",
-    value: "COTIZACION",
-  },
-  {
-    label: "Solicitud de Compra",
-    value: "SOLICITUD_COMPRA",
-  },
-];
 
 export const PurchaseRequestQuoteForm = ({
   defaultValues,
@@ -219,6 +208,12 @@ export const PurchaseRequestQuoteForm = ({
   const salePriceWatch = form.watch("sale_price");
   const docTypeCurrencyWatch = form.watch("doc_type_currency_id");
   const holderWatch = form.watch("holder_id");
+  const sedeIdWatch = form.watch("sede_id");
+
+  // Etiqueta de sede para mostrar en el resumen (el campo ya no es editable en el form)
+  const sedeLabel = opportunity?.lead?.sede
+    ? opportunity.lead.sede
+    : mySedes.find((s) => s.id.toString() === sedeIdWatch)?.abreviatura;
 
   // Hook para obtener datos de la orden de compra del vehículo
   const { data: vehiclePurchaseOrderData } = useVehiclePurchaseOrder(
@@ -552,6 +547,29 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [opportunity]);
 
+  // Effect para setear sede_id automáticamente con la (única) sede del usuario
+  // cuando no viene definida por la oportunidad. El campo ya no se muestra en
+  // el formulario, así que se resuelve solo.
+  useEffect(() => {
+    if (
+      mode === "create" &&
+      !opportunity?.lead?.sede_id &&
+      mySedes.length > 0 &&
+      !form.getValues("sede_id")
+    ) {
+      form.setValue("sede_id", mySedes[0].id.toString());
+    }
+  }, [mode, opportunity, mySedes]);
+
+  // Effect para setear type_document automáticamente según el switch Con/Sin VIN:
+  // Con VIN -> Cotización, Sin VIN -> Solicitud de Compra. Ya no es un campo editable.
+  useEffect(() => {
+    form.setValue(
+      "type_document",
+      withVinWatch ? "COTIZACION" : "SOLICITUD_COMPRA",
+    );
+  }, [withVinWatch]);
+
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
     // Si viene la prop opportunity directamente, usar su family_id
@@ -839,127 +857,119 @@ export const PurchaseRequestQuoteForm = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna izquierda: Formulario (3 cols) */}
           <div className="lg:col-span-2 space-y-6">
-            {/*Seccion Información General*/}
-            <GroupFormSection
-              title="Información General"
-              icon={Building2}
-              color="blue"
-              cols={{ sm: 1, md: 2 }}
-            >
-              {opportunity?.lead?.sede_id ? (
-                <FormInput
-                  name="sede_disabled"
-                  label="Sede"
-                  value={opportunity.lead.sede}
-                  readOnly
-                />
-              ) : (
-                <FormSelect
-                  name="sede_id"
-                  label="Sede"
-                  placeholder="Selecciona una sede"
-                  options={mySedes.map((item) => ({
-                    label: item.abreviatura,
-                    value: item.id.toString(),
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                />
-              )}
-
-              <FormSelect
-                name="type_document"
-                label="Tipo de Documento"
-                placeholder="Selecciona el tipo"
-                options={typeDocOptions}
-                control={form.control}
-              />
-
-              {/* Solo mostrar el selector de oportunidad si NO viene la prop opportunity */}
-              {!opportunity && (
-                <FormSelect
-                  name="opportunity_id"
-                  label="Oportunidad"
-                  placeholder="Selecciona una oportunidad"
-                  options={opportunities.map((item) => ({
-                    label: item.client.full_name,
-                    description:
-                      item.family.brand + " - " + item.family.description,
-                    value: item.id.toString(),
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                />
-              )}
-
-              <div className="relative">
-                <FormSelectAsync
-                  name="holder_id"
-                  label="Titular"
-                  placeholder="Selecciona un titular"
-                  control={form.control}
-                  disabled={copyClientToHolder}
-                  useQueryHook={useCustomers}
-                  mapOptionFn={(customer: CustomersResource) => ({
-                    value: customer.id.toString(),
-                    label: customer.full_name,
-                  })}
-                  perPage={10}
-                  debounceMs={500}
-                  defaultOption={holderDefaultOption}
-                  onValueChange={(_, customer) => {
-                    setSelectedHolder(
-                      customer as CustomersResource | undefined,
-                    );
+            {/*Seccion Oportunidad + Información General, lado a lado*/}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Tarjeta de la oportunidad cuando viene por prop; si no, selector */}
+              {opportunity ? (
+                <OpportunityInfoCard
+                  opportunity={opportunity}
+                  canEditFamily
+                  onFamilyChange={(familyId) => {
+                    familyManuallyEditedRef.current = true;
+                    setSelectedFamilyId(familyId);
+                    form.setValue("ap_models_vn_id", "");
+                    form.setValue("vehicle_color_id", "");
+                    form.setValue("ap_vehicle_id", "");
                   }}
                 />
-                <div className="flex items-center space-x-2 absolute top-0 right-0">
-                  <Checkbox
-                    id="copyClient"
-                    checked={copyClientToHolder}
-                    onCheckedChange={(checked) =>
-                      setCopyClientToHolder(checked as boolean)
-                    }
+              ) : (
+                <GroupFormSection
+                  title="Oportunidad"
+                  icon={Handshake}
+                  color="blue"
+                  cols={{ sm: 1, md: 1 }}
+                >
+                  <FormSelect
+                    name="opportunity_id"
+                    label="Oportunidad"
+                    placeholder="Selecciona una oportunidad"
+                    options={opportunities.map((item) => ({
+                      label: item.client.full_name,
+                      description:
+                        item.family.brand + " - " + item.family.description,
+                      value: item.id.toString(),
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
                   />
-                  <label
-                    htmlFor="copyClient"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Mismo que la Oportunidad
-                  </label>
+                </GroupFormSection>
+              )}
+
+              <GroupFormSection
+                title="Información General"
+                icon={Building2}
+                color="blue"
+                cols={{ sm: 1, md: 1 }}
+              >
+                <div className="relative">
+                  <FormSelectAsync
+                    name="holder_id"
+                    label="Titular"
+                    placeholder="Selecciona un titular"
+                    control={form.control}
+                    disabled={copyClientToHolder}
+                    useQueryHook={useCustomers}
+                    mapOptionFn={(customer: CustomersResource) => ({
+                      value: customer.id.toString(),
+                      label: customer.full_name,
+                    })}
+                    perPage={10}
+                    debounceMs={500}
+                    defaultOption={holderDefaultOption}
+                    onValueChange={(_, customer) => {
+                      setSelectedHolder(
+                        customer as CustomersResource | undefined,
+                      );
+                    }}
+                  />
+                  <div className="flex items-center space-x-2 absolute top-0 right-0">
+                    <Checkbox
+                      id="copyClient"
+                      checked={copyClientToHolder}
+                      onCheckedChange={(checked) =>
+                        setCopyClientToHolder(checked as boolean)
+                      }
+                    />
+                    <label
+                      htmlFor="copyClient"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Mismo que la Oportunidad
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              <FormSelect
-                name="doc_type_currency_id"
-                label="Moneda de Facturación"
-                placeholder="Selecciona la moneda"
-                options={currencyTypes.map((item) => ({
-                  label: `${item.name} (${item.symbol})`,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-              />
+                <FormSelect
+                  name="doc_type_currency_id"
+                  label="Moneda de Facturación"
+                  placeholder="Selecciona la moneda"
+                  options={currencyTypes.map((item) => ({
+                    label: `${item.name} (${item.symbol})`,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                />
 
-              <DatePickerFormField
-                control={form.control}
-                name="quote_deadline"
-                label="Fecha Límite de Cotización"
-                captionLayout="dropdown"
-                disabledRange={
-                  { before: new Date() } // Solo permitir fechas futuras
-                }
-              />
+                <DatePickerFormField
+                  control={form.control}
+                  name="quote_deadline"
+                  label="Fecha Límite de Cotización"
+                  captionLayout="dropdown"
+                  disabledRange={
+                    { before: new Date() } // Solo permitir fechas futuras
+                  }
+                />
 
-              <FormInput
-                control={form.control}
-                name="down_payment"
-                label="Monto a Cuenta"
-                type="text"
-                placeholder="Ingrese monto a cuenta del cliente"
-              />
-            </GroupFormSection>
+                <FormInput
+                  control={form.control}
+                  name="down_payment"
+                  label="Monto a Cuenta"
+                  type="text"
+                  placeholder="Ingrese monto a cuenta del cliente"
+                />
+              </GroupFormSection>
+            </div>
 
             {/*Seccion Información de Vehiculo*/}
             <GroupFormSection
@@ -1240,6 +1250,7 @@ export const PurchaseRequestQuoteForm = ({
               form={form}
               mode={mode}
               isSubmitting={isSubmitting}
+              sedeLabel={sedeLabel}
               selectedHolder={selectedHolder}
               modelsVn={modelsVn}
               vehiclesVn={vehiclesVn}
@@ -1265,19 +1276,6 @@ export const PurchaseRequestQuoteForm = ({
               onCancel={onCancel}
               onSubmit={handleFormSubmit}
             />
-            {opportunity && (
-              <OpportunityInfoCard
-                opportunity={opportunity}
-                canEditFamily
-                onFamilyChange={(familyId) => {
-                  familyManuallyEditedRef.current = true;
-                  setSelectedFamilyId(familyId);
-                  form.setValue("ap_models_vn_id", "");
-                  form.setValue("vehicle_color_id", "");
-                  form.setValue("ap_vehicle_id", "");
-                }}
-              />
-            )}
           </div>
         </div>
       </form>

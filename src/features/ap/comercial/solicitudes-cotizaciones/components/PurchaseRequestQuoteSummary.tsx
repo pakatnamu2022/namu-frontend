@@ -51,6 +51,7 @@ interface PurchaseRequestQuoteSummaryProps {
   form: UseFormReturn<any>;
   mode: "create" | "update";
   isSubmitting: boolean;
+  sedeLabel?: string;
   selectedHolder?: CustomersResource;
   modelsVn: ModelsVnResource[];
   vehiclesVn: VehicleResourceWithCosts[];
@@ -91,6 +92,7 @@ export function PurchaseRequestQuoteSummary({
   form,
   mode,
   isSubmitting,
+  sedeLabel,
   selectedHolder,
   modelsVn,
   vehiclesVn,
@@ -288,6 +290,12 @@ export function PurchaseRequestQuoteSummary({
               {form.watch("type_document") === "COTIZACION"
                 ? "Cotización"
                 : "Solicitud de Compra"}
+              {sedeLabel && (
+                <span className="normal-case font-normal">
+                  {" "}
+                  · {sedeLabel}
+                </span>
+              )}
             </p>
             <span className="text-xs font-medium text-muted-foreground">
               {mode === "update" ? "Edición" : "Nuevo"}
