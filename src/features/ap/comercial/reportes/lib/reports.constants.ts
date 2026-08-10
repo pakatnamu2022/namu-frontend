@@ -5,6 +5,11 @@ import {
   getTodayLocalDateString,
   toLocalDateString,
 } from "@/core/core.function";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import {
+  DOCUMENT_STATUS,
+  MIGRATION_STATUS,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 
 export const COMMERCIAL_REPORTS: ReportConfig[] = [
   {
@@ -198,6 +203,82 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
       },
     ],
     defaultParams: {},
+  },
+  {
+    id: "advance-payments",
+    title: "Reporte de Anticipos",
+    type: "Facturación",
+    description:
+      "Exporta el reporte de comprobantes de anticipo del área comercial, filtrando por rango de fecha de emisión, estado, estado de migración, tipo de documento y sede.",
+    icon: "FileText",
+    endpoint: "/ap/facturacion/electronic-documents/export",
+    method: "get",
+    fields: [
+      {
+        name: "fecha_de_emision",
+        label: "Fecha de Emisión",
+        type: "daterange",
+        required: false,
+        nameFrom: "fecha_de_emision_from",
+        nameTo: "fecha_de_emision_to",
+        rangeParamName: "fecha_de_emision",
+        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
+        defaultValueTo: getTodayLocalDateString(),
+      },
+      {
+        name: "status",
+        label: "Estado",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar estado",
+        options: DOCUMENT_STATUS.map((status) => ({
+          label: status.label,
+          value: status.value,
+        })),
+      },
+      {
+        name: "migration_status",
+        label: "Estado de Migración",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar estado de migración",
+        options: MIGRATION_STATUS.map((status) => ({
+          label: status.label,
+          value: status.value,
+        })),
+      },
+      {
+        name: "sunat_concept_document_type_id",
+        label: "Tipo de Documento",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar tipo de documento",
+        endpoint:
+          "/gp/mg/sunatConcepts?all=true&status=1&type=BILLING_DOCUMENT_TYPE",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
+      {
+        name: "seriesModel$sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.abreviatura,
+            value: String(item.id),
+          })),
+      },
+    ],
+    defaultParams: {
+      is_advance_payment: 1,
+      area_id: AREA_COMERCIAL,
+    },
   },
 ];
 

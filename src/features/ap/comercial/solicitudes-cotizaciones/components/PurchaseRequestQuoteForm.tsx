@@ -10,7 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Handshake, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
@@ -35,6 +35,7 @@ import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelo
 import {
   useAllVehicleColor,
   useVehicleColor,
+  useVehicleColorById,
 } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
@@ -48,6 +49,7 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import {
+  useAllVehicles,
   useAllVehiclesWithCosts,
   useVehiclePurchaseOrder,
 } from "../../vehiculos/lib/vehicles.hook";
@@ -73,17 +75,6 @@ interface PurchaseRequestQuoteFormProps {
   opportunity?: OpportunityResource;
   onCancel: () => void;
 }
-
-const typeDocOptions = [
-  {
-    label: "Cotización",
-    value: "COTIZACION",
-  },
-  {
-    label: "Solicitud de Compra",
-    value: "SOLICITUD_COMPRA",
-  },
-];
 
 export const PurchaseRequestQuoteForm = ({
   defaultValues,
@@ -125,6 +116,9 @@ export const PurchaseRequestQuoteForm = ({
   const [selectedHolder, setSelectedHolder] = useState<
     CustomersResource | undefined
   >(undefined);
+  // Texto de VIN (debounced) que se busca fuera del filtro de familia,
+  // para poder avisar si el VIN existe pero pertenece a otra familia.
+  const [vinCrossFamilyQuery, setVinCrossFamilyQuery] = useState("");
 
   // Hooks de datos
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -199,6 +193,12 @@ export const PurchaseRequestQuoteForm = ({
   const hasInitializedFamilyIdRef = useRef(false);
   const previousVehicleVnRef = useRef<string | undefined>(undefined);
   const previousModelVnRef = useRef<string | undefined>(undefined);
+  // Cuando el usuario reasigna la familia manualmente desde OpportunityInfoCard,
+  // este ref evita que el effect de sincronización con `opportunity` la sobrescriba de vuelta.
+  const familyManuallyEditedRef = useRef(false);
+  const vinSearchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   // Form watchers
   const modelVnWatch = form.watch("ap_models_vn_id");
@@ -209,10 +209,24 @@ export const PurchaseRequestQuoteForm = ({
   const salePriceWatch = form.watch("sale_price");
   const docTypeCurrencyWatch = form.watch("doc_type_currency_id");
   const holderWatch = form.watch("holder_id");
+  const sedeIdWatch = form.watch("sede_id");
+
+  // Etiqueta de sede para mostrar en el resumen (el campo ya no es editable en el form)
+  const sedeLabel = opportunity?.lead?.sede
+    ? opportunity.lead.sede
+    : mySedes.find((s) => s.id.toString() === sedeIdWatch)?.abreviatura;
 
   // Hook para obtener datos de la orden de compra del vehículo
   const { data: vehiclePurchaseOrderData } = useVehiclePurchaseOrder(
     withVinWatch && vehicleVnWatch ? Number(vehicleVnWatch) : null,
+  );
+
+  // Búsqueda de VIN sin filtrar por familia, solo para detectar el caso
+  // "el VIN existe y está activo, pero pertenece a otra familia".
+  const { data: vinCrossFamilyResults = [] } = useAllVehicles(
+    withVinWatch && vinCrossFamilyQuery.length >= 5
+      ? { search: vinCrossFamilyQuery }
+      : undefined,
   );
 
   // Datos iniciales para las tablas (solo en modo update)
@@ -317,6 +331,40 @@ export const PurchaseRequestQuoteForm = ({
     (vehicle) => vehicle.id === Number(vehicleVnWatch),
   );
 
+  // Detecta si el VIN escrito por el usuario existe y está activo, pero en
+  // una familia distinta a la seleccionada (por eso no aparece en el listado filtrado).
+  const vinFamilyMismatch = useMemo(() => {
+    if (!vinCrossFamilyQuery || !selectedFamilyId) return null;
+
+    const match = vinCrossFamilyResults.find(
+      (vehicle) =>
+        vehicle.vin?.toUpperCase() === vinCrossFamilyQuery.toUpperCase(),
+    );
+    if (!match) return null;
+    if (match.model?.family_id === selectedFamilyId) return null;
+    if (!match.status) return null; // solo avisar si está activo
+
+    return match;
+  }, [vinCrossFamilyResults, vinCrossFamilyQuery, selectedFamilyId]);
+
+  // Debounce del texto de búsqueda del VIN para no disparar una consulta por tecla
+  const handleVinSearch = (value: string) => {
+    if (vinSearchTimeoutRef.current) {
+      clearTimeout(vinSearchTimeoutRef.current);
+    }
+    vinSearchTimeoutRef.current = setTimeout(() => {
+      setVinCrossFamilyQuery(value.trim());
+    }, 350);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (vinSearchTimeoutRef.current) {
+        clearTimeout(vinSearchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Obtener el modelo seleccionado y su precio original
   // Si está CON VIN: buscar por el modelo del vehículo
   // Si está SIN VIN: buscar directamente por el modelVnWatch
@@ -366,7 +414,9 @@ export const PurchaseRequestQuoteForm = ({
       if (previousModelVnRef.current !== modelVnWatch) {
         previousModelVnRef.current = modelVnWatch;
         // Solo actualizar el precio si actualmente no hay precio o es 0
-        const currentSalePrice = parseFloat(form.getValues("sale_price") || "0");
+        const currentSalePrice = parseFloat(
+          form.getValues("sale_price") || "0",
+        );
         if (!currentSalePrice) {
           form.setValue("sale_price", originalPrice.toString());
         }
@@ -498,11 +548,37 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [opportunity]);
 
+  // Effect para setear sede_id automáticamente con la (única) sede del usuario
+  // cuando no viene definida por la oportunidad. El campo ya no se muestra en
+  // el formulario, así que se resuelve solo.
+  useEffect(() => {
+    if (
+      mode === "create" &&
+      !opportunity?.lead?.sede_id &&
+      mySedes.length > 0 &&
+      !form.getValues("sede_id")
+    ) {
+      form.setValue("sede_id", mySedes[0].id.toString());
+    }
+  }, [mode, opportunity, mySedes]);
+
+  // Effect para setear type_document automáticamente según el switch Con/Sin VIN:
+  // Con VIN -> Cotización, Sin VIN -> Solicitud de Compra. Ya no es un campo editable.
+  useEffect(() => {
+    form.setValue(
+      "type_document",
+      withVinWatch ? "COTIZACION" : "SOLICITUD_COMPRA",
+    );
+  }, [withVinWatch]);
+
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
     // Si viene la prop opportunity directamente, usar su family_id
+    // (salvo que el usuario ya la haya reasignado manualmente desde la tarjeta).
     if (opportunity && opportunity.family_id) {
-      setSelectedFamilyId(opportunity.family_id);
+      if (!familyManuallyEditedRef.current) {
+        setSelectedFamilyId(opportunity.family_id);
+      }
       if (!hasInitializedFamilyIdRef.current) {
         hasInitializedFamilyIdRef.current = true;
       }
@@ -782,140 +858,125 @@ export const PurchaseRequestQuoteForm = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna izquierda: Formulario (3 cols) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
-            {opportunity && (
-              <div className="col-span-full">
-                <OpportunityInfoCard opportunity={opportunity} />
-              </div>
-            )}
-
-            {/*Seccion Información General*/}
-            <GroupFormSection
-              title="Información General"
-              icon={Building2}
-              color="blue"
-              cols={{ sm: 1, md: 2 }}
-            >
-              {opportunity?.lead?.sede_id ? (
-                <FormInput
-                  name="sede_disabled"
-                  label="Sede"
-                  value={opportunity.lead.sede}
-                  readOnly
-                />
-              ) : (
-                <FormSelect
-                  name="sede_id"
-                  label="Sede"
-                  placeholder="Selecciona una sede"
-                  options={mySedes.map((item) => ({
-                    label: item.abreviatura,
-                    value: item.id.toString(),
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                />
-              )}
-
-              <FormSelect
-                name="type_document"
-                label="Tipo de Documento"
-                placeholder="Selecciona el tipo"
-                options={typeDocOptions}
-                control={form.control}
-              />
-
-              {/* Solo mostrar el selector de oportunidad si NO viene la prop opportunity */}
-              {!opportunity && (
-                <FormSelect
-                  name="opportunity_id"
-                  label="Oportunidad"
-                  placeholder="Selecciona una oportunidad"
-                  options={opportunities.map((item) => ({
-                    label: item.client.full_name,
-                    description:
-                      item.family.brand + " - " + item.family.description,
-                    value: item.id.toString(),
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                />
-              )}
-
-              <div className="relative">
-                <FormSelectAsync
-                  name="holder_id"
-                  label="Titular"
-                  placeholder="Selecciona un titular"
-                  control={form.control}
-                  disabled={copyClientToHolder}
-                  useQueryHook={useCustomers}
-                  mapOptionFn={(customer: CustomersResource) => ({
-                    value: customer.id.toString(),
-                    label: customer.full_name,
-                  })}
-                  perPage={10}
-                  debounceMs={500}
-                  defaultOption={holderDefaultOption}
-                  onValueChange={(_, customer) => {
-                    setSelectedHolder(
-                      customer as CustomersResource | undefined,
-                    );
+            {/*Seccion Oportunidad + Información General, lado a lado*/}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Tarjeta de la oportunidad cuando viene por prop; si no, selector */}
+              {opportunity ? (
+                <OpportunityInfoCard
+                  opportunity={opportunity}
+                  canEditFamily
+                  onFamilyChange={(familyId) => {
+                    familyManuallyEditedRef.current = true;
+                    setSelectedFamilyId(familyId);
+                    form.setValue("ap_models_vn_id", "");
+                    form.setValue("vehicle_color_id", "");
+                    form.setValue("ap_vehicle_id", "");
                   }}
                 />
-                <div className="flex items-center space-x-2 absolute top-0 right-0">
-                  <Checkbox
-                    id="copyClient"
-                    checked={copyClientToHolder}
-                    onCheckedChange={(checked) =>
-                      setCopyClientToHolder(checked as boolean)
-                    }
+              ) : (
+                <GroupFormSection
+                  title="Oportunidad"
+                  icon={Handshake}
+                  color="blue"
+                  cols={{ sm: 1, md: 1 }}
+                >
+                  <FormSelect
+                    name="opportunity_id"
+                    label="Oportunidad"
+                    placeholder="Selecciona una oportunidad"
+                    options={opportunities.map((item) => ({
+                      label: item.client.full_name,
+                      description:
+                        item.family.brand + " - " + item.family.description,
+                      value: item.id.toString(),
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
                   />
-                  <label
-                    htmlFor="copyClient"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Mismo que la Oportunidad
-                  </label>
+                </GroupFormSection>
+              )}
+
+              <GroupFormSection
+                title="Información General"
+                icon={Building2}
+                color="blue"
+                cols={{ sm: 1, md: 1 }}
+              >
+                <div className="relative">
+                  <FormSelectAsync
+                    name="holder_id"
+                    label="Titular"
+                    placeholder="Selecciona un titular"
+                    control={form.control}
+                    disabled={copyClientToHolder}
+                    useQueryHook={useCustomers}
+                    mapOptionFn={(customer: CustomersResource) => ({
+                      value: customer.id.toString(),
+                      label: customer.full_name,
+                    })}
+                    perPage={10}
+                    debounceMs={500}
+                    defaultOption={holderDefaultOption}
+                    onValueChange={(_, customer) => {
+                      setSelectedHolder(
+                        customer as CustomersResource | undefined,
+                      );
+                    }}
+                  />
+                  <div className="flex items-center space-x-2 absolute top-0 right-0">
+                    <Checkbox
+                      id="copyClient"
+                      checked={copyClientToHolder}
+                      onCheckedChange={(checked) =>
+                        setCopyClientToHolder(checked as boolean)
+                      }
+                    />
+                    <label
+                      htmlFor="copyClient"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Mismo que la Oportunidad
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              <FormSelect
-                name="doc_type_currency_id"
-                label="Moneda de Facturación"
-                placeholder="Selecciona la moneda"
-                options={currencyTypes.map((item) => ({
-                  label: `${item.name} (${item.symbol})`,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-              />
+                <FormSelect
+                  name="doc_type_currency_id"
+                  label="Moneda de Facturación"
+                  placeholder="Selecciona la moneda"
+                  options={currencyTypes.map((item) => ({
+                    label: `${item.name} (${item.symbol})`,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                />
 
-              <DatePickerFormField
-                control={form.control}
-                name="quote_deadline"
-                label="Fecha Límite de Cotización"
-                captionLayout="dropdown"
-                disabledRange={
-                  { before: new Date() } // Solo permitir fechas futuras
-                }
-              />
+                <DatePickerFormField
+                  control={form.control}
+                  name="quote_deadline"
+                  label="Fecha Límite de Cotización"
+                  captionLayout="dropdown"
+                  disabledRange={
+                    { before: new Date() } // Solo permitir fechas futuras
+                  }
+                />
 
-              <FormInput
-                control={form.control}
-                name="down_payment"
-                label="Monto a Cuenta"
-                type="text"
-                placeholder="Ingrese monto a cuenta del cliente"
-              />
-            </GroupFormSection>
+                <FormInput
+                  control={form.control}
+                  name="down_payment"
+                  label="Monto a Cuenta"
+                  type="text"
+                  placeholder="Ingrese monto a cuenta del cliente"
+                />
+              </GroupFormSection>
+            </div>
 
             {/*Seccion Información de Vehiculo*/}
             <GroupFormSection
               title="Información del Vehículo"
               icon={Building2}
-              color="gray"
+              color="indigo"
               cols={{ sm: 1, md: 2 }}
             >
               {/* Switch para seleccionar Con VIN o Sin VIN */}
@@ -929,25 +990,40 @@ export const PurchaseRequestQuoteForm = ({
               )}
               {/* Mostrar campo de Vehículo VN cuando with_vin es true */}
               {withVinWatch && (
-                <FormSelect
-                  name="ap_vehicle_id"
-                  label="Vehículo VN"
-                  placeholder="Selecciona un vehículo"
-                  options={vehiclesVn.map((item) => ({
-                    label: item.vin + " | " + item.family,
-                    value: item.id.toString(),
-                    description:
-                      item.model_code +
-                      " | " +
-                      item.model +
-                      " | " +
-                      item.warehouse,
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                  disabled={isLoadingVehiclesVn}
-                  withValue={false}
-                />
+                <div className="col-span-full md:col-span-1">
+                  <FormSelect
+                    name="ap_vehicle_id"
+                    label="Vehículo VN"
+                    placeholder="Selecciona un vehículo"
+                    options={vehiclesVn.map((item) => ({
+                      label: item.vin + " | " + item.family,
+                      value: item.id.toString(),
+                      description:
+                        item.model_code +
+                        " | " +
+                        item.model +
+                        " | " +
+                        item.warehouse,
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
+                    disabled={isLoadingVehiclesVn}
+                    withValue={false}
+                    isSearchable
+                    setSearchQuery={handleVinSearch}
+                  />
+                  {vinFamilyMismatch && (
+                    <Alert variant="warning" className="mt-2">
+                      <AlertDescription>
+                        El VIN <strong>{vinFamilyMismatch.vin}</strong> está
+                        activo, pero pertenece a la familia{" "}
+                        <strong>{vinFamilyMismatch.model?.family}</strong>, no a
+                        la familia de esta solicitud. Verifica el vehículo o
+                        edita la familia en la tarjeta de la oportunidad.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
               )}
 
               {/* Mostrar accesorios de la orden de compra cuando se selecciona un VIN */}
@@ -997,6 +1073,7 @@ export const PurchaseRequestQuoteForm = ({
                       label: item.description,
                       description: item.code ?? "S/C",
                     })}
+                    useFindByIdHook={useVehicleColorById}
                     control={form.control}
                   >
                     <Button
@@ -1169,36 +1246,39 @@ export const PurchaseRequestQuoteForm = ({
             )}
           </div>
 
-          {/* Columna derecha: Resumen - sticky */}
-          <PurchaseRequestQuoteSummary
-            form={form}
-            mode={mode}
-            isSubmitting={isSubmitting}
-            selectedHolder={selectedHolder}
-            modelsVn={modelsVn}
-            vehiclesVn={vehiclesVn}
-            vehicleColors={color}
-            withVinWatch={withVinWatch}
-            vehicleVnWatch={vehicleVnWatch}
-            modelVnWatch={modelVnWatch}
-            vehicleColorWatch={vehicleColorWatch}
-            selectedModel={selectedModel}
-            vehicleCurrency={vehicleCurrency}
-            totals={totals}
-            finalTotal={finalTotal}
-            invoiceCurrencyId={invoiceCurrencyId}
-            selectedInvoiceCurrency={selectedInvoiceCurrency}
-            getExchangeRate={getExchangeRate}
-            currencyTypes={currencyTypes}
-            billedCost={billedCost}
-            bonusDiscountRows={bonusDiscountRows}
-            accessoriesRows={accessoriesRows}
-            othersRows={othersRows}
-            approvedAccesories={approvedAccesories}
-            canManage={canManage}
-            onCancel={onCancel}
-            onSubmit={handleFormSubmit}
-          />
+          {/* Columna derecha: Oportunidad + Resumen - sticky */}
+          <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 space-y-6">
+            <PurchaseRequestQuoteSummary
+              form={form}
+              mode={mode}
+              isSubmitting={isSubmitting}
+              sedeLabel={sedeLabel}
+              selectedHolder={selectedHolder}
+              modelsVn={modelsVn}
+              vehiclesVn={vehiclesVn}
+              vehicleColors={color}
+              withVinWatch={withVinWatch}
+              vehicleVnWatch={vehicleVnWatch}
+              modelVnWatch={modelVnWatch}
+              vehicleColorWatch={vehicleColorWatch}
+              selectedModel={selectedModel}
+              vehicleCurrency={vehicleCurrency}
+              totals={totals}
+              finalTotal={finalTotal}
+              invoiceCurrencyId={invoiceCurrencyId}
+              selectedInvoiceCurrency={selectedInvoiceCurrency}
+              getExchangeRate={getExchangeRate}
+              currencyTypes={currencyTypes}
+              billedCost={billedCost}
+              bonusDiscountRows={bonusDiscountRows}
+              accessoriesRows={accessoriesRows}
+              othersRows={othersRows}
+              approvedAccesories={approvedAccesories}
+              canManage={canManage}
+              onCancel={onCancel}
+              onSubmit={handleFormSubmit}
+            />
+          </div>
         </div>
       </form>
       <VehicleColorModal

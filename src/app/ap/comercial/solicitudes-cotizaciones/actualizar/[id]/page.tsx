@@ -81,6 +81,7 @@ export default function UpdatePurchaseRequestQuotePage() {
       bonus_discounts: data.bonus_discounts || [],
       accessories: data.accessories || [],
       others: data.others || [],
+      down_payment: data.down_payment?.toString() || "",
     };
   }
 
@@ -97,7 +98,7 @@ export default function UpdatePurchaseRequestQuotePage() {
   if (!currentView) notFound();
 
   return (
-    <PageWrapper size="2xl">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"

@@ -93,8 +93,8 @@ export function SummarySection({
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3">
-      <Card className="h-fit sticky top-6 border-0 shadow-lg shadow-black/4 dark:shadow-black/20">
-        <CardHeader className="space-y-4 pb-2">
+      <Card className="h-fit sticky top-6 gap-0 border border-muted rounded-3xl bg-card shadow-lg">
+        <CardHeader className="pb-0">
           <div className="flex items-center justify-between">
             <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
               Resumen
@@ -104,41 +104,40 @@ export function SummarySection({
             </span>
           </div>
 
-          <div>
-            <p className="text-2xl font-semibold tracking-tight tabular-nums">
-              {series
-                ? authorizedSeries.find((s) => s.id === Number(series))?.series
-                : "****"}
-              -{form.watch("numero") || "########"}
-            </p>
-            {(isAdvancePayment || quotation) && (
-              <div className="flex items-center gap-2 mt-1.5">
-                {isAdvancePayment && (
-                  <span className="text-xs font-medium text-orange-500 dark:text-orange-400">
-                    Anticipo
-                  </span>
-                )}
-                {isAdvancePayment && quotation && (
-                  <span className="text-muted-foreground/40">·</span>
-                )}
-                {quotation && (
-                  <span className="text-xs text-muted-foreground">
-                    Cotización COT-{quotation.id}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
+          <p className="text-4xl font-semibold tracking-tight tabular-nums mt-1">
+            {series
+              ? authorizedSeries.find((s) => s.id === Number(series))?.series
+              : "****"}
+            -{form.watch("numero") || "########"}
+          </p>
+
+          {(isAdvancePayment || quotation) && (
+            <div className="flex items-center gap-2 mt-1.5">
+              {isAdvancePayment && (
+                <span className="text-xs font-medium text-orange-500 dark:text-orange-400">
+                  Anticipo
+                </span>
+              )}
+              {isAdvancePayment && quotation && (
+                <span className="text-muted-foreground/40">·</span>
+              )}
+              {quotation && (
+                <span className="text-xs text-muted-foreground">
+                  Cotización COT-{quotation.id}
+                </span>
+              )}
+            </div>
+          )}
         </CardHeader>
 
-        <CardContent className="space-y-6">
-          {/* Tipo de Comprobante + Cliente */}
-          <div className="space-y-4 rounded-2xl bg-muted/40 p-4">
+        <CardContent className="pt-6">
+          {/* Comprobante + Cliente */}
+          <div className="grid grid-cols-1 gap-4">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Comprobante
               </p>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-semibold truncate mt-0.5">
                 {documentTypes.find(
                   (t) => t.id === Number(selectedDocumentType),
                 )?.description || "Sin seleccionar"}
@@ -146,8 +145,10 @@ export function SummarySection({
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Cliente</p>
-              <p className="text-sm font-medium">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Cliente
+              </p>
+              <p className="text-sm font-semibold truncate mt-0.5">
                 {selectedCustomer?.full_name
                   ? selectedCustomer.full_name +
                     (selectedCustomer.spouse_full_name
@@ -155,7 +156,7 @@ export function SummarySection({
                       : "")
                   : "Sin seleccionar"}
               </p>
-              <div className="text-xs text-muted-foreground space-y-0.5 mt-1.5">
+              <div className="text-xs text-muted-foreground space-y-0.5 mt-1">
                 <p>
                   <span className="text-muted-foreground/70">Doc.</span>{" "}
                   {selectedCustomer?.num_doc || "-"}
@@ -179,7 +180,7 @@ export function SummarySection({
           </div>
 
           {/* IGV Info */}
-          <div className="space-y-1 px-1">
+          <div className="space-y-1 mt-6">
             <p className="text-xs font-medium text-foreground">
               IGV {porcentaje_de_igv}%
             </p>
@@ -272,9 +273,9 @@ export function SummarySection({
           </div>
 
           {/* Totales */}
-          <div className="space-y-2">
+          <div className="divide-y divide-border mt-6">
             {totales.total_gravada > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Op. gravada</span>
                 <span className="tabular-nums">
                   {currencySymbol}{" "}
@@ -285,7 +286,7 @@ export function SummarySection({
               </div>
             )}
             {totales.total_exonerada > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Op. exonerada</span>
                 <span className="tabular-nums">
                   {currencySymbol}{" "}
@@ -296,7 +297,7 @@ export function SummarySection({
               </div>
             )}
             {totales.total_inafecta > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Op. inafecta</span>
                 <span className="tabular-nums">
                   {currencySymbol}{" "}
@@ -307,7 +308,7 @@ export function SummarySection({
               </div>
             )}
             {totales.total_gratuita > 0 && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center py-2.5 text-sm">
                 <span className="text-muted-foreground">Op. gratuita</span>
                 <span className="tabular-nums">
                   {currencySymbol}{" "}
@@ -317,7 +318,7 @@ export function SummarySection({
                 </span>
               </div>
             )}
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center py-2.5 text-sm">
               <span className="text-muted-foreground">
                 IGV ({porcentaje_de_igv}%)
               </span>
@@ -329,7 +330,7 @@ export function SummarySection({
               </span>
             </div>
 
-            <div className="flex justify-between items-center rounded-2xl bg-muted/40 px-4 py-3 mt-3">
+            <div className="flex justify-between items-center py-2.5">
               <span className="text-sm font-semibold">Total</span>
               <span className="text-2xl font-semibold tabular-nums">
                 {currencySymbol}
@@ -342,43 +343,47 @@ export function SummarySection({
 
           {/* Detracción */}
           {hasDetraccion && (
-            <div className="space-y-2 rounded-2xl bg-muted/40 p-4">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
+            <div className="mt-6">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1">
                 Forma de pago con detracción
               </p>
 
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground/80">
-                  Detracción ({detraccionPorcentaje}%)
-                </span>
-                <span className="tabular-nums">
-                  S/{" "}
-                  {detraccionAmountSoles.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
+              <div className="divide-y divide-border">
+                <div className="flex justify-between items-center py-2 text-xs">
+                  <span className="text-muted-foreground/80">
+                    Detracción ({detraccionPorcentaje}%)
+                  </span>
+                  <span className="tabular-nums">
+                    S/{" "}
+                    {detraccionAmountSoles.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
 
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground/80">
-                  Cliente paga
-                </span>
-                <span className="tabular-nums">
-                  {currencySymbol}
-                  {totalConDetraccion.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
+                <div className="flex justify-between items-center py-2 text-xs">
+                  <span className="text-muted-foreground/80">
+                    Cliente paga
+                  </span>
+                  <span className="tabular-nums">
+                    {currencySymbol}
+                    {totalConDetraccion.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
 
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground/80">Depósito BN</span>
-                <span className="tabular-nums">
-                  S/{" "}
-                  {detraccionAmountSoles.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
+                <div className="flex justify-between items-center py-2 text-xs">
+                  <span className="text-muted-foreground/80">
+                    Depósito BN
+                  </span>
+                  <span className="tabular-nums">
+                    S/{" "}
+                    {detraccionAmountSoles.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
               </div>
               {isUSD && !exchangeRate && (
                 <p className="text-xs text-destructive font-medium pt-1">
@@ -390,7 +395,41 @@ export function SummarySection({
           )}
 
           {/* Action Buttons */}
-          <div className="space-y-2 pt-2 flex flex-col gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-6">
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  className="w-full"
+                  size="lg"
+                  disabled={isPending || !form.formState.isValid}
+                >
+                  {form.watch("enviar_automaticamente_a_la_sunat") ? (
+                    <Send className="size-4 mr-2" />
+                  ) : (
+                    <FileCheck className="size-4 mr-2" />
+                  )}
+                  {isPending
+                    ? "Guardando..."
+                    : isEdit
+                      ? "Actualizar"
+                      : form.watch("enviar_automaticamente_a_la_sunat")
+                        ? "Guardar y Enviar"
+                        : "Guardar"}
+                </Button>
+              }
+              title={isEdit ? "¿Actualizar documento?" : "¿Guardar documento?"}
+              description={
+                isEdit
+                  ? "¿Estás seguro de que deseas actualizar este documento electrónico?"
+                  : "¿Estás seguro de que deseas guardar este documento electrónico?"
+              }
+              confirmText={isEdit ? "Sí, actualizar" : "Sí, guardar"}
+              cancelText="No, revisar"
+              icon="info"
+              onConfirm={onSubmit}
+            />
+
             <ConfirmationDialog
               trigger={
                 <Button
@@ -408,40 +447,6 @@ export function SummarySection({
               cancelText="No, continuar"
               icon="warning"
               onConfirm={() => window.history.back()}
-            />
-
-            <ConfirmationDialog
-              trigger={
-                <Button
-                  type="button"
-                  className="w-full"
-                  size="lg"
-                  disabled={isPending || !form.formState.isValid}
-                >
-                  {form.watch("enviar_automaticamente_a_la_sunat") ? (
-                    <Send className="size-4 mr-2" />
-                  ) : (
-                    <FileCheck className="size-4 mr-2" />
-                  )}
-                  {isPending
-                    ? "Guardando..."
-                    : isEdit
-                      ? "Actualizar Documento"
-                      : form.watch("enviar_automaticamente_a_la_sunat")
-                        ? "Guardar y Enviar a SUNAT"
-                        : "Guardar Documento"}
-                </Button>
-              }
-              title={isEdit ? "¿Actualizar documento?" : "¿Guardar documento?"}
-              description={
-                isEdit
-                  ? "¿Estás seguro de que deseas actualizar este documento electrónico?"
-                  : "¿Estás seguro de que deseas guardar este documento electrónico?"
-              }
-              confirmText={isEdit ? "Sí, actualizar" : "Sí, guardar"}
-              cancelText="No, revisar"
-              icon="info"
-              onConfirm={onSubmit}
             />
           </div>
 
