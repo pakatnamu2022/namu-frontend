@@ -199,6 +199,11 @@ export const OpportunityInfoCard = ({
                         ? { brand_id: opportunity.lead.vehicle_brand_id }
                         : {}),
                     }}
+                    defaultOption={{
+                      value: displayedFamily.id.toString(),
+                      label: `${displayedFamily.brand} ${displayedFamily.description}`,
+                      description: displayedFamily.code,
+                    }}
                     value={familyDraft}
                     onChange={setFamilyDraft}
                     onValueChange={handleFamilySelect}

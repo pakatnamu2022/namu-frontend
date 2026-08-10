@@ -182,7 +182,7 @@ export default function OpportunityDetailPage() {
               Cerrar
             </Button>
             <Link to={`${ABSOLUTE_ROUTE}/actualizar/${opportunity.id}`}>
-              <Button variant="secondary" size="sm">
+              <Button color="amber" size="sm">
                 <Edit className="size-4" />
                 Editar
               </Button>

@@ -21,6 +21,7 @@ import {
   useOpportunityTypes,
   useFamilies,
 } from "../lib/opportunities.hook";
+import { useFamiliesById } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.hook";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
@@ -118,7 +119,7 @@ export const OpportunityForm = ({
             placeholder="Selecciona familia"
             useQueryHook={useFamilies}
             mapOptionFn={(item: FamiliesResource) => ({
-              label: item.brand + " " + item.description,
+              label: item.brand + " | " + item.description,
               value: item.id.toString(),
             })}
             control={form.control}
@@ -126,6 +127,7 @@ export const OpportunityForm = ({
               "brand$type_operation_id": CM_COMERCIAL_ID,
               ...(leadBrandId ? { brand_id: leadBrandId } : {}),
             }}
+            useFindByIdHook={useFamiliesById}
           />
 
           <FormSelect
