@@ -250,6 +250,17 @@ export const ShipmentsReceptionsForm = ({
   const vehiclesIsReceived =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ? 0 : 1;
 
+  // Filtro adicional de estado de vehículo según el motivo de traslado
+  // Si es COMPRA: solo vehículos EN TRÁNSITO
+  // Si es TRASLADO ENTRE SEDES: solo vehículos en INVENTARIO VN
+  const vehicleStatusFilterParams =
+    watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
+      ? { ap_vehicle_status_id: [VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO] }
+      : watchTransferReasonId ===
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+        ? { ap_vehicle_status_id: [VEHICLE_STATUS_ID.INVENTARIO_VN] }
+        : {};
+
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
       type_operation_id: CM_COMERCIAL_ID,
@@ -969,14 +980,7 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
-                ...(watchTransferReasonId ===
-                SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
-                  ? {
-                      ap_vehicle_status_id: [
-                        VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO,
-                      ],
-                    }
-                  : {}),
+                ...vehicleStatusFilterParams,
               }}
               disabled={!watchSedeTransmitterId || !watchArticleClassId}
               onValueChange={handleVehicleChange}
@@ -1024,14 +1028,7 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
-                ...(watchTransferReasonId ===
-                SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
-                  ? {
-                      ap_vehicle_status_id: [
-                        VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO,
-                      ],
-                    }
-                  : {}),
+                ...vehicleStatusFilterParams,
               }}
               disabled={
                 (watchIssuerType !== "PROVEEDOR" && !watchSedeTransmitterId) ||
