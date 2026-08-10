@@ -26,6 +26,7 @@ import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { OPPORTUNITIES } from "../lib/opportunities.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface OpportunityFormProps {
   defaultValues: Partial<OpportunitySchema>;
@@ -121,7 +122,10 @@ export const OpportunityForm = ({
               value: item.id.toString(),
             })}
             control={form.control}
-            additionalParams={leadBrandId ? { brand_id: leadBrandId } : {}}
+            additionalParams={{
+              "brand$type_operation_id": CM_COMERCIAL_ID,
+              ...(leadBrandId ? { brand_id: leadBrandId } : {}),
+            }}
           />
 
           <FormSelect

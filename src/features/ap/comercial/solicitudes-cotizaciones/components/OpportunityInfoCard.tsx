@@ -25,6 +25,7 @@ import { useFamilies } from "../../oportunidades/lib/opportunities.hook";
 import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface OpportunityInfoCardProps {
   opportunity: OpportunityResource;
@@ -192,6 +193,9 @@ export const OpportunityInfoCard = ({
                       label: `${item.brand} ${item.description}`,
                       description: item.code,
                     })}
+                    additionalParams={{
+                      "brand$type_operation_id": CM_COMERCIAL_ID,
+                    }}
                     value={familyDraft}
                     onChange={setFamilyDraft}
                     onValueChange={handleFamilySelect}
