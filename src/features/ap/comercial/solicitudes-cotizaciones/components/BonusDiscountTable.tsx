@@ -97,7 +97,7 @@ export const BonusDiscountTable = ({
     <GroupFormSection
       title="Bonos / Descuentos"
       icon={Gift}
-      color="emerald"
+      color="blue"
       cols={{ sm: 1 }}
       headerExtra={
         <Button
