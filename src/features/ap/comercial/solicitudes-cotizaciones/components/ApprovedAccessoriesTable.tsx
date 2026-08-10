@@ -43,10 +43,14 @@ export const ApprovedAccessoriesTable = ({
   // Modal para crear nuevo accesorio homologado (solo comercial)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const [editingRow, setEditingRow] = useState<ApprovedAccessoryRow | null>(null);
+  const [editingRow, setEditingRow] = useState<ApprovedAccessoryRow | null>(
+    null,
+  );
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
-  const [pendingAccessoryId, setPendingAccessoryId] = useState<number | undefined>();
+  const [pendingAccessoryId, setPendingAccessoryId] = useState<
+    number | undefined
+  >();
 
   // Effect para cargar datos iniciales
   useEffect(() => {
@@ -164,13 +168,12 @@ export const ApprovedAccessoriesTable = ({
     <GroupFormSection
       title="Accesorios Homologados / Obsequios"
       icon={PackagePlus}
-      color="gray"
+      color="sky"
       cols={{ sm: 1 }}
       headerExtra={
         <Button
           type="button"
           onClick={() => setIsAddSheetOpen(true)}
-          variant="default"
           className="gap-2"
           size="sm"
         >
