@@ -924,7 +924,7 @@ function App() {
               )}
 
               {/* Reportes */}
-              <Route path="reportes" element={<ReportesComercialPage />} />
+              <Route path="reportes-comercial" element={<ReportesComercialPage />} />
 
               {/* Cuentas por Cobrar */}
               <Route
@@ -1833,7 +1833,7 @@ function App() {
                 element={<IndicadoresReportesPage />}
               />
               <Route
-                path="indicadores-y-reportes/reportes"
+                path="indicadores-y-reportes/reportes-postventa"
                 element={<ReportesPostVentaPage />}
               />
             </Route>
