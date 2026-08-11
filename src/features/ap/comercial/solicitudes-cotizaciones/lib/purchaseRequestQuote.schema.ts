@@ -20,9 +20,9 @@ const purchaseRequestQuoteSchemaBase = z.object({
   comment: z.string().optional().default(""),
   holder_id: requiredStringId("Titular es requerido"),
   with_vin: z.boolean().default(false),
-  credit_type: z.string().optional(),
-  credit_entity: z.string().optional(),
-  insurance_entity: z.string().optional(),
+  credit_type_id: z.string().optional(),
+  credit_entity_id: z.string().optional(),
+  insurance_entity_id: z.string().optional(),
   gps_hunter_years: z
     .union([z.string(), z.number()])
     .optional()

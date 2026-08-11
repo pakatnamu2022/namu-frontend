@@ -20,6 +20,8 @@ import { DECLARACION_JURADA_KYC } from "@/features/ap/comercial/declaracion-jura
 import {
   usePurchaseRequestQuote,
   useCreditTypes,
+  useAllCreditEntities,
+  useInsuranceEntities,
 } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import {
   approvePurchaseRequestQuote,
@@ -73,8 +75,16 @@ export default function PurchaseRequestQuotePage() {
     empresa_id: EMPRESA_AP.id,
   });
   const { data: creditTypes = [] } = useCreditTypes();
+  const { data: allCreditEntities = [] } = useAllCreditEntities();
+  const { data: insuranceEntities = [] } = useInsuranceEntities();
   const creditTypeLabels = Object.fromEntries(
-    creditTypes.map((master) => [master.code, master.description]),
+    creditTypes.map((master) => [master.id, master.description]),
+  );
+  const creditEntityLabels = Object.fromEntries(
+    allCreditEntities.map((master) => [master.id, master.description]),
+  );
+  const insuranceEntityLabels = Object.fromEntries(
+    insuranceEntities.map((master) => [master.id, master.description]),
   );
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -174,6 +184,8 @@ export default function PurchaseRequestQuotePage() {
             canCreateKyc: kycPermissions.canCreate,
           },
           creditTypeLabels,
+          creditEntityLabels,
+          insuranceEntityLabels,
         })}
         data={data?.data || []}
       >

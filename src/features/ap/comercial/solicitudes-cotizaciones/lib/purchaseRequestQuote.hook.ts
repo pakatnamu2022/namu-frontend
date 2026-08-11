@@ -12,6 +12,7 @@ import {
   assignVehicleToPurchaseRequestQuote,
   findPurchaseRequestQuoteById,
   getAllConceptDiscountBond,
+  getAllCreditEntities,
   getAllPurchaseRequestQuote,
   getConceptDiscountBondDescriptions,
   getCreditEntities,
@@ -71,6 +72,15 @@ export const useCreditEntities = (parentId?: number | string) => {
     queryKey: [QUERY_KEY + "_CREDIT_ENTITY", parentId],
     queryFn: () => getCreditEntities({ parentId: parentId as number }),
     enabled: !!parentId,
+  });
+};
+
+// Lista completa de entidades de crédito (todas, sin filtrar por parent_id),
+// usada para etiquetar credit_entity_id en la tabla de listado.
+export const useAllCreditEntities = () => {
+  return useQuery<CreditInsuranceMasterResource[]>({
+    queryKey: [QUERY_KEY + "_CREDIT_ENTITY_ALL"],
+    queryFn: () => getAllCreditEntities(),
   });
 };
 

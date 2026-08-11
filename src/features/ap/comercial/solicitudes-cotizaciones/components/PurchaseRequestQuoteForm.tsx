@@ -818,9 +818,13 @@ export const PurchaseRequestQuoteForm = ({
       down_payment: data.down_payment
         ? parseFloat(data.down_payment)
         : undefined,
-      credit_type: data.credit_type || null,
-      credit_entity: data.credit_entity || null,
-      insurance_entity: data.insurance_entity || null,
+      credit_type_id: data.credit_type_id ? Number(data.credit_type_id) : null,
+      credit_entity_id: data.credit_entity_id
+        ? Number(data.credit_entity_id)
+        : null,
+      insurance_entity_id: data.insurance_entity_id
+        ? Number(data.insurance_entity_id)
+        : null,
       gps_hunter_years: data.gps_hunter_years
         ? parseInt(data.gps_hunter_years, 10)
         : null,

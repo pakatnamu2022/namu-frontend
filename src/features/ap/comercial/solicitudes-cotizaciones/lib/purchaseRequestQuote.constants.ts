@@ -23,5 +23,7 @@ export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource>
 
 // Tipos de crédito, entidades de crédito y entidades de seguro ahora se
 // obtienen desde /api/ap/apMasters (tipos CREDIT_TYPE, CREDIT_ENTITY e
-// INSURANCE_ENTITY). Ver useCreditTypes / useCreditEntities / useInsuranceEntities
-// en apMasters.hook.ts, consumidos desde CreditInsuranceGpsSection.
+// INSURANCE_ENTITY, filtrando entidades por parent_id). Ver useCreditTypes /
+// useCreditEntities / useAllCreditEntities / useInsuranceEntities en
+// purchaseRequestQuote.hook.ts, consumidos desde CreditInsuranceGpsSection
+// y desde la página de listado (para las etiquetas de la tabla).

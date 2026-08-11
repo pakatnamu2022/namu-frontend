@@ -82,9 +82,9 @@ export default function UpdatePurchaseRequestQuotePage() {
       accessories: data.accessories || [],
       others: data.others || [],
       down_payment: data.down_payment?.toString() || "",
-      credit_type: data.credit_type || "",
-      credit_entity: data.credit_entity || "",
-      insurance_entity: data.insurance_entity || "",
+      credit_type_id: data.credit_type_id?.toString() || "",
+      credit_entity_id: data.credit_entity_id?.toString() || "",
+      insurance_entity_id: data.insurance_entity_id?.toString() || "",
       gps_hunter_years: data.gps_hunter_years?.toString() || "",
     };
   }

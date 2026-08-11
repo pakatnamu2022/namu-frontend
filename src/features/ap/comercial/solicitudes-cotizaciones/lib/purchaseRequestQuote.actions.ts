@@ -122,6 +122,25 @@ export async function getCreditEntities({
   return data;
 }
 
+// Lista completa de entidades de crédito (sin filtrar por parent_id), usada
+// solo para armar el mapa id -> descripción en la tabla de listado.
+export async function getAllCreditEntities(): Promise<
+  CreditInsuranceMasterResource[]
+> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+      status: STATUS_ACTIVE,
+      type: "CREDIT_ENTITY",
+    },
+  };
+  const { data } = await api.get<CreditInsuranceMasterResource[]>(
+    AP_MASTERS.ENDPOINT,
+    config
+  );
+  return data;
+}
+
 export async function getInsuranceEntities(): Promise<
   CreditInsuranceMasterResource[]
 > {

@@ -36,9 +36,11 @@ interface Props {
     canAssign: boolean;
     canCreateKyc: boolean;
   };
-  // Mapa código -> descripción de CREDIT_TYPE (desde apMasters), para mostrar
-  // el nombre legible del tipo de crédito en la tabla.
-  creditTypeLabels?: Record<string, string>;
+  // Mapas id -> descripción (desde apMasters), para mostrar los nombres
+  // legibles de crédito/entidad/seguro en la tabla.
+  creditTypeLabels?: Record<number, string>;
+  creditEntityLabels?: Record<number, string>;
+  insuranceEntityLabels?: Record<number, string>;
 }
 
 export const purchaseRequestQuoteColumns = ({
@@ -50,6 +52,8 @@ export const purchaseRequestQuoteColumns = ({
   onViewDetail,
   permissions,
   creditTypeLabels = {},
+  creditEntityLabels = {},
+  insuranceEntityLabels = {},
 }: Props): PurchaseRequestQuoteColumns[] => [
   {
     accessorKey: "correlative",
@@ -139,32 +143,36 @@ export const purchaseRequestQuoteColumns = ({
     id: "credit",
     header: "Crédito",
     cell: ({ row }) => {
-      const { credit_type, credit_entity } = row.original;
-      if (!credit_type) {
+      const { credit_type_id, credit_entity_id } = row.original;
+      if (!credit_type_id) {
         return <p className="text-muted-foreground text-xs">Sin crédito</p>;
       }
-      const label = creditTypeLabels[credit_type] ?? credit_type;
+      const label = creditTypeLabels[credit_type_id] ?? credit_type_id;
+      const entityLabel = credit_entity_id
+        ? (creditEntityLabels[credit_entity_id] ?? credit_entity_id)
+        : null;
       return (
         <div className="flex flex-col text-xs">
           <span>{label}</span>
-          {credit_entity && (
-            <span className="font-semibold text-primary">
-              {credit_entity}
-            </span>
+          {entityLabel && (
+            <span className="font-semibold text-primary">{entityLabel}</span>
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "insurance_entity",
+    accessorKey: "insurance_entity_id",
     header: "Seguro",
     cell: ({ getValue }) => {
-      const value = getValue() as string | null | undefined;
-      return value ? (
-        <span className="font-semibold">{value}</span>
-      ) : (
-        <p className="text-muted-foreground text-xs">Sin seguro</p>
+      const value = getValue() as number | null | undefined;
+      if (!value) {
+        return <p className="text-muted-foreground text-xs">Sin seguro</p>;
+      }
+      return (
+        <span className="font-semibold">
+          {insuranceEntityLabels[value] ?? value}
+        </span>
       );
     },
   },

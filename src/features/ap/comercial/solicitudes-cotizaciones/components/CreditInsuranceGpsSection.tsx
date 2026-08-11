@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Control, useWatch } from "react-hook-form";
 import { CreditCard } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -19,49 +19,57 @@ export const CreditInsuranceGpsSection = ({
   control,
   setValue,
 }: CreditInsuranceGpsSectionProps) => {
-  const creditTypeWatch = useWatch({ control, name: "credit_type" });
-  const creditEntityWatch = useWatch({ control, name: "credit_entity" });
+  const creditTypeIdWatch = useWatch({ control, name: "credit_type_id" });
+  const creditEntityIdWatch = useWatch({ control, name: "credit_entity_id" });
 
   const { data: creditTypes = [], isLoading: isLoadingCreditTypes } =
     useCreditTypes();
 
   // Las entidades de crédito se piden por el id (parent_id) del tipo de
-  // crédito seleccionado, no por su código.
-  const selectedCreditType = creditTypes.find(
-    (master) => master.code === creditTypeWatch,
-  );
-
+  // crédito seleccionado.
   const { data: creditEntities = [], isLoading: isLoadingCreditEntities } =
-    useCreditEntities(selectedCreditType?.id);
+    useCreditEntities(creditTypeIdWatch);
 
   const { data: insuranceEntities = [], isLoading: isLoadingInsuranceEntities } =
     useInsuranceEntities();
 
   const creditTypeOptions = creditTypes.map((master) => ({
-    value: master.code,
+    value: master.id.toString(),
     label: master.description,
   }));
 
   const creditEntityOptions = creditEntities.map((master) => ({
-    value: master.code,
+    value: master.id.toString(),
     label: master.description,
   }));
 
   const insuranceEntityOptions = insuranceEntities.map((master) => ({
-    value: master.code,
+    value: master.id.toString(),
     label: master.description,
   }));
 
-  // Al cambiar el tipo de crédito, limpiar la entidad si ya no pertenece a las opciones disponibles
+  // Al cambiar el tipo de crédito, limpiar la entidad si ya no pertenece a las
+  // opciones disponibles. Se ignora el primer render (y mientras las
+  // entidades siguen cargando) para no borrar el valor precargado en modo
+  // edición antes de que useCreditEntities termine de resolver.
+  const previousCreditTypeIdRef = useRef<string | undefined>(undefined);
   useEffect(() => {
+    if (isLoadingCreditEntities) return;
+
+    const typeChanged =
+      previousCreditTypeIdRef.current !== undefined &&
+      previousCreditTypeIdRef.current !== creditTypeIdWatch;
+    previousCreditTypeIdRef.current = creditTypeIdWatch;
+
     if (
-      creditEntityWatch &&
-      !creditEntityOptions.some((opt) => opt.value === creditEntityWatch)
+      typeChanged &&
+      creditEntityIdWatch &&
+      !creditEntityOptions.some((opt) => opt.value === creditEntityIdWatch)
     ) {
-      setValue("credit_entity", "");
+      setValue("credit_entity_id", "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditTypeWatch, creditEntities]);
+  }, [creditTypeIdWatch, creditEntities, isLoadingCreditEntities]);
 
   return (
     <GroupFormSection
@@ -71,7 +79,7 @@ export const CreditInsuranceGpsSection = ({
       cols={{ sm: 1, md: 2, lg: 4 }}
     >
       <FormSelect
-        name="credit_type"
+        name="credit_type_id"
         label="Tipo de Crédito"
         placeholder="Sin crédito"
         options={creditTypeOptions}
@@ -81,20 +89,22 @@ export const CreditInsuranceGpsSection = ({
       />
 
       <FormSelect
-        name="credit_entity"
+        name="credit_entity_id"
         label="Entidad de Crédito"
         placeholder={
-          creditTypeWatch ? "Selecciona una entidad" : "Selecciona un tipo primero"
+          creditTypeIdWatch
+            ? "Selecciona una entidad"
+            : "Selecciona un tipo primero"
         }
         options={creditEntityOptions}
         control={control}
-        disabled={!creditTypeWatch}
+        disabled={!creditTypeIdWatch}
         strictFilter={true}
         isLoadingOptions={isLoadingCreditEntities}
       />
 
       <FormSelect
-        name="insurance_entity"
+        name="insurance_entity_id"
         label="Seguro Inchcape"
         placeholder="Sin seguro"
         options={insuranceEntityOptions}
