@@ -16,13 +16,26 @@ import {
   MessageSquare,
   Calendar,
   ArrowRight,
+  Pencil,
+  X,
 } from "lucide-react";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
+import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
+import { useFamilies } from "../../oportunidades/lib/opportunities.hook";
+import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface OpportunityInfoCardProps {
   opportunity: OpportunityResource;
   onView?: () => void;
+  /** Permite editar la familia del vehículo directamente desde esta tarjeta.
+   *  Solo debe activarse en la instancia donde tenga sentido reasignarla
+   *  (ej. PurchaseRequestQuoteForm), no en todas las que usan esta tarjeta. */
+  canEditFamily?: boolean;
+  /** Se dispara cuando el usuario confirma un cambio de familia. */
+  onFamilyChange?: (familyId: number, family: FamiliesResource) => void;
 }
 
 const getClientStatusVariant = (status: string): BadgeColor => {
@@ -81,17 +94,31 @@ const getStatusColors = (status: string) => {
 export const OpportunityInfoCard = ({
   opportunity,
   onView,
+  canEditFamily = false,
+  onFamilyChange,
 }: OpportunityInfoCardProps) => {
   const colors = getStatusColors(opportunity.opportunity_status);
 
+  // Estado local solo para mostrar la familia elegida en esta tarjeta;
+  // el dato "real" que usa el formulario contenedor se sincroniza vía onFamilyChange.
+  const [displayedFamily, setDisplayedFamily] = useState(opportunity.family);
+  const [isEditingFamily, setIsEditingFamily] = useState(false);
+  const [familyDraft, setFamilyDraft] = useState("");
+
+  const handleFamilySelect = (value: string, item?: FamiliesResource) => {
+    setFamilyDraft(value);
+    if (item) {
+      setDisplayedFamily(item);
+      onFamilyChange?.(item.id, item);
+      setIsEditingFamily(false);
+    }
+  };
+
   return (
     <Card
-      className={cn(
-        "gap-0 rounded-2xl border-0 bg-card text-card-foreground py-0 overflow-hidden",
-        "ring-1 ring-black/6 dark:ring-white/8",
-        "shadow-[0_1px_3px_rgba(0,0,0,0.06),0_10px_24px_-8px_rgba(0,0,0,0.12)]",
-        "dark:shadow-[0_1px_3px_rgba(0,0,0,0.3),0_10px_24px_-8px_rgba(0,0,0,0.5)]",
-      )}
+      className={
+        "gap-0 rounded-2xl bg-card text-card-foreground py-0 overflow-hidden border border-muted shadow-sm"
+      }
     >
       {/* Header */}
       <CardHeader className="grid-cols-none flex items-center justify-between gap-3 px-4 py-3! border-b border-border">
@@ -120,7 +147,7 @@ export const OpportunityInfoCard = ({
       </CardHeader>
 
       {/* Content */}
-      <CardContent className="px-4">
+      <CardContent className="px-4 pb-2">
         {/* Cliente */}
         <div className="flex items-start gap-2.5 py-2">
           <User className="size-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -155,9 +182,66 @@ export const OpportunityInfoCard = ({
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               Vehículo de Interés
             </p>
-            <p className="text-sm font-semibold truncate">
-              {opportunity.family.brand} {opportunity.family.description}
-            </p>
+
+            {isEditingFamily ? (
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex-1 min-w-0">
+                  <SearchableSelectAsync
+                    useQueryHook={useFamilies}
+                    mapOptionFn={(item: FamiliesResource) => ({
+                      value: item.id.toString(),
+                      label: `${item.brand} ${item.description}`,
+                      description: item.code,
+                    })}
+                    additionalParams={{
+                      "brand$type_operation_id": CM_COMERCIAL_ID,
+                      ...(opportunity.lead?.vehicle_brand_id
+                        ? { brand_id: opportunity.lead.vehicle_brand_id }
+                        : {}),
+                    }}
+                    defaultOption={{
+                      value: displayedFamily.id.toString(),
+                      label: `${displayedFamily.brand} ${displayedFamily.description}`,
+                      description: displayedFamily.code,
+                    }}
+                    value={familyDraft}
+                    onChange={setFamilyDraft}
+                    onValueChange={handleFamilySelect}
+                    placeholder="Buscar familia..."
+                    buttonSize="sm"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => setIsEditingFamily(false)}
+                  variant="outline"
+                  size="icon-sm"
+                  title="Cancelar"
+                >
+                  <X/>
+                </Button>
+              </div>
+            ) : (
+              <p className="text-sm font-semibold truncate">
+                {displayedFamily.brand} {displayedFamily.description}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            {canEditFamily && !isEditingFamily && (
+              <Button
+                type="button"
+                onClick={() => {
+                  setFamilyDraft(displayedFamily.id.toString());
+                  setIsEditingFamily(true);
+                }}
+                tooltip="Editar familia"
+                size="icon"
+                variant="outline"
+              >
+                <Pencil />
+              </Button>
+            )}
           </div>
         </div>
 

@@ -35,6 +35,7 @@ export default function VehicleOptions({
           { label: "VEHICULO VENDIDO ENTREGADO", value: "6" },
           { label: "VEHICULO FACTURADO", value: "7" },
           { label: "VEHICULO EN CONSIGNACION", value: "8" },
+          { label: "VEHICULO FACTURADO FINAL", value: "9" },
         ]}
       />
     </FilterWrapper>

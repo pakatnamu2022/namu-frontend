@@ -5,7 +5,6 @@ import { VehicleResource } from "../lib/vehicles.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil, Box } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import VehicleMovements from "./VehicleMovements";
 import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
@@ -33,7 +32,6 @@ interface Props {
 
 export const vehicleColumns = ({
   onUpdate,
-  onDelete,
   permissions,
 }: Props): VehicleColumns[] => [
   {
@@ -191,11 +189,6 @@ export const vehicleColumns = ({
             >
               <Pencil className="size-4" />
             </Button>
-          )}
-
-          {/* Delete */}
-          {permissions.canDelete && (
-            <DeleteButton onClick={() => onDelete!(id)} />
           )}
         </div>
       );

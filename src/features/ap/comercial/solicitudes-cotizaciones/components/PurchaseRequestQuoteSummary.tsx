@@ -2,8 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { OthersRow } from "./OthersTable";
 import { FileCheck, TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -52,6 +51,7 @@ interface PurchaseRequestQuoteSummaryProps {
   form: UseFormReturn<any>;
   mode: "create" | "update";
   isSubmitting: boolean;
+  sedeLabel?: string;
   selectedHolder?: CustomersResource;
   modelsVn: ModelsVnResource[];
   vehiclesVn: VehicleResourceWithCosts[];
@@ -92,6 +92,7 @@ export function PurchaseRequestQuoteSummary({
   form,
   mode,
   isSubmitting,
+  sedeLabel,
   selectedHolder,
   modelsVn,
   vehiclesVn,
@@ -125,7 +126,10 @@ export function PurchaseRequestQuoteSummary({
     const messages: string[] = [];
     const traverse = (obj: any) => {
       if (!obj) return;
-      if (typeof obj.message === "string") { messages.push(obj.message); return; }
+      if (typeof obj.message === "string") {
+        messages.push(obj.message);
+        return;
+      }
       Object.values(obj).forEach((v) => traverse(v));
     };
     traverse(errors);
@@ -193,15 +197,15 @@ export function PurchaseRequestQuoteSummary({
       };
     })
     .filter(Boolean) as {
-      id: string;
-      name: string;
-      quantity: number;
-      unitPrice: number;
-      total: number;
-      isGift: boolean;
-      symbol: string;
-      originalCurrencyId: number;
-    }[];
+    id: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+    isGift: boolean;
+    symbol: string;
+    originalCurrencyId: number;
+  }[];
 
   const paidAccessories = accessoryDetails.filter((a) => !a.isGift);
   const giftAccessories = accessoryDetails.filter((a) => a.isGift);
@@ -224,7 +228,8 @@ export function PurchaseRequestQuoteSummary({
   const fleteRows = othersRows.filter((r) => r.isLocked);
   const extraCostRows = othersRows.filter((r) => !r.isLocked);
   const extraCostsTotal = extraCostRows.reduce((sum, row) => {
-    const amt = row.type === "FIJO" ? row.value : (totals.salePrice * row.value) / 100;
+    const amt =
+      row.type === "FIJO" ? row.value : (totals.salePrice * row.value) / 100;
     return sum + amt;
   }, 0);
 
@@ -240,23 +245,36 @@ export function PurchaseRequestQuoteSummary({
   const netDiff = grossDiff / 1.18;
   const netSalePrice = totals.salePrice / 1.18;
   const othersNetTotal = fleteRows.reduce((sum, row) => {
-    const amt = row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
+    const amt =
+      row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
     return sum + amt;
   }, 0);
   const realMarginAmount = hasMarginData ? netDiff - othersNetTotal : 0;
-  const realMarginPct = hasMarginData ? (realMarginAmount / netSalePrice) * 100 : 0;
+  const realMarginPct = hasMarginData
+    ? (realMarginAmount / netSalePrice) * 100
+    : 0;
 
   // Simulación hipotética
   const simAdj = parseFloat(simulationAdj) || 0;
   const simMarginAmount = realMarginAmount + simAdj;
-  const simMarginPct = netSalePrice > 0 ? (simMarginAmount / netSalePrice) * 100 : 0;
+  const simMarginPct =
+    netSalePrice > 0 ? (simMarginAmount / netSalePrice) * 100 : 0;
 
   const marginColor = (pct: number) =>
     pct >= 4
-      ? { btn: "bg-green-600 hover:bg-green-700 text-white border-green-600", badge: "bg-green-50 border-green-300 text-green-700" }
+      ? {
+          btn: "bg-green-600 hover:bg-green-700 text-white border-green-600",
+          badge: "bg-green-50 border-green-300 text-green-700",
+        }
       : pct >= 0
-        ? { btn: "bg-orange-500 hover:bg-orange-600 text-white border-orange-500", badge: "bg-orange-50 border-orange-300 text-orange-700" }
-        : { btn: "bg-red-600 hover:bg-red-700 text-white border-red-600", badge: "bg-red-50 border-red-300 text-red-700" };
+        ? {
+            btn: "bg-orange-500 hover:bg-orange-600 text-white border-orange-500",
+            badge: "bg-orange-50 border-orange-300 text-orange-700",
+          }
+        : {
+            btn: "bg-red-600 hover:bg-red-700 text-white border-red-600",
+            badge: "bg-red-50 border-red-300 text-red-700",
+          };
 
   const realColor = marginColor(realMarginPct);
   const simColor = marginColor(simMarginPct);
@@ -264,161 +282,160 @@ export function PurchaseRequestQuoteSummary({
   const marginButtonColor = !hasMarginData ? "" : realColor.btn;
 
   return (
-    <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
-      <Card className="h-full sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
-        <CardHeader className="space-y-1">
+    <>
+      <Card className="h-fit sticky top-6 gap-0 border border-muted rounded-3xl bg-card shadow">
+        <CardHeader className="pb-0">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <FileCheck className="size-5 text-primary" />
-              Resumen
-            </CardTitle>
-            <Badge
-              variant="outline"
-              className="bg-primary/10 text-primary border-primary/30"
-            >
+            <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+              {form.watch("type_document") === "COTIZACION"
+                ? "Cotización"
+                : "Solicitud de Compra"}
+              {sedeLabel && (
+                <span className="normal-case font-normal">
+                  {" "}
+                  · {sedeLabel}
+                </span>
+              )}
+            </p>
+            <span className="text-xs font-medium text-muted-foreground">
               {mode === "update" ? "Edición" : "Nuevo"}
-            </Badge>
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {form.watch("type_document") === "COTIZACION"
-              ? "Cotización"
-              : "Solicitud de Compra"}
+
+          <p className="text-4xl font-semibold tracking-tight tabular-nums mt-1">
+            {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}
+            {fmt(finalTotal)}
           </p>
         </CardHeader>
 
-        <CardContent className="space-y-0">
-          {/* Vehículo */}
-          <div className="py-3">
-            <p className="text-xs text-muted-foreground">
-              {withVinWatch ? "Vehículo" : "Modelo"}
-            </p>
-            <p className="text-sm font-semibold mt-0.5 leading-tight">
-              {withVinWatch && vehicleVnWatch
-                ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))?.vin || "Sin seleccionar"
-                : modelVnWatch
-                  ? modelsVn.find((m) => m.id === Number(modelVnWatch))?.version || "Sin seleccionar"
-                  : "Sin seleccionar"}
-            </p>
-            {selectedModel && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {selectedModel.code}
-                {!withVinWatch && selectedColor && ` · ${selectedColor.description}`}
+        <CardContent className="pt-6">
+          {/* Modelo/Vehículo + Titular */}
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                {withVinWatch ? "Vehículo" : "Modelo"}
               </p>
-            )}
+              <p className="text-sm font-semibold truncate mt-0.5">
+                {withVinWatch && vehicleVnWatch
+                  ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))
+                      ?.vin || "Sin seleccionar"
+                  : modelVnWatch
+                    ? modelsVn.find((m) => m.id === Number(modelVnWatch))
+                        ?.version || "Sin seleccionar"
+                    : "Sin seleccionar"}
+              </p>
+              {selectedModel && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {selectedModel.code}
+                  {!withVinWatch &&
+                    selectedColor &&
+                    ` · ${selectedColor.description}`}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Titular
+              </p>
+              <p className="text-sm font-semibold truncate mt-0.5">
+                {selectedHolder?.full_name || "Sin seleccionar"}
+              </p>
+              {selectedHolder?.num_doc && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {selectedHolder.num_doc}
+                </p>
+              )}
+            </div>
           </div>
 
-          <Separator />
-
-          {/* Titular */}
-          <div className="py-3">
-            <p className="text-xs text-muted-foreground">Titular</p>
-            <p className="text-sm font-semibold mt-0.5">
-              {selectedHolder?.full_name || "Sin seleccionar"}
-            </p>
-          </div>
-
-          <Separator />
-
-          {/* Líneas de precio */}
-          <div className="py-3 space-y-2.5">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground font-mono uppercase text-xs">Precio Venta</span>
-              <span className="font-medium tabular-nums">
+          {/* Desglose de precio */}
+          <div className="divide-y divide-border mt-6">
+            <div className="flex justify-between items-center py-2.5 text-sm">
+              <span className="text-muted-foreground">Precio Venta</span>
+              <span className="tabular-nums">
                 {vehicleCurrency.symbol} {fmt(totals.salePrice)}
               </span>
             </div>
 
             {totals.bonusDiscountTotal > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground font-mono uppercase text-xs">Bonos/Desc.</span>
-                <span className="font-medium text-muted-foreground/60 tabular-nums">
+              <div className="flex justify-between items-center py-2.5 text-sm">
+                <span className="text-muted-foreground">Bonos/Desc.</span>
+                <span className="text-muted-foreground/70 tabular-nums">
                   {vehicleCurrency.symbol} {fmt(totals.bonusDiscountTotal)}
                 </span>
               </div>
             )}
 
             {totals.negativeDiscounts > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground font-mono uppercase text-xs">Descuentos</span>
-                <span className="font-medium text-red-500 tabular-nums">
+              <div className="flex justify-between items-center py-2.5 text-sm">
+                <span className="text-muted-foreground">Descuentos</span>
+                <span className="text-red-500 tabular-nums">
                   − {vehicleCurrency.symbol} {fmt(totals.negativeDiscounts)}
                 </span>
               </div>
             )}
 
             {totals.accessoriesTotal > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground font-mono uppercase text-xs">Accesorios</span>
-                <span className="font-medium text-primary tabular-nums">
+              <div className="flex justify-between items-center py-2.5 text-sm">
+                <span className="text-muted-foreground">Accesorios</span>
+                <span className="text-primary tabular-nums">
                   + {vehicleCurrency.symbol} {fmt(totals.accessoriesTotal)}
                 </span>
               </div>
             )}
 
             {/* Tipos de cambio */}
-            {allCurrencyTypes.filter((c) => c.id !== vehicleCurrency.currencyId).map((c) => {
-              const tc = getExchangeRate(vehicleCurrency.currencyId) / getExchangeRate(c.id);
-              return (
-                <div key={c.id} className="flex justify-between items-center">
-                  <span className="text-muted-foreground font-mono text-xs">
-                    T.C. 1 {vehicleCurrency.symbol} = {c.symbol}
-                  </span>
-                  <span className="tabular-nums text-xs text-muted-foreground">{tc.toFixed(3)}</span>
-                </div>
-              );
-            })}
-          </div>
+            {allCurrencyTypes
+              .filter((c) => c.id !== vehicleCurrency.currencyId)
+              .map((c) => {
+                const tc =
+                  getExchangeRate(vehicleCurrency.currencyId) /
+                  getExchangeRate(c.id);
+                return (
+                  <div
+                    key={c.id}
+                    className="flex justify-between items-center py-2 text-xs"
+                  >
+                    <span className="text-muted-foreground/70">
+                      Tasa de Cambio
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {vehicleCurrency.symbol} 1 = {c.symbol}{" "}
+                      <strong className="pl-2">{tc.toFixed(3)}</strong>
+                    </span>
+                  </div>
+                );
+              })}
 
-          <Separator />
-
-          {/* Subtotal */}
-          <div className="flex justify-between items-center py-3">
-            <span className="font-mono uppercase text-xs font-semibold">Subtotal</span>
-            <span className="font-semibold tabular-nums text-sm">
-              {vehicleCurrency.symbol} {fmt(totals.subtotal)}
-            </span>
-          </div>
-
-          <Separator />
-
-          {/* Total */}
-          <div className="flex justify-between items-center pt-4 pb-2">
-            <span className="font-mono uppercase text-sm font-semibold text-blue-600 dark:text-blue-400">
-              Total
-            </span>
-            <span className="text-2xl font-medium text-blue-600 dark:text-blue-400 tabular-nums">
-              {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}
-              {fmt(finalTotal)}
-            </span>
+            <div className="flex justify-between items-center py-2.5 text-sm font-semibold">
+              <span>Subtotal</span>
+              <span className="tabular-nums">
+                {vehicleCurrency.symbol} {fmt(totals.subtotal)}
+              </span>
+            </div>
           </div>
 
           {/* Botón Margen Real */}
           {canManage && hasMarginData && (
-            <>
-              <Separator />
-              <div className="py-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={`w-full font-semibold ${marginButtonColor}`}
-                  onClick={() => setIsMarginModalOpen(true)}
-                >
-                  <TrendingUp className="size-4 mr-2" />
-                  Ver Margen ({realMarginPct >= 0 ? "+" : ""}
-                  {realMarginPct.toFixed(2)}%)
-                </Button>
-              </div>
-            </>
+            <Button
+              type="button"
+              variant="outline"
+              className={`w-full font-semibold mt-4 ${marginButtonColor}`}
+              onClick={() => setIsMarginModalOpen(true)}
+            >
+              <TrendingUp className="size-4 mr-2" />
+              Ver Margen ({realMarginPct >= 0 ? "+" : ""}
+              {realMarginPct.toFixed(2)}%)
+            </Button>
           )}
-
-          <Separator />
 
           {/* Comentarios */}
           <FormField
             control={form.control}
             name="comment"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="mt-4">
                 <FormLabel>Comentarios/Notas</FormLabel>
                 <FormControl>
                   <textarea
@@ -433,7 +450,7 @@ export function PurchaseRequestQuoteSummary({
           />
 
           {/* Botones de Acción */}
-          <div className="space-y-2 pt-3">
+          <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 pt-6 gap-2">
             <Button
               type="button"
               className="w-full"
@@ -449,33 +466,13 @@ export function PurchaseRequestQuoteSummary({
                   : "Guardar"}
             </Button>
             <ConfirmationDialog
-              open={isConfirmOpen}
-              onOpenChange={setIsConfirmOpen}
-              trigger={<span />}
-              title={
-                mode === "update"
-                  ? form.watch("type_document") === "COTIZACION"
-                    ? "¿Actualizar cotización?"
-                    : "¿Actualizar solicitud de compra?"
-                  : form.watch("type_document") === "COTIZACION"
-                    ? "¿Guardar cotización?"
-                    : "¿Guardar solicitud de compra?"
-              }
-              description={
-                mode === "update"
-                  ? "Se actualizarán los datos en el sistema. ¿Deseas continuar?"
-                  : "Se creará un nuevo registro con los datos ingresados. ¿Deseas continuar?"
-              }
-              confirmText={mode === "update" ? "Sí, actualizar" : "Sí, guardar"}
-              cancelText="Cancelar"
-              variant="default"
-              icon="info"
-              onConfirm={() => form.handleSubmit(onSubmit)()}
-              confirmDisabled={isSubmitting}
-            />
-            <ConfirmationDialog
               trigger={
-                <Button type="button" variant="outline" className="w-full">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
                   Cancelar
                 </Button>
               }
@@ -490,6 +487,33 @@ export function PurchaseRequestQuoteSummary({
           </div>
         </CardContent>
       </Card>
+
+      {/* Confirmación de guardado (controlada, sin trigger visible) */}
+      <ConfirmationDialog
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        trigger={<span className="hidden" />}
+        title={
+          mode === "update"
+            ? form.watch("type_document") === "COTIZACION"
+              ? "¿Actualizar cotización?"
+              : "¿Actualizar solicitud de compra?"
+            : form.watch("type_document") === "COTIZACION"
+              ? "¿Guardar cotización?"
+              : "¿Guardar solicitud de compra?"
+        }
+        description={
+          mode === "update"
+            ? "Se actualizarán los datos en el sistema. ¿Deseas continuar?"
+            : "Se creará un nuevo registro con los datos ingresados. ¿Deseas continuar?"
+        }
+        confirmText={mode === "update" ? "Sí, actualizar" : "Sí, guardar"}
+        cancelText="Cancelar"
+        variant="default"
+        icon="info"
+        onConfirm={() => form.handleSubmit(onSubmit)()}
+        confirmDisabled={isSubmitting}
+      />
 
       {/* Modal de Detalle de Margen */}
       <Dialog
@@ -524,7 +548,10 @@ export function PurchaseRequestQuoteSummary({
 
               {/* Descuentos al cliente */}
               {discountRows.map((row) => (
-                <div key={row.id} className="flex justify-between items-center text-sm">
+                <div
+                  key={row.id}
+                  className="flex justify-between items-center text-sm"
+                >
                   <span className="text-muted-foreground truncate max-w-[210px]">
                     Desc. {row.descripcion}
                     {row.isPercentage && ` (${row.valor}%)`}
@@ -537,7 +564,10 @@ export function PurchaseRequestQuoteSummary({
 
               {/* Accesorios cobrados al cliente (uno por uno) */}
               {paidAccessories.map((acc) => (
-                <div key={acc.id} className="flex justify-between items-center text-sm">
+                <div
+                  key={acc.id}
+                  className="flex justify-between items-center text-sm"
+                >
                   <span className="text-muted-foreground truncate max-w-[210px]">
                     {acc.name} × {acc.quantity}
                   </span>
@@ -551,16 +581,23 @@ export function PurchaseRequestQuoteSummary({
 
               <div className="flex justify-between items-center text-sm font-semibold">
                 <span>Subtotal cliente</span>
-                <span>{vehicleCurrency.symbol} {fmt(clientRevenue)}</span>
+                <span>
+                  {vehicleCurrency.symbol} {fmt(clientRevenue)}
+                </span>
               </div>
 
               {/* Bonos de marca */}
               {bonusRows.length > 0 && (
                 <>
                   <Separator className="my-1.5" />
-                  <p className="text-xs text-muted-foreground font-medium">Bonos de marca</p>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Bonos de marca
+                  </p>
                   {bonusRows.map((row) => (
-                    <div key={row.id} className="flex justify-between items-center text-sm">
+                    <div
+                      key={row.id}
+                      className="flex justify-between items-center text-sm"
+                    >
                       <span className="text-muted-foreground truncate max-w-[210px]">
                         {row.descripcion}
                         {row.isPercentage && ` (${row.valor}%)`}
@@ -576,7 +613,9 @@ export function PurchaseRequestQuoteSummary({
               <Separator className="my-1.5" />
               <div className="flex justify-between items-center text-sm font-bold">
                 <span>Total Ingresos</span>
-                <span>{vehicleCurrency.symbol} {fmt(totalIncome)}</span>
+                <span>
+                  {vehicleCurrency.symbol} {fmt(totalIncome)}
+                </span>
               </div>
             </div>
 
@@ -595,7 +634,10 @@ export function PurchaseRequestQuoteSummary({
 
               {/* Obsequios (costo para el dealer) */}
               {giftAccessories.map((acc) => (
-                <div key={acc.id} className="flex justify-between items-center text-sm">
+                <div
+                  key={acc.id}
+                  className="flex justify-between items-center text-sm"
+                >
                   <span className="text-muted-foreground truncate max-w-[210px]">
                     Obsequio: {acc.name} × {acc.quantity}
                   </span>
@@ -607,9 +649,15 @@ export function PurchaseRequestQuoteSummary({
 
               {/* Otros costos internos (no flete): se tratan como obsequio */}
               {extraCostRows.map((row) => {
-                const amt = row.type === "FIJO" ? row.value : (totals.salePrice * row.value) / 100;
+                const amt =
+                  row.type === "FIJO"
+                    ? row.value
+                    : (totals.salePrice * row.value) / 100;
                 return (
-                  <div key={row.id} className="flex justify-between items-center text-sm">
+                  <div
+                    key={row.id}
+                    className="flex justify-between items-center text-sm"
+                  >
                     <span className="text-muted-foreground truncate max-w-[210px]">
                       {row.description || "Costo interno"}
                     </span>
@@ -639,22 +687,40 @@ export function PurchaseRequestQuoteSummary({
                 Utilidad Neta
               </p>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">(Ingresos − Costos) ÷ 1.18</span>
-                <span className="font-medium">{vehicleCurrency.symbol} {fmt(netDiff)}</span>
+                <span className="text-muted-foreground">
+                  (Ingresos − Costos) ÷ 1.18
+                </span>
+                <span className="font-medium">
+                  {vehicleCurrency.symbol} {fmt(netDiff)}
+                </span>
               </div>
               {fleteRows.map((row) => {
-                const amt = row.type === "FIJO" ? row.value : (netSalePrice * row.value) / 100;
+                const amt =
+                  row.type === "FIJO"
+                    ? row.value
+                    : (netSalePrice * row.value) / 100;
                 return (
-                  <div key={row.id} className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">{row.description}</span>
-                    <span className="font-medium text-red-600">− {vehicleCurrency.symbol} {fmt(amt)}</span>
+                  <div
+                    key={row.id}
+                    className="flex justify-between items-center text-sm"
+                  >
+                    <span className="text-muted-foreground">
+                      {row.description}
+                    </span>
+                    <span className="font-medium text-red-600">
+                      − {vehicleCurrency.symbol} {fmt(amt)}
+                    </span>
                   </div>
                 );
               })}
               <Separator className="my-1.5" />
               <div className="flex justify-between items-center text-sm font-bold">
                 <span>Utilidad Neta</span>
-                <span className={realMarginAmount >= 0 ? "text-green-700" : "text-red-600"}>
+                <span
+                  className={
+                    realMarginAmount >= 0 ? "text-green-700" : "text-red-600"
+                  }
+                >
                   {vehicleCurrency.symbol} {fmt(realMarginAmount)}
                 </span>
               </div>
@@ -667,11 +733,17 @@ export function PurchaseRequestQuoteSummary({
               </p>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-muted-foreground">
-                  <p>{vehicleCurrency.symbol} {fmt(realMarginAmount)}</p>
-                  <p className="text-xs">÷ (PV {vehicleCurrency.symbol} {fmt(totals.salePrice)} ÷ 1.18)</p>
+                  <p>
+                    {vehicleCurrency.symbol} {fmt(realMarginAmount)}
+                  </p>
+                  <p className="text-xs">
+                    ÷ (PV {vehicleCurrency.symbol} {fmt(totals.salePrice)} ÷
+                    1.18)
+                  </p>
                 </div>
                 <p className="text-2xl font-bold">
-                  {realMarginPct >= 0 ? "+" : ""}{realMarginPct.toFixed(2)}%
+                  {realMarginPct >= 0 ? "+" : ""}
+                  {realMarginPct.toFixed(2)}%
                 </p>
               </div>
             </div>
@@ -696,14 +768,17 @@ export function PurchaseRequestQuoteSummary({
               </div>
 
               {simAdj !== 0 && (
-                <div className={`mt-2 p-2 rounded-md border flex justify-between items-center text-sm ${simColor.badge}`}>
+                <div
+                  className={`mt-2 p-2 rounded-md border flex justify-between items-center text-sm ${simColor.badge}`}
+                >
                   <span className="font-semibold">Margen simulado</span>
                   <div className="text-right">
                     <p className="font-bold">
                       {vehicleCurrency.symbol} {fmt(simMarginAmount)}
                     </p>
                     <p className="text-xs font-semibold">
-                      ({simMarginPct >= 0 ? "+" : ""}{simMarginPct.toFixed(2)}%)
+                      ({simMarginPct >= 0 ? "+" : ""}
+                      {simMarginPct.toFixed(2)}%)
                     </p>
                   </div>
                 </div>
@@ -712,6 +787,6 @@ export function PurchaseRequestQuoteSummary({
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

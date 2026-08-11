@@ -87,7 +87,7 @@ export function QuotationFinancialInfo({
                 </span>
               )}
             </p>
-            <p className="text-lg font-bold text-tertiary">
+            <p className="text-lg font-bold text-muted-foreground">
               {currencySymbol} {totalAdvances.toFixed(2)}
             </p>
           </div>

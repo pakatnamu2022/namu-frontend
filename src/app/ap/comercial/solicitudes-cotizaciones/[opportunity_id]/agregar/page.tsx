@@ -61,7 +61,7 @@ export default function AddPurchaseRequestQuotePage() {
   }
 
   return (
-    <PageWrapper size="2xl">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
@@ -83,6 +83,10 @@ export default function AddPurchaseRequestQuotePage() {
           ap_vehicle_id: "",
           sale_price: "0",
           doc_type_currency_id: "",
+          credit_type_id: "",
+          credit_entity_id: "",
+          insurance_entity_id: "",
+          gps_hunter_years: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

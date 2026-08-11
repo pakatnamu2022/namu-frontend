@@ -20,3 +20,10 @@ export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource>
     ROUTE_ADD: `${ABSOLUTE_ROUTE}/:opportunity_id/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
+
+// Tipos de crédito, entidades de crédito y entidades de seguro ahora se
+// obtienen desde /api/ap/apMasters (tipos CREDIT_TYPE, CREDIT_ENTITY e
+// INSURANCE_ENTITY, filtrando entidades por parent_id). Ver useCreditTypes /
+// useCreditEntities / useAllCreditEntities / useInsuranceEntities en
+// purchaseRequestQuote.hook.ts, consumidos desde CreditInsuranceGpsSection
+// y desde la página de listado (para las etiquetas de la tabla).

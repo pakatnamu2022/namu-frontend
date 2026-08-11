@@ -220,7 +220,7 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
 ];
 
 export const POST_VENTA_REPORTS_CONSTANTS: ModelComplete = {
-  ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes",
+  ROUTE: "/ap/post-venta/indicadores-y-reportes/reportes-postventa",
   MODEL: {
     name: "Reportes de Post Venta",
     gender: false,

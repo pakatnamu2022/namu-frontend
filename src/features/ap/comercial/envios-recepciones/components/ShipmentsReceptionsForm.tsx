@@ -68,6 +68,7 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { useNextShippingGuideDocumentNumber } from "../lib/shipmentsReceptions.hook";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import { useQueryClient } from "@tanstack/react-query";
 import VehicleModal from "../../vehiculos/components/VehicleModal";
 import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
@@ -248,6 +249,21 @@ export const ShipmentsReceptionsForm = ({
   // Si NO es COMPRA: is_received = 1 (vehículos ya recibidos en piso)
   const vehiclesIsReceived =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ? 0 : 1;
+
+  // Filtro adicional de estado de vehículo según el motivo de traslado
+  // Si es COMPRA: solo vehículos EN TRÁNSITO
+  // Si es TRASLADO ENTRE SEDES: solo vehículos en INVENTARIO VN
+  const vehicleStatusFilterParams =
+    watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
+      ? {
+          vehicleMovements$new_status_id: [
+            VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO,
+          ],
+        }
+      : watchTransferReasonId ===
+          SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+        ? { vehicleMovements$new_status_id: [VEHICLE_STATUS_ID.INVENTARIO_VN] }
+        : {};
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
@@ -968,6 +984,7 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
+                ...vehicleStatusFilterParams,
               }}
               disabled={!watchSedeTransmitterId || !watchArticleClassId}
               onValueChange={handleVehicleChange}
@@ -1015,6 +1032,7 @@ export const ShipmentsReceptionsForm = ({
                 warehouse$is_received: vehiclesIsReceived,
                 warehouse$ap_class_article_id: watchArticleClassId || undefined,
                 model$class_id: watchArticleClassId || undefined,
+                ...vehicleStatusFilterParams,
               }}
               disabled={
                 (watchIssuerType !== "PROVEEDOR" && !watchSedeTransmitterId) ||

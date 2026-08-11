@@ -15,11 +15,11 @@ import { NumberFormat } from "@/shared/components/NumberFormat";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import {
   useAllConceptDiscountBond,
+  useConceptDiscountBondDescriptions,
   useUpdateDiscountCoupon,
 } from "../lib/purchaseRequestQuote.hook";
 import { BonusDiscountResource } from "../lib/purchaseRequestQuote.interface";
 import { Option } from "@/core/core.interface";
-import { getDescriptionOptions } from "./BonusDiscountSheet";
 
 const DEDUCCION_7_FACTOR = 0.93;
 
@@ -66,9 +66,13 @@ export function EditDiscountCouponModal({
 
   const value = form.watch("value");
   const hasRetention = form.watch("has_retention");
-  const descriptionOptions = coupon
-    ? getDescriptionOptions(coupon.concept_code_id.toString())
-    : null;
+  const { data: bondDescriptions = [] } = useConceptDiscountBondDescriptions(
+    coupon?.concept_code_id,
+  );
+  const descriptionOptions =
+    bondDescriptions.length > 0
+      ? bondDescriptions.map((o) => o.description)
+      : null;
   const numericValue = value === "" ? null : Number(value);
   const netAmount =
     numericValue != null && !Number.isNaN(numericValue)

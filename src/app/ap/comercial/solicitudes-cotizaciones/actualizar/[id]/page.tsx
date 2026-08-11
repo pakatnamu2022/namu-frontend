@@ -81,6 +81,11 @@ export default function UpdatePurchaseRequestQuotePage() {
       bonus_discounts: data.bonus_discounts || [],
       accessories: data.accessories || [],
       others: data.others || [],
+      down_payment: data.down_payment?.toString() || "",
+      credit_type_id: data.credit_type_id?.toString() || "",
+      credit_entity_id: data.credit_entity_id?.toString() || "",
+      insurance_entity_id: data.insurance_entity_id?.toString() || "",
+      gps_hunter_years: data.gps_hunter_years?.toString() || "",
     };
   }
 
@@ -97,7 +102,7 @@ export default function UpdatePurchaseRequestQuotePage() {
   if (!currentView) notFound();
 
   return (
-    <PageWrapper size="2xl">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"

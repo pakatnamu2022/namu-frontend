@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
 import { ConceptDiscountBondResource } from "../lib/purchaseRequestQuote.interface";
+import { useConceptDiscountBondDescriptions } from "../lib/purchaseRequestQuote.hook";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { BonusDiscountRow } from "./BonusDiscountTable";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
@@ -26,23 +27,6 @@ const EMPTY_FORM: Omit<BonusDiscountRow, "id"> = {
   isPercentage: false,
   valor: 0,
   isNegative: false,
-};
-
-export const getDescriptionOptions = (conceptId: string): string[] | null => {
-  if (conceptId === BONO_FINANCIERO_ID) return ["MARCA", "BANCO", "AP"];
-  if (conceptId === BONO_MARCA_ID)
-    return [
-      "BONO NCP",
-      "BONO ESPECIAL",
-      "PLAN NORTE",
-      "BONO ADICIONAL (DERCO)",
-      "BONO B2B",
-      "BONO DIFEERENCIA DE PRECIO",
-      "BONO CANALES DIGITALES",
-      "BONO PROMOCIONES",
-      "BONO PLAN TRADE",
-    ];
-  return null;
 };
 
 interface BonusDiscountSheetProps {
@@ -124,7 +108,13 @@ export function BonusDiscountSheet({
     handleClose();
   };
 
-  const descriptionOptions = getDescriptionOptions(form.concept_id);
+  const { data: bondDescriptions = [] } = useConceptDiscountBondDescriptions(
+    form.concept_id || undefined,
+  );
+  const descriptionOptions =
+    bondDescriptions.length > 0
+      ? bondDescriptions.map((o) => o.description)
+      : null;
 
   return (
     <GeneralSheet
