@@ -282,8 +282,8 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
   },
 ];
 
-export const REPORTS_CONSTANTS: ModelComplete = {
-  ROUTE: "/ap/comercial/reportes",
+export const REPORTS_COMMERCIAL_CONSTANTS: ModelComplete = {
+  ROUTE: "/ap/comercial/reportes-comercial",
   MODEL: {
     name: "Reportes Comerciales",
     gender: false,
