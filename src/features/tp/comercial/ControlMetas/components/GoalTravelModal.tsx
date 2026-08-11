@@ -41,7 +41,8 @@ export default function GoalTravelModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useGoalTravelById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useGoalTravelById(id!);
 
   function mapGoalTravelToFrom(
     data: GoalTravelControlResource,

@@ -23,7 +23,7 @@ import {
   successToast,
   currentYear,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, MONTH_OPTIONS } from "@/core/core.constants";
 import {
   ApGoalSellOutInSchema,
   apGoalSellOutInSchemaCreate,
@@ -61,13 +61,13 @@ export const ApGoalSellOutInForm = ({
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const currentMonthName = MONTHS[currentMonthIndex].label;
+  const currentMonthName = MONTH_OPTIONS[currentMonthIndex].label;
   const { MODEL } = AP_GOAL_SELL_OUT_IN;
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
         ? apGoalSellOutInSchemaCreate
-        : (apGoalSellOutInSchemaUpdate as any)
+        : (apGoalSellOutInSchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -137,10 +137,7 @@ export const ApGoalSellOutInForm = ({
           {currentMonthName}.
         </span>
       </div>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         {/* Card bonita para mostrar el total */}
         {form.watch("shop_id") && (
           <div className="bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
@@ -153,7 +150,7 @@ export const ApGoalSellOutInForm = ({
                   <h3 className="font-medium text-green-900">Meta Total</h3>
                   <p className="text-sm text-green-600">
                     {shops.find(
-                      (s) => s.id.toString() === form.watch("shop_id")
+                      (s) => s.id.toString() === form.watch("shop_id"),
                     )?.description || "Tienda"}{" "}
                     - SELL {switchValue}
                   </p>

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, MONTH_OPTIONS } from "@/core/core.constants";
 import { useAssignCompanyBranch } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.hook";
 import AssignCompanyBranchTable from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchTable";
 import AssignCompanyBranchOptions from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchOptions";
@@ -13,24 +13,22 @@ import { assignCompanyBranchColumns } from "@/features/ap/configuraciones/ventas
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import AssignCompanyBranchActions from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchActions";
 import { ASSIGN_COMPANY_BRANCH } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.constants";
-import { generateYear } from "@/core/core.function";
+import { currentMonth, currentYear, generateYear } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AssignCompanyBranchPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const currentYear = new Date().getFullYear().toString();
-  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear().toString());
+  const [month, setMonth] = useState(currentMonth().toString());
   const { ROUTE } = ASSIGN_COMPANY_BRANCH;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search]);
 
@@ -69,7 +67,7 @@ export default function AssignCompanyBranchPage() {
           years={generateYear()}
           month={month}
           setMonth={setMonth}
-          months={MONTHS}
+          months={MONTH_OPTIONS}
         />
       </AssignCompanyBranchTable>
 

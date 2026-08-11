@@ -216,6 +216,7 @@ import ReasonDiscardingTallerPage from "./app/ap/configuraciones/postventa/motiv
 import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
 import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
 import TypesPlanningPage from "./app/ap/configuraciones/postventa/tipos-planificacion/page.tsx";
+import ConceptObjectivePvPage from "./app/ap/configuraciones/postventa/objetivos-taller-meson/page.tsx";
 import CommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/page.tsx";
 import AddCommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page.tsx";
 import UpdateCommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page.tsx";
@@ -1223,6 +1224,10 @@ function App() {
               <Route
                 path="postventa/tipos-planificacion"
                 element={<TypesPlanningPage />}
+              />
+              <Route
+                path="postventa/objetivos-taller-meson"
+                element={<ConceptObjectivePvPage />}
               />
 
               {/* Ventas Configuration */}

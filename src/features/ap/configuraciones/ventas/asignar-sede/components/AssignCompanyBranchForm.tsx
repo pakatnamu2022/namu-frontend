@@ -32,7 +32,7 @@ import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { AsesorResource } from "../lib/assignCompanyBranch.interface";
-import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
+import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants";
 import { currentMonth, currentYear } from "@/core/core.function";
 import {
   AssignCompanyBranchSchema,
@@ -56,12 +56,12 @@ export const AssignCompanyBranchForm = ({
   mode = "create",
 }: AssignCompanyBranchFormProps) => {
   const currentMonthIndex = currentMonth() - 1;
-  const currentMonthName = MONTHS[currentMonthIndex].label;
+  const currentMonthName = MONTH_OPTIONS[currentMonthIndex].label;
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
         ? assignCompanyBranchSchemaCreate
-        : assignCompanyBranchSchemaUpdate
+        : assignCompanyBranchSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -77,7 +77,7 @@ export const AssignCompanyBranchForm = ({
   const selectedSedeId = form.watch("sede_id");
 
   const selectedSede = sedes.find(
-    (sede) => sede.id.toString() === selectedSedeId
+    (sede) => sede.id.toString() === selectedSedeId,
   );
   const departamento = selectedSede?.departamento || "";
 
@@ -98,7 +98,7 @@ export const AssignCompanyBranchForm = ({
       month: currentMonth(),
       sede_id: Number(data.sede_id),
       assigned_workers: data.assigned_workers.map(
-        (assigned_worker: AsesorResource) => assigned_worker.id
+        (assigned_worker: AsesorResource) => assigned_worker.id,
       ),
     };
     onSubmit(payload);
@@ -149,8 +149,8 @@ export const AssignCompanyBranchForm = ({
                           onRemove={() =>
                             field.onChange(
                               (field.value ?? []).filter(
-                                (a: { id: number }) => a.id !== asesor.id
-                              )
+                                (a: { id: number }) => a.id !== asesor.id,
+                              ),
                             )
                           }
                         >
@@ -169,7 +169,7 @@ export const AssignCompanyBranchForm = ({
                               onSelect={() => {
                                 if (
                                   !(field.value ?? []).some(
-                                    (a: { id: number }) => a.id === asesor.id
+                                    (a: { id: number }) => a.id === asesor.id,
                                   )
                                 ) {
                                   field.onChange([
@@ -182,7 +182,7 @@ export const AssignCompanyBranchForm = ({
                             >
                               {asesor.name}
                               {(field.value ?? []).some(
-                                (a: { id: number }) => a.id === asesor.id
+                                (a: { id: number }) => a.id === asesor.id,
                               ) && (
                                 <CheckIcon
                                   className="text-muted-foreground"

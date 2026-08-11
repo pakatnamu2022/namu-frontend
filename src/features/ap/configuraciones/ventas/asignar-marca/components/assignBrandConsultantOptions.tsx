@@ -23,6 +23,11 @@ export default function AssignBrandConsultantOptions({
   month,
   setMonth,
 }: Props) {
+  const YEAR_OPTIONS = years.map((year) => ({
+    value: year.toString(),
+    label: year.toString(),
+  }));
+
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <SearchInput
@@ -31,15 +36,10 @@ export default function AssignBrandConsultantOptions({
         placeholder="Buscar ..."
       />
       <SearchableSelect
-        options={years.map((year) => ({
-          value: year.toString(),
-          label: year.toString(),
-        }))}
+        options={YEAR_OPTIONS}
         value={year.toString()}
         onChange={setYear}
         placeholder="Filtrar por Año"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
       <SearchableSelect
         options={months.map((month) => ({
@@ -49,8 +49,6 @@ export default function AssignBrandConsultantOptions({
         value={month.toString()}
         onChange={setMonth}
         placeholder="Filtrar por Mes"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
     </div>
   );

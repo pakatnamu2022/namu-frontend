@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, MONTH_OPTIONS } from "@/core/core.constants";
 import { useAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import AssignmentLeadershipActions from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipActions";
@@ -13,24 +13,29 @@ import AssignmentLeadershipTable from "@/features/ap/configuraciones/ventas/asig
 import { assignmentLeadershipColumns } from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipColumns";
 import AssignmentLeadershipOptions from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipOptions";
 import { ASSIGNMENT_LEADERSHIP } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.constants";
-import { errorToast, generateYear, successToast } from "@/core/core.function";
+import {
+  currentMonth,
+  currentYear,
+  errorToast,
+  generateYear,
+  successToast,
+} from "@/core/core.function";
 import { updateAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.actions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AssignmentLeadershipPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const currentYear = new Date().getFullYear().toString();
-  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear().toString());
+  const [month, setMonth] = useState(currentMonth().toString());
   const { ROUTE } = ASSIGNMENT_LEADERSHIP;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search]);
 
@@ -46,7 +51,7 @@ export default function AssignmentLeadershipPage() {
     boss_id: number,
     status: boolean,
     year: number,
-    month: number
+    month: number,
   ) => {
     try {
       await updateAssignmentLeadership(boss_id, {
@@ -93,7 +98,7 @@ export default function AssignmentLeadershipPage() {
           years={generateYear()}
           month={month}
           setMonth={setMonth}
-          months={MONTHS}
+          months={MONTH_OPTIONS}
         />
       </AssignmentLeadershipTable>
 
