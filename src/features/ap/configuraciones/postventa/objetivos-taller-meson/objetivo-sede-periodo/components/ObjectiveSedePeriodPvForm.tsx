@@ -7,11 +7,10 @@ import {
   ObjectiveSedePeriodPvSchema,
   objectiveSedePeriodPvSchema,
 } from "../lib/objectiveSedePeriodPv.schema.ts";
-import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
-import { MONTH_OPTIONS } from "../lib/objectiveSedePeriodPv.constants.ts";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
-import { EMPRESA_AP } from "@/core/core.constants.ts";
+import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants.ts";
+import { generateYear } from "@/core/core.function.ts";
 
 interface ObjectiveSedePeriodPvFormProps {
   defaultValues: Partial<ObjectiveSedePeriodPvSchema>;
@@ -21,11 +20,6 @@ interface ObjectiveSedePeriodPvFormProps {
   onCancel?: () => void;
 }
 
-const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => {
-  const year = new Date().getFullYear() - 1 + i;
-  return { value: year.toString(), label: year.toString() };
-});
-
 export const ObjectiveSedePeriodPvForm = ({
   defaultValues,
   onSubmit,
@@ -33,17 +27,20 @@ export const ObjectiveSedePeriodPvForm = ({
   mode = "create",
   onCancel,
 }: ObjectiveSedePeriodPvFormProps) => {
-  const form = useForm({
+  const form = useForm<ObjectiveSedePeriodPvSchema>({
     resolver: zodResolver(objectiveSedePeriodPvSchema),
     defaultValues: {
       ...defaultValues,
     },
     mode: "onChange",
   });
+  const YEAR_OPTIONS = generateYear().map((year) => ({
+    value: year.toString(),
+    label: year.toString(),
+  }));
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
-    has_workshop: true,
   });
 
   return (
@@ -63,15 +60,6 @@ export const ObjectiveSedePeriodPvForm = ({
             disabled={mode === "update"}
             strictFilter
             required
-          />
-
-          <FormInput
-            control={form.control}
-            name="amount"
-            label="Monto Objetivo"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
           />
 
           <FormSelect

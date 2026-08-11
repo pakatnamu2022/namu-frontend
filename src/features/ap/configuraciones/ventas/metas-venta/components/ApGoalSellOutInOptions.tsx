@@ -38,8 +38,6 @@ export default function ApGoalSellOutInOptions({
         value={year.toString()}
         onChange={setYear}
         placeholder="Filtrar por Año"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
       <SearchableSelect
         options={months.map((month) => ({
@@ -49,8 +47,6 @@ export default function ApGoalSellOutInOptions({
         value={month.toString()}
         onChange={setMonth}
         placeholder="Filtrar por Mes"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
     </div>
   );

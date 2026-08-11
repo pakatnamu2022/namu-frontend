@@ -41,7 +41,6 @@ export interface ObjectiveSedePeriodPvRequest {
   sede_id: number;
   year: number;
   month: number;
-  amount: number;
 }
 
 export interface getObjectiveSedePeriodPvProps {

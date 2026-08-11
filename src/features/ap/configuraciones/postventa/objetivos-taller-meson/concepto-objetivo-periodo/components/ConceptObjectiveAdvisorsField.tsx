@@ -53,22 +53,20 @@ export default function ConceptObjectiveAdvisorsField({
             <FormSelect
               control={control}
               name={`advisors.${index}.worker_id`}
-              label="Asesor"
               placeholder="Seleccione asesor"
               options={workerOptions}
               isLoadingOptions={isLoadingWorkers}
               strictFilter
-              className="flex-1"
+              className="w-88 shrink-0"
             />
 
             <FormInput
               control={control}
               name={`advisors.${index}.amount`}
-              label="Monto"
               type="number"
               step="0.01"
               placeholder="0.00"
-              className="w-32"
+              className="w-30 shrink-0"
             />
 
             <Button

@@ -39,13 +39,11 @@ export default function ObjectiveSedePeriodPvSheet({
         sede_id: record.sede_id.toString(),
         year: record.year.toString(),
         month: record.month.toString(),
-        amount: Number(record.amount),
       }
     : {
         sede_id: prefill?.sede_id,
         year: prefill?.year || new Date().getFullYear().toString(),
         month: prefill?.month || (new Date().getMonth() + 1).toString(),
-        amount: 0,
       };
 
   const { mutate, isPending } = useMutation({
@@ -54,7 +52,6 @@ export default function ObjectiveSedePeriodPvSheet({
         sede_id: Number(data.sede_id),
         year: Number(data.year),
         month: Number(data.month),
-        amount: Number(data.amount),
       };
       return mode === "update"
         ? updateObjectiveSedePeriodPv(record!.id, payload)

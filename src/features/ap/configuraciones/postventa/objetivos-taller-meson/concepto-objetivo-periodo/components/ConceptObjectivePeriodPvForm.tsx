@@ -20,6 +20,11 @@ import {
 } from "../lib/conceptObjectivePeriodPv.constants.ts";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook.ts";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook.ts";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant.ts";
+import { EMPRESA_AP } from "@/core/core.constants.ts";
 
 interface ConceptObjectivePeriodPvFormProps {
   defaultValues: Partial<ConceptObjectivePeriodPvSchema>;
@@ -49,7 +54,12 @@ export const ConceptObjectivePeriodPvForm = ({
   const { data: typesPlanning = [], isLoading: loadingTypesPlanning } =
     useAllTypesPlanning();
   const { data: workers = [], isLoading: loadingWorkers } = useAllWorkers(
-    { sede_id: sedeId || undefined },
+    {
+      cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
+      status_id: STATUS_WORKER.ACTIVE,
+      sede_id: sedeId || undefined,
+      sede$empresa_id: EMPRESA_AP.id,
+    },
     !!sedeId,
   );
 
@@ -57,9 +67,11 @@ export const ConceptObjectivePeriodPvForm = ({
   const isVehicularCrossing = form.watch("is_vehicular_crossing");
   const typePlanningIds = form.watch("type_planning_ids") || [];
   const hasTypePlanning = typePlanningIds.length > 0;
+  const advisors = form.watch("advisors") || [];
+  const hasAdvisors = advisors.length > 0;
 
   const showTypePlanning = isTaller && !isVehicularCrossing;
-  const showVehicularCrossing = isTaller && !hasTypePlanning;
+  const showVehicularCrossing = isTaller && !hasTypePlanning && !hasAdvisors;
 
   useEffect(() => {
     if (isVehicularCrossing && hasTypePlanning) {
@@ -76,7 +88,6 @@ export const ConceptObjectivePeriodPvForm = ({
   useEffect(() => {
     if (isVehicularCrossing) {
       form.setValue("description", "PASO VEHICULAR", { shouldValidate: true });
-      form.setValue("sub_amount", 0, { shouldValidate: true });
     }
   }, [isVehicularCrossing]);
 
@@ -93,17 +104,16 @@ export const ConceptObjectivePeriodPvForm = ({
               required
             />
 
-            {!isVehicularCrossing && (
-              <FormInput
-                control={form.control}
-                name="sub_amount"
-                label="Monto del Concepto"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                required
-              />
-            )}
+            <FormInput
+              control={form.control}
+              name="sub_amount"
+              label="Objetivo"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              addonStart={!isVehicularCrossing ? "S/" : undefined}
+              required
+            />
           </div>
 
           <FormTextArea
@@ -138,11 +148,13 @@ export const ConceptObjectivePeriodPvForm = ({
             />
           )}
 
-          <ConceptObjectiveAdvisorsField
-            control={form.control}
-            workers={workers}
-            isLoadingWorkers={loadingWorkers}
-          />
+          {!isVehicularCrossing && (
+            <ConceptObjectiveAdvisorsField
+              control={form.control}
+              workers={workers}
+              isLoadingWorkers={loadingWorkers}
+            />
+          )}
         </div>
 
         <div className="flex gap-4 w-full justify-end">

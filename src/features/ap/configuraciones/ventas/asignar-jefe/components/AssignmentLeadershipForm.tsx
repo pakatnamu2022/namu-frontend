@@ -34,7 +34,7 @@ import {
   assignmentLeadershipSchemaUpdate,
 } from "../lib/assignmentLeadership.schema";
 import { currentYear, currentMonth } from "@/core/core.function";
-import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
+import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants";
 import { AsesorResource } from "../lib/assignmentLeadership.interface";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
@@ -57,12 +57,12 @@ export const AssignmentLeadershipForm = ({
   mode = "create",
 }: AssignmentLeadershipFormProps) => {
   const currentMonthIndex = currentMonth() - 1;
-  const currentMonthName = MONTHS[currentMonthIndex].label;
+  const currentMonthName = MONTH_OPTIONS[currentMonthIndex].label;
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
         ? assignmentLeadershipSchemaCreate
-        : assignmentLeadershipSchemaUpdate
+        : assignmentLeadershipSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -94,7 +94,7 @@ export const AssignmentLeadershipForm = ({
       month: currentMonth(),
       boss_id: Number(data.boss_id),
       assigned_workers: data.assigned_workers.map(
-        (assigned_worker: AsesorResource) => assigned_worker.id
+        (assigned_worker: AsesorResource) => assigned_worker.id,
       ),
     };
     onSubmit(payload);
@@ -152,8 +152,8 @@ export const AssignmentLeadershipForm = ({
                           onRemove={() =>
                             field.onChange(
                               (field.value ?? []).filter(
-                                (a: { id: number }) => a.id !== asesor.id
-                              )
+                                (a: { id: number }) => a.id !== asesor.id,
+                              ),
                             )
                           }
                         >
@@ -172,7 +172,7 @@ export const AssignmentLeadershipForm = ({
                               onSelect={() => {
                                 if (
                                   !(field.value ?? []).some(
-                                    (a: { id: number }) => a.id === asesor.id
+                                    (a: { id: number }) => a.id === asesor.id,
                                   )
                                 ) {
                                   field.onChange([
@@ -185,7 +185,7 @@ export const AssignmentLeadershipForm = ({
                             >
                               {asesor.name}
                               {(field.value ?? []).some(
-                                (a: { id: number }) => a.id === asesor.id
+                                (a: { id: number }) => a.id === asesor.id,
                               ) && (
                                 <CheckIcon
                                   className="text-muted-foreground"

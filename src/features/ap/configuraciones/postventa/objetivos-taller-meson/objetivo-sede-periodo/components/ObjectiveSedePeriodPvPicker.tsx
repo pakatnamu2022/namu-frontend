@@ -7,36 +7,31 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 import { NumberFormat } from "@/shared/components/NumberFormat.tsx";
 import {
+  currentMonth,
+  currentYear,
   ERROR_MESSAGE,
   errorToast,
+  generateYear,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
-import { EMPRESA_AP } from "@/core/core.constants.ts";
+import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants.ts";
 import { cn } from "@/lib/utils.ts";
 import { useAllObjectiveSedePeriodPv } from "../lib/objectiveSedePeriodPv.hook.ts";
 import { deleteObjectiveSedePeriodPv } from "../lib/objectiveSedePeriodPv.actions.ts";
-import {
-  MONTH_OPTIONS,
-  OBJECTIVE_SEDE_PERIOD_PV,
-} from "../lib/objectiveSedePeriodPv.constants.ts";
+import { OBJECTIVE_SEDE_PERIOD_PV } from "../lib/objectiveSedePeriodPv.constants.ts";
 import ObjectiveSedePeriodPvSheet from "./ObjectiveSedePeriodPvSheet.tsx";
 import ConceptObjectivePeriodPvSheet from "../../concepto-objetivo-periodo/components/ConceptObjectivePeriodPvSheet.tsx";
 import { ObjectiveSedePeriodPvResource } from "../lib/objectiveSedePeriodPv.interface.ts";
-
-const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => {
-  const year = new Date().getFullYear() - 1 + i;
-  return { value: year.toString(), label: year.toString() };
-});
 
 export default function ObjectiveSedePeriodPvPicker() {
   const queryClient = useQueryClient();
   const { MODEL, QUERY_KEY } = OBJECTIVE_SEDE_PERIOD_PV;
 
   const [sedeId, setSedeId] = useState("");
-  const [year, setYear] = useState(new Date().getFullYear().toString());
-  const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
+  const [year, setYear] = useState(currentYear().toString());
+  const [month, setMonth] = useState(currentMonth().toString());
 
   const [openObjectiveSheet, setOpenObjectiveSheet] = useState(false);
   const [editObjective, setEditObjective] =
@@ -46,10 +41,13 @@ export default function ObjectiveSedePeriodPvPicker() {
   const [conceptId, setConceptId] = useState<number | undefined>(undefined);
   const [deleteObjective, setDeleteObjective] =
     useState<ObjectiveSedePeriodPvResource | null>(null);
+  const YEAR_OPTIONS = generateYear().map((year) => ({
+    value: year.toString(),
+    label: year.toString(),
+  }));
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
-    has_workshop: true,
   });
 
   const { data = [], isLoading } = useAllObjectiveSedePeriodPv(
@@ -191,6 +189,7 @@ export default function ObjectiveSedePeriodPvPicker() {
                           : "bg-red-100 border-red-400 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200",
                       )}
                     >
+                      <span className="mr-1">#{concept.order}</span>
                       {concept.description}
                       {!concept.is_vehicular_crossing && (
                         <>

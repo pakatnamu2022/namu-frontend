@@ -10,9 +10,6 @@ export const objectiveSedePeriodPvSchema = z.object({
   month: z
     .string()
     .refine((value) => value.trim() !== "", { message: "Mes es requerido" }),
-  amount: z.coerce
-    .number()
-    .refine((value) => value >= 0, { message: "Monto debe ser mayor o igual a 0" }),
 });
 
 export type ObjectiveSedePeriodPvSchema = z.infer<

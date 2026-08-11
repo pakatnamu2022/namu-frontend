@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
+import { EditableCell } from "@/shared/components/EditableCell.tsx";
 import {
   DeleteButton,
   SimpleDeleteDialog,
@@ -141,6 +142,38 @@ export default function ConceptObjectivePeriodPvSheet({
     },
   });
 
+  const { mutate: updateOrder } = useMutation({
+    mutationFn: ({
+      record,
+      order,
+    }: {
+      record: ConceptObjectivePeriodPvResource;
+      order: number;
+    }) =>
+      updateConceptObjectivePeriodPv(record.id, {
+        objective_sede_period_pv_id: objective.id,
+        area_id: record.area_id,
+        description: record.description,
+        is_vehicular_crossing: record.is_vehicular_crossing,
+        status: record.status,
+        sub_amount: Number(record.sub_amount),
+        order,
+        type_planning_ids: record.type_planning_ids,
+        advisors: record.advisors.map((advisor) => ({
+          id: advisor.id,
+          worker_id: advisor.worker_id,
+          amount: Number(advisor.amount),
+        })),
+      }),
+    onSuccess: async () => {
+      successToast("Orden actualizado correctamente.");
+      await invalidate();
+    },
+    onError: () => {
+      errorToast("Error al actualizar el orden.");
+    },
+  });
+
   const handleDelete = async () => {
     if (!deleteRecord) return;
     try {
@@ -191,7 +224,21 @@ export default function ConceptObjectivePeriodPvSheet({
             <span className="text-sm text-muted-foreground">
               Estado del concepto
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Orden</span>
+                <EditableCell
+                  id={editRecord.id}
+                  value={editRecord.order}
+                  isNumber
+                  min={0}
+                  widthClass="w-14"
+                  onUpdate={(_, newOrder) => {
+                    setEditRecord({ ...editRecord, order: newOrder });
+                    updateOrder({ record: editRecord, order: newOrder });
+                  }}
+                />
+              </div>
               <Switch
                 checked={editRecord.status}
                 onCheckedChange={(checked) => {
