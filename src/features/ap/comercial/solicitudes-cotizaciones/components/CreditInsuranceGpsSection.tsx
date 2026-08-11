@@ -12,7 +12,7 @@ import {
 
 interface CreditInsuranceGpsSectionProps {
   control: Control<any>;
-  setValue: (name: string, value: any) => void;
+  setValue: (name: any, value: any) => void;
 }
 
 export const CreditInsuranceGpsSection = ({
