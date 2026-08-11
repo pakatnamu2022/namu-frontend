@@ -75,15 +75,21 @@ export default function WorkOrderItemForm({
   });
 
   const skipAutoSetRef = useRef(isEditing);
+  const initialTypePlanningId = useRef(
+    item?.type_planning_id ? item.type_planning_id.toString() : "",
+  );
 
   useEffect(() => {
     if (!watchedTypePlanningId) return;
     if (isLoadingTypes || isLoadingTypesOperation) return;
 
-    if (skipAutoSetRef.current) {
-      skipAutoSetRef.current = false;
+    if (
+      skipAutoSetRef.current &&
+      watchedTypePlanningId === initialTypePlanningId.current
+    ) {
       return;
     }
+    skipAutoSetRef.current = false;
 
     const planningSelected = typesPlanning.find(
       (tp) => tp.id.toString() === watchedTypePlanningId,

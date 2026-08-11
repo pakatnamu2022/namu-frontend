@@ -41,7 +41,8 @@
       "Bash(wc -l /tmp_tsc_out.txt)",
       "Bash(head -20 /tmp_tsc_out.txt)",
       "Bash(php -l app/Http/Traits/Filterable.php)",
-      "Bash(php -l app/Models/dp/comercial/AccountReceivable.php)"
+      "Bash(php -l app/Models/dp/comercial/AccountReceivable.php)",
+      "mcp__codegraph__codegraph_files"
     ],
     "deny": [],
     "ask": [],

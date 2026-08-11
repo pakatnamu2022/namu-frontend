@@ -640,8 +640,7 @@ export default function OpeningTab({
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {workOrder.num_doc_pickup.length === 9 ? "CE" : "DNI"}{" "}
-                  {workOrder.num_doc_pickup} ·{" "}
-                  {workOrder.phone_pickup || "—"}
+                  {workOrder.num_doc_pickup} · {workOrder.phone_pickup || "—"}
                 </p>
               </div>
               <Button
@@ -793,7 +792,7 @@ export default function OpeningTab({
       <GeneralSheet
         open={!!itemToEdit}
         onClose={handleEditCancel}
-        title="Editar Trabajo"
+        title="Editar Servicio"
         type={isTablet ? "tablet" : "default"}
         className="sm:max-w-2xl"
       >

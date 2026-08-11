@@ -97,8 +97,12 @@ export function WorkOrderActionCell({
     try {
       await downloadDeliveryPdf(id);
       successToast("PDF descargado exitosamente");
-    } catch {
-      errorToast("Error al descargar el PDF");
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        "Error al descargar el PDF";
+      errorToast(message);
     } finally {
       setIsDownloading(false);
     }
