@@ -18,6 +18,10 @@ import {
   Car,
   IdCard,
   Briefcase,
+  DollarSign,
+  CalendarClock,
+  ShieldCheck,
+  Palette,
 } from "lucide-react";
 import { errorToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +59,10 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 
 const { ABSOLUTE_ROUTE, QUERY_KEY } = OPPORTUNITIES;
 const { ABSOLUTE_ROUTE: AGENDA_ABSOLUTE_ROUTE } = AGENDA;
-const { ROUTE_ADD: PURCHASE_REQUEST_QUOTE_ROUTE_ADD } = PURCHASE_REQUEST_QUOTE;
+const {
+  ROUTE_ADD: PURCHASE_REQUEST_QUOTE_ROUTE_ADD,
+  ROUTE_UPDATE: PURCHASE_REQUEST_QUOTE_ROUTE_UPDATE,
+} = PURCHASE_REQUEST_QUOTE;
 
 export default function OpportunityDetailPage() {
   const params = useParams();
@@ -187,14 +194,26 @@ export default function OpportunityDetailPage() {
                 Editar
               </Button>
             </Link>
-            <Link
-              to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD.replace(":opportunity_id", opportunity.id.toString())}`}
-            >
-              <Button variant="default" size="sm">
-                <FileText className="size-4" />
-                Generar Solicitud
-              </Button>
-            </Link>
+            {opportunity.has_purchase_request_quote &&
+            opportunity.purchaseRequestsQuote ? (
+              <Link
+                to={`${PURCHASE_REQUEST_QUOTE_ROUTE_UPDATE}/${opportunity.purchaseRequestsQuote.id}`}
+              >
+                <Button variant="default" size="sm">
+                  <FileText className="size-4" />
+                  Ver Solicitud
+                </Button>
+              </Link>
+            ) : (
+              <Link
+                to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD.replace(":opportunity_id", opportunity.id.toString())}`}
+              >
+                <Button variant="default" size="sm">
+                  <FileText className="size-4" />
+                  Generar Solicitud
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </HeaderTableWrapper>
@@ -427,6 +446,91 @@ export default function OpportunityDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Purchase request quote card */}
+          {opportunity.has_purchase_request_quote &&
+            opportunity.purchaseRequestsQuote && (
+              <Card className="overflow-hidden py-0 gap-0">
+                <div className="px-4 py-2.5 border-b bg-muted/40 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-foreground">
+                    Solicitud / Cotización
+                  </p>
+                  <Badge variant="outline" className="text-xs">
+                    {opportunity.purchaseRequestsQuote.correlative}
+                  </Badge>
+                </div>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg shrink-0 bg-muted/40">
+                      <Car className="size-4 text-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Vehículo</p>
+                      <p className="text-sm font-semibold">
+                        {opportunity.purchaseRequestsQuote.ap_model_vn}
+                      </p>
+                      {opportunity.purchaseRequestsQuote.vehicle_color && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Palette className="size-3" />
+                          {opportunity.purchaseRequestsQuote.vehicle_color}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg shrink-0 bg-muted/40">
+                      <DollarSign className="size-4 text-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">
+                        Precio de venta
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {opportunity.purchaseRequestsQuote.type_currency_symbol}{" "}
+                        {Number(
+                          opportunity.purchaseRequestsQuote.sale_price,
+                        ).toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {opportunity.purchaseRequestsQuote.quote_deadline && (
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg shrink-0 bg-muted/40">
+                        <CalendarClock className="size-4 text-foreground" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">
+                          Vigencia de cotización
+                        </p>
+                        <p className="text-sm font-semibold">
+                          {opportunity.purchaseRequestsQuote.quote_deadline}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(opportunity.purchaseRequestsQuote.warranty_years ||
+                    opportunity.purchaseRequestsQuote.warranty_km) && (
+                    <div className="flex items-center justify-between pt-2 border-t border-muted">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <ShieldCheck className="size-3.5" />
+                        Garantía
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {opportunity.purchaseRequestsQuote.warranty_years} años
+                        {opportunity.purchaseRequestsQuote.warranty_km
+                          ? ` / ${opportunity.purchaseRequestsQuote.warranty_km.toLocaleString("es-PE")} km`
+                          : ""}
+                      </Badge>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
           {/* Closed banner */}
           {isClosedOpportunity && (
             <Card className="border-muted/60 bg-muted/20 py-0 gap-0">
@@ -446,7 +550,7 @@ export default function OpportunityDetailPage() {
         </div>
 
         {/* Right panel: Actions Timeline */}
-        <Card className="border-none shadow-none py-0 gap-3">
+        <Card className="border-none shadow-none gap-3">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex gap-2 items-center">

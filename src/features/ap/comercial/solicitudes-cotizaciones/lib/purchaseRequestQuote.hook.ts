@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PURCHASE_REQUEST_QUOTE } from "./purchaseRequestQuote.constants";
 import {
   ConceptDiscountBondResource,
+  CreditInsuranceMasterResource,
   DiscountCouponResource,
   DiscountCouponUpdatePayload,
   PurchaseRequestQuoteResource,
@@ -12,7 +13,11 @@ import {
   findPurchaseRequestQuoteById,
   getAllConceptDiscountBond,
   getAllPurchaseRequestQuote,
+  getConceptDiscountBondDescriptions,
+  getCreditEntities,
+  getCreditTypes,
   getDiscountCouponsByQuote,
+  getInsuranceEntities,
   getPurchaseRequestQuote,
   swapVehicleInPurchaseRequestQuote,
   updateDiscountCoupon,
@@ -33,7 +38,6 @@ export const useAllPurchaseRequestQuote = (params?: Record<string, any>) => {
   return useQuery<PurchaseRequestQuoteResource[]>({
     queryKey: [QUERY_KEY],
     queryFn: () => getAllPurchaseRequestQuote({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -41,7 +45,39 @@ export const useAllConceptDiscountBond = (params?: Record<string, any>) => {
   return useQuery<ConceptDiscountBondResource[]>({
     queryKey: [QUERY_KEY + "_CONCEPT_DISCOUNT_BOND", params],
     queryFn: () => getAllConceptDiscountBond({ params }),
-    refetchOnWindowFocus: false,
+  });
+};
+
+export const useConceptDiscountBondDescriptions = (
+  parentId?: number | string,
+) => {
+  return useQuery<ConceptDiscountBondResource[]>({
+    queryKey: [QUERY_KEY + "_CONCEPT_DISCOUNT_BOND_DESCRIPTION", parentId],
+    queryFn: () =>
+      getConceptDiscountBondDescriptions({ parentId: parentId as number }),
+    enabled: !!parentId,
+  });
+};
+
+export const useCreditTypes = () => {
+  return useQuery<CreditInsuranceMasterResource[]>({
+    queryKey: [QUERY_KEY + "_CREDIT_TYPE"],
+    queryFn: () => getCreditTypes(),
+  });
+};
+
+export const useCreditEntities = (parentId?: number | string) => {
+  return useQuery<CreditInsuranceMasterResource[]>({
+    queryKey: [QUERY_KEY + "_CREDIT_ENTITY", parentId],
+    queryFn: () => getCreditEntities({ parentId: parentId as number }),
+    enabled: !!parentId,
+  });
+};
+
+export const useInsuranceEntities = () => {
+  return useQuery<CreditInsuranceMasterResource[]>({
+    queryKey: [QUERY_KEY + "_INSURANCE_ENTITY"],
+    queryFn: () => getInsuranceEntities(),
   });
 };
 
@@ -49,7 +85,7 @@ export const usePurchaseRequestQuoteById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findPurchaseRequestQuoteById(id),
-    refetchOnWindowFocus: false,
+
     enabled: !!id && id > 0,
   });
 };
@@ -92,7 +128,7 @@ export const useDiscountCouponsByQuote = (quoteId: number) => {
   return useQuery<DiscountCouponResource[]>({
     queryKey: [DISCOUNT_COUPON_QUERY_KEY, quoteId],
     queryFn: () => getDiscountCouponsByQuote(quoteId),
-    refetchOnWindowFocus: false,
+
     enabled: !!quoteId && quoteId > 0,
   });
 };

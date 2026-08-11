@@ -17,7 +17,10 @@ import {
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 import { DECLARACION_JURADA_KYC } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
-import { usePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import {
+  usePurchaseRequestQuote,
+  useCreditTypes,
+} from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import {
   approvePurchaseRequestQuote,
   downloadPurchaseRequestQuotePdf,
@@ -69,6 +72,10 @@ export default function PurchaseRequestQuotePage() {
   const { data: sedesData = [] } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
+  const { data: creditTypes = [] } = useCreditTypes();
+  const creditTypeLabels = Object.fromEntries(
+    creditTypes.map((master) => [master.code, master.description]),
+  );
   const [sorting, setSorting] = useState<SortingState>([]);
 
   useEffect(() => {
@@ -166,6 +173,7 @@ export default function PurchaseRequestQuotePage() {
             ...permissions,
             canCreateKyc: kycPermissions.canCreate,
           },
+          creditTypeLabels,
         })}
         data={data?.data || []}
       >

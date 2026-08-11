@@ -162,6 +162,18 @@ export interface ConceptDiscountBondResource {
   description: string;
   type: string;
   status: boolean;
+  parent_id?: number | null;
+}
+
+// Maestros de crédito / seguros (tipos de crédito, entidades de crédito y
+// entidades de seguro), obtenidos desde /ap/apMasters
+export interface CreditInsuranceMasterResource {
+  id: number;
+  code: string;
+  description: string;
+  type: string;
+  status?: boolean;
+  parent_id?: number | null;
 }
 
 export interface getPurchaseRequestQuoteProps {

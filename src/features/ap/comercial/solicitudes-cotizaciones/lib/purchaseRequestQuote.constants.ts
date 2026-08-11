@@ -21,36 +21,7 @@ export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource>
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
 
-// Tipos de crédito y sus entidades disponibles (F&I Inchcape)
-export const CREDIT_TYPE_OPTIONS = [
-  { value: "CREDITO_INCHCAPE", label: "Crédito Inchcape" },
-  { value: "FONDO_COLECTIVO", label: "Fondo Colectivo" },
-  { value: "CAJAS", label: "Cajas" },
-  { value: "CREDITO_PROPIO", label: "Crédito Propio" },
-  { value: "LEASING", label: "Leasing" },
-] as const;
-
-export const CREDIT_ENTITIES_BY_TYPE: Record<string, string[]> = {
-  CREDITO_INCHCAPE: ["SANTANDER", "BCP", "BBVA", "BANBIF", "MI BANCO"],
-  FONDO_COLECTIVO: [
-    "MAQUISISTEMA",
-    "MI FONDO",
-    "AUTOPLAN",
-    "FONBIENES",
-    "PANDERO",
-    "OPCION",
-  ],
-  CAJAS: ["CAJA PIURA", "CAJA SULLANA", "CAJA HUANCAYO", "CAJA TRUJILLO"],
-  CREDITO_PROPIO: ["INTERBANK", "SCOTIABANK"],
-  LEASING: ["BCP", "BBVA", "INTERBANK", "SCOTIABANK"],
-};
-
-// Entidades de seguro (siempre "Seguro Inchcape")
-export const INSURANCE_ENTITY_OPTIONS = [
-  "SANTANDER",
-  "LA POSITIVA",
-  "MAPFRE",
-  "PACIFICO",
-  "RIMAC",
-  "QUALITAS",
-];
+// Tipos de crédito, entidades de crédito y entidades de seguro ahora se
+// obtienen desde /api/ap/apMasters (tipos CREDIT_TYPE, CREDIT_ENTITY e
+// INSURANCE_ENTITY). Ver useCreditTypes / useCreditEntities / useInsuranceEntities
+// en apMasters.hook.ts, consumidos desde CreditInsuranceGpsSection.

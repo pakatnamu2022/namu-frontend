@@ -12,10 +12,7 @@ import {
 } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
-import {
-  PURCHASE_REQUEST_QUOTE,
-  CREDIT_TYPE_OPTIONS,
-} from "../lib/purchaseRequestQuote.constants";
+import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { DECLARACION_JURADA_KYC } from "../../declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
 import { NUM_DIGITS_RUC } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.constants";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +36,9 @@ interface Props {
     canAssign: boolean;
     canCreateKyc: boolean;
   };
+  // Mapa código -> descripción de CREDIT_TYPE (desde apMasters), para mostrar
+  // el nombre legible del tipo de crédito en la tabla.
+  creditTypeLabels?: Record<string, string>;
 }
 
 export const purchaseRequestQuoteColumns = ({
@@ -49,6 +49,7 @@ export const purchaseRequestQuoteColumns = ({
   onSwapVehicle,
   onViewDetail,
   permissions,
+  creditTypeLabels = {},
 }: Props): PurchaseRequestQuoteColumns[] => [
   {
     accessorKey: "correlative",
@@ -142,9 +143,7 @@ export const purchaseRequestQuoteColumns = ({
       if (!credit_type) {
         return <p className="text-muted-foreground text-xs">Sin crédito</p>;
       }
-      const label =
-        CREDIT_TYPE_OPTIONS.find((opt) => opt.value === credit_type)?.label ??
-        credit_type;
+      const label = creditTypeLabels[credit_type] ?? credit_type;
       return (
         <div className="flex flex-col text-xs">
           <span>{label}</span>

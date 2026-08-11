@@ -5,10 +5,10 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import {
-  CREDIT_TYPE_OPTIONS,
-  CREDIT_ENTITIES_BY_TYPE,
-  INSURANCE_ENTITY_OPTIONS,
-} from "../lib/purchaseRequestQuote.constants";
+  useCreditTypes,
+  useCreditEntities,
+  useInsuranceEntities,
+} from "../lib/purchaseRequestQuote.hook";
 
 interface CreditInsuranceGpsSectionProps {
   control: Control<any>;
@@ -22,20 +22,46 @@ export const CreditInsuranceGpsSection = ({
   const creditTypeWatch = useWatch({ control, name: "credit_type" });
   const creditEntityWatch = useWatch({ control, name: "credit_entity" });
 
-  const creditEntityOptions = (
-    CREDIT_ENTITIES_BY_TYPE[creditTypeWatch] ?? []
-  ).map((entity) => ({ value: entity, label: entity }));
+  const { data: creditTypes = [], isLoading: isLoadingCreditTypes } =
+    useCreditTypes();
+
+  // Las entidades de crédito se piden por el id (parent_id) del tipo de
+  // crédito seleccionado, no por su código.
+  const selectedCreditType = creditTypes.find(
+    (master) => master.code === creditTypeWatch,
+  );
+
+  const { data: creditEntities = [], isLoading: isLoadingCreditEntities } =
+    useCreditEntities(selectedCreditType?.id);
+
+  const { data: insuranceEntities = [], isLoading: isLoadingInsuranceEntities } =
+    useInsuranceEntities();
+
+  const creditTypeOptions = creditTypes.map((master) => ({
+    value: master.code,
+    label: master.description,
+  }));
+
+  const creditEntityOptions = creditEntities.map((master) => ({
+    value: master.code,
+    label: master.description,
+  }));
+
+  const insuranceEntityOptions = insuranceEntities.map((master) => ({
+    value: master.code,
+    label: master.description,
+  }));
 
   // Al cambiar el tipo de crédito, limpiar la entidad si ya no pertenece a las opciones disponibles
   useEffect(() => {
     if (
       creditEntityWatch &&
-      !CREDIT_ENTITIES_BY_TYPE[creditTypeWatch]?.includes(creditEntityWatch)
+      !creditEntityOptions.some((opt) => opt.value === creditEntityWatch)
     ) {
       setValue("credit_entity", "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [creditTypeWatch]);
+  }, [creditTypeWatch, creditEntities]);
 
   return (
     <GroupFormSection
@@ -48,12 +74,10 @@ export const CreditInsuranceGpsSection = ({
         name="credit_type"
         label="Tipo de Crédito"
         placeholder="Sin crédito"
-        options={CREDIT_TYPE_OPTIONS.map((opt) => ({
-          value: opt.value,
-          label: opt.label,
-        }))}
+        options={creditTypeOptions}
         control={control}
         strictFilter={true}
+        isLoadingOptions={isLoadingCreditTypes}
       />
 
       <FormSelect
@@ -66,18 +90,17 @@ export const CreditInsuranceGpsSection = ({
         control={control}
         disabled={!creditTypeWatch}
         strictFilter={true}
+        isLoadingOptions={isLoadingCreditEntities}
       />
 
       <FormSelect
         name="insurance_entity"
         label="Seguro Inchcape"
         placeholder="Sin seguro"
-        options={INSURANCE_ENTITY_OPTIONS.map((entity) => ({
-          value: entity,
-          label: entity,
-        }))}
+        options={insuranceEntityOptions}
         control={control}
         strictFilter={true}
+        isLoadingOptions={isLoadingInsuranceEntities}
       />
 
       <FormInput
