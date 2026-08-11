@@ -496,7 +496,6 @@ import { DeviceInactiveAlert } from "./features/tp/comercial/Monitoreo/component
 import ExitGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-salida/page.tsx";
 import ControlTipoVehiculoPage from "./app/tp/configuraciones/control-tipo-vehiculo/page.tsx";
 import ControlVehiculoPage from "./app/tp/configuraciones/control-vehiculo/page.tsx";
-import { REPORTS_COMMERCIAL_CONSTANTS } from "./features/ap/comercial/reportes/index.ts";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -925,10 +924,7 @@ function App() {
               )}
 
               {/* Reportes */}
-              <Route
-                path={REPORTS_COMMERCIAL_CONSTANTS.ROUTE}
-                element={<ReportesComercialPage />}
-              />
+              <Route path="reportes-comercial" element={<ReportesComercialPage />} />
 
               {/* Cuentas por Cobrar */}
               <Route
@@ -1837,7 +1833,7 @@ function App() {
                 element={<IndicadoresReportesPage />}
               />
               <Route
-                path="indicadores-y-reportes/reportes"
+                path="indicadores-y-reportes/reportes-postventa"
                 element={<ReportesPostVentaPage />}
               />
             </Route>
