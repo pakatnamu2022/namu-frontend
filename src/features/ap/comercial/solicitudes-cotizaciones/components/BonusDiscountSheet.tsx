@@ -22,8 +22,9 @@ export const BONO_MARCA_ID = "861";
 export const DESCUENTO_NUEVO_ID = "863";
 
 const EMPTY_FORM: Omit<BonusDiscountRow, "id"> = {
+  parent_concept_id: "",
   concept_id: "",
-  descripcion: "",
+  concept_label: "",
   isPercentage: false,
   valor: 0,
   isNegative: false,
@@ -52,11 +53,11 @@ export function BonusDiscountSheet({
 }: BonusDiscountSheetProps) {
   const [form, setForm] = useState<Omit<BonusDiscountRow, "id">>(EMPTY_FORM);
   const [errors, setErrors] = useState({
+    parent_concept_id: false,
     concept_id: false,
-    descripcion: false,
     valor: false,
   });
-  const [previousConceptId, setPreviousConceptId] = useState("");
+  const [previousParentConceptId, setPreviousParentConceptId] = useState("");
 
   const deduccionForm = useForm<{ isDeduced: boolean }>({
     defaultValues: { isDeduced: false },
@@ -70,51 +71,80 @@ export function BonusDiscountSheet({
     if (open) {
       const initial = initialValues ?? EMPTY_FORM;
       setForm(initial);
-      setPreviousConceptId(initial.concept_id);
-      setErrors({ concept_id: false, descripcion: false, valor: false });
+      setPreviousParentConceptId(initial.parent_concept_id);
+      setErrors({ parent_concept_id: false, concept_id: false, valor: false });
       deduccionForm.reset({ isDeduced: false });
     }
   }, [open]);
 
+  // Al cambiar el concepto raíz (Concepto), se limpia la descripción elegida
   useEffect(() => {
-    if (form.concept_id && form.concept_id !== previousConceptId) {
-      const isNegativeDiscount = form.concept_id === DESCUENTO_NUEVO_ID;
+    if (
+      form.parent_concept_id &&
+      form.parent_concept_id !== previousParentConceptId
+    ) {
       setForm((prev) => ({
         ...prev,
-        ...(mode === "add" ? { descripcion: "" } : {}),
-        isNegative: isNegativeDiscount,
+        ...(mode === "add"
+          ? { concept_id: "", concept_label: "", isNegative: false }
+          : {}),
       }));
-      setPreviousConceptId(form.concept_id);
+      setPreviousParentConceptId(form.parent_concept_id);
     }
-  }, [form.concept_id, previousConceptId, mode]);
+  }, [form.parent_concept_id, previousParentConceptId, mode]);
+
+  const {
+    data: bondDescriptions = [],
+    isLoading: isLoadingDescriptions,
+  } = useConceptDiscountBondDescriptions(form.parent_concept_id || undefined);
+
+  // Si el concepto raíz elegido no tiene hijos (ej. DESCUENTO NUEVO), el
+  // concept_id final es el propio raíz y no se pide una segunda selección.
+  useEffect(() => {
+    if (!form.parent_concept_id || isLoadingDescriptions) return;
+    if (
+      bondDescriptions.length === 0 &&
+      form.concept_id !== form.parent_concept_id
+    ) {
+      const parent = conceptsOptions.find(
+        (o) => o.id.toString() === form.parent_concept_id,
+      );
+      setForm((prev) => ({
+        ...prev,
+        concept_id: prev.parent_concept_id,
+        concept_label: parent?.description ?? "",
+        isNegative: true,
+      }));
+    }
+  }, [
+    form.parent_concept_id,
+    form.concept_id,
+    bondDescriptions,
+    isLoadingDescriptions,
+    conceptsOptions,
+  ]);
 
   const handleClose = () => {
     setForm(EMPTY_FORM);
-    setErrors({ concept_id: false, descripcion: false, valor: false });
+    setErrors({ parent_concept_id: false, concept_id: false, valor: false });
     deduccionForm.reset({ isDeduced: false });
     onClose();
   };
 
+  const requiresDescriptionSelect = bondDescriptions.length > 0;
+
   const handleSubmit = () => {
     const newErrors = {
-      concept_id: !form.concept_id,
-      descripcion: !form.descripcion,
+      parent_concept_id: !form.parent_concept_id,
+      concept_id: requiresDescriptionSelect && !form.concept_id,
       valor: form.valor <= 0,
     };
     setErrors(newErrors);
-    if (newErrors.concept_id || newErrors.descripcion || newErrors.valor)
+    if (newErrors.parent_concept_id || newErrors.concept_id || newErrors.valor)
       return;
     onSubmit({ ...form, valor: valorEfectivo });
     handleClose();
   };
-
-  const { data: bondDescriptions = [] } = useConceptDiscountBondDescriptions(
-    form.concept_id || undefined,
-  );
-  const descriptionOptions =
-    bondDescriptions.length > 0
-      ? bondDescriptions.map((o) => o.description)
-      : null;
 
   return (
     <GeneralSheet
@@ -137,18 +167,18 @@ export function BonusDiscountSheet({
             options={conceptsOptions.map(
               (o): Option => ({ value: o.id.toString(), label: o.description }),
             )}
-            value={form.concept_id}
+            value={form.parent_concept_id}
             onChange={(value) => {
-              setForm({ ...form, concept_id: value });
-              setErrors({ ...errors, concept_id: false });
+              setForm({ ...form, parent_concept_id: value });
+              setErrors({ ...errors, parent_concept_id: false });
             }}
             label="Concepto"
             placeholder="Selecciona un concepto"
-            className={errors.concept_id ? "border-red-500" : ""}
+            className={errors.parent_concept_id ? "border-red-500" : ""}
             allowClear={false}
             buttonSize="default"
           />
-          {errors.concept_id && (
+          {errors.parent_concept_id && (
             <Alert variant="destructive" className="mt-1 py-2">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>Este campo es requerido</AlertDescription>
@@ -156,46 +186,39 @@ export function BonusDiscountSheet({
           )}
         </div>
 
-        <div>
-          {descriptionOptions ? (
+        {requiresDescriptionSelect && (
+          <div>
             <SearchableSelect
-              options={descriptionOptions.map(
-                (o): Option => ({ value: o, label: o }),
+              options={bondDescriptions.map(
+                (o): Option => ({ value: o.id.toString(), label: o.description }),
               )}
-              value={form.descripcion}
+              value={form.concept_id}
               onChange={(value) => {
-                setForm({ ...form, descripcion: value });
-                setErrors({ ...errors, descripcion: false });
+                const selected = bondDescriptions.find(
+                  (o) => o.id.toString() === value,
+                );
+                setForm({
+                  ...form,
+                  concept_id: value,
+                  concept_label: selected?.description ?? "",
+                  isNegative: false,
+                });
+                setErrors({ ...errors, concept_id: false });
               }}
               label="Descripción"
               placeholder="Selecciona una descripción"
-              className={errors.descripcion ? "border-red-500" : ""}
+              className={errors.concept_id ? "border-red-500" : ""}
               allowClear={false}
               buttonSize="default"
             />
-          ) : (
-            <FormInput
-              name="descripcion"
-              label="Descripción"
-              value={form.descripcion}
-              onChange={(e) => {
-                setForm({ ...form, descripcion: e.target.value });
-                setErrors({ ...errors, descripcion: false });
-              }}
-              required
-              uppercase
-              placeholder="Ingrese descripción"
-              className={errors.descripcion ? "border-red-500" : ""}
-              error={errors.descripcion ? "Este campo es requerido" : undefined}
-            />
-          )}
-          {errors.descripcion && descriptionOptions && (
-            <Alert variant="destructive" className="mt-1 py-2">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>Este campo es requerido</AlertDescription>
-            </Alert>
-          )}
-        </div>
+            {errors.concept_id && (
+              <Alert variant="destructive" className="mt-1 py-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>Este campo es requerido</AlertDescription>
+              </Alert>
+            )}
+          </div>
+        )}
 
         <div>
           <FormInput
@@ -262,7 +285,7 @@ export function BonusDiscountSheet({
                   </p>
                 </div>
               </div>
-              {form.concept_id === DESCUENTO_NUEVO_ID && (
+              {form.isNegative && (
                 <Alert variant="destructive" className="mt-2">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>

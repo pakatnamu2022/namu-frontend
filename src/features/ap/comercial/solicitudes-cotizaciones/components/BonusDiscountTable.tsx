@@ -13,8 +13,12 @@ import { BonusDiscountSheet } from "./BonusDiscountSheet";
 
 export interface BonusDiscountRow {
   id: string;
+  /** Id del concepto raíz seleccionado (861/862/863), solo para reconstruir el selector "Concepto". */
+  parent_concept_id: string;
+  /** Id final a enviar al backend: el hijo (ej. 1367) o el mismo raíz si no tiene hijos (ej. 863). */
   concept_id: string;
-  descripcion: string;
+  /** Etiqueta del concepto final (hijo o raíz), para mostrar en la columna "Descripción". */
+  concept_label: string;
   isPercentage: boolean;
   valor: number;
   isNegative: boolean;
@@ -121,10 +125,10 @@ export const BonusDiscountTable = ({
               variant="ghost"
               isVisibleColumnFilter={false}
             />
-            <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
+            <div className="bg-muted px-4 py-2 mt-1 rounded-xl">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
                 <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Precio de Venta:
                   </span>
                   <span className="ml-2 font-medium">
@@ -135,10 +139,10 @@ export const BonusDiscountTable = ({
                   </span>
                 </div>
                 <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Total Descuento:
                   </span>
-                  <span className="ml-2 text-lg font-bold text-primary">
+                  <span className="ml-2 text-lg font-bold text-primary dark:text-primary-foreground">
                     {currencySymbol}{" "}
                     <NumberFormat value={calcularDescuentoTotal().toFixed(2)} />
                   </span>
@@ -177,8 +181,9 @@ export const BonusDiscountTable = ({
           initialValues={
             editingRow
               ? {
+                  parent_concept_id: editingRow.parent_concept_id,
                   concept_id: editingRow.concept_id,
-                  descripcion: editingRow.descripcion,
+                  concept_label: editingRow.concept_label,
                   isPercentage: editingRow.isPercentage,
                   valor: editingRow.valor,
                   isNegative: editingRow.isNegative,

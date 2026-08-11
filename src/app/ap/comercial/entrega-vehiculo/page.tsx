@@ -129,7 +129,11 @@ export default function VehicleDeliveryPage() {
 
   const handleReschedule = (
     id: number,
-    data: { scheduled_delivery_date: string; observations?: string },
+    data: {
+      scheduled_delivery_date: string;
+      observations?: string;
+      is_extraordinary?: boolean;
+    },
   ) => {
     rescheduleMutation.mutate(
       { id, data },

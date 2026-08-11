@@ -32,8 +32,9 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 
 interface BonusDiscountRow {
   id: string;
+  parent_concept_id: string;
   concept_id: string;
-  descripcion: string;
+  concept_label: string;
   isPercentage: boolean;
   valor: number;
   isNegative: boolean;
@@ -553,7 +554,7 @@ export function PurchaseRequestQuoteSummary({
                   className="flex justify-between items-center text-sm"
                 >
                   <span className="text-muted-foreground truncate max-w-[210px]">
-                    Desc. {row.descripcion}
+                    Desc. {row.concept_label}
                     {row.isPercentage && ` (${row.valor}%)`}
                   </span>
                   <span className="font-medium text-red-600">
@@ -599,7 +600,7 @@ export function PurchaseRequestQuoteSummary({
                       className="flex justify-between items-center text-sm"
                     >
                       <span className="text-muted-foreground truncate max-w-[210px]">
-                        {row.descripcion}
+                        {row.concept_label}
                         {row.isPercentage && ` (${row.valor}%)`}
                       </span>
                       <span className="font-medium text-green-600">
