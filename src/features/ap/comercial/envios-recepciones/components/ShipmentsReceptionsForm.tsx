@@ -255,10 +255,14 @@ export const ShipmentsReceptionsForm = ({
   // Si es TRASLADO ENTRE SEDES: solo vehículos en INVENTARIO VN
   const vehicleStatusFilterParams =
     watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA
-      ? { ap_vehicle_status_id: [VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO] }
+      ? {
+          vehicleMovements$new_status_id: [
+            VEHICLE_STATUS_ID.VEHICULO_EN_TRANSITO,
+          ],
+        }
       : watchTransferReasonId ===
           SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
-        ? { ap_vehicle_status_id: [VEHICLE_STATUS_ID.INVENTARIO_VN] }
+        ? { vehicleMovements$new_status_id: [VEHICLE_STATUS_ID.INVENTARIO_VN] }
         : {};
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(

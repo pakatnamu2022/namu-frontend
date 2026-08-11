@@ -5,6 +5,7 @@ import { STATUS_ACTIVE } from "@/core/core.constants";
 import { PURCHASE_REQUEST_QUOTE } from "./purchaseRequestQuote.constants";
 import {
   ConceptDiscountBondResource,
+  CreditInsuranceMasterResource,
   DiscountCouponResource,
   DiscountCouponUpdatePayload,
   getPurchaseRequestQuoteProps,
@@ -60,6 +61,97 @@ export async function getAllConceptDiscountBond({
     },
   };
   const { data } = await api.get<ConceptDiscountBondResource[]>(
+    AP_MASTERS.ENDPOINT,
+    config
+  );
+  return data;
+}
+
+export async function getConceptDiscountBondDescriptions({
+  parentId,
+}: {
+  parentId: number | string;
+}): Promise<ConceptDiscountBondResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+      status: STATUS_ACTIVE,
+      type: "CONCEPT_DISCOUNT_BOND_DESCRIPTION",
+      parent_id: parentId,
+    },
+  };
+  const { data } = await api.get<ConceptDiscountBondResource[]>(
+    AP_MASTERS.ENDPOINT,
+    config
+  );
+  return data;
+}
+
+export async function getCreditTypes(): Promise<CreditInsuranceMasterResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+      status: STATUS_ACTIVE,
+      type: "CREDIT_TYPE",
+    },
+  };
+  const { data } = await api.get<CreditInsuranceMasterResource[]>(
+    AP_MASTERS.ENDPOINT,
+    config
+  );
+  return data;
+}
+
+export async function getCreditEntities({
+  parentId,
+}: {
+  parentId: number | string;
+}): Promise<CreditInsuranceMasterResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+      status: STATUS_ACTIVE,
+      type: "CREDIT_ENTITY",
+      parent_id: parentId,
+    },
+  };
+  const { data } = await api.get<CreditInsuranceMasterResource[]>(
+    AP_MASTERS.ENDPOINT,
+    config
+  );
+  return data;
+}
+
+// Lista completa de entidades de crédito (sin filtrar por parent_id), usada
+// solo para armar el mapa id -> descripción en la tabla de listado.
+export async function getAllCreditEntities(): Promise<
+  CreditInsuranceMasterResource[]
+> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+      status: STATUS_ACTIVE,
+      type: "CREDIT_ENTITY",
+    },
+  };
+  const { data } = await api.get<CreditInsuranceMasterResource[]>(
+    AP_MASTERS.ENDPOINT,
+    config
+  );
+  return data;
+}
+
+export async function getInsuranceEntities(): Promise<
+  CreditInsuranceMasterResource[]
+> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+      status: STATUS_ACTIVE,
+      type: "INSURANCE_ENTITY",
+    },
+  };
+  const { data } = await api.get<CreditInsuranceMasterResource[]>(
     AP_MASTERS.ENDPOINT,
     config
   );

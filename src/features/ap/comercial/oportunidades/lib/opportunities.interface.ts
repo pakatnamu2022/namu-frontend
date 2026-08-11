@@ -4,6 +4,7 @@ import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/famili
 import { OpportunityActionResource } from "./opportunityAction.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { ManageLeadsResource } from "../../gestionar-leads/lib/manageLeads.interface";
+import { PurchaseRequestQuoteResource } from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 
 export interface OpportunitiesResponse {
   data: OpportunityResource[];
@@ -21,6 +22,7 @@ export interface OpportunityResource {
   opportunity_status_id: number;
   is_closed: boolean;
   comment?: string;
+  has_purchase_request_quote?: boolean;
   worker: WorkerResource;
   client: CustomersResource;
   family: FamiliesResource;
@@ -29,6 +31,7 @@ export interface OpportunityResource {
   opportunity_status: string;
   actions: OpportunityActionResource[];
   lead: ManageLeadsResource;
+  purchaseRequestsQuote?: PurchaseRequestQuoteResource;
   created_at: string;
 }
 

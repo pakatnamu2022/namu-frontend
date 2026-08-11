@@ -110,6 +110,10 @@ export interface PurchaseRequestQuoteResource {
   bonus_discounts: BonusDiscountResource[];
   accessories: AccessoryResource[];
   others: OtherCostResource[];
+  credit_type_id?: number | null;
+  credit_entity_id?: number | null;
+  insurance_entity_id?: number | null;
+  gps_hunter_years?: number | null;
   margin_amount: number;
   margin_pct: number;
   sede_id: number;
@@ -147,6 +151,10 @@ export interface PurchaseRequestQuoteRequest {
   doc_type_currency_id: string;
   down_payment?: number;
   others?: OtherCostPayload[];
+  credit_type_id?: number | null;
+  credit_entity_id?: number | null;
+  insurance_entity_id?: number | null;
+  gps_hunter_years?: number | null;
 }
 
 export interface ConceptDiscountBondResource {
@@ -154,6 +162,18 @@ export interface ConceptDiscountBondResource {
   description: string;
   type: string;
   status: boolean;
+  parent_id?: number | null;
+}
+
+// Maestros de crédito / seguros (tipos de crédito, entidades de crédito y
+// entidades de seguro), obtenidos desde /ap/apMasters
+export interface CreditInsuranceMasterResource {
+  id: number;
+  code: string;
+  description: string;
+  type: string;
+  status?: boolean;
+  parent_id?: number | null;
 }
 
 export interface getPurchaseRequestQuoteProps {

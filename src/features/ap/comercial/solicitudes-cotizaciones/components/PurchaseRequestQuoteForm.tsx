@@ -42,6 +42,7 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
 import { GeneralInfoSection } from "./GeneralInfoSection";
 import { VehicleInfoSection } from "./VehicleInfoSection";
+import { CreditInsuranceGpsSection } from "./CreditInsuranceGpsSection";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { useExchangeRateByDateAndCurrency } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
@@ -817,6 +818,16 @@ export const PurchaseRequestQuoteForm = ({
       down_payment: data.down_payment
         ? parseFloat(data.down_payment)
         : undefined,
+      credit_type_id: data.credit_type_id ? Number(data.credit_type_id) : null,
+      credit_entity_id: data.credit_entity_id
+        ? Number(data.credit_entity_id)
+        : null,
+      insurance_entity_id: data.insurance_entity_id
+        ? Number(data.insurance_entity_id)
+        : null,
+      gps_hunter_years: data.gps_hunter_years
+        ? parseInt(data.gps_hunter_years, 10)
+        : null,
     };
 
     onSubmit(finalData);
@@ -906,6 +917,12 @@ export const PurchaseRequestQuoteForm = ({
               modelVnWatch={modelVnWatch}
               selectedModel={selectedModel}
               billedCost={billedCost}
+            />
+
+            {/*Seccion Créditos, Seguros y GPS*/}
+            <CreditInsuranceGpsSection
+              control={form.control}
+              setValue={form.setValue}
             />
 
             {/*Seccion de Bonos y Descuentos*/}

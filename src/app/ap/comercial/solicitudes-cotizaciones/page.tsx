@@ -17,7 +17,12 @@ import {
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 import { DECLARACION_JURADA_KYC } from "@/features/ap/comercial/declaracion-jurada-kyc/lib/declaracionJuradaKyc.constants";
-import { usePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import {
+  usePurchaseRequestQuote,
+  useCreditTypes,
+  useAllCreditEntities,
+  useInsuranceEntities,
+} from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import {
   approvePurchaseRequestQuote,
   downloadPurchaseRequestQuotePdf,
@@ -69,6 +74,18 @@ export default function PurchaseRequestQuotePage() {
   const { data: sedesData = [] } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
+  const { data: creditTypes = [] } = useCreditTypes();
+  const { data: allCreditEntities = [] } = useAllCreditEntities();
+  const { data: insuranceEntities = [] } = useInsuranceEntities();
+  const creditTypeLabels = Object.fromEntries(
+    creditTypes.map((master) => [master.id, master.description]),
+  );
+  const creditEntityLabels = Object.fromEntries(
+    allCreditEntities.map((master) => [master.id, master.description]),
+  );
+  const insuranceEntityLabels = Object.fromEntries(
+    insuranceEntities.map((master) => [master.id, master.description]),
+  );
   const [sorting, setSorting] = useState<SortingState>([]);
 
   useEffect(() => {
@@ -166,6 +183,9 @@ export default function PurchaseRequestQuotePage() {
             ...permissions,
             canCreateKyc: kycPermissions.canCreate,
           },
+          creditTypeLabels,
+          creditEntityLabels,
+          insuranceEntityLabels,
         })}
         data={data?.data || []}
       >

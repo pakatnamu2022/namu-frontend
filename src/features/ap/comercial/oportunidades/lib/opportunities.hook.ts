@@ -59,7 +59,6 @@ export const useOpportunities = (params?: Record<string, any>) => {
   return useQuery<OpportunitiesResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getOpportunities({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -67,7 +66,6 @@ export const useMyOpportunities = (params: GetMyOpportunitiesProps) => {
   return useQuery<OpportunitiesResponse>({
     queryKey: [QUERY_KEY, "my", params],
     queryFn: () => getMyOpportunities(params),
-    refetchOnWindowFocus: false,
     // enabled: !!params.worker_id,
   });
 };
@@ -76,7 +74,6 @@ export const useMyAgenda = (params: GetMyAgendaProps) => {
   return useQuery<MyAgendaResponse>({
     queryKey: [QUERY_KEY, "my-agenda", params],
     queryFn: () => getMyAgenda(params),
-    refetchOnWindowFocus: false,
     enabled: !!(params.date_from && params.date_to),
   });
 };
@@ -85,7 +82,6 @@ export const useOpportunity = (id: number) => {
   return useQuery<OpportunityResource>({
     queryKey: [QUERY_KEY, id],
     queryFn: () => getOpportunity(id),
-    refetchOnWindowFocus: false,
     enabled: !!id && id > 0,
   });
 };
@@ -94,7 +90,6 @@ export const useOpportunityActions = (opportunityId: number) => {
   return useQuery<OpportunityActionResource[]>({
     queryKey: [QUERY_KEY, opportunityId, "actions"],
     queryFn: () => getOpportunityActions(opportunityId),
-    refetchOnWindowFocus: false,
     enabled: !!opportunityId && opportunityId > 0,
   });
 };
@@ -116,7 +111,6 @@ export const useMyOpportunitiesByStatus = (
       return current_page < last_page ? current_page + 1 : undefined;
     },
     initialPageParam: 1,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -219,7 +213,6 @@ export const useOpportunityActionsList = (params?: Record<string, any>) => {
   return useQuery<OpportunityActionResource[]>({
     queryKey: [ACTIONS_QUERY_KEY, params],
     queryFn: () => getOpportunityActionsList(params),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -227,7 +220,6 @@ export const useOpportunityAction = (id: number) => {
   return useQuery<OpportunityActionResource>({
     queryKey: [ACTIONS_QUERY_KEY, id],
     queryFn: () => getOpportunityAction(id),
-    refetchOnWindowFocus: false,
     enabled: !!id && id > 0,
   });
 };
@@ -309,7 +301,6 @@ export const useCommercialMasters = (params?: Record<string, any>) => {
   return useQuery<CommercialMastersResponse>({
     queryKey: ["commercialMasters", params],
     queryFn: () => getCommercialMasters({ params }),
-    refetchOnWindowFocus: false,
     enabled: !!params,
   });
 };
@@ -340,7 +331,6 @@ export const useActionContactTypes = () => {
 export const useFamilies = (params?: Record<string, any>) => {
   return useQuery<FamiliesResponse>({
     queryKey: [FAMILIES.QUERY_KEY, params],
-    queryFn: () => getFamilies(params), 
-    refetchOnWindowFocus: false,
+    queryFn: () => getFamilies(params),
   });
 };
