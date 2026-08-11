@@ -12,19 +12,18 @@ export interface PurchaseRequestQuoteResponse {
 
 export interface BonusDiscountResource {
   id: number;
-  description: string;
   type: "FIJO" | "PORCENTAJE";
   percentage: string;
   amount: string;
   concept_code_id: number;
   concept_code: string;
+  concept_code_parent_id: number | null;
   is_negative?: boolean;
   has_retention?: boolean;
 }
 
 export interface DiscountCouponResource {
   id: number;
-  description: string;
   type: "FIJO" | "PORCENTAJE";
   percentage: string;
   amount: string;
@@ -34,13 +33,20 @@ export interface DiscountCouponResource {
   has_retention: boolean;
   concept_code_id: number;
   concept_code: string;
+  concept_code_parent_id: number | null;
 }
 
 export interface DiscountCouponUpdatePayload {
   has_retention?: boolean;
-  description?: string;
+  concept_id?: number;
   value?: number;
-  is_negative?: boolean;
+}
+
+export interface BonusDiscountPayload {
+  concept_id: number | string;
+  type: "FIJO" | "PORCENTAJE";
+  value: number;
+  has_retention?: boolean;
 }
 
 export interface OtherCostResource {

@@ -56,7 +56,11 @@ export const useRescheduleVehicleDelivery = () => {
       data,
     }: {
       id: number;
-      data: { scheduled_delivery_date: string; observations?: string };
+      data: {
+        scheduled_delivery_date: string;
+        observations?: string;
+        is_extraordinary?: boolean;
+      };
     }) => rescheduleVehicleDelivery(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
