@@ -13,7 +13,6 @@ import {
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import {
@@ -58,7 +57,6 @@ export function WorkOrderActionCell({
   row,
   permissions,
   onInternalNote,
-  onDelete,
   onUpdate,
   onManage,
   onInspect,
@@ -192,8 +190,6 @@ export function WorkOrderActionCell({
     permissions.canAuthorizeReversalInternalNote && isClosed && isInterna;
 
   const isOpenForEdit = permissions.canUpdate && isOpen;
-
-  const isOpenForDelete = permissions.canDelete && isOpen;
 
   const idVisibleCancel = !isCancelled && !isClosed && !isDelivery;
 
@@ -389,8 +385,6 @@ export function WorkOrderActionCell({
           <Pencil className="size-5" />
         </Button>
       )}
-
-      {isOpenForDelete && <DeleteButton onClick={() => onDelete(id)} />}
 
       {idVisibleCancel && (
         <Button
