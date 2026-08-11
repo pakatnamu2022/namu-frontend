@@ -22,17 +22,17 @@ export function getBonusDiscountColumns({
 }: GetBonusDiscountColumnsParams): ColumnDef<BonusDiscountRow>[] {
   return [
     {
-      accessorKey: "concept_id",
+      accessorKey: "parent_concept_id",
       header: "Concepto",
       cell: ({ getValue }) => {
-        const conceptId = getValue() as string;
+        const parentId = getValue() as string;
         const conceptLabel =
-          conceptsOptions.find((c) => c.id.toString() === conceptId)?.description || conceptId;
+          conceptsOptions.find((c) => c.id.toString() === parentId)?.description || parentId;
         return <span className="font-medium">{conceptLabel}</span>;
       },
     },
     {
-      accessorKey: "descripcion",
+      accessorKey: "concept_label",
       header: "Descripción",
     },
     {

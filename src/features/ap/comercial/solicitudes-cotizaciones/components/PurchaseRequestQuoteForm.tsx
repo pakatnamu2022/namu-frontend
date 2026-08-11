@@ -237,8 +237,11 @@ export const PurchaseRequestQuoteForm = ({
 
             return {
               id: bonus.id?.toString() || Date.now().toString(),
+              parent_concept_id: (
+                bonus.concept_code_parent_id ?? bonus.concept_code_id
+              ).toString(),
               concept_id: bonus.concept_code_id.toString(),
-              descripcion: bonus.description,
+              concept_label: bonus.concept_code,
               isPercentage: isPercentage,
               valor: valor,
               isNegative: bonus.is_negative || false,
@@ -773,10 +776,8 @@ export const PurchaseRequestQuoteForm = ({
     return bonusDiscountRows.map((row) => {
       return {
         concept_id: row.concept_id,
-        description: row.descripcion,
         type: row.isPercentage ? "PORCENTAJE" : "FIJO",
         value: row.valor,
-        is_negative: row.isNegative,
       };
     });
   };

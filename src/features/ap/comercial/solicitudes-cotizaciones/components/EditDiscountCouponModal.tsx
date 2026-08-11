@@ -24,7 +24,7 @@ import { Option } from "@/core/core.interface";
 const DEDUCCION_7_FACTOR = 0.93;
 
 interface EditDiscountCouponFormValues {
-  description: string;
+  concept_id: string;
   value: number | "";
   has_retention: boolean;
 }
@@ -46,7 +46,7 @@ export function EditDiscountCouponModal({
 
   const form = useForm<EditDiscountCouponFormValues>({
     defaultValues: {
-      description: "",
+      concept_id: "",
       value: "",
       has_retention: false,
     },
@@ -55,7 +55,7 @@ export function EditDiscountCouponModal({
   useEffect(() => {
     if (open && coupon) {
       form.reset({
-        description: coupon.description ?? "",
+        concept_id: coupon.concept_code_id.toString(),
         value: "",
         has_retention: !!coupon.has_retention,
       });
@@ -66,13 +66,19 @@ export function EditDiscountCouponModal({
 
   const value = form.watch("value");
   const hasRetention = form.watch("has_retention");
+  const conceptId = form.watch("concept_id");
+
+  // Padre del concepto (861/862). Si es null, el concepto no tiene hermanos
+  // y no se muestra el selector de "Descripción".
+  const parentConceptId = coupon?.concept_code_parent_id ?? undefined;
   const { data: bondDescriptions = [] } = useConceptDiscountBondDescriptions(
-    coupon?.concept_code_id,
+    parentConceptId,
   );
-  const descriptionOptions =
-    bondDescriptions.length > 0
-      ? bondDescriptions.map((o) => o.description)
-      : null;
+
+  const rootConceptLabel = parentConceptId
+    ? conceptsOptions.find((o) => o.id === parentConceptId)?.description
+    : coupon?.concept_code;
+
   const numericValue = value === "" ? null : Number(value);
   const netAmount =
     numericValue != null && !Number.isNaN(numericValue)
@@ -92,8 +98,10 @@ export function EditDiscountCouponModal({
       {
         id: coupon.id,
         data: {
-          description: values.description,
           has_retention: values.has_retention,
+          ...(bondDescriptions.length > 0 && values.concept_id
+            ? { concept_id: Number(values.concept_id) }
+            : {}),
           ...(values.value !== "" ? { value: Number(values.value) } : {}),
         },
       },
@@ -130,22 +138,16 @@ export function EditDiscountCouponModal({
 
             <SearchableSelect
               options={
-                [
-                  {
-                    value: coupon.concept_code_id.toString(),
-                    label: coupon.concept_code,
-                  },
-                  ...conceptsOptions
-                    .filter((o) => o.id !== coupon.concept_code_id)
-                    .map(
-                      (o): Option => ({
-                        value: o.id.toString(),
-                        label: o.description,
-                      }),
-                    ),
-                ]
+                rootConceptLabel
+                  ? [
+                      {
+                        value: (parentConceptId ?? coupon.concept_code_id).toString(),
+                        label: rootConceptLabel,
+                      },
+                    ]
+                  : []
               }
-              value={coupon.concept_code_id.toString()}
+              value={(parentConceptId ?? coupon.concept_code_id).toString()}
               onChange={() => {}}
               label="Tipo de bono"
               disabled
@@ -153,14 +155,14 @@ export function EditDiscountCouponModal({
               buttonSize="default"
             />
 
-            {descriptionOptions ? (
+            {bondDescriptions.length > 0 && (
               <SearchableSelect
-                options={descriptionOptions.map(
-                  (o): Option => ({ value: o, label: o }),
+                options={bondDescriptions.map(
+                  (o): Option => ({ value: o.id.toString(), label: o.description }),
                 )}
-                value={form.watch("description")}
+                value={conceptId}
                 onChange={(value) =>
-                  form.setValue("description", value, {
+                  form.setValue("concept_id", value, {
                     shouldDirty: true,
                   })
                 }
@@ -168,14 +170,6 @@ export function EditDiscountCouponModal({
                 placeholder="Selecciona una descripción"
                 allowClear={false}
                 buttonSize="default"
-              />
-            ) : (
-              <FormInput
-                name="description"
-                label="Descripción"
-                control={form.control}
-                uppercase
-                placeholder="Descripción del bono"
               />
             )}
 

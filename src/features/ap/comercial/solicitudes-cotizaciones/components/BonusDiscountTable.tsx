@@ -13,8 +13,12 @@ import { BonusDiscountSheet } from "./BonusDiscountSheet";
 
 export interface BonusDiscountRow {
   id: string;
+  /** Id del concepto raíz seleccionado (861/862/863), solo para reconstruir el selector "Concepto". */
+  parent_concept_id: string;
+  /** Id final a enviar al backend: el hijo (ej. 1367) o el mismo raíz si no tiene hijos (ej. 863). */
   concept_id: string;
-  descripcion: string;
+  /** Etiqueta del concepto final (hijo o raíz), para mostrar en la columna "Descripción". */
+  concept_label: string;
   isPercentage: boolean;
   valor: number;
   isNegative: boolean;
@@ -177,8 +181,9 @@ export const BonusDiscountTable = ({
           initialValues={
             editingRow
               ? {
+                  parent_concept_id: editingRow.parent_concept_id,
                   concept_id: editingRow.concept_id,
-                  descripcion: editingRow.descripcion,
+                  concept_label: editingRow.concept_label,
                   isPercentage: editingRow.isPercentage,
                   valor: editingRow.valor,
                   isNegative: editingRow.isNegative,

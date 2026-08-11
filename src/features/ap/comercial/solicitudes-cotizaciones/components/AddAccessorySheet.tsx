@@ -52,7 +52,11 @@ export function AddAccessorySheet({
 
   const handleClose = () => {
     setForm(EMPTY_FORM);
-    setErrors({ accessory_id: false, accessory_duplicate: false, quantity: false });
+    setErrors({
+      accessory_id: false,
+      accessory_duplicate: false,
+      quantity: false,
+    });
     onClose();
   };
 
@@ -97,7 +101,10 @@ export function AddAccessorySheet({
           label="Tipo"
           value={form.type}
           onChange={(value) => {
-            setForm({ ...form, type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO" });
+            setForm({
+              ...form,
+              type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
+            });
           }}
           options={[
             { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
@@ -114,10 +121,16 @@ export function AddAccessorySheet({
             <SearchableSelect
               buttonSize="default"
               label="Accesorio"
-              value={form.accessory_id === 0 ? "" : form.accessory_id.toString()}
+              value={
+                form.accessory_id === 0 ? "" : form.accessory_id.toString()
+              }
               onChange={(value) => {
                 setForm({ ...form, accessory_id: parseInt(value) });
-                setErrors({ ...errors, accessory_id: false, accessory_duplicate: false });
+                setErrors({
+                  ...errors,
+                  accessory_id: false,
+                  accessory_duplicate: false,
+                });
               }}
               options={availableAccessories.map((accessory) => ({
                 label: `${accessory.code} - ${accessory.description}`,
@@ -125,7 +138,11 @@ export function AddAccessorySheet({
                 description: accessory.type_operation,
               }))}
               placeholder="Selecciona un accesorio"
-              className={errors.accessory_id || errors.accessory_duplicate ? "border-red-500" : ""}
+              className={
+                errors.accessory_id || errors.accessory_duplicate
+                  ? "border-red-500"
+                  : ""
+              }
               classNameDiv="flex-1"
               withValue={false}
             />
@@ -191,18 +208,22 @@ export function AddAccessorySheet({
         />
 
         {selectedAccessory && (
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="p-4 bg-muted rounded-lg">
             <div className="space-y-2">
-              <h4 className="font-medium text-sm text-primary">
+              <h4 className="font-medium text-sm text-primary dark:text-primary-foreground">
                 Información del Accesorio
               </h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-gray-600">Código:</span>
+                  <span className="text-muted-foreground uppercase text-xs">
+                    Código
+                  </span>
                   <p className="font-medium">{selectedAccessory.code}</p>
                 </div>
                 <div>
-                  <span className="text-gray-600">Precio Unit.:</span>
+                  <span className="text-muted-foreground uppercase text-xs">
+                    Precio Unitario
+                  </span>
                   <p className="font-medium">
                     {selectedAccessory.currency_symbol}{" "}
                     <NumberFormat
@@ -212,7 +233,7 @@ export function AddAccessorySheet({
                 </div>
                 {(form.additional_price ?? 0) > 0 && (
                   <div className="col-span-2">
-                    <span className="text-gray-600">
+                    <span className="text-muted-foreground uppercase text-xs">
                       Precio Efectivo Unit.:
                     </span>
                     <p className="font-medium text-primary">
@@ -227,7 +248,9 @@ export function AddAccessorySheet({
                   </div>
                 )}
                 <div className="col-span-2">
-                  <span className="text-gray-600">Descripción:</span>
+                  <span className="text-muted-foreground uppercase text-xs">
+                    Descripción
+                  </span>
                   <p className="font-medium">{selectedAccessory.description}</p>
                 </div>
                 {form.type === "OBSEQUIO" && (

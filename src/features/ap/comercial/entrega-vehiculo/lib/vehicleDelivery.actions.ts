@@ -133,7 +133,11 @@ export async function syncShippingGuideWithDynamics(
 
 export async function rescheduleVehicleDelivery(
   id: number,
-  data: { scheduled_delivery_date: string; observations?: string }
+  data: {
+    scheduled_delivery_date: string;
+    observations?: string;
+    is_extraordinary?: boolean;
+  }
 ): Promise<VehiclesDeliveryResource> {
   const response = await api.post<VehiclesDeliveryResource>(
     `${ENDPOINT}/${id}/reschedule`,

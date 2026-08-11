@@ -75,13 +75,27 @@ export const vehicleDeliverySchemaUpdate = z.object({
   observations: z.string().min(1, "Las observaciones son requeridas"),
 });
 
-export const vehicleDeliveryRescheduleSchema = z.object({
-  scheduled_delivery_date: scheduledDeliveryDate,
-  observations: z
-    .string()
-    .max(500, "Las observaciones no pueden exceder 500 caracteres")
-    .optional(),
-});
+export const vehicleDeliveryRescheduleSchema = z
+  .object({
+    scheduled_delivery_date: z.coerce.date({
+      error: "La fecha de entrega programada es requerida",
+    }),
+    observations: z
+      .string()
+      .max(500, "Las observaciones no pueden exceder 500 caracteres")
+      .optional(),
+    is_extraordinary: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const result = data.is_extraordinary
+      ? scheduledDeliveryDateExtraordinary.safeParse(data.scheduled_delivery_date)
+      : scheduledDeliveryDate.safeParse(data.scheduled_delivery_date);
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        ctx.addIssue({ ...issue, path: ["scheduled_delivery_date"] });
+      }
+    }
+  });
 
 export type VehicleDeliverySchema = z.infer<typeof vehicleDeliverySchemaCreate>;
 export type VehicleDeliveryRescheduleSchema = z.infer<

@@ -161,8 +161,7 @@ export default function PurchaseRequestQuoteDetailModal({
       const amount = Number(item.amount);
       items.push({
         key: `bonus-${item.id}`,
-        description: item.description,
-        detail: item.concept_code,
+        description: item.concept_code,
         badge:
           item.type === "PORCENTAJE"
             ? {
