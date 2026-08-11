@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Building2, Car, Pencil, Plus, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
+import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
 import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 import { NumberFormat } from "@/shared/components/NumberFormat.tsx";
+import { MetricCard } from "@/shared/components/MetricCard.tsx";
 import {
   currentMonth,
   currentYear,
@@ -19,7 +21,10 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts"
 import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants.ts";
 import { cn } from "@/lib/utils.ts";
 import { useAllObjectiveSedePeriodPv } from "../lib/objectiveSedePeriodPv.hook.ts";
-import { deleteObjectiveSedePeriodPv } from "../lib/objectiveSedePeriodPv.actions.ts";
+import {
+  bulkGenerateObjectiveSedePeriodPv,
+  deleteObjectiveSedePeriodPv,
+} from "../lib/objectiveSedePeriodPv.actions.ts";
 import { OBJECTIVE_SEDE_PERIOD_PV } from "../lib/objectiveSedePeriodPv.constants.ts";
 import ObjectiveSedePeriodPvSheet from "./ObjectiveSedePeriodPvSheet.tsx";
 import ConceptObjectivePeriodPvSheet from "../../concepto-objetivo-periodo/components/ConceptObjectivePeriodPvSheet.tsx";
@@ -41,6 +46,7 @@ export default function ObjectiveSedePeriodPvPicker() {
   const [conceptId, setConceptId] = useState<number | undefined>(undefined);
   const [deleteObjective, setDeleteObjective] =
     useState<ObjectiveSedePeriodPvResource | null>(null);
+  const [openBulkGenerate, setOpenBulkGenerate] = useState(false);
   const YEAR_OPTIONS = generateYear().map((year) => ({
     value: year.toString(),
     label: year.toString(),
@@ -59,6 +65,45 @@ export default function ObjectiveSedePeriodPvPicker() {
     !!year && !!month,
   );
 
+  const totalObjective = data.reduce(
+    (sum, objective) => sum + Number(objective.amount),
+    0,
+  );
+
+  const conceptTotalsMap = new Map<
+    string,
+    {
+      description: string;
+      is_vehicular_crossing: boolean;
+      total: number;
+    }
+  >();
+
+  data.forEach((objective) => {
+    (objective.concept_objectives ?? []).forEach((concept) => {
+      const key = `${concept.area_id}-${concept.description}`;
+      const existing = conceptTotalsMap.get(key);
+      const amount = Number(concept.sub_amount);
+      if (existing) {
+        existing.total += amount;
+      } else {
+        conceptTotalsMap.set(key, {
+          description: concept.description,
+          is_vehicular_crossing: concept.is_vehicular_crossing,
+          total: amount,
+        });
+      }
+    });
+  });
+
+  const conceptTotals = Array.from(conceptTotalsMap.values());
+  const totalVehicularCrossing = conceptTotals
+    .filter((item) => item.is_vehicular_crossing)
+    .reduce((sum, item) => sum + item.total, 0);
+  const totalConceptsAmount = conceptTotals
+    .filter((item) => !item.is_vehicular_crossing)
+    .reduce((sum, item) => sum + item.total, 0);
+
   const handleDelete = async () => {
     if (!deleteObjective) return;
     try {
@@ -72,6 +117,25 @@ export default function ObjectiveSedePeriodPvPicker() {
       setDeleteObjective(null);
     }
   };
+
+  const { mutate: bulkGenerate, isPending: isBulkGenerating } = useMutation({
+    mutationFn: () =>
+      bulkGenerateObjectiveSedePeriodPv({
+        year: Number(year),
+        month: Number(month),
+      }),
+    onSuccess: async () => {
+      successToast("Objetivos generados correctamente para todas las sedes.");
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      setOpenBulkGenerate(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        "Error al generar los objetivos",
+        error.response?.data?.message,
+      );
+    },
+  });
 
   return (
     <div className="space-y-4">
@@ -110,7 +174,16 @@ export default function ObjectiveSedePeriodPvPicker() {
 
         <Button
           size="sm"
+          variant="outline"
           className="ml-auto"
+          onClick={() => setOpenBulkGenerate(true)}
+        >
+          <Sparkles className="size-4 mr-2" />
+          Generar todos
+        </Button>
+
+        <Button
+          size="sm"
           onClick={() => {
             setEditObjective(null);
             setOpenObjectiveSheet(true);
@@ -120,6 +193,46 @@ export default function ObjectiveSedePeriodPvPicker() {
           Crear Objetivo
         </Button>
       </div>
+
+      {!isLoading && data.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="Objetivo total"
+            value={`S/ ${totalObjective.toFixed(2)}`}
+            subtitle={`${data.length} sede${data.length === 1 ? "" : "s"} · ${month}/${year}`}
+            icon={Target}
+            variant="default"
+            color="blue"
+          />
+
+          <MetricCard
+            title="Sedes con objetivo"
+            value={data.length}
+            subtitle="Consolidado del período"
+            icon={Building2}
+            variant="outline"
+            color="gray"
+          />
+
+          <MetricCard
+            title="Conceptos en soles"
+            value={`S/ ${totalConceptsAmount.toFixed(2)}`}
+            subtitle="Suma de conceptos monetarios"
+            icon={Target}
+            variant="outline"
+            color="green"
+          />
+
+          <MetricCard
+            title="Paso vehicular"
+            value={totalVehicularCrossing.toFixed(0)}
+            subtitle="Vehículos objetivo por recepción"
+            icon={Car}
+            variant="outline"
+            color="amber"
+          />
+        </div>
+      )}
 
       {!isLoading && data.length === 0 && (
         <div className="rounded-lg border border-dashed p-4">
@@ -191,7 +304,15 @@ export default function ObjectiveSedePeriodPvPicker() {
                     >
                       <span className="mr-1">#{concept.order}</span>
                       {concept.description}
-                      {!concept.is_vehicular_crossing && (
+                      {concept.is_vehicular_crossing ? (
+                        <>
+                          {" · "}
+                          <Car className="size-4 inline mx-1" />
+                          <NumberFormat
+                            value={Number(concept.sub_amount).toFixed(0)}
+                          />
+                        </>
+                      ) : (
                         <>
                           {" · S/ "}
                           <NumberFormat
@@ -260,6 +381,17 @@ export default function ObjectiveSedePeriodPvPicker() {
           description="Esta acción eliminará el objetivo y TODOS sus conceptos y asesores asociados. Esta acción no se puede deshacer."
         />
       )}
+
+      <SimpleConfirmDialog
+        open={openBulkGenerate}
+        onOpenChange={setOpenBulkGenerate}
+        onConfirm={() => bulkGenerate()}
+        title="Generar objetivos para todas las sedes"
+        description={`Se generarán automáticamente los objetivos de todas las sedes para ${month}/${year}. Si ya existe un objetivo para una sede en este período, no se duplicará.`}
+        confirmText="Generar todos"
+        icon="warning"
+        isLoading={isBulkGenerating}
+      />
     </div>
   );
 }
