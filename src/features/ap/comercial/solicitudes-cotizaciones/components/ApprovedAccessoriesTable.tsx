@@ -8,8 +8,7 @@ import { DataTable } from "@/shared/components/DataTable";
 import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CreateApprovedAccessoryModal } from "./CreateApprovedAccessoryModal";
-import { AddAccessorySheet } from "./AddAccessorySheet";
-import { EditAccessorySheet } from "./EditAccessorySheet";
+import { AccesorySheet } from "./AccesorySheet";
 import { getApprovedAccessoriesColumns } from "./approvedAccessoriesColumns";
 
 export interface ApprovedAccessoryRow {
@@ -194,19 +193,19 @@ export const ApprovedAccessoriesTable = ({
             />
 
             {/* Total general */}
-            <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
+            <div className="bg-muted px-4 py-2 mt-1 rounded-xl">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
                 <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Accesorios agregados:
                   </span>
                   <span className="ml-2 font-medium">{rows.length}</span>
                 </div>
                 <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Total Accesorios:
                   </span>
-                  <span className="ml-2 text-lg font-bold text-primary">
+                  <span className="ml-2 text-lg font-bold text-primary dark:text-primary-foreground">
                     {(() => {
                       if (invoiceCurrencyId && allCurrencyTypes.length) {
                         return (
@@ -248,28 +247,28 @@ export const ApprovedAccessoriesTable = ({
         />
 
         {/* Sheet para agregar accesorio/obsequio */}
-        <AddAccessorySheet
+        <AccesorySheet
           open={isAddSheetOpen}
           onClose={() => {
             setIsAddSheetOpen(false);
             setPendingAccessoryId(undefined);
           }}
-          onAdd={handleAdd}
+          onSubmit={handleAdd}
           accessories={accessories}
-          existingRows={rows}
+          rows={rows}
           canCreateApprovedAccessory={canCreateApprovedAccessory}
           onOpenCreateModal={() => setIsCreateModalOpen(true)}
           initialAccessoryId={pendingAccessoryId}
         />
 
         {/* Sheet para editar accesorio/obsequio */}
-        <EditAccessorySheet
+        <AccesorySheet
           open={isEditSheetOpen}
           onClose={() => {
             setIsEditSheetOpen(false);
             setEditingRow(null);
           }}
-          onSave={handleEditSave}
+          onSubmit={handleEditSave}
           editingRow={editingRow}
           accessories={accessories}
           rows={rows}

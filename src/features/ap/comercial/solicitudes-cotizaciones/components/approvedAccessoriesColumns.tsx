@@ -48,7 +48,9 @@ export function getApprovedAccessoriesColumns({
               : "bg-blue-100 text-primary"
           }`}
         >
-          {row.original.type === "OBSEQUIO" ? "Obsequio" : "Accesorio Adicional"}
+          {row.original.type === "OBSEQUIO"
+            ? "Obsequio"
+            : "Accesorio Adicional"}
         </span>
       ),
     },
@@ -62,14 +64,16 @@ export function getApprovedAccessoriesColumns({
         return accessory ? (
           <div className="space-y-1">
             <p className="font-medium text-sm">{accessory.description}</p>
-            <div className="flex gap-3 text-xs text-gray-600">
+            <div className="flex gap-3 text-xs text-muted-foreground">
               <span>
                 Código:{" "}
-                <span className="font-medium text-gray-800">{accessory.code}</span>
+                <span className="font-medium text-foreground">
+                  {accessory.code}
+                </span>
               </span>
               <span>
                 Precio:{" "}
-                <span className="font-medium text-gray-800">
+                <span className="font-medium text-foreground">
                   {accessory.currency_symbol}{" "}
                   <NumberFormat value={Number(accessory.price).toFixed(2)} />
                 </span>
@@ -77,7 +81,7 @@ export function getApprovedAccessoriesColumns({
               {(row.original.additional_price ?? 0) > 0 && (
                 <span>
                   Precio Adicional:{" "}
-                  <span className="font-medium text-gray-800">
+                  <span className="font-medium text-foreground">
                     {accessory.currency_symbol}{" "}
                     <NumberFormat
                       value={Number(row.original.additional_price).toFixed(2)}
@@ -134,7 +138,11 @@ export function getApprovedAccessoriesColumns({
       id: "conversion",
       header: "Conversión",
       cell: ({ row }) => {
-        if (!getExchangeRate || !invoiceCurrencyId || !allCurrencyTypes.length) {
+        if (
+          !getExchangeRate ||
+          !invoiceCurrencyId ||
+          !allCurrencyTypes.length
+        ) {
           return <div className="text-center text-gray-400">—</div>;
         }
         const accessory = accessories.find(
@@ -143,7 +151,9 @@ export function getApprovedAccessoriesColumns({
         if (!accessory?.currency_symbol) {
           return <div className="text-center text-gray-400">—</div>;
         }
-        const accessoryCurrency = findCurrencyBySymbol(accessory.currency_symbol);
+        const accessoryCurrency = findCurrencyBySymbol(
+          accessory.currency_symbol,
+        );
         if (!accessoryCurrency || accessoryCurrency.id === invoiceCurrencyId) {
           return <div className="text-center text-gray-400">—</div>;
         }
@@ -155,7 +165,9 @@ export function getApprovedAccessoriesColumns({
           row.original.quantity,
           row.original.additional_price,
         );
-        const tc = getExchangeRate(accessoryCurrency.id) / getExchangeRate(invoiceCurrencyId);
+        const tc =
+          getExchangeRate(accessoryCurrency.id) /
+          getExchangeRate(invoiceCurrencyId);
         const convertedSubtotal = subtotal * tc;
         return (
           <div className="text-right text-sm">

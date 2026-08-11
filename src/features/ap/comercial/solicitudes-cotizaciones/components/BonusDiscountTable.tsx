@@ -125,10 +125,10 @@ export const BonusDiscountTable = ({
               variant="ghost"
               isVisibleColumnFilter={false}
             />
-            <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
+            <div className="bg-muted px-4 py-2 mt-1 rounded-xl">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
                 <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Precio de Venta:
                   </span>
                   <span className="ml-2 font-medium">
@@ -139,10 +139,10 @@ export const BonusDiscountTable = ({
                   </span>
                 </div>
                 <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Total Descuento:
                   </span>
-                  <span className="ml-2 text-lg font-bold text-primary">
+                  <span className="ml-2 text-lg font-bold text-primary dark:text-primary-foreground">
                     {currencySymbol}{" "}
                     <NumberFormat value={calcularDescuentoTotal().toFixed(2)} />
                   </span>
