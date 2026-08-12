@@ -116,3 +116,14 @@ export interface DiagnoseVinData {
 export type DiagnoseVinResponse =
   | (DiagnoseVinData & { success?: true })
   | { success: false; message: string };
+
+export interface VehicleDeliveryRescheduleHistoryItem {
+  id: number;
+  previous_date: string;
+  new_date: string;
+  is_extraordinary: boolean;
+  observations: string | null;
+  rescheduled_by: number;
+  rescheduled_by_name: string;
+  created_at: string;
+}

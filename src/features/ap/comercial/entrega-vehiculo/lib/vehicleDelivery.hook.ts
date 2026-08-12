@@ -13,6 +13,7 @@ import {
   getAvailableDeliverySlots,
   rescheduleVehicleDelivery,
   diagnoseVehicleDeliveryVin,
+  getVehicleDeliveryRescheduleHistory,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast, promiseToast } from "@/core/core.function";
@@ -223,6 +224,19 @@ export const useDiagnoseVehicleDeliveryVin = () => {
         error?.response?.data?.message || "Error al diagnosticar el VIN";
       errorToast(msg);
     },
+  });
+};
+
+// Hook para obtener el historial de reprogramaciones de una entrega
+export const useVehicleDeliveryRescheduleHistory = (
+  id: number,
+  enabled: boolean = true,
+) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, id, "reschedule-history"],
+    queryFn: () => getVehicleDeliveryRescheduleHistory(id),
+    enabled: enabled && id > 0,
+    refetchOnWindowFocus: false,
   });
 };
 
