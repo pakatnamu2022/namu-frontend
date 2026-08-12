@@ -357,6 +357,7 @@ import BillWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
 import IndicadoresReportesPage from "./app/ap/post-venta/indicadores-y-reportes/page.tsx";
 import ReportesPostVentaPage from "./app/ap/post-venta/indicadores-y-reportes/reportes/page.tsx";
+import ObjectivesDashboardPage from "./app/ap/post-venta/indicadores-y-reportes/dashboard/page.tsx";
 import AdoptionDashboardPage from "./app/gp/gestion-del-sistema/adoption-dashboard/page";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -1840,6 +1841,10 @@ function App() {
               <Route
                 path="indicadores-y-reportes/reportes-postventa"
                 element={<ReportesPostVentaPage />}
+              />
+              <Route
+                path="indicadores-y-reportes/dashboard"
+                element={<ObjectivesDashboardPage />}
               />
             </Route>
 

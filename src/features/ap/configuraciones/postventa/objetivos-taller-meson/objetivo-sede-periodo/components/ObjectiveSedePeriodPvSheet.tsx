@@ -61,7 +61,6 @@ export default function ObjectiveSedePeriodPvSheet({
       successToast(SUCCESS_MESSAGE(MODEL, mode));
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       onSuccess?.(created);
-      onClose();
     },
     onError: (error: any) => {
       errorToast(error.response?.data?.message, ERROR_MESSAGE(MODEL, mode));

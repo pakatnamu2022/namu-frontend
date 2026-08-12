@@ -78,3 +78,14 @@ export async function deleteObjectiveSedePeriodPv(
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function bulkGenerateObjectiveSedePeriodPv(data: {
+  year: number;
+  month: number;
+}): Promise<GeneralResponse> {
+  const response = await api.post<GeneralResponse>(
+    `${ENDPOINT}/bulk-generate`,
+    data,
+  );
+  return response.data;
+}
