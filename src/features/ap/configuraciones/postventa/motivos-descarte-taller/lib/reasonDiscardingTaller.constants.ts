@@ -3,7 +3,7 @@ import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { ReasonDiscardingTallerResource } from "./reasonDiscardingTaller.interface";
 
 const ROUTE = "motivos-descarte-taller";
-const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/configuraciones/post-venta/${ROUTE}`;
 
 export const REASONS_DISCARDING_TALLER: ModelComplete<ReasonDiscardingTallerResource> =
   {
