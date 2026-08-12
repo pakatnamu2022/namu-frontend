@@ -234,6 +234,7 @@ export const ShippingGuideForm = ({
               placeholder="Ej: 12345678"
               inputMode="numeric"
               maxLength={8}
+              uppercase
               disabled={isDisabled}
               addonEnd={
                 <ValidationIndicator
@@ -252,6 +253,15 @@ export const ShippingGuideForm = ({
               name="license"
               label="Licencia de Conducir"
               placeholder="Ej: A12345678"
+              uppercase
+              disabled={isDisabled || shouldDisableLicenseFields}
+            />
+            <FormInput
+              control={form.control}
+              name="driver_name"
+              label="Nombre del Conductor"
+              placeholder="Ej: Juan Pérez"
+              uppercase
               disabled={isDisabled || shouldDisableLicenseFields}
             />
             <FormField

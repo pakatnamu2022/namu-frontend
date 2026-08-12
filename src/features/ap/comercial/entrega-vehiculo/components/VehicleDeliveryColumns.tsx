@@ -39,6 +39,7 @@ import { ButtonAction } from "@/shared/components/ButtonAction";
 import ShippingGuideHistory from "@/features/ap/shipping_guides/components/ShippingGuideHistory";
 import { getTodayPeruDateString } from "@/core/core.function";
 import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
+import RescheduleHistorySheet from "./RescheduleHistorySheet";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -427,12 +428,14 @@ export const vehicleDeliveryColumns = ({
     cell: ({ row }) => {
       const {
         id,
+        vin,
         shipping_guide_id,
         sent_at,
         aceptada_por_sunat,
         checklist_status,
         status_delivery,
         is_accounted,
+        rescheduled_by,
       } = row.original;
 
       const isToday =
@@ -496,6 +499,8 @@ export const vehicleDeliveryColumns = ({
         !shipping_guide_id &&
         permissions.canUpdate;
 
+      const canViewRescheduleHistory = !!rescheduled_by && permissions.canView;
+
       return (
         <div className="flex items-center gap-2">
           {canReschedule && (
@@ -508,6 +513,10 @@ export const vehicleDeliveryColumns = ({
             >
               <CalendarClock className="size-4" />
             </Button>
+          )}
+
+          {canViewRescheduleHistory && (
+            <RescheduleHistorySheet vehicleDeliveryId={id} vin={vin} />
           )}
 
           {canView && (

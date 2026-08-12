@@ -1,8 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import FormSkeleton from "@/shared/components/FormSkeleton";
+import { CopyCell } from "@/shared/components/CopyCell";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -15,12 +16,8 @@ import {
   FileCode,
   FileText,
   Loader2,
-  MapPin,
-  Package,
   QrCode,
   RefreshCw,
-  Tag,
-  Truck,
   XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -39,7 +36,7 @@ const sunatStatusConfig = {
   accepted: {
     label: "Aceptado por SUNAT",
     icon: CheckCircle,
-    className: "text-green-600",
+    className: "text-emerald-600",
   },
   rejected: {
     label: "Rechazado por SUNAT",
@@ -52,6 +49,70 @@ const sunatStatusConfig = {
     className: "text-muted-foreground",
   },
 };
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="py-4">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  copy,
+  fullWidth,
+}: {
+  label: string;
+  value?: string | number | null;
+  copy?: boolean;
+  fullWidth?: boolean;
+}) {
+  if (value === undefined || value === null || value === "" || value === "-")
+    return null;
+  return (
+    <div
+      className={
+        fullWidth
+          ? "py-1.5"
+          : "flex items-center justify-between gap-3 py-1.5"
+      }
+    >
+      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
+      {copy ? (
+        <CopyCell
+          value={String(value)}
+          size="sm"
+          className={
+            fullWidth
+              ? "mt-0.5 block font-medium"
+              : "truncate text-right font-medium"
+          }
+        />
+      ) : (
+        <span
+          className={
+            fullWidth
+              ? "mt-0.5 block text-sm font-medium"
+              : "truncate text-right text-sm font-medium"
+          }
+        >
+          {value}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export function VehicleDeliveryDetailsSheet({
   open,
@@ -103,6 +164,18 @@ export function VehicleDeliveryDetailsSheet({
   const vehicle = vehicleDelivery?.vehicle;
   const model = vehicle?.model;
 
+  const modelSummary = model
+    ? [model.brand, model.family, model.version].filter(Boolean).join(" · ")
+    : undefined;
+
+  const hasSunatFiles =
+    guide?.requires_sunat &&
+    guide.is_sunat_registered &&
+    (guide.enlace_del_pdf ||
+      guide.enlace_del_xml ||
+      guide.enlace_del_cdr ||
+      guide.cadena_para_codigo_qr);
+
   return (
     <GeneralSheet
       open={open}
@@ -112,645 +185,424 @@ export function VehicleDeliveryDetailsSheet({
         vehicleDelivery ? `VIN: ${vehicleDelivery.vin || "N/A"}` : undefined
       }
       icon="Truck"
-      size="5xl"
+      size="4xl"
     >
-      {isLoading ? (
-        <FormSkeleton />
-      ) : (
+      {isLoading ? null : (
         vehicleDelivery && (
-          <div className="space-y-3">
-            {/* VIN y Estado SUNAT */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">VIN</p>
-                <p className="text-sm font-semibold">
-                  {vehicleDelivery.vin || "-"}
+          <div className="text-sm">
+            {/* Hero */}
+            <div className="flex items-start justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  {modelSummary || "Vehículo"}
                 </p>
+                <p className="truncate text-lg font-bold tracking-wide">
+                  {vehicle?.plate || vehicleDelivery.vin || "-"}
+                </p>
+                {vehicleDelivery.client_name && (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {vehicleDelivery.client_name}
+                  </p>
+                )}
               </div>
-              {sunatConfig && SunatIcon && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Estado SUNAT</p>
-                  <div className="flex items-center gap-2">
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                {vehicle?.vehicle_status && (
+                  <Badge
+                    variant="outline"
+                    style={{ color: vehicle.status_color }}
+                  >
+                    {vehicle.vehicle_status}
+                  </Badge>
+                )}
+                {sunatConfig && SunatIcon && (
+                  <div className="flex items-center gap-1.5">
                     <SunatIcon
-                      className={`h-4 w-4 ${sunatConfig.className}`}
+                      className={`h-3.5 w-3.5 ${sunatConfig.className}`}
                     />
                     <span
-                      className={`text-sm font-medium ${sunatConfig.className}`}
+                      className={`text-xs font-medium ${sunatConfig.className}`}
                     >
                       {sunatConfig.label}
                     </span>
-                    {onQueryFromNubefact &&
-                      guide?.requires_sunat &&
-                      guide.is_sunat_registered && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7"
-                          disabled={isQueryingFromNubefact}
-                          onClick={() =>
-                            onQueryFromNubefact(vehicleDelivery.id)
-                          }
-                        >
-                          {isQueryingFromNubefact ? (
-                            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                          ) : (
-                            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                          )}
-                          Consultar
-                        </Button>
-                      )}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-
-            {/* Archivos SUNAT */}
-            {guide?.requires_sunat &&
-              guide.is_sunat_registered &&
-              (guide.enlace_del_pdf ||
-                guide.enlace_del_xml ||
-                guide.enlace_del_cdr ||
-                guide.cadena_para_codigo_qr) && (
-                <>
-                  <Separator />
-                  <div className="space-y-3">
-                    <h3 className="font-semibold">Archivos Disponibles</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {guide.enlace_del_pdf && (
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            to={guide.enlace_del_pdf}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Ver PDF
-                          </Link>
-                        </Button>
-                      )}
-                      {guide.enlace_del_xml && (
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            to={guide.enlace_del_xml}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FileCode className="h-4 w-4 mr-2" />
-                            Descargar XML
-                          </Link>
-                        </Button>
-                      )}
-                      {guide.enlace_del_cdr && (
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            to={guide.enlace_del_cdr}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Descargar CDR
-                          </Link>
-                        </Button>
-                      )}
-                      {guide.cadena_para_codigo_qr && (
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            to={guide.cadena_para_codigo_qr}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <QrCode className="h-4 w-4 mr-2" />
-                            Ver QR
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
 
             <Separator />
 
-            {/* Información del Vehículo */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Car className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold">Información del Vehículo</h3>
-              </div>
-              <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Sede</p>
-                    <p className="text-sm font-medium">
-                      {vehicleDelivery.sede_name || "-"}
-                    </p>
+            <Tabs defaultValue="vehicle" className="mt-3">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="vehicle" className="gap-1.5">
+                  <Car className="h-3.5 w-3.5" />
+                  Vehículo
+                </TabsTrigger>
+                <TabsTrigger value="guide" className="gap-1.5">
+                  <FileCheck className="h-3.5 w-3.5" />
+                  Guía de Remisión
+                </TabsTrigger>
+              </TabsList>
+
+              {/* TAB: VEHÍCULO */}
+              <TabsContent value="vehicle" className="divide-y divide-border">
+                <Section title="Entrega">
+                  <div className="grid grid-cols-2 gap-x-4">
+                    <Field label="Sede" value={vehicleDelivery.sede_name} />
+                    <Field
+                      label="Asesor"
+                      value={vehicleDelivery.advisor_name}
+                    />
+                    <Field
+                      label="Fecha lavado"
+                      value={formatDateOnly(vehicleDelivery.wash_date)}
+                    />
+                    <Field
+                      label="Entrega programada"
+                      value={formatDateOnly(
+                        vehicleDelivery.scheduled_delivery_date
+                      )}
+                    />
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Asesor</p>
-                    <p className="text-sm font-medium">
-                      {vehicleDelivery.advisor_name || "-"}
-                    </p>
-                  </div>
-                  {vehicleDelivery.client_name && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Cliente</p>
-                      <p className="text-sm font-medium">
-                        {vehicleDelivery.client_name}
-                      </p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Fecha Lavado
-                    </p>
-                    <p className="text-sm font-medium">
-                      {formatDateOnly(vehicleDelivery.wash_date)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Entrega Programada
-                    </p>
-                    <p className="text-sm font-medium">
-                      {formatDateOnly(vehicleDelivery.scheduled_delivery_date)}
-                    </p>
-                  </div>
-                </div>
-                {vehicleDelivery.observations && (
-                  <>
-                    <Separator />
-                    <div>
+                  {vehicleDelivery.observations && (
+                    <div className="mt-1.5">
                       <p className="text-xs text-muted-foreground">
                         Observaciones
                       </p>
-                      <p className="text-sm">{vehicleDelivery.observations}</p>
+                      <p className="mt-0.5 text-sm">
+                        {vehicleDelivery.observations}
+                      </p>
                     </div>
-                  </>
+                  )}
+                </Section>
+
+                {vehicle && (
+                  <Section title="Ficha del vehículo">
+                    <div className="grid grid-cols-2 gap-x-4">
+                      <Field label="VIN" value={vehicle.vin} copy />
+                      <Field label="Placa" value={vehicle.plate} copy />
+                      <Field
+                        label="N° de motor"
+                        value={vehicle.engine_number}
+                        copy
+                      />
+                      <Field label="Año" value={vehicle.year} />
+                      <Field
+                        label="Año de entrega"
+                        value={vehicle.year_delivery}
+                      />
+                      <Field label="Color" value={vehicle.vehicle_color} />
+                      <Field
+                        label="Tipo de motor"
+                        value={vehicle.engine_type}
+                      />
+                      <Field label="Kilometraje" value={vehicle.mileage} />
+                      <Field
+                        label="Almacén físico"
+                        value={vehicle.warehouse_physical_name}
+                      />
+                    </div>
+                  </Section>
                 )}
-              </div>
-            </div>
-
-            {vehicle && (
-              <>
-                <Separator />
-
-                {/* Información del Vehículo (Ficha) */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Car className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold">Ficha del Vehículo</h3>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
-                    <div>
-                      <p className="text-xs text-muted-foreground">VIN</p>
-                      <p className="text-sm font-semibold">
-                        {vehicle.vin || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Placa</p>
-                      <p className="text-sm font-medium">
-                        {vehicle.plate || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Estado</p>
-                      <Badge
-                        variant="outline"
-                        className="mt-1"
-                        style={{ color: vehicle.status_color }}
-                      >
-                        {vehicle.vehicle_status || "-"}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Año</p>
-                      <p className="text-sm font-medium">
-                        {vehicle.year || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Año de Entrega
-                      </p>
-                      <p className="text-sm font-medium">
-                        {vehicle.year_delivery || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        N° de Motor
-                      </p>
-                      <p className="text-sm font-medium">
-                        {vehicle.engine_number || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Color</p>
-                      <p className="text-sm font-medium">
-                        {vehicle.vehicle_color || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Tipo de Motor
-                      </p>
-                      <p className="text-sm font-medium">
-                        {vehicle.engine_type || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Kilometraje
-                      </p>
-                      <p className="text-sm font-medium">
-                        {vehicle.mileage ?? "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Almacén Físico
-                      </p>
-                      <p className="text-sm font-medium">
-                        {vehicle.warehouse_physical_name || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
                 {model && (
-                  <>
-                    <Separator />
-
-                    {/* Información del Modelo */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-primary" />
-                        <h3 className="font-semibold">Información del Modelo</h3>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Marca</p>
-                          <p className="text-sm font-semibold">
-                            {model.brand || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Familia
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.family || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Versión
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.version || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Código
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.code || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Año Modelo
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.model_year || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Clase
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.class || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Combustible
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.fuel || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Carrocería
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.body_type || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Transmisión
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.transmission || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Tracción
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.traction_type || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            N° Asientos
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.seats_number || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            N° Puertas
-                          </p>
-                          <p className="text-sm font-medium">
-                            {model.doors_number || "-"}
-                          </p>
-                        </div>
-                      </div>
+                  <Section title="Información del modelo">
+                    <div className="grid grid-cols-2 gap-x-4">
+                      <Field label="Marca" value={model.brand} />
+                      <Field label="Familia" value={model.family} />
+                      <Field label="Versión" value={model.version} />
+                      <Field label="Código" value={model.code} />
+                      <Field label="Año modelo" value={model.model_year} />
+                      <Field label="Clase" value={model.class} />
+                      <Field label="Combustible" value={model.fuel} />
+                      <Field label="Carrocería" value={model.body_type} />
+                      <Field
+                        label="Transmisión"
+                        value={model.transmission}
+                      />
+                      <Field label="Tracción" value={model.traction_type} />
+                      <Field label="N° asientos" value={model.seats_number} />
+                      <Field label="N° puertas" value={model.doors_number} />
                     </div>
-                  </>
+                  </Section>
                 )}
-              </>
-            )}
+              </TabsContent>
 
-            {guide && (
-              <>
-                <Separator />
-
-                {/* Información General de la Guía */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <FileCheck className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold">Guía de Remisión</h3>
+              {/* TAB: GUÍA */}
+              <TabsContent value="guide" className="divide-y divide-border">
+                {!guide ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    No hay guía de remisión asociada a esta entrega.
                   </div>
-                  <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Número de Documento
-                        </p>
-                        <p className="text-sm font-medium">
-                          {guide.document_number}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Tipo de Documento
-                        </p>
-                        <Badge variant="outline" className="mt-1">
-                          {guide.document_type === "GUIA_REMISION"
-                            ? "Guía de Remisión"
-                            : "Guía de Traslado"}
-                        </Badge>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Fecha de Emisión
-                        </p>
-                        <p className="text-sm font-medium">
-                          {guide.issue_date
-                            ? new Date(guide.issue_date).toLocaleDateString(
-                                "es-PE",
-                                {
-                                  day: "2-digit",
-                                  month: "long",
-                                  year: "numeric",
+                ) : (
+                  <>
+                    {(hasSunatFiles || onQueryFromNubefact) && (
+                      <Section title="Estado SUNAT">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            {sunatConfig && SunatIcon && (
+                              <>
+                                <SunatIcon
+                                  className={`h-4 w-4 ${sunatConfig.className}`}
+                                />
+                                <span
+                                  className={`text-sm font-medium ${sunatConfig.className}`}
+                                >
+                                  {sunatConfig.label}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          {onQueryFromNubefact &&
+                            guide.requires_sunat &&
+                            guide.is_sunat_registered && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7"
+                                disabled={isQueryingFromNubefact}
+                                onClick={() =>
+                                  onQueryFromNubefact(vehicleDelivery.id)
                                 }
-                              )
-                            : "-"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Tipo de Emisor
-                        </p>
-                        <p className="text-sm font-medium">
-                          {guide.issuer_type}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Motivo de Traslado
-                        </p>
-                        <p className="text-sm font-medium">
-                          {guide.transfer_reason_description || "-"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Modalidad de Transporte
-                        </p>
-                        <p className="text-sm font-medium">
-                          {guide.transfer_modality_description || "-"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Información de Transporte */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold">Información de Transporte</h3>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 rounded-lg">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Placa</p>
-                      <p className="text-sm font-semibold">
-                        {guide.plate || "-"}
-                      </p>
-                    </div>
-                    {isPrivateTransport ? (
-                      <>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Conductor
-                          </p>
-                          <p className="text-sm font-medium">
-                            {guide.driver_name || "-"}
-                          </p>
+                              >
+                                {isQueryingFromNubefact ? (
+                                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                                ) : (
+                                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                                )}
+                                Consultar
+                              </Button>
+                            )}
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Licencia
-                          </p>
-                          <p className="text-sm font-medium">
-                            {guide.license || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            DNI Conductor
-                          </p>
-                          <p className="text-sm font-medium">
-                            {guide.driver_doc || "-"}
-                          </p>
-                        </div>
-                      </>
-                    ) : isPublicTransport ? (
-                      <>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            RUC Transportista
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {guide.ruc_transport || "-"}
-                          </p>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="text-xs text-muted-foreground">
-                            Razón Social Transportista
-                          </p>
-                          <p className="text-sm font-medium">
-                            {guide.company_name_transport || "-"}
-                          </p>
-                        </div>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Origen y Destino */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <h3 className="font-semibold">Origen y Destino</h3>
-                  </div>
-                  <div className="flex gap-4">
-                    {/* Timeline */}
-                    <div className="flex flex-col items-center pt-1">
-                      <div className="w-3 h-3 rounded-full bg-foreground ring-2 ring-background ring-offset-1 ring-offset-foreground/20" />
-                      <div className="w-px flex-1 bg-border my-1" />
-                      <div className="w-3 h-3 rounded-full bg-muted-foreground ring-2 ring-background ring-offset-1 ring-offset-muted-foreground/20" />
-                    </div>
-                    {/* Content */}
-                    <div className="flex-1 space-y-3">
-                      <div className="rounded-lg border bg-card p-3 space-y-0.5">
-                        <p className="text-xs text-muted-foreground font-medium">Origen</p>
-                        <p className="text-sm font-semibold">
-                          {guide.transmitter_name || guide.sede_transmitter}
-                        </p>
-                        {guide.transmitter_establishment?.description && (
-                          <p className="text-xs text-muted-foreground">
-                            {guide.transmitter_establishment.description}
-                          </p>
+                        {hasSunatFiles && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {guide.enlace_del_pdf && (
+                              <Button variant="outline" size="sm" asChild>
+                                <Link
+                                  to={guide.enlace_del_pdf}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Ver PDF
+                                </Link>
+                              </Button>
+                            )}
+                            {guide.enlace_del_xml && (
+                              <Button variant="outline" size="sm" asChild>
+                                <Link
+                                  to={guide.enlace_del_xml}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <FileCode className="h-4 w-4 mr-2" />
+                                  XML
+                                </Link>
+                              </Button>
+                            )}
+                            {guide.enlace_del_cdr && (
+                              <Button variant="outline" size="sm" asChild>
+                                <Link
+                                  to={guide.enlace_del_cdr}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  CDR
+                                </Link>
+                              </Button>
+                            )}
+                            {guide.cadena_para_codigo_qr && (
+                              <Button variant="outline" size="sm" asChild>
+                                <Link
+                                  to={guide.cadena_para_codigo_qr}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <QrCode className="h-4 w-4 mr-2" />
+                                  QR
+                                </Link>
+                              </Button>
+                            )}
+                          </div>
                         )}
-                        <p className="text-xs text-muted-foreground">
-                          {guide.transmitter_establishment?.full_address ||
-                            guide.transmitter_description ||
-                            "-"}
-                        </p>
-                      </div>
-                      <div className="rounded-lg border bg-card p-3 space-y-0.5">
-                        <p className="text-xs text-muted-foreground font-medium">Destino</p>
-                        <p className="text-sm font-semibold">
-                          {vehicleDelivery.client_name || guide.receiver_name}
-                        </p>
-                        {guide.receiver_establishment?.description && (
-                          <p className="text-xs text-muted-foreground">
-                            {guide.destination_ubigeo}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground">
-                          {guide.destination_address ||
-                            guide.receiver_establishment?.full_address ||
-                            guide.receiver_description ||
-                            "-"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                      </Section>
+                    )}
 
-                {/* Información de Carga */}
-                {(guide.total_packages || guide.total_weight) && (
-                  <>
-                    <Separator />
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-primary" />
-                        <h3 className="font-semibold">
-                          Información de Carga
-                        </h3>
+                    <Section title="Datos generales">
+                      <div className="grid grid-cols-2 gap-x-4">
+                        <Field
+                          label="N° de documento"
+                          value={guide.document_number}
+                          copy
+                        />
+                        <Field
+                          label="Tipo de documento"
+                          value={
+                            guide.document_type === "GUIA_REMISION"
+                              ? "Guía de Remisión"
+                              : "Guía de Traslado"
+                          }
+                        />
+                        <Field
+                          label="Fecha de emisión"
+                          value={
+                            guide.issue_date
+                              ? new Date(guide.issue_date).toLocaleDateString(
+                                  "es-PE",
+                                  {
+                                    day: "2-digit",
+                                    month: "long",
+                                    year: "numeric",
+                                  }
+                                )
+                              : "-"
+                          }
+                        />
+                        <Field
+                          label="Tipo de emisor"
+                          value={guide.issuer_type}
+                        />
+                        <Field
+                          label="Motivo de traslado"
+                          value={guide.transfer_reason_description}
+                        />
+                        <Field
+                          label="Modalidad de transporte"
+                          value={guide.transfer_modality_description}
+                        />
                       </div>
-                      <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-                        {guide.total_packages && (
+                    </Section>
+
+                    <Section title="Transporte">
+                      <div className="grid grid-cols-2 gap-x-4">
+                        <Field label="Placa" value={guide.plate} copy />
+                        {isPrivateTransport ? (
+                          <>
+                            <Field
+                              label="Conductor"
+                              value={guide.driver_name}
+                            />
+                            <Field label="Licencia" value={guide.license} />
+                            <Field
+                              label="DNI conductor"
+                              value={guide.driver_doc}
+                              copy
+                            />
+                          </>
+                        ) : isPublicTransport ? (
+                          <>
+                            <Field
+                              label="RUC transportista"
+                              value={guide.ruc_transport}
+                              copy
+                            />
+                            <Field
+                              label="Razón social"
+                              value={guide.company_name_transport}
+                            />
+                          </>
+                        ) : null}
+                      </div>
+                    </Section>
+
+                    <Section title="Origen y destino">
+                      <div className="flex gap-3">
+                        <div className="flex flex-col items-center pt-1">
+                          <div className="h-2.5 w-2.5 rounded-full bg-foreground" />
+                          <div className="my-1 w-px flex-1 bg-border" />
+                          <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground" />
+                        </div>
+                        <div className="flex-1 space-y-3">
                           <div>
-                            <p className="text-xs text-muted-foreground">
-                              Total de Paquetes
+                            <p className="text-xs font-medium text-muted-foreground">
+                              Origen
                             </p>
                             <p className="text-sm font-semibold">
-                              {guide.total_packages}
+                              {guide.transmitter_name ||
+                                guide.sede_transmitter}
+                            </p>
+                            {guide.transmitter_establishment?.description && (
+                              <p className="text-xs text-muted-foreground">
+                                {guide.transmitter_establishment.description}
+                              </p>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                              {guide.transmitter_establishment?.full_address ||
+                                guide.transmitter_description ||
+                                "-"}
                             </p>
                           </div>
-                        )}
-                        {guide.total_weight && (
                           <div>
-                            <p className="text-xs text-muted-foreground">
-                              Peso Total
+                            <p className="text-xs font-medium text-muted-foreground">
+                              Destino
                             </p>
                             <p className="text-sm font-semibold">
-                              {guide.total_weight} kg
+                              {vehicleDelivery.client_name ||
+                                guide.receiver_name}
+                            </p>
+                            {guide.receiver_establishment?.description && (
+                              <p className="text-xs text-muted-foreground">
+                                {guide.destination_ubigeo}
+                              </p>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                              {guide.destination_address ||
+                                guide.receiver_establishment?.full_address ||
+                                guide.receiver_description ||
+                                "-"}
                             </p>
                           </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </Section>
 
-                {/* Notas de la Guía */}
-                {(guide.notes || guide.note_received) && (
-                  <>
-                    <Separator />
-                    <div className="space-y-3">
-                      <h3 className="font-semibold">Notas</h3>
-                      <div className="space-y-3 bg-muted/30 p-4 rounded-lg">
-                        {guide.notes && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">
-                              Nota de Guía
-                            </p>
-                            <p className="text-sm">{guide.notes}</p>
-                          </div>
-                        )}
-                        {guide.notes && guide.note_received && <Separator />}
-                        {guide.note_received && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">
-                              Nota de Recepción
-                            </p>
-                            <p className="text-sm">{guide.note_received}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {(guide.total_packages || guide.total_weight) && (
+                      <Section title="Carga">
+                        <div className="grid grid-cols-2 gap-x-4">
+                          <Field
+                            label="Total de paquetes"
+                            value={guide.total_packages}
+                          />
+                          <Field
+                            label="Peso total"
+                            value={
+                              guide.total_weight
+                                ? `${guide.total_weight} kg`
+                                : undefined
+                            }
+                          />
+                        </div>
+                      </Section>
+                    )}
+
+                    {(guide.notes || guide.note_received) && (
+                      <Section title="Notas">
+                        <div className="space-y-2">
+                          {guide.notes && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Nota de guía
+                              </p>
+                              <p className="mt-0.5 text-sm">{guide.notes}</p>
+                            </div>
+                          )}
+                          {guide.note_received && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                Nota de recepción
+                              </p>
+                              <p className="mt-0.5 text-sm">
+                                {guide.note_received}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </Section>
+                    )}
                   </>
                 )}
-              </>
-            )}
+              </TabsContent>
+            </Tabs>
           </div>
         )
       )}
