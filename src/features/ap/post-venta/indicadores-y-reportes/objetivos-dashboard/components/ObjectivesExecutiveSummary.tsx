@@ -19,11 +19,7 @@ import {
   ExecutiveSummary,
   PeriodInfo,
 } from "../lib/objectivesDashboard.interface";
-import {
-  OBJECTIVE_STATUS_COLOR,
-  OBJECTIVE_STATUS_LABEL,
-  OBJECTIVE_TREND_LABEL,
-} from "../lib/objectivesDashboard.constants";
+import { OBJECTIVE_STATUS_COLOR } from "../lib/objectivesDashboard.constants";
 
 interface ObjectivesExecutiveSummaryProps {
   summary: ExecutiveSummary;
@@ -73,15 +69,6 @@ export default function ObjectivesExecutiveSummary({
           showProgress
           progressValue={summary.completion_percentage}
           progressMax={100}
-        />
-
-        <MetricCard
-          title="Estado general"
-          value={OBJECTIVE_STATUS_LABEL[summary.status]}
-          subtitle={OBJECTIVE_TREND_LABEL[summary.trend]}
-          icon={TrendIcon}
-          variant="outline"
-          color={color}
         />
 
         <MetricCard
