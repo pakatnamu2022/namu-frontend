@@ -30,7 +30,6 @@ export default function ObjectivesDashboard() {
 
   const [year, setYear] = useState(currentYear());
   const [month, setMonth] = useState(currentMonth());
-  const [sedeId, setSedeId] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedSede, setSelectedSede] = useState<HeadquarterSummary | null>(
     null,
@@ -40,7 +39,6 @@ export default function ObjectivesDashboard() {
   const filters = {
     year,
     month,
-    sede_id: sedeId ? Number(sedeId) : undefined,
   };
 
   const { data, isLoading, isFetching } = useObjectivesDashboard(filters);
@@ -88,10 +86,8 @@ export default function ObjectivesDashboard() {
       <ObjectivesDashboardFilters
         year={year}
         month={month}
-        sedeId={sedeId}
         onYearChange={setYear}
         onMonthChange={setMonth}
-        onSedeChange={setSedeId}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing || isFetching}
       />
