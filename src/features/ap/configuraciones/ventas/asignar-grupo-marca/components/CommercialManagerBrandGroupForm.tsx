@@ -28,7 +28,7 @@ import {
   TagsValue,
 } from "@/shared/components/Tags";
 import { Info } from "lucide-react";
-import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
+import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants";
 import {
   CommercialManagerBrandGroupSchema,
   commercialManagerBrandGroupSchemaCreate,
@@ -60,7 +60,7 @@ export const CommercialManagerBrandGroupForm = ({
     resolver: zodResolver(
       mode === "create"
         ? commercialManagerBrandGroupSchemaCreate
-        : commercialManagerBrandGroupSchemaUpdate
+        : commercialManagerBrandGroupSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -94,7 +94,7 @@ export const CommercialManagerBrandGroupForm = ({
       month: data.month,
       brand_group_id: Number(data.brand_group_id),
       commercial_managers: data.commercial_managers.map(
-        (commercial_manager: AsesorResource) => commercial_manager.id
+        (commercial_manager: AsesorResource) => commercial_manager.id,
       ),
     };
     onSubmit(payload);
@@ -106,7 +106,9 @@ export const CommercialManagerBrandGroupForm = ({
         <Info className="h-5 w-5" />
         <span className="font-semibold">
           La acción se realizará para el periodo {defaultValues.year} y mes{" "}
-          {MONTHS.find((m) => m.value === String(defaultValues.month))?.label || defaultValues.month}.
+          {MONTH_OPTIONS.find((m) => m.value === String(defaultValues.month))
+            ?.label || defaultValues.month}
+          .
         </span>
       </div>
       <form
@@ -145,8 +147,8 @@ export const CommercialManagerBrandGroupForm = ({
                           onRemove={() =>
                             field.onChange(
                               (field.value ?? []).filter(
-                                (a: { id: number }) => a.id !== asesor.id
-                              )
+                                (a: { id: number }) => a.id !== asesor.id,
+                              ),
                             )
                           }
                         >
@@ -165,7 +167,7 @@ export const CommercialManagerBrandGroupForm = ({
                               onSelect={() => {
                                 if (
                                   !(field.value ?? []).some(
-                                    (a: { id: number }) => a.id === asesor.id
+                                    (a: { id: number }) => a.id === asesor.id,
                                   )
                                 ) {
                                   field.onChange([
@@ -178,7 +180,7 @@ export const CommercialManagerBrandGroupForm = ({
                             >
                               {asesor.name}
                               {(field.value ?? []).some(
-                                (a: { id: number }) => a.id === asesor.id
+                                (a: { id: number }) => a.id === asesor.id,
                               ) && (
                                 <CheckIcon
                                   className="text-muted-foreground"

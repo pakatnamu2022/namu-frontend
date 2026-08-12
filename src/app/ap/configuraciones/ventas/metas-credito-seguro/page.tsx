@@ -4,6 +4,8 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import {
+  currentMonth,
+  currentYear,
   ERROR_MESSAGE,
   errorToast,
   generateYear,
@@ -11,7 +13,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import TitleComponent from "@/shared/components/TitleComponent";
-import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, MONTH_OPTIONS } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -26,18 +28,15 @@ import { AP_SAFE_CREDIT_GOAL } from "@/features/ap/configuraciones/ventas/metas-
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function ApSafeCreditGoalPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
-  const currentYear = new Date().getFullYear().toString();
-  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear().toString());
+  const [month, setMonth] = useState(currentMonth().toString());
   const { ROUTE, MODEL } = AP_SAFE_CREDIT_GOAL;
   const permissions = useModulePermissions(ROUTE);
 
@@ -97,7 +96,7 @@ export default function ApSafeCreditGoalPage() {
           years={generateYear()}
           month={month}
           setMonth={setMonth}
-          months={MONTHS}
+          months={MONTH_OPTIONS}
         />
       </ApSafeCreditGoalTable>
 

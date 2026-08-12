@@ -37,7 +37,11 @@ import {
   updateAssignBrandConsultant,
 } from "../lib/assignBrandConsultant.actions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { DEFAULT_PER_PAGE, EMPRESA_AP, MONTHS } from "@/core/core.constants";
+import {
+  DEFAULT_PER_PAGE,
+  EMPRESA_AP,
+  MONTH_OPTIONS,
+} from "@/core/core.constants";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { ASSIGN_BRAND_CONSULTANT } from "../lib/assignBrandConsultant.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -61,7 +65,7 @@ export const AssignBrandConsultantForm = ({
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const { MODEL } = ASSIGN_BRAND_CONSULTANT;
   const currentMonthIndex = currentMonth() - 1;
-  const currentMonthName = MONTHS[currentMonthIndex].label;
+  const currentMonthName = MONTH_OPTIONS[currentMonthIndex].label;
 
   const form = useForm({
     resolver: zodResolver(assignBrandConsultantSchemaCreate as any),

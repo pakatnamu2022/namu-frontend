@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
-import { generateYear } from "@/core/core.function";
+import { DEFAULT_PER_PAGE, MONTH_OPTIONS } from "@/core/core.constants";
+import { currentMonth, currentYear, generateYear } from "@/core/core.function";
 import { AP_GOAL_SELL_OUT_IN } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.constants";
 import { useApGoalSellOutIn } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -19,13 +19,11 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function ApGoalSellOutInPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const currentYear = new Date().getFullYear().toString();
-  const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear().toString());
+  const [month, setMonth] = useState(currentMonth().toString());
   const { ROUTE } = AP_GOAL_SELL_OUT_IN;
   const permissions = useModulePermissions(ROUTE);
 
@@ -73,7 +71,7 @@ export default function ApGoalSellOutInPage() {
           years={generateYear()}
           month={month}
           setMonth={setMonth}
-          months={MONTHS}
+          months={MONTH_OPTIONS}
         />
       </ApGoalSellOutInTable>
 

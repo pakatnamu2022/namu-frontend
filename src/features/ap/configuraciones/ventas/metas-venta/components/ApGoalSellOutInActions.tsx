@@ -38,7 +38,7 @@ export default function ApGoalSellOutInActions({
     } catch (error: any) {
       errorToast(
         "Error al descargar el PDF. Por favor, intente nuevamente.",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     }
   };
@@ -69,7 +69,7 @@ export default function ApGoalSellOutInActions({
               className="ml-auto"
               onClick={() =>
                 router(
-                  `${ABSOLUTE_ROUTE}/resumen?year=${currentYear}&month=${currentMonth}`
+                  `${ABSOLUTE_ROUTE}/resumen?year=${currentYear}&month=${currentMonth}`,
                 )
               }
             >
