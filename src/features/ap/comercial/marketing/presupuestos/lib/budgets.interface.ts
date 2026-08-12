@@ -11,11 +11,13 @@ export interface BudgetsResource {
   plan_id: number;
   plan?: { id: number; name: string } | null;
   type: string;
+  type_label?: string | null;
   period_month: number | null;
   currency_id: number;
   currency?: { id: number; name: string; symbol: string } | null;
   amount_estimated: number;
   status: string | null;
+  status_label?: string | null;
   notes: string | null;
 }
 

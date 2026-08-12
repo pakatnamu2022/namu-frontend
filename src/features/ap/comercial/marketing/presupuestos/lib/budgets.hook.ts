@@ -9,7 +9,6 @@ export const useBudgets = (params?: Record<string, any>) => {
   return useQuery<BudgetsResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getBudgets({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -17,7 +16,6 @@ export const useAllBudgets = (params?: Record<string, any>) => {
   return useQuery<BudgetsResource[]>({
     queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllBudgets({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -25,7 +23,7 @@ export const useBudgetsById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findBudgetsById(id),
-    refetchOnWindowFocus: false,
+
     enabled: id > 0,
   });
 };

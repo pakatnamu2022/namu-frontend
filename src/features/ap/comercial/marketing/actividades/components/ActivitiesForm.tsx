@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { CalendarCheck2, Loader } from "lucide-react";
 import { ActivitiesSchema, activitiesSchema } from "../lib/activities.schema";
 import { FormInput } from "@/shared/components/FormInput";
@@ -20,9 +21,10 @@ interface Props {
   onSubmit: (data: ActivitiesSchema) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  statusLabel?: string | null;
 }
 
-export const ActivitiesForm = ({ defaultValues, onSubmit, isSubmitting = false }: Props) => {
+export const ActivitiesForm = ({ defaultValues, onSubmit, isSubmitting = false, mode = "create", statusLabel }: Props) => {
   const form = useForm<ActivitiesSchema>({
     resolver: zodResolver(activitiesSchema) as any,
     defaultValues,
@@ -73,13 +75,18 @@ export const ActivitiesForm = ({ defaultValues, onSubmit, isSubmitting = false }
             control={form.control}
             required
           />
-          <FormSelect
-            name="status"
-            label="Estado"
-            placeholder="Selecciona un estado"
-            options={ACTIVITY_STATUS_OPTIONS}
-            control={form.control}
-          />
+          {mode === "update" && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">Estado</span>
+              <div>
+                <Badge className="capitalize">
+                  {statusLabel ??
+                    (ACTIVITY_STATUS_OPTIONS.find((s) => s.value === defaultValues.status)?.label as string) ??
+                    defaultValues.status}
+                </Badge>
+              </div>
+            </div>
+          )}
           <FormInput name="objective" label="Objetivo" placeholder="Objetivo de la actividad" control={form.control} className="md:col-span-2" />
           <FormInput name="description" label="Descripción" control={form.control} className="md:col-span-2" />
           <FormInput name="notes" label="Notas" control={form.control} className="md:col-span-2" />

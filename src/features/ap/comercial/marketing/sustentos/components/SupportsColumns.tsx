@@ -18,9 +18,13 @@ export const supportsColumns = ({ onDelete, permissions }: Props): SupportsColum
   {
     accessorKey: "type",
     header: "Tipo",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return <Badge color="secondary">{(SUPPORT_TYPE_OPTIONS.find((t) => t.value === value)?.label as string) ?? value}</Badge>;
+    cell: ({ row }) => {
+      const value = row.original.type;
+      const label =
+        row.original.type_label ??
+        (SUPPORT_TYPE_OPTIONS.find((t) => t.value === value)?.label as string) ??
+        value;
+      return <Badge color="secondary">{label}</Badge>;
     },
   },
   {

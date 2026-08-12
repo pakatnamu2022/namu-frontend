@@ -17,6 +17,7 @@ export interface ProposalsResource {
   amount: number;
   description: string | null;
   status: string | null;
+  status_label?: string | null;
   notes: string | null;
   reviewed_by: number | null;
   reviewed_by_user?: { id: number; name: string } | null;

@@ -47,7 +47,7 @@ export default function UpdateMarketingPurchaseOrderPage() {
     mutationFn: (data: PurchaseOrdersSchema) => updatePurchaseOrders(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
@@ -70,6 +70,7 @@ export default function UpdateMarketingPurchaseOrderPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        statusLabel={order.status_label}
       />
     </FormWrapper>
   );

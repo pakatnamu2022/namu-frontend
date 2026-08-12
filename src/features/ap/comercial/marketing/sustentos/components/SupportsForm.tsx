@@ -14,6 +14,7 @@ import { useAllActivities } from "@/features/ap/comercial/marketing/actividades/
 import { useAllPurchaseOrders } from "@/features/ap/comercial/marketing/ordenes-compra/lib/purchaseOrders.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useBusinessPartners } from "@/features/ap/business-partners/lib/businessPartners.hook";
+import { useMarketingConstants } from "@/features/ap/comercial/marketing/lib/marketingConstants.hook";
 import { SUPPORT_TYPE_OPTIONS, SUPPORTS } from "../lib/supports.constants";
 
 interface Props {
@@ -32,6 +33,8 @@ export const SupportsForm = ({ defaultValues, onSubmit, isSubmitting = false }: 
   const { data: orders = [] } = useAllPurchaseOrders();
   const { data: currencies = [] } = useAllCurrencyTypes();
   const { data: suppliers } = useBusinessPartners({ all: true, type: "PROVEEDOR" });
+  const { data: constants } = useMarketingConstants();
+  const typeOptions = constants?.support_types ?? SUPPORT_TYPE_OPTIONS;
 
   return (
     <Form {...form}>
@@ -41,7 +44,7 @@ export const SupportsForm = ({ defaultValues, onSubmit, isSubmitting = false }: 
             name="type"
             label="Tipo de Sustento"
             placeholder="Selecciona un tipo"
-            options={SUPPORT_TYPE_OPTIONS}
+            options={typeOptions}
             control={form.control}
             required
           />

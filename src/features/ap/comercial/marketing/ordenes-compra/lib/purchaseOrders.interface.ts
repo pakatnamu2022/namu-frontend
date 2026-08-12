@@ -20,6 +20,7 @@ export interface PurchaseOrdersResource {
   amount: number;
   issue_date: string | null;
   status: string | null;
+  status_label?: string | null;
   sent_at: string | null;
   billed_at: string | null;
   notes: string | null;

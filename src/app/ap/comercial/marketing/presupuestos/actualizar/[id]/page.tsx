@@ -45,7 +45,7 @@ export default function UpdateMarketingBudgetPage() {
     mutationFn: (data: BudgetsSchema) => updateBudgets(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {

@@ -52,7 +52,7 @@ export default function UpdateMarketingActivityPage() {
     mutationFn: (data: ActivitiesSchema) => updateActivities(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
@@ -75,6 +75,7 @@ export default function UpdateMarketingActivityPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        statusLabel={activity.status_label}
       />
     </FormWrapper>
   );

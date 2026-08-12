@@ -13,6 +13,7 @@ export interface SupportsResource {
   purchase_order_id: number | null;
   purchase_order?: { id: number; number: string | null } | null;
   type: string;
+  type_label?: string | null;
   document_series: string | null;
   document_number: string | null;
   issue_date: string | null;

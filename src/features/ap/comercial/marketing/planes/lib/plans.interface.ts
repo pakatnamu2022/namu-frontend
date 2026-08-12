@@ -15,6 +15,7 @@ export interface PlansResource {
   year: number;
   description: string | null;
   status: string | null;
+  status_label?: string | null;
   budgets?: unknown[];
   created_by?: number;
   created_at?: string;

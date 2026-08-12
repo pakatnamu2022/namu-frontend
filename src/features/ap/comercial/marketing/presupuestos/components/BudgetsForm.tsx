@@ -13,6 +13,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllPlans } from "@/features/ap/comercial/marketing/planes/lib/plans.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { MONTH_OPTIONS } from "@/core/core.constants";
+import { useMarketingConstants } from "@/features/ap/comercial/marketing/lib/marketingConstants.hook";
 import { BUDGET_STATUS_OPTIONS, BUDGET_TYPE_OPTIONS, BUDGETS } from "../lib/budgets.constants";
 
 interface Props {
@@ -30,6 +31,9 @@ export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: P
 
   const { data: plans = [] } = useAllPlans();
   const { data: currencies = [] } = useAllCurrencyTypes();
+  const { data: constants } = useMarketingConstants();
+  const typeOptions = constants?.budget_types ?? BUDGET_TYPE_OPTIONS;
+  const statusOptions = constants?.budget_statuses ?? BUDGET_STATUS_OPTIONS;
 
   return (
     <Form {...form}>
@@ -47,7 +51,7 @@ export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: P
             name="type"
             label="Tipo"
             placeholder="Selecciona un tipo"
-            options={BUDGET_TYPE_OPTIONS}
+            options={typeOptions}
             control={form.control}
             required
           />
@@ -79,7 +83,7 @@ export const BudgetsForm = ({ defaultValues, onSubmit, isSubmitting = false }: P
             name="status"
             label="Estado"
             placeholder="Selecciona un estado"
-            options={BUDGET_STATUS_OPTIONS}
+            options={statusOptions}
             control={form.control}
           />
           <FormInput

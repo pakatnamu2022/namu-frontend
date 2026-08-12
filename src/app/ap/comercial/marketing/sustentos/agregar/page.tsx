@@ -2,7 +2,7 @@
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -20,13 +20,15 @@ import { notFound } from "@/shared/hooks/useNotFound";
 export default function AddMarketingSupportPage() {
   const router = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPORTS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SUPPORTS;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeSupports,
-    onSuccess: () => {
+    onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {

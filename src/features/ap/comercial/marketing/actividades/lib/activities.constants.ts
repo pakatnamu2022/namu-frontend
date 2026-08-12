@@ -25,3 +25,10 @@ export const ACTIVITY_STATUS_OPTIONS: Option[] = [
   { label: "Ejecutada", value: "executed" },
   { label: "Cancelada", value: "cancelled" },
 ];
+
+export const ACTIVITY_NEXT_STATUS: Record<string, { value: string; label: string } | undefined> = {
+  planned: { value: "in_progress", label: "Iniciar" },
+  in_progress: { value: "executed", label: "Marcar ejecutada" },
+};
+
+export const ACTIVITY_CANCELLABLE_STATUSES = ["planned", "in_progress"];

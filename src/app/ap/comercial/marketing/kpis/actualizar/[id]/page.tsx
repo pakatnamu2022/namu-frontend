@@ -46,7 +46,7 @@ export default function UpdateMarketingKpiPage() {
     mutationFn: (data: KpisSchema) => updateKpis(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {

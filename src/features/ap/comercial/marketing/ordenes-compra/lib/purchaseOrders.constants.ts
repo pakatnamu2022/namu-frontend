@@ -30,3 +30,23 @@ export const PURCHASE_ORDER_STATUS_OPTIONS: Option[] = [
   { label: "Cerrada", value: "closed" },
   { label: "Cancelada", value: "cancelled" },
 ];
+
+export const PURCHASE_ORDER_NEXT_STATUS: Record<string, { value: string; label: string } | undefined> = {
+  draft: { value: "sent", label: "Marcar enviada" },
+  sent: { value: "in_execution", label: "Marcar en ejecución" },
+  in_execution: { value: "pending_support", label: "Marcar pendiente de sustento" },
+  pending_support: { value: "supported", label: "Marcar sustentada" },
+  supported: { value: "pending_billing", label: "Marcar pendiente de facturación" },
+  pending_billing: { value: "billed", label: "Marcar facturada" },
+  billed: { value: "closed", label: "Marcar cerrada" },
+};
+
+export const PURCHASE_ORDER_CANCELLABLE_STATUSES = [
+  "draft",
+  "sent",
+  "in_execution",
+  "pending_support",
+  "supported",
+  "pending_billing",
+  "billed",
+];

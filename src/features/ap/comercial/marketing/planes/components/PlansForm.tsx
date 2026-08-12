@@ -11,6 +11,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
+import { useMarketingConstants } from "@/features/ap/comercial/marketing/lib/marketingConstants.hook";
 import { PLAN_STATUS_OPTIONS, PLANS } from "../lib/plans.constants";
 
 interface Props {
@@ -31,6 +32,8 @@ export const PlansForm = ({
   });
 
   const { data: brands = [] } = useAllBrands();
+  const { data: constants } = useMarketingConstants();
+  const statusOptions = constants?.plan_statuses ?? PLAN_STATUS_OPTIONS;
 
   return (
     <Form {...form}>
@@ -72,7 +75,7 @@ export const PlansForm = ({
             name="status"
             label="Estado"
             placeholder="Selecciona un estado"
-            options={PLAN_STATUS_OPTIONS}
+            options={statusOptions}
             control={form.control}
           />
           <FormInput

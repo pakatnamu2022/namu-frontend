@@ -45,7 +45,7 @@ export default function UpdateMarketingProposalPage() {
     mutationFn: (data: ProposalsSchema) => updateProposals(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY, id] });
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
@@ -68,6 +68,7 @@ export default function UpdateMarketingProposalPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        statusLabel={proposal.status_label}
       />
     </FormWrapper>
   );

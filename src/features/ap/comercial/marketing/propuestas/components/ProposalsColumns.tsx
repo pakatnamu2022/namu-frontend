@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, ThumbsDown, ThumbsUp } from "lucide-react";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { Badge } from "@/components/ui/badge";
 import { ProposalsResource } from "../lib/proposals.interface";
-import { PROPOSALS } from "../lib/proposals.constants";
+import { PROPOSALS, PROPOSAL_STATUS_OPTIONS } from "../lib/proposals.constants";
 
 export type ProposalsColumns = ColumnDef<ProposalsResource>;
 
@@ -54,11 +56,15 @@ export const proposalsColumns = ({
   {
     accessorKey: "status",
     header: "Estado",
-    cell: ({ getValue }) => {
-      const value = (getValue() as string) ?? "pending";
+    cell: ({ row }) => {
+      const value = row.original.status ?? "pending";
+      const label =
+        row.original.status_label ??
+        (PROPOSAL_STATUS_OPTIONS.find((s) => s.value === value)?.label as string) ??
+        value;
       return (
         <Badge color={statusColor[value] ?? "secondary"} className="capitalize">
-          {value}
+          {label}
         </Badge>
       );
     },
@@ -69,6 +75,10 @@ export const proposalsColumns = ({
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [confirmApprove, setConfirmApprove] = useState(false);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [confirmReject, setConfirmReject] = useState(false);
       const { id, status } = row.original;
       const { ROUTE_UPDATE } = PROPOSALS;
       const isPending = (status ?? "pending") === "pending";
@@ -76,10 +86,37 @@ export const proposalsColumns = ({
       return (
         <div className="flex items-center gap-2">
           {isPending && permissions.canApprove && (
-            <ButtonAction icon={ThumbsUp} color="green" tooltip="Aprobar" type="button" onClick={() => onApprove(id)} />
+            <>
+              <ButtonAction icon={ThumbsUp} color="green" tooltip="Aprobar" type="button" onClick={() => setConfirmApprove(true)} />
+              <ConfirmationDialog
+                open={confirmApprove}
+                onOpenChange={setConfirmApprove}
+                trigger={<span className="hidden" />}
+                title="¿Aprobar propuesta?"
+                description="Esta acción aprobará la propuesta del proveedor. ¿Estás seguro de que deseas continuar?"
+                confirmText="Sí, aprobar"
+                cancelText="Cancelar"
+                icon="info"
+                onConfirm={() => onApprove(id)}
+              />
+            </>
           )}
           {isPending && permissions.canReject && (
-            <ButtonAction icon={ThumbsDown} color="red" tooltip="Rechazar" type="button" onClick={() => onReject(id)} />
+            <>
+              <ButtonAction icon={ThumbsDown} color="red" tooltip="Rechazar" type="button" onClick={() => setConfirmReject(true)} />
+              <ConfirmationDialog
+                open={confirmReject}
+                onOpenChange={setConfirmReject}
+                trigger={<span className="hidden" />}
+                title="¿Rechazar propuesta?"
+                description="Esta acción rechazará la propuesta del proveedor. ¿Estás seguro de que deseas continuar?"
+                confirmText="Sí, rechazar"
+                cancelText="No, continuar"
+                variant="destructive"
+                icon="danger"
+                onConfirm={() => onReject(id)}
+              />
+            </>
           )}
           {permissions.canUpdate && (
             <ButtonAction

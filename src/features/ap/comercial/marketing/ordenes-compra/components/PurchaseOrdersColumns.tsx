@@ -1,12 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Receipt } from "lucide-react";
+import { Pencil, Receipt, X } from "lucide-react";
 import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { formatDateShort } from "@/core/core.function";
 import { PurchaseOrdersResource } from "../lib/purchaseOrders.interface";
 import {
   MARKETING_PURCHASE_ORDERS,
+  PURCHASE_ORDER_CANCELLABLE_STATUSES,
+  PURCHASE_ORDER_NEXT_STATUS,
   PURCHASE_ORDER_STATUS_OPTIONS,
 } from "../lib/purchaseOrders.constants";
 import { SUPPORTS } from "../../sustentos/lib/supports.constants";
@@ -54,26 +60,67 @@ export const purchaseOrdersColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [confirmNext, setConfirmNext] = useState(false);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [confirmCancel, setConfirmCancel] = useState(false);
       const value = row.original.status ?? "draft";
-      if (!permissions.canUpdate) {
-        return (
-          <span className="capitalize text-xs">
-            {(PURCHASE_ORDER_STATUS_OPTIONS.find((s) => s.value === value)?.label as string) ?? value}
-          </span>
-        );
-      }
+      const next = PURCHASE_ORDER_NEXT_STATUS[value];
+      const canCancel = PURCHASE_ORDER_CANCELLABLE_STATUSES.includes(value);
+      const label =
+        row.original.status_label ??
+        (PURCHASE_ORDER_STATUS_OPTIONS.find((s) => s.value === value)?.label as string) ??
+        value;
       return (
-        <select
-          className="text-xs border rounded-md px-2 py-1 bg-background"
-          value={value}
-          onChange={(e) => onChangeStatus(row.original.id, e.target.value)}
-        >
-          {PURCHASE_ORDER_STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label as string}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <Badge className="capitalize">{label}</Badge>
+          {permissions.canUpdate && next && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-xs"
+                onClick={() => setConfirmNext(true)}
+              >
+                {next.label}
+              </Button>
+              <ConfirmationDialog
+                open={confirmNext}
+                onOpenChange={setConfirmNext}
+                trigger={<span className="hidden" />}
+                title={`¿${next.label}?`}
+                description={`La orden de compra pasará de "${label}" a "${next.label}". ¿Confirmas este cambio de estado?`}
+                confirmText="Sí, confirmar"
+                cancelText="Cancelar"
+                icon="info"
+                onConfirm={() => onChangeStatus(row.original.id, next.value)}
+              />
+            </>
+          )}
+          {permissions.canUpdate && canCancel && (
+            <>
+              <ButtonAction
+                icon={X}
+                color="red"
+                tooltip="Cancelar orden de compra"
+                type="button"
+                onClick={() => setConfirmCancel(true)}
+              />
+              <ConfirmationDialog
+                open={confirmCancel}
+                onOpenChange={setConfirmCancel}
+                trigger={<span className="hidden" />}
+                title="¿Cancelar orden de compra?"
+                description="Esta acción marcará la orden de compra como cancelada. ¿Estás seguro de que deseas continuar?"
+                confirmText="Sí, cancelar"
+                cancelText="No, continuar"
+                variant="destructive"
+                icon="danger"
+                onConfirm={() => onChangeStatus(row.original.id, "cancelled")}
+              />
+            </>
+          )}
+        </div>
       );
     },
   },

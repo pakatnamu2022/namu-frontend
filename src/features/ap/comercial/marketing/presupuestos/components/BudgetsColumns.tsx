@@ -6,7 +6,7 @@ import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { MONTH_OPTIONS } from "@/core/core.constants";
 import { BudgetsResource } from "../lib/budgets.interface";
-import { BUDGETS } from "../lib/budgets.constants";
+import { BUDGETS, BUDGET_TYPE_OPTIONS } from "../lib/budgets.constants";
 
 export type BudgetsColumns = ColumnDef<BudgetsResource>;
 
@@ -32,9 +32,14 @@ export const budgetsColumns = ({
   {
     accessorKey: "type",
     header: "Tipo",
-    cell: ({ getValue }) => (
-      <span className="capitalize">{getValue() as string}</span>
-    ),
+    cell: ({ row }) => {
+      const value = row.original.type;
+      const label =
+        row.original.type_label ??
+        (BUDGET_TYPE_OPTIONS.find((t) => t.value === value)?.label as string) ??
+        value;
+      return <span className="capitalize">{label}</span>;
+    },
   },
   {
     accessorKey: "period_month",
@@ -56,12 +61,13 @@ export const budgetsColumns = ({
   {
     accessorKey: "status",
     header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as string | null;
+    cell: ({ row }) => {
+      const value = row.original.status;
       if (!value) return <span className="text-muted-foreground">-</span>;
+      const label = row.original.status_label ?? value;
       return (
         <Badge color={value === "approved" ? "default" : "secondary"} className="capitalize">
-          {value}
+          {label}
         </Badge>
       );
     },

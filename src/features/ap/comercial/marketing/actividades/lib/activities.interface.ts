@@ -24,6 +24,7 @@ export interface ActivitiesResource {
   supplier_id: number | null;
   supplier?: { id: number; full_name: string } | null;
   status: string | null;
+  status_label?: string | null;
   notes: string | null;
 }
 

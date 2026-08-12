@@ -5,7 +5,7 @@ import { ButtonAction } from "@/shared/components/ButtonAction";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { PlansResource } from "../lib/plans.interface";
-import { PLANS } from "../lib/plans.constants";
+import { PLANS, PLAN_STATUS_OPTIONS } from "../lib/plans.constants";
 
 export type PlansColumns = ColumnDef<PlansResource>;
 
@@ -42,9 +42,13 @@ export const plansColumns = ({ onDelete, permissions }: Props): PlansColumns[] =
   {
     accessorKey: "status",
     header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as string | null;
+    cell: ({ row }) => {
+      const value = row.original.status;
       if (!value) return <span className="text-muted-foreground">-</span>;
+      const label =
+        row.original.status_label ??
+        (PLAN_STATUS_OPTIONS.find((s) => s.value === value)?.label as string) ??
+        value;
       const colorMap: Record<string, "default" | "secondary" | "destructive"> = {
         draft: "secondary",
         active: "default",
@@ -53,7 +57,7 @@ export const plansColumns = ({ onDelete, permissions }: Props): PlansColumns[] =
       };
       return (
         <Badge color={colorMap[value] ?? "secondary"} className="capitalize">
-          {value}
+          {label}
         </Badge>
       );
     },
