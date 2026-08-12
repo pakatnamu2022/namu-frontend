@@ -16,7 +16,6 @@ export const usePurchaseOrders = (params?: Record<string, any>) => {
   return useQuery<PurchaseOrdersResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getPurchaseOrders({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -24,7 +23,6 @@ export const useAllPurchaseOrders = (params?: Record<string, any>) => {
   return useQuery<PurchaseOrdersResource[]>({
     queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllPurchaseOrders({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -32,7 +30,7 @@ export const usePurchaseOrdersById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findPurchaseOrdersById(id),
-    refetchOnWindowFocus: false,
+
     enabled: id > 0,
   });
 };

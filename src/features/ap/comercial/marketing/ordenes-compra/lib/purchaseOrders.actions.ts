@@ -62,10 +62,13 @@ export async function deletePurchaseOrders(
 export async function changePurchaseOrderStatus(
   id: number,
   status: string,
+  electronic_document_id?: number,
 ): Promise<PurchaseOrdersResource> {
+  const payload: Record<string, any> = { status };
+  if (electronic_document_id) payload.electronic_document_id = electronic_document_id;
   const { data } = await api.patch<PurchaseOrdersResource>(
     `${ENDPOINT}/${id}/status`,
-    { status },
+    payload,
   );
   return data;
 }

@@ -56,13 +56,18 @@ export default function MarketingPurchaseOrdersPage() {
     }
   };
 
-  const handleChangeStatus = async (id: number, status: string) => {
+  const handleChangeStatus = async (
+    id: number,
+    status: string,
+    electronicDocumentId?: number,
+  ) => {
     try {
-      await changePurchaseOrderStatus(id, status);
+      await changePurchaseOrderStatus(id, status, electronicDocumentId);
       await refetch();
       successToast("Estado actualizado correctamente.");
-    } catch {
-      errorToast("Error al actualizar el estado.");
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
     }
   };
 
