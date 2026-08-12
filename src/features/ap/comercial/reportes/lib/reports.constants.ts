@@ -280,6 +280,43 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
       area_id: AREA_COMERCIAL,
     },
   },
+  {
+    id: "purchase-order",
+    title: "Reporte de Órdenes de Compra",
+    type: "Compras",
+    description:
+      "Exporta el reporte de órdenes de compra de vehículos, filtrando por rango de fecha de emisión y sede.",
+    icon: "FileSpreadsheet",
+    endpoint: "/ap/reports/purchase-order/export",
+    method: "get",
+    fields: [
+      {
+        name: "fecha",
+        label: "Fecha",
+        type: "daterange",
+        required: true,
+        nameFrom: "fecha_inicio",
+        nameTo: "fecha_fin",
+        defaultValueFrom: toLocalDateString(getFirstDayOfMonth(new Date())),
+        defaultValueTo: getTodayLocalDateString(),
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "multiselect",
+        required: false,
+        placeholder: "Seleccionar sede",
+        endpoint: "/gp/mg/sede/my",
+        multiSelectMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            id: item.id,
+            name: item.abreviatura,
+          })),
+      },
+    ],
+    defaultParams: {},
+    fileName: "Reporte_OC",
+  },
 ];
 
 export const REPORTS_COMMERCIAL_CONSTANTS: ModelComplete = {
