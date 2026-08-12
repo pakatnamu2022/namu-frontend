@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import ExportButtons from "@/shared/components/ExportButtons";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import {
   errorToast,
@@ -21,7 +22,10 @@ import {
   useObjectivesDashboard,
   OBJECTIVES_DASHBOARD_QUERY_KEY,
 } from "../lib/objectivesDashboard.hook";
-import { refreshObjectivesDashboard } from "../lib/objectivesDashboard.actions";
+import {
+  refreshObjectivesDashboard,
+  exportObjectivesDashboard,
+} from "../lib/objectivesDashboard.actions";
 import { HeadquarterSummary } from "../lib/objectivesDashboard.interface";
 
 export default function ObjectivesDashboard() {
@@ -30,6 +34,7 @@ export default function ObjectivesDashboard() {
 
   const [year, setYear] = useState(currentYear());
   const [month, setMonth] = useState(currentMonth());
+  const [sedeId, setSedeId] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedSede, setSelectedSede] = useState<HeadquarterSummary | null>(
     null,
@@ -39,6 +44,7 @@ export default function ObjectivesDashboard() {
   const filters = {
     year,
     month,
+    sede_id: sedeId ? Number(sedeId) : undefined,
   };
 
   const { data, isLoading, isFetching } = useObjectivesDashboard(filters);
@@ -81,13 +87,20 @@ export default function ObjectivesDashboard() {
           dashboard ? dashboard.period.name : "Postventa · Taller y Mostrador"
         }
         icon={currentView?.icon || "Target"}
-      />
+      >
+        <ExportButtons
+          onExcelDownload={() => exportObjectivesDashboard(filters)}
+          disableExcel={isLoading}
+        />
+      </TitleComponent>
 
       <ObjectivesDashboardFilters
         year={year}
         month={month}
+        sedeId={sedeId}
         onYearChange={setYear}
         onMonthChange={setMonth}
+        onSedeChange={setSedeId}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing || isFetching}
       />
