@@ -13,6 +13,7 @@ import {
 } from "../lib/purchaseOrders.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useActivities } from "@/features/ap/comercial/marketing/actividades/lib/activities.hook";
 import { useProposals } from "@/features/ap/comercial/marketing/propuestas/lib/proposals.hook";
@@ -123,10 +124,9 @@ export const PurchaseOrdersForm = ({
             control={form.control}
             required
           />
-          <FormInput
+          <DatePickerFormField
             name="issue_date"
             label="Fecha de Emisión"
-            type="date"
             control={form.control}
           />
           {mode === "update" && (
