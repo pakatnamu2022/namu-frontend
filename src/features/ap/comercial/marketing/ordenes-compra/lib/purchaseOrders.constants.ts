@@ -50,3 +50,7 @@ export const PURCHASE_ORDER_CANCELLABLE_STATUSES = [
   "pending_billing",
   "billed",
 ];
+
+export const PURCHASE_ORDER_EDITABLE_STATUSES = ["draft", "sent"];
+
+export const PURCHASE_ORDER_DELETABLE_STATUSES = ["draft"];
