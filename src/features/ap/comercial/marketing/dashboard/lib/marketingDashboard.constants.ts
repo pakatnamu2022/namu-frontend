@@ -1,5 +1,5 @@
 const ROUTE = "";
-const ABSOLUTE_ROUTE = "/ap/comercial/marketing";
+const ABSOLUTE_ROUTE = "/ap/marketing";
 
 export const MARKETING_DASHBOARD = {
   MODEL: {
@@ -8,8 +8,8 @@ export const MARKETING_DASHBOARD = {
     gender: false,
   },
   ICON: "LayoutDashboard" as const,
-  ENDPOINT: "/marketing/dashboard",
-  ENDPOINT_MONTHLY: "/marketing/dashboard/monthly",
+  ENDPOINT: "ap/marketing/dashboard",
+  ENDPOINT_MONTHLY: "/ap/marketing/dashboard/monthly",
   QUERY_KEY: "marketing-dashboard",
   ROUTE,
   ABSOLUTE_ROUTE,

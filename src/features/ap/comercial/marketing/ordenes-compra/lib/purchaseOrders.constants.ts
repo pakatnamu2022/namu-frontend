@@ -2,7 +2,7 @@ import { type ModelComplete, type Option } from "@/core/core.interface";
 import { PurchaseOrdersResource } from "./purchaseOrders.interface";
 
 const ROUTE = "ordenes-compra";
-const ABSOLUTE_ROUTE = `/ap/comercial/marketing/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/marketing/${ROUTE}`;
 
 export const MARKETING_PURCHASE_ORDERS: ModelComplete<PurchaseOrdersResource> = {
   MODEL: {
@@ -11,7 +11,7 @@ export const MARKETING_PURCHASE_ORDERS: ModelComplete<PurchaseOrdersResource> = 
     gender: true,
   },
   ICON: "ShoppingCart",
-  ENDPOINT: "/marketing/purchase-orders",
+  ENDPOINT: "/ap/marketing/purchase-orders",
   QUERY_KEY: "marketing-purchase-orders",
   ROUTE,
   ABSOLUTE_ROUTE,

@@ -2,7 +2,7 @@ import { type ModelComplete, type Option } from "@/core/core.interface";
 import { ActivitiesResource } from "./activities.interface";
 
 const ROUTE = "actividades";
-const ABSOLUTE_ROUTE = `/ap/comercial/marketing/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/marketing/${ROUTE}`;
 
 export const ACTIVITIES: ModelComplete<ActivitiesResource> = {
   MODEL: {
@@ -11,7 +11,7 @@ export const ACTIVITIES: ModelComplete<ActivitiesResource> = {
     gender: true,
   },
   ICON: "CalendarCheck2",
-  ENDPOINT: "/marketing/activities",
+  ENDPOINT: "/ap/marketing/activities",
   QUERY_KEY: "marketing-activities",
   ROUTE,
   ABSOLUTE_ROUTE,

@@ -18,7 +18,12 @@ export default function PlansActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Button size="sm" variant="outline" className="ml-auto" onClick={() => router(ROUTE_ADD!)}>
+      <Button
+        size="sm"
+        variant="outline"
+        className="ml-auto"
+        onClick={() => router(ROUTE_ADD!)}
+      >
         <Plus className="size-4 mr-2" /> Agregar Plan
       </Button>
     </ActionsWrapper>

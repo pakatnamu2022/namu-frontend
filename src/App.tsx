@@ -751,7 +751,7 @@ function App() {
                 element={<AddMarketingSupportPage />}
               />
               {RouterCrud(
-                "marketing/kpis",
+                "kpis",
                 <MarketingKpisPage />,
                 <AddMarketingKpiPage />,
                 <UpdateMarketingKpiPage />,

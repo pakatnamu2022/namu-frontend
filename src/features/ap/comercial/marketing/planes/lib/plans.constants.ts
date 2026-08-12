@@ -2,7 +2,7 @@ import { type ModelComplete, type Option } from "@/core/core.interface";
 import { PlansResource } from "./plans.interface";
 
 const ROUTE = "planes";
-const ABSOLUTE_ROUTE = `/ap/comercial/marketing/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/marketing/${ROUTE}`;
 
 export const PLANS: ModelComplete<PlansResource> = {
   MODEL: {
@@ -11,7 +11,7 @@ export const PLANS: ModelComplete<PlansResource> = {
     gender: false,
   },
   ICON: "NotebookPen",
-  ENDPOINT: "/marketing/plans",
+  ENDPOINT: "/ap/marketing/plans",
   QUERY_KEY: "marketing-plans",
   ROUTE,
   ABSOLUTE_ROUTE,

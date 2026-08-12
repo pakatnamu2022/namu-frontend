@@ -2,7 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { KpisResource } from "./kpis.interface";
 
 const ROUTE = "kpis";
-const ABSOLUTE_ROUTE = `/ap/comercial/marketing/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/marketing/${ROUTE}`;
 
 export const KPIS: ModelComplete<KpisResource> = {
   MODEL: {
@@ -11,7 +11,7 @@ export const KPIS: ModelComplete<KpisResource> = {
     gender: false,
   },
   ICON: "TrendingUp",
-  ENDPOINT: "/marketing/kpis",
+  ENDPOINT: "/ap/marketing/kpis",
   QUERY_KEY: "marketing-kpis",
   ROUTE,
   ABSOLUTE_ROUTE,

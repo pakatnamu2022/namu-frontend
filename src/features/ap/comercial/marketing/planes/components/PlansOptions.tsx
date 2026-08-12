@@ -9,7 +9,11 @@ export default function PlansOptions({
 }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <SearchInput value={search} onChange={setSearch} placeholder="Buscar plan..." />
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar plan..."
+      />
     </div>
   );
 }
