@@ -3,7 +3,7 @@ import { TypesOperationsAppointmentResource } from "./typesOperationsAppointment
 import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "tipos-operacion-cita";
-const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/configuraciones/post-venta/${ROUTE}`;
 
 export const TYPE_OPERACTION_APPOINTMENT: ModelComplete<TypesOperationsAppointmentResource> =
   {
