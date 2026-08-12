@@ -4,6 +4,7 @@ import {
   AvailableDeliverySlotsResponse,
   DiagnoseVinResponse,
   getVehiclesDeliveryProps,
+  VehicleDeliveryRescheduleHistoryItem,
   VehiclesDeliveryResource,
   VehiclesDeliveryResponse,
 } from "./vehicleDelivery.interface";
@@ -175,6 +176,15 @@ export async function diagnoseVehicleDeliveryVin(
   const { data } = await api.get<DiagnoseVinResponse>(
     `${ENDPOINT}/diagnose-vin`,
     { params: { vin, sede_id: sedeId } }
+  );
+  return data;
+}
+
+export async function getVehicleDeliveryRescheduleHistory(
+  id: number
+): Promise<VehicleDeliveryRescheduleHistoryItem[]> {
+  const { data } = await api.get<VehicleDeliveryRescheduleHistoryItem[]>(
+    `${ENDPOINT}/${id}/reschedule-history`
   );
   return data;
 }

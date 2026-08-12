@@ -287,7 +287,7 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     description:
       "Exporta el reporte de órdenes de compra de vehículos, filtrando por rango de fecha de emisión y sede.",
     icon: "FileSpreadsheet",
-    endpoint: "/ap/reports/purchase-order/export",
+    endpoint: "/ap/commercial/reports/purchase-order/export",
     method: "get",
     fields: [
       {
