@@ -81,7 +81,10 @@ export default function ObjectivesHeadquarterDetailSheet({
                   {detail.total_objective.toLocaleString("es-PE")}
                 </span>
               </div>
-              <Progress value={Math.min(detail.completion_percentage, 100)} className="h-2" />
+              <Progress
+                value={Math.min(detail.completion_percentage, 100)}
+                className="h-2"
+              />
             </div>
           </div>
 
@@ -97,7 +100,7 @@ export default function ObjectivesHeadquarterDetailSheet({
               </TabsTrigger>
               <TabsTrigger value="vehicle_crossing" className="gap-1.5">
                 <Car className="size-4" />
-                Cruce Vehicular
+                Paso Vehicular
               </TabsTrigger>
             </TabsList>
 
@@ -110,7 +113,9 @@ export default function ObjectivesHeadquarterDetailSheet({
             </TabsContent>
 
             <TabsContent value="vehicle_crossing" className="space-y-4">
-              <ObjectivesVehicleCrossingDetail crossing={detail.vehicle_crossing} />
+              <ObjectivesVehicleCrossingDetail
+                crossing={detail.vehicle_crossing}
+              />
             </TabsContent>
           </Tabs>
         </div>

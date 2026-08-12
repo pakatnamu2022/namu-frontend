@@ -1,6 +1,8 @@
 "use client";
 
-import DonutChart, { DonutChartDataItem } from "@/features/ap/comercial/dashboard-visitas-leads/components/DonutChart";
+import DonutChart, {
+  DonutChartDataItem,
+} from "@/features/ap/comercial/dashboard-visitas-leads/components/DonutChart";
 import { VehicleCrossingDetail } from "../lib/objectivesDashboard.interface";
 import ObjectivesAreaOverview from "./ObjectivesAreaOverview";
 
@@ -20,11 +22,13 @@ const CHART_COLORS = [
 export default function ObjectivesVehicleCrossingDetail({
   crossing,
 }: ObjectivesVehicleCrossingDetailProps) {
-  const donutData: DonutChartDataItem[] = crossing.by_brand.map((brand, index) => ({
-    name: brand.brand_name,
-    value: brand.count,
-    color: CHART_COLORS[index % CHART_COLORS.length],
-  }));
+  const donutData: DonutChartDataItem[] = crossing.by_brand.map(
+    (brand, index) => ({
+      name: brand.brand_name,
+      value: brand.count,
+      color: CHART_COLORS[index % CHART_COLORS.length],
+    }),
+  );
 
   return (
     <div className="space-y-4">
@@ -32,7 +36,7 @@ export default function ObjectivesVehicleCrossingDetail({
 
       {crossing.by_brand.length > 0 && (
         <DonutChart
-          title="Cruces por Marca"
+          title="Paso vehícular por Marca"
           description="Distribución de vehículos ingresados por marca"
           data={donutData}
         />

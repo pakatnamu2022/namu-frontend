@@ -13,6 +13,7 @@ import {
   currentYear,
   ERROR_MESSAGE,
   errorToast,
+  formatMoney,
   generateYear,
   SUCCESS_MESSAGE,
   successToast,
@@ -99,9 +100,6 @@ export default function ObjectiveSedePeriodPvPicker() {
   const conceptTotals = Array.from(conceptTotalsMap.values());
   const totalVehicularCrossing = conceptTotals
     .filter((item) => item.is_vehicular_crossing)
-    .reduce((sum, item) => sum + item.total, 0);
-  const totalConceptsAmount = conceptTotals
-    .filter((item) => !item.is_vehicular_crossing)
     .reduce((sum, item) => sum + item.total, 0);
 
   const handleDelete = async () => {
@@ -198,7 +196,7 @@ export default function ObjectiveSedePeriodPvPicker() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="Objetivo total"
-            value={`S/ ${totalObjective.toFixed(2)}`}
+            value={formatMoney(totalObjective)}
             subtitle={`${data.length} sede${data.length === 1 ? "" : "s"} · ${month}/${year}`}
             icon={Target}
             variant="default"
@@ -212,15 +210,6 @@ export default function ObjectiveSedePeriodPvPicker() {
             icon={Building2}
             variant="outline"
             color="gray"
-          />
-
-          <MetricCard
-            title="Conceptos en soles"
-            value={`S/ ${totalConceptsAmount.toFixed(2)}`}
-            subtitle="Suma de conceptos monetarios"
-            icon={Target}
-            variant="outline"
-            color="green"
           />
 
           <MetricCard
