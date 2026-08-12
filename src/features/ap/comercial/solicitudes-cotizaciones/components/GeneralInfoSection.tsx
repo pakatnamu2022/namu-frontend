@@ -6,9 +6,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  useCustomers,
-} from "../../clientes/lib/customers.hook";
+import { useCustomers } from "../../clientes/lib/customers.hook";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 
@@ -47,6 +45,7 @@ export const GeneralInfoSection = ({
           mapOptionFn={(customer: CustomersResource) => ({
             value: customer.id.toString(),
             label: customer.full_name,
+            description: customer.num_doc,
           })}
           perPage={10}
           debounceMs={500}
