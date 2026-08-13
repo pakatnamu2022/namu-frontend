@@ -73,7 +73,10 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import SearchInput from "@/shared/components/SearchInput";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import { onSelectSupplyType } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
-import { STATUS_ORDER_QUOTE } from "../../../taller/cotizacion/lib/proforma.constants";
+import {
+  STATUS_ORDER_QUOTE,
+  STATUS_ORDER_QUOTE_COLOR,
+} from "../../../taller/cotizacion/lib/proforma.constants";
 
 const DEFAULT_PER_PAGE = 10;
 
@@ -442,53 +445,28 @@ export function BillingSheetContent({
         <h3 className="font-semibold text-lg">Estado de la Cotización</h3>
         <div className="bg-muted/30 p-4 rounded-lg">
           <div className="flex items-center gap-3">
-            {orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO ? (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
-                <XCircle className="h-5 w-5 text-red-600" />
-              </div>
-            ) : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO ? (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100">
-                <FileText className="h-5 w-5 text-indigo-600" />
-              </div>
-            ) : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR ? (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100">
-                <Clock className="h-5 w-5 text-orange-600" />
-              </div>
-            ) : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURADO ? (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
-                <FileText className="h-5 w-5 text-gray-600" />
-              </div>
-            )}
+            {(() => {
+              const StatusIcon =
+                orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO
+                  ? XCircle
+                  : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR
+                    ? Clock
+                    : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURADO
+                      ? CheckCircle
+                      : FileText;
+
+              return (
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+                  <StatusIcon className="h-5 w-5 text-gray-600" />
+                </div>
+              );
+            })()}
             <div>
               <Badge
                 variant="outline"
                 color={
-                  orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO
-                    ? "destructive"
-                    : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO
-                      ? "default"
-                      : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR
-                        ? "secondary"
-                        : orderQuotation.status.id ===
-                            STATUS_ORDER_QUOTE.FACTURADO
-                          ? "default"
-                          : "default"
-                }
-                className={
-                  orderQuotation.status.id === STATUS_ORDER_QUOTE.DESCARTADO
-                    ? "bg-red-100 text-red-700 border-red-300"
-                    : orderQuotation.status.id === STATUS_ORDER_QUOTE.APERTURADO
-                      ? "bg-indigo-100 text-indigo-700 border-indigo-300"
-                      : orderQuotation.status.id === STATUS_ORDER_QUOTE.FACTURAR
-                        ? "bg-orange-100 text-orange-700 border-orange-300"
-                        : orderQuotation.status.id ===
-                            STATUS_ORDER_QUOTE.FACTURADO
-                          ? "bg-green-100 text-green-700 border-green-300"
-                          : ""
+                  STATUS_ORDER_QUOTE_COLOR[orderQuotation.status.id] ??
+                  "default"
                 }
               >
                 {orderQuotation.status.description}
@@ -540,7 +518,7 @@ export function BillingSheetContent({
                       Descartado Por
                     </p>
                     <p className="text-sm font-medium">
-                      {(orderQuotation as any).discarded_by_name || "N/A"}
+                      {(orderQuotation as any).discarded_by_name || "SIAN"}
                     </p>
                   </div>
                 </div>
