@@ -8,7 +8,14 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  LabelList,
+} from "recharts";
 import { HeadquartersComparisonChartData } from "../lib/objectivesDashboard.interface";
 
 interface ObjectivesHeadquartersChartProps {
@@ -33,7 +40,8 @@ export default function ObjectivesHeadquartersChart({
     sede: label,
     objectives: chartData.datasets.objectives[index] ?? 0,
     progress: chartData.datasets.progress[index] ?? 0,
-    completion_percentage: chartData.datasets.completion_percentages[index] ?? 0,
+    completion_percentage:
+      chartData.datasets.completion_percentages[index] ?? 0,
   }));
 
   return (
@@ -45,7 +53,7 @@ export default function ObjectivesHeadquartersChart({
       <CardContent className="px-2 sm:p-4">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[320px] w-full"
+          className="aspect-auto h-80 w-full"
         >
           <BarChart
             accessibilityLayer
@@ -53,7 +61,12 @@ export default function ObjectivesHeadquartersChart({
             margin={{ left: 12, right: 12, top: 12 }}
           >
             <CartesianGrid vertical={false} />
-            <XAxis dataKey="sede" tickLine={false} axisLine={false} tickMargin={8} />
+            <XAxis
+              dataKey="sede"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
             <YAxis hide />
             <ChartTooltip
               content={({ active, payload }) => {
@@ -66,19 +79,25 @@ export default function ObjectivesHeadquartersChart({
                     </p>
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-8">
-                        <span className="text-xs text-muted-foreground">Objetivo:</span>
+                        <span className="text-xs text-muted-foreground">
+                          Objetivo:
+                        </span>
                         <span className="text-sm font-bold">
                           S/ {item.objectives.toLocaleString("es-PE")}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-8">
-                        <span className="text-xs text-muted-foreground">Avance:</span>
+                        <span className="text-xs text-muted-foreground">
+                          Avance:
+                        </span>
                         <span className="text-sm font-bold">
                           S/ {item.progress.toLocaleString("es-PE")}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-8">
-                        <span className="text-xs text-muted-foreground">Cumplimiento:</span>
+                        <span className="text-xs text-muted-foreground">
+                          Cumplimiento:
+                        </span>
                         <span className="text-sm font-bold">
                           {item.completion_percentage}%
                         </span>
