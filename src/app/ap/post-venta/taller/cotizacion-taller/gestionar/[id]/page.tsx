@@ -31,6 +31,8 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useDiscountRequestsQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
 import {
+  ITEM_TYPE_DCT_LABOR,
+  ITEM_TYPE_DCT_PRODUCT,
   STATUS_APPROVED,
   STATUS_PENDING,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
@@ -448,7 +450,7 @@ export default function ManageQuotationPage() {
         currencyId={quotation.currency_id}
         exchangeRate={quotation.exchange_rate}
         discountRequests={discountRequests.filter(
-          (r) => r.item_type === "LABOR",
+          (r) => r.item_type === ITEM_TYPE_DCT_LABOR,
         )}
         permissions={permissions}
       />
@@ -464,7 +466,7 @@ export default function ManageQuotationPage() {
         currencySymbol={quotation.type_currency.symbol}
         currencyId={quotation.currency_id}
         discountRequests={discountRequests.filter(
-          (r) => r.item_type === "PRODUCT",
+          (r) => r.item_type === ITEM_TYPE_DCT_PRODUCT,
         )}
         warehouseId={quotation.warehouse_id}
         brandId={quotation.vehicle?.model?.brand_id}

@@ -71,6 +71,7 @@ import {
   STATUS_APPROVED,
   STATUS_PENDING,
   STATUS_REJECTED,
+  ITEM_TYPE_DCT_PRODUCT,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
@@ -1380,7 +1381,7 @@ export default function ProductDetailsSection({
         detail={selectedDetail ?? undefined}
         currencySymbol={currencySymbol}
         existingRequest={editingRequest ?? undefined}
-        itemType="PRODUCT"
+        itemType={ITEM_TYPE_DCT_PRODUCT}
         maxDiscount={maxDiscountForModal}
       />
     </Card>
