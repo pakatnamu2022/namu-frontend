@@ -22,6 +22,7 @@ export const createWorkOrderLabourSchema = (maxDiscount: number) => {
     work_order_id: requiredStringId("La orden de trabajo es requerida"),
     worker_id: z.string().optional(),
     group_number: z.number().min(1, "El número de grupo es requerido"),
+    labour_type: z.string().min(1, "El tipo es requerido"),
   });
 };
 
