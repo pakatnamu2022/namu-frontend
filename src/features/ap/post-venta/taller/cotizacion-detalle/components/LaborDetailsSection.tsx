@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -28,7 +28,10 @@ import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
+  DESCRIPTION_MATERIALES,
   ITEM_TYPE_LABOR,
+  ITEM_TYPE_MATERIAL,
+  ITEM_TYPE_TRANSLATOR,
   ORDER_QUOTATION_DETAILS,
 } from "../lib/proformaDetails.constants";
 import {
@@ -41,6 +44,7 @@ import {
   LaborDetailSchema,
 } from "../lib/proformaDetails.schema";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormCombobox } from "@/shared/components/FormCombobox";
 import { EditableCell } from "@/shared/components/EditableCell";
 import { QuotationItemsTable } from "./QuotationItemsTable";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
@@ -112,7 +116,7 @@ export default function LaborDetailsSection({
     resolver: zodResolver(laborDetailSchema),
     defaultValues: {
       order_quotation_id: quotationId,
-      item_type: ITEM_TYPE_LABOR,
+      item_type: ITEM_TYPE_MATERIAL,
       description: "",
       quantity: 1,
       unit_measure: "Horas",
@@ -122,6 +126,24 @@ export default function LaborDetailsSection({
       observations: "",
     },
   });
+
+  // Descripción de "Materiales" a modo de opción rápida en el combobox.
+  const descriptionOptions = [
+    { label: DESCRIPTION_MATERIALES, value: DESCRIPTION_MATERIALES },
+  ];
+
+  const description = form.watch("description");
+
+  // El tipo se infiere de la descripción: solo si se seleccionó exactamente
+  // la opción "Materiales" del combobox; cualquier otro texto es Mano de Obra.
+  useEffect(() => {
+    const autoType =
+      description === DESCRIPTION_MATERIALES
+        ? ITEM_TYPE_MATERIAL
+        : ITEM_TYPE_LABOR;
+
+    form.setValue("item_type", autoType, { shouldValidate: true });
+  }, [description, form]);
 
   const { mutate: doApprove, isPending: isApproving } = useMutation({
     mutationFn: approveDiscountRequestOrderQuotation,
@@ -290,7 +312,7 @@ export default function LaborDetailsSection({
       successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
       form.reset({
         order_quotation_id: quotationId,
-        item_type: ITEM_TYPE_LABOR,
+        item_type: ITEM_TYPE_MATERIAL,
         description: "",
         quantity: 1,
         unit_measure: "Horas",
@@ -313,7 +335,10 @@ export default function LaborDetailsSection({
     return `${currencySymbol} ${value.toFixed(2)}`;
   };
 
-  const laborDetails = details.filter((d) => d.item_type === ITEM_TYPE_LABOR);
+  const laborDetails = details.filter(
+    (d) =>
+      d.item_type === ITEM_TYPE_LABOR || d.item_type === ITEM_TYPE_MATERIAL,
+  );
 
   const globalBaseAmount = laborDetails.reduce(
     (sum, d) => sum + Number(d.net_amount || 0),
@@ -359,11 +384,23 @@ export default function LaborDetailsSection({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Descripción - ancho completo */}
-          <FormInput
+          <FormCombobox
             control={form.control}
             name="description"
-            label="Descripción"
+            label={() => (
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs md:text-sm">Descripción</span>
+                <Badge
+                  color={ITEM_TYPE_TRANSLATOR[form.watch("item_type")]?.color}
+                  className="text-[10px]"
+                >
+                  {ITEM_TYPE_TRANSLATOR[form.watch("item_type")]?.label}
+                </Badge>
+              </div>
+            )}
             placeholder="Ej: Cambio de aceite"
+            options={descriptionOptions}
+            allowCreate={true}
             className="h-9 text-xs"
           />
 
@@ -628,7 +665,7 @@ export default function LaborDetailsSection({
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
-          itemType="LABOR"
+          itemType={ITEM_TYPE_LABOR}
           isApproving={isApproving}
           isRejecting={isRejecting}
           isReverting={isReverting}
@@ -642,9 +679,20 @@ export default function LaborDetailsSection({
           onRevert={(id, reason) => doRevert({ id, reason })}
           renderName={(detail) => (
             <div>
-              <p className="text-sm font-medium truncate">
-                {detail.description}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium truncate">
+                  {detail.description}
+                </p>
+                <Badge
+                  color={
+                    ITEM_TYPE_TRANSLATOR[detail.item_type]?.color ?? "gray"
+                  }
+                  className="text-[10px] shrink-0"
+                >
+                  {ITEM_TYPE_TRANSLATOR[detail.item_type]?.label ??
+                    detail.item_type}
+                </Badge>
+              </div>
               {detail.observations && (
                 <p className="text-xs text-muted-foreground truncate mt-0.5">
                   {detail.observations}

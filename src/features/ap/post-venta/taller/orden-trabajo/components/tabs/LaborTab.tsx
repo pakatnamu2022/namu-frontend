@@ -32,13 +32,21 @@ import {
   useDeleteWorkOrderLabour,
   useStoreWorkOrderLabour,
 } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.hook";
+import {
+  LABOUR_TYPE_LABOR,
+  LABOUR_TYPE_MATERIAL,
+  LABOUR_TYPE_TRANSLATOR,
+} from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.constants";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
-import { ITEM_TYPE_LABOR } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
+import {
+  ITEM_TYPE_LABOR,
+  ITEM_TYPE_MATERIAL,
+} from "../../../cotizacion-detalle/lib/proformaDetails.constants";
 import { useDiscountRequestsByWorkOrder } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.hook";
 import { DiscountRequestWorkOrderModal } from "../../../descuento-cotizacion-taller/components/DiscountRequestWorkOrderModal";
 import {
@@ -105,14 +113,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const laborItems = useMemo(() => {
     if (!associatedQuotation?.details) return [];
     return associatedQuotation.details.filter(
-      (detail: any) => detail.item_type === ITEM_TYPE_LABOR,
+      (detail: any) =>
+        detail.item_type === ITEM_TYPE_LABOR ||
+        detail.item_type === ITEM_TYPE_MATERIAL,
     );
   }, [associatedQuotation]);
-
-  // const {
-  //   data: consolidatedWorkers = [],
-  //   isLoading: isLoadingConsolidatedWorkers,
-  // } = useGetConsolidatedWorkers(workOrderId);
 
   // Solicitudes de descuento de la OT — solo las de LABOUR
   const { data: allDiscountRequests = [] } =
@@ -122,21 +127,6 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   );
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
-
-  // const handleWorkerChange = (labour: any, newWorkerId: number) => {
-  //   updateGroupMutation.mutate({
-  //     id: labour.id,
-  //     data: {
-  //       description: labour.description,
-  //       time_spent: labour.time_spent,
-  //       hourly_rate: labour.hourly_rate,
-  //       discount_percentage: labour.discount_percentage,
-  //       work_order_id: labour.work_order_id,
-  //       worker_id: newWorkerId,
-  //       group_number: labour.group_number,
-  //     },
-  //   });
-  // };
 
   const handleTimeSpentChange = (labour: any, newValue: any) => {
     updateGroupMutation.mutate({
@@ -149,6 +139,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         work_order_id: labour.work_order_id,
         worker_id: labour.worker_id,
         group_number: labour.group_number,
+        labour_type: labour.labour_type,
       },
     });
   };
@@ -164,6 +155,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         work_order_id: labour.work_order_id,
         worker_id: labour.worker_id,
         group_number: labour.group_number,
+        labour_type: labour.labour_type,
       },
     });
   };
@@ -179,6 +171,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         work_order_id: labour.work_order_id,
         worker_id: labour.worker_id,
         group_number: labour.group_number,
+        labour_type: labour.labour_type,
       },
     });
   };
@@ -215,6 +208,10 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         work_order_id: String(workOrderId),
         group_number: selectedGroupNumber,
         quotation_detail_id: item.id,
+        labour_type:
+          item.item_type === ITEM_TYPE_MATERIAL
+            ? LABOUR_TYPE_MATERIAL
+            : LABOUR_TYPE_LABOR,
       },
       {
         onSuccess: () => {
@@ -355,13 +352,6 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Selector de Grupo */}
-      {/* <GroupSelector
-        items={items}
-        selectedGroupNumber={selectedGroupNumber}
-        onSelectGroup={setSelectedGroupNumber}
-      /> */}
-
       {/* Información de Mano de Obra de la Cotización (Compacta) */}
       {hasAssociatedQuotation && laborItems.length > 0 && (
         <Card className="p-4 bg-blue-50 border-blue-200 gap-1">
@@ -637,6 +627,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Descripción</TableHead>
+                  <TableHead>Tipo</TableHead>
                   {/* <TableHead className="text-left">Operario</TableHead> */}
                   <TableHead className="text-right">Tiempo (hrs)</TableHead>
                   <TableHead className="text-right">Tarifa/Hora</TableHead>
@@ -654,29 +645,18 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       <TableCell className="max-w-md">
                         <div className="line-clamp-2">{labour.description}</div>
                       </TableCell>
-                      {/* <TableCell className="text-left">
-                        <Select
-                          value={labour.worker_id?.toString() || ""}
-                          onValueChange={(value) =>
-                            handleWorkerChange(labour, Number(value))
+                      <TableCell>
+                        <Badge
+                          color={
+                            LABOUR_TYPE_TRANSLATOR[labour.labour_type]?.color ??
+                            "gray"
                           }
-                          disabled={isLoadingConsolidatedWorkers}
+                          className="text-xs whitespace-nowrap"
                         >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {consolidatedWorkers.map((worker) => (
-                              <SelectItem
-                                key={worker.worker_id}
-                                value={worker.worker_id.toString()}
-                              >
-                                {worker.worker_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell> */}
+                          {LABOUR_TYPE_TRANSLATOR[labour.labour_type]?.label ??
+                            labour.labour_type}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end">
                           <EditableCell

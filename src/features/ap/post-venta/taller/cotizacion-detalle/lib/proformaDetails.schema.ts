@@ -3,12 +3,16 @@ import { z } from "zod";
 import {
   ITEM_TYPE_LABOR,
   ITEM_TYPE_PRODUCT,
+  ITEM_TYPE_MATERIAL,
 } from "./proformaDetails.constants";
 
 // Schema para mano de obra
 export const laborDetailSchema = z.object({
   order_quotation_id: z.number(),
-  item_type: z.literal(ITEM_TYPE_LABOR),
+  item_type: z.union([
+    z.literal(ITEM_TYPE_LABOR),
+    z.literal(ITEM_TYPE_MATERIAL),
+  ]),
   description: z.string().min(1, "Descripción es requerida").max(500),
   quantity: z.number().min(0.1, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1, "Unidad de medida es requerida"),

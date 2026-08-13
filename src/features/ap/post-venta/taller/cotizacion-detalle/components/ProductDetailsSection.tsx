@@ -1270,7 +1270,7 @@ export default function ProductDetailsSection({
           discountRequests={activeDiscountRequests}
           globalRequest={globalRequest}
           permissions={permissions}
-          itemType="PART"
+          itemType={ITEM_TYPE_PRODUCT}
           isApproving={isApproving}
           isRejecting={isRejecting}
           isReverting={isReverting}
