@@ -37,6 +37,7 @@ import {
   DISCOUNT_REQUEST_MESON,
   DISCOUNT_REQUEST_STATUS_COLOR,
   DISCOUNT_REQUEST_STATUS_LABEL,
+  ITEM_TYPE_DCT_PRODUCT,
   STATUS_APPROVED,
   STATUS_PENDING,
   TYPE_GLOBAL,
@@ -517,7 +518,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         detail={selectedDetail ?? undefined}
         currencySymbol={currencySymbol}
         existingRequest={editingRequest ?? undefined}
-        itemType="PRODUCT"
+        itemType={ITEM_TYPE_DCT_PRODUCT}
         maxDiscount={maxDiscountForModal}
       />
 

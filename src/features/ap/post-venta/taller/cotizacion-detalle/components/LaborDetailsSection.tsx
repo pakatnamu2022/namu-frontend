@@ -62,6 +62,7 @@ import {
   STATUS_APPROVED,
   STATUS_PENDING,
   STATUS_REJECTED,
+  ITEM_TYPE_DCT_LABOR,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -742,7 +743,7 @@ export default function LaborDetailsSection({
         detail={selectedDetail ?? undefined}
         currencySymbol={currencySymbol}
         existingRequest={editingRequest ?? undefined}
-        itemType="LABOR"
+        itemType={ITEM_TYPE_DCT_LABOR}
         maxDiscount={maxDiscountForModal}
       />
     </Card>
