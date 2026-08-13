@@ -186,6 +186,7 @@ export default function CreatePlanningPage() {
         planning={selectedPlanning}
         onSubmit={handleUpdatePlanning}
         isSubmitting={updateMutation.isPending}
+        sedeId={selectedSedeId || undefined}
       />
 
       {/* Dialog de confirmación de eliminación */}

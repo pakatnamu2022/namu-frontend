@@ -10,7 +10,7 @@ import {
 import { PLANNING_TYPE_LABELS } from "../lib/workOrderPlanning.constants";
 import { Clock, User, FileText, Ban, Play, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil, ShieldCheck } from "lucide-react";
+import { Eye, Pencil, ShieldCheck, UserCog } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ElapsedTimer } from "./ElapsedTimer";
 import { formatDateTime, formatHours } from "@/core/core.function";
@@ -189,8 +189,10 @@ export const planningColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      const isCompleted = row.original.status === "completed";
       const visibleEdit =
-        permissions.canUpdate && row.original.status === "planned";
+        permissions.canUpdate &&
+        (row.original.status === "planned" || isCompleted);
       const visibleDelete =
         permissions.canDelete && row.original.status === "planned";
       const visibleCancel =
@@ -216,9 +218,15 @@ export const planningColumns = ({
               variant="outline"
               size="icon"
               onClick={() => onEdit?.(row.original)}
-              tooltip="Editar planificación"
+              tooltip={
+                isCompleted ? "Cambiar operario" : "Editar planificación"
+              }
             >
-              <Pencil className="h-4 w-4" />
+              {isCompleted ? (
+                <UserCog className="h-4 w-4" />
+              ) : (
+                <Pencil className="h-4 w-4" />
+              )}
             </Button>
           )}
           {visibleSupervisorComplete && (

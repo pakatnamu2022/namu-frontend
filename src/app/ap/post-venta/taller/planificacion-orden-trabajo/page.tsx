@@ -309,6 +309,7 @@ export default function PlanningPage() {
         planning={selectedPlanning}
         onSubmit={handleUpdatePlanning}
         isSubmitting={updateMutation.isPending}
+        sedeId={sedeId}
       />
 
       {/* Modal finalización por supervisor */}
