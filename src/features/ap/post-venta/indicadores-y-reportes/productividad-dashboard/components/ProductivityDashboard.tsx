@@ -23,6 +23,16 @@ import {
   PRODUCTIVITY_DASHBOARD_QUERY_KEY,
 } from "../lib/productivityDashboard.hook";
 import { refreshProductivityDashboard } from "../lib/productivityDashboard.actions";
+import { useDownloadReport } from "@/shared/lib/reports/reports.hook";
+
+const BILLED_HOURS_EXPORT_ENDPOINT =
+  "/ap/postVenta/reports/closed-work-order-billed-hours/export";
+
+function toDateRange(year: number, month: number): [string, string] {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const lastDay = new Date(year, month, 0).getDate();
+  return [`${year}-${pad(month)}-01`, `${year}-${pad(month)}-${pad(lastDay)}`];
+}
 
 export default function ProductivityDashboard() {
   const { currentView } = useCurrentModule();
@@ -40,6 +50,8 @@ export default function ProductivityDashboard() {
   };
 
   const { data, isLoading, isFetching } = useProductivityDashboard(filters);
+  const { mutate: downloadReport, isPending: isExporting } =
+    useDownloadReport();
 
   const dashboard = data?.data;
 
@@ -61,6 +73,18 @@ export default function ProductivityDashboard() {
     }
   };
 
+  const handleExport = () => {
+    downloadReport({
+      endpoint: BILLED_HOURS_EXPORT_ENDPOINT,
+      params: {
+        format: "excel",
+        date_range: toDateRange(year, month),
+        ...(filters.sede_id && { sede_id: filters.sede_id }),
+      },
+      fileName: "reporte_horas_trabajadas_por_sede",
+    });
+  };
+
   return (
     <PageWrapper>
       <TitleComponent
@@ -80,6 +104,8 @@ export default function ProductivityDashboard() {
         onSedeChange={setSedeId}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing || isFetching}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
 
       {isLoading && <FormSkeleton />}
@@ -110,15 +136,11 @@ export default function ProductivityDashboard() {
           )}
 
           {dashboard.chart_data.labels.length > 0 && (
-            <ProductivityTopTechniciansChart
-              chartData={dashboard.chart_data}
-            />
+            <ProductivityTopTechniciansChart chartData={dashboard.chart_data} />
           )}
 
           {dashboard.technician_detail.length > 0 && (
-            <ProductivityTechnicianTable
-              data={dashboard.technician_detail}
-            />
+            <ProductivityTechnicianTable data={dashboard.technician_detail} />
           )}
         </div>
       )}
