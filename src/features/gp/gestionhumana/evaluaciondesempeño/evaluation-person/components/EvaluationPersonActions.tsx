@@ -61,19 +61,23 @@ export default function EvaluationPersonActions({
         </Button>
       </Link>
 
-      <Link to={`${EVALUATION_PERSON_ABSOLUTE_ROUTE}/${idEvaluation}/competencias`}>
-        <Button size="sm" variant="outline">
-          <TrendingUp className="w-4 h-4" />
-          Ver Competencias
-        </Button>
-      </Link>
-
       {isNotObjectiveEvaluation && (
-        <CompetencesSyncButton
-          evaluationId={idEvaluation!}
-          onSync={handleSyncCompetences}
-          loading={loadingSyncCompetences}
-        />
+        <>
+          <Link
+            to={`${EVALUATION_PERSON_ABSOLUTE_ROUTE}/${idEvaluation}/competencias`}
+          >
+            <Button size="sm" variant="outline">
+              <TrendingUp className="w-4 h-4" />
+              Ver Competencias
+            </Button>
+          </Link>
+
+          <CompetencesSyncButton
+            evaluationId={idEvaluation!}
+            onSync={handleSyncCompetences}
+            loading={loadingSyncCompetences}
+          />
+        </>
       )}
 
       <RegenerateEvaluationSheet
