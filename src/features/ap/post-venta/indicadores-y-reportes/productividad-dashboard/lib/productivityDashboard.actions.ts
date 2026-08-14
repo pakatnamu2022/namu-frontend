@@ -44,3 +44,29 @@ export async function refreshProductivityDashboard(
   );
   return data;
 }
+
+export async function exportProductivityDashboard(
+  filters: ProductivityDashboardFilters,
+): Promise<void> {
+  const response = await api.post(
+    "/ap/postVenta/reports/closed-work-order-billed-hours/export",
+    {
+      format: "excel",
+      date_range: toDateRange(filters.year, filters.month),
+      ...(filters.sede_id && { sede_id: filters.sede_id }),
+    },
+    { responseType: "blob" },
+  );
+
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute(
+    "download",
+    `reporte-horas-trabajadas-por-sede-${filters.year}-${filters.month}.xlsx`,
+  );
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
