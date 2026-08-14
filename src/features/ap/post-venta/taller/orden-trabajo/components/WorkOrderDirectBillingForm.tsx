@@ -61,6 +61,16 @@ export default function WorkOrderDirectBillingForm({
     return id ? Number(id) : undefined;
   }, [workOrders]);
 
+  // Sedes únicas presentes en las OTs cargadas (puede haber más de una en una factura consolidada)
+  const sedeIds = useMemo(() => {
+    const ids = workOrders
+      .filter((wo) => wo.sede_id !== undefined && wo.sede_id !== null)
+      .map((wo) => Number(wo.sede_id));
+    return Array.from(new Set(ids));
+  }, [workOrders]);
+
+  const isMultiSede = sedeIds.length > 1;
+
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
     type: [
       SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
@@ -122,13 +132,24 @@ export default function WorkOrderDirectBillingForm({
   const selectedSeriesId = form.watch("serie");
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
 
-  const { data: authorizedSeries = [] } = useAuthorizedSeries({
+  const { data: authorizedSeriesRaw = [] } = useAuthorizedSeries({
     type_operation_id: CM_POSTVENTA_ID,
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
-    sede_id: sedeId,
+    // Con una sola sede se filtra directo en el backend; con varias se
+    // traen todas y se filtra en frontend por las sedes de las OTs cargadas.
+    sede_id: isMultiSede ? undefined : sedeId,
   });
+
+  // Cuando la facturación consolidada mezcla sedes, solo se permiten series
+  // que pertenezcan a alguna de las sedes realmente involucradas en las OTs cargadas.
+  const authorizedSeries = useMemo(() => {
+    if (!isMultiSede) return authorizedSeriesRaw;
+    return authorizedSeriesRaw.filter((s) =>
+      sedeIds.includes(Number(s.sede_id)),
+    );
+  }, [authorizedSeriesRaw, isMultiSede, sedeIds]);
 
   const selectedSeries = authorizedSeries.find(
     (s) => s.id.toString() === selectedSeriesId,

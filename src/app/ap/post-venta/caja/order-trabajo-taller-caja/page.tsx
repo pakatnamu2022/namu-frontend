@@ -94,8 +94,9 @@ export default function WorkOrderCajaPage() {
     ? typePlanningId || (billingTypesPlanning[0]?.id.toString() ?? "")
     : "";
 
-  const effectiveSedeId =
-    sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
+  const effectiveSedeId = isBillingView
+    ? sedeId
+    : sedeId || (mySedes.length > 0 ? mySedes[0].id.toString() : "");
 
   const efecctiveTypeCurrencyId = typeCurrencyId || CURRENCY_TYPE_IDS.SOLES;
 
@@ -271,6 +272,7 @@ export default function WorkOrderCajaPage() {
           typeCurrencyId={efecctiveTypeCurrencyId}
           setTypeCurrencyId={setTypeCurrencyId}
           allowClearTypePlanning={!isBillingView}
+          allowClearSede={isBillingView}
         />
       </WorkOrderTable>
 
