@@ -100,6 +100,42 @@ export const POST_VENTA_REPORTS: ReportConfig[] = [
     defaultParams: {},
   },
   {
+    id: "worked-hours-by-sede",
+    title: "Reporte de Horas Facturadas por Sede",
+    type: "Taller",
+    section: "DERCO",
+    description:
+      "Exporta el reporte de horas facturadas filtrando por rango de fechas y sede.",
+    icon: "Clock",
+    endpoint: "/ap/postVenta/reports/closed-work-order-billed-hours/export",
+    fileName: "reporte_horas_trabajadas_por_sede",
+    availableFormats: ["excel"],
+    fields: [
+      {
+        name: "date_range",
+        label: "Rango de Fechas",
+        type: "daterange-or-month",
+        required: true,
+        nameFrom: "date_from",
+        nameTo: "date_to",
+        rangeParamName: "date_range",
+      },
+      {
+        name: "sede_id",
+        label: "Sede",
+        type: "select",
+        required: false,
+        endpoint: `/gp/mg/sede/my?company=${EMPRESA_AP.id}&has_workshop=true`,
+        optionsMapper: (data) =>
+          (data ?? []).map((item: any) => ({
+            label: item.description,
+            value: String(item.id),
+          })),
+      },
+    ],
+    defaultParams: {},
+  },
+  {
     id: "invoicing",
     title: "Reporte de Facturación Taller",
     type: "Facturación",

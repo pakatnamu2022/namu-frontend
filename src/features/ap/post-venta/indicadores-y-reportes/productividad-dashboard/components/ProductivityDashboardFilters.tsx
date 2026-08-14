@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { EMPRESA_AP, MONTH_OPTIONS } from "@/core/core.constants";
@@ -17,6 +17,8 @@ interface ProductivityDashboardFiltersProps {
   onSedeChange: (sedeId: string) => void;
   onRefresh: () => void;
   isRefreshing?: boolean;
+  onExport?: () => void;
+  isExporting?: boolean;
 }
 
 export default function ProductivityDashboardFilters({
@@ -28,6 +30,8 @@ export default function ProductivityDashboardFilters({
   onSedeChange,
   onRefresh,
   isRefreshing = false,
+  onExport,
+  isExporting = false,
 }: ProductivityDashboardFiltersProps) {
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
@@ -88,6 +92,18 @@ export default function ProductivityDashboardFilters({
         />
         Actualizar
       </Button>
+
+      {onExport && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onExport}
+          disabled={isExporting}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Exportar
+        </Button>
+      )}
     </div>
   );
 }
