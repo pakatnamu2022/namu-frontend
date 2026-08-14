@@ -436,6 +436,8 @@ export const vehicleDeliveryColumns = ({
         status_delivery,
         is_accounted,
         rescheduled_by,
+        is_extraordinary,
+        extraordinary_approved,
       } = row.original;
 
       const isToday =
@@ -459,8 +461,14 @@ export const vehicleDeliveryColumns = ({
        */
       const canView = permissions.canView;
 
+      const isExtraordinaryBlocked =
+        is_extraordinary && extraordinary_approved !== true;
+
       const canOpenChecklist =
-        permissions.canChecklist && isToday && !isChecklistConfirmed;
+        permissions.canChecklist &&
+        isToday &&
+        !isChecklistConfirmed &&
+        !isExtraordinaryBlocked;
 
       const canDownloadChecklistPDF =
         isChecklistConfirmed && permissions.canGenerate;
@@ -469,7 +477,8 @@ export const vehicleDeliveryColumns = ({
         isChecklistConfirmed &&
         isToday &&
         (!sent_at || aceptada_por_sunat !== true) &&
-        permissions.canGenerate;
+        permissions.canGenerate &&
+        !isExtraordinaryBlocked;
 
       const canSendToNubefact =
         !!shipping_guide_id && !isAcceptedBySunat && permissions.canSend;

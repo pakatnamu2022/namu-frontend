@@ -5,17 +5,27 @@ import { BusinessPartnersResource } from "./businessPartners.interface.ts";
 const ROUTE = "socios-comerciales";
 const ABSOLUTE_ROUTE = `/ap/ap-master/${ROUTE}`;
 
-export const BUSINESS_PARTNERS_MASTER: ModelComplete<BusinessPartnersResource> = {
-  MODEL: {
-    name: "Socio Comercial",
-    plural: "Socios Comerciales",
-    gender: false,
-  },
-  ICON: "ContactRound",
-  ENDPOINT: "/ap/commercial/businessPartners",
-  QUERY_KEY: "business-partners",
-  ROUTE,
-  ABSOLUTE_ROUTE,
-  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
-};
+export const BUSINESS_PARTNERS_MASTER: ModelComplete<BusinessPartnersResource> =
+  {
+    MODEL: {
+      name: "Socio Comercial",
+      plural: "Socios Comerciales",
+      gender: false,
+    },
+    ICON: "ContactRound",
+    ENDPOINT: "/ap/commercial/businessPartners",
+    QUERY_KEY: "business-partners",
+    ROUTE,
+    ABSOLUTE_ROUTE,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
+  };
+
+/**
+ * TYPE BUSINESS PARTNER OPTIONS
+ */
+export const BUSINESS_PARTNER_TYPE = {
+  SUPPLIER: "PROVEEDOR",
+  CUSTOMER: "CLIENTE",
+  BOTH: "AMBOS",
+} as const;

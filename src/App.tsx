@@ -38,6 +38,27 @@ import UpdateCustomersPage from "./app/ap/comercial/clientes/actualizar/[id]/pag
 import CustomerEstablishmentsListPage from "./app/ap/comercial/clientes/establecimientos/[id]/page";
 import AddCustomerEstablishmentPage from "./app/ap/comercial/clientes/establecimientos/[id]/agregar/page";
 import UpdateCustomerEstablishmentPage from "./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page";
+import MarketingDashboardPage from "./app/ap/comercial/marketing/page";
+import MarketingPlansPage from "./app/ap/comercial/marketing/planes/page";
+import AddMarketingPlanPage from "./app/ap/comercial/marketing/planes/agregar/page";
+import UpdateMarketingPlanPage from "./app/ap/comercial/marketing/planes/actualizar/[id]/page";
+import MarketingBudgetsPage from "./app/ap/comercial/marketing/presupuestos/page";
+import AddMarketingBudgetPage from "./app/ap/comercial/marketing/presupuestos/agregar/page";
+import UpdateMarketingBudgetPage from "./app/ap/comercial/marketing/presupuestos/actualizar/[id]/page";
+import MarketingActivitiesPage from "./app/ap/comercial/marketing/actividades/page";
+import AddMarketingActivityPage from "./app/ap/comercial/marketing/actividades/agregar/page";
+import UpdateMarketingActivityPage from "./app/ap/comercial/marketing/actividades/actualizar/[id]/page";
+import MarketingProposalsPage from "./app/ap/comercial/marketing/propuestas/page";
+import AddMarketingProposalPage from "./app/ap/comercial/marketing/propuestas/agregar/page";
+import UpdateMarketingProposalPage from "./app/ap/comercial/marketing/propuestas/actualizar/[id]/page";
+import MarketingPurchaseOrdersPage from "./app/ap/comercial/marketing/ordenes-compra/page";
+import AddMarketingPurchaseOrderPage from "./app/ap/comercial/marketing/ordenes-compra/agregar/page";
+import UpdateMarketingPurchaseOrderPage from "./app/ap/comercial/marketing/ordenes-compra/actualizar/[id]/page";
+import MarketingSupportsPage from "./app/ap/comercial/marketing/sustentos/page";
+import AddMarketingSupportPage from "./app/ap/comercial/marketing/sustentos/agregar/page";
+import MarketingKpisPage from "./app/ap/comercial/marketing/kpis/page";
+import AddMarketingKpiPage from "./app/ap/comercial/marketing/kpis/agregar/page";
+import UpdateMarketingKpiPage from "./app/ap/comercial/marketing/kpis/actualizar/[id]/page";
 import SuppliersPage from "./app/ap/comercial/proveedores/page";
 import AddSupplierPage from "./app/ap/comercial/proveedores/agregar/page";
 import UpdateSuppliersPage from "./app/ap/comercial/proveedores/actualizar/[id]/page";
@@ -681,6 +702,62 @@ function App() {
                 path={`${PER_DIEM_REQUEST_ROUTE}/:id/gastos/actualizar/:expenseId`}
                 element={<UpdateExpensePage />}
               />
+            </Route>
+
+            {/* Marketing */}
+            <Route
+              path="/ap/marketing"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <APComercialLayout>
+                    <Outlet />
+                  </APComercialLayout>
+                </Suspense>
+              }
+            >
+              <Route index element={<MarketingDashboardPage />} />
+
+              {RouterCrud(
+                "planes",
+                <MarketingPlansPage />,
+                <AddMarketingPlanPage />,
+                <UpdateMarketingPlanPage />,
+              )}
+              {RouterCrud(
+                "presupuestos",
+                <MarketingBudgetsPage />,
+                <AddMarketingBudgetPage />,
+                <UpdateMarketingBudgetPage />,
+              )}
+              {RouterCrud(
+                "actividades",
+                <MarketingActivitiesPage />,
+                <AddMarketingActivityPage />,
+                <UpdateMarketingActivityPage />,
+              )}
+              {RouterCrud(
+                "propuestas",
+                <MarketingProposalsPage />,
+                <AddMarketingProposalPage />,
+                <UpdateMarketingProposalPage />,
+              )}
+              {RouterCrud(
+                "ordenes-compra",
+                <MarketingPurchaseOrdersPage />,
+                <AddMarketingPurchaseOrderPage />,
+                <UpdateMarketingPurchaseOrderPage />,
+              )}
+              <Route path="sustentos" element={<MarketingSupportsPage />} />
+              <Route
+                path="sustentos/agregar"
+                element={<AddMarketingSupportPage />}
+              />
+              {RouterCrud(
+                "kpis",
+                <MarketingKpisPage />,
+                <AddMarketingKpiPage />,
+                <UpdateMarketingKpiPage />,
+              )}
             </Route>
 
             {/* ======================================================== */}
