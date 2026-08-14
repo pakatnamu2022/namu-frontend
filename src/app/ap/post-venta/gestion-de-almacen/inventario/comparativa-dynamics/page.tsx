@@ -17,6 +17,13 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip.tsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select.tsx";
 import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -68,16 +75,24 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
             </span>
           </TooltipTrigger>
           <TooltipContent side="top" className="flex flex-col gap-1 px-3 py-2">
-            <span className="font-semibold text-xs mb-0.5">Detalle Stock Sian</span>
+            <span className="font-semibold text-xs mb-0.5">
+              Detalle Stock Sian
+            </span>
             <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
               <span className="text-primary-foreground/70">Disponible</span>
-              <span className="text-right tabular-nums">{available ?? "—"}</span>
+              <span className="text-right tabular-nums">
+                {available ?? "—"}
+              </span>
               <span className="text-primary-foreground/70">Reservado</span>
               <span className="text-right tabular-nums">{reserved ?? "—"}</span>
             </div>
             <div className="border-t border-primary-foreground/20 mt-1 pt-1 grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
-              <span className="text-primary-foreground/50 italic">En tránsito *</span>
-              <span className="text-right tabular-nums text-primary-foreground/50">{inTransit ?? "—"}</span>
+              <span className="text-primary-foreground/50 italic">
+                En tránsito *
+              </span>
+              <span className="text-right tabular-nums text-primary-foreground/50">
+                {inTransit ?? "—"}
+              </span>
             </div>
             <p className="text-primary-foreground/40 text-[10px] italic mt-0.5 max-w-44">
               * Pendiente de confirmación, no suma al total.
@@ -111,7 +126,9 @@ const columns: ColumnDef<CompareDynamicsMergedRow, unknown>[] = [
     cell: ({ getValue }) => {
       const diff = getValue() as number | null;
       if (diff == null)
-        return <span className="block text-right text-muted-foreground">—</span>;
+        return (
+          <span className="block text-right text-muted-foreground">—</span>
+        );
       return (
         <span
           className={`block text-right tabular-nums font-semibold ${diff !== 0 ? "text-rose-600" : "text-emerald-600"}`}
@@ -169,6 +186,9 @@ export default function ComparativaDynamicsPage() {
   const warehouseId = Number(searchParams.get("warehouse_id"));
   const { ABSOLUTE_ROUTE } = INVENTORY;
   const [search, setSearch] = useState("");
+  const [foundInFilter, setFoundInFilter] = useState<
+    "TODOS" | "AMBOS" | "SOLO_LOCAL" | "SOLO_DYNAMICS"
+  >("TODOS");
 
   const {
     data: response,
@@ -188,14 +208,25 @@ export default function ComparativaDynamicsPage() {
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return mergedRows;
-    return mergedRows.filter(
-      (row) =>
+    return mergedRows.filter((row) => {
+      if (foundInFilter !== "TODOS" && row.found_in !== foundInFilter)
+        return false;
+      if (!q) return true;
+      return (
         row.product_dyn_code.toLowerCase().includes(q) ||
         (row.product_code ?? "").toLowerCase().includes(q) ||
-        (row.product_name ?? "").toLowerCase().includes(q),
-    );
-  }, [mergedRows, search]);
+        (row.product_name ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [mergedRows, search, foundInFilter]);
+
+  const withDifferenceCount = useMemo(
+    () =>
+      mergedRows.filter(
+        (row) => row.found_in === "AMBOS" && row.difference !== 0,
+      ).length,
+    [mergedRows],
+  );
 
   if (isLoading) return <PageSkeleton />;
 
@@ -241,7 +272,7 @@ export default function ComparativaDynamicsPage() {
               Coinciden: {meta.matching_products}
             </Badge>
             <Badge variant="outline" color="red">
-              Con diferencia: {meta.total_products - meta.matching_products}
+              Con diferencia: {withDifferenceCount}
             </Badge>
             <Badge variant="outline" color="gray">
               Fecha: {meta.comparison_date}
@@ -258,6 +289,24 @@ export default function ComparativaDynamicsPage() {
               onChange={setSearch}
               placeholder="Buscar por cód. Dynamics, cód. local o producto..."
             />
+            <Select
+              value={foundInFilter}
+              onValueChange={(value) =>
+                setFoundInFilter(
+                  value as "TODOS" | "AMBOS" | "SOLO_LOCAL" | "SOLO_DYNAMICS",
+                )
+              }
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Encontrado en" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TODOS">Todos</SelectItem>
+                <SelectItem value="AMBOS">Ambos</SelectItem>
+                <SelectItem value="SOLO_LOCAL">Solo SIAN</SelectItem>
+                <SelectItem value="SOLO_DYNAMICS">Solo Dynamics</SelectItem>
+              </SelectContent>
+            </Select>
           </DataTable>
         </>
       )}
