@@ -22,6 +22,7 @@ import {
   RegisterHistoricalAdvancePaymentResponse,
   RegisterHistoricalFinalSaleResponse,
   NubefactPreviewResource,
+  DynamicsPayloadPreviewResource,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
@@ -494,6 +495,15 @@ export async function previewNubefactElectronicDocument(
 ): Promise<NubefactPreviewResource> {
   const { data } = await api.get<NubefactPreviewResource>(
     `${ENDPOINT}/${id}/preview-nubefact`,
+  );
+  return data;
+}
+
+export async function previewDynamicsPayloadElectronicDocument(
+  id: number,
+): Promise<DynamicsPayloadPreviewResource> {
+  const { data } = await api.get<DynamicsPayloadPreviewResource>(
+    `${ENDPOINT}/${id}/preview-dynamics-payload`,
   );
   return data;
 }
