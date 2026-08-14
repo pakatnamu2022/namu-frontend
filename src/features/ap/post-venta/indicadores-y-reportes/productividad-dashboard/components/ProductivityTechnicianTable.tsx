@@ -88,9 +88,7 @@ export default function ProductivityTechnicianTable({
             <div
               className={cn(
                 "font-semibold",
-                tech.productivity_hours < 0
-                  ? "text-red-600"
-                  : "text-green-600",
+                tech.productivity_hours < 0 ? "text-red-600" : "text-green-600",
               )}
             >
               {tech.productivity_hours >= 0 ? "+" : ""}
