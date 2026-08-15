@@ -128,14 +128,17 @@ export default function InternalNoteHistory({
     }
   };
 
-  const getEventIcon = (event: string) => {
-    switch (event) {
+  const getEventIcon = (status: string) => {
+    switch (status) {
       case "completed":
         return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case "attempt":
+      case "in_progress":
+      case "pending":
         return <Clock className="h-5 w-5 text-blue-600" />;
-      case "created":
-        return <AlertCircle className="h-5 w-5 text-gray-600" />;
+      case "failed":
+        return <XCircle className="h-5 w-5 text-red-600" />;
+      case "updated_with_nc":
+        return <CheckCircle2 className="h-5 w-5 text-purple-600" />;
       default:
         return <AlertCircle className="h-5 w-5 text-gray-600" />;
     }
@@ -335,32 +338,36 @@ export default function InternalNoteHistory({
                           (event: any, eventIndex: number) => (
                             <div key={eventIndex} className="relative">
                               <div className="absolute -left-[1.6rem] top-1 bg-background">
-                                {getEventIcon(event.event)}
+                                {getEventIcon(event.status)}
                               </div>
                               <div className="rounded-lg border bg-card p-3 space-y-2">
                                 <div className="flex items-center justify-between">
                                   <p className="font-medium text-sm">
-                                    {event.description}
+                                    {event.step_name || event.step}
                                   </p>
-                                  {getStatusBadge(event.status)}
+                                  {getStatusBadge(event.status, event.status_name)}
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                   <Clock className="h-3 w-3" />
-                                  <span>{formatDate(event.timestamp)}</span>
+                                  <span>
+                                    {formatDate(
+                                      event.completed_at ??
+                                        event.last_attempt_at ??
+                                        event.created_at,
+                                    )}
+                                  </span>
                                 </div>
-                                {event.error && (
+                                {event.error_message && (
                                   <div className="rounded bg-red-50 p-2 text-xs text-red-800">
                                     <p className="font-medium">Error:</p>
-                                    <p>{event.error}</p>
+                                    <p>{event.error_message}</p>
                                   </div>
                                 )}
                                 {event.proceso_estado !== undefined && (
                                   <div className="pt-1">
                                     {getProcesoEstadoBadge(
                                       event.proceso_estado,
-                                      event.proceso_estado === 1
-                                        ? "Procesado Exitosamente"
-                                        : "Error",
+                                      event.proceso_estado_name,
                                     )}
                                   </div>
                                 )}
