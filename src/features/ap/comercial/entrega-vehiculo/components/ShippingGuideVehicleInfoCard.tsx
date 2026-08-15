@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
 import RescheduleHistorySheet from "./RescheduleHistorySheet";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 interface ShippingGuideVehicleInfoCardProps {
   vehicleDelivery: VehiclesDeliveryResource;
@@ -31,6 +32,11 @@ export function ShippingGuideVehicleInfoCard({
             <p className="font-semibold text-sm">
               {vehicleDelivery.client_name}
             </p>
+            <CopyCell
+              className="text-muted-foreground"
+              size="xs"
+              value={vehicleDelivery.client_num_doc ?? ""}
+            />
           </div>
         )}
         <div>
@@ -42,9 +48,7 @@ export function ShippingGuideVehicleInfoCard({
         <div className="flex items-end justify-between gap-2">
           <div>
             <p className="text-xs text-muted-foreground">Sede</p>
-            <p className="font-semibold text-sm">
-              {vehicleDelivery.sede_name}
-            </p>
+            <p className="font-semibold text-sm">{vehicleDelivery.sede_name}</p>
           </div>
           {vehicleDelivery.rescheduled_by && (
             <RescheduleHistorySheet

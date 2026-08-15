@@ -65,6 +65,7 @@ interface Props {
     canSend: boolean;
     canMigrate: boolean;
     canResetMigration: boolean;
+    canApprove: boolean;
   };
 }
 
@@ -510,8 +511,29 @@ export const vehicleDeliveryColumns = ({
 
       const canViewRescheduleHistory = !!rescheduled_by && permissions.canView;
 
+      const canOpenApproval = !!is_extraordinary && permissions.canApprove;
+
       return (
         <div className="flex items-center gap-2">
+          <ButtonAction
+            tooltip={
+              extraordinary_approved === null || extraordinary_approved === undefined
+                ? "Aprobar / Anular entrega extraordinaria"
+                : "Ver aprobación de entrega extraordinaria"
+            }
+            onClick={() => router(`${ABSOLUTE_ROUTE}/${id}/aprobacion`)}
+            icon={ShieldCheck}
+            color={
+              extraordinary_approved === true
+                ? "green"
+                : extraordinary_approved === false
+                  ? "red"
+                  : "amber"
+            }
+            variant="secondary"
+            canRender={canOpenApproval}
+          />
+
           {canReschedule && (
             <Button
               variant="outline"

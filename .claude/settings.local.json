@@ -42,7 +42,13 @@
       "Bash(head -20 /tmp_tsc_out.txt)",
       "Bash(php -l app/Http/Traits/Filterable.php)",
       "Bash(php -l app/Models/dp/comercial/AccountReceivable.php)",
-      "mcp__codegraph__codegraph_files"
+      "mcp__codegraph__codegraph_files",
+      "Bash(cd c:/laragon/www/milla-backend && sed -n '1,120p' app/Http/Services/ap/comercial/ApVehicleDeliveryService.php)",
+      "Read(//c/laragon/www/milla-backend/**)",
+      "Bash(cd c:/laragon/www/milla-backend && grep -n \"filters\\\\s*=\\\\|sorts\\\\s*=\" -A 40 app/Models/ap/comercial/ApVehicleDelivery.php | head -80)",
+      "Bash(cd c:/laragon/www/milla-backend && sed -n '1490,1560p' routes/api.php)",
+      "Bash(cd c:/laragon/www/milla-backend && grep -n \"middleware\\(\\\\|Route::group\" routes/api.php | sed -n '1,60p')",
+      "Bash(cd c:/laragon/www/milla-backend && sed -n '680,800p' app/Http/Services/ap/comercial/ApVehicleDeliveryService.php)"
     ],
     "deny": [],
     "ask": [],
