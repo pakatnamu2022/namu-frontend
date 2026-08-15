@@ -11,19 +11,14 @@ import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { DataTable } from "@/shared/components/DataTable.tsx";
 import SearchInput from "@/shared/components/SearchInput.tsx";
+import FilterWrapper from "@/shared/components/FilterWrapper.tsx";
+import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip.tsx";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select.tsx";
 import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -284,29 +279,35 @@ export default function ComparativaDynamicsPage() {
             data={filteredRows}
             isVisibleColumnFilter={true}
           >
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar por cód. Dynamics, cód. local o producto..."
-            />
-            <Select
-              value={foundInFilter}
-              onValueChange={(value) =>
-                setFoundInFilter(
-                  value as "TODOS" | "AMBOS" | "SOLO_LOCAL" | "SOLO_DYNAMICS",
-                )
-              }
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Encontrado en" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="TODOS">Todos</SelectItem>
-                <SelectItem value="AMBOS">Ambos</SelectItem>
-                <SelectItem value="SOLO_LOCAL">Solo SIAN</SelectItem>
-                <SelectItem value="SOLO_DYNAMICS">Solo Dynamics</SelectItem>
-              </SelectContent>
-            </Select>
+            <FilterWrapper>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder="Buscar por cód. Dynamics, cód. local o producto..."
+              />
+              <SearchableSelect
+                options={[
+                  { value: "TODOS", label: "Todos" },
+                  { value: "AMBOS", label: "Ambos" },
+                  { value: "SOLO_LOCAL", label: "Solo SIAN" },
+                  { value: "SOLO_DYNAMICS", label: "Solo Dynamics" },
+                ]}
+                value={foundInFilter}
+                onChange={(value) =>
+                  setFoundInFilter(
+                    (value || "TODOS") as
+                      | "TODOS"
+                      | "AMBOS"
+                      | "SOLO_LOCAL"
+                      | "SOLO_DYNAMICS",
+                  )
+                }
+                placeholder="Encontrado en"
+                className="w-[200px]"
+                showSearch={false}
+                allowClear={false}
+              />
+            </FilterWrapper>
           </DataTable>
         </>
       )}
