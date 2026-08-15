@@ -193,8 +193,6 @@ export const planningColumns = ({
       const visibleEdit =
         permissions.canUpdate &&
         (row.original.status === "planned" || isCompleted);
-      const visibleDelete =
-        permissions.canDelete && row.original.status === "planned";
       const visibleCancel =
         permissions.canAnnul &&
         row.original.status !== "canceled" &&
@@ -240,9 +238,7 @@ export const planningColumns = ({
               <ShieldCheck className="h-4 w-4" />
             </Button>
           )}
-          {visibleDelete && (
-            <DeleteButton onClick={() => onDelete?.(row.original.id)} />
-          )}
+          <DeleteButton onClick={() => onDelete?.(row.original.id)} />
           {visibleCancel && (
             <Button
               variant="outline"
