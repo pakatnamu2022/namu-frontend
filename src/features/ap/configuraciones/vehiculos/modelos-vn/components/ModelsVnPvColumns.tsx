@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
-import { Button } from "@/components/ui/button";
 import { Copy, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -213,29 +213,22 @@ export const modelsVnPvColumns = ({
           )}
 
           {/* Edit */}
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onUpdate(id)}
-              disabled={type_operation_id !== isCommercial}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Pencil}
+            tooltip="Editar"
+            onClick={() => onUpdate(id)}
+            disabled={type_operation_id !== isCommercial}
+            canRender={permissions.canUpdate}
+          />
 
           {/* Duplicate */}
-          {permissions.canCreate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onDuplicate(id)}
-            >
-              <Copy className="size-5" />
-            </Button>
-          )}
+          <ButtonAction
+            icon={Copy}
+            tooltip="Duplicar"
+            variant="ghost"
+            onClick={() => onDuplicate(id)}
+            canRender={permissions.canCreate}
+          />
 
           {/* Delete */}
           {permissions.canDelete && (
