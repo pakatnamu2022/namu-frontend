@@ -143,8 +143,13 @@ export const vehicleColumns = ({
       } = row.original;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { ROUTE_UPDATE } =
+      const { ROUTE_UPDATE , ABSOLUTE_ROUTE} =
         type_operation_id === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
+
+      const ROUTE_MODEL =
+        type_operation_id === CM_COMERCIAL_ID
+          ? ROUTE_UPDATE + `/${model?.id}`
+          : ABSOLUTE_ROUTE;
 
       return (
         <div className="flex items-center gap-2">
@@ -152,7 +157,7 @@ export const vehicleColumns = ({
           <ButtonAction
             icon={Box}
             tooltip="Ver Modelo"
-            onClick={() => router(`${ROUTE_UPDATE}/${model.id}`)}
+            onClick={() => router(ROUTE_MODEL)}
             canRender={!!model?.id}
           />
 
