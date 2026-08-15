@@ -3,7 +3,7 @@ import { ReasonsAdjustmentResource } from "./reasonsAdjustment.interface.ts";
 import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "motivos-ajuste";
-const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/configuraciones/post-venta/${ROUTE}`;
 
 export const REASONS_ADJUSTMENT: ModelComplete<ReasonsAdjustmentResource> = {
   MODEL: {

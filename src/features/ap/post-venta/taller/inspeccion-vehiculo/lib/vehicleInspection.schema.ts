@@ -43,6 +43,7 @@ export const vehicleInspectionSchemaCreate = z.object({
   tire_pressure_inflation_check: z.boolean().default(false),
   alignment_balancing: z.boolean().default(false),
   pad_replace_disc_resurface: z.boolean().default(false),
+  tire_rotation: z.boolean().default(false),
   other_work_details: z.string().max(50000).optional(),
   // Requerimiento del cliente
   customer_requirement: z.string().max(50000).optional(),

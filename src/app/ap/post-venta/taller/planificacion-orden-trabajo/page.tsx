@@ -309,6 +309,7 @@ export default function PlanningPage() {
         planning={selectedPlanning}
         onSubmit={handleUpdatePlanning}
         isSubmitting={updateMutation.isPending}
+        sedeId={sedeId}
       />
 
       {/* Modal finalización por supervisor */}
@@ -333,6 +334,7 @@ export default function PlanningPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleConfirmDelete}
+          description="Esta acción eliminará la asignación realizada por almacén y la confirmación de repuestos registrada por el técnico. ¿Estás seguro de que deseas eliminar esta planificación?"
         />
       )}
 

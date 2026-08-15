@@ -432,3 +432,110 @@ export interface NubefactPreviewResource {
   venta_al_credito: NubefactPreviewInstallment[];
   generado_por_contingencia?: boolean;
 }
+
+export interface DynamicsPayloadDocumentInfo {
+  id: number;
+  full_number: string;
+  consolidation_type: string | null;
+  internal_notes_count: number;
+}
+
+export interface DynamicsPayloadClientData {
+  id: number;
+  num_doc: string;
+  full_name: string;
+  document_type_id: number;
+  tax_class_type_id: number;
+  type_person_id: number;
+  paternal_surname: string;
+  maternal_surname: string;
+  first_name: string;
+  middle_name: string | null;
+}
+
+export interface DynamicsPayloadClient {
+  will_sync: boolean;
+  table: string;
+  data: DynamicsPayloadClientData;
+}
+
+export interface DynamicsPayloadHeaderData {
+  EmpresaId: string;
+  TipoId: string;
+  DocumentoId: string;
+  LoteId: string;
+  ClienteId: string;
+  TerritorioId: string;
+  VendedorId: string;
+  FechaEmision: string;
+  FechaContable: string;
+  TipoComprobanteId: string;
+  Serie: string;
+  Correlativo: number;
+  MonedaId: string;
+  TipoTasaId: string;
+  TasaCambio: string;
+  PlanImpuestoId: string;
+  TipoOperacionDetraccionId: string;
+  CategoriaDetraccionId: string;
+  SitioPredeterminadoId: string;
+  UsuarioId: string;
+  Procesar: number;
+  ProcesoEstado: number;
+  ProcesoError: string;
+  FechaProceso: string;
+  Total: number;
+  Detraccion: string;
+  EsAnticipo: number;
+  ApAnticipo: number;
+}
+
+export interface DynamicsPayloadHeader {
+  table: string;
+  data: DynamicsPayloadHeaderData;
+}
+
+export interface DynamicsPayloadDetailData {
+  EmpresaId: string;
+  DocumentoId: string;
+  Linea: number;
+  ArticuloId: string;
+  ArticuloDescripcionCorta: string;
+  ArticuloDescripcionLarga: string;
+  SitioId: string;
+  UnidadMedidaId: string;
+  Cantidad: number;
+  PrecioUnitario: number;
+  DescuentoUnitario: number;
+  PrecioTotal: number;
+}
+
+export type DynamicsPayloadDetailType = "part" | "labour";
+
+export interface DynamicsPayloadDetail {
+  type: DynamicsPayloadDetailType;
+  table: string;
+  work_order_id: number;
+  part_id?: number;
+  labour_id?: number;
+  data: DynamicsPayloadDetailData;
+}
+
+export interface DynamicsPayloadPreview {
+  client: DynamicsPayloadClient;
+  header: DynamicsPayloadHeader;
+  details: DynamicsPayloadDetail[];
+}
+
+export interface DynamicsPayloadSummary {
+  total_items: number;
+  total_work_orders: number;
+}
+
+export interface DynamicsPayloadPreviewResource {
+  error: boolean;
+  message?: string;
+  document_info: DynamicsPayloadDocumentInfo;
+  preview: DynamicsPayloadPreview;
+  summary: DynamicsPayloadSummary;
+}

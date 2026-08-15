@@ -21,6 +21,7 @@ export interface WorkOrderLabourResource {
   worker_full_name: string;
   group_number: number;
   is_deductible: boolean;
+  labour_type: string;
 }
 
 export interface WorkOrderLabourRequest {
@@ -32,6 +33,7 @@ export interface WorkOrderLabourRequest {
   worker_id?: number;
   group_number: number;
   quotation_detail_id?: number;
+  labour_type: string;
 }
 
 export interface getWorkOrderLabourProps {

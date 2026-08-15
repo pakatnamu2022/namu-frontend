@@ -61,6 +61,13 @@ export const ConceptObjectivePvForm = ({
     if (isVehicularCrossing && hasTypePlanning) {
       form.setValue("type_planning_ids", []);
     }
+    if (isVehicularCrossing) {
+      form.setValue("description", "Paso Vehicular", {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
   }, [isVehicularCrossing]);
 
   useEffect(() => {
@@ -110,18 +117,50 @@ export const ConceptObjectivePvForm = ({
           />
 
           {showTypePlanning && (
-            <MultiSelectTags
-              control={form.control}
-              name="type_planning_ids"
-              label="Tipos de Planificación"
-              description="Selecciona los tipos de planificación que aplican a este concepto"
-              placeholder="Selecciona tipos de planificación"
-              searchPlaceholder="Buscar tipo de planificación..."
-              options={typesPlanning}
-              disabled={loadingTypesPlanning}
-              getDisplayValue={(item) => item.description}
-              getSecondaryText={(item) => item.code}
-            />
+            <div className="space-y-2">
+              <MultiSelectTags
+                control={form.control}
+                name="type_planning_ids"
+                label="Tipos de Planificación"
+                description="Selecciona los tipos de planificación que aplican a este concepto"
+                placeholder="Selecciona tipos de planificación"
+                searchPlaceholder="Buscar tipo de planificación..."
+                options={typesPlanning}
+                disabled={loadingTypesPlanning}
+                getDisplayValue={(item) => item.description}
+                getSecondaryText={(item) => item.code}
+              />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={loadingTypesPlanning || typesPlanning.length === 0}
+                  onClick={() =>
+                    form.setValue(
+                      "type_planning_ids",
+                      typesPlanning.map((item) => item.id),
+                      { shouldValidate: true },
+                    )
+                  }
+                >
+                  Seleccionar todos
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!hasTypePlanning}
+                  onClick={() =>
+                    form.setValue("type_planning_ids", [], {
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  Limpiar
+                </Button>
+              </div>
+            </div>
           )}
 
           {showVehicularCrossing && (

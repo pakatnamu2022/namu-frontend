@@ -1157,6 +1157,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
               key: "pad_replace_disc_resurface",
               label: "Cambio de pastillas de freno y rectificado de discos",
             },
+            {
+              key: "tire_rotation",
+              label: "Rotación de llantas",
+            },
           ].map(({ key, label }) => {
             const value = inspection[key as keyof typeof inspection];
             const isChecked = typeof value === "boolean" ? value : false;

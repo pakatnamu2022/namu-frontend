@@ -59,6 +59,10 @@ export const workOrderCajaColumns = ({
       ] as WorkOrderColumns[])
     : []),
   {
+    accessorKey: "sede_name",
+    header: "Sede",
+  },
+  {
     accessorKey: "correlative",
     header: "Correlativo",
     cell: ({ getValue }) => {
@@ -83,10 +87,6 @@ export const workOrderCajaColumns = ({
     },
   },
   {
-    accessorKey: "fuel_level",
-    header: "Nivel de Combustible",
-  },
-  {
     accessorKey: "opening_date",
     header: "Fecha de Apertura",
     cell: ({ getValue }) => {
@@ -99,38 +99,6 @@ export const workOrderCajaColumns = ({
         return value;
       }
     },
-  },
-  {
-    accessorKey: "estimated_delivery_date",
-    header: "Fecha Est. Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        const date = new Date(value.replace(" ", "T"));
-        return format(date, "dd/MM/yyyy", { locale: es });
-      } catch {
-        return value;
-      }
-    },
-  },
-  {
-    accessorKey: "actual_delivery_date",
-    header: "Fecha Real Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        const date = new Date(value.replace(" ", "T"));
-        return format(date, "dd/MM/yyyy", { locale: es });
-      } catch {
-        return value;
-      }
-    },
-  },
-  {
-    accessorKey: "type_currency.name",
-    header: "Moneda",
   },
   {
     accessorKey: "final_amount",

@@ -6,7 +6,7 @@ import {
 } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "objetivos-taller-meson";
-const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/configuraciones/post-venta/${ROUTE}`;
 
 export const CONCEPT_OBJECTIVE_PV: ModelComplete<ConceptObjectivePvResource> = {
   MODEL: {

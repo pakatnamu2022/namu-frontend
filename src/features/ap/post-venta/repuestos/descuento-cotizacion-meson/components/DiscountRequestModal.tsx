@@ -24,6 +24,7 @@ import {
 } from "../lib/discountRequestMeson.actions";
 import {
   DISCOUNT_REQUEST_MESON,
+  ITEM_TYPE_DCT_PRODUCT,
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "../lib/discountRequestMeson.constants";
@@ -43,7 +44,7 @@ interface DiscountRequestModalProps {
   existingRequest?: DiscountRequestOrderQuotationResource;
   onSuccess?: () => void;
   /** Tipo de ítem al que aplica el descuento */
-  itemType?: "PRODUCT" | "LABOR";
+  itemType?: string;
   /** Descuento máximo que el usuario puede aplicar sin solicitar (0-100). La solicitud debe superar este valor. */
   maxDiscount?: number;
 }
@@ -58,7 +59,7 @@ export const DiscountRequestModal = ({
   currencySymbol = "S/.",
   existingRequest,
   onSuccess,
-  itemType = "PRODUCT",
+  itemType = ITEM_TYPE_DCT_PRODUCT,
   maxDiscount = 100,
 }: DiscountRequestModalProps) => {
   const queryClient = useQueryClient();

@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Pencil, Tag, Trash2, Undo2 } from "lucide-react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { EditableCell } from "@/shared/components/EditableCell";
 import { OrderQuotationDetailsResource } from "../lib/proformaDetails.interface";
+import { ITEM_TYPE_PRODUCT } from "../lib/proformaDetails.constants";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import {
   STATUS_APPROVED,
@@ -49,7 +50,7 @@ interface QuotationItemsTableProps {
     canReverseDiscount?: boolean;
   };
   /** Tipo de ítem de la tabla: determina qué permiso habilita el botón de eliminar */
-  itemType: "PART" | "LABOR";
+  itemType: string;
   isApproving: boolean;
   isRejecting: boolean;
   isReverting?: boolean;
@@ -280,7 +281,7 @@ export function QuotationItemsTable({
   getPrice,
 }: QuotationItemsTableProps) {
   const canRemove =
-    itemType === "PART"
+    itemType === ITEM_TYPE_PRODUCT
       ? !!permissions.canRemoveSparePartQuote
       : permissions.canRemoveSparePartLabor;
 

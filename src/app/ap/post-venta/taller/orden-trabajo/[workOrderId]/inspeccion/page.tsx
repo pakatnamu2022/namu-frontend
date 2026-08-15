@@ -102,6 +102,7 @@ export default function VehicleInspectionPage() {
       "pad_replace_disc_resurface",
       data.pad_replace_disc_resurface ? "1" : "0",
     );
+    formData.append("tire_rotation", data.tire_rotation ? "1" : "0");
     formData.append("other_work_details", data.other_work_details || "");
     // Requerimiento del cliente
     formData.append("customer_requirement", data.customer_requirement || "");

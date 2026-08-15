@@ -267,6 +267,11 @@ export const VehicleInspectionForm = ({
             label="Cambio de pastillas de freno y rectificado de discos"
             control={form.control}
           />
+          <FormCheckbox
+            name="tire_rotation"
+            label="Rotación de llantas"
+            control={form.control}
+          />
           <div className="col-span-full">
             <FormTextArea
               name="other_work_details"

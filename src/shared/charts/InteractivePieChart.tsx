@@ -34,6 +34,7 @@ interface Props {
   showCenterLabel?: boolean;
   centerLabelAsPercent?: boolean;
   showLegend?: boolean;
+  showPercentageInLegend?: boolean;
   showSelectionFooter?: boolean;
   valueFormatter?: (value: number) => string;
   footerInfo?: {
@@ -54,6 +55,7 @@ export function InteractivePieChart({
   showCenterLabel = true,
   centerLabelAsPercent = false,
   showLegend = false,
+  showPercentageInLegend = false,
   showSelectionFooter = false,
   valueFormatter,
   footerInfo,
@@ -202,20 +204,32 @@ export function InteractivePieChart({
       <div className="flex flex-col gap-4">
         {showLegend && (
           <div className="flex flex-wrap justify-center gap-2 px-4">
-            {data.map((item) => (
-              <div
-                key={item.name}
-                className="flex items-center gap-1.5 text-xs"
-              >
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                  style={{ backgroundColor: `var(--color-${item.name})` }}
-                />
-                <span className="text-muted-foreground">
-                  {config[item.name]?.label || item.name}
-                </span>
-              </div>
-            ))}
+            {(showPercentageInLegend
+              ? [...data].sort((a, b) => b.value - a.value)
+              : data
+            ).map((item) => {
+              const total = data.reduce((sum, d) => sum + d.value, 0);
+              const percentage = total > 0 ? (item.value / total) * 100 : 0;
+              return (
+                <div
+                  key={item.name}
+                  className="flex items-center gap-1.5 text-xs"
+                >
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                    style={{ backgroundColor: `var(--color-${item.name})` }}
+                  />
+                  <span className="text-muted-foreground">
+                    {config[item.name]?.label || item.name}
+                  </span>
+                  {showPercentageInLegend && (
+                    <strong className="font-mono">
+                      {percentage.toFixed(0)}%
+                    </strong>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
         {footerInfo ? (

@@ -198,9 +198,25 @@ export async function updateInvoiceTo(
 }
 
 export async function downloadDeliveryPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/delivery-report`, {
-    responseType: "blob",
-  });
+  let response;
+  try {
+    response = await api.get(`${ENDPOINT}/${id}/delivery-report`, {
+      responseType: "blob",
+    });
+  } catch (error: any) {
+    const blobData = error?.response?.data;
+    if (blobData instanceof Blob) {
+      const text = await blobData.text();
+      try {
+        const parsed = JSON.parse(text);
+        error.response.data = parsed;
+        error.message = parsed?.error || parsed?.message || error.message;
+      } catch {
+        // el body no era JSON, se deja el error original
+      }
+    }
+    throw error;
+  }
 
   // Crear un blob desde la respuesta
   const blob = new Blob([response.data], { type: "application/pdf" });

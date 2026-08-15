@@ -51,6 +51,7 @@ interface Props {
   typeCurrencyId?: string;
   setTypeCurrencyId?: (value: string) => void;
   allowClearTypePlanning?: boolean;
+  allowClearSede?: boolean;
   dateField?: "opening_date" | "estimated_delivery_date";
   setDateField?: (value: "opening_date" | "estimated_delivery_date") => void;
   statusGroups?: string[];
@@ -80,6 +81,7 @@ export default function WorkOrderOptions({
   typeCurrencyId,
   setTypeCurrencyId,
   allowClearTypePlanning = true,
+  allowClearSede = false,
   dateField,
   setDateField,
   statusGroups,
@@ -102,7 +104,7 @@ export default function WorkOrderOptions({
         placeholder="Filtrar por sede"
         className="min-w-48"
         classNameOption="text-xs"
-        allowClear={false}
+        allowClear={allowClearSede}
       />
       {setAdvisorId && (
         <SearchableSelect

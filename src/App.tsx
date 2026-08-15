@@ -232,13 +232,13 @@ import ProductTypePage from "./app/ap/configuraciones/vehiculos/tipos-producto/p
 import TractionTypePage from "./app/ap/configuraciones/vehiculos/tipos-traccion/page.tsx";
 import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx";
 import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
-import AfterSalesParameterPage from "./app/ap/configuraciones/postventa/parametros/page.tsx";
-import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
-import ReasonDiscardingTallerPage from "./app/ap/configuraciones/postventa/motivos-descarte-taller/page.tsx";
-import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
-import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
-import TypesPlanningPage from "./app/ap/configuraciones/postventa/tipos-planificacion/page.tsx";
-import ConceptObjectivePvPage from "./app/ap/configuraciones/postventa/objetivos-taller-meson/page.tsx";
+import AfterSalesParameterPage from "./app/ap/configuraciones/post-venta/parametros/page.tsx";
+import ReasonsAdjustmentPage from "./app/ap/configuraciones/post-venta/motivos-ajuste/page.tsx";
+import ReasonDiscardingTallerPage from "./app/ap/configuraciones/post-venta/motivos-descarte-taller/page.tsx";
+import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/post-venta/motivos-descarte-repuesto/page.tsx";
+import TypesOperationsAppointmentPage from "./app/ap/configuraciones/post-venta/tipos-operacion-cita/page.tsx";
+import TypesPlanningPage from "./app/ap/configuraciones/post-venta/tipos-planificacion/page.tsx";
+import ConceptObjectivePvPage from "./app/ap/configuraciones/post-venta/objetivos-taller-meson/page.tsx";
 import CommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/page.tsx";
 import AddCommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page.tsx";
 import UpdateCommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page.tsx";
@@ -379,6 +379,8 @@ import BillWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller
 import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
 import IndicadoresReportesPage from "./app/ap/post-venta/indicadores-y-reportes/page.tsx";
 import ReportesPostVentaPage from "./app/ap/post-venta/indicadores-y-reportes/reportes/page.tsx";
+import ObjectivesDashboardPage from "./app/ap/post-venta/indicadores-y-reportes/dashboard-objetivos/page.tsx";
+import ProductivityDashboardPage from "./app/ap/post-venta/indicadores-y-reportes/dashboard-productividad/page.tsx";
 import AdoptionDashboardPage from "./app/gp/gestion-del-sistema/adoption-dashboard/page";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -1285,33 +1287,33 @@ function App() {
               />
 
               {/* PostVentas Configuration */}
-              <Route path="postventa" element={<ModulePage />} />
+              <Route path="post-venta" element={<ModulePage />} />
               <Route
-                path="postventa/parametros-postventa"
+                path="post-venta/parametros-postventa"
                 element={<AfterSalesParameterPage />}
               />
               <Route
-                path="postventa/tipos-operacion-cita"
+                path="post-venta/tipos-operacion-cita"
                 element={<TypesOperationsAppointmentPage />}
               />
               <Route
-                path="postventa/motivos-ajuste"
+                path="post-venta/motivos-ajuste"
                 element={<ReasonsAdjustmentPage />}
               />
               <Route
-                path="postventa/motivos-descarte-taller"
+                path="post-venta/motivos-descarte-taller"
                 element={<ReasonDiscardingTallerPage />}
               />
               <Route
-                path="postventa/motivos-descarte-repuesto"
+                path="post-venta/motivos-descarte-repuesto"
                 element={<ReasonDiscardingSparePartPage />}
               />
               <Route
-                path="postventa/tipos-planificacion"
+                path="post-venta/tipos-planificacion"
                 element={<TypesPlanningPage />}
               />
               <Route
-                path="postventa/objetivos-taller-meson"
+                path="post-venta/objetivos-taller-meson"
                 element={<ConceptObjectivePvPage />}
               />
 
@@ -1925,6 +1927,14 @@ function App() {
               <Route
                 path="indicadores-y-reportes/reportes-postventa"
                 element={<ReportesPostVentaPage />}
+              />
+              <Route
+                path="indicadores-y-reportes/dashboard-objetivos"
+                element={<ObjectivesDashboardPage />}
+              />
+              <Route
+                path="indicadores-y-reportes/dashboard-productividad"
+                element={<ProductivityDashboardPage />}
               />
             </Route>
 

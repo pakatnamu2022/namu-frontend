@@ -2,7 +2,7 @@ import { type ModelComplete } from "@/core/core.interface.ts";
 import { TypesPlanningResource } from "./typesPlanning.interface.ts";
 
 const ROUTE = "tipos-planificacion";
-const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/configuraciones/post-venta/${ROUTE}`;
 
 export const INTERNA_SC = "INTERNA_SC";
 export const INTERNA_CC = "INTERNA_CC";

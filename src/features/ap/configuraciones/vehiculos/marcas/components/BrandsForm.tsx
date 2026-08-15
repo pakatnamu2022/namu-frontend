@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -70,6 +71,15 @@ export const BrandsForm = ({
     defaultValue: defaultValues.type_operation_id ?? String(CM_COMERCIAL_ID),
   });
 
+  const nameWatch = useWatch({ control: form.control, name: "name" });
+
+  useEffect(() => {
+    if (hideModalFields) {
+      form.setValue("description", nameWatch ?? "", { shouldValidate: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hideModalFields, nameWatch]);
+
   const handleSubmit = (data: BrandsRequest) => {
     onSubmit(data);
   };
@@ -110,12 +120,14 @@ export const BrandsForm = ({
             control={form.control}
           />
 
-          <FormInput
-            name="description"
-            label="Descripción"
-            placeholder="Ej: Changan"
-            control={form.control}
-          />
+          {!hideModalFields && (
+            <FormInput
+              name="description"
+              label="Descripción"
+              placeholder="Ej: Changan"
+              control={form.control}
+            />
+          )}
 
           <FormSelect
             name="group_id"

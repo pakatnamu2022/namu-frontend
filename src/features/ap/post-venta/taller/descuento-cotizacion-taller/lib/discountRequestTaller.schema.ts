@@ -1,3 +1,4 @@
+import { requiredText } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const discountRequestTallerSchema = z.object({
@@ -16,7 +17,9 @@ export const discountRequestTallerSchema = z.object({
     .positive()
     .nullable()
     .optional(),
-  item_type: z.enum(["PRODUCT", "LABOR"]),
+  item_type: requiredText(
+    "Debe seleccionar un tipo de ítem al que aplica el descuento",
+  ),
 });
 
 export type DiscountRequestTallerSchema = z.infer<

@@ -10,7 +10,7 @@ export interface DiscountRequestOrderQuotationResource {
   requested_discount_amount: number;
   review_date: string | null;
   is_approved: boolean;
-  item_type: "PRODUCT" | "LABOR";
+  item_type: string;
   status: "pending" | "approved" | "rejected";
   reverted_by_id: number | null;
 }
@@ -21,7 +21,7 @@ export interface DiscountRequestOrderQuotationRequest {
   requested_discount_amount: number;
   ap_order_quotation_id?: number | null;
   ap_order_quotation_detail_id?: number | null;
-  item_type: "PRODUCT" | "LABOR";
+  item_type: string;
 }
 
 export interface getDiscountRequestOrderProps {

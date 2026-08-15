@@ -3,7 +3,7 @@ import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { ReasonDiscardingSparePartResource } from "./reasonDiscardingSparePart.interface";
 
 const ROUTE = "motivos-descarte-repuesto";
-const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/configuraciones/post-venta/${ROUTE}`;
 
 export const REASONS_DISCARDING_SPAREPART: ModelComplete<ReasonDiscardingSparePartResource> =
   {

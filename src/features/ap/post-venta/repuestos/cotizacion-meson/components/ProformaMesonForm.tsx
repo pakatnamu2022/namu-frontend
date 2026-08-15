@@ -5,6 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   quotationMesonWithProductsSchemaCreate,
   quotationMesonWithProductsSchemaUpdate,
@@ -25,6 +32,7 @@ import {
   Gauge,
   ChevronDown,
   ChevronUp,
+  Percent,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -110,6 +118,8 @@ export default function ProformaMesonForm({
   >({});
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [globalDiscountOpen, setGlobalDiscountOpen] = useState(false);
+  const [globalDiscountValue, setGlobalDiscountValue] = useState("");
   const [pendingProductId, setPendingProductId] = useState<
     number | undefined
   >();
@@ -308,6 +318,21 @@ export default function ProformaMesonForm({
       update(editingIndex, row);
     }
     closeSheet();
+  };
+
+  const applyGlobalDiscount = () => {
+    const parsed = Number(globalDiscountValue);
+    if (Number.isNaN(parsed) || parsed < 0) return;
+
+    fields.forEach((_, index) => {
+      const maxAllowed = resolveApprovedDiscount(index) ?? defaultDiscount;
+      const discount = Math.min(parsed, maxAllowed);
+      form.setValue(`details.${index}.discount_percentage`, discount, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+    setGlobalDiscountOpen(false);
   };
 
   // Resuelve el descuento aprobado (GLOBAL aplica a todos, PARTIAL por detail_id)
@@ -646,6 +671,69 @@ export default function ProformaMesonForm({
                 )}
                 {globalShowStock ? "Contraer almacenes" : "Expandir almacenes"}
               </Button>
+            )}
+            {fields.length > 0 && (
+              <Popover
+                open={globalDiscountOpen}
+                onOpenChange={(next) => {
+                  setGlobalDiscountOpen(next);
+                  if (next) setGlobalDiscountValue("");
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    disabled={isDetailsDisabled}
+                  >
+                    <Percent className="h-4 w-4 mr-2" />
+                    Dcto. Global
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  className="w-72 max-w-none p-4 space-y-3"
+                >
+                  <div className="space-y-1">
+                    <Label htmlFor="global-discount-input">
+                      Descuento global (%)
+                    </Label>
+                    <Input
+                      id="global-discount-input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Ej. 10"
+                      value={globalDiscountValue}
+                      onChange={(e) => setGlobalDiscountValue(e.target.value)}
+                    />
+                    <p className="text-[10px] text-gray-500">
+                      Se aplicará a todos los repuestos cargados, respetando el
+                      máximo permitido de cada uno.
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setGlobalDiscountOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={applyGlobalDiscount}
+                      disabled={globalDiscountValue === ""}
+                    >
+                      Aplicar
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             )}
             <Button
               type="button"
