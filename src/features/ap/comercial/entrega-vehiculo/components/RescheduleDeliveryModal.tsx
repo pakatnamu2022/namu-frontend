@@ -108,6 +108,7 @@ export function RescheduleDeliveryModal({
             label="Entrega extraordinaria"
             text="Permite programar la entrega en un horario ya tomado."
             description="Esta opción requiere aprobación y enviará un email de confirmación al responsable."
+            autoHeight
           />
 
           <ScheduledDeliveryPicker

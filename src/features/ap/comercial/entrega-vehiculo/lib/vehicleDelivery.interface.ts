@@ -29,6 +29,7 @@ export interface VehiclesDeliveryResource {
   status_delivery?: DeliveryStatus;
   is_accounted: boolean;
   client_name?: string;
+  client_num_doc?: string;
   shipping_guide_id?: number;
   aceptada_por_sunat?: boolean | null;
   status_dynamic?: number | null;
@@ -38,6 +39,7 @@ export interface VehiclesDeliveryResource {
   is_extraordinary?: boolean;
   extraordinary_approved?: boolean | null;
   extraordinary_approved_at?: string | null;
+  extraordinary_approved_by?: string | null;
   extraordinary_sent_by?: number | null;
   rescheduled_by?: number | null;
 }

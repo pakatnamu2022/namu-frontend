@@ -147,6 +147,24 @@ export async function rescheduleVehicleDelivery(
   return response.data;
 }
 
+export async function approveExtraordinaryVehicleDelivery(
+  id: number
+): Promise<VehiclesDeliveryResource> {
+  const { data } = await api.post<VehiclesDeliveryResource>(
+    `${ENDPOINT}/${id}/approve-extraordinary`
+  );
+  return data;
+}
+
+export async function rejectExtraordinaryVehicleDelivery(
+  id: number
+): Promise<VehiclesDeliveryResource> {
+  const { data } = await api.post<VehiclesDeliveryResource>(
+    `${ENDPOINT}/${id}/reject-extraordinary`
+  );
+  return data;
+}
+
 export async function exportVehicleDelivery(
   format: "excel" | "pdf",
   params?: Record<string, any>

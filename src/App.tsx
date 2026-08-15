@@ -80,6 +80,7 @@ import VehicleDeliveryPage from "./app/ap/comercial/entrega-vehiculo/page";
 import AddVehicleDeliveryPage from "./app/ap/comercial/entrega-vehiculo/agregar/page";
 import ShippingGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page";
 import DeliveryChecklistPage from "./app/ap/comercial/entrega-vehiculo/checklist/[id]/page";
+import VehicleDeliveryApprovalPage from "./app/ap/comercial/entrega-vehiculo/[id]/aprobacion/page";
 import ShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/page";
 import AddShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/agregar/page";
 import UpdateShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/actualizar/[id]/page";
@@ -900,6 +901,10 @@ function App() {
               <Route
                 path="entrega-vehiculo/checklist/:id"
                 element={<DeliveryChecklistPage />}
+              />
+              <Route
+                path="entrega-vehiculo/:id/aprobacion"
+                element={<VehicleDeliveryApprovalPage />}
               />
 
               {/* Envios & Recepciones */}
