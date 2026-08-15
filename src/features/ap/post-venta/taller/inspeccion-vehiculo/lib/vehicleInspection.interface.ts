@@ -42,6 +42,7 @@ export interface VehicleInspectionResource {
   tire_pressure_inflation_check: boolean;
   alignment_balancing: boolean;
   pad_replace_disc_resurface: boolean;
+  tire_rotation: boolean;
   other_work_details: string | null;
   // Requerimiento del cliente
   customer_requirement: string | null;
