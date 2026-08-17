@@ -45,9 +45,11 @@ export const AppointmentSelectionModal = ({
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [per_page]);
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPage(1);
+    }
+  }, [open]);
 
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
@@ -67,7 +69,7 @@ export const AppointmentSelectionModal = ({
           : undefined,
       sede_id: sedeId || undefined,
     },
-    enabled: !!sedeId,
+    enabled: open && !!sedeId,
   });
 
   const handleRowClick = (appointment: AppointmentPlanningResource) => {
