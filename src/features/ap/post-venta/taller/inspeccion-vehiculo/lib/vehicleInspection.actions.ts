@@ -37,16 +37,16 @@ export async function getAllVehicleInspection({
 }
 
 export async function findVehicleInspectionById(
-  id: number
+  id: number,
 ): Promise<VehicleInspectionResource> {
   const response = await api.get<VehicleInspectionResource>(
-    `${ENDPOINT}/${id}`
+    `${ENDPOINT}/${id}`,
   );
   return response.data;
 }
 
 export async function storeVehicleInspection(
-  data: VehicleInspectionRequest | FormData
+  data: VehicleInspectionRequest | FormData,
 ): Promise<VehicleInspectionResource> {
   const config: AxiosRequestConfig = {};
 
@@ -60,14 +60,14 @@ export async function storeVehicleInspection(
   const response = await api.post<VehicleInspectionResource>(
     ENDPOINT,
     data,
-    config
+    config,
   );
   return response.data;
 }
 
 export async function updateVehicleInspection(
   id: number,
-  data: VehicleInspectionRequest | FormData
+  data: VehicleInspectionRequest | FormData,
 ): Promise<VehicleInspectionResource> {
   const config: AxiosRequestConfig = {};
 
@@ -81,20 +81,20 @@ export async function updateVehicleInspection(
   const response = await api.put<VehicleInspectionResource>(
     `${ENDPOINT}/${id}`,
     data,
-    config
+    config,
   );
   return response.data;
 }
 
 export async function deleteVehicleInspection(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
 
 export async function uploadInspectionPhoto(
-  file: File
+  file: File,
 ): Promise<{ url: string }> {
   const formData = new FormData();
   formData.append("photo", file);
@@ -106,19 +106,19 @@ export async function uploadInspectionPhoto(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 }
 
 export async function downloadVehicleInspectionPdf(
-  workOrderId: number
+  workOrderId: number,
 ): Promise<void> {
   const response = await api.get(
     `${WORK_ORDER_ENDPOINT}/${workOrderId}/reception-report`,
     {
       responseType: "blob",
-    }
+    },
   );
 
   // Crear un blob desde la respuesta
@@ -140,13 +140,13 @@ export async function downloadVehicleInspectionPdf(
 }
 
 export async function downloadOrderReceiptPdf(
-  workOrderId: number
+  workOrderId: number,
 ): Promise<void> {
   const response = await api.get(
     `${WORK_ORDER_ENDPOINT}/${workOrderId}/order-receipt`,
     {
       responseType: "blob",
-    }
+    },
   );
 
   const blob = new Blob([response.data], { type: "application/pdf" });
@@ -165,20 +165,23 @@ export async function downloadOrderReceiptPdf(
 
 export async function requestCancellation(
   id: number,
+  work_order_id: number,
   cancellation_reason: string,
 ): Promise<VehicleInspectionResource> {
   const { data } = await api.post<VehicleInspectionResource>(
     `${ENDPOINT}/${id}/request-cancellation`,
-    { cancellation_reason },
+    { work_order_id, cancellation_reason },
   );
   return data;
 }
 
 export async function confirmCancellation(
   id: number,
+  work_order_id: number,
 ): Promise<VehicleInspectionResource> {
   const { data } = await api.post<VehicleInspectionResource>(
     `${ENDPOINT}/${id}/confirm-cancellation`,
+    { work_order_id },
   );
   return data;
 }

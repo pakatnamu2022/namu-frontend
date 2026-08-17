@@ -98,7 +98,7 @@ export interface VehicleInspectionResource {
   vehicle_year?: string;
   vehicle_color?: string;
   work_order_correlative?: string;
-  ap_work_order_id?: number;
+  //ap_work_order_id?: number;
 }
 
 export interface VehicleInspectionDamageResource {
