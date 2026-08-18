@@ -8,6 +8,8 @@ import {
   AppointmentPlanningRequest,
   AvailableSlotsResponse,
   GetAvailableSlotsParams,
+  CalendarAppointmentsResponse,
+  GetCalendarAppointmentsParams,
 } from "./appointmentPlanning.interface";
 import { APPOINTMENT_PLANNING } from "./appointmentPlanning.constants";
 
@@ -80,6 +82,18 @@ export async function getAvailableSlots(
   const config: AxiosRequestConfig = { params };
   const { data } = await api.get<AvailableSlotsResponse[]>(
     `${ENDPOINT}/available-slots`,
+    config
+  );
+  return data;
+}
+
+// Citas dentro de un rango de fechas para una sede (reporte de calendario).
+export async function getCalendarAppointments(
+  params: GetCalendarAppointmentsParams
+): Promise<CalendarAppointmentsResponse> {
+  const config: AxiosRequestConfig = { params };
+  const { data } = await api.get<CalendarAppointmentsResponse>(
+    `${ENDPOINT}/available-slots-by-sede`,
     config
   );
   return data;

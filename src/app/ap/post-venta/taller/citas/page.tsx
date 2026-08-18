@@ -27,7 +27,7 @@ import AppointmentPlanningOptions from "@/features/ap/post-venta/taller/citas/co
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import AppointmentCalendarView from "@/features/ap/post-venta/taller/citas/components/AppointmentCalendarView";
+import AppointmentCalendarReport from "@/features/ap/post-venta/taller/citas/components/AppointmentCalendarReport";
 import { Button } from "@/components/ui/button";
 import { Calendar, Table } from "lucide-react";
 import {
@@ -218,9 +218,10 @@ export default function AppointmentPlanningPage() {
           />
         </>
       ) : (
-        <AppointmentCalendarView
+        <AppointmentCalendarReport
           asesores={asesores}
           isLoadingAsesores={isLoadingAsesores}
+          sedeId={sedeId}
         />
       )}
 
