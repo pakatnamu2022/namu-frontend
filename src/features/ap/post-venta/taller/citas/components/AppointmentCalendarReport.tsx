@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   CircleDashed,
   X,
-  ClipboardList,
   ListChecks,
 } from "lucide-react";
 import {
@@ -83,9 +82,11 @@ export default function AppointmentCalendarReport({
     new Date().getFullYear(),
   );
   const [selectedAdvisor, setSelectedAdvisor] = useState<string>("");
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
   const [data, setData] = useState<CalendarAppointmentsResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const detailRef = useRef<HTMLDivElement | null>(null);
+  const isFirstRender = useRef(true);
 
   const rangeStart = useMemo(
     () =>
@@ -105,6 +106,19 @@ export default function AppointmentCalendarReport({
     loadAppointments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rangeStart, rangeEnd, sedeId, selectedAdvisor]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (selectedDay) {
+      detailRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [selectedDay]);
 
   const loadAppointments = async () => {
     setLoading(true);
@@ -371,6 +385,7 @@ export default function AppointmentCalendarReport({
           {(periodMode === "month" ? monthDays : weekDays).map((day) => {
             const dayAppointments = getAppointmentsForDay(day);
             const isToday = isSameDay(day, new Date());
+            const isSelected = !!selectedDay && isSameDay(day, selectedDay);
             const isCurrentMonth =
               periodMode === "week" || isSameMonth(day, currentMonth);
             const visibleAppointments = dayAppointments.slice(0, 3);
@@ -382,18 +397,22 @@ export default function AppointmentCalendarReport({
                 key={day.toISOString()}
                 onClick={() => setSelectedDay(day)}
                 className={cn(
-                  "flex flex-col items-stretch rounded-lg border p-1.5 text-left transition-colors",
+                  "relative flex flex-col items-stretch rounded-lg border p-1.5 text-left transition-colors",
                   periodMode === "month" ? "min-h-24" : "min-h-40",
                   !isCurrentMonth && "opacity-40 bg-gray-50",
                   isCurrentMonth &&
                     "bg-white hover:border-blue-300 hover:bg-blue-50/40",
-                  isToday && "ring-2 ring-primary ring-offset-1",
+                  isSelected &&
+                    "border-primary ring-2 ring-primary bg-primary/5 shadow-sm",
                 )}
               >
+                {isToday && !isSelected && (
+                  <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
+                )}
                 <span
                   className={cn(
                     "text-xs font-semibold mb-1",
-                    isToday ? "text-primary" : "text-gray-600",
+                    isToday || isSelected ? "text-primary" : "text-gray-600",
                   )}
                 >
                   {format(day, "dd")}
@@ -430,8 +449,11 @@ export default function AppointmentCalendarReport({
 
       {/* Detalle del día seleccionado */}
       {selectedDay && (
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 border-b border-gray-200">
+        <div
+          ref={detailRef}
+          className="border border-primary/40 rounded-lg overflow-hidden ring-1 ring-primary/20 scroll-mt-4"
+        >
+          <div className="flex items-center justify-between bg-primary/5 px-4 py-3 border-b border-primary/20">
             <p className="font-semibold text-gray-800 capitalize">
               {format(selectedDay, "EEEE, dd 'de' MMMM yyyy", { locale: es })}{" "}
               <span className="font-normal text-gray-500">
