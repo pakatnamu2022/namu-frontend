@@ -156,18 +156,6 @@ export const orderQuotationColumns = ({
     },
   },
   {
-    accessorKey: "is_take",
-    header: "Aceptada",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge variant="outline" color={value ? "green" : "gray"}>
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "has_management_discount",
     header: "Dcto. Gerencial",
     cell: ({ getValue }) => {

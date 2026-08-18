@@ -72,3 +72,54 @@ export interface GetAvailableSlotsParams {
   start_date: string;
   end_date: string;
 }
+
+// Citas dentro del rango consultado para el reporte de calendario
+// (endpoint available-slots-by-sede)
+export interface CalendarAppointment {
+  id: number;
+  advisor_id: number | null;
+  advisor_name: string | null;
+  date_appointment: string;
+  time_appointment: string;
+  delivery_date: string;
+  delivery_time: string;
+  full_name_client: string;
+  email_client: string;
+  phone_client: string;
+  plate: string;
+  type_planning_id: number;
+  type_planning: string;
+  type_operation: string;
+  description: string;
+  is_taken: boolean;
+  work_order_number: string | null;
+}
+
+export interface CalendarAppointmentsStatistics {
+  total_taken: number;
+  total_not_taken: number;
+  percentage_taken: number;
+  percentage_not_taken: number;
+}
+
+export interface CalendarAppointmentsByTypePlanning {
+  type_planning_id: number;
+  type_planning: string;
+  count: number;
+  percentage: number;
+}
+
+export interface CalendarAppointmentsResponse {
+  sede_id: string;
+  total: number;
+  statistics: CalendarAppointmentsStatistics;
+  consolidated_by_type_planning: CalendarAppointmentsByTypePlanning[];
+  appointments: CalendarAppointment[];
+}
+
+export interface GetCalendarAppointmentsParams {
+  start_date: string;
+  end_date: string;
+  sede_id: string | number;
+  advisor_id?: string | number;
+}
