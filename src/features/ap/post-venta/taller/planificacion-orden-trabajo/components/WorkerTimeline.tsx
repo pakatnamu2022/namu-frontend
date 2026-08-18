@@ -1069,7 +1069,7 @@ export function WorkerTimeline({
                             {selectedWorkOrder?.correlative}
                           </Badge>
                           <span className="text-sm">
-                            {selectedWorkOrder?.vehicle_plate}
+                            {selectedWorkOrder?.vehicle.plate}
                           </span>
                         </div>
                       ) : (
@@ -1129,7 +1129,7 @@ export function WorkerTimeline({
                                   {wo.correlative}
                                 </Badge>
                                 <span className="text-sm">
-                                  {wo.vehicle_plate}
+                                  {wo.vehicle.plate}
                                 </span>
                               </div>
                             </CommandItem>

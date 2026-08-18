@@ -27,12 +27,14 @@ export interface UseVehicleInspectionParams {
   createdByWorkOrder$sede_id: number;
   createdByWorkOrder$vehicle_id?: number;
   createdByWorkOrder$is_delivery?: boolean;
+  enabled?: boolean;
 }
 
 export function useVehicleInspection(params: UseVehicleInspectionParams) {
   return useQuery({
     queryKey: [QUERY_KEY, "paginated", params],
     queryFn: () => getVehicleInspection({ params }),
+    enabled: params.enabled !== false,
   });
 }
 

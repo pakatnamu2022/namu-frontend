@@ -328,13 +328,13 @@ export default function VehicleInspectionPage() {
               key: "plate",
               label: "Placa",
               icon: Car,
-              value: workOrder.vehicle_plate || "—",
+              value: workOrder.vehicle.plate || "—",
             },
             {
               key: "vin",
               label: "VIN",
               icon: FileText,
-              value: workOrder.vehicle_vin || "—",
+              value: workOrder.vehicle.vin || "—",
             },
             {
               key: "mileage",

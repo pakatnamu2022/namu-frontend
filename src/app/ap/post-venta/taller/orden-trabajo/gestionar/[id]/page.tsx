@@ -320,32 +320,32 @@ export default function ManageWorkOrderPage() {
                   <p className="text-[10px] text-gray-500">Placa</p>
                   <CopyCell
                     className="text-xs font-medium truncate"
-                    value={workOrder.vehicle_plate || "N/A"}
+                    value={workOrder.vehicle.plate || "-"}
                   />
                 </div>
                 <div className="min-w-0 leading-tight">
                   <p className="text-[10px] text-gray-500">VIN</p>
                   <CopyCell
                     className="text-xs font-medium truncate"
-                    value={workOrder.vehicle_vin || "N/A"}
+                    value={workOrder.vehicle.vin || "-"}
                   />
                 </div>
                 <div className="min-w-0 leading-tight">
                   <p className="text-[10px] text-gray-500">Marca</p>
                   <p className="text-xs font-medium truncate">
-                    {workOrder.vehicle?.model?.brand || "N/A"}
+                    {workOrder.vehicle?.model?.brand || "-"}
                   </p>
                 </div>
                 <div className="min-w-0 leading-tight col-span-2 sm:col-span-1">
                   <p className="text-[10px] text-gray-500">Modelo</p>
                   <p className="text-xs font-medium truncate">
-                    {workOrder.vehicle?.model?.version || "N/A"}
+                    {workOrder.vehicle?.model?.version || "-"}
                   </p>
                 </div>
                 <div className="min-w-0 leading-tight">
                   <p className="text-[10px] text-gray-500">Año</p>
                   <p className="text-xs font-medium truncate">
-                    {workOrder.vehicle?.year || "N/A"}
+                    {workOrder.vehicle?.year || "-"}
                   </p>
                 </div>
                 <div className="min-w-0 leading-tight">
@@ -358,8 +358,8 @@ export default function ManageWorkOrderPage() {
                 <div className="min-w-0 leading-tight">
                   <p className="text-[10px] text-gray-500">Kilometraje</p>
                   <p className="text-xs font-medium truncate">
-                    {workOrder.vehicle?.mileage != null
-                      ? `${workOrder.vehicle.mileage.toLocaleString("es-PE")} km`
+                    {workOrder.mileage != null
+                      ? `${workOrder.mileage} km`
                       : "N/A"}
                   </p>
                 </div>
@@ -580,7 +580,7 @@ export default function ManageWorkOrderPage() {
               {!isCancelled && (
                 <WorkOrderDeductibleAction
                   workOrderId={workOrder.id}
-                  plate={workOrder.vehicle_plate}
+                  plate={workOrder.vehicle.plate}
                   deductible={workOrder.deductible}
                   sedeId={workOrder.sede_id}
                   currencyId={workOrder.type_currency?.id}
