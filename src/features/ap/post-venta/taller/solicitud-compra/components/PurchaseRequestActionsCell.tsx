@@ -47,7 +47,7 @@ export const PurchaseRequestActionsCell = ({
   const hasQuotation = ap_order_quotation_id !== null;
   const isLockedStatus = approved || status === "cancelled";
   const hideOptions = !hasQuotation && status === "pending";
-  const hideOptionsDelete = !isLockedStatus && status === "pending";
+  const hideOptionsDelete = status === "pending";
 
   const canNotify = permissions.canNotify && hideOptions && !!onNotifyManagers;
   const canApprove =
