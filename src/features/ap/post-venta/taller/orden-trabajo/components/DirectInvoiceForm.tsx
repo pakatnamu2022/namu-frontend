@@ -58,7 +58,7 @@ function buildDefaultSingleItemDescription(
 ): string {
   if (typePlanningId === ODEBRECHT_MAINTENANCE_ID) {
     const plates = workOrders
-      .map((wo) => wo.vehicle_plate)
+      .map((wo) => wo.vehicle.plate)
       .filter(Boolean)
       .join(" / ");
     const count = workOrders.length;
@@ -554,7 +554,7 @@ export default function DirectInvoiceForm({
                     {workOrders.map((wo) => (
                       <p key={wo.id} className="text-xs text-muted-foreground">
                         • {wo.correlative}
-                        {wo.vehicle_plate ? ` — ${wo.vehicle_plate}` : ""}
+                        {wo.vehicle.plate ? ` — ${wo.vehicle.plate}` : ""}
                       </p>
                     ))}
                   </div>

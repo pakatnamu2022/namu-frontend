@@ -66,7 +66,7 @@ export default function WorkOrderBillingForm({
     () => workOrder.vouchers?.active ?? [],
     [workOrder.vouchers?.active],
   );
-  const plate = workOrder.vehicle_plate;
+  const plate = workOrder.vehicle.plate;
   const number_work_order = workOrder.correlative;
 
   // Ref para evitar loops

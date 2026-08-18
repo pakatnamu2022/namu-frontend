@@ -35,7 +35,7 @@ export const workOrderReceptionColumns = ({
     id: "plate_mileage",
     header: "Placa",
     cell: ({ row }) => {
-      const plate = row.original.vehicle_plate;
+      const plate = row.original.vehicle.plate;
       const mileage = row.original.mileage;
       return (
         <div className="flex flex-col gap-0.5">
