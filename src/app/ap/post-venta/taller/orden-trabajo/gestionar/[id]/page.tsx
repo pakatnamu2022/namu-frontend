@@ -358,8 +358,8 @@ export default function ManageWorkOrderPage() {
                 <div className="min-w-0 leading-tight">
                   <p className="text-[10px] text-gray-500">Kilometraje</p>
                   <p className="text-xs font-medium truncate">
-                    {workOrder.vehicle?.mileage != null
-                      ? `${workOrder.vehicle.mileage.toLocaleString("es-PE")} km`
+                    {workOrder.mileage != null
+                      ? `${workOrder.mileage} km`
                       : "N/A"}
                   </p>
                 </div>
