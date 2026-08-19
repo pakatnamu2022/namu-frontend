@@ -10,9 +10,15 @@ import {
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { CalendarAppointmentsByTypePlanning } from "../lib/appointmentPlanning.interface";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export type AppointmentTypeStatusFilter = "tomadas" | "pendientes" | null;
 
 interface AppointmentTypePlanningChartProps {
   data: CalendarAppointmentsByTypePlanning[];
+  statusFilter?: AppointmentTypeStatusFilter;
+  onStatusFilterChange?: (status: AppointmentTypeStatusFilter) => void;
 }
 
 const chartConfig = {
@@ -22,8 +28,25 @@ const chartConfig = {
   },
 };
 
+const STATUS_FILTER_LABEL: Record<
+  NonNullable<AppointmentTypeStatusFilter> | "todo",
+  string
+> = {
+  todo: "Todas las citas",
+  tomadas: "Solo citas tomadas",
+  pendientes: "Solo citas pendientes",
+};
+
+const FILTER_OPTIONS: { key: NonNullable<AppointmentTypeStatusFilter> | "todo"; label: string }[] = [
+  { key: "todo", label: "Todo" },
+  { key: "tomadas", label: "Tomadas" },
+  { key: "pendientes", label: "Pendientes" },
+];
+
 export default function AppointmentTypePlanningChart({
   data,
+  statusFilter,
+  onStatusFilterChange,
 }: AppointmentTypePlanningChartProps) {
   const chartData = [...data]
     .sort((a, b) => b.count - a.count)
@@ -34,12 +57,37 @@ export default function AppointmentTypePlanningChart({
     }));
 
   const chartHeight = Math.max(chartData.length * 36, 120);
+  const activeFilter = statusFilter ?? "todo";
 
   return (
     <Card className="flex flex-col h-full">
-      <CardHeader>
-        <CardTitle>Citas por Tipo de Trabajo</CardTitle>
-        <CardDescription>Cantidad de citas del período</CardDescription>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-2 space-y-0">
+        <div>
+          <CardTitle>Citas por Tipo de Trabajo</CardTitle>
+          <CardDescription>
+            {STATUS_FILTER_LABEL[activeFilter]}
+          </CardDescription>
+        </div>
+        {onStatusFilterChange && (
+          <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1">
+            {FILTER_OPTIONS.map((option) => (
+              <Button
+                key={option.key}
+                type="button"
+                size="sm"
+                variant={activeFilter === option.key ? "default" : "ghost"}
+                className={cn("h-7 px-2.5 text-xs")}
+                onClick={() =>
+                  onStatusFilterChange(
+                    option.key === "todo" ? null : option.key,
+                  )
+                }
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        )}
       </CardHeader>
       <CardContent className="px-2 sm:p-4">
         <ChartContainer

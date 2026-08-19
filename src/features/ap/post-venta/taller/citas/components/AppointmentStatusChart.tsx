@@ -4,6 +4,7 @@ import { CalendarAppointmentsStatistics } from "../lib/appointmentPlanning.inter
 
 interface AppointmentStatusChartProps {
   statistics: CalendarAppointmentsStatistics;
+  onActiveStatusChange?: (status: "tomadas" | "pendientes") => void;
 }
 
 const config: ChartConfig = {
@@ -13,6 +14,7 @@ const config: ChartConfig = {
 
 export default function AppointmentStatusChart({
   statistics,
+  onActiveStatusChange,
 }: AppointmentStatusChartProps) {
   const data = [
     {
@@ -38,6 +40,11 @@ export default function AppointmentStatusChart({
       showLegend
       showPercentageInLegend
       showSelectionFooter
+      onActiveItemChange={
+        onActiveStatusChange
+          ? (name) => onActiveStatusChange(name as "tomadas" | "pendientes")
+          : undefined
+      }
     />
   );
 }

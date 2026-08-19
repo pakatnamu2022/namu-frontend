@@ -43,6 +43,8 @@ interface Props {
     trend?: string;
     icon?: React.ReactNode;
   };
+  /** Notifica al padre cuando cambia el item activo (clic en el gráfico o Select), sin alterar el comportamiento interno del componente. */
+  onActiveItemChange?: (name: string) => void;
 }
 
 export function InteractivePieChart({
@@ -59,8 +61,13 @@ export function InteractivePieChart({
   showSelectionFooter = false,
   valueFormatter,
   footerInfo,
+  onActiveItemChange,
 }: Props) {
-  const [activeItem, setActiveItem] = useState(data[0]?.name || "");
+  const [activeItem, setActiveItemState] = useState(data[0]?.name || "");
+  const setActiveItem = (name: string) => {
+    setActiveItemState(name);
+    onActiveItemChange?.(name);
+  };
 
   const activeIndex = useMemo(
     () => data.findIndex((item) => item.name === activeItem),
