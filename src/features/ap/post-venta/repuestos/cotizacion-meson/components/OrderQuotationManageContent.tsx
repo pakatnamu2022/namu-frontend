@@ -456,27 +456,53 @@ export function OrderQuotationManageContent({
         </div>
 
         {hasDeductible ? (
-          <InfoSection
-            title=""
-            fields={[
-              {
-                label: "Comprobante",
-                value: deductible!.full_number,
-              },
-              {
-                label: "Monto Deducible",
-                value: formatMoney(deductible_amount, 2, currencySymbol),
-              },
-              {
-                label: "Cliente",
-                value: deductible!.cliente_denominacion,
-              },
-              {
-                label: "Documento",
-                value: deductible!.cliente_numero_de_documento,
-              },
-            ]}
-          />
+          <div className="space-y-3">
+            <InfoSection
+              title=""
+              fields={[
+                {
+                  label: "Comprobante",
+                  value: deductible!.full_number,
+                },
+                {
+                  label: "Monto Deducible",
+                  value: formatMoney(deductible_amount, 2, currencySymbol),
+                },
+                {
+                  label: "Cliente",
+                  value: deductible!.cliente_denominacion,
+                },
+                {
+                  label: "Documento",
+                  value: deductible!.cliente_numero_de_documento,
+                },
+              ]}
+            />
+
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Subtotal Cotización</span>
+                <span className="font-medium">
+                  {formatMoney(orderQuotation.subtotal, 2, currencySymbol)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">IGV</span>
+                <span className="font-medium">
+                  {formatMoney(orderQuotation.tax_amount ?? 0, 2, currencySymbol)}
+                </span>
+              </div>
+              <Separator className="bg-primary/20" />
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-primary">
+                  Total Cotización
+                </span>
+                <span className="text-lg font-bold text-primary">
+                  {formatMoney(orderQuotation.total_amount, 2, currencySymbol)}
+                </span>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center border border-dashed rounded-lg">
             <ShieldOff className="h-10 w-10 text-muted-foreground mb-2" />

@@ -17,7 +17,11 @@ export default function OrderQuotationMesonManagePage() {
   const { ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const { id } = useParams();
 
-  const { data: orderQuotation, isLoading, refetch } = useOrderQuotationById(Number(id));
+  const {
+    data: orderQuotation,
+    isLoading,
+    refetch,
+  } = useOrderQuotationById(Number(id));
 
   if (isLoadingModule || isLoading) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -27,10 +31,14 @@ export default function OrderQuotationMesonManagePage() {
   return (
     <FormWrapper>
       <HeaderTableWrapper>
-        <BackButton size="icon" name="Cotización Mesón" route={ABSOLUTE_ROUTE} />
+        <BackButton
+          size="icon"
+          name="Cotización Mesón"
+          route={ABSOLUTE_ROUTE}
+        />
         <TitleComponent
-          title={`Gestionar Cotización ${orderQuotation.quotation_number}`}
-          subtitle="Facturar a / Guía de Remisión"
+          title={`${orderQuotation.quotation_number}`}
+          subtitle="Gestión de Cotización Repuestos"
           icon={currentView.icon}
         />
       </HeaderTableWrapper>

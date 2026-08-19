@@ -52,7 +52,7 @@ export const WorkOrderDeductibleSheet = ({
       search,
       seriesModel$sede_id: sedeId ? Number(sedeId) : undefined,
       sunat_concept_currency_id: toSunatCurrencyId(currencyId),
-      workOrder$vehicle_plate: plate,
+      workOrder$vehicle$plate: plate,
     },
     open,
   );
