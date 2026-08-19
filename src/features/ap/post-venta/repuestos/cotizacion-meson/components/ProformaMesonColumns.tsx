@@ -14,6 +14,7 @@ interface Props {
   onUpdate: (id: number) => void;
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
+  onManage: (id: number) => void;
   onRequestDiscount: (id: number) => void;
   onApprove: (id: number) => void;
   onRefresh?: () => void;
@@ -29,6 +30,7 @@ export const orderQuotationMesonColumns = ({
   onDelete,
   onViewBilling,
   onViewDelivery,
+  onManage,
   onRequestDiscount,
   onApprove,
   onRefresh,
@@ -40,6 +42,8 @@ export const orderQuotationMesonColumns = ({
     cell: ({ getValue, row }) => {
       const value = getValue() as string;
       const wasSegmented = row.original.was_segmented;
+      const deductibleAmount = row.original.deductible_amount;
+
       if (!value) return null;
       return (
         <div className="flex flex-col items-start gap-0.5">
@@ -47,6 +51,11 @@ export const orderQuotationMesonColumns = ({
           {wasSegmented && (
             <Badge variant="outline" color="orange" size="xs">
               Segmentado
+            </Badge>
+          )}
+          {deductibleAmount > 0 && (
+            <Badge variant="outline" color="yellow" size="xs">
+              Deducible: {deductibleAmount.toFixed(2)}
             </Badge>
           )}
         </div>
@@ -192,6 +201,7 @@ export const orderQuotationMesonColumns = ({
         permissions={permissions}
         onViewBilling={onViewBilling}
         onViewDelivery={onViewDelivery}
+        onManage={onManage}
         onRequestDiscount={onRequestDiscount}
         onApprove={onApprove}
         onRefresh={onRefresh!}

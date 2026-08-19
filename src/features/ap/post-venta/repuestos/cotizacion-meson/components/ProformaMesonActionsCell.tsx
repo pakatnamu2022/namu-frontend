@@ -5,6 +5,7 @@ import {
   Eye,
   FileSpreadsheet,
   FileText,
+  Handshake,
   Link2,
   Loader2,
   MoreVertical,
@@ -12,6 +13,7 @@ import {
   Pencil,
   Percent,
   Scissors,
+  Settings,
   ShieldCheck,
   Trash2,
   Undo2,
@@ -48,6 +50,7 @@ interface ActionsCellProps {
   };
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
+  onManage: (id: number) => void;
   onRequestDiscount: (id: number) => void;
   onApprove: (id: number) => void;
   onRefresh: () => void;
@@ -60,6 +63,7 @@ export const ProformaMesonActionsCell = ({
   permissions,
   onViewBilling,
   onViewDelivery,
+  onManage,
   onRequestDiscount,
   onApprove,
   onRefresh,
@@ -234,10 +238,22 @@ export const ProformaMesonActionsCell = ({
           size="icon"
           className="size-7"
           onClick={() => onViewBilling(row)}
-          tooltip="Ver Detalles Cotización"
+          tooltip="Ver Detalles / Firma"
         >
           <Eye className="size-5" />
         </Button>
+
+        {!isDiscarded && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onManage(id)}
+            tooltip="Gestionar"
+          >
+            <Settings className="size-4" />
+          </Button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -297,14 +313,14 @@ export const ProformaMesonActionsCell = ({
             variant="outline"
             size="icon"
             className="size-7"
-            tooltip="Enviar a Facturar"
+            tooltip="Emitir Comprobante"
             onClick={handleSendToInvoice}
             disabled={isSendingToInvoice}
           >
             {isSendingToInvoice ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <FileText className="size-4" />
+              <Handshake className="size-4" />
             )}
           </Button>
         )}

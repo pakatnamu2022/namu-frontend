@@ -6,6 +6,7 @@ import {
   OrderQuotationResource,
   PublicQuotationByTokenResponse,
   SendVirtualConfirmationResponse,
+  StoreOrderQuotationDeductibleRequest,
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationMesonWithProductsSchema } from "./quotationMeson.schema";
 import { GeneralResponse } from "@/shared/lib/response.interface";
@@ -207,6 +208,27 @@ export async function setOrderQuotationInEditing(
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}/set-in-editing`,
+  );
+  return response.data;
+}
+
+// ─── Deducible ────────────────────────────────────────────────────────────
+
+export async function storeOrderQuotationDeductible(
+  data: StoreOrderQuotationDeductibleRequest,
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `${ENDPOINT}/deductible`,
+    data,
+  );
+  return response.data;
+}
+
+export async function deleteOrderQuotationDeductible(
+  deductibleId: number,
+): Promise<OrderQuotationResource> {
+  const response = await api.delete<OrderQuotationResource>(
+    `${ENDPOINT}/deductible/${deductibleId}`,
   );
   return response.data;
 }
