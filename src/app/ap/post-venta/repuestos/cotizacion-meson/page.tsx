@@ -143,6 +143,10 @@ export default function OrderQuotationMesonPage() {
     router(`${ABSOLUTE_ROUTE}/detalle/${orderQuotation.id}`);
   };
 
+  const handleManage = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
+  };
+
   const handleViewDelivery = (orderQuotation: { id: number }) => {
     setSelectedDeliveryId(orderQuotation.id);
     setIsDeliverySheetOpen(true);
@@ -178,6 +182,7 @@ export default function OrderQuotationMesonPage() {
           onUpdate: handleUpdate,
           onViewBilling: handleViewBilling,
           onViewDelivery: handleViewDelivery,
+          onManage: handleManage,
           onRequestDiscount: handleRequestDiscount,
           onApprove: handleApprove,
           onRefresh: refetch,

@@ -238,7 +238,7 @@ export function WorkOrderActionCell({
               className="size-7"
               disabled={isSendingToFinished}
               tooltip={
-                isSendingToFinished ? "Enviando..." : "Marcar como Finalizada"
+                isSendingToFinished ? "Enviando..." : "Emitir comprobante final"
               }
             >
               {isSendingToFinished ? (

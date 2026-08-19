@@ -544,6 +544,15 @@ export function OrderQuotationBillingForm({
   const watchedItems = form.watch("items");
   const items = useMemo(() => watchedItems || [], [watchedItems]);
 
+  // Deducible asociado a la cotización: se envía como descuento global del comprobante.
+  // Solo aplica a la venta final (no tiene sentido restarlo de un anticipo parcial ni de una gratuita).
+  const deductibleAmount =
+    !isAdvancePayment &&
+    billingMode === "normal" &&
+    quotation.deductible_amount_without_tax > 0
+      ? quotation.deductible_amount_without_tax
+      : 0;
+
   // Calcular totales
   const totales = useMemo(() => {
     // Si el backend ya calculó el desglose para esta cotización (venta normal, no edición,
@@ -714,7 +723,10 @@ export function OrderQuotationBillingForm({
       shouldValidate: false,
     });
     form.setValue("total", totales.total, { shouldValidate: false });
-  }, [totales, form]);
+    form.setValue("descuento_global", deductibleAmount || undefined, {
+      shouldValidate: false,
+    });
+  }, [totales, deductibleAmount, form]);
 
   const series = form.watch("serie");
 
@@ -837,6 +849,7 @@ export function OrderQuotationBillingForm({
             onSubmit={form.handleSubmit(onSubmit)}
             hasDraftFinalInvoice={quotation.has_draft_final_invoice ?? false}
             hasDraftAdvance={quotation.has_draft_advance ?? false}
+            deductibleAmount={deductibleAmount}
           />
         </div>
       </form>

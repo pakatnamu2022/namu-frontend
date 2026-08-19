@@ -10,6 +10,13 @@ export interface OrderQuotationResponse {
   meta: Meta;
 }
 
+export interface OrderQuotationDeductibleResource {
+  id: number;
+  full_number: string;
+  cliente_denominacion: string;
+  cliente_numero_de_documento: string;
+}
+
 export interface OrderQuotationResource {
   id: number;
   parent_quotation_id: number | null;
@@ -70,6 +77,9 @@ export interface OrderQuotationResource {
   delivery_document_number: string | null;
   has_management_discount: boolean;
   mileage: string;
+  deductible_amount: number;
+  deductible_amount_without_tax: number;
+  deductible: OrderQuotationDeductibleResource | null;
   //Confirmacion virtual
   confirmed_at: string | null;
   confirmation_channel: string | null;
@@ -224,6 +234,11 @@ export interface PublicQuotationByTokenResponse {
 export interface ConfirmByTokenData {
   notes?: string;
   confirmed_by_name?: string;
+}
+
+export interface StoreOrderQuotationDeductibleRequest {
+  order_quotation_id: number;
+  electronic_document_id: number;
 }
 
 export interface ConfirmByTokenResponse {
