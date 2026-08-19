@@ -78,6 +78,7 @@ export interface OrderQuotationResource {
   has_management_discount: boolean;
   mileage: string;
   deductible_amount: number;
+  deductible_amount_without_tax: number;
   deductible: OrderQuotationDeductibleResource | null;
   //Confirmacion virtual
   confirmed_at: string | null;
