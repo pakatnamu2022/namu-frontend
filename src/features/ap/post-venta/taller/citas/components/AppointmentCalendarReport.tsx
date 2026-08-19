@@ -40,13 +40,17 @@ import {
 } from "@/components/ui/popover";
 import { errorToast } from "@/core/core.function";
 import AppointmentStatusChart from "./AppointmentStatusChart";
-import AppointmentTypePlanningChart from "./AppointmentTypePlanningChart";
+import AppointmentTypePlanningChart, {
+  AppointmentTypeStatusFilter,
+} from "./AppointmentTypePlanningChart";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { CalendarAppointmentsByTypePlanning } from "../lib/appointmentPlanning.interface";
 
 interface AppointmentCalendarReportProps {
   asesores: WorkerResource[];
   isLoadingAsesores: boolean;
   sedeId: string;
+  sedeName: string;
 }
 
 type PeriodMode = "month" | "week";
@@ -71,6 +75,7 @@ export default function AppointmentCalendarReport({
   asesores,
   isLoadingAsesores,
   sedeId,
+  sedeName,
 }: AppointmentCalendarReportProps) {
   const [periodMode, setPeriodMode] = useState<PeriodMode>("month");
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
@@ -83,6 +88,8 @@ export default function AppointmentCalendarReport({
   );
   const [selectedAdvisor, setSelectedAdvisor] = useState<string>("");
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
+  const [statusFilter, setStatusFilter] =
+    useState<AppointmentTypeStatusFilter>("tomadas");
   const [data, setData] = useState<CalendarAppointmentsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const detailRef = useRef<HTMLDivElement | null>(null);
@@ -105,6 +112,10 @@ export default function AppointmentCalendarReport({
     if (!sedeId) return;
     loadAppointments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangeStart, rangeEnd, sedeId, selectedAdvisor]);
+
+  useEffect(() => {
+    setStatusFilter("tomadas");
   }, [rangeStart, rangeEnd, sedeId, selectedAdvisor]);
 
   useEffect(() => {
@@ -138,6 +149,39 @@ export default function AppointmentCalendarReport({
   };
 
   const appointments = data?.appointments ?? [];
+
+  const filteredByTypePlanning = useMemo<
+    CalendarAppointmentsByTypePlanning[]
+  >(() => {
+    if (!data) return [];
+    if (!statusFilter) return data.consolidated_by_type_planning;
+
+    const wantTaken = statusFilter === "tomadas";
+    const filtered = data.appointments.filter((a) => a.is_taken === wantTaken);
+    const total = filtered.length;
+
+    const counts = new Map<
+      number,
+      { type_planning_id: number; type_planning: string; count: number }
+    >();
+    for (const appointment of filtered) {
+      const existing = counts.get(appointment.type_planning_id);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        counts.set(appointment.type_planning_id, {
+          type_planning_id: appointment.type_planning_id,
+          type_planning: appointment.type_planning,
+          count: 1,
+        });
+      }
+    }
+
+    return Array.from(counts.values()).map((item) => ({
+      ...item,
+      percentage: total > 0 ? Number(((item.count / total) * 100).toFixed(1)) : 0,
+    }));
+  }, [data, statusFilter]);
 
   const getAppointmentsForDay = (day: Date) => {
     const dateStr = format(day, "yyyy-MM-dd");
@@ -215,6 +259,12 @@ export default function AppointmentCalendarReport({
     <div className="space-y-4">
       {/* Filtros compactos */}
       <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2 px-1 py-1">
+          <span className="h-5 w-1 shrink-0 rounded-full bg-primary" />
+          <span className="truncate text-base font-semibold text-gray-800">
+            {sedeName}
+          </span>
+        </div>
         <div className="flex items-center bg-gray-100 rounded-lg p-1 shrink-0">
           <Button
             variant={periodMode === "month" ? "default" : "ghost"}
@@ -356,9 +406,14 @@ export default function AppointmentCalendarReport({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <AppointmentStatusChart statistics={data.statistics} />
+            <AppointmentStatusChart
+              statistics={data.statistics}
+              onActiveStatusChange={setStatusFilter}
+            />
             <AppointmentTypePlanningChart
-              data={data.consolidated_by_type_planning}
+              data={filteredByTypePlanning}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
             />
           </div>
         </>

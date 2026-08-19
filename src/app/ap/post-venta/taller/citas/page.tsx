@@ -67,6 +67,7 @@ export default function AppointmentPlanningPage() {
   const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
     cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
+    sede_id: sedeId || undefined,
     sede$empresa_id: EMPRESA_AP.id,
   });
 
@@ -222,6 +223,9 @@ export default function AppointmentPlanningPage() {
           asesores={asesores}
           isLoadingAsesores={isLoadingAsesores}
           sedeId={sedeId}
+          sedeName={
+            mySedes.find((s) => s.id.toString() === sedeId)?.abreviatura || ""
+          }
         />
       )}
 
