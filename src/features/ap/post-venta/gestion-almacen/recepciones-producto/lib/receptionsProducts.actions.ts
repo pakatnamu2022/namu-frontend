@@ -3,6 +3,7 @@ import { api } from "@/core/api.ts";
 import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import {
   getReceptionsProps,
+  MarkDefectiveProductsRequest,
   ReceptionRequest,
   ReceptionResource,
   ReceptionResponse,
@@ -80,6 +81,26 @@ export async function updateDetailCreditNote(
   const { data } = await api.patch<GeneralResponse>(
     `/ap/postVenta/purchaseReceptionDetails/${detailId}/credit-note`,
     { is_credit_note: isCreditNote },
+  );
+  return data;
+}
+
+export async function markDefectiveProducts(
+  payload: MarkDefectiveProductsRequest,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/mark-defective-products`,
+    payload,
+  );
+  return data;
+}
+
+export async function unmarkDefectiveProduct(
+  receptionDetailId: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/unmark-defective-product`,
+    { reception_detail_id: receptionDetailId },
   );
   return data;
 }
