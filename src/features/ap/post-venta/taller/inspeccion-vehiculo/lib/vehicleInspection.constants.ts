@@ -47,3 +47,43 @@ export const CHECKLIST_ITEMS = [
   { key: "tool_kit", label: "Kit Herramientas", category: "herramientas" },
   { key: "jack_and_lever", label: "Gata y Palanca", category: "herramientas" },
 ] as const;
+
+// Niveles de combustible
+export const fuelLevels = [
+  { label: "0 (0%)", value: "0" },
+  { label: "1/4 (25%)", value: "1/4" },
+  { label: "2/4 (50%)", value: "2/4" },
+  { label: "3/4 (75%)", value: "3/4" },
+  { label: "4/4 (100%)", value: "4/4" },
+];
+
+//Niveles de Aceite
+export const oilLevels = [
+  { label: "0 (0%)", value: "0" },
+  { label: "1/4 (25%)", value: "1/4" },
+  { label: "2/4 (50%)", value: "2/4" },
+  { label: "3/4 (75%)", value: "3/4" },
+  { label: "4/4 (100%)", value: "4/4" },
+];
+
+export const workDetailFields = [
+  "oil_change",
+  "check_level_lights",
+  "general_lubrication",
+  "rotation_inspection_cleaning",
+  "insp_filter_basic_checks",
+  "tire_pressure_inflation_check",
+  "alignment_balancing",
+  "pad_replace_disc_resurface",
+] as const;
+
+export const resultExplanationFields = [
+  "explanation_work_performed",
+  "price_explanation",
+  "confirm_additional_work",
+  "clarification_customer_concerns",
+  "exterior_cleaning",
+  "interior_cleaning",
+  "keeps_spare_parts",
+  "valuable_objects",
+] as const;

@@ -1,31 +1,14 @@
 import { useForm, useWatch } from "react-hook-form";
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Loader, ClipboardCheck, ClipboardList, Gift } from "lucide-react";
 import {
-  Loader,
-  ClipboardCheck,
-  PenLine,
-  Camera,
-  ClipboardList,
-  Gift,
-} from "lucide-react";
-import { SignaturePad } from "./SignaturePad";
-import {
-  VehicleInspectionSchema,
-  vehicleInspectionSchemaCreate,
-  vehicleInspectionSchemaUpdate,
+  ReceptionEditSchema,
+  receptionEditSchema,
 } from "../lib/vehicleInspection.schema";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
-import VehicleDamageMarker from "./VehicleDamageMarker";
 import {
   CHECKLIST_ITEMS,
   fuelLevels,
@@ -36,55 +19,33 @@ import {
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
-import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormCheckbox } from "@/shared/components/FormCheckbox";
-import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 
-interface VehicleInspectionFormProps {
-  defaultValues: Partial<VehicleInspectionSchema>;
-  onSubmit: (data: any) => void;
+interface ReceptionEditFormProps {
+  defaultValues: Partial<ReceptionEditSchema>;
+  onSubmit: (data: ReceptionEditSchema) => void;
   isSubmitting?: boolean;
-  mode?: "create" | "update";
   onCancel?: () => void;
   dateOrderWork?: Date;
-  ownerName?: string;
-  contactName?: string;
 }
 
-export const VehicleInspectionForm = ({
+const courtesyFields = ["courtesy_seat_cover", "paper_floor"] as const;
+
+export const ReceptionEditForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
-  mode = "create",
   onCancel,
-  dateOrderWork = undefined,
-  ownerName,
-  contactName,
-}: VehicleInspectionFormProps) => {
-  useEffect(() => {
-    form.setValue("signer_type", "CONTACT");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const courtesyFields = ["courtesy_seat_cover", "paper_floor"] as const;
-
-  const form = useForm({
-    resolver: zodResolver(
-      mode === "create"
-        ? vehicleInspectionSchemaCreate
-        : vehicleInspectionSchemaUpdate,
-    ),
+}: ReceptionEditFormProps) => {
+  const form = useForm<any>({
+    resolver: zodResolver(receptionEditSchema),
     defaultValues,
     mode: "onChange",
   });
 
   const handleChecklistChange = (key: string, value: boolean) => {
     form.setValue(key as any, value);
-  };
-
-  const handleDamagesChange = (damages: any[]) => {
-    form.setValue("damages", damages);
   };
 
   const setCheckboxGroupValues = (
@@ -117,21 +78,13 @@ export const VehicleInspectionForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {/* Información General */}
+        {/* Información de Recepción */}
         <GroupFormSection
           title="Información de Recepción"
           icon={ClipboardCheck}
           color="primary"
           cols={{ sm: 2 }}
         >
-          <DateTimePickerForm
-            name="inspection_date"
-            label="Fecha y Hora de Recepción"
-            control={form.control}
-            placeholder="Seleccione fecha y hora"
-            disabledRange={{ before: dateOrderWork || new Date() }}
-          />
-
           <FormInput
             name="mileage"
             label="Kilometraje"
@@ -411,261 +364,6 @@ export const VehicleInspectionForm = ({
           />
         </GroupFormSection>
 
-        {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
-        <GroupFormSection
-          title="Fotos del estado de ingreso del vehículo"
-          icon={Camera}
-          color="orange"
-          cols={{ sm: 2 }}
-        >
-          <FormField
-            control={form.control}
-            name="photo_front"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Frontal"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_back"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Trasera"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_left"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Lateral Izquierda"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_right"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Lateral Derecha"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_optional_1"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Opcional 1"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_optional_2"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Opcional 2"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_optional_3"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Opcional 3"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_optional_4"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Opcional 4"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_optional_5"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Opcional 5"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_optional_6"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Opcional 6"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
-
-        {/* Marcador de Daños */}
-        <div className="space-y-4">
-          <VehicleDamageMarker
-            damages={
-              ((watchedValues as Record<string, unknown>)?.damages as any[]) ||
-              []
-            }
-            onChange={handleDamagesChange}
-            disabled={isSubmitting}
-          />
-        </div>
-
-        {/* Observaciones Generales */}
-        <GroupFormSection
-          title="Observaciones Generales"
-          icon={ClipboardCheck}
-          color="gray"
-          cols={{ sm: 1 }}
-        >
-          <FormTextArea
-            name="general_observations"
-            label="Observaciones"
-            placeholder="Ingrese observaciones generales de la recepción..."
-            control={form.control}
-          />
-        </GroupFormSection>
-
-        {/* Sección de Firmas */}
-        <GroupFormSection
-          title="Firmas de Conformidad"
-          icon={PenLine}
-          color="primary"
-          cols={{ sm: 1 }}
-        >
-          {/* Entrega el vehículo: siempre el contacto */}
-          <div className="flex flex-row items-center rounded-md border shadow-xs bg-background px-4 py-3 gap-4">
-            <div className="flex flex-col gap-0.5">
-              <p className="text-sm font-medium leading-tight">
-                Entregó el vehículo
-              </p>
-              <p className="text-base font-semibold text-foreground leading-snug mt-0.5">
-                {contactName || ownerName || "Sin contacto"}
-              </p>
-            </div>
-          </div>
-
-          <FormField
-            control={form.control}
-            name="customer_signature"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <SignaturePad
-                    label="Firma del Cliente"
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
-
         <div className="flex gap-4 w-full justify-end">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
@@ -678,7 +376,7 @@ export const VehicleInspectionForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : "Guardar Recepción"}
+            {isSubmitting ? "Guardando" : "Guardar Cambios"}
           </Button>
         </div>
       </form>
