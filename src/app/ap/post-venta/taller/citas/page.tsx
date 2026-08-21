@@ -92,6 +92,10 @@ export default function AppointmentPlanningPage() {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, sedeId, advisorId, dateFrom, dateTo]);
+
   const { data, isLoading, refetch } = useAppointmentPlanning({
     params: {
       page,

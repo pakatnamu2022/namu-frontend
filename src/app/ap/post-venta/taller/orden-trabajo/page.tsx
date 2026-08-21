@@ -133,6 +133,21 @@ export default function WorkOrderPage() {
   const statusIds = statusGroups.flatMap(
     (group) => WORK_ORDER_STATUS_GROUP_IDS[group as WorkOrderStatusGroup],
   );
+  const statusIdsKey = statusIds.join(",");
+  const dateFromKey = formatDate(dateFrom);
+  const dateToKey = formatDate(dateTo);
+
+  useEffect(() => {
+    setPage(1);
+  }, [
+    search,
+    sedeId,
+    advisorId,
+    typePlanningId,
+    statusIdsKey,
+    dateFromKey,
+    dateToKey,
+  ]);
 
   const { data, isLoading, refetch } = useGetWorkOrder({
     params: {

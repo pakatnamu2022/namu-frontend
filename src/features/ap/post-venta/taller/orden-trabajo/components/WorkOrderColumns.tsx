@@ -110,19 +110,6 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "actual_delivery_date",
-    header: "Fecha Real Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
-    },
-  },
-  {
     id: "type_planning",
     accessorKey: "items",
     header: "Tipo de Planificación",
