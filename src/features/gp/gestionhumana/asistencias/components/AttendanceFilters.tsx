@@ -93,8 +93,8 @@ export default function AttendanceFilters({
       />
       <SearchableSelect
         options={sedeOptions}
-        value={filters.sede_id ? String(filters.sede_id) : ""}
-        onChange={(v) => onFiltersChange({ sede_id: v || undefined })}
+        value={filters.person$sede_id ? String(filters.person$sede_id) : ""}
+        onChange={(v) => onFiltersChange({ person$sede_id: v || undefined })}
         placeholder="Sede"
       />
     </FilterWrapper>

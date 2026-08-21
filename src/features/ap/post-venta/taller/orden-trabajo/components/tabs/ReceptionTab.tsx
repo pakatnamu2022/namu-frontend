@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Gift,
   MessageSquare,
+  Pencil,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CHECKLIST_ITEMS } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
@@ -40,6 +41,15 @@ import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { STATUS_WORK_ORDER } from "../../lib/workOrder.constants";
+import { ReceptionEditSheet } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/ReceptionEditSheet";
+
+const RECEPTION_EDIT_ALLOWED_STATUSES: number[] = [
+  STATUS_WORK_ORDER.APERTURADO,
+  STATUS_WORK_ORDER.RECEPCIONADO,
+  STATUS_WORK_ORDER.EN_TRABAJO,
+  STATUS_WORK_ORDER.FIN_TRABAJO,
+];
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -51,6 +61,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const { ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
@@ -68,6 +79,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
   const inspection = workOrder?.vehicle_inspection;
   const cancellationRequested = inspection?.cancellation_requested_by;
+  const canEditReception =
+    permissions.canUpdate &&
+    !cancellationRequested &&
+    RECEPTION_EDIT_ALLOWED_STATUSES.includes(Number(workOrder?.status_id));
 
   const handleDownloadPdf = async () => {
     if (!inspection?.id) return;
@@ -220,6 +235,19 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 {isDownloading ? "Generando..." : "O.R Cliente"}
               </span>
             </Button>
+
+            {canEditReception && (
+              <Button
+                variant="outline"
+                className="gap-2 text-xs sm:text-sm flex-1 sm:flex-none"
+                onClick={() => setEditSheetOpen(true)}
+                size="sm"
+              >
+                <Pencil className="h-4 w-4" />
+                <span className="hidden sm:inline">Editar Recepción</span>
+                <span className="sm:hidden">Editar</span>
+              </Button>
+            )}
 
             {!cancellationRequested && permissions.canRequestCancellation && (
               <Button
@@ -1301,6 +1329,21 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         icon="danger"
         onConfirm={handleConfirmCancellation}
       />
+
+      {/* Sheet: editar recepción */}
+      {canEditReception && editSheetOpen && (
+        <ReceptionEditSheet
+          open={editSheetOpen}
+          onClose={() => setEditSheetOpen(false)}
+          inspection={inspection}
+          workOrderId={workOrderId}
+          dateOrderWork={
+            workOrder?.opening_date
+              ? new Date(workOrder.opening_date)
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 }

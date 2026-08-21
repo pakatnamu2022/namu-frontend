@@ -8,10 +8,11 @@ import {
   Loader2,
   Pencil,
   Copy,
+  Trash2,
+  MoreVertical,
   FileText,
   FileSpreadsheet,
 } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
@@ -65,6 +66,7 @@ export const ProformaActionsCell = ({
 
   const [isSendingNotification, setIsSendingNotification] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false);
 
   const handleSendNotification = async () => {
     setIsSendingNotification(true);
@@ -194,42 +196,64 @@ export const ProformaActionsCell = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {permissions.canDuplicate && (
-        <ConfirmationDialog
-          trigger={
+      {(permissions.canDuplicate ||
+        (permissions.canUpdate && !isLocked) ||
+        (permissions.canDelete && !isLocked)) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              tooltip="Duplicar"
+              tooltip="Más acciones"
             >
-              <Copy className="size-5" />
+              <MoreVertical className="size-4" />
             </Button>
-          }
-          title="¿Duplicar cotización?"
-          description="Se creará una nueva cotización con los mismos datos. ¿Estás seguro de que deseas duplicar este registro?"
-          confirmText="Sí, duplicar"
-          cancelText="Cancelar"
-          icon="info"
-          onConfirm={() => onDuplicate(id)}
-        />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {permissions.canDuplicate && (
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setShowDuplicateConfirm(true);
+                }}
+              >
+                <Copy className="size-4 mr-2" />
+                Duplicar
+              </DropdownMenuItem>
+            )}
+
+            {permissions.canUpdate && !isLocked && (
+              <DropdownMenuItem onClick={() => onUpdate(id)}>
+                <Pencil className="size-4 mr-2" />
+                Editar
+              </DropdownMenuItem>
+            )}
+
+            {permissions.canDelete && !isLocked && (
+              <DropdownMenuItem
+                onClick={() => onDelete(id)}
+                className="text-red-600 focus:text-red-700"
+              >
+                <Trash2 className="size-4 mr-2" />
+                Eliminar
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
 
-      {permissions.canUpdate && !isLocked && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-7"
-          tooltip="Editar"
-          onClick={() => onUpdate(id)}
-        >
-          <Pencil className="size-5" />
-        </Button>
-      )}
-
-      {permissions.canDelete && !isLocked && (
-        <DeleteButton onClick={() => onDelete(id)} />
-      )}
+      <ConfirmationDialog
+        open={showDuplicateConfirm}
+        onOpenChange={setShowDuplicateConfirm}
+        trigger={<span className="hidden" />}
+        title="¿Duplicar cotización?"
+        description="Se creará una nueva cotización con los mismos datos. ¿Estás seguro de que deseas duplicar este registro?"
+        confirmText="Sí, duplicar"
+        cancelText="Cancelar"
+        icon="info"
+        onConfirm={() => onDuplicate(id)}
+      />
     </div>
   );
 };

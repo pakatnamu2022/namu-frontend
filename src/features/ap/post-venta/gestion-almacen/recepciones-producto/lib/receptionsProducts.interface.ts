@@ -114,3 +114,13 @@ export interface getReceptionsProps {
   params?: Record<string, any>;
   purchaseOrderId?: number;
 }
+
+export interface MarkDefectiveProductItem {
+  reception_detail_id: number;
+  defective_quantity: number;
+  reason_observation: string;
+}
+
+export interface MarkDefectiveProductsRequest {
+  items: MarkDefectiveProductItem[];
+}

@@ -18,10 +18,12 @@ interface Props {
   onRequestDiscount: (id: number) => void;
   onApprove: (id: number) => void;
   onRefresh?: () => void;
+  onDuplicate: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
     canApprove: boolean;
+    canDuplicate: boolean;
   };
 }
 
@@ -34,6 +36,7 @@ export const orderQuotationMesonColumns = ({
   onRequestDiscount,
   onApprove,
   onRefresh,
+  onDuplicate,
   permissions,
 }: Props): OrderQuotationMesonColumns[] => [
   {
@@ -207,6 +210,7 @@ export const orderQuotationMesonColumns = ({
         onRefresh={onRefresh!}
         onUpdate={onUpdate}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
       />
     ),
   },

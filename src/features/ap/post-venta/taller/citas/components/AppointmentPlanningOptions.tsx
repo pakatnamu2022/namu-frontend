@@ -49,8 +49,6 @@ export default function AppointmentPlanningOptions({
         value={sedeId}
         onChange={setSedeId}
         placeholder="Filtrar por sede"
-        className="min-w-72"
-        classNameOption="text-xs"
         allowClear={false}
       />
       <SearchableSelect
@@ -61,8 +59,6 @@ export default function AppointmentPlanningOptions({
         value={advisorId}
         onChange={setAdvisorId}
         placeholder="Filtrar por asesor de servicio"
-        className="min-w-72"
-        classNameOption="text-xs"
       />
       <DateRangePickerFilter
         dateFrom={dateFrom}

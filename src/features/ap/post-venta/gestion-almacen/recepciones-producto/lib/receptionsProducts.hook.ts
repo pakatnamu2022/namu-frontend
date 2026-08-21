@@ -7,9 +7,12 @@ import {
   findReceptionById,
   getAllReceptions,
   getReceptions,
+  markDefectiveProducts,
+  unmarkDefectiveProduct,
   updateDetailCreditNote,
 } from "./receptionsProducts.actions.ts";
 import { RECEPTION } from "./receptionsProducts.constants.ts";
+import { MarkDefectiveProductsRequest } from "./receptionsProducts.interface.ts";
 
 const { QUERY_KEY } = RECEPTION;
 
@@ -50,6 +53,28 @@ export const useUpdateDetailCreditNote = () => {
       detailId: number;
       isCreditNote: boolean;
     }) => updateDetailCreditNote(detailId, isCreditNote),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useMarkDefectiveProducts = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: MarkDefectiveProductsRequest) =>
+      markDefectiveProducts(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useUnmarkDefectiveProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (receptionDetailId: number) =>
+      unmarkDefectiveProduct(receptionDetailId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

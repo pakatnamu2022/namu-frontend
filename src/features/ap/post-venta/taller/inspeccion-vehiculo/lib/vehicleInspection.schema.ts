@@ -97,9 +97,76 @@ export const vehicleInspectionSchemaCreate = z.object({
 export const vehicleInspectionSchemaUpdate =
   vehicleInspectionSchemaCreate.partial();
 
+// Edición parcial de recepción (solo campos editables desde ReceptionTab)
+export const receptionEditSchema = z.object({
+  mileage: requiredNumber("Kilometraje es requerido"),
+  fuel_level: z
+    .string()
+    .max(50)
+    .refine((value) => value.trim() !== "", {
+      message: "Nivel de combustible es requerido",
+    }),
+  oil_level: z
+    .string()
+    .max(50)
+    .refine((value) => value.trim() !== "", {
+      message: "Nivel de aceite es requerido",
+    }),
+  washed: z.boolean().default(true),
+  // Detalles de trabajo
+  oil_change: z.boolean().default(false),
+  check_level_lights: z.boolean().default(false),
+  general_lubrication: z.boolean().default(false),
+  rotation_inspection_cleaning: z.boolean().default(false),
+  insp_filter_basic_checks: z.boolean().default(false),
+  tire_pressure_inflation_check: z.boolean().default(false),
+  alignment_balancing: z.boolean().default(false),
+  pad_replace_disc_resurface: z.boolean().default(false),
+  tire_rotation: z.boolean().default(false),
+  other_work_details: z.string().max(50000).optional(),
+  // Requerimiento del cliente
+  customer_requirement: z.string().max(50000).optional(),
+  // Checklist de verificación
+  dirty_unit: z.boolean().default(false),
+  unit_ok: z.boolean().default(false),
+  title_deed: z.boolean().default(false),
+  soat: z.boolean().default(false),
+  moon_permits: z.boolean().default(false),
+  service_card: z.boolean().default(true),
+  owner_manual: z.boolean().default(true),
+  key_ring: z.boolean().default(true),
+  wheel_lock: z.boolean().default(true),
+  safe_glasses: z.boolean().default(true),
+  radio_mask: z.boolean().default(true),
+  lighter: z.boolean().default(true),
+  floors: z.boolean().default(true),
+  seat_cover: z.boolean().default(true),
+  quills: z.boolean().default(true),
+  antenna: z.boolean().default(true),
+  glasses_wheel: z.boolean().default(true),
+  emblems: z.boolean().default(true),
+  spare_tire: z.boolean().default(true),
+  fluid_caps: z.boolean().default(true),
+  tool_kit: z.boolean().default(true),
+  jack_and_lever: z.boolean().default(true),
+  // Explicación de resultados
+  explanation_work_performed: z.boolean().default(false),
+  price_explanation: z.boolean().default(false),
+  confirm_additional_work: z.boolean().default(false),
+  clarification_customer_concerns: z.boolean().default(false),
+  exterior_cleaning: z.boolean().default(false),
+  interior_cleaning: z.boolean().default(false),
+  keeps_spare_parts: z.boolean().default(false),
+  valuable_objects: z.boolean().default(false),
+  // Items de cortesía
+  courtesy_seat_cover: z.boolean().default(false),
+  paper_floor: z.boolean().default(false),
+});
+
 export type VehicleInspectionSchema = z.infer<
   typeof vehicleInspectionSchemaCreate
 >;
 export type VehicleInspectionDamageSchema = z.infer<
   typeof vehicleInspectionDamageSchema
 >;
+export type ReceptionEditSchema = z.infer<typeof receptionEditSchema>;
