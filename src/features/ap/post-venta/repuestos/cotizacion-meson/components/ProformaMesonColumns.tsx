@@ -6,6 +6,8 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { STATUS_ORDER_QUOTE_COLOR } from "../../../taller/cotizacion/lib/proforma.constants";
 import { ProformaMesonActionsCell } from "./ProformaMesonActionsCell";
 import { CopyCell } from "@/shared/components/CopyCell";
+import { formatDate } from "@/core/core.function";
+import { Calendar } from "lucide-react";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
@@ -66,30 +68,37 @@ export const orderQuotationMesonColumns = ({
     },
   },
   {
-    accessorKey: "quotation_date",
-    header: "Fecha de Cotización",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
+    id: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const opening = row.original.quotation_date;
+      const estimated = row.original.expiration_date;
+      const fmt = (v: string) => {
+        try {
+          return formatDate(v);
+        } catch {
+          return v;
+        }
+      };
+      return (
+        <div className="flex flex-col gap-0.5 text-xs">
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Apertura:</span>
+            {opening ? fmt(opening) : "-"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Vencimiento:</span>
+            {estimated ? fmt(estimated) : "-"}
+          </span>
+        </div>
+      );
     },
   },
   {
-    accessorKey: "expiration_date",
-    header: "Fecha de Vencimiento",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
-    },
+    accessorKey: "client.full_name",
+    header: "Cliente",
   },
   {
     accessorKey: "collection_date",
@@ -103,10 +112,6 @@ export const orderQuotationMesonColumns = ({
         return date;
       }
     },
-  },
-  {
-    accessorKey: "client.full_name",
-    header: "Cliente",
   },
   {
     accessorKey: "vehicle.plate",
