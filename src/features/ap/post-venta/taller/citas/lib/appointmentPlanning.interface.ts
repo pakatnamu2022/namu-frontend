@@ -29,6 +29,9 @@ export interface AppointmentPlanningResource {
   sede_name: string;
   plate: string;
   is_taken: boolean;
+  // Orden de trabajo (Opcional)
+  work_order_id?: string | null;
+  work_order_correlative?: string | null;
 }
 
 export interface AppointmentPlanningRequest {
