@@ -81,19 +81,6 @@ export const workOrderReceptionColumns = ({
     },
   },
   {
-    accessorKey: "actual_delivery_date",
-    header: "Fecha Real Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return formatDate(value);
-      } catch {
-        return value;
-      }
-    },
-  },
-  {
     id: "guarantee_recall",
     header: "Garantía / Recall",
     cell: ({ row }) => {
@@ -130,12 +117,8 @@ export const workOrderReceptionColumns = ({
     },
   },
   {
-    accessorKey: "created_by_name",
-    header: "Creado Por",
-  },
-  {
-    accessorKey: "delivery_by_name",
-    header: "Entregado Por",
+    accessorKey: "advisor_name",
+    header: "Asesor",
   },
   {
     accessorKey: "status.description",

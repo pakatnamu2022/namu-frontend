@@ -12,6 +12,7 @@ import {
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type AppointmentPlanningColumns = ColumnDef<AppointmentPlanningResource>;
 
@@ -30,16 +31,33 @@ export const appointmentPlanningColumns = ({
   permissions,
 }: Props): AppointmentPlanningColumns[] => [
   {
-    accessorKey: "full_name_client",
-    header: "Cliente",
-    cell: ({ getValue }) => {
+    accessorKey: "plate",
+    header: "Placa",
+    cell: ({ row, getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      const { work_order_id, work_order_correlative } = row.original;
+
+      return (
+        <>
+          <CopyCell value={value} />
+          <div className="flex flex-col gap-1 items-start">
+            {work_order_id && (
+              <Link
+                to={`/ap/post-venta/taller/orden-trabajo/gestionar/${work_order_id}`}
+              >
+                <Badge variant="outline" color="gray" size="xs">
+                  {work_order_correlative}
+                </Badge>
+              </Link>
+            )}
+          </div>
+        </>
+      );
     },
   },
   {
-    accessorKey: "plate",
-    header: "Placa",
+    accessorKey: "full_name_client",
+    header: "Cliente",
   },
   {
     accessorKey: "type_planning_name",
@@ -183,14 +201,13 @@ export const appointmentPlanningColumns = ({
             <Download className="size-5" />
           </Button>
 
-          {permissions.canUpdate && (
+          {permissions.canUpdate && !is_taken && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
               tooltip="Editar"
               onClick={() => onUpdate(id)}
-              disabled={is_taken}
             >
               <Pencil className="size-5" />
             </Button>
