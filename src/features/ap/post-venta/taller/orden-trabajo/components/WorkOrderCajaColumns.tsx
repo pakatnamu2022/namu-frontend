@@ -71,19 +71,19 @@ export const workOrderCajaColumns = ({
     },
   },
   {
-    accessorKey: "vehicle_plate",
+    id: "plate_mileage",
     header: "Placa",
-  },
-  {
-    accessorKey: "vehicle_vin",
-    header: "VIN",
-  },
-  {
-    accessorKey: "mileage",
-    header: "Kilometraje",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value ? `${value} km` : "-";
+    cell: ({ row }) => {
+      const plate = row.original.vehicle.plate;
+      const mileage = row.original.mileage;
+      return (
+        <div className="flex flex-col gap-0.5">
+          <CopyCell className="font-semibold" value={plate} />
+          <span className="text-xs text-muted-foreground">
+            {mileage ? `${mileage} km` : "-"}
+          </span>
+        </div>
+      );
     },
   },
   {
