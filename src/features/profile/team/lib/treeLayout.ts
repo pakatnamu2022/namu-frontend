@@ -6,7 +6,7 @@ export const NODE_HEIGHT = 88;
 
 /**
  * Recalcula la posición de todos los nodos/edges del árbol usando dagre
- * (layout jerárquico de arriba hacia abajo).
+ * (layout jerárquico de izquierda a derecha).
  */
 export function layoutHierarchy<T extends Node>(
   nodes: T[],
@@ -15,9 +15,9 @@ export function layoutHierarchy<T extends Node>(
   const graph = new dagre.graphlib.Graph();
   graph.setDefaultEdgeLabel(() => ({}));
   graph.setGraph({
-    rankdir: "TB",
-    nodesep: 48,
-    ranksep: 80,
+    rankdir: "LR",
+    nodesep: 32,
+    ranksep: 120,
   });
 
   nodes.forEach((node) => {
@@ -34,8 +34,8 @@ export function layoutHierarchy<T extends Node>(
     const { x, y } = graph.node(node.id);
     return {
       ...node,
-      targetPosition: Position.Top,
-      sourcePosition: Position.Bottom,
+      targetPosition: Position.Left,
+      sourcePosition: Position.Right,
       position: {
         x: x - NODE_WIDTH / 2,
         y: y - NODE_HEIGHT / 2,

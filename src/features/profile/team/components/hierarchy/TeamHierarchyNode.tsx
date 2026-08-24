@@ -1,5 +1,5 @@
 import { Handle, Position, type NodeProps, type Node } from "@xyflow/react";
-import { ChevronDown, Loader2, User } from "lucide-react";
+import { ChevronRight, Loader2, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { WorkerHierarchyNode } from "../../lib/team-hierarchy.interface";
@@ -9,6 +9,7 @@ export interface TeamHierarchyNodeData {
   isRoot: boolean;
   isExpanded: boolean;
   isLoadingChildren: boolean;
+  isHighlighted?: boolean;
   onConsult: (id: number) => void;
   onExpand: (id: number) => void;
   [key: string]: unknown;
@@ -28,8 +29,15 @@ function getInitials(name: string) {
 export default function TeamHierarchyNode({
   data,
 }: NodeProps<TeamHierarchyFlowNode>) {
-  const { worker, isRoot, isExpanded, isLoadingChildren, onConsult, onExpand } =
-    data;
+  const {
+    worker,
+    isRoot,
+    isExpanded,
+    isLoadingChildren,
+    isHighlighted,
+    onConsult,
+    onExpand,
+  } = data;
 
   return (
     <div
@@ -37,10 +45,11 @@ export default function TeamHierarchyNode({
         "w-[240px] rounded-xl bg-card shadow-md hover:shadow-lg transition-shadow",
         "flex flex-col items-center gap-2 p-4 cursor-pointer",
         isRoot && "ring-2 ring-primary",
+        isHighlighted && "ring-2 ring-amber-400 shadow-lg scale-[1.03]",
       )}
       onClick={() => onConsult(worker.id)}
     >
-      {!isRoot && <Handle type="target" position={Position.Top} />}
+      {!isRoot && <Handle type="target" position={Position.Left} />}
 
       <Avatar className="size-14">
         <AvatarImage src={worker.photo ?? undefined} alt={worker.name} />
@@ -50,11 +59,9 @@ export default function TeamHierarchyNode({
       </Avatar>
 
       <div className="text-center">
-        <p className="text-sm font-semibold leading-tight line-clamp-2">
-          {worker.name}
-        </p>
+        <p className="text-sm font-semibold leading-tight">{worker.name}</p>
         {worker.position && (
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {worker.position}
           </p>
         )}
@@ -76,19 +83,18 @@ export default function TeamHierarchyNode({
           {isLoadingChildren ? (
             <Loader2 className="size-3.5 animate-spin" />
           ) : (
-            <ChevronDown
+            <ChevronRight
               className={cn(
                 "size-3.5 transition-transform",
                 isExpanded && "rotate-180",
               )}
             />
           )}
-          {isExpanded ? "Ocultar equipo" : "Ver equipo"}
         </button>
       )}
 
       {worker.has_subordinates && (
-        <Handle type="source" position={Position.Bottom} />
+        <Handle type="source" position={Position.Right} />
       )}
     </div>
   );

@@ -1,6 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getWorkerSubordinates } from "./team-hierarchy.actions";
-import { WorkerHierarchyNode } from "./team-hierarchy.interface";
+import {
+  getWorkerSubordinates,
+  searchWorkerHierarchy,
+} from "./team-hierarchy.actions";
+import {
+  WorkerHierarchyNode,
+  WorkerHierarchySearchResult,
+} from "./team-hierarchy.interface";
 
 export const workerSubordinatesQueryKey = (id: number) => [
   "worker-subordinates",
@@ -28,4 +34,18 @@ export const useExpandHierarchyNode = () => {
       queryKey: workerSubordinatesQueryKey(id),
       queryFn: () => getWorkerSubordinates(id),
     });
+};
+
+/**
+ * Busca personas por nombre dentro del árbol de jerarquía a partir de la
+ * raíz, para el buscador del árbol.
+ */
+export const useSearchHierarchy = (rootId: number, term: string) => {
+  return useQuery<WorkerHierarchySearchResult[]>({
+    queryKey: ["worker-hierarchy-search", rootId, term],
+    queryFn: () => searchWorkerHierarchy(rootId, term),
+    enabled: term.trim().length >= 2,
+    refetchOnWindowFocus: false,
+    staleTime: 30_000,
+  });
 };

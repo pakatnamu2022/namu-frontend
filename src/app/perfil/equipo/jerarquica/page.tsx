@@ -61,7 +61,7 @@ export default function TeamHierarchyPage() {
       <TeamHierarchyTree
         root={root}
         onConsult={setSelectedPersonId}
-        className="flex-1 min-h-[600px] rounded-xl border bg-muted/20"
+        className="shrink-0 h-[calc(100vh-14rem)] rounded-xl border bg-muted/20"
       />
 
       <TeamHierarchyHistorySheet
