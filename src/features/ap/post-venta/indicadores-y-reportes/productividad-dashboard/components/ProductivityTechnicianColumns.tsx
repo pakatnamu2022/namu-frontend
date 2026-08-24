@@ -54,9 +54,32 @@ export const productivityTechnicianColumns =
       },
     },
     {
+      accessorKey: "real_hours",
+      header: "Horas reales",
+      cell: ({ row }) => {
+        const tech = row.original;
+        if (tech.real_hours === undefined) return "-";
+        return (
+          <span className="font-semibold">{formatHours(tech.real_hours)}</span>
+        );
+      },
+    },
+    {
       accessorKey: "standard_hours",
-      header: "Horas estándar",
-      cell: ({ row }) => formatHours(row.original.standard_hours),
+      header: "Horas estándar (8h)",
+      cell: ({ row }) => {
+        const tech = row.original;
+        return (
+          <div>
+            <div>{formatHours(tech.standard_hours)}</div>
+            {tech.days_worked !== undefined && (
+              <div className="text-xs text-muted-foreground">
+                {tech.days_worked} x 8 = {tech.standard_hours}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "billed_hours",
