@@ -17,6 +17,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { ActiveCampaignAlert } from "@/features/ap/configuraciones/maestros-general/campanas/components/ActiveCampaignAlert";
 import { AP_CLASS_ARTICLE_LUBRICANT_ID } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
@@ -247,6 +248,8 @@ export default function WorkOrderPartsForm({
             <span className="font-semibold">Sede:</span> {sedeName || "N/A"}
           </p>
         </div> */}
+
+        <ActiveCampaignAlert areaId={AREA_TALLER} />
 
         <FormSwitch
           control={form.control}
