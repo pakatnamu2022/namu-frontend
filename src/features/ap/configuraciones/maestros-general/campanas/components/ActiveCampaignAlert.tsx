@@ -54,9 +54,13 @@ export function ActiveCampaignAlert({
     );
   }
 
+  const discountOptionLabel = DISCOUNT_TYPE_OPTIONS.find(
+    (o) => o.value === activeCampaign.discount_type,
+  )?.label;
   const discountLabel =
-    DISCOUNT_TYPE_OPTIONS.find((o) => o.value === activeCampaign.discount_type)
-      ?.label ?? activeCampaign.discount_type;
+    typeof discountOptionLabel === "function"
+      ? discountOptionLabel()
+      : (discountOptionLabel ?? activeCampaign.discount_type);
 
   const discountText = `${activeCampaign.discount_value}${
     activeCampaign.discount_type === "percentage" ? "%" : ""
