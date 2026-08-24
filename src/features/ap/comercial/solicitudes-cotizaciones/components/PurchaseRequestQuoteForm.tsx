@@ -873,8 +873,9 @@ export const PurchaseRequestQuoteForm = ({
             <AlertTitle>Aprobada</AlertTitle>
             <AlertDescription>
               Ya fue aprobada: el precio de venta, el vehículo/modelo y los
-              accesorios ya no se pueden modificar. Aún puedes agregar bonos,
-              ajustar "Otros" (margen) y editar los demás datos.
+              accesorios que afectan el precio ya no se pueden modificar. Aún
+              puedes agregar bonos, obsequios (no afectan el precio), ajustar
+              "Otros" (margen) y editar los demás datos.
             </AlertDescription>
           </Alert>
         )}
@@ -984,7 +985,7 @@ export const PurchaseRequestQuoteForm = ({
                 invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined
               }
               getExchangeRate={getExchangeRate}
-              disabled={priceLocked}
+              lockPaidAccessories={priceLocked}
             />
 
             {/*Seccion Otros Costos Internos — solo ADV (canManage)*/}

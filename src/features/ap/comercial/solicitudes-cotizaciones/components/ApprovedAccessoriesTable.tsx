@@ -10,6 +10,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CreateApprovedAccessoryModal } from "./CreateApprovedAccessoryModal";
 import { AccesorySheet } from "./AccesorySheet";
 import { getApprovedAccessoriesColumns } from "./approvedAccessoriesColumns";
+import { warningToast } from "@/core/core.function";
 
 export interface ApprovedAccessoryRow {
   id: string;
@@ -26,8 +27,12 @@ interface ApprovedAccessoriesTableProps {
   canCreateApprovedAccessory?: boolean;
   invoiceCurrencyId?: number;
   getExchangeRate?: (currencyId: number) => number;
-  /** Cotización ya aprobada: los accesorios quedan fijos, no se pueden agregar/editar/quitar. */
-  disabled?: boolean;
+  /**
+   * Cotización ya aprobada: los accesorios ACCESORIO_ADICIONAL afectan el
+   * precio final y quedan fijos. Los OBSEQUIO no afectan el precio (solo el
+   * margen), así que siguen pudiendo agregarse/editarse/quitarse.
+   */
+  lockPaidAccessories?: boolean;
 }
 
 export const ApprovedAccessoriesTable = ({
@@ -37,7 +42,7 @@ export const ApprovedAccessoriesTable = ({
   canCreateApprovedAccessory = false,
   invoiceCurrencyId,
   getExchangeRate,
-  disabled = false,
+  lockPaidAccessories = false,
 }: ApprovedAccessoriesTableProps) => {
   const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
@@ -66,6 +71,13 @@ export const ApprovedAccessoriesTable = ({
   }, [initialData]);
 
   const handleAdd = (data: Omit<ApprovedAccessoryRow, "id">) => {
+    if (lockPaidAccessories && data.type === "ACCESORIO_ADICIONAL") {
+      warningToast(
+        "Accesorio bloqueado",
+        "La cotización ya está aprobada: solo se pueden agregar obsequios, no accesorios que afecten el precio.",
+      );
+      return;
+    }
     const newRow: ApprovedAccessoryRow = { ...data, id: Date.now().toString() };
     const updatedRows = [...rows, newRow];
     setRows(updatedRows);
@@ -74,6 +86,14 @@ export const ApprovedAccessoriesTable = ({
 
   // Eliminar fila de la tabla
   const eliminarFila = (id: string) => {
+    const row = rows.find((r) => r.id === id);
+    if (lockPaidAccessories && row?.type === "ACCESORIO_ADICIONAL") {
+      warningToast(
+        "Accesorio bloqueado",
+        "La cotización ya está aprobada: este accesorio no se puede eliminar.",
+      );
+      return;
+    }
     const updatedRows = rows.filter((row) => row.id !== id);
     setRows(updatedRows);
 
@@ -90,6 +110,17 @@ export const ApprovedAccessoriesTable = ({
 
   const handleEditSave = (data: Omit<ApprovedAccessoryRow, "id">) => {
     if (!editingRow) return;
+    if (
+      lockPaidAccessories &&
+      (editingRow.type === "ACCESORIO_ADICIONAL" ||
+        data.type === "ACCESORIO_ADICIONAL")
+    ) {
+      warningToast(
+        "Accesorio bloqueado",
+        "La cotización ya está aprobada: este accesorio no se puede modificar.",
+      );
+      return;
+    }
     const updatedRows = rows.map((row) =>
       row.id === editingRow.id ? { ...row, ...data } : row,
     );
@@ -164,7 +195,7 @@ export const ApprovedAccessoriesTable = ({
     findCurrencyBySymbol,
     onEdit: abrirEditarFila,
     onDelete: eliminarFila,
-    disabled,
+    lockPaidAccessories,
   });
 
   return (
@@ -174,17 +205,15 @@ export const ApprovedAccessoriesTable = ({
       color="blue"
       cols={{ sm: 1 }}
       headerExtra={
-        !disabled && (
-          <Button
-            type="button"
-            onClick={() => setIsAddSheetOpen(true)}
-            className="gap-2"
-            size="sm"
-          >
-            <Plus className="h-4 w-4" />
-            Agregar Accesorio / Obsequio
-          </Button>
-        )
+        <Button
+          type="button"
+          onClick={() => setIsAddSheetOpen(true)}
+          className="gap-2"
+          size="sm"
+        >
+          <Plus className="h-4 w-4" />
+          Agregar {lockPaidAccessories ? "Obsequio" : "Accesorio / Obsequio"}
+        </Button>
       }
     >
       <div className="space-y-4 col-span-full">
@@ -265,6 +294,7 @@ export const ApprovedAccessoriesTable = ({
           canCreateApprovedAccessory={canCreateApprovedAccessory}
           onOpenCreateModal={() => setIsCreateModalOpen(true)}
           initialAccessoryId={pendingAccessoryId}
+          lockPaidAccessories={lockPaidAccessories}
         />
 
         {/* Sheet para editar accesorio/obsequio */}
@@ -278,6 +308,7 @@ export const ApprovedAccessoriesTable = ({
           editingRow={editingRow}
           accessories={accessories}
           rows={rows}
+          lockPaidAccessories={lockPaidAccessories}
         />
       </div>
     </GroupFormSection>
