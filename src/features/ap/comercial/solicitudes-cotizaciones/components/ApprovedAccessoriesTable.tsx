@@ -26,6 +26,8 @@ interface ApprovedAccessoriesTableProps {
   canCreateApprovedAccessory?: boolean;
   invoiceCurrencyId?: number;
   getExchangeRate?: (currencyId: number) => number;
+  /** Cotización ya aprobada: los accesorios quedan fijos, no se pueden agregar/editar/quitar. */
+  disabled?: boolean;
 }
 
 export const ApprovedAccessoriesTable = ({
@@ -35,6 +37,7 @@ export const ApprovedAccessoriesTable = ({
   canCreateApprovedAccessory = false,
   invoiceCurrencyId,
   getExchangeRate,
+  disabled = false,
 }: ApprovedAccessoriesTableProps) => {
   const { data: allCurrencyTypes = [] } = useAllCurrencyTypes();
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
@@ -161,6 +164,7 @@ export const ApprovedAccessoriesTable = ({
     findCurrencyBySymbol,
     onEdit: abrirEditarFila,
     onDelete: eliminarFila,
+    disabled,
   });
 
   return (
@@ -170,15 +174,17 @@ export const ApprovedAccessoriesTable = ({
       color="blue"
       cols={{ sm: 1 }}
       headerExtra={
-        <Button
-          type="button"
-          onClick={() => setIsAddSheetOpen(true)}
-          className="gap-2"
-          size="sm"
-        >
-          <Plus className="h-4 w-4" />
-          Agregar Accesorio / Obsequio
-        </Button>
+        !disabled && (
+          <Button
+            type="button"
+            onClick={() => setIsAddSheetOpen(true)}
+            className="gap-2"
+            size="sm"
+          >
+            <Plus className="h-4 w-4" />
+            Agregar Accesorio / Obsequio
+          </Button>
+        )
       }
     >
       <div className="space-y-4 col-span-full">

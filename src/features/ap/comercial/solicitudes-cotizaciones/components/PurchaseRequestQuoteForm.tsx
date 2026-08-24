@@ -10,6 +10,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Handshake } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -55,6 +56,10 @@ interface PurchaseRequestQuoteFormProps {
   mode?: "create" | "update";
   opportunity?: OpportunityResource;
   onCancel: () => void;
+  /** Ya fue aprobada (con o sin facturar). Bloquea precio/vehículo/accesorios/descuentos. */
+  isApproved?: boolean;
+  /** Pagada en su totalidad. Bloquea todo el formulario. */
+  isPaid?: boolean;
 }
 
 export const PurchaseRequestQuoteForm = ({
@@ -64,7 +69,14 @@ export const PurchaseRequestQuoteForm = ({
   mode = "create",
   opportunity,
   onCancel,
+  isApproved = false,
+  isPaid = false,
 }: PurchaseRequestQuoteFormProps) => {
+  // Una vez aprobada (y mientras no esté pagada en su totalidad), el precio de
+  // venta, el vehículo/modelo y los accesorios quedan fijos: solo se permite
+  // agregar bonos y ajustar "Otros" (margen).
+  const priceLocked = mode === "update" && isApproved && !isPaid;
+  const fullyLocked = mode === "update" && isPaid;
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
@@ -847,6 +859,29 @@ export const PurchaseRequestQuoteForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="w-full">
+        {fullyLocked && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>Pagada en su totalidad</AlertTitle>
+            <AlertDescription>
+              Esta {form.watch("type_document") === "COTIZACION" ? "cotización" : "solicitud de compra"} ya
+              fue pagada en su totalidad y no puede modificarse.
+            </AlertDescription>
+          </Alert>
+        )}
+        {priceLocked && (
+          <Alert variant="warning" className="mb-6">
+            <AlertTitle>Aprobada</AlertTitle>
+            <AlertDescription>
+              Ya fue aprobada: el precio de venta, el vehículo/modelo y los
+              accesorios ya no se pueden modificar. Aún puedes agregar bonos,
+              ajustar "Otros" (margen) y editar los demás datos.
+            </AlertDescription>
+          </Alert>
+        )}
+        <fieldset
+          disabled={fullyLocked}
+          className="contents m-0 p-0 border-0 min-w-0"
+        >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna izquierda: Formulario (3 cols) */}
           <div className="lg:col-span-2 space-y-6">
@@ -895,6 +930,7 @@ export const PurchaseRequestQuoteForm = ({
                 holderDefaultOption={holderDefaultOption}
                 setSelectedHolder={setSelectedHolder}
                 currencyTypes={currencyTypes}
+                disableCurrency={priceLocked}
               />
             </div>
 
@@ -918,6 +954,7 @@ export const PurchaseRequestQuoteForm = ({
               modelVnWatch={modelVnWatch}
               selectedModel={selectedModel}
               billedCost={billedCost}
+              disabled={priceLocked}
             />
 
             {/*Seccion Créditos, Seguros y GPS*/}
@@ -934,6 +971,7 @@ export const PurchaseRequestQuoteForm = ({
               currencySymbol={currencySymbol}
               onRowsChange={setBonusDiscountRows}
               initialData={initialBonusDiscounts}
+              lockDiscounts={priceLocked}
             />
 
             {/*Seccion Accesorios Homologados*/}
@@ -946,6 +984,7 @@ export const PurchaseRequestQuoteForm = ({
                 invoiceCurrencyId ? Number(invoiceCurrencyId) : undefined
               }
               getExchangeRate={getExchangeRate}
+              disabled={priceLocked}
             />
 
             {/*Seccion Otros Costos Internos — solo ADV (canManage)*/}
@@ -999,6 +1038,7 @@ export const PurchaseRequestQuoteForm = ({
             />
           </div>
         </div>
+        </fieldset>
       </form>
       <VehicleColorModal
         open={isColorModalOpen}

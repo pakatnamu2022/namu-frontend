@@ -10,6 +10,7 @@ import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluat
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { getBonusDiscountColumns } from "./bonusDiscountColumns";
 import { BonusDiscountSheet } from "./BonusDiscountSheet";
+import { warningToast } from "@/core/core.function";
 
 export interface BonusDiscountRow {
   id: string;
@@ -31,6 +32,8 @@ interface BonusDiscountTableProps {
   onRowsChange?: (rows: BonusDiscountRow[]) => void;
   title?: string;
   initialData?: BonusDiscountRow[];
+  /** Cotización ya aprobada: los descuentos existentes quedan fijos, solo se permite agregar/editar bonos. */
+  lockDiscounts?: boolean;
 }
 
 export const BonusDiscountTable = ({
@@ -40,6 +43,7 @@ export const BonusDiscountTable = ({
   onRowsChange,
   title = "Bonos / Descuentos",
   initialData = [],
+  lockDiscounts = false,
 }: BonusDiscountTableProps) => {
   const [rows, setRows] = useState<BonusDiscountRow[]>(initialData);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
@@ -59,11 +63,25 @@ export const BonusDiscountTable = ({
   };
 
   const handleAdd = (values: Omit<BonusDiscountRow, "id">) => {
+    if (lockDiscounts && values.isNegative) {
+      warningToast(
+        "Descuentos bloqueados",
+        "La cotización ya está aprobada: solo se pueden agregar bonos, no descuentos.",
+      );
+      return;
+    }
     updateRows([...rows, { ...values, id: Date.now().toString() }]);
   };
 
   const handleEdit = (values: Omit<BonusDiscountRow, "id">) => {
     if (!editingRow) return;
+    if (lockDiscounts && (editingRow.isNegative || values.isNegative)) {
+      warningToast(
+        "Descuento bloqueado",
+        "La cotización ya está aprobada: los descuentos existentes no se pueden modificar.",
+      );
+      return;
+    }
     updateRows(
       rows.map((row) =>
         row.id === editingRow.id ? { ...values, id: row.id } : row,
@@ -78,6 +96,14 @@ export const BonusDiscountTable = ({
   };
 
   const handleDelete = (id: string) => {
+    const row = rows.find((r) => r.id === id);
+    if (lockDiscounts && row?.isNegative) {
+      warningToast(
+        "Descuento bloqueado",
+        "La cotización ya está aprobada: los descuentos existentes no se pueden eliminar.",
+      );
+      return;
+    }
     updateRows(rows.filter((row) => row.id !== id));
   };
 
@@ -95,6 +121,7 @@ export const BonusDiscountTable = ({
     costoReferencia,
     onEdit: handleOpenEdit,
     onDelete: handleDelete,
+    lockDiscounts,
   });
 
   return (
