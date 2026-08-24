@@ -58,9 +58,9 @@ export function ActiveCampaignAlert({
     (o) => o.value === activeCampaign.discount_type,
   )?.label;
   const discountLabel =
-    typeof discountOptionLabel === "function"
-      ? discountOptionLabel()
-      : (discountOptionLabel ?? activeCampaign.discount_type);
+    typeof discountOptionLabel === "string"
+      ? discountOptionLabel
+      : activeCampaign.discount_type;
 
   const discountText = `${activeCampaign.discount_value}${
     activeCampaign.discount_type === "percentage" ? "%" : ""

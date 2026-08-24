@@ -56,6 +56,10 @@ export const vehicleDeliverySchemaCreate = z
     ap_class_article_id: requiredStringId("La clase de artículo es requerida"),
     observations: z.string().min(1, "Las observaciones son requeridas"),
     is_extraordinary: z.boolean().optional(),
+    extraordinary_reason: z
+      .string()
+      .max(500, "El motivo no puede exceder 500 caracteres")
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const result = data.is_extraordinary
@@ -65,6 +69,13 @@ export const vehicleDeliverySchemaCreate = z
       for (const issue of result.error.issues) {
         ctx.addIssue({ ...issue, path: ["scheduled_delivery_date"] });
       }
+    }
+    if (data.is_extraordinary && !data.extraordinary_reason?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "El motivo de la entrega extraordinaria es obligatorio",
+        path: ["extraordinary_reason"],
+      });
     }
   });
 
@@ -85,6 +96,10 @@ export const vehicleDeliveryRescheduleSchema = z
       .max(500, "Las observaciones no pueden exceder 500 caracteres")
       .optional(),
     is_extraordinary: z.boolean().optional(),
+    extraordinary_reason: z
+      .string()
+      .max(500, "El motivo no puede exceder 500 caracteres")
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const result = data.is_extraordinary
@@ -94,6 +109,13 @@ export const vehicleDeliveryRescheduleSchema = z
       for (const issue of result.error.issues) {
         ctx.addIssue({ ...issue, path: ["scheduled_delivery_date"] });
       }
+    }
+    if (data.is_extraordinary && !data.extraordinary_reason?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "El motivo de la entrega extraordinaria es obligatorio",
+        path: ["extraordinary_reason"],
+      });
     }
   });
 

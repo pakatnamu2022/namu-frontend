@@ -141,6 +141,14 @@ export default function VehicleDeliveryApprovalPage(): JSX.Element {
                   </p>
                 </div>
               </div>
+              {vehicleDelivery.extraordinary_reason && (
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Motivo de la entrega extraordinaria
+                  </p>
+                  <p className="text-sm">{vehicleDelivery.extraordinary_reason}</p>
+                </div>
+              )}
               {vehicleDelivery.observations && (
                 <div>
                   <p className="text-xs text-muted-foreground">Observaciones</p>

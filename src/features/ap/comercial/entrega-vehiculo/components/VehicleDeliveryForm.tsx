@@ -342,6 +342,17 @@ export const VehicleDeliveryForm = ({
               }
             />
           </div>
+
+          {mode === "create" && !isSupplier && watchIsExtraordinary && (
+            <FormTextArea
+              name="extraordinary_reason"
+              label="Motivo de la entrega extraordinaria"
+              placeholder="Ingrese el motivo por el cual se solicita la entrega extraordinaria"
+              control={form.control}
+              maxLength={500}
+              uppercase
+            />
+          )}
         </div>
 
         {/* ── Panel de vehículo ──────────────────────────────────────── */}

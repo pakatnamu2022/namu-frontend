@@ -263,6 +263,17 @@ export function VehicleDeliveryDetailsSheet({
                       )}
                     />
                   </div>
+                  {vehicleDelivery.is_extraordinary &&
+                    vehicleDelivery.extraordinary_reason && (
+                      <div className="mt-1.5">
+                        <p className="text-xs text-muted-foreground">
+                          Motivo de la entrega extraordinaria
+                        </p>
+                        <p className="mt-0.5 text-sm">
+                          {vehicleDelivery.extraordinary_reason}
+                        </p>
+                      </div>
+                    )}
                   {vehicleDelivery.observations && (
                     <div className="mt-1.5">
                       <p className="text-xs text-muted-foreground">

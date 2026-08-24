@@ -99,7 +99,7 @@ export function ScheduledDeliveryPicker<T extends FieldValues>({
     : undefined;
 
   const { data: slotsResponse, isFetching: isLoadingSlots } =
-    useAvailableDeliverySlots(calendarDayStr, shopId);
+    useAvailableDeliverySlots(calendarDayStr, shopId, allowUnavailableSlots);
 
   const daySlots = slotsResponse?.slots ?? [];
 

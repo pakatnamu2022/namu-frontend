@@ -63,6 +63,7 @@ export const useRescheduleVehicleDelivery = () => {
         scheduled_delivery_date: string;
         observations?: string;
         is_extraordinary?: boolean;
+        extraordinary_reason?: string;
       };
     }) => rescheduleVehicleDelivery(id, data),
     onSuccess: () => {
@@ -203,10 +204,21 @@ export const useSyncShippingGuideWithDynamics = () => {
   });
 };
 
-export const useAvailableDeliverySlots = (date?: string, shopId?: number) => {
+export const useAvailableDeliverySlots = (
+  date?: string,
+  shopId?: number,
+  isExtraordinary?: boolean
+) => {
   return useQuery({
-    queryKey: [QUERY_KEY, "available-slots", date, shopId],
-    queryFn: () => getAvailableDeliverySlots(date!, shopId),
+    queryKey: [
+      QUERY_KEY,
+      "available-slots",
+      date,
+      shopId,
+      isExtraordinary,
+    ],
+    queryFn: () =>
+      getAvailableDeliverySlots(date!, shopId, isExtraordinary),
     enabled: !!date,
     refetchOnWindowFocus: false,
   });
