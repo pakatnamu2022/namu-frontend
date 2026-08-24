@@ -66,6 +66,7 @@ import VehicleRepuestosModal from "@/features/ap/comercial/vehiculos/components/
 import { FormTextArea } from "@/shared/components/FormTextArea";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useActiveCampaign } from "@/features/ap/configuraciones/maestros-general/campanas/lib/campaign.hook";
+import { ActiveCampaignAlert } from "@/features/ap/configuraciones/maestros-general/campanas/components/ActiveCampaignAlert";
 import { ITEM_TYPE_PRODUCT } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import {
@@ -641,6 +642,8 @@ export default function ProformaMesonForm({
         )}
 
         {/* Sección de Repuestos */}
+
+        <ActiveCampaignAlert areaId={AREA_MESON} className="mb-4" />
 
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">

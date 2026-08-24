@@ -165,6 +165,7 @@ import TrainingPage from "./app/perfil/capacitaciones/page.tsx";
 import DocumentPage from "./app/perfil/documentos/page.tsx";
 import TeamPage from "./app/perfil/equipo/page.tsx";
 import TeamIndicatorsPage from "./app/perfil/equipo/indicadores/page.tsx";
+import TeamHierarchyPage from "./app/perfil/equipo/jerarquica/page.tsx";
 import NamuPerformancePage from "./app/perfil/equipo/[id]/page.tsx";
 import NamuPerformanceEvaluationPage from "./app/perfil/equipo/[id]/evaluar/page.tsx";
 import NamuPerformanceHistoryPage from "./app/perfil/equipo/[id]/historial/page.tsx";
@@ -652,6 +653,10 @@ function App() {
               <Route
                 path="equipo/indicadores"
                 element={<TeamIndicatorsPage />}
+              />
+              <Route
+                path="equipo/jerarquica"
+                element={<TeamHierarchyPage />}
               />
               <Route path="equipo/:id" element={<NamuPerformancePage />} />
               <Route
