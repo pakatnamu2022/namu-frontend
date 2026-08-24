@@ -18,6 +18,8 @@ interface AccesorySheetProps {
   canCreateApprovedAccessory?: boolean;
   onOpenCreateModal?: () => void;
   initialAccessoryId?: number;
+  /** Cotización aprobada: solo se permite agregar/editar obsequios (no afectan el precio). */
+  lockPaidAccessories?: boolean;
 }
 
 const EMPTY_FORM = {
@@ -37,10 +39,16 @@ export function AccesorySheet({
   canCreateApprovedAccessory = false,
   onOpenCreateModal,
   initialAccessoryId,
+  lockPaidAccessories = false,
 }: AccesorySheetProps) {
   const isEditing = !!editingRow;
+  // Con la cotización aprobada, un nuevo registro solo puede ser obsequio
+  // (no afecta el precio final); el tipo queda fijo y no seleccionable.
+  const forceGiftType = lockPaidAccessories && !isEditing;
 
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(
+    forceGiftType ? { ...EMPTY_FORM, type: "OBSEQUIO" as const } : EMPTY_FORM,
+  );
   const [errors, setErrors] = useState({
     accessory_id: false,
     accessory_duplicate: false,
@@ -59,6 +67,14 @@ export function AccesorySheet({
     }
   }, [editingRow]);
 
+  // Al abrir para agregar (no editar), partir de un formulario limpio,
+  // forzando el tipo a OBSEQUIO cuando la cotización ya está aprobada.
+  useEffect(() => {
+    if (open && !editingRow) {
+      setForm(forceGiftType ? { ...EMPTY_FORM, type: "OBSEQUIO" } : EMPTY_FORM);
+    }
+  }, [open, editingRow, forceGiftType]);
+
   useEffect(() => {
     if (open && !editingRow && initialAccessoryId) {
       setForm((prev) => ({ ...prev, accessory_id: initialAccessoryId }));
@@ -66,7 +82,7 @@ export function AccesorySheet({
   }, [open, editingRow, initialAccessoryId]);
 
   const handleClose = () => {
-    setForm(EMPTY_FORM);
+    setForm(forceGiftType ? { ...EMPTY_FORM, type: "OBSEQUIO" } : EMPTY_FORM);
     setErrors({ accessory_id: false, accessory_duplicate: false, quantity: false });
     onClose();
   };
@@ -120,6 +136,7 @@ export function AccesorySheet({
               type: value as "ACCESORIO_ADICIONAL" | "OBSEQUIO",
             });
           }}
+          disabled={lockPaidAccessories}
           options={[
             { label: "Accesorio Adicional", value: "ACCESORIO_ADICIONAL" },
             { label: "Obsequio", value: "OBSEQUIO" },

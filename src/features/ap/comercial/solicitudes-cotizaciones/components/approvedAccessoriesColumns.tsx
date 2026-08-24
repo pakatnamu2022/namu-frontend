@@ -24,7 +24,8 @@ interface GetColumnsParams {
   findCurrencyBySymbol: (symbol?: string) => CurrencyType | undefined;
   onEdit: (row: ApprovedAccessoryRow) => void;
   onDelete: (id: string) => void;
-  disabled?: boolean;
+  /** Cotización aprobada: bloquea solo las filas ACCESORIO_ADICIONAL (afectan el precio); los OBSEQUIO siguen editables. */
+  lockPaidAccessories?: boolean;
 }
 
 export function getApprovedAccessoriesColumns({
@@ -36,7 +37,7 @@ export function getApprovedAccessoriesColumns({
   findCurrencyBySymbol,
   onEdit,
   onDelete,
-  disabled = false,
+  lockPaidAccessories = false,
 }: GetColumnsParams): ColumnDef<ApprovedAccessoryRow>[] {
   return [
     {
@@ -197,8 +198,12 @@ export function getApprovedAccessoriesColumns({
       id: "actions",
       header: "Acciones",
       cell: ({ row }) => {
-        if (disabled) {
-          return <span className="block text-center text-xs text-muted-foreground">—</span>;
+        if (lockPaidAccessories && row.original.type === "ACCESORIO_ADICIONAL") {
+          return (
+            <span className="block text-center text-xs text-muted-foreground">
+              Bloqueado
+            </span>
+          );
         }
         return (
           <div className="flex items-center justify-center gap-1">
