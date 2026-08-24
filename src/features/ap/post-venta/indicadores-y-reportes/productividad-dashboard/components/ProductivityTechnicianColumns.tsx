@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatHours } from "@/core/core.function";
 import { ProductivityTechnicianDetail } from "../lib/productivityDashboard.interface";
 import {
   PRODUCTIVITY_STATUS_BADGE_COLOR,
@@ -16,12 +17,6 @@ const formatCurrency = (value: number) =>
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value)}`;
-
-const formatHours = (value: number) =>
-  `${new Intl.NumberFormat("es-PE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  }).format(value)} h`;
 
 export const productivityTechnicianColumns =
   (): ProductivityTechnicianColumn[] => [
@@ -74,7 +69,7 @@ export const productivityTechnicianColumns =
             <div>{formatHours(tech.standard_hours)}</div>
             {tech.days_worked !== undefined && (
               <div className="text-xs text-muted-foreground">
-                {tech.days_worked} x 8 = {tech.standard_hours}
+                {tech.days_worked}d x 8h = {tech.standard_hours}
               </div>
             )}
           </div>
@@ -102,8 +97,8 @@ export const productivityTechnicianColumns =
               tech.productivity_hours < 0 ? "text-red-600" : "text-green-600",
             )}
           >
-            {tech.productivity_hours >= 0 ? "+" : ""}
-            {formatHours(tech.productivity_hours)} ·{" "}
+            {tech.productivity_hours >= 0 ? "+" : "-"}
+            {formatHours(Math.abs(tech.productivity_hours))} ·{" "}
             {tech.productivity_percentage}%
           </span>
         );
